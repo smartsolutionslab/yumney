@@ -332,7 +332,31 @@ feature/*     → Feature branches (PR target: develop)
 - Merge to `main` triggers CI/CD pipeline → **Production**
 - Feature branches are created from and merged back into `develop`
 
-### ALWAYS REBASE – no merge commits, no squash
+### Developer Workflow
+
+Every piece of work follows this process:
+
+#### 1. Pick a User Story
+- Select a story from the GitHub Project board (e.g. `US-010`)
+- Assign the issue to yourself → status **In Progress**
+
+#### 2. Create Feature Branch
+- Always branch from `develop`
+- Branch naming: `{type}/{US-ID}-{short-description}`
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feat/US-010-url-input
+```
+
+#### 3. Implement
+- Follow all architecture, DDD, and code style rules in this document
+- Write tests alongside implementation (TDD encouraged)
+- Commit often using Conventional Commits
+- Reference the story in commits: `feat(recipes): add URL validation (US-010)`
+
+#### 4. Keep Branch Up to Date (ALWAYS REBASE)
 
 ```bash
 git fetch origin
@@ -340,20 +364,50 @@ git rebase origin/develop
 git push --force-with-lease
 ```
 
-- All changes via Pull Request with min. 1 approval
+- **No merge commits, no squash**
+- Resolve conflicts during rebase
+
+#### 5. Create Pull Request → `develop`
+- PR title: `feat(scope): short description (US-XXX)`
+- PR body: link to issue, summary of changes, test plan
+- Assign reviewer, link the GitHub issue
 - CI must be green before merge
-- PR setting: Rebase and fast-forward ONLY
-- Branch naming: `{type}/{US-ID}-{description}`
-- Feature branches short-lived (max 3 days)
+- Min. 1 approval required
+- PR setting: **Rebase and fast-forward ONLY**
+
+#### 6. After Merge
+- Feature branch is deleted
+- Issue is moved to **Done** on the project board
+- Changes are deployed to **Staging** automatically
+
+#### 7. Release to Production
+- PR from `develop` → `main`
+- After merge → deployed to **Production**
+
+### Branch Naming
+
+```
+feat/US-010-url-input          # New feature
+fix/US-041-checkbox-state      # Bug fix
+refactor/US-034-search-query   # Refactoring
+test/US-011-extraction-tests   # Tests only
+chore/US-000-update-deps       # Maintenance
+```
 
 ### Conventional Commits
 
 ```
-<type>(<scope>): <description>
+<type>(<scope>): <description> (US-XXX)
 
 Types: feat, fix, refactor, test, docs, style, chore, perf, ci
 Scopes: recipes, shopping, account, shared, api, shell, infra
 ```
+
+### Rules
+- Feature branches are short-lived (max 3 days)
+- One story per feature branch – no mixing
+- No direct pushes to `develop` or `main`
+- Every PR must reference its user story issue
 
 ## Testing
 
