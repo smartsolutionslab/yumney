@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="..\Yumney.ServiceDefaults\Yumney.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Yumney.Modules.Recipes\Yumney.Modules.Recipes.csproj" />
+    <ProjectReference Include="..\Yumney.Modules.Shopping\Yumney.Modules.Shopping.csproj" />
+    <ProjectReference Include="..\Yumney.Modules.Users\Yumney.Modules.Users.csproj" />
+    <ProjectReference Include="..\Yumney.Shared\Yumney.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+  </ItemGroup>
+</Project>
