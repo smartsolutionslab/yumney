@@ -318,15 +318,28 @@ _logger.LogInformation($"Recipe {id} imported from {url}");
 
 ## Git Workflow
 
+### Branch Strategy
+
+```
+main          → Production (protected, deploy to production)
+develop       → Staging (protected, deploy to staging)
+feature/*     → Feature branches (PR target: develop)
+```
+
+- `main` is protected – no direct push, only PRs from `develop`
+- `develop` is protected – no direct push, only PRs from feature branches
+- Merge to `develop` triggers CI/CD pipeline → **Staging**
+- Merge to `main` triggers CI/CD pipeline → **Production**
+- Feature branches are created from and merged back into `develop`
+
 ### ALWAYS REBASE – no merge commits, no squash
 
 ```bash
 git fetch origin
-git rebase origin/main
+git rebase origin/develop
 git push --force-with-lease
 ```
 
-- `main` is protected – no direct push
 - All changes via Pull Request with min. 1 approval
 - CI must be green before merge
 - PR setting: Rebase and fast-forward ONLY
