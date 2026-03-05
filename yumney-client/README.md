@@ -5,7 +5,7 @@
 ✨ A repository showcasing key [Nx](https://nx.dev) features for Angular monorepos ✨
 ## Finish your Nx platform setup
 
-🚀 [Finish setting up your workspace](https://cloud.nx.app/connect/KBsb5aSxPf) to get faster builds with remote caching, distributed task execution, and self-healing CI. [Learn more about Nx Cloud](https://nx.dev/ci/intro/why-nx-cloud).
+🚀 [Finish setting up your workspace](https://cloud.nx.app/connect/ldpw8xrCOh) to get faster builds with remote caching, distributed task execution, and self-healing CI. [Learn more about Nx Cloud](https://nx.dev/ci/intro/why-nx-cloud).
 
 ## 📦 Project Overview
 
