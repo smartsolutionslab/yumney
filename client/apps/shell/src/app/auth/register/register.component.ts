@@ -8,12 +8,13 @@ import {
   ValidationErrors,
 } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
 
 @Component({
   selector: 'yn-register',
-  imports: [ReactiveFormsModule, TranslocoModule],
+  imports: [ReactiveFormsModule, TranslocoModule, RouterLink],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -13,7 +13,8 @@
       "submitting": "Creating account...",
       "success": {
         "title": "Check your email",
-        "message": "We've sent a verification link to your email address. Please click it to activate your account."
+        "message": "We've sent a verification link to your email address. Please click it to activate your account.",
+        "resendLink": "Didn't receive the email? Resend verification email"
       },
       "errors": {
         "emailRequired": "Email is required.",
@@ -28,6 +29,26 @@
         "passwordsMismatch": "Passwords do not match.",
         "emailAlreadyExists": "A user with this email address already exists.",
         "validationFailed": "Please check your input and try again.",
+        "generic": "An unexpected error occurred. Please try again later."
+      }
+    },
+    "resendVerification": {
+      "title": "Resend Verification Email",
+      "subtitle": "Enter your email address and we'll send you a new verification link",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Resend Verification Email",
+      "submitting": "Sending...",
+      "backToRegister": "Back to registration",
+      "success": {
+        "title": "Email sent",
+        "message": "If this email is registered, a verification email has been sent. Please check your inbox."
+      },
+      "errors": {
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Please enter a valid email address.",
+        "emailMaxLength": "Email must not exceed 254 characters.",
+        "serviceUnavailable": "The service is temporarily unavailable. Please try again later.",
         "generic": "An unexpected error occurred. Please try again later."
       }
     }

@@ -13,7 +13,8 @@
       "submitting": "Konto wird erstellt...",
       "success": {
         "title": "Überprüfe deine E-Mails",
-        "message": "Wir haben dir einen Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke darauf, um dein Konto zu aktivieren."
+        "message": "Wir haben dir einen Bestätigungslink an deine E-Mail-Adresse gesendet. Bitte klicke darauf, um dein Konto zu aktivieren.",
+        "resendLink": "Keine E-Mail erhalten? Bestätigungsmail erneut senden"
       },
       "errors": {
         "emailRequired": "E-Mail ist erforderlich.",
@@ -28,6 +29,26 @@
         "passwordsMismatch": "Passwörter stimmen nicht überein.",
         "emailAlreadyExists": "Ein Benutzer mit dieser E-Mail-Adresse existiert bereits.",
         "validationFailed": "Bitte überprüfe deine Eingaben und versuche es erneut.",
+        "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
+      }
+    },
+    "resendVerification": {
+      "title": "Bestätigungsmail erneut senden",
+      "subtitle": "Gib deine E-Mail-Adresse ein und wir senden dir einen neuen Bestätigungslink",
+      "email": "E-Mail",
+      "emailPlaceholder": "du@beispiel.de",
+      "submit": "Bestätigungsmail erneut senden",
+      "submitting": "Wird gesendet...",
+      "backToRegister": "Zurück zur Registrierung",
+      "success": {
+        "title": "E-Mail gesendet",
+        "message": "Wenn diese E-Mail-Adresse registriert ist, wurde eine Bestätigungsmail gesendet. Bitte überprüfe deinen Posteingang."
+      },
+      "errors": {
+        "emailRequired": "E-Mail ist erforderlich.",
+        "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
+        "emailMaxLength": "E-Mail darf maximal 254 Zeichen lang sein.",
+        "serviceUnavailable": "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
         "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
       }
     }
