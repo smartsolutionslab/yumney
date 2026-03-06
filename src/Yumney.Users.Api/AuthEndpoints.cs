@@ -18,6 +18,10 @@ public static class AuthEndpoints
             .AllowAnonymous()
             .WithName("RegisterUser");
 
+        group.MapPost("/resend-verification-email", ResendVerificationEmailAsync)
+            .AllowAnonymous()
+            .WithName("ResendVerificationEmail");
+
         return app;
     }
 
@@ -50,5 +54,34 @@ public static class AuthEndpoints
         }
 
         return Results.Created("/auth/register", result.Value);
+    }
+
+    private static async Task<IResult> ResendVerificationEmailAsync(
+        ResendVerificationEmailCommand command,
+        IValidator<ResendVerificationEmailCommand> validator,
+        ICommandHandler<ResendVerificationEmailCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await validator.ValidateAsync(command, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            return Results.ValidationProblem(validationResult.ToDictionary());
+        }
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error switch
+            {
+                VerificationErrors.IdentityProviderUnavailable =>
+                    Results.Problem("Identity provider is unavailable.", statusCode: 503),
+                _ =>
+                    Results.Ok(new { message = "If this email is registered, a verification email has been sent." }),
+            };
+        }
+
+        return Results.Ok(new { message = "If this email is registered, a verification email has been sent." });
     }
 }

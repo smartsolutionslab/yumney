@@ -43,6 +43,7 @@ builder.Services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>(
 
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserCommandValidator>();
 builder.Services.AddScoped<ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>, RegisterUserCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<ResendVerificationEmailCommand, Result>, ResendVerificationEmailCommandHandler>();
 
 builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client => { client.BaseAddress = new Uri("https+http://keycloak"); })
 .AddStandardResilienceHandler();
