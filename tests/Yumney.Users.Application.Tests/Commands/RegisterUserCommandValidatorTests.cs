@@ -59,4 +59,77 @@ public class RegisterUserCommandValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "DisplayName");
     }
+
+    [Theory]
+    [InlineData("user+test@example.com")]
+    [InlineData("user.name@example.com")]
+    [InlineData("user_name@example.co.uk")]
+    public void Validate_EmailWithSpecialChars_IsValid(string email)
+    {
+        var command = new RegisterUserCommand(email, "Password1", "Test User");
+
+        var result = sut.Validate(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_EmailAtMaxLength_IsValid()
+    {
+        var localPart = new string('a', 242);
+        var email = $"{localPart}@example.com";
+
+        var command = new RegisterUserCommand(email, "Password1", "Test User");
+
+        var result = sut.Validate(command);
+
+        result.Errors.Should().NotContain(e => e.PropertyName == "Email" && e.ErrorCode == "MaximumLengthValidator");
+    }
+
+    [Fact]
+    public void Validate_EmailExceedsMaxLength_IsNotValid()
+    {
+        var localPart = new string('a', 243);
+        var email = $"{localPart}@example.com";
+
+        var command = new RegisterUserCommand(email, "Password1", "Test User");
+
+        var result = sut.Validate(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Email");
+    }
+
+    [Fact]
+    public void Validate_DisplayNameAtMaxLength_IsValid()
+    {
+        var displayName = new string('A', 200);
+        var command = new RegisterUserCommand("test@example.com", "Password1", displayName);
+
+        var result = sut.Validate(command);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_DisplayNameExceedsMaxLength_IsNotValid()
+    {
+        var displayName = new string('A', 201);
+        var command = new RegisterUserCommand("test@example.com", "Password1", displayName);
+
+        var result = sut.Validate(command);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "DisplayName");
+    }
+
+    [Fact]
+    public void Validate_PasswordAtMinLength_IsValid()
+    {
+        var command = new RegisterUserCommand("test@example.com", "Abcdef1x", "Test User");
+
+        var result = sut.Validate(command);
+
+        result.IsValid.Should().BeTrue();
+    }
 }

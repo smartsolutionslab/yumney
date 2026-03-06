@@ -69,4 +69,50 @@ public class RegisterUserCommandHandlerTests
             Arg.Any<AppUserProfile>(),
             Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task HandleAsync_IdentityProviderUnavailable_ReturnsFailureWithCorrectError()
+    {
+        var command = new RegisterUserCommand("test@example.com", "Password1", "Test User");
+
+        keycloakAdmin
+            .CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())
+            .Returns(Result<string>.Failure(RegistrationErrors.IdentityProviderUnavailable));
+
+        var result = await sut.HandleAsync(command);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(RegistrationErrors.IdentityProviderUnavailable);
+    }
+
+    [Fact]
+    public async Task HandleAsync_UserCreationFailed_ReturnsFailureWithCorrectError()
+    {
+        var command = new RegisterUserCommand("test@example.com", "Password1", "Test User");
+
+        keycloakAdmin
+            .CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())
+            .Returns(Result<string>.Failure(RegistrationErrors.UserCreationFailed));
+
+        var result = await sut.HandleAsync(command);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(RegistrationErrors.UserCreationFailed);
+    }
+
+    [Fact]
+    public async Task HandleAsync_KeycloakReturnsFailure_DoesNotCallAddAsync()
+    {
+        var command = new RegisterUserCommand("test@example.com", "Password1", "Test User");
+
+        keycloakAdmin
+            .CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())
+            .Returns(Result<string>.Failure(RegistrationErrors.IdentityProviderUnavailable));
+
+        await sut.HandleAsync(command);
+
+        await users.DidNotReceive().AddAsync(
+            Arg.Any<AppUserProfile>(),
+            Arg.Any<CancellationToken>());
+    }
 }
