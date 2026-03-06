@@ -1,0 +1,40 @@
+using Microsoft.Extensions.Logging;
+using Yumney.Shared.Common;
+using Yumney.Shared.CQRS;
+using Yumney.Users.Application.Interfaces;
+using Yumney.Users.Domain.AppUserProfile;
+
+namespace Yumney.Users.Application.Commands;
+
+#pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
+public sealed partial class RegisterUserCommandHandler(
+    IKeycloakAdminService keycloakAdmin,
+    IAppUserProfileRepository users,
+    ILogger<RegisterUserCommandHandler> logger)
+    : ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>
+{
+    public async Task<Result<RegisterUserResultDto>> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken = default)
+    {
+        var (email, password, displayName) = command;
+
+        var keycloakResult = await keycloakAdmin.CreateUserAsync(email, password, displayName, cancellationToken);
+
+        if (keycloakResult.IsFailure)
+        {
+            return Result<RegisterUserResultDto>.Failure(keycloakResult.Error!);
+        }
+
+        var keycloakUserId = keycloakResult.Value;
+
+        var profile = AppUserProfile.Create(keycloakUserId, displayName);
+        await users.AddAsync(profile, cancellationToken);
+
+        LogUserRegistered(email, keycloakUserId);
+
+        return Result<RegisterUserResultDto>.Success(
+            new RegisterUserResultDto("Registration successful. Please check your email to verify your account."));
+    }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "User {Email} registered with Keycloak ID {KeycloakUserId}")]
+    private partial void LogUserRegistered(string email, string keycloakUserId);
+}
