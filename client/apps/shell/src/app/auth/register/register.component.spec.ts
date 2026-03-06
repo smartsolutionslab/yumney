@@ -193,6 +193,32 @@ describe('RegisterComponent', () => {
       expect(component.isSuccess()).toBe(true);
     }));
 
+    it('should reset form on successful registration', fakeAsync(() => {
+      fillValidForm();
+      authApiMock.register.mockReturnValue(of({ message: 'ok' }));
+
+      component.onSubmit();
+      tick();
+
+      expect(component.form.controls.email.value).toBe('');
+      expect(component.form.controls.password.value).toBe('');
+    }));
+
+    it('should clear serverError on new submission', fakeAsync(() => {
+      fillValidForm();
+      authApiMock.register.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 500 })),
+      );
+
+      component.onSubmit();
+      tick();
+      expect(component.serverError()).toBe('auth.register.errors.generic');
+
+      authApiMock.register.mockReturnValue(of({ message: 'ok' }));
+      component.onSubmit();
+      expect(component.serverError()).toBeNull();
+    }));
+
     it('should set serverError for 409 conflict', fakeAsync(() => {
       fillValidForm();
       authApiMock.register.mockReturnValue(

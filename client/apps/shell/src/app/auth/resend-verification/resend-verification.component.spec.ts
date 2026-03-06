@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { ResendVerificationComponent } from './resend-verification.component';
 import { AuthApiService } from '@yumney/shared/api-client';
 
@@ -106,6 +106,39 @@ describe('ResendVerificationComponent', () => {
       component.onSubmit();
       expect(authApiMock.resendVerificationEmail).not.toHaveBeenCalled();
     });
+
+    it('should mark email as touched on invalid submit', () => {
+      component.onSubmit();
+      expect(component.form.controls.email.touched).toBe(true);
+    });
+
+    it('should set isLoading to true during submission', () => {
+      component.form.controls.email.setValue('test@example.com');
+      const subject = new Subject();
+      authApiMock.resendVerificationEmail.mockReturnValue(subject);
+
+      component.onSubmit();
+      expect(component.isLoading()).toBe(true);
+
+      subject.next({ message: 'ok' });
+      subject.complete();
+      expect(component.isLoading()).toBe(false);
+    });
+
+    it('should clear serverError on new submission', fakeAsync(() => {
+      component.form.controls.email.setValue('test@example.com');
+      authApiMock.resendVerificationEmail.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 500 })),
+      );
+
+      component.onSubmit();
+      tick();
+      expect(component.serverError()).toBe('auth.resendVerification.errors.generic');
+
+      authApiMock.resendVerificationEmail.mockReturnValue(of({ message: 'ok' }));
+      component.onSubmit();
+      expect(component.serverError()).toBeNull();
+    }));
 
     it('should set isSuccess on successful submission', fakeAsync(() => {
       component.form.controls.email.setValue('test@example.com');
