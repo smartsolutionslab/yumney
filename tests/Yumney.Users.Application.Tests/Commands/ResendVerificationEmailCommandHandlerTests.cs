@@ -90,6 +90,22 @@ public class ResendVerificationEmailCommandHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_IdentityProviderUnavailable_DoesNotAttemptToSendEmail()
+    {
+        var command = new ResendVerificationEmailCommand("test@example.com");
+
+        keycloakAdmin
+            .FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
+            .Returns(Result<string>.Failure(VerificationErrors.IdentityProviderUnavailable));
+
+        await sut.HandleAsync(command);
+
+        await keycloakAdmin.DidNotReceive().SendVerificationEmailAsync(
+            Arg.Any<string>(),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task HandleAsync_SendFailed_ReturnsFailure()
     {
         var command = new ResendVerificationEmailCommand("test@example.com");
