@@ -1,12 +1,6 @@
 namespace Yumney.Shared.Common;
 
-public class BusinessRuleValidationException : Exception
+public sealed class BusinessRuleValidationException(IBusinessRule brokenRule) : Exception(brokenRule.Message)
 {
-    public BusinessRuleValidationException(IBusinessRule brokenRule)
-        : base(brokenRule.Message)
-    {
-        BrokenRule = brokenRule;
-    }
-
-    public IBusinessRule BrokenRule { get; }
+    public IBusinessRule BrokenRule { get; } = brokenRule;
 }

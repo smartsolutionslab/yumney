@@ -1,16 +1,23 @@
+using System.Runtime.CompilerServices;
+
 namespace Yumney.Shared.Guards;
 
-public class GuardClause<T>
+public sealed class GuardClause<T>
 {
-    private readonly T _value;
+    private readonly T value;
+    private readonly string parameterName;
 
-    public GuardClause(T value, string paramName)
+    internal GuardClause(T value, [CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
-        _value = value;
-        ParamName = paramName;
+        this.value = value;
+        this.parameterName = parameterName;
     }
 
-    public string ParamName { get; }
+    internal T Value => value;
 
-    public T Value => _value;
+    internal string ParameterName => parameterName;
+
+    public GuardClause<T> AndReturn() => this;
+
+    public static implicit operator T(GuardClause<T> guard) => guard.value;
 }

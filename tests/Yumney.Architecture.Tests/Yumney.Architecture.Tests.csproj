@@ -1,18 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <RootNamespace>Yumney.Architecture.Tests</RootNamespace>
   </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Yumney.Modules.Recipes\Yumney.Modules.Recipes.csproj" />
-    <ProjectReference Include="..\..\src\Yumney.Modules.Shopping\Yumney.Modules.Shopping.csproj" />
-    <ProjectReference Include="..\..\src\Yumney.Modules.Users\Yumney.Modules.Users.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Recipes.Domain\Yumney.Recipes.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Recipes.Application\Yumney.Recipes.Application.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Recipes.Infrastructure\Yumney.Recipes.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Recipes.Api\Yumney.Recipes.Api.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shopping.Domain\Yumney.Shopping.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shopping.Application\Yumney.Shopping.Application.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shopping.Infrastructure\Yumney.Shopping.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shopping.Api\Yumney.Shopping.Api.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Users.Domain\Yumney.Users.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Users.Application\Yumney.Users.Application.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Users.Infrastructure\Yumney.Users.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Users.Api\Yumney.Users.Api.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="xunit" Version="2.9.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
-    <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
-    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="NetArchTest.Rules" />
   </ItemGroup>
+
 </Project>

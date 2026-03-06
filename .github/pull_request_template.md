@@ -20,4 +20,4 @@
 - [ ] i18n keys added for new texts (DE + EN)
 - [ ] No `any` in TypeScript code
 - [ ] No secrets in code
-- [ ] Rebased on latest main
+- [ ] Rebased on latest develop

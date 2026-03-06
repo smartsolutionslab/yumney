@@ -13,8 +13,7 @@ public class InProcessEventBusTests
     {
         // Arrange
         var handler = new TestIntegrationEventHandler();
-        var eventBus = CreateEventBus(services =>
-            services.AddSingleton<IIntegrationEventHandler<TestIntegrationEvent>>(handler));
+        var eventBus = CreateEventBus(services => services.AddSingleton<IIntegrationEventHandler<TestIntegrationEvent>>(handler));
 
         var integrationEvent = new TestIntegrationEvent();
 
@@ -68,9 +67,7 @@ public class InProcessEventBusTests
         configureServices(services);
         var serviceProvider = services.BuildServiceProvider();
 
-        return new InProcessEventBus(
-            serviceProvider,
-            NullLogger<InProcessEventBus>.Instance);
+        return new InProcessEventBus(serviceProvider, NullLogger<InProcessEventBus>.Instance);
     }
 
     private sealed record TestIntegrationEvent : IntegrationEvent;

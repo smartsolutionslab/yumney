@@ -3,22 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Yumney.Shared.Events;
 
-public sealed class InProcessEventBus : IEventBus
+public sealed class InProcessEventBus(IServiceProvider serviceProvider, ILogger<InProcessEventBus> logger) : IEventBus
 {
-    private readonly IServiceProvider serviceProvider;
-    private readonly ILogger<InProcessEventBus> logger;
-
-    public InProcessEventBus(
-        IServiceProvider serviceProvider,
-        ILogger<InProcessEventBus> logger)
-    {
-        this.serviceProvider = serviceProvider;
-        this.logger = logger;
-    }
-
-    public async Task PublishAsync<TEvent>(
-        TEvent integrationEvent,
-        CancellationToken cancellationToken = default)
+    public async Task PublishAsync<TEvent>(TEvent integrationEvent, CancellationToken cancellationToken = default)
         where TEvent : IIntegrationEvent
     {
         var handlers = serviceProvider.GetServices<IIntegrationEventHandler<TEvent>>();
