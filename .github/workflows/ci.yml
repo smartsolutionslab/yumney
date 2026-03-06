@@ -61,10 +61,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Yarn
-        run: corepack enable && corepack prepare yarn@stable --activate
+        run: corepack enable
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Lint
         run: yarn nx run-many -t lint
