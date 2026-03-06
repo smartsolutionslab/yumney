@@ -4,22 +4,10 @@ using Yumney.Shared.Common;
 
 namespace Yumney.Shared.Events;
 
-public sealed class InProcessDomainEventDispatcher : IDomainEventDispatcher
+public sealed class InProcessDomainEventDispatcher(IServiceProvider serviceProvider, ILogger<InProcessDomainEventDispatcher> logger)
+    : IDomainEventDispatcher
 {
-    private readonly IServiceProvider serviceProvider;
-    private readonly ILogger<InProcessDomainEventDispatcher> logger;
-
-    public InProcessDomainEventDispatcher(
-        IServiceProvider serviceProvider,
-        ILogger<InProcessDomainEventDispatcher> logger)
-    {
-        this.serviceProvider = serviceProvider;
-        this.logger = logger;
-    }
-
-    public async Task DispatchAsync(
-        IEnumerable<IDomainEvent> domainEvents,
-        CancellationToken cancellationToken = default)
+    public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents, CancellationToken cancellationToken = default)
     {
         foreach (var domainEvent in domainEvents)
         {

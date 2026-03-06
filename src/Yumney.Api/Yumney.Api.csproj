@@ -1,15 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>Yumney.Api</RootNamespace>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Yumney.ServiceDefaults\Yumney.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\Yumney.Modules.Recipes\Yumney.Modules.Recipes.csproj" />
-    <ProjectReference Include="..\Yumney.Modules.Shopping\Yumney.Modules.Shopping.csproj" />
-    <ProjectReference Include="..\Yumney.Modules.Users\Yumney.Modules.Users.csproj" />
-    <ProjectReference Include="..\Yumney.Shared\Yumney.Shared.csproj" />
+    <ProjectReference Include="..\Yumney.Recipes.Api\Yumney.Recipes.Api.csproj" />
+    <ProjectReference Include="..\Yumney.Recipes.Infrastructure\Yumney.Recipes.Infrastructure.csproj" />
+    <ProjectReference Include="..\Yumney.Shopping.Api\Yumney.Shopping.Api.csproj" />
+    <ProjectReference Include="..\Yumney.Shopping.Infrastructure\Yumney.Shopping.Infrastructure.csproj" />
+    <ProjectReference Include="..\Yumney.Users.Api\Yumney.Users.Api.csproj" />
+    <ProjectReference Include="..\Yumney.Users.Infrastructure\Yumney.Users.Infrastructure.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageReference Include="Aspire.Keycloak.Authentication" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
   </ItemGroup>
+
 </Project>

@@ -14,8 +14,7 @@ public class InProcessDomainEventDispatcherTests
     {
         // Arrange
         var handler = new TestDomainEventHandler();
-        var dispatcher = CreateDispatcher(services =>
-            services.AddSingleton<IDomainEventHandler<TestDomainEvent>>(handler));
+        var dispatcher = CreateDispatcher(services => services.AddSingleton<IDomainEventHandler<TestDomainEvent>>(handler));
 
         var domainEvent = new TestDomainEvent();
 
@@ -90,9 +89,7 @@ public class InProcessDomainEventDispatcherTests
         configureServices(services);
         var serviceProvider = services.BuildServiceProvider();
 
-        return new InProcessDomainEventDispatcher(
-            serviceProvider,
-            NullLogger<InProcessDomainEventDispatcher>.Instance);
+        return new InProcessDomainEventDispatcher(serviceProvider, NullLogger<InProcessDomainEventDispatcher>.Instance);
     }
 
     private sealed record TestDomainEvent : DomainEvent;

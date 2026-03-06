@@ -1,3 +1,4 @@
+using FluentAssertions;
 using NetArchTest.Rules;
 using Xunit;
 
@@ -5,62 +6,139 @@ namespace Yumney.Architecture.Tests;
 
 public class LayerDependencyTests
 {
-    private const string DomainNamespace = "Yumney.Modules.Recipes.Domain";
-    private const string ApplicationNamespace = "Yumney.Modules.Recipes.Application";
-    private const string InfrastructureNamespace = "Yumney.Modules.Recipes.Infrastructure";
+    private const string SharedNamespace = "Yumney.Shared";
 
-    [Fact]
-    public void Domain_ShouldNotDependOn_Application()
+    private static readonly string[] Modules = ["Recipes", "Shopping", "Users"];
+
+    public static TheoryData<string, string> CrossModulePairs()
     {
-        var result = Types.InNamespace(DomainNamespace)
-            .ShouldNot()
-            .HaveDependencyOn(ApplicationNamespace)
-            .GetResult();
+        var data = new TheoryData<string, string>();
 
-        Assert.True(result.IsSuccessful);
+        foreach (var source in Modules)
+        {
+            foreach (var target in Modules)
+            {
+                if (source != target)
+                {
+                    data.Add(source, target);
+                }
+            }
+        }
+
+        return data;
     }
 
-    [Fact]
-    public void Domain_ShouldNotDependOn_Infrastructure()
+    [Theory]
+    [InlineData("Recipes")]
+    [InlineData("Shopping")]
+    [InlineData("Users")]
+    public void Domain_ShouldNotDependOn_Application(string module)
     {
-        var result = Types.InNamespace(DomainNamespace)
+        var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
+
+        var result = Types.InAssembly(domainAssembly)
             .ShouldNot()
-            .HaveDependencyOn(InfrastructureNamespace)
+            .HaveDependencyOn($"Yumney.{module}.Application")
             .GetResult();
 
-        Assert.True(result.IsSuccessful);
+        result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on {module}.Application");
     }
 
-    [Fact]
-    public void Application_ShouldNotDependOn_Infrastructure()
+    [Theory]
+    [InlineData("Recipes")]
+    [InlineData("Shopping")]
+    [InlineData("Users")]
+    public void Domain_ShouldNotDependOn_Infrastructure(string module)
     {
-        var result = Types.InNamespace(ApplicationNamespace)
+        var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
+
+        var result = Types.InAssembly(domainAssembly)
             .ShouldNot()
-            .HaveDependencyOn(InfrastructureNamespace)
+            .HaveDependencyOn($"Yumney.{module}.Infrastructure")
             .GetResult();
 
-        Assert.True(result.IsSuccessful);
+        result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on {module}.Infrastructure");
     }
 
-    [Fact]
-    public void RecipesModule_ShouldNotDependOn_ShoppingModule()
+    [Theory]
+    [InlineData("Recipes")]
+    [InlineData("Shopping")]
+    [InlineData("Users")]
+    public void Domain_ShouldNotDependOn_Api(string module)
     {
-        var result = Types.InNamespace("Yumney.Modules.Recipes")
+        var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
+
+        var result = Types.InAssembly(domainAssembly)
             .ShouldNot()
-            .HaveDependencyOn("Yumney.Modules.Shopping")
+            .HaveDependencyOn($"Yumney.{module}.Api")
             .GetResult();
 
-        Assert.True(result.IsSuccessful);
+        result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on {module}.Api");
     }
 
-    [Fact]
-    public void ShoppingModule_ShouldNotDependOn_RecipesModule()
+    [Theory]
+    [InlineData("Recipes")]
+    [InlineData("Shopping")]
+    [InlineData("Users")]
+    public void Application_ShouldNotDependOn_Infrastructure(string module)
     {
-        var result = Types.InNamespace("Yumney.Modules.Shopping")
+        var applicationAssembly = GetAssembly($"Yumney.{module}.Application");
+
+        var result = Types.InAssembly(applicationAssembly)
             .ShouldNot()
-            .HaveDependencyOn("Yumney.Modules.Recipes")
+            .HaveDependencyOn($"Yumney.{module}.Infrastructure")
             .GetResult();
 
-        Assert.True(result.IsSuccessful);
+        result.IsSuccessful.Should().BeTrue($"{module}.Application must not depend on {module}.Infrastructure");
+    }
+
+    [Theory]
+    [InlineData("Recipes")]
+    [InlineData("Shopping")]
+    [InlineData("Users")]
+    public void Application_ShouldNotDependOn_Api(string module)
+    {
+        var applicationAssembly = GetAssembly($"Yumney.{module}.Application");
+
+        var result = Types.InAssembly(applicationAssembly)
+            .ShouldNot()
+            .HaveDependencyOn($"Yumney.{module}.Api")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            $"{module}.Application must not depend on {module}.Api");
+    }
+
+    [Theory]
+    [MemberData(nameof(CrossModulePairs))]
+    public void Modules_ShouldNotDependOn_OtherModuleDomains(string sourceModule, string targetModule)
+    {
+        var domainAssembly = GetAssembly($"Yumney.{sourceModule}.Domain");
+
+        var result = Types.InAssembly(domainAssembly)
+            .ShouldNot()
+            .HaveDependencyOn($"Yumney.{targetModule}.Domain")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue($"{sourceModule}.Domain must not depend on {targetModule}.Domain");
+    }
+
+    [Theory]
+    [MemberData(nameof(CrossModulePairs))]
+    public void Modules_ShouldNotDependOn_OtherModuleInfrastructure(string sourceModule, string targetModule)
+    {
+        var applicationAssembly = GetAssembly($"Yumney.{sourceModule}.Application");
+
+        var result = Types.InAssembly(applicationAssembly)
+            .ShouldNot()
+            .HaveDependencyOn($"Yumney.{targetModule}.Infrastructure")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue($"{sourceModule}.Application must not depend on {targetModule}.Infrastructure");
+    }
+
+    private static System.Reflection.Assembly GetAssembly(string name)
+    {
+        return System.Reflection.Assembly.Load(name);
     }
 }

@@ -4,10 +4,8 @@ namespace Yumney.Shared.Guards;
 
 public static class Ensure
 {
-    public static GuardClause<T> That<T>(
-        T value,
-        [CallerArgumentExpression(nameof(value))] string paramName = "")
+    public static GuardClause<T> That<T>(T value, [CallerArgumentExpression(nameof(value))] string parameterName = "")
     {
-        return new GuardClause<T>(value, paramName);
+        return new GuardClause<T>(value, parameterName);
     }
 }
