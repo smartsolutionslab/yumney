@@ -1,5 +1,7 @@
 # Yumney – Project Rules for Claude Code
 
+Do not add Co-Authored-By lines to git commit messages.
+
 ## Project Overview
 
 Yumney is a Progressive Web App that extracts recipes from any URL using LLM, generates shopping lists, provides step-by-step cooking instructions, and manages a personal recipe collection. "From URL to cook-ready recipe in seconds – no ads, no blabla."
