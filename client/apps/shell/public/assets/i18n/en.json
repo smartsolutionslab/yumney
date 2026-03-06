@@ -1,0 +1,35 @@
+{
+  "auth": {
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join Yumney and start collecting recipes",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "displayName": "Display Name",
+      "displayNamePlaceholder": "Your name",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "submitting": "Creating account...",
+      "success": {
+        "title": "Check your email",
+        "message": "We've sent a verification link to your email address. Please click it to activate your account."
+      },
+      "errors": {
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Please enter a valid email address.",
+        "emailMaxLength": "Email must not exceed 254 characters.",
+        "displayNameRequired": "Display name is required.",
+        "displayNameMaxLength": "Display name must not exceed 200 characters.",
+        "passwordRequired": "Password is required.",
+        "passwordMinLength": "Password must be at least 8 characters.",
+        "passwordPattern": "Password must contain uppercase, lowercase, and a digit.",
+        "confirmPasswordRequired": "Please confirm your password.",
+        "passwordsMismatch": "Passwords do not match.",
+        "emailAlreadyExists": "A user with this email address already exists.",
+        "validationFailed": "Please check your input and try again.",
+        "generic": "An unexpected error occurred. Please try again later."
+      }
+    }
+  }
+}
