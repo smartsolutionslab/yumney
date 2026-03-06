@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { RegisterComponent } from './register.component';
 import { AuthApiService } from '@yumney/shared/api-client';
 
@@ -172,16 +172,18 @@ describe('RegisterComponent', () => {
       expect(component.form.controls.password.touched).toBe(true);
     });
 
-    it('should set isLoading during submission', fakeAsync(() => {
+    it('should set isLoading to true during submission', () => {
       fillValidForm();
-      authApiMock.register.mockReturnValue(of({ message: 'ok' }));
+      const subject = new Subject();
+      authApiMock.register.mockReturnValue(subject);
 
-      expect(component.isLoading()).toBe(false);
       component.onSubmit();
-      tick();
+      expect(component.isLoading()).toBe(true);
+
+      subject.next({ message: 'ok' });
+      subject.complete();
       expect(component.isLoading()).toBe(false);
-      expect(component.isSuccess()).toBe(true);
-    }));
+    });
 
     it('should set isSuccess on successful registration', fakeAsync(() => {
       fillValidForm();
