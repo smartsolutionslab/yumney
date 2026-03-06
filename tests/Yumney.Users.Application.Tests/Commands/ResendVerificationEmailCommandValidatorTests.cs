@@ -33,6 +33,18 @@ public class ResendVerificationEmailCommandValidatorTests
     }
 
     [Fact]
+    public void Validate_EmailAtMaxLength_IsValid()
+    {
+        var localPart = new string('a', 242);
+        var email = $"{localPart}@example.com";
+        var command = new ResendVerificationEmailCommand(email);
+
+        var result = sut.Validate(command);
+
+        result.Errors.Should().NotContain(e => e.PropertyName == "Email" && e.ErrorCode == "MaximumLengthValidator");
+    }
+
+    [Fact]
     public void Validate_EmailExceedsMaxLength_IsNotValid()
     {
         var localPart = new string('a', 243);
