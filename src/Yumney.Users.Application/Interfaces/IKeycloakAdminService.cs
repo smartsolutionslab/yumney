@@ -9,4 +9,12 @@ public interface IKeycloakAdminService
         string password,
         string displayName,
         CancellationToken cancellationToken = default);
+
+    Task<Result<string>> FindUserByEmailAsync(
+        string email,
+        CancellationToken cancellationToken = default);
+
+    Task<Result> SendVerificationEmailAsync(
+        string keycloakUserId,
+        CancellationToken cancellationToken = default);
 }

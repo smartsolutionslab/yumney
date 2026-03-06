@@ -20,6 +20,8 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
+    private static readonly string[] verifyEmailActions = ["VERIFY_EMAIL"];
+
     public async Task<Result<string>> CreateUserAsync(
         string email,
         string password,
@@ -33,6 +35,81 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
         }
 
         return await CreateKeycloakUserAsync(email, password, displayName, token.Value, cancellationToken);
+    }
+
+    public async Task<Result<string>> FindUserByEmailAsync(
+        string email,
+        CancellationToken cancellationToken = default)
+    {
+        var token = await GetServiceAccountTokenAsync(cancellationToken);
+        if (token.IsFailure)
+        {
+            return Result<string>.Failure(VerificationErrors.IdentityProviderUnavailable);
+        }
+
+        var encodedEmail = Uri.EscapeDataString(email);
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/admin/realms/yumney/users?email={encodedEmail}&exact=true");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+
+        try
+        {
+            var response = await httpClient.SendAsync(request, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                logger.LogError("Failed to search Keycloak users. Status: {StatusCode}", response.StatusCode);
+                return Result<string>.Failure(VerificationErrors.IdentityProviderUnavailable);
+            }
+
+            var users = await response.Content.ReadFromJsonAsync<KeycloakUserRepresentation[]>(jsonOptions, cancellationToken);
+
+            if (users is null || users.Length == 0)
+            {
+                return Result<string>.Failure(VerificationErrors.UserNotFound);
+            }
+
+            return Result<string>.Success(users[0].Id);
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, "HTTP error while searching Keycloak users");
+            return Result<string>.Failure(VerificationErrors.IdentityProviderUnavailable);
+        }
+    }
+
+    public async Task<Result> SendVerificationEmailAsync(
+        string keycloakUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var token = await GetServiceAccountTokenAsync(cancellationToken);
+        if (token.IsFailure)
+        {
+            return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
+        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"/admin/realms/yumney/users/{keycloakUserId}/execute-actions-email");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+        request.Content = JsonContent.Create(verifyEmailActions, options: jsonOptions);
+
+        try
+        {
+            var response = await httpClient.SendAsync(request, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                logger.LogError("Failed to send verification email. Status: {StatusCode}, Body: {Body}", response.StatusCode, body);
+                return Result.Failure(VerificationErrors.SendFailed);
+            }
+
+            return Result.Success();
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, "HTTP error while sending verification email");
+            return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
+        }
     }
 
     private async Task<Result<string>> GetServiceAccountTokenAsync(CancellationToken cancellationToken)
@@ -130,4 +207,8 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
 
     private sealed record TokenResponse(
         [property: JsonPropertyName("access_token")] string AccessToken);
+
+    private sealed record KeycloakUserRepresentation(
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("email")] string Email);
 }
