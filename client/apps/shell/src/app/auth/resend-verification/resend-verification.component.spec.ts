@@ -1,0 +1,144 @@
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TranslocoTestingModule } from '@jsverse/transloco';
+import { of, throwError } from 'rxjs';
+import { ResendVerificationComponent } from './resend-verification.component';
+import { AuthApiService } from '@yumney/shared/api-client';
+
+const en = {
+  auth: {
+    resendVerification: {
+      title: 'Resend Verification Email',
+      subtitle: 'Enter your email',
+      email: 'Email',
+      emailPlaceholder: 'you@example.com',
+      submit: 'Resend',
+      submitting: 'Sending...',
+      backToRegister: 'Back to registration',
+      success: {
+        title: 'Email sent',
+        message: 'Check your inbox.',
+      },
+      errors: {
+        emailRequired: 'Email is required.',
+        emailInvalid: 'Invalid email.',
+        emailMaxLength: 'Email too long.',
+        serviceUnavailable: 'Service unavailable.',
+        generic: 'Unexpected error.',
+      },
+    },
+  },
+};
+
+describe('ResendVerificationComponent', () => {
+  let component: ResendVerificationComponent;
+  let fixture: ComponentFixture<ResendVerificationComponent>;
+  let authApiMock: { resendVerificationEmail: ReturnType<typeof vi.fn> };
+
+  beforeEach(async () => {
+    authApiMock = { resendVerificationEmail: vi.fn() };
+
+    await TestBed.configureTestingModule({
+      imports: [
+        ResendVerificationComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { en },
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+        }),
+      ],
+      providers: [provideRouter([]), { provide: AuthApiService, useValue: authApiMock }],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ResendVerificationComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  describe('form validation', () => {
+    it('should create the component', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('should have an invalid form when empty', () => {
+      expect(component.form.valid).toBe(false);
+    });
+
+    it('should require email', () => {
+      expect(component.form.controls.email.hasError('required')).toBe(true);
+    });
+
+    it('should reject invalid email format', () => {
+      component.form.controls.email.setValue('not-an-email');
+      expect(component.form.controls.email.hasError('email')).toBe(true);
+    });
+
+    it('should accept valid email', () => {
+      component.form.controls.email.setValue('test@example.com');
+      expect(component.form.controls.email.valid).toBe(true);
+    });
+
+    it('should reject email exceeding max length', () => {
+      const longEmail = 'a'.repeat(243) + '@example.com';
+      component.form.controls.email.setValue(longEmail);
+      expect(component.form.controls.email.hasError('maxlength')).toBe(true);
+    });
+  });
+
+  describe('hasError helper', () => {
+    it('should return false when control is not touched', () => {
+      component.form.controls.email.setValue('');
+      expect(component.hasError('email', 'required')).toBe(false);
+    });
+
+    it('should return true when control is touched and has error', () => {
+      component.form.controls.email.setValue('');
+      component.form.controls.email.markAsTouched();
+      expect(component.hasError('email', 'required')).toBe(true);
+    });
+  });
+
+  describe('submission flow', () => {
+    it('should not submit when form is invalid', () => {
+      component.onSubmit();
+      expect(authApiMock.resendVerificationEmail).not.toHaveBeenCalled();
+    });
+
+    it('should set isSuccess on successful submission', fakeAsync(() => {
+      component.form.controls.email.setValue('test@example.com');
+      authApiMock.resendVerificationEmail.mockReturnValue(of({ message: 'ok' }));
+
+      component.onSubmit();
+      tick();
+
+      expect(component.isSuccess()).toBe(true);
+    }));
+
+    it('should set serverError for 503 service unavailable', fakeAsync(() => {
+      component.form.controls.email.setValue('test@example.com');
+      authApiMock.resendVerificationEmail.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 503 })),
+      );
+
+      component.onSubmit();
+      tick();
+
+      expect(component.serverError()).toBe('auth.resendVerification.errors.serviceUnavailable');
+    }));
+
+    it('should set generic serverError for other errors', fakeAsync(() => {
+      component.form.controls.email.setValue('test@example.com');
+      authApiMock.resendVerificationEmail.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 500 })),
+      );
+
+      component.onSubmit();
+      tick();
+
+      expect(component.serverError()).toBe('auth.resendVerification.errors.generic');
+    }));
+  });
+});
