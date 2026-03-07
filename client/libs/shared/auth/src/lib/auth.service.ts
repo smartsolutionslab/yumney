@@ -1,6 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { authConfig } from './auth-config';
+import { REMEMBER_ME_KEY } from './auth-storage.factory';
 
 export interface AuthUser {
   sub: string;
@@ -8,8 +9,6 @@ export interface AuthUser {
   preferredUsername: string;
   roles: string[];
 }
-
-const REMEMBER_ME_KEY = 'yn_remember_me';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -26,6 +25,10 @@ export class AuthService {
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
 
+    this.oauthService.events.subscribe(() => {
+      this.updateAuthState();
+    });
+
     try {
       await this.oauthService.loadDiscoveryDocumentAndTryLogin();
       this.updateAuthState();
@@ -34,10 +37,6 @@ export class AuthService {
     } finally {
       this.isLoading.set(false);
     }
-
-    this.oauthService.events.subscribe(() => {
-      this.updateAuthState();
-    });
   }
 
   login(rememberMe = false): void {
