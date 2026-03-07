@@ -18,4 +18,12 @@ describe('authStorageFactory', () => {
 
     expect(storage).toBe(sessionStorage);
   });
+
+  it('should return sessionStorage when remember-me is set to false', () => {
+    localStorage.setItem('yn_remember_me', 'false');
+
+    const storage = authStorageFactory();
+
+    expect(storage).toBe(sessionStorage);
+  });
 });

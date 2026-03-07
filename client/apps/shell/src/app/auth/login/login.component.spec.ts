@@ -74,4 +74,20 @@ describe('LoginComponent', () => {
     const link = fixture.nativeElement.querySelector('a[href="/auth/register"]');
     expect(link).toBeTruthy();
   });
+
+  it('should render the subtitle', () => {
+    const subtitle = fixture.nativeElement.querySelector('.subtitle');
+    expect(subtitle.textContent).toContain('Sign in to your Yumney account');
+  });
+
+  it('should have rememberMe unchecked by default', () => {
+    expect(component.rememberMe).toBe(false);
+    const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]');
+    expect(checkbox.checked).toBe(false);
+  });
+
+  it('should render the remember me label', () => {
+    const label = fixture.nativeElement.querySelector('.remember-me');
+    expect(label.textContent).toContain('Stay logged in');
+  });
 });

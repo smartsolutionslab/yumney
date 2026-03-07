@@ -94,4 +94,23 @@ describe('HeaderComponent', () => {
     const brand = fixture.nativeElement.querySelector('.brand');
     expect(brand.textContent).toContain('Yumney');
   });
+
+  it('should not show logout button when not authenticated', () => {
+    const logoutButton = fixture.nativeElement.querySelector('.logout-button');
+    expect(logoutButton).toBeNull();
+  });
+
+  it('should not show login link when authenticated', () => {
+    authServiceMock.isAuthenticated.set(true);
+    authServiceMock.displayName.set('testuser');
+    fixture.detectChanges();
+
+    const loginLink = fixture.nativeElement.querySelector('.login-link');
+    expect(loginLink).toBeNull();
+  });
+
+  it('should not show greeting when not authenticated', () => {
+    const greeting = fixture.nativeElement.querySelector('.greeting');
+    expect(greeting).toBeNull();
+  });
 });
