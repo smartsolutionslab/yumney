@@ -84,6 +84,65 @@ describe('AuthService', () => {
 
       expect(service.isLoading()).toBe(false);
     });
+
+    it('should set isLoading to false even when discovery document fails', async () => {
+      oauthMock.loadDiscoveryDocumentAndTryLogin.mockRejectedValue(new Error('Network error'));
+
+      await service.initialize();
+
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should default roles to empty array when realm_access is missing', async () => {
+      oauthMock.hasValidAccessToken.mockReturnValue(true);
+      oauthMock.getIdentityClaims.mockReturnValue({
+        sub: '123',
+        email: 'test@example.com',
+        preferred_username: 'testuser',
+      });
+
+      await service.initialize();
+
+      expect(service.currentUser()?.roles).toEqual([]);
+    });
+
+    it('should update auth state when oauth events are emitted', async () => {
+      oauthMock.hasValidAccessToken.mockReturnValue(false);
+
+      await service.initialize();
+      expect(service.isAuthenticated()).toBe(false);
+
+      oauthMock.hasValidAccessToken.mockReturnValue(true);
+      oauthMock.getIdentityClaims.mockReturnValue({
+        sub: '456',
+        email: 'new@example.com',
+        preferred_username: 'newuser',
+        realm_access: { roles: ['user'] },
+      });
+
+      oauthMock.events.next({});
+
+      expect(service.isAuthenticated()).toBe(true);
+      expect(service.currentUser()?.preferredUsername).toBe('newuser');
+    });
+
+    it('should set currentUser to null when token becomes invalid via event', async () => {
+      oauthMock.hasValidAccessToken.mockReturnValue(true);
+      oauthMock.getIdentityClaims.mockReturnValue({
+        sub: '123',
+        email: 'test@example.com',
+        preferred_username: 'testuser',
+        realm_access: { roles: ['user'] },
+      });
+
+      await service.initialize();
+      expect(service.currentUser()).not.toBeNull();
+
+      oauthMock.hasValidAccessToken.mockReturnValue(false);
+      oauthMock.events.next({});
+
+      expect(service.currentUser()).toBeNull();
+    });
   });
 
   describe('login', () => {
@@ -100,6 +159,50 @@ describe('AuthService', () => {
 
       expect(setItemSpy).toHaveBeenCalledWith('yn_remember_me', 'true');
       setItemSpy.mockRestore();
+    });
+
+    it('should remove remember-me preference on login with rememberMe=false', () => {
+      localStorage.setItem('yn_remember_me', 'true');
+      const removeItemSpy = vi.spyOn(Storage.prototype, 'removeItem');
+
+      service.login(false);
+
+      expect(removeItemSpy).toHaveBeenCalledWith('yn_remember_me');
+      removeItemSpy.mockRestore();
+    });
+  });
+
+  describe('displayName', () => {
+    it('should return preferredUsername when available', async () => {
+      oauthMock.hasValidAccessToken.mockReturnValue(true);
+      oauthMock.getIdentityClaims.mockReturnValue({
+        sub: '123',
+        email: 'test@example.com',
+        preferred_username: 'testuser',
+        realm_access: { roles: [] },
+      });
+
+      await service.initialize();
+
+      expect(service.displayName()).toBe('testuser');
+    });
+
+    it('should fall back to email when preferredUsername is undefined', async () => {
+      oauthMock.hasValidAccessToken.mockReturnValue(true);
+      oauthMock.getIdentityClaims.mockReturnValue({
+        sub: '123',
+        email: 'test@example.com',
+        preferred_username: undefined,
+        realm_access: { roles: [] },
+      });
+
+      await service.initialize();
+
+      expect(service.displayName()).toBe('test@example.com');
+    });
+
+    it('should return null when no user is authenticated', () => {
+      expect(service.displayName()).toBeNull();
     });
   });
 

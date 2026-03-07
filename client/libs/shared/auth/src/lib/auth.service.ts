@@ -29,6 +29,8 @@ export class AuthService {
     try {
       await this.oauthService.loadDiscoveryDocumentAndTryLogin();
       this.updateAuthState();
+    } catch {
+      // Keycloak unreachable — app continues unauthenticated
     } finally {
       this.isLoading.set(false);
     }
