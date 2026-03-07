@@ -5,8 +5,9 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideTransloco } from '@jsverse/transloco';
+import { authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { appRoutes } from './app.routes';
 import { TranslocoHttpLoader } from './transloco-loader';
 
@@ -15,7 +16,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideAuth(),
     provideTransloco({
       config: {
         availableLangs: ['en', 'de'],
