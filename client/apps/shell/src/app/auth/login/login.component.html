@@ -1,0 +1,22 @@
+<div class="login-container" *transloco="let t">
+  <div class="login-card">
+    <h1>{{ t('auth.login.title') }}</h1>
+    <p class="subtitle">{{ t('auth.login.subtitle') }}</p>
+
+    <div class="login-form">
+      <label class="remember-me">
+        <input type="checkbox" [(ngModel)]="rememberMe" />
+        {{ t('auth.login.rememberMe') }}
+      </label>
+
+      <button type="button" (click)="onLogin()">
+        {{ t('auth.login.submit') }}
+      </button>
+
+      <p class="register-link">
+        {{ t('auth.login.noAccount') }}
+        <a routerLink="/auth/register">{{ t('auth.login.registerLink') }}</a>
+      </p>
+    </div>
+  </div>
+</div>
