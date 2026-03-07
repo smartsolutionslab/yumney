@@ -8,6 +8,7 @@
   "resetPasswordAllowed": true,
   "editUsernameAllowed": false,
   "bruteForceProtected": true,
+  "failureFactor": 5,
   "verifyEmail": true,
   "passwordPolicy": "length(8) and upperCase(1) and lowerCase(1) and digits(1)",
   "smtpServer": {
@@ -63,7 +64,8 @@
       ],
       "protocol": "openid-connect",
       "attributes": {
-        "pkce.code.challenge.method": "S256"
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:4200/*##https://localhost:4200/*"
       },
       "defaultClientScopes": [
         "openid",
@@ -77,6 +79,7 @@
     {
       "username": "testuser",
       "enabled": true,
+      "emailVerified": true,
       "email": "test@yumney.dev",
       "firstName": "Test",
       "lastName": "User",
@@ -92,6 +95,7 @@
     {
       "username": "admin",
       "enabled": true,
+      "emailVerified": true,
       "email": "admin@yumney.dev",
       "firstName": "Admin",
       "lastName": "User",
