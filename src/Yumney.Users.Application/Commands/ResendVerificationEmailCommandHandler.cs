@@ -6,9 +6,7 @@ using Yumney.Users.Application.Interfaces;
 namespace Yumney.Users.Application.Commands;
 
 #pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
-public sealed partial class ResendVerificationEmailCommandHandler(
-    IKeycloakAdminService keycloakAdmin,
-    ILogger<ResendVerificationEmailCommandHandler> logger)
+public sealed partial class ResendVerificationEmailCommandHandler(IKeycloakAdminService keycloakAdmin, ILogger<ResendVerificationEmailCommandHandler> logger)
     : ICommandHandler<ResendVerificationEmailCommand, Result>
 {
     public async Task<Result> HandleAsync(ResendVerificationEmailCommand command, CancellationToken cancellationToken = default)
@@ -21,7 +19,7 @@ public sealed partial class ResendVerificationEmailCommandHandler(
         {
             if (findResult.Error == VerificationErrors.UserNotFound)
             {
-                LogUserNotFoundSilent(email);
+                LogUserNotFoundSilent(email.Value);
                 return Result.Success();
             }
 
@@ -37,7 +35,7 @@ public sealed partial class ResendVerificationEmailCommandHandler(
             return Result.Failure(sendResult.Error!);
         }
 
-        LogVerificationEmailSent(email);
+        LogVerificationEmailSent(email.Value);
 
         return Result.Success();
     }

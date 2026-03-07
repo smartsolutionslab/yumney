@@ -227,4 +227,60 @@ public class EnsureTests
 
         act.Should().Throw<GuardException>();
     }
+
+    [Theory]
+    [InlineData("test@example.com")]
+    [InlineData("user+tag@example.com")]
+    [InlineData("user.name@example.co.uk")]
+    public void IsValidEmail_ValidEmail_DoesNotThrow(string email)
+    {
+        var act = () => Ensure.That(email).IsValidEmail();
+
+        act.Should().NotThrow();
+    }
+
+    [Theory]
+    [InlineData("not-an-email")]
+    [InlineData("@missing-local.com")]
+    [InlineData("missing-domain@")]
+    public void IsValidEmail_InvalidEmail_ThrowsGuardException(string email)
+    {
+        var act = () => Ensure.That(email).IsValidEmail();
+
+        act.Should().Throw<GuardException>();
+    }
+
+    [Fact]
+    public void Matches_MatchingPattern_DoesNotThrow()
+    {
+        var act = () => Ensure.That("Hello123").Matches("[A-Z]");
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Matches_NonMatchingPattern_ThrowsGuardException()
+    {
+        var act = () => Ensure.That("hello").Matches("[0-9]");
+
+        act.Should().Throw<GuardException>();
+    }
+
+    [Fact]
+    public void Matches_WithCustomMessage_ThrowsWithMessage()
+    {
+        var act = () => Ensure.That("hello").Matches("[0-9]", "Must contain a digit.");
+
+        act.Should().Throw<GuardException>().WithMessage("Must contain a digit.");
+    }
+
+    [Fact]
+    public void Matches_NullValue_ThrowsGuardException()
+    {
+        string? value = null;
+
+        var act = () => Ensure.That(value!).Matches("[A-Z]");
+
+        act.Should().Throw<GuardException>();
+    }
 }

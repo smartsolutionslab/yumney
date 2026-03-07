@@ -41,7 +41,7 @@ builder.Services.AddInProcessEventBus();
 builder.Services.AddDbContext<UsersDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("yumneydb")));
 builder.Services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
 
-builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserCommandValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserRequestValidator>();
 builder.Services.AddScoped<ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>, RegisterUserCommandHandler>();
 builder.Services.AddScoped<ICommandHandler<ResendVerificationEmailCommand, Result>, ResendVerificationEmailCommandHandler>();
 

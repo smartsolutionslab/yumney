@@ -1,3 +1,6 @@
+using System.Net.Mail;
+using System.Text.RegularExpressions;
+
 namespace Yumney.Shared.Guards;
 
 public static class GuardExtensions
@@ -33,6 +36,30 @@ public static class GuardExtensions
                 throw new GuardException(
                     guard.ParameterName,
                     $"{guard.ParameterName} must be at least {minLength} characters.");
+            }
+
+            return guard;
+        }
+
+        public GuardClause<string> IsValidEmail()
+        {
+            if (!MailAddress.TryCreate(guard.Value, out _))
+            {
+                throw new GuardException(
+                    guard.ParameterName,
+                    $"{guard.ParameterName} must be a valid email address.");
+            }
+
+            return guard;
+        }
+
+        public GuardClause<string> Matches(string pattern, string? message = null)
+        {
+            if (guard.Value is null || !Regex.IsMatch(guard.Value, pattern))
+            {
+                throw new GuardException(
+                    guard.ParameterName,
+                    message ?? $"{guard.ParameterName} must match the required pattern.");
             }
 
             return guard;

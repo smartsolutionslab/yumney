@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace Yumney.Users.Application.Commands;
 
-public sealed class ResendVerificationEmailCommandValidator : AbstractValidator<ResendVerificationEmailCommand>
+public sealed class ResendVerificationEmailRequestValidator : AbstractValidator<ResendVerificationEmailRequest>
 {
-    public ResendVerificationEmailCommandValidator()
+    public ResendVerificationEmailRequestValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty()

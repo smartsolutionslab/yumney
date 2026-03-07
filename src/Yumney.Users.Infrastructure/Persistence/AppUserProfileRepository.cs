@@ -6,7 +6,7 @@ namespace Yumney.Users.Infrastructure.Persistence;
 
 public sealed class AppUserProfileRepository(UsersDbContext context) : IAppUserProfileRepository
 {
-    public async Task<AppUserProfile?> FindByKeycloakUserIdAsync(string keycloakUserId, CancellationToken cancellationToken = default)
+    public async Task<AppUserProfile?> FindByKeycloakUserIdAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default)
     {
         return await context.AppUserProfiles.FirstOrDefaultAsync(p => p.KeycloakUserId == keycloakUserId, cancellationToken);
     }

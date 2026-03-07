@@ -4,16 +4,16 @@ using Yumney.Users.Application.Commands;
 
 namespace Yumney.Users.Application.Tests.Commands;
 
-public class ResendVerificationEmailCommandValidatorTests
+public class ResendVerificationEmailRequestValidatorTests
 {
-    private readonly ResendVerificationEmailCommandValidator sut = new();
+    private readonly ResendVerificationEmailRequestValidator sut = new();
 
     [Fact]
-    public void Validate_ValidEmail_IsValid()
+    public void Validate_ValidRequest_IsValid()
     {
-        var command = new ResendVerificationEmailCommand("test@example.com");
+        var request = new ResendVerificationEmailRequest("test@example.com");
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeTrue();
     }
@@ -24,9 +24,9 @@ public class ResendVerificationEmailCommandValidatorTests
     [InlineData("not-an-email")]
     public void Validate_InvalidEmail_IsNotValid(string email)
     {
-        var command = new ResendVerificationEmailCommand(email);
+        var request = new ResendVerificationEmailRequest(email);
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Email");
@@ -37,9 +37,9 @@ public class ResendVerificationEmailCommandValidatorTests
     {
         var localPart = new string('a', 242);
         var email = $"{localPart}@example.com";
-        var command = new ResendVerificationEmailCommand(email);
+        var request = new ResendVerificationEmailRequest(email);
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.Errors.Should().NotContain(e => e.PropertyName == "Email" && e.ErrorCode == "MaximumLengthValidator");
     }
@@ -49,9 +49,9 @@ public class ResendVerificationEmailCommandValidatorTests
     {
         var localPart = new string('a', 243);
         var email = $"{localPart}@example.com";
-        var command = new ResendVerificationEmailCommand(email);
+        var request = new ResendVerificationEmailRequest(email);
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Email");

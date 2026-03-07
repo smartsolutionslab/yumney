@@ -5,11 +5,15 @@ using Xunit;
 using Yumney.Shared.Common;
 using Yumney.Users.Application.Commands;
 using Yumney.Users.Application.Interfaces;
+using Yumney.Users.Domain.AppUserProfile;
 
 namespace Yumney.Users.Application.Tests.Commands;
 
 public class ResendVerificationEmailCommandHandlerTests
 {
+    private static readonly Email TestEmail = new("test@example.com");
+    private static readonly Email UnknownEmail = new("unknown@example.com");
+
     private readonly IKeycloakAdminService keycloakAdmin = Substitute.For<IKeycloakAdminService>();
     private readonly ILogger<ResendVerificationEmailCommandHandler> logger =
         Substitute.For<ILogger<ResendVerificationEmailCommandHandler>>();
@@ -24,12 +28,12 @@ public class ResendVerificationEmailCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ValidEmail_ReturnsSuccessAndSendsEmail()
     {
-        var command = new ResendVerificationEmailCommand("test@example.com");
-        var keycloakUserId = Guid.NewGuid().ToString();
+        var command = new ResendVerificationEmailCommand(TestEmail);
+        var keycloakUserId = new KeycloakUserId(Guid.NewGuid().ToString());
 
         keycloakAdmin
             .FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
-            .Returns(Result<string>.Success(keycloakUserId));
+            .Returns(Result<KeycloakUserId>.Success(keycloakUserId));
 
         keycloakAdmin
             .SendVerificationEmailAsync(keycloakUserId, Arg.Any<CancellationToken>())
@@ -47,11 +51,11 @@ public class ResendVerificationEmailCommandHandlerTests
     [Fact]
     public async Task HandleAsync_UserNotFound_ReturnsSuccessToPreventEnumeration()
     {
-        var command = new ResendVerificationEmailCommand("unknown@example.com");
+        var command = new ResendVerificationEmailCommand(UnknownEmail);
 
         keycloakAdmin
             .FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
-            .Returns(Result<string>.Failure(VerificationErrors.UserNotFound));
+            .Returns(Result<KeycloakUserId>.Failure(VerificationErrors.UserNotFound));
 
         var result = await sut.HandleAsync(command);
 
@@ -61,27 +65,27 @@ public class ResendVerificationEmailCommandHandlerTests
     [Fact]
     public async Task HandleAsync_UserNotFound_DoesNotAttemptToSendEmail()
     {
-        var command = new ResendVerificationEmailCommand("unknown@example.com");
+        var command = new ResendVerificationEmailCommand(UnknownEmail);
 
         keycloakAdmin
             .FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
-            .Returns(Result<string>.Failure(VerificationErrors.UserNotFound));
+            .Returns(Result<KeycloakUserId>.Failure(VerificationErrors.UserNotFound));
 
         await sut.HandleAsync(command);
 
         await keycloakAdmin.DidNotReceive().SendVerificationEmailAsync(
-            Arg.Any<string>(),
+            Arg.Any<KeycloakUserId>(),
             Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task HandleAsync_IdentityProviderUnavailable_ReturnsFailure()
     {
-        var command = new ResendVerificationEmailCommand("test@example.com");
+        var command = new ResendVerificationEmailCommand(TestEmail);
 
         keycloakAdmin
             .FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
-            .Returns(Result<string>.Failure(VerificationErrors.IdentityProviderUnavailable));
+            .Returns(Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable));
 
         var result = await sut.HandleAsync(command);
 
@@ -92,28 +96,28 @@ public class ResendVerificationEmailCommandHandlerTests
     [Fact]
     public async Task HandleAsync_IdentityProviderUnavailable_DoesNotAttemptToSendEmail()
     {
-        var command = new ResendVerificationEmailCommand("test@example.com");
+        var command = new ResendVerificationEmailCommand(TestEmail);
 
         keycloakAdmin
             .FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
-            .Returns(Result<string>.Failure(VerificationErrors.IdentityProviderUnavailable));
+            .Returns(Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable));
 
         await sut.HandleAsync(command);
 
         await keycloakAdmin.DidNotReceive().SendVerificationEmailAsync(
-            Arg.Any<string>(),
+            Arg.Any<KeycloakUserId>(),
             Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task HandleAsync_SendFailed_ReturnsFailure()
     {
-        var command = new ResendVerificationEmailCommand("test@example.com");
-        var keycloakUserId = Guid.NewGuid().ToString();
+        var command = new ResendVerificationEmailCommand(TestEmail);
+        var keycloakUserId = new KeycloakUserId(Guid.NewGuid().ToString());
 
         keycloakAdmin
             .FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
-            .Returns(Result<string>.Success(keycloakUserId));
+            .Returns(Result<KeycloakUserId>.Success(keycloakUserId));
 
         keycloakAdmin
             .SendVerificationEmailAsync(keycloakUserId, Arg.Any<CancellationToken>())

@@ -150,6 +150,32 @@ public Quantity(decimal amount, string unit) { }
 public Quantity(Amount amount, Unit unit) { }
 ```
 
+### Value Objects in Commands, Events, and Service Interfaces
+
+Commands, events, and service/repository interfaces MUST use value object types
+for all business-meaningful parameters. No primitive types (`string`, `int`, etc.)
+for concepts that carry domain meaning.
+
+API endpoints receive request DTOs (primitives), validate via FluentValidation,
+then map to commands with value objects.
+
+```csharp
+// ❌ FORBIDDEN – Primitives in commands
+public sealed record RegisterUserCommand(string Email, string Password, string DisplayName);
+
+// ✅ REQUIRED – Value objects in commands
+public sealed record RegisterUserRequest(string Email, string Password, string DisplayName); // API DTO
+public sealed record RegisterUserCommand(Email Email, Password Password, DisplayName DisplayName); // Command
+```
+
+```csharp
+// ❌ FORBIDDEN – Primitives in service interfaces
+Task<Result<string>> CreateUserAsync(string email, string password, string displayName);
+
+// ✅ REQUIRED – Value objects in service interfaces
+Task<Result<KeycloakUserId>> CreateUserAsync(Email email, Password password, DisplayName displayName);
+```
+
 ### Domain Model Structure – by Aggregate, NOT by type
 
 ```

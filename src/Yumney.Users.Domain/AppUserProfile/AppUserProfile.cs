@@ -1,27 +1,23 @@
 using Yumney.Shared.Common;
-using Yumney.Shared.Guards;
 
 namespace Yumney.Users.Domain.AppUserProfile;
 
 public sealed class AppUserProfile : AggregateRoot<Guid>
 {
-    public string KeycloakUserId { get; private set; } = default!;
+    public KeycloakUserId KeycloakUserId { get; private set; } = default!;
 
-    public string DisplayName { get; private set; } = default!;
+    public DisplayName DisplayName { get; private set; } = default!;
 
-    public string PreferredLanguage { get; private set; } = "en";
+    public PreferredLanguage PreferredLanguage { get; private set; } = new("en");
 
-    public string PreferredUnitSystem { get; private set; } = "metric";
+    public PreferredUnitSystem PreferredUnitSystem { get; private set; } = new("metric");
 
     private AppUserProfile()
     {
     }
 
-    public static AppUserProfile Create(string keycloakUserId, string displayName)
+    public static AppUserProfile Create(KeycloakUserId keycloakUserId, DisplayName displayName)
     {
-        Ensure.That(keycloakUserId).IsNotNullOrWhiteSpace();
-        Ensure.That(displayName).IsNotNullOrWhiteSpace().HasMaxLength(200);
-
         return new AppUserProfile
         {
             Id = Guid.NewGuid(),
@@ -30,21 +26,18 @@ public sealed class AppUserProfile : AggregateRoot<Guid>
         };
     }
 
-    public void ChangePreferredLanguage(string language)
+    public void ChangePreferredLanguage(PreferredLanguage language)
     {
-        Ensure.That(language).IsNotNullOrWhiteSpace().HasMaxLength(10);
         PreferredLanguage = language;
     }
 
-    public void ChangePreferredUnitSystem(string unitSystem)
+    public void ChangePreferredUnitSystem(PreferredUnitSystem unitSystem)
     {
-        Ensure.That(unitSystem).IsNotNullOrWhiteSpace().HasMaxLength(20);
         PreferredUnitSystem = unitSystem;
     }
 
-    public void RenameAs(string displayName)
+    public void RenameAs(DisplayName displayName)
     {
-        Ensure.That(displayName).IsNotNullOrWhiteSpace().HasMaxLength(200);
         DisplayName = displayName;
     }
 }
