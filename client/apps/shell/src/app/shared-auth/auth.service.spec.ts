@@ -93,6 +93,16 @@ describe('AuthService', () => {
       expect(service.isLoading()).toBe(false);
     });
 
+    it('should not update currentUser when token is valid but claims are null', async () => {
+      oauthMock.hasValidAccessToken.mockReturnValue(true);
+      oauthMock.getIdentityClaims.mockReturnValue(null);
+
+      await service.initialize();
+
+      expect(service.isAuthenticated()).toBe(true);
+      expect(service.currentUser()).toBeNull();
+    });
+
     it('should default roles to empty array when realm_access is missing', async () => {
       oauthMock.hasValidAccessToken.mockReturnValue(true);
       oauthMock.getIdentityClaims.mockReturnValue({

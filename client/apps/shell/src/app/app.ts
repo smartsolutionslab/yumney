@@ -9,6 +9,4 @@ import { HeaderComponent } from './layout/header/header.component';
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class App {
-  protected title = 'Yumney';
-}
+export class App {}
