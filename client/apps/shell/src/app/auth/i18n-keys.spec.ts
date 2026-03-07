@@ -80,4 +80,35 @@ describe('i18n keys', () => {
       expect(enKeys).toContain(key);
     }
   });
+
+  it('should contain required auth.login keys', () => {
+    const requiredKeys = [
+      'auth.login.title',
+      'auth.login.subtitle',
+      'auth.login.submit',
+      'auth.login.rememberMe',
+      'auth.login.noAccount',
+      'auth.login.registerLink',
+    ];
+
+    for (const key of requiredKeys) {
+      expect(enKeys).toContain(key);
+    }
+  });
+
+  it('should contain required layout.header keys', () => {
+    const requiredKeys = ['layout.header.greeting', 'layout.header.logout', 'layout.header.login'];
+
+    for (const key of requiredKeys) {
+      expect(enKeys).toContain(key);
+    }
+  });
+
+  it('should contain required dashboard keys', () => {
+    const requiredKeys = ['dashboard.title', 'dashboard.welcome'];
+
+    for (const key of requiredKeys) {
+      expect(enKeys).toContain(key);
+    }
+  });
 });

@@ -1,5 +1,13 @@
 {
   "auth": {
+    "login": {
+      "title": "Willkommen zurück",
+      "subtitle": "Melde dich bei deinem Yumney-Konto an",
+      "submit": "Über Keycloak anmelden",
+      "rememberMe": "Angemeldet bleiben",
+      "noAccount": "Noch kein Konto?",
+      "registerLink": "Jetzt erstellen"
+    },
     "register": {
       "title": "Konto erstellen",
       "subtitle": "Tritt Yumney bei und beginne Rezepte zu sammeln",
@@ -52,5 +60,16 @@
         "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
       }
     }
+  },
+  "layout": {
+    "header": {
+      "greeting": "Hallo, {{name}}",
+      "logout": "Abmelden",
+      "login": "Anmelden"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Willkommen bei Yumney!"
   }
 }

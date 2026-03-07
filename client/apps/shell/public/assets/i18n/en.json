@@ -1,5 +1,13 @@
 {
   "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your Yumney account",
+      "submit": "Sign in with Keycloak",
+      "rememberMe": "Stay logged in",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Create one"
+    },
     "register": {
       "title": "Create Account",
       "subtitle": "Join Yumney and start collecting recipes",
@@ -52,5 +60,16 @@
         "generic": "An unexpected error occurred. Please try again later."
       }
     }
+  },
+  "layout": {
+    "header": {
+      "greeting": "Hi, {{name}}",
+      "logout": "Sign out",
+      "login": "Sign in"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to Yumney!"
   }
 }
