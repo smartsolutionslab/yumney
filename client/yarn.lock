@@ -5430,6 +5430,7 @@ __metadata:
     "@vitest/coverage-v8": "npm:4.0.9"
     "@vitest/ui": "npm:4.0.9"
     angular-eslint: "npm:21.1.0"
+    angular-oauth2-oidc: "npm:^20.0.2"
     esbuild: "npm:^0.19.2"
     eslint: "npm:^9.8.0"
     eslint-config-prettier: "npm:^10.0.0"
@@ -8040,6 +8041,18 @@ __metadata:
     typescript: "*"
     typescript-eslint: ^8.0.0
   checksum: 10c0/cd8291d345f601705aa3ecac242e43c2b8c743a4cfb282fd4d35971fe8065d64837038571c5dc31a4804daa665353b4841eac2a6e273af2b837278742bb5a6d2
+  languageName: node
+  linkType: hard
+
+"angular-oauth2-oidc@npm:^20.0.2":
+  version: 20.0.2
+  resolution: "angular-oauth2-oidc@npm:20.0.2"
+  dependencies:
+    tslib: "npm:^2.5.2"
+  peerDependencies:
+    "@angular/common": ">=20.0.0"
+    "@angular/core": ">=20.0.0"
+  checksum: 10c0/db22f23d4906dd6b413b2a01d832a35aa8f7e8db236eafc7d0c63fdf7e29e08ca3aea13241b16e7ca63d27f586d365dc6b1cce690a6fb6d6aaf3f88aeb89a21b
   languageName: node
   linkType: hard
 
@@ -17637,7 +17650,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.8.1, tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
+"tslib@npm:2.8.1, tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.5.2, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
