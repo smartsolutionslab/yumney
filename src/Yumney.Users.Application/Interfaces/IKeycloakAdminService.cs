@@ -1,20 +1,21 @@
 using Yumney.Shared.Common;
+using Yumney.Users.Domain.AppUserProfile;
 
 namespace Yumney.Users.Application.Interfaces;
 
 public interface IKeycloakAdminService
 {
-    Task<Result<string>> CreateUserAsync(
-        string email,
-        string password,
-        string displayName,
+    Task<Result<KeycloakUserId>> CreateUserAsync(
+        Email email,
+        Password password,
+        DisplayName displayName,
         CancellationToken cancellationToken = default);
 
-    Task<Result<string>> FindUserByEmailAsync(
-        string email,
+    Task<Result<KeycloakUserId>> FindUserByEmailAsync(
+        Email email,
         CancellationToken cancellationToken = default);
 
     Task<Result> SendVerificationEmailAsync(
-        string keycloakUserId,
+        KeycloakUserId keycloakUserId,
         CancellationToken cancellationToken = default);
 }

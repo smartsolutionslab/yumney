@@ -4,16 +4,16 @@ using Yumney.Users.Application.Commands;
 
 namespace Yumney.Users.Application.Tests.Commands;
 
-public class RegisterUserCommandValidatorTests
+public class RegisterUserRequestValidatorTests
 {
-    private readonly RegisterUserCommandValidator sut = new();
+    private readonly RegisterUserRequestValidator sut = new();
 
     [Fact]
-    public void Validate_ValidCommand_IsValid()
+    public void Validate_ValidRequest_IsValid()
     {
-        var command = new RegisterUserCommand("test@example.com", "Password1", "Test User");
+        var request = new RegisterUserRequest("test@example.com", "Password1", "Test User");
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeTrue();
     }
@@ -24,9 +24,9 @@ public class RegisterUserCommandValidatorTests
     [InlineData("not-an-email")]
     public void Validate_InvalidEmail_IsNotValid(string email)
     {
-        var command = new RegisterUserCommand(email, "Password1", "Test User");
+        var request = new RegisterUserRequest(email, "Password1", "Test User");
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Email");
@@ -39,9 +39,9 @@ public class RegisterUserCommandValidatorTests
     [InlineData("NoDigitsHere")]
     public void Validate_WeakPassword_IsNotValid(string password)
     {
-        var command = new RegisterUserCommand("test@example.com", password, "Test User");
+        var request = new RegisterUserRequest("test@example.com", password, "Test User");
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Password");
@@ -52,9 +52,9 @@ public class RegisterUserCommandValidatorTests
     [InlineData("   ")]
     public void Validate_EmptyDisplayName_IsNotValid(string displayName)
     {
-        var command = new RegisterUserCommand("test@example.com", "Password1", displayName);
+        var request = new RegisterUserRequest("test@example.com", "Password1", displayName);
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "DisplayName");
@@ -66,9 +66,9 @@ public class RegisterUserCommandValidatorTests
     [InlineData("user_name@example.co.uk")]
     public void Validate_EmailWithSpecialChars_IsValid(string email)
     {
-        var command = new RegisterUserCommand(email, "Password1", "Test User");
+        var request = new RegisterUserRequest(email, "Password1", "Test User");
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeTrue();
     }
@@ -79,9 +79,9 @@ public class RegisterUserCommandValidatorTests
         var localPart = new string('a', 242);
         var email = $"{localPart}@example.com";
 
-        var command = new RegisterUserCommand(email, "Password1", "Test User");
+        var request = new RegisterUserRequest(email, "Password1", "Test User");
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.Errors.Should().NotContain(e => e.PropertyName == "Email" && e.ErrorCode == "MaximumLengthValidator");
     }
@@ -92,9 +92,9 @@ public class RegisterUserCommandValidatorTests
         var localPart = new string('a', 243);
         var email = $"{localPart}@example.com";
 
-        var command = new RegisterUserCommand(email, "Password1", "Test User");
+        var request = new RegisterUserRequest(email, "Password1", "Test User");
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "Email");
@@ -104,9 +104,9 @@ public class RegisterUserCommandValidatorTests
     public void Validate_DisplayNameAtMaxLength_IsValid()
     {
         var displayName = new string('A', 200);
-        var command = new RegisterUserCommand("test@example.com", "Password1", displayName);
+        var request = new RegisterUserRequest("test@example.com", "Password1", displayName);
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeTrue();
     }
@@ -115,9 +115,9 @@ public class RegisterUserCommandValidatorTests
     public void Validate_DisplayNameExceedsMaxLength_IsNotValid()
     {
         var displayName = new string('A', 201);
-        var command = new RegisterUserCommand("test@example.com", "Password1", displayName);
+        var request = new RegisterUserRequest("test@example.com", "Password1", displayName);
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == "DisplayName");
@@ -126,9 +126,9 @@ public class RegisterUserCommandValidatorTests
     [Fact]
     public void Validate_PasswordAtMinLength_IsValid()
     {
-        var command = new RegisterUserCommand("test@example.com", "Abcdef1x", "Test User");
+        var request = new RegisterUserRequest("test@example.com", "Abcdef1x", "Test User");
 
-        var result = sut.Validate(command);
+        var result = sut.Validate(request);
 
         result.IsValid.Should().BeTrue();
     }

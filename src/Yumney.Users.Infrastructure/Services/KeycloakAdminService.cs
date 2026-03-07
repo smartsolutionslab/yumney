@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Yumney.Shared.Common;
 using Yumney.Users.Application.Commands;
 using Yumney.Users.Application.Interfaces;
+using Yumney.Users.Domain.AppUserProfile;
 
 namespace Yumney.Users.Infrastructure.Services;
 
@@ -22,32 +23,32 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
 
     private static readonly string[] verifyEmailActions = ["VERIFY_EMAIL"];
 
-    public async Task<Result<string>> CreateUserAsync(
-        string email,
-        string password,
-        string displayName,
+    public async Task<Result<KeycloakUserId>> CreateUserAsync(
+        Email email,
+        Password password,
+        DisplayName displayName,
         CancellationToken cancellationToken = default)
     {
         var token = await GetServiceAccountTokenAsync(cancellationToken);
         if (token.IsFailure)
         {
-            return Result<string>.Failure(token.Error!);
+            return Result<KeycloakUserId>.Failure(token.Error!);
         }
 
         return await CreateKeycloakUserAsync(email, password, displayName, token.Value, cancellationToken);
     }
 
-    public async Task<Result<string>> FindUserByEmailAsync(
-        string email,
+    public async Task<Result<KeycloakUserId>> FindUserByEmailAsync(
+        Email email,
         CancellationToken cancellationToken = default)
     {
         var token = await GetServiceAccountTokenAsync(cancellationToken);
         if (token.IsFailure)
         {
-            return Result<string>.Failure(VerificationErrors.IdentityProviderUnavailable);
+            return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
 
-        var encodedEmail = Uri.EscapeDataString(email);
+        var encodedEmail = Uri.EscapeDataString(email.Value);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, $"/admin/realms/yumney/users?email={encodedEmail}&exact=true");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
@@ -59,27 +60,27 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
             if (!response.IsSuccessStatusCode)
             {
                 logger.LogError("Failed to search Keycloak users. Status: {StatusCode}", response.StatusCode);
-                return Result<string>.Failure(VerificationErrors.IdentityProviderUnavailable);
+                return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
             }
 
             var users = await response.Content.ReadFromJsonAsync<KeycloakUserRepresentation[]>(jsonOptions, cancellationToken);
 
             if (users is null || users.Length == 0)
             {
-                return Result<string>.Failure(VerificationErrors.UserNotFound);
+                return Result<KeycloakUserId>.Failure(VerificationErrors.UserNotFound);
             }
 
-            return Result<string>.Success(users[0].Id);
+            return Result<KeycloakUserId>.Success(new KeycloakUserId(users[0].Id));
         }
         catch (HttpRequestException ex)
         {
             logger.LogError(ex, "HTTP error while searching Keycloak users");
-            return Result<string>.Failure(VerificationErrors.IdentityProviderUnavailable);
+            return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
     }
 
     public async Task<Result> SendVerificationEmailAsync(
-        string keycloakUserId,
+        KeycloakUserId keycloakUserId,
         CancellationToken cancellationToken = default)
     {
         var token = await GetServiceAccountTokenAsync(cancellationToken);
@@ -88,7 +89,7 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
             return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
 
-        using var request = new HttpRequestMessage(HttpMethod.Put, $"/admin/realms/yumney/users/{keycloakUserId}/execute-actions-email");
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"/admin/realms/yumney/users/{keycloakUserId.Value}/execute-actions-email");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
         request.Content = JsonContent.Create(verifyEmailActions, options: jsonOptions);
 
@@ -142,27 +143,27 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
         }
     }
 
-    private async Task<Result<string>> CreateKeycloakUserAsync(
-        string email,
-        string password,
-        string displayName,
+    private async Task<Result<KeycloakUserId>> CreateKeycloakUserAsync(
+        Email email,
+        Password password,
+        DisplayName displayName,
         string accessToken,
         CancellationToken cancellationToken)
     {
         var userPayload = new
         {
-            username = email,
-            email,
+            username = email.Value,
+            email = email.Value,
             enabled = true,
             emailVerified = false,
-            firstName = displayName,
+            firstName = displayName.Value,
             requiredActions = new[] { "VERIFY_EMAIL" },
             credentials = new[]
             {
                 new
                 {
                     type = "password",
-                    value = password,
+                    value = password.Value,
                     temporary = false,
                 },
             },
@@ -178,30 +179,30 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
 
             if (response.StatusCode == HttpStatusCode.Conflict)
             {
-                return Result<string>.Failure(RegistrationErrors.EmailAlreadyExists);
+                return Result<KeycloakUserId>.Failure(RegistrationErrors.EmailAlreadyExists);
             }
 
             if (!response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync(cancellationToken);
                 logger.LogError("Failed to create Keycloak user. Status: {StatusCode}, Body: {Body}", response.StatusCode, body);
-                return Result<string>.Failure(RegistrationErrors.UserCreationFailed);
+                return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
             }
 
             var locationHeader = response.Headers.Location?.ToString();
             if (string.IsNullOrEmpty(locationHeader))
             {
                 logger.LogError("Keycloak did not return a Location header after user creation");
-                return Result<string>.Failure(RegistrationErrors.UserCreationFailed);
+                return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
             }
 
-            var keycloakUserId = locationHeader.Split('/').Last();
-            return Result<string>.Success(keycloakUserId);
+            var keycloakUserIdString = locationHeader.Split('/').Last();
+            return Result<KeycloakUserId>.Success(new KeycloakUserId(keycloakUserIdString));
         }
         catch (HttpRequestException ex)
         {
             logger.LogError(ex, "HTTP error while creating Keycloak user");
-            return Result<string>.Failure(RegistrationErrors.IdentityProviderUnavailable);
+            return Result<KeycloakUserId>.Failure(RegistrationErrors.IdentityProviderUnavailable);
         }
     }
 

@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace Yumney.Users.Application.Commands;
 
-public sealed class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
+public sealed class RegisterUserRequestValidator : AbstractValidator<RegisterUserRequest>
 {
-    public RegisterUserCommandValidator()
+    public RegisterUserRequestValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty()

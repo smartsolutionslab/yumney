@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using Yumney.Shared.Common;
 using Yumney.Shared.CQRS;
 using Yumney.Users.Application.Commands;
+using Yumney.Users.Domain.AppUserProfile;
 
 namespace Yumney.Users.Api;
 
@@ -26,17 +27,22 @@ public static class AuthEndpoints
     }
 
     private static async Task<IResult> RegisterAsync(
-        RegisterUserCommand command,
-        IValidator<RegisterUserCommand> validator,
+        RegisterUserRequest request,
+        IValidator<RegisterUserRequest> validator,
         ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(command, cancellationToken);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
+
+        var command = new RegisterUserCommand(
+            new Email(request.Email),
+            new Password(request.Password),
+            new DisplayName(request.DisplayName));
 
         var result = await handler.HandleAsync(command, cancellationToken);
 
@@ -57,17 +63,19 @@ public static class AuthEndpoints
     }
 
     private static async Task<IResult> ResendVerificationEmailAsync(
-        ResendVerificationEmailCommand command,
-        IValidator<ResendVerificationEmailCommand> validator,
+        ResendVerificationEmailRequest request,
+        IValidator<ResendVerificationEmailRequest> validator,
         ICommandHandler<ResendVerificationEmailCommand, Result> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(command, cancellationToken);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
+
+        var command = new ResendVerificationEmailCommand(new Email(request.Email));
 
         var result = await handler.HandleAsync(command, cancellationToken);
 

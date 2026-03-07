@@ -1,11 +1,12 @@
 using Yumney.Shared.Common;
 using Yumney.Shared.CQRS;
+using Yumney.Users.Domain.AppUserProfile;
 
 namespace Yumney.Users.Application.Commands;
 
 public sealed record RegisterUserCommand(
-    string Email,
-    string Password,
-    string DisplayName) : ICommand<Result<RegisterUserResultDto>>;
+    Email Email,
+    Password Password,
+    DisplayName DisplayName) : ICommand<Result<RegisterUserResultDto>>;
 
 public sealed record RegisterUserResultDto(string Message);
