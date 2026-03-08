@@ -71,6 +71,18 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome to Yumney!"
+    "welcome": "Welcome to Yumney!",
+    "import": {
+      "title": "Import a Recipe",
+      "subtitle": "Paste a URL from any recipe website",
+      "placeholder": "https://example.com/recipe/...",
+      "submit": "Import Recipe",
+      "submitting": "Importing...",
+      "errors": {
+        "urlRequired": "Please enter a URL.",
+        "urlInvalid": "Please enter a valid HTTP or HTTPS URL.",
+        "generic": "An unexpected error occurred. Please try again later."
+      }
+    }
   }
 }

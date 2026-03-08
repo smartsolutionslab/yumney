@@ -112,4 +112,21 @@ describe('i18n keys', () => {
       expect(enKeys).toContain(key);
     }
   });
+
+  it('should contain required dashboard.import keys', () => {
+    const requiredKeys = [
+      'dashboard.import.title',
+      'dashboard.import.subtitle',
+      'dashboard.import.placeholder',
+      'dashboard.import.submit',
+      'dashboard.import.submitting',
+      'dashboard.import.errors.urlRequired',
+      'dashboard.import.errors.urlInvalid',
+      'dashboard.import.errors.generic',
+    ];
+
+    for (const key of requiredKeys) {
+      expect(enKeys).toContain(key);
+    }
+  });
 });

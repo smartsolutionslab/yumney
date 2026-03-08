@@ -5,6 +5,7 @@ using Scalar.AspNetCore;
 using Serilog;
 using Yumney.Api.Middleware;
 using Yumney.Recipes.Api;
+using Yumney.Recipes.Application.Commands;
 using Yumney.ServiceDefaults;
 using Yumney.Shared.Common;
 using Yumney.Shared.CQRS;
@@ -40,6 +41,9 @@ builder.Services.AddInProcessEventBus();
 
 builder.Services.AddDbContext<UsersDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("yumneydb")));
 builder.Services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
+builder.Services.AddScoped<ICommandHandler<ImportRecipeCommand, Result<ImportRecipeResultDto>>, ImportRecipeCommandHandler>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserRequestValidator>();
 builder.Services.AddScoped<ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>, RegisterUserCommandHandler>();

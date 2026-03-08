@@ -1,4 +1,40 @@
 <div class="dashboard-container" *transloco="let t">
   <h1>{{ t('dashboard.title') }}</h1>
   <p>{{ t('dashboard.welcome') }}</p>
+
+  <section class="url-import">
+    <h2>{{ t('dashboard.import.title') }}</h2>
+    <p class="subtitle">{{ t('dashboard.import.subtitle') }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="onImport()">
+      @if (serverError()) {
+      <div class="error-banner">{{ t(serverError()!) }}</div>
+      }
+
+      <div class="import-row">
+        <div class="form-field">
+          <input
+            id="url"
+            type="url"
+            formControlName="url"
+            [placeholder]="t('dashboard.import.placeholder')"
+          />
+          @if (hasError('url', 'required')) {
+          <span class="field-error">{{ t('dashboard.import.errors.urlRequired') }}</span>
+          } @if (hasError('url', 'invalidUrl')) {
+          <span class="field-error">{{ t('dashboard.import.errors.urlInvalid') }}</span>
+          }
+        </div>
+
+        <button type="submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+          <span class="spinner"></span>
+          <span>{{ t('dashboard.import.submitting') }}</span>
+          } @else {
+          <span>{{ t('dashboard.import.submit') }}</span>
+          }
+        </button>
+      </div>
+    </form>
+  </section>
 </div>
