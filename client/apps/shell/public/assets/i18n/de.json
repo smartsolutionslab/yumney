@@ -71,6 +71,18 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Willkommen bei Yumney!"
+    "welcome": "Willkommen bei Yumney!",
+    "import": {
+      "title": "Rezept importieren",
+      "subtitle": "Füge eine URL von einer beliebigen Rezept-Website ein",
+      "placeholder": "https://example.com/rezept/...",
+      "submit": "Rezept importieren",
+      "submitting": "Wird importiert...",
+      "errors": {
+        "urlRequired": "Bitte gib eine URL ein.",
+        "urlInvalid": "Bitte gib eine gültige HTTP- oder HTTPS-URL ein.",
+        "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
+      }
+    }
   }
 }
