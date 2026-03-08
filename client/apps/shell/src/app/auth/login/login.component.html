@@ -13,6 +13,12 @@
         {{ t('auth.login.submit') }}
       </button>
 
+      <p class="forgot-password">
+        <a (click)="onForgotPassword()" (keydown.enter)="onForgotPassword()" tabindex="0">
+          {{ t('auth.login.forgotPassword') }}
+        </a>
+      </p>
+
       <p class="register-link">
         {{ t('auth.login.noAccount') }}
         <a routerLink="/auth/register">{{ t('auth.login.registerLink') }}</a>

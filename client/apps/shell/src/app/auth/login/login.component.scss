@@ -59,6 +59,22 @@ button {
   }
 }
 
+.forgot-password {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+
+  a {
+    color: #4a90d9;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .register-link {
   margin-top: 1rem;
   text-align: center;

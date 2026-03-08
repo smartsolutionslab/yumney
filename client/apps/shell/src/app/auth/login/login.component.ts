@@ -19,4 +19,8 @@ export class LoginComponent {
   onLogin(): void {
     this.authService.login(this.rememberMe);
   }
+
+  onForgotPassword(): void {
+    this.authService.forgotPassword();
+  }
 }
