@@ -15,9 +15,6 @@ export class RecipeApiService {
   private http = inject(HttpClient);
 
   importRecipe(request: ImportRecipeRequest): Observable<ImportRecipeResponse> {
-    return this.http.post<ImportRecipeResponse>(
-      '/api/v1/recipes/import',
-      request,
-    );
+    return this.http.post<ImportRecipeResponse>('/api/v1/recipes/import', request);
   }
 }

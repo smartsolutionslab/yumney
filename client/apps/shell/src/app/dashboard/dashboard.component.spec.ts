@@ -150,9 +150,7 @@ describe('DashboardComponent', () => {
     component.isLoading.set(true);
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector(
-      'button[type="submit"]',
-    );
+    const button = fixture.nativeElement.querySelector('button[type="submit"]');
     expect(button.disabled).toBe(true);
   });
 
@@ -169,9 +167,7 @@ describe('DashboardComponent', () => {
   });
 
   it('should reset form after successful import', fakeAsync(() => {
-    recipeApiMock.importRecipe.mockReturnValue(
-      of({ message: 'OK' }),
-    );
+    recipeApiMock.importRecipe.mockReturnValue(of({ message: 'OK' }));
 
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
@@ -188,13 +184,9 @@ describe('DashboardComponent', () => {
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
     tick();
-    expect(component.serverError()).toBe(
-      'dashboard.import.errors.generic',
-    );
+    expect(component.serverError()).toBe('dashboard.import.errors.generic');
 
-    recipeApiMock.importRecipe.mockReturnValue(
-      of({ message: 'OK' }),
-    );
+    recipeApiMock.importRecipe.mockReturnValue(of({ message: 'OK' }));
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
     expect(component.serverError()).toBeNull();
@@ -209,9 +201,7 @@ describe('DashboardComponent', () => {
     component.onImport();
     tick();
 
-    expect(component.serverError()).toBe(
-      'dashboard.import.errors.urlInvalid',
-    );
+    expect(component.serverError()).toBe('dashboard.import.errors.urlInvalid');
   }));
 
   it('should reject ftp URL', () => {
