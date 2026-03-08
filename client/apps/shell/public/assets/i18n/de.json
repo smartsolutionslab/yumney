@@ -6,7 +6,8 @@
       "submit": "Über Keycloak anmelden",
       "rememberMe": "Angemeldet bleiben",
       "noAccount": "Noch kein Konto?",
-      "registerLink": "Jetzt erstellen"
+      "registerLink": "Jetzt erstellen",
+      "forgotPassword": "Passwort vergessen?"
     },
     "register": {
       "title": "Konto erstellen",

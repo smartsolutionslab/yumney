@@ -13,6 +13,7 @@ const en = {
       rememberMe: 'Stay logged in',
       noAccount: "Don't have an account?",
       registerLink: 'Create one',
+      forgotPassword: 'Forgot your password?',
     },
   },
 };
@@ -20,10 +21,13 @@ const en = {
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let authServiceMock: { login: ReturnType<typeof vi.fn> };
+  let authServiceMock: {
+    login: ReturnType<typeof vi.fn>;
+    forgotPassword: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
-    authServiceMock = { login: vi.fn() };
+    authServiceMock = { login: vi.fn(), forgotPassword: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -89,5 +93,18 @@ describe('LoginComponent', () => {
   it('should render the remember me label', () => {
     const label = fixture.nativeElement.querySelector('.remember-me');
     expect(label.textContent).toContain('Stay logged in');
+  });
+
+  it('should render forgot password link', () => {
+    const link = fixture.nativeElement.querySelector('.forgot-password a');
+    expect(link).toBeTruthy();
+    expect(link.textContent).toContain('Forgot your password?');
+  });
+
+  it('should call authService.forgotPassword on forgot password click', () => {
+    const link = fixture.nativeElement.querySelector('.forgot-password a');
+    link.click();
+
+    expect(authServiceMock.forgotPassword).toHaveBeenCalled();
   });
 });

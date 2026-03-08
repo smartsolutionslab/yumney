@@ -89,6 +89,7 @@ describe('i18n keys', () => {
       'auth.login.rememberMe',
       'auth.login.noAccount',
       'auth.login.registerLink',
+      'auth.login.forgotPassword',
     ];
 
     for (const key of requiredKeys) {

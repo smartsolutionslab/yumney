@@ -216,6 +216,16 @@ describe('AuthService', () => {
     });
   });
 
+  describe('forgotPassword', () => {
+    it('should initiate code flow with UPDATE_PASSWORD action', () => {
+      service.forgotPassword();
+
+      expect(oauthMock.initCodeFlow).toHaveBeenCalledWith('', {
+        kc_action: 'UPDATE_PASSWORD',
+      });
+    });
+  });
+
   describe('logout', () => {
     it('should call logOut on logout', () => {
       service.logout();
