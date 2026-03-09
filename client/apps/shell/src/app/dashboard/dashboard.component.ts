@@ -1,6 +1,12 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
@@ -49,7 +55,10 @@ export class DashboardComponent {
   extractedRecipe = signal<ImportRecipeResponse | null>(null);
 
   form = this.fb.nonNullable.group({
-    url: ['', [Validators.required, Validators.maxLength(DashboardComponent.urlMaxLength), urlValidator]],
+    url: [
+      '',
+      [Validators.required, Validators.maxLength(DashboardComponent.urlMaxLength), urlValidator],
+    ],
   });
 
   onImport(): void {
