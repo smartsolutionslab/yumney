@@ -19,6 +19,7 @@ using Yumney.Shopping.Api;
 using Yumney.Users.Api;
 using Yumney.Users.Application.Commands;
 using Yumney.Users.Application.Interfaces;
+using Yumney.Users.Domain.AppUserProfile;
 using Yumney.Users.Infrastructure;
 using Yumney.Users.Infrastructure.Persistence;
 using Yumney.Users.Infrastructure.Services;

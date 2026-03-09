@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Yumney.Users.Application.Interfaces;
 using Yumney.Users.Domain.AppUserProfile;
 
 namespace Yumney.Users.Infrastructure.Persistence;
