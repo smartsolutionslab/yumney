@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Yumney.Shared.Common;
 using Yumney.Users.Application.Commands;
 using Yumney.Users.Application.Interfaces;
@@ -12,7 +13,10 @@ using Yumney.Users.Domain.AppUserProfile;
 namespace Yumney.Users.Infrastructure.Services;
 
 #pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase for private fields)
-public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<KeycloakAdminService> logger)
+public sealed class KeycloakAdminService(
+    HttpClient httpClient,
+    IOptions<KeycloakOptions> options,
+    ILogger<KeycloakAdminService> logger)
     : IKeycloakAdminService
 {
     private static readonly JsonSerializerOptions jsonOptions = new()
@@ -38,9 +42,7 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
         return await CreateKeycloakUserAsync(email, password, displayName, token.Value, cancellationToken);
     }
 
-    public async Task<Result<KeycloakUserId>> FindUserByEmailAsync(
-        Email email,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<KeycloakUserId>> FindUserByEmailAsync(Email email, CancellationToken cancellationToken = default)
     {
         var token = await GetServiceAccountTokenAsync(cancellationToken);
         if (token.IsFailure)
@@ -49,8 +51,9 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
         }
 
         var encodedEmail = Uri.EscapeDataString(email.Value);
+        var url = $"/admin/realms/{options.Value.Realm}/users?email={encodedEmail}&exact=true";
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"/admin/realms/yumney/users?email={encodedEmail}&exact=true");
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
 
         try
@@ -79,9 +82,7 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
         }
     }
 
-    public async Task<Result> SendVerificationEmailAsync(
-        KeycloakUserId keycloakUserId,
-        CancellationToken cancellationToken = default)
+    public async Task<Result> SendVerificationEmailAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default)
     {
         var token = await GetServiceAccountTokenAsync(cancellationToken);
         if (token.IsFailure)
@@ -89,7 +90,9 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
             return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
 
-        using var request = new HttpRequestMessage(HttpMethod.Put, $"/admin/realms/yumney/users/{keycloakUserId.Value}/execute-actions-email");
+        var url = $"/admin/realms/{options.Value.Realm}/users/{keycloakUserId.Value}/execute-actions-email";
+
+        using var request = new HttpRequestMessage(HttpMethod.Put, url);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
         request.Content = JsonContent.Create(verifyEmailActions, options: jsonOptions);
 
@@ -118,13 +121,14 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["grant_type"] = "client_credentials",
-            ["client_id"] = "yumney-api",
-            ["client_secret"] = "yumney-api-secret",
+            ["client_id"] = options.Value.ClientId,
+            ["client_secret"] = options.Value.ClientSecret,
         });
 
         try
         {
-            var response = await httpClient.PostAsync("/realms/yumney/protocol/openid-connect/token", content, cancellationToken);
+            var tokenUrl = $"/realms/{options.Value.Realm}/protocol/openid-connect/token";
+            var response = await httpClient.PostAsync(tokenUrl, content, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -169,7 +173,9 @@ public sealed class KeycloakAdminService(HttpClient httpClient, ILogger<Keycloak
             },
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/admin/realms/yumney/users");
+        var url = $"/admin/realms/{options.Value.Realm}/users";
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, url);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         request.Content = JsonContent.Create(userPayload, options: jsonOptions);
 
