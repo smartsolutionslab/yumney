@@ -50,16 +50,11 @@ public static class RecipesEndpoints
         {
             return result.Error switch
             {
-                ImportRecipeErrors.PageUnreachable =>
-                    Results.Problem("Could not reach the website.", statusCode: 502),
-                ImportRecipeErrors.ScrapeTimeout =>
-                    Results.Problem("Extraction timed out.", statusCode: 504),
-                ImportRecipeErrors.NoRecipeFound =>
-                    Results.Problem("No recipe found on this page.", statusCode: 404),
-                ImportRecipeErrors.ExtractionFailed =>
-                    Results.Problem("Recipe extraction failed.", statusCode: 500),
-                _ =>
-                    Results.Problem("Failed to import recipe.", statusCode: 500),
+                ImportRecipeErrors.PageUnreachable => Results.Problem("Could not reach the website.", statusCode: 502),
+                ImportRecipeErrors.ScrapeTimeout => Results.Problem("Extraction timed out.", statusCode: 504),
+                ImportRecipeErrors.NoRecipeFound => Results.Problem("No recipe found on this page.", statusCode: 404),
+                ImportRecipeErrors.ExtractionFailed => Results.Problem("Recipe extraction failed.", statusCode: 500),
+                _ => Results.Problem("Failed to import recipe.", statusCode: 500),
             };
         }
 
