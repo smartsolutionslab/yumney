@@ -82,6 +82,7 @@
       "errors": {
         "urlRequired": "Bitte gib eine URL ein.",
         "urlInvalid": "Bitte gib eine gültige HTTP- oder HTTPS-URL ein.",
+        "urlTooLong": "URL darf maximal 2048 Zeichen lang sein.",
         "unreachable": "Die Website konnte nicht erreicht werden. Bitte überprüfe die URL.",
         "timeout": "Die Extraktion hat zu lange gedauert. Bitte versuche es erneut.",
         "noRecipe": "Auf dieser Seite wurde kein Rezept gefunden.",

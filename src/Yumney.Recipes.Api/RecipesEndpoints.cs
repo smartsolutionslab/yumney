@@ -17,7 +17,14 @@ public static class RecipesEndpoints
         var group = app.MapGroup("/recipes");
 
         group.MapPost("/import", ImportAsync)
-            .WithName("ImportRecipe");
+            .WithName("ImportRecipe")
+            .WithTags("Recipes")
+            .Produces<ExtractedRecipeDto>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .ProducesProblem(StatusCodes.Status502BadGateway)
+            .ProducesProblem(StatusCodes.Status504GatewayTimeout);
 
         return app;
     }

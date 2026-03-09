@@ -123,6 +123,7 @@ describe('i18n keys', () => {
       'dashboard.import.success',
       'dashboard.import.errors.urlRequired',
       'dashboard.import.errors.urlInvalid',
+      'dashboard.import.errors.urlTooLong',
       'dashboard.import.errors.unreachable',
       'dashboard.import.errors.timeout',
       'dashboard.import.errors.noRecipe',

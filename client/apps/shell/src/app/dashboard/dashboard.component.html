@@ -25,6 +25,8 @@
           />
           @if (hasError('url', 'required')) {
           <span class="field-error">{{ t('dashboard.import.errors.urlRequired') }}</span>
+          } @if (hasError('url', 'maxlength')) {
+          <span class="field-error">{{ t('dashboard.import.errors.urlTooLong') }}</span>
           } @if (hasError('url', 'invalidUrl')) {
           <span class="field-error">{{ t('dashboard.import.errors.urlInvalid') }}</span>
           }

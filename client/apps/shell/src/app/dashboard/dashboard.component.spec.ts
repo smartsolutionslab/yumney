@@ -37,6 +37,7 @@ const en = {
       errors: {
         urlRequired: 'Please enter a URL.',
         urlInvalid: 'Please enter a valid HTTP or HTTPS URL.',
+        urlTooLong: 'URL must not exceed 2048 characters.',
         unreachable: 'Could not reach the website. Please check the URL.',
         timeout: 'Extraction timed out. Please try again.',
         noRecipe: 'No recipe found on this page.',
@@ -125,6 +126,23 @@ describe('DashboardComponent', () => {
     component.form.controls.url.setValue('https://example.com/recipe?id=123&lang=en');
 
     expect(component.form.valid).toBe(true);
+  });
+
+  it('should reject URL exceeding 2048 characters', () => {
+    const longUrl = 'https://example.com/' + 'a'.repeat(2048);
+    component.form.controls.url.setValue(longUrl);
+
+    expect(component.form.valid).toBe(false);
+  });
+
+  it('should show validation error for URL exceeding max length', () => {
+    const longUrl = 'https://example.com/' + 'a'.repeat(2048);
+    component.form.controls.url.setValue(longUrl);
+    component.onImport();
+    fixture.detectChanges();
+
+    const error = fixture.nativeElement.querySelector('.field-error');
+    expect(error.textContent).toContain('URL must not exceed 2048 characters.');
   });
 
   it('should call recipeApi.importRecipe on valid submit', fakeAsync(() => {
