@@ -82,6 +82,7 @@
       "errors": {
         "urlRequired": "Please enter a URL.",
         "urlInvalid": "Please enter a valid HTTP or HTTPS URL.",
+        "urlTooLong": "URL must not exceed 2048 characters.",
         "unreachable": "Could not reach the website. Please check the URL.",
         "timeout": "Extraction timed out. Please try again.",
         "noRecipe": "No recipe found on this page.",

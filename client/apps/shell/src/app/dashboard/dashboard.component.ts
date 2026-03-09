@@ -46,7 +46,7 @@ export class DashboardComponent {
   extractedRecipe = signal<ImportRecipeResponse | null>(null);
 
   form = this.fb.nonNullable.group({
-    url: ['', [Validators.required, urlValidator]],
+    url: ['', [Validators.required, Validators.maxLength(2048), urlValidator]],
   });
 
   onImport(): void {
