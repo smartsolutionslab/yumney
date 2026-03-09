@@ -1,0 +1,81 @@
+using AngleSharp;
+using AngleSharp.Dom;
+using Microsoft.Extensions.Logging;
+using Yumney.Recipes.Application.Commands;
+using Yumney.Recipes.Application.DTOs;
+using Yumney.Recipes.Application.Interfaces;
+using Yumney.Recipes.Domain.Recipe;
+using Yumney.Shared.Common;
+
+namespace Yumney.Recipes.Infrastructure.Services;
+
+#pragma warning disable SA1601
+#pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase for private fields)
+public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper> logger)
+    : IWebScraper
+{
+    private static readonly string[] tagsToRemove =
+        ["script", "style", "nav", "footer", "header", "aside", "iframe", "noscript"];
+
+    public async Task<Result<ScrapedContent>> ScrapeAsync(RecipeUrl url, CancellationToken cancellationToken = default)
+    {
+        string html;
+        try
+        {
+            html = await httpClient.GetStringAsync(url.Value, cancellationToken);
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            LogScrapeTimeout(url.Value);
+            return Result<ScrapedContent>.Failure(ImportRecipeErrors.ScrapeTimeout);
+        }
+        catch (HttpRequestException ex)
+        {
+            LogPageUnreachable(url.Value, ex.Message);
+            return Result<ScrapedContent>.Failure(ImportRecipeErrors.PageUnreachable);
+        }
+
+        var cleanedText = await CleanHtmlAsync(html, cancellationToken);
+
+        if (string.IsNullOrWhiteSpace(cleanedText))
+        {
+            LogEmptyContent(url.Value);
+            return Result<ScrapedContent>.Failure(ImportRecipeErrors.NoRecipeFound);
+        }
+
+        return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url.Value));
+    }
+
+    private static async Task<string> CleanHtmlAsync(string html, CancellationToken cancellationToken)
+    {
+        var config = Configuration.Default;
+        using var context = BrowsingContext.New(config);
+        using var document = await context.OpenAsync(req => req.Content(html), cancellationToken);
+
+        foreach (var tag in tagsToRemove)
+        {
+            foreach (var element in document.QuerySelectorAll(tag).ToList())
+            {
+                element.Remove();
+            }
+        }
+
+        var contentElement = document.QuerySelector("main")
+            ?? document.QuerySelector("article")
+            ?? document.QuerySelector("body");
+
+        return contentElement?.TextContent.Trim() ?? string.Empty;
+    }
+
+    [LoggerMessage(Level = LogLevel.Warning,
+        Message = "Scrape timed out for URL {SourceUrl}")]
+    private partial void LogScrapeTimeout(string sourceUrl);
+
+    [LoggerMessage(Level = LogLevel.Warning,
+        Message = "Page unreachable at URL {SourceUrl}: {Reason}")]
+    private partial void LogPageUnreachable(string sourceUrl, string reason);
+
+    [LoggerMessage(Level = LogLevel.Warning,
+        Message = "No content extracted from URL {SourceUrl}")]
+    private partial void LogEmptyContent(string sourceUrl);
+}

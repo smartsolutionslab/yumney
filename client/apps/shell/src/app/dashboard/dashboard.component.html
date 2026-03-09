@@ -7,7 +7,11 @@
     <p class="subtitle">{{ t('dashboard.import.subtitle') }}</p>
 
     <form [formGroup]="form" (ngSubmit)="onImport()">
-      @if (serverError()) {
+      @if (extractedRecipe()) {
+      <div class="success-banner">
+        {{ t('dashboard.import.success', { title: extractedRecipe()!.title }) }}
+      </div>
+      } @if (serverError()) {
       <div class="error-banner">{{ t(serverError()!) }}</div>
       }
 

@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService } from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
 
 function urlValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
@@ -43,6 +43,7 @@ export class DashboardComponent {
 
   isLoading = signal(false);
   serverError = signal<string | null>(null);
+  extractedRecipe = signal<ImportRecipeResponse | null>(null);
 
   form = this.fb.nonNullable.group({
     url: ['', [Validators.required, urlValidator]],
@@ -56,6 +57,7 @@ export class DashboardComponent {
 
     this.isLoading.set(true);
     this.serverError.set(null);
+    this.extractedRecipe.set(null);
 
     const { url } = this.form.getRawValue();
 
@@ -63,15 +65,20 @@ export class DashboardComponent {
       .importRecipe({ url })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: (response) => {
           this.isLoading.set(false);
+          this.extractedRecipe.set(response);
           this.form.reset();
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
 
-          if (err.status === 422) {
-            this.serverError.set('dashboard.import.errors.urlInvalid');
+          if (err.status === 502) {
+            this.serverError.set('dashboard.import.errors.unreachable');
+          } else if (err.status === 504) {
+            this.serverError.set('dashboard.import.errors.timeout');
+          } else if (err.status === 404) {
+            this.serverError.set('dashboard.import.errors.noRecipe');
           } else {
             this.serverError.set('dashboard.import.errors.generic');
           }

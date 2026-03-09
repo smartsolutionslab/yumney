@@ -120,8 +120,12 @@ describe('i18n keys', () => {
       'dashboard.import.placeholder',
       'dashboard.import.submit',
       'dashboard.import.submitting',
+      'dashboard.import.success',
       'dashboard.import.errors.urlRequired',
       'dashboard.import.errors.urlInvalid',
+      'dashboard.import.errors.unreachable',
+      'dashboard.import.errors.timeout',
+      'dashboard.import.errors.noRecipe',
       'dashboard.import.errors.generic',
     ];
 

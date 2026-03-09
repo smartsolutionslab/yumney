@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Yumney.Recipes.Application.Commands;
+using Yumney.Recipes.Application.DTOs;
 using Yumney.Recipes.Domain.Recipe;
 using Yumney.Shared.Common;
 using Yumney.Shared.CQRS;
@@ -24,7 +25,7 @@ public static class RecipesEndpoints
     private static async Task<IResult> ImportAsync(
         ImportRecipeRequest request,
         IValidator<ImportRecipeRequest> validator,
-        ICommandHandler<ImportRecipeCommand, Result<ImportRecipeResultDto>> handler,
+        ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -42,8 +43,14 @@ public static class RecipesEndpoints
         {
             return result.Error switch
             {
-                ImportRecipeErrors.InvalidUrl =>
-                    Results.Problem("The provided URL is not valid.", statusCode: 400),
+                ImportRecipeErrors.PageUnreachable =>
+                    Results.Problem("Could not reach the website.", statusCode: 502),
+                ImportRecipeErrors.ScrapeTimeout =>
+                    Results.Problem("Extraction timed out.", statusCode: 504),
+                ImportRecipeErrors.NoRecipeFound =>
+                    Results.Problem("No recipe found on this page.", statusCode: 404),
+                ImportRecipeErrors.ExtractionFailed =>
+                    Results.Problem("Recipe extraction failed.", statusCode: 500),
                 _ =>
                     Results.Problem("Failed to import recipe.", statusCode: 500),
             };

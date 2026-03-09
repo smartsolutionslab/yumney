@@ -3,7 +3,25 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, Subject, throwError } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
-import { RecipeApiService } from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
+
+const mockRecipe: ImportRecipeResponse = {
+  title: 'Pasta Carbonara',
+  description: 'A classic Italian pasta dish',
+  ingredients: [
+    { name: 'Spaghetti', amount: 400, unit: 'g' },
+    { name: 'Pancetta', amount: 200, unit: 'g' },
+  ],
+  steps: [
+    { number: 1, description: 'Cook pasta' },
+    { number: 2, description: 'Fry pancetta' },
+  ],
+  servings: 4,
+  prepTimeMinutes: 10,
+  cookTimeMinutes: 20,
+  difficulty: 'medium',
+  imageUrl: null,
+};
 
 const en = {
   dashboard: {
@@ -15,9 +33,13 @@ const en = {
       placeholder: 'https://example.com/recipe/...',
       submit: 'Import Recipe',
       submitting: 'Importing...',
+      success: 'Recipe "{{title}}" extracted successfully!',
       errors: {
         urlRequired: 'Please enter a URL.',
         urlInvalid: 'Please enter a valid HTTP or HTTPS URL.',
+        unreachable: 'Could not reach the website. Please check the URL.',
+        timeout: 'Extraction timed out. Please try again.',
+        noRecipe: 'No recipe found on this page.',
         generic: 'An unexpected error occurred. Please try again later.',
       },
     },
@@ -106,7 +128,7 @@ describe('DashboardComponent', () => {
   });
 
   it('should call recipeApi.importRecipe on valid submit', fakeAsync(() => {
-    recipeApiMock.importRecipe.mockReturnValue(of({ message: 'OK' }));
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
 
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
@@ -128,7 +150,7 @@ describe('DashboardComponent', () => {
     const button = fixture.nativeElement.querySelector('button[type="submit"]');
     expect(button.textContent).toContain('Importing...');
 
-    subject.next({ message: 'OK' });
+    subject.next(mockRecipe);
     subject.complete();
   });
 
@@ -167,7 +189,7 @@ describe('DashboardComponent', () => {
   });
 
   it('should reset form after successful import', fakeAsync(() => {
-    recipeApiMock.importRecipe.mockReturnValue(of({ message: 'OK' }));
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
 
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
@@ -186,22 +208,10 @@ describe('DashboardComponent', () => {
     tick();
     expect(component.serverError()).toBe('dashboard.import.errors.generic');
 
-    recipeApiMock.importRecipe.mockReturnValue(of({ message: 'OK' }));
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
     expect(component.serverError()).toBeNull();
-  }));
-
-  it('should show url invalid error on 422 response', fakeAsync(() => {
-    recipeApiMock.importRecipe.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 422 })),
-    );
-
-    component.form.controls.url.setValue('https://example.com/recipe');
-    component.onImport();
-    tick();
-
-    expect(component.serverError()).toBe('dashboard.import.errors.urlInvalid');
   }));
 
   it('should reject ftp URL', () => {
@@ -231,5 +241,125 @@ describe('DashboardComponent', () => {
     tick();
 
     expect(component.isLoading()).toBe(false);
+  }));
+
+  it('should show success banner with recipe title after extraction', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+    fixture.detectChanges();
+
+    const successBanner = fixture.nativeElement.querySelector('.success-banner');
+    expect(successBanner).toBeTruthy();
+    expect(successBanner.textContent).toContain('Pasta Carbonara');
+  }));
+
+  it('should store extracted recipe data', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    expect(component.extractedRecipe()).toEqual(mockRecipe);
+  }));
+
+  it('should show unreachable error on 502 response', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 502 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    expect(component.serverError()).toBe('dashboard.import.errors.unreachable');
+  }));
+
+  it('should show timeout error on 504 response', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 504 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    expect(component.serverError()).toBe('dashboard.import.errors.timeout');
+  }));
+
+  it('should show no recipe error on 404 response', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 404 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    expect(component.serverError()).toBe('dashboard.import.errors.noRecipe');
+  }));
+
+  it('should clear extracted recipe before new import', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+    expect(component.extractedRecipe()).toEqual(mockRecipe);
+
+    const subject = new Subject();
+    recipeApiMock.importRecipe.mockReturnValue(subject);
+    component.form.controls.url.setValue('https://example.com/other');
+    component.onImport();
+
+    expect(component.extractedRecipe()).toBeNull();
+
+    subject.next(mockRecipe);
+    subject.complete();
+  }));
+
+  it('should clear extracted recipe on error', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+    expect(component.extractedRecipe()).toEqual(mockRecipe);
+
+    recipeApiMock.importRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+    component.form.controls.url.setValue('https://example.com/other');
+    component.onImport();
+    tick();
+
+    expect(component.extractedRecipe()).toBeNull();
+  }));
+
+  it('should show generic error on 400 response', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 400 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    expect(component.serverError()).toBe('dashboard.import.errors.generic');
+  }));
+
+  it('should show generic error on 422 response', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 422 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    expect(component.serverError()).toBe('dashboard.import.errors.generic');
   }));
 });
