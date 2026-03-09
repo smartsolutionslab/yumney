@@ -1,11 +1,15 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
+using Microsoft.SemanticKernel;
 using Scalar.AspNetCore;
 using Serilog;
 using Yumney.Api.Middleware;
 using Yumney.Recipes.Api;
 using Yumney.Recipes.Application.Commands;
+using Yumney.Recipes.Application.DTOs;
+using Yumney.Recipes.Application.Interfaces;
+using Yumney.Recipes.Infrastructure.Services;
 using Yumney.ServiceDefaults;
 using Yumney.Shared.Common;
 using Yumney.Shared.CQRS;
@@ -43,7 +47,33 @@ builder.Services.AddDbContext<UsersDbContext>(options => options.UseNpgsql(build
 builder.Services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
-builder.Services.AddScoped<ICommandHandler<ImportRecipeCommand, Result<ImportRecipeResultDto>>, ImportRecipeCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>>, ImportRecipeCommandHandler>();
+
+builder.Services.AddHttpClient<IWebScraper, WebScraper>()
+    .AddStandardResilienceHandler();
+builder.Services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
+
+var skConfig = builder.Configuration.GetSection("SemanticKernel");
+var kernelBuilder = builder.Services.AddKernel();
+
+var provider = skConfig["Provider"] ?? "OpenAI";
+var modelId = skConfig["ModelId"] ?? "gpt-4o-mini";
+var apiKey = skConfig["ApiKey"] ?? string.Empty;
+
+switch (provider)
+{
+    case "AzureOpenAI":
+        var endpoint = skConfig["Endpoint"] ?? string.Empty;
+        kernelBuilder.AddAzureOpenAIChatCompletion(modelId, endpoint, apiKey);
+        break;
+    case "Ollama":
+        var ollamaEndpoint = new Uri(skConfig["Endpoint"] ?? "http://localhost:11434/v1");
+        kernelBuilder.AddOpenAIChatCompletion(modelId, ollamaEndpoint, apiKey: null);
+        break;
+    default:
+        kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
+        break;
+}
 
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserRequestValidator>();
 builder.Services.AddScoped<ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>, RegisterUserCommandHandler>();

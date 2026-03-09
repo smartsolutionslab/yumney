@@ -6,8 +6,27 @@ export interface ImportRecipeRequest {
   url: string;
 }
 
+export interface ExtractedIngredient {
+  name: string;
+  amount: number | null;
+  unit: string | null;
+}
+
+export interface ExtractedStep {
+  number: number;
+  description: string;
+}
+
 export interface ImportRecipeResponse {
-  message: string;
+  title: string;
+  description: string | null;
+  ingredients: ExtractedIngredient[];
+  steps: ExtractedStep[];
+  servings: number | null;
+  prepTimeMinutes: number | null;
+  cookTimeMinutes: number | null;
+  difficulty: string | null;
+  imageUrl: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

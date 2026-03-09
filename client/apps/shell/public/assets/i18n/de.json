@@ -78,9 +78,13 @@
       "placeholder": "https://example.com/rezept/...",
       "submit": "Rezept importieren",
       "submitting": "Wird importiert...",
+      "success": "Rezept \"{{title}}\" erfolgreich extrahiert!",
       "errors": {
         "urlRequired": "Bitte gib eine URL ein.",
         "urlInvalid": "Bitte gib eine gültige HTTP- oder HTTPS-URL ein.",
+        "unreachable": "Die Website konnte nicht erreicht werden. Bitte überprüfe die URL.",
+        "timeout": "Die Extraktion hat zu lange gedauert. Bitte versuche es erneut.",
+        "noRecipe": "Auf dieser Seite wurde kein Rezept gefunden.",
         "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
       }
     }

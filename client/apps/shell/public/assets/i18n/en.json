@@ -78,9 +78,13 @@
       "placeholder": "https://example.com/recipe/...",
       "submit": "Import Recipe",
       "submitting": "Importing...",
+      "success": "Recipe \"{{title}}\" extracted successfully!",
       "errors": {
         "urlRequired": "Please enter a URL.",
         "urlInvalid": "Please enter a valid HTTP or HTTPS URL.",
+        "unreachable": "Could not reach the website. Please check the URL.",
+        "timeout": "Extraction timed out. Please try again.",
+        "noRecipe": "No recipe found on this page.",
         "generic": "An unexpected error occurred. Please try again later."
       }
     }
