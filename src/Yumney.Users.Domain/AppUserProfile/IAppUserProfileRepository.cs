@@ -1,6 +1,4 @@
-using Yumney.Users.Domain.AppUserProfile;
-
-namespace Yumney.Users.Application.Interfaces;
+namespace Yumney.Users.Domain.AppUserProfile;
 
 public interface IAppUserProfileRepository
 {
