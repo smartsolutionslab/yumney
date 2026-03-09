@@ -14,8 +14,7 @@ public class ImportRecipeCommandHandlerTests
 {
     private readonly IWebScraper scraper = Substitute.For<IWebScraper>();
     private readonly IRecipeExtractionService extraction = Substitute.For<IRecipeExtractionService>();
-    private readonly ILogger<ImportRecipeCommandHandler> logger =
-        Substitute.For<ILogger<ImportRecipeCommandHandler>>();
+    private readonly ILogger<ImportRecipeCommandHandler> logger = Substitute.For<ILogger<ImportRecipeCommandHandler>>();
 
     [Fact]
     public async Task HandleAsync_ValidUrl_ReturnsExtractedRecipe()
@@ -178,12 +177,7 @@ public class ImportRecipeCommandHandlerTests
     {
         var url = new RecipeUrl("https://example.com/recipe");
         var scrapedContent = new ScrapedContent("Content", url.Value);
-        var minimalRecipe = new ExtractedRecipeDto
-        {
-            Title = "Simple Dish",
-            Ingredients = [],
-            Steps = [],
-        };
+        var minimalRecipe = new ExtractedRecipeDto("Simple Dish", [], []);
 
         scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
             .Returns(Result<ScrapedContent>.Success(scrapedContent));
@@ -207,8 +201,7 @@ public class ImportRecipeCommandHandlerTests
         await cts.CancelAsync();
 
         scraper.ScrapeAsync(url, cts.Token)
-            .Returns<Result<ScrapedContent>>(
-                _ => throw new OperationCanceledException(cts.Token));
+            .Returns<Result<ScrapedContent>>(_ => throw new OperationCanceledException(cts.Token));
 
         var sut = CreateSut();
         var act = () => sut.HandleAsync(new ImportRecipeCommand(url), cts.Token);
@@ -228,8 +221,7 @@ public class ImportRecipeCommandHandlerTests
         scraper.ScrapeAsync(url, cts.Token)
             .Returns(Result<ScrapedContent>.Success(scrapedContent));
         extraction.ExtractAsync(scrapedContent, cts.Token)
-            .Returns<Result<ExtractedRecipeDto>>(
-                _ => throw new OperationCanceledException(cts.Token));
+            .Returns<Result<ExtractedRecipeDto>>(_ => throw new OperationCanceledException(cts.Token));
 
         var sut = CreateSut();
         var act = () => sut.HandleAsync(new ImportRecipeCommand(url), cts.Token);
@@ -238,13 +230,7 @@ public class ImportRecipeCommandHandlerTests
     }
 
     private static ExtractedRecipeDto CreateExtractedRecipe(string title = "Test Recipe") =>
-        new()
-        {
-            Title = title,
-            Ingredients = [new ExtractedIngredientDto("Flour", 500, "g")],
-            Steps = [new ExtractedStepDto(1, "Mix ingredients")],
-            Servings = 4,
-        };
+        new(title, [new ExtractedIngredientDto("Flour", 500, "g")], [new ExtractedStepDto(1, "Mix ingredients")], Servings: 4);
 
     private ImportRecipeCommandHandler CreateSut() => new(scraper, extraction, logger);
 }
