@@ -1,5 +1,4 @@
 using AngleSharp;
-using AngleSharp.Dom;
 using Microsoft.Extensions.Logging;
 using Yumney.Recipes.Application.Commands;
 using Yumney.Recipes.Application.DTOs;
@@ -10,12 +9,10 @@ using Yumney.Shared.Common;
 namespace Yumney.Recipes.Infrastructure.Services;
 
 #pragma warning disable SA1601
-#pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase for private fields)
 public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper> logger)
     : IWebScraper
 {
-    private static readonly string[] tagsToRemove =
-        ["script", "style", "nav", "footer", "header", "aside", "iframe", "noscript"];
+    private const string RemoveSelector = "script, style, nav, footer, header, aside, iframe, noscript";
 
     public async Task<Result<ScrapedContent>> ScrapeAsync(RecipeUrl url, CancellationToken cancellationToken = default)
     {
@@ -52,12 +49,9 @@ public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper
         using var context = BrowsingContext.New(config);
         using var document = await context.OpenAsync(req => req.Content(html), cancellationToken);
 
-        foreach (var tag in tagsToRemove)
+        foreach (var element in document.QuerySelectorAll(RemoveSelector).ToList())
         {
-            foreach (var element in document.QuerySelectorAll(tag).ToList())
-            {
-                element.Remove();
-            }
+            element.Remove();
         }
 
         var contentElement = document.QuerySelector("main")
@@ -67,15 +61,12 @@ public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper
         return contentElement?.TextContent.Trim() ?? string.Empty;
     }
 
-    [LoggerMessage(Level = LogLevel.Warning,
-        Message = "Scrape timed out for URL {SourceUrl}")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Scrape timed out for URL {SourceUrl}")]
     private partial void LogScrapeTimeout(string sourceUrl);
 
-    [LoggerMessage(Level = LogLevel.Warning,
-        Message = "Page unreachable at URL {SourceUrl}: {Reason}")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Page unreachable at URL {SourceUrl}: {Reason}")]
     private partial void LogPageUnreachable(string sourceUrl, string reason);
 
-    [LoggerMessage(Level = LogLevel.Warning,
-        Message = "No content extracted from URL {SourceUrl}")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "No content extracted from URL {SourceUrl}")]
     private partial void LogEmptyContent(string sourceUrl);
 }

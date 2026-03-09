@@ -30,12 +30,9 @@ builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Confi
 
 builder.AddServiceDefaults();
 
-var keycloakOptions = builder.Configuration
-    .GetSection(KeycloakOptions.SectionName)
-    .Get<KeycloakOptions>() ?? new KeycloakOptions();
+var keycloakOptions = builder.Configuration.GetSection(KeycloakOptions.SectionName).Get<KeycloakOptions>() ?? new KeycloakOptions();
 
-builder.Services.Configure<KeycloakOptions>(
-    builder.Configuration.GetSection(KeycloakOptions.SectionName));
+builder.Services.Configure<KeycloakOptions>(builder.Configuration.GetSection(KeycloakOptions.SectionName));
 
 builder.Services.AddAuthentication()
     .AddKeycloakJwtBearer(
@@ -58,25 +55,20 @@ builder.Services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>(
 builder.Services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
 builder.Services.AddScoped<ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>>, ImportRecipeCommandHandler>();
 
-builder.Services.AddHttpClient<IWebScraper, WebScraper>()
-    .AddStandardResilienceHandler();
+builder.Services.AddHttpClient<IWebScraper, WebScraper>().AddStandardResilienceHandler();
 builder.Services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
 
-var skOptions = builder.Configuration
-    .GetSection(SemanticKernelOptions.SectionName)
-    .Get<SemanticKernelOptions>() ?? new SemanticKernelOptions();
+var skOptions = builder.Configuration.GetSection(SemanticKernelOptions.SectionName).Get<SemanticKernelOptions>() ?? new SemanticKernelOptions();
 
 var kernelBuilder = builder.Services.AddKernel();
 
 switch (skOptions.Provider)
 {
     case SemanticKernelOptions.ProviderAzureOpenAI:
-        kernelBuilder.AddAzureOpenAIChatCompletion(
-            skOptions.ModelId, skOptions.Endpoint, skOptions.ApiKey);
+        kernelBuilder.AddAzureOpenAIChatCompletion(skOptions.ModelId, skOptions.Endpoint, skOptions.ApiKey);
         break;
     case SemanticKernelOptions.ProviderOllama:
-        kernelBuilder.AddOpenAIChatCompletion(
-            skOptions.ModelId, new Uri(skOptions.Endpoint), apiKey: null);
+        kernelBuilder.AddOpenAIChatCompletion(skOptions.ModelId, new Uri(skOptions.Endpoint), apiKey: null);
         break;
     default:
         kernelBuilder.AddOpenAIChatCompletion(skOptions.ModelId, skOptions.ApiKey);

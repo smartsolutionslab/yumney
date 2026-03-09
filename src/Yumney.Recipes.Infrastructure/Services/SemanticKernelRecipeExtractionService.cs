@@ -11,13 +11,16 @@ using Yumney.Shared.Common;
 namespace Yumney.Recipes.Infrastructure.Services;
 
 #pragma warning disable SA1601
-#pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase for private fields)
-public sealed partial class SemanticKernelRecipeExtractionService(
-    Kernel kernel,
-    ILogger<SemanticKernelRecipeExtractionService> logger)
+#pragma warning disable SA1311
+public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel, ILogger<SemanticKernelRecipeExtractionService> logger)
     : IRecipeExtractionService
 {
-    private const string SystemPrompt = """
+    private const string LlmNoRecipeErrorCode = "NO_RECIPE_FOUND";
+    private const string ErrorPropertyName = "error";
+    private const string JsonFencePrefix = "```json";
+    private const string FenceMarker = "```";
+
+    private const string SystemPrompt = $$"""
         You are a recipe extraction assistant. Extract structured recipe data
         from the provided webpage content. Respond ONLY with valid JSON matching this schema:
         {
@@ -31,7 +34,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(
           "difficulty": "easy" | "medium" | "hard" or null,
           "imageUrl": "string or null"
         }
-        If the content does not contain a recipe, respond with: { "error": "NO_RECIPE_FOUND" }
+        If the content does not contain a recipe, respond with: { "{{ErrorPropertyName}}": "{{LlmNoRecipeErrorCode}}" }
         """;
 
     private static readonly JsonSerializerOptions jsonOptions = new()
@@ -40,8 +43,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    public async Task<Result<ExtractedRecipeDto>> ExtractAsync(
-        ScrapedContent content, CancellationToken cancellationToken = default)
+    public async Task<Result<ExtractedRecipeDto>> ExtractAsync(ScrapedContent content, CancellationToken cancellationToken = default)
     {
         var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
 
@@ -52,8 +54,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(
         string response;
         try
         {
-            var result = await chatCompletion.GetChatMessageContentAsync(
-                chatHistory, cancellationToken: cancellationToken);
+            var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
             response = result.Content ?? string.Empty;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -73,18 +74,18 @@ public sealed partial class SemanticKernelRecipeExtractionService(
     {
         var trimmed = response.Trim();
 
-        if (trimmed.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
+        if (trimmed.StartsWith(JsonFencePrefix, StringComparison.OrdinalIgnoreCase))
         {
-            trimmed = trimmed["```json".Length..];
+            trimmed = trimmed[JsonFencePrefix.Length..];
         }
-        else if (trimmed.StartsWith("```", StringComparison.Ordinal))
+        else if (trimmed.StartsWith(FenceMarker, StringComparison.Ordinal))
         {
-            trimmed = trimmed["```".Length..];
+            trimmed = trimmed[FenceMarker.Length..];
         }
 
-        if (trimmed.EndsWith("```", StringComparison.Ordinal))
+        if (trimmed.EndsWith(FenceMarker, StringComparison.Ordinal))
         {
-            trimmed = trimmed[..^"```".Length];
+            trimmed = trimmed[..^FenceMarker.Length];
         }
 
         return trimmed.Trim();
@@ -99,14 +100,14 @@ public sealed partial class SemanticKernelRecipeExtractionService(
             using var document = JsonDocument.Parse(json);
             var root = document.RootElement;
 
-            if (root.TryGetProperty("error", out var errorElement)
-                && errorElement.GetString() == "NO_RECIPE_FOUND")
+            if (root.TryGetProperty(ErrorPropertyName, out var errorElement)
+                && errorElement.GetString() == LlmNoRecipeErrorCode)
             {
                 LogNoRecipeFound(sourceUrl);
                 return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.NoRecipeFound);
             }
 
-            var recipe = JsonSerializer.Deserialize<ExtractedRecipeDto>(json, jsonOptions);
+            var recipe = root.Deserialize<ExtractedRecipeDto>(jsonOptions);
             if (recipe is null)
             {
                 LogParsingFailed(sourceUrl, "Deserialization returned null");
@@ -122,15 +123,12 @@ public sealed partial class SemanticKernelRecipeExtractionService(
         }
     }
 
-    [LoggerMessage(Level = LogLevel.Warning,
-        Message = "LLM call failed for URL {SourceUrl}: {Reason}")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "LLM call failed for URL {SourceUrl}: {Reason}")]
     private partial void LogLlmCallFailed(string sourceUrl, string reason);
 
-    [LoggerMessage(Level = LogLevel.Warning,
-        Message = "No recipe found in content from URL {SourceUrl}")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "No recipe found in content from URL {SourceUrl}")]
     private partial void LogNoRecipeFound(string sourceUrl);
 
-    [LoggerMessage(Level = LogLevel.Warning,
-        Message = "Failed to parse LLM response for URL {SourceUrl}: {Reason}")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to parse LLM response for URL {SourceUrl}: {Reason}")]
     private partial void LogParsingFailed(string sourceUrl, string reason);
 }

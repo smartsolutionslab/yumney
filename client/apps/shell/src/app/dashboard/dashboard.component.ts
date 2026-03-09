@@ -1,12 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  Validators,
-  AbstractControl,
-  ValidationErrors,
-} from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
@@ -37,6 +31,15 @@ function urlValidator(control: AbstractControl): ValidationErrors | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent {
+  private static readonly importErrorMap: Record<number, string> = {
+    502: 'dashboard.import.errors.unreachable',
+    504: 'dashboard.import.errors.timeout',
+    404: 'dashboard.import.errors.noRecipe',
+  };
+
+  private static readonly defaultImportError = 'dashboard.import.errors.generic';
+  private static readonly urlMaxLength = 2048;
+
   private fb = inject(FormBuilder);
   private recipeApi = inject(RecipeApiService);
   private destroyRef = inject(DestroyRef);
@@ -46,7 +49,7 @@ export class DashboardComponent {
   extractedRecipe = signal<ImportRecipeResponse | null>(null);
 
   form = this.fb.nonNullable.group({
-    url: ['', [Validators.required, Validators.maxLength(2048), urlValidator]],
+    url: ['', [Validators.required, Validators.maxLength(DashboardComponent.urlMaxLength), urlValidator]],
   });
 
   onImport(): void {
@@ -72,16 +75,9 @@ export class DashboardComponent {
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
-
-          if (err.status === 502) {
-            this.serverError.set('dashboard.import.errors.unreachable');
-          } else if (err.status === 504) {
-            this.serverError.set('dashboard.import.errors.timeout');
-          } else if (err.status === 404) {
-            this.serverError.set('dashboard.import.errors.noRecipe');
-          } else {
-            this.serverError.set('dashboard.import.errors.generic');
-          }
+          this.serverError.set(
+            DashboardComponent.importErrorMap[err.status] ?? DashboardComponent.defaultImportError,
+          );
         },
       });
   }
