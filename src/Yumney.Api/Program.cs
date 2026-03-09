@@ -4,6 +4,7 @@ using Microsoft.Extensions.Http.Resilience;
 using Microsoft.SemanticKernel;
 using Scalar.AspNetCore;
 using Serilog;
+using Yumney.Api;
 using Yumney.Api.Middleware;
 using Yumney.Recipes.Api;
 using Yumney.Recipes.Application.Commands;
@@ -28,10 +29,17 @@ builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Confi
 
 builder.AddServiceDefaults();
 
+var keycloakOptions = builder.Configuration
+    .GetSection(KeycloakOptions.SectionName)
+    .Get<KeycloakOptions>() ?? new KeycloakOptions();
+
+builder.Services.Configure<KeycloakOptions>(
+    builder.Configuration.GetSection(KeycloakOptions.SectionName));
+
 builder.Services.AddAuthentication()
     .AddKeycloakJwtBearer(
         serviceName: "keycloak",
-        realm: "yumney",
+        realm: keycloakOptions.Realm,
         configureOptions: options =>
         {
             options.RequireHttpsMetadata = false;
@@ -53,25 +61,24 @@ builder.Services.AddHttpClient<IWebScraper, WebScraper>()
     .AddStandardResilienceHandler();
 builder.Services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
 
-var skConfig = builder.Configuration.GetSection("SemanticKernel");
+var skOptions = builder.Configuration
+    .GetSection(SemanticKernelOptions.SectionName)
+    .Get<SemanticKernelOptions>() ?? new SemanticKernelOptions();
+
 var kernelBuilder = builder.Services.AddKernel();
 
-var provider = skConfig["Provider"] ?? "OpenAI";
-var modelId = skConfig["ModelId"] ?? "gpt-4o-mini";
-var apiKey = skConfig["ApiKey"] ?? string.Empty;
-
-switch (provider)
+switch (skOptions.Provider)
 {
-    case "AzureOpenAI":
-        var endpoint = skConfig["Endpoint"] ?? string.Empty;
-        kernelBuilder.AddAzureOpenAIChatCompletion(modelId, endpoint, apiKey);
+    case SemanticKernelOptions.ProviderAzureOpenAI:
+        kernelBuilder.AddAzureOpenAIChatCompletion(
+            skOptions.ModelId, skOptions.Endpoint, skOptions.ApiKey);
         break;
-    case "Ollama":
-        var ollamaEndpoint = new Uri(skConfig["Endpoint"] ?? "http://localhost:11434/v1");
-        kernelBuilder.AddOpenAIChatCompletion(modelId, ollamaEndpoint, apiKey: null);
+    case SemanticKernelOptions.ProviderOllama:
+        kernelBuilder.AddOpenAIChatCompletion(
+            skOptions.ModelId, new Uri(skOptions.Endpoint), apiKey: null);
         break;
     default:
-        kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
+        kernelBuilder.AddOpenAIChatCompletion(skOptions.ModelId, skOptions.ApiKey);
         break;
 }
 
