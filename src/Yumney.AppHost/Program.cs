@@ -18,13 +18,18 @@ var yumneyDb = postgres.AddDatabase("yumneydb");
 var redis = builder.AddRedis("redis")
     .WithDataVolume();
 
+var ollama = builder.AddOllama("ollama")
+    .WithDataVolume();
+
 var yumneyApi = builder.AddProject<Projects.Yumney_Api>("yumney-api")
     .WithReference(keycloak)
     .WithReference(yumneyDb)
     .WithReference(redis)
+    .WithReference(ollama)
     .WaitFor(keycloak)
     .WaitFor(yumneyDb)
-    .WaitFor(redis);
+    .WaitFor(redis)
+    .WaitFor(ollama);
 
 builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
     .WithReference(yumneyApi)
