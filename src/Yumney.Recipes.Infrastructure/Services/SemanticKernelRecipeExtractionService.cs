@@ -11,16 +11,17 @@ using Yumney.Shared.Common;
 namespace Yumney.Recipes.Infrastructure.Services;
 
 #pragma warning disable SA1601
+#pragma warning disable SA1303
 #pragma warning disable SA1311
 public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel, ILogger<SemanticKernelRecipeExtractionService> logger)
     : IRecipeExtractionService
 {
-    private const string LlmNoRecipeErrorCode = "NO_RECIPE_FOUND";
-    private const string ErrorPropertyName = "error";
-    private const string JsonFencePrefix = "```json";
-    private const string FenceMarker = "```";
+    private const string llmNoRecipeErrorCode = "NO_RECIPE_FOUND";
+    private const string errorPropertyName = "error";
+    private const string jsonFencePrefix = "```json";
+    private const string fenceMarker = "```";
 
-    private const string SystemPrompt = $$"""
+    private const string systemPrompt = $$"""
         You are a recipe extraction assistant. Extract structured recipe data
         from the provided webpage content. Respond ONLY with valid JSON matching this schema:
         {
@@ -34,7 +35,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
           "difficulty": "easy" | "medium" | "hard" or null,
           "imageUrl": "string or null"
         }
-        If the content does not contain a recipe, respond with: { "{{ErrorPropertyName}}": "{{LlmNoRecipeErrorCode}}" }
+        If the content does not contain a recipe, respond with: { "{{errorPropertyName}}": "{{llmNoRecipeErrorCode}}" }
         """;
 
     private static readonly JsonSerializerOptions jsonOptions = new()
@@ -48,7 +49,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
 
         var chatHistory = new ChatHistory();
-        chatHistory.AddSystemMessage(SystemPrompt);
+        chatHistory.AddSystemMessage(systemPrompt);
         chatHistory.AddUserMessage(content.CleanedText);
 
         string response;
@@ -74,18 +75,18 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
     {
         var trimmed = response.Trim();
 
-        if (trimmed.StartsWith(JsonFencePrefix, StringComparison.OrdinalIgnoreCase))
+        if (trimmed.StartsWith(jsonFencePrefix, StringComparison.OrdinalIgnoreCase))
         {
-            trimmed = trimmed[JsonFencePrefix.Length..];
+            trimmed = trimmed[jsonFencePrefix.Length..];
         }
-        else if (trimmed.StartsWith(FenceMarker, StringComparison.Ordinal))
+        else if (trimmed.StartsWith(fenceMarker, StringComparison.Ordinal))
         {
-            trimmed = trimmed[FenceMarker.Length..];
+            trimmed = trimmed[fenceMarker.Length..];
         }
 
-        if (trimmed.EndsWith(FenceMarker, StringComparison.Ordinal))
+        if (trimmed.EndsWith(fenceMarker, StringComparison.Ordinal))
         {
-            trimmed = trimmed[..^FenceMarker.Length];
+            trimmed = trimmed[..^fenceMarker.Length];
         }
 
         return trimmed.Trim();
@@ -100,8 +101,8 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
             using var document = JsonDocument.Parse(json);
             var root = document.RootElement;
 
-            if (root.TryGetProperty(ErrorPropertyName, out var errorElement)
-                && errorElement.GetString() == LlmNoRecipeErrorCode)
+            if (root.TryGetProperty(errorPropertyName, out var errorElement)
+                && errorElement.GetString() == llmNoRecipeErrorCode)
             {
                 LogNoRecipeFound(sourceUrl);
                 return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.NoRecipeFound);

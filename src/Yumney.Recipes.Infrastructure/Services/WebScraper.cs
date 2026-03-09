@@ -9,10 +9,11 @@ using Yumney.Shared.Common;
 namespace Yumney.Recipes.Infrastructure.Services;
 
 #pragma warning disable SA1601
+#pragma warning disable SA1303
 public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper> logger)
     : IWebScraper
 {
-    private const string RemoveSelector = "script, style, nav, footer, header, aside, iframe, noscript";
+    private const string removeSelector = "script, style, nav, footer, header, aside, iframe, noscript";
 
     public async Task<Result<ScrapedContent>> ScrapeAsync(RecipeUrl url, CancellationToken cancellationToken = default)
     {
@@ -49,7 +50,7 @@ public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper
         using var context = BrowsingContext.New(config);
         using var document = await context.OpenAsync(req => req.Content(html), cancellationToken);
 
-        foreach (var element in document.QuerySelectorAll(RemoveSelector).ToList())
+        foreach (var element in document.QuerySelectorAll(removeSelector).ToList())
         {
             element.Remove();
         }
