@@ -45,6 +45,8 @@
     "@nx/workspace": "22.5.4",
     "@playwright/test": "^1.58.2",
     "@schematics/angular": "21.2.1",
+    "@stryker-mutator/core": "^8.7.1",
+    "@stryker-mutator/vitest-runner": "^8.7.1",
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.18",
     "@swc/helpers": "0.5.19",
@@ -70,8 +72,6 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.0",
     "vite": "^7.3.1",
-    "vitest": "4.0.18",
-    "@stryker-mutator/core": "^8.7.1",
-    "@stryker-mutator/vitest-runner": "^8.7.1"
+    "vitest": "4.0.18"
   }
 }
