@@ -23,11 +23,11 @@ public sealed class Recipe : AggregateRoot<Guid>
 
     public ImageUrl? ImageUrl { get; private set; }
 
-    public RecipeUrl SourceUrl { get; private set; } = default!;
+    public RecipeUrl? SourceUrl { get; private set; }
 
     public OwnerIdentifier Owner { get; private set; } = default!;
 
-    public DateTime ImportedAt { get; private set; }
+    public DateTime CreatedAt { get; private set; }
 
     public IReadOnlyList<Ingredient> Ingredients => ingredients.AsReadOnly();
 
@@ -39,7 +39,6 @@ public sealed class Recipe : AggregateRoot<Guid>
 
     public static Recipe Create(
         RecipeTitle title,
-        RecipeUrl sourceUrl,
         OwnerIdentifier owner,
         IReadOnlyList<Ingredient> ingredients,
         IReadOnlyList<Step> steps,
@@ -48,7 +47,8 @@ public sealed class Recipe : AggregateRoot<Guid>
         PreparationTime? preparationTime = null,
         CookingTime? cookingTime = null,
         Difficulty? difficulty = null,
-        ImageUrl? imageUrl = null)
+        ImageUrl? imageUrl = null,
+        RecipeUrl? sourceUrl = null)
     {
         Ensure.That((IReadOnlyCollection<Ingredient>)ingredients).IsNotEmpty();
         Ensure.That((IReadOnlyCollection<Step>)steps).IsNotEmpty();
@@ -65,7 +65,7 @@ public sealed class Recipe : AggregateRoot<Guid>
             CookingTime = cookingTime,
             Difficulty = difficulty,
             ImageUrl = imageUrl,
-            ImportedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
         };
 
         recipe.ingredients.AddRange(ingredients);

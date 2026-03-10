@@ -54,14 +54,16 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
                 .HasMaxLength(ImageUrl.MaxLength);
 
             entity.Property(e => e.SourceUrl)
-                .HasConversion(v => v.Value, v => new RecipeUrl(v))
-                .HasMaxLength(RecipeUrl.MaxLength).IsRequired();
+                .HasConversion(
+                    v => v != null ? v.Value : null,
+                    v => RecipeUrl.FromNullable(v))
+                .HasMaxLength(RecipeUrl.MaxLength);
 
             entity.Property(e => e.Owner)
                 .HasConversion(v => v.Value, v => new OwnerIdentifier(v))
                 .HasMaxLength(OwnerIdentifier.MaxLength).IsRequired();
 
-            entity.Property(e => e.ImportedAt).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
 
             entity.OwnsMany(e => e.Ingredients, ingredient =>
             {
@@ -100,7 +102,9 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
                     .HasMaxLength(StepDescription.MaxLength).IsRequired();
             });
 
-            entity.HasIndex(e => new { e.SourceUrl, e.Owner }).IsUnique();
+            entity.HasIndex(e => new { e.SourceUrl, e.Owner })
+                .IsUnique()
+                .HasFilter("\"SourceUrl\" IS NOT NULL");
             entity.Ignore(e => e.DomainEvents);
         });
     }

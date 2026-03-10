@@ -27,7 +27,7 @@ public class RecipeTests
     }
 
     [Fact]
-    public void Create_ValidInput_SetsSourceUrl()
+    public void Create_WithSourceUrl_SetsSourceUrl()
     {
         var sourceUrl = new RecipeUrl("https://example.com/recipe");
 
@@ -47,14 +47,22 @@ public class RecipeTests
     }
 
     [Fact]
-    public void Create_ValidInput_SetsImportedAt()
+    public void Create_ValidInput_SetsCreatedAt()
     {
         var before = DateTime.UtcNow;
 
         var recipe = CreateValidRecipe();
 
-        recipe.ImportedAt.Should().BeOnOrAfter(before);
-        recipe.ImportedAt.Should().BeOnOrBefore(DateTime.UtcNow);
+        recipe.CreatedAt.Should().BeOnOrAfter(before);
+        recipe.CreatedAt.Should().BeOnOrBefore(DateTime.UtcNow);
+    }
+
+    [Fact]
+    public void Create_WithoutSourceUrl_SourceUrlIsNull()
+    {
+        var recipe = CreateValidRecipe();
+
+        recipe.SourceUrl.Should().BeNull();
     }
 
     [Fact]
@@ -187,7 +195,6 @@ public class RecipeTests
     {
         return Domain.Recipe.Recipe.Create(
             title ?? new RecipeTitle("Test Recipe"),
-            sourceUrl ?? new RecipeUrl("https://example.com/recipe"),
             owner ?? new OwnerIdentifier("user-123"),
             ingredients ?? [Ingredient.Create(new IngredientName("Flour"), new Amount(500), new Unit("g"))],
             steps ?? [Step.Create(new StepNumber(1), new StepDescription("Mix ingredients"))],
@@ -196,6 +203,7 @@ public class RecipeTests
             preparationTime,
             cookingTime,
             difficulty,
-            imageUrl);
+            imageUrl,
+            sourceUrl);
     }
 }

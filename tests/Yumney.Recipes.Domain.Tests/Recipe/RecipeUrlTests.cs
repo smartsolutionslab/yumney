@@ -126,4 +126,24 @@ public class RecipeUrlTests
 
         url.ToString().Should().Be("https://example.com/recipe");
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void FromNullable_NullOrWhitespace_ReturnsNull(string? value)
+    {
+        var result = RecipeUrl.FromNullable(value);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void FromNullable_ValidUrl_ReturnsRecipeUrl()
+    {
+        var result = RecipeUrl.FromNullable("https://example.com/recipe");
+
+        result.Should().NotBeNull();
+        result!.Value.Should().Be("https://example.com/recipe");
+    }
 }
