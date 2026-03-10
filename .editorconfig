@@ -61,6 +61,9 @@ dotnet_naming_symbols.async_methods.required_modifiers = async
 dotnet_naming_style.end_with_async.required_suffix = Async
 dotnet_naming_style.end_with_async.capitalization = pascal_case
 
+[**/Migrations/*.cs]
+generated_code = true
+
 [*.{ts,tsx,js,jsx}]
 indent_size = 2
 max_line_length = 100
