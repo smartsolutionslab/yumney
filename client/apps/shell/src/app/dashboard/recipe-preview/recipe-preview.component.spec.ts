@@ -54,12 +54,18 @@ const en = {
 
 @Component({
   template: `
-    <yn-recipe-preview [recipe]="recipe" (save)="onSave($event)" (discard)="onDiscard()" />
+    <yn-recipe-preview
+      [recipe]="recipe"
+      [previewTitle]="previewTitle"
+      (save)="onSave($event)"
+      (discard)="onDiscard()"
+    />
   `,
   imports: [RecipePreviewComponent],
 })
 class TestHostComponent {
   recipe = mockRecipe;
+  previewTitle: string | undefined;
   onSave = vi.fn();
   onDiscard = vi.fn();
   preview = viewChild(RecipePreviewComponent);
@@ -383,5 +389,46 @@ describe('RecipePreviewComponent', () => {
     const img = fixture.nativeElement.querySelector('.preview-image img');
     expect(img).toBeTruthy();
     expect(img.src).toContain('https://example.com/image.jpg');
+  });
+
+  it('should render custom previewTitle when provided', () => {
+    fixture = TestBed.createComponent(TestHostComponent);
+    host = fixture.componentInstance;
+    host.previewTitle = 'New Recipe';
+    fixture.detectChanges();
+
+    const heading = fixture.nativeElement.querySelector('h2');
+    expect(heading.textContent).toContain('New Recipe');
+  });
+
+  it('should render default title when previewTitle is not provided', () => {
+    const heading = fixture.nativeElement.querySelector('h2');
+    expect(heading.textContent).toContain('Review Extracted Recipe');
+  });
+
+  it('should render empty recipe correctly', () => {
+    fixture = TestBed.createComponent(TestHostComponent);
+    host = fixture.componentInstance;
+    host.recipe = {
+      title: '',
+      description: null,
+      ingredients: [{ name: '', amount: null, unit: null }],
+      steps: [{ number: 1, description: '' }],
+      servings: null,
+      prepTimeMinutes: null,
+      cookTimeMinutes: null,
+      difficulty: null,
+      imageUrl: null,
+    };
+    fixture.detectChanges();
+
+    const titleInput = fixture.nativeElement.querySelector('#preview-title') as HTMLInputElement;
+    expect(titleInput.value).toBe('');
+
+    const ingredients = fixture.nativeElement.querySelectorAll('.ingredient-fields');
+    expect(ingredients.length).toBe(1);
+
+    const steps = fixture.nativeElement.querySelectorAll('.step-fields');
+    expect(steps.length).toBe(1);
   });
 });
