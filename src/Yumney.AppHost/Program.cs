@@ -21,13 +21,17 @@ var redis = builder.AddRedis("redis")
 var ollama = builder.AddOllama("ollama")
     .WithDataVolume();
 
+var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
+    .WithReference(yumneyDb)
+    .WaitFor(yumneyDb);
+
 var yumneyApi = builder.AddProject<Projects.Yumney_Api>("yumney-api")
     .WithReference(keycloak)
     .WithReference(yumneyDb)
     .WithReference(redis)
     .WithReference(ollama)
     .WaitFor(keycloak)
-    .WaitFor(yumneyDb)
+    .WaitFor(migrationRunner)
     .WaitFor(redis)
     .WaitFor(ollama);
 

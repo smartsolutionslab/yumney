@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Yumney.MigrationRunner</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Yumney.ServiceDefaults\Yumney.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Yumney.Recipes.Infrastructure\Yumney.Recipes.Infrastructure.csproj" />
+    <ProjectReference Include="..\Yumney.Users.Infrastructure\Yumney.Users.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Serilog.AspNetCore" />
+  </ItemGroup>
+
+</Project>

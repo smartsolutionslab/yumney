@@ -17,6 +17,7 @@
     <Project Path="src/Yumney.Users.Application/Yumney.Users.Application.csproj" />
     <Project Path="src/Yumney.Users.Infrastructure/Yumney.Users.Infrastructure.csproj" />
     <Project Path="src/Yumney.Users.Api/Yumney.Users.Api.csproj" />
+    <Project Path="src/Yumney.MigrationRunner/Yumney.MigrationRunner.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Yumney.Shared.Tests/Yumney.Shared.Tests.csproj" />
