@@ -51,10 +51,16 @@ builder.Services.AddScoped<ICurrentUser, CurrentUserService>();
 
 builder.Services.AddInProcessEventBus();
 
-builder.Services.AddDbContext<UsersDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("yumneydb")));
+builder.Services.AddDbContext<UsersDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("yumneydb"),
+        x => x.MigrationsHistoryTable("__UsersMigrationsHistory")));
 builder.Services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
 
-builder.Services.AddDbContext<RecipesDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("yumneydb")));
+builder.Services.AddDbContext<RecipesDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("yumneydb"),
+        x => x.MigrationsHistoryTable("__RecipesMigrationsHistory")));
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
