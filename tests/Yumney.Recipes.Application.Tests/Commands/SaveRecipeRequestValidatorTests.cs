@@ -42,17 +42,24 @@ public class SaveRecipeRequestValidatorTests
         result.ShouldHaveValidationErrorFor(x => x.Title);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Validate_EmptySourceUrl_HasError(string? sourceUrl)
+    [Fact]
+    public void Validate_NullSourceUrl_HasNoError()
     {
-        var request = CreateValidRequest() with { SourceUrl = sourceUrl! };
+        var request = CreateValidRequest() with { SourceUrl = null };
 
         var result = validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.SourceUrl);
+        result.ShouldNotHaveValidationErrorFor(x => x.SourceUrl);
+    }
+
+    [Fact]
+    public void Validate_EmptySourceUrl_HasNoError()
+    {
+        var request = CreateValidRequest() with { SourceUrl = string.Empty };
+
+        var result = validator.TestValidate(request);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.SourceUrl);
     }
 
     [Theory]

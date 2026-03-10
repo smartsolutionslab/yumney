@@ -10,7 +10,7 @@ public sealed record SaveRecipeRequest(
     int? CookTimeMinutes,
     string? Difficulty,
     string? ImageUrl,
-    string SourceUrl);
+    string? SourceUrl = null);
 
 public sealed record SaveRecipeIngredientRequest(string Name, decimal? Amount, string? Unit);
 

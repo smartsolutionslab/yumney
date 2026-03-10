@@ -15,11 +15,11 @@ public sealed partial class SaveRecipeCommandHandler(
 {
     public async Task<Result<SavedRecipeDto>> HandleAsync(SaveRecipeCommand command, CancellationToken cancellationToken = default)
     {
-        var (title, sourceUrl, ingredientCommands, stepCommands, description, servings, preparationTime, cookingTime, difficulty, imageUrl) = command;
+        var (title, ingredientCommands, stepCommands, description, servings, preparationTime, cookingTime, difficulty, imageUrl, sourceUrl) = command;
 
         var owner = new OwnerIdentifier(currentUser.UserId);
 
-        if (await recipes.ExistsBySourceUrlAsync(sourceUrl, owner, cancellationToken))
+        if (sourceUrl is not null && await recipes.ExistsBySourceUrlAsync(sourceUrl, owner, cancellationToken))
         {
             LogDuplicateImport(sourceUrl.Value, owner.Value);
             return Result<SavedRecipeDto>.Failure(SaveRecipeErrors.AlreadyImported);
@@ -35,7 +35,6 @@ public sealed partial class SaveRecipeCommandHandler(
 
         var recipe = Recipe.Create(
             title,
-            sourceUrl,
             owner,
             ingredients,
             steps,
@@ -44,14 +43,15 @@ public sealed partial class SaveRecipeCommandHandler(
             preparationTime,
             cookingTime,
             difficulty,
-            imageUrl);
+            imageUrl,
+            sourceUrl);
 
         await recipes.AddAsync(recipe, cancellationToken);
 
         LogRecipeSaved(recipe.Id, title.Value);
 
         return Result<SavedRecipeDto>.Success(
-            new SavedRecipeDto(recipe.Id, title.Value, recipe.ImportedAt));
+            new SavedRecipeDto(recipe.Id, title.Value, recipe.CreatedAt));
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Duplicate import attempt for URL {SourceUrl} by owner {Owner}")]

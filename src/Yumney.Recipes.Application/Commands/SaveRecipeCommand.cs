@@ -7,7 +7,6 @@ namespace Yumney.Recipes.Application.Commands;
 
 public sealed record SaveRecipeCommand(
     RecipeTitle Title,
-    RecipeUrl SourceUrl,
     IReadOnlyList<SaveRecipeIngredientCommand> Ingredients,
     IReadOnlyList<SaveRecipeStepCommand> Steps,
     RecipeDescription? Description = null,
@@ -15,7 +14,8 @@ public sealed record SaveRecipeCommand(
     PreparationTime? PreparationTime = null,
     CookingTime? CookingTime = null,
     Difficulty? Difficulty = null,
-    ImageUrl? ImageUrl = null) : ICommand<Result<SavedRecipeDto>>;
+    ImageUrl? ImageUrl = null,
+    RecipeUrl? SourceUrl = null) : ICommand<Result<SavedRecipeDto>>;
 
 public sealed record SaveRecipeIngredientCommand(IngredientName Name, Amount? Amount, Unit? Unit);
 

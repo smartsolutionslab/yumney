@@ -12,11 +12,11 @@ public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeReq
             .MaximumLength(RecipeTitle.MaxLength);
 
         RuleFor(x => x.SourceUrl)
-            .NotEmpty()
             .MaximumLength(RecipeUrl.MaxLength)
             .Must(url => Uri.TryCreate(url, UriKind.Absolute, out var uri)
                 && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-            .WithMessage("A valid HTTP or HTTPS URL is required.");
+            .WithMessage("A valid HTTP or HTTPS URL is required.")
+            .When(x => !string.IsNullOrWhiteSpace(x.SourceUrl));
 
         RuleFor(x => x.Description)
             .MaximumLength(RecipeDescription.MaxLength)
