@@ -54,6 +54,50 @@ describe('authInterceptor', () => {
     req.flush([]);
   });
 
+  it('should use the current token value, not a stale one', () => {
+    oauthMock.hasValidAccessToken.mockReturnValue(true);
+    oauthMock.getAccessToken.mockReturnValue('token-1');
+
+    http.get('/api/v1/recipes').subscribe();
+    const req1 = httpTesting.expectOne('/api/v1/recipes');
+    expect(req1.request.headers.get('Authorization')).toBe('Bearer token-1');
+    req1.flush([]);
+
+    oauthMock.getAccessToken.mockReturnValue('token-2');
+
+    http.get('/api/v1/recipes').subscribe();
+    const req2 = httpTesting.expectOne('/api/v1/recipes');
+    expect(req2.request.headers.get('Authorization')).toBe('Bearer token-2');
+    req2.flush([]);
+  });
+
+  it('should not add token to API requests when token has expired', () => {
+    oauthMock.hasValidAccessToken.mockReturnValue(true);
+
+    http.get('/api/v1/recipes').subscribe();
+    const req1 = httpTesting.expectOne('/api/v1/recipes');
+    expect(req1.request.headers.has('Authorization')).toBe(true);
+    req1.flush([]);
+
+    oauthMock.hasValidAccessToken.mockReturnValue(false);
+
+    http.get('/api/v1/recipes').subscribe();
+    const req2 = httpTesting.expectOne('/api/v1/recipes');
+    expect(req2.request.headers.has('Authorization')).toBe(false);
+    req2.flush([]);
+  });
+
+  it('should preserve existing request headers when adding auth', () => {
+    oauthMock.hasValidAccessToken.mockReturnValue(true);
+
+    http.get('/api/v1/recipes', { headers: { 'X-Custom': 'value' } }).subscribe();
+
+    const req = httpTesting.expectOne('/api/v1/recipes');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
+    expect(req.request.headers.get('X-Custom')).toBe('value');
+    req.flush([]);
+  });
+
   it('should not add token to non-api requests', () => {
     oauthMock.hasValidAccessToken.mockReturnValue(true);
 

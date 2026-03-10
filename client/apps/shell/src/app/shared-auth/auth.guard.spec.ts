@@ -38,6 +38,14 @@ describe('authGuard', () => {
     expect(authServiceMock.login).toHaveBeenCalled();
   });
 
+  it('should not call login when user is already authenticated', () => {
+    authServiceMock.isAuthenticated.mockReturnValue(true);
+
+    TestBed.runInInjectionContext(() => authGuard(route, state));
+
+    expect(authServiceMock.login).not.toHaveBeenCalled();
+  });
+
   it('should return false when not authenticated', () => {
     authServiceMock.isAuthenticated.mockReturnValue(false);
 

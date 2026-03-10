@@ -109,6 +109,24 @@ describe('HeaderComponent', () => {
     expect(loginLink).toBeNull();
   });
 
+  it('should link brand to home page', () => {
+    const brand = fixture.nativeElement.querySelector('.brand');
+    expect(brand.getAttribute('href')).toBe('/');
+  });
+
+  it('should update greeting reactively when displayName changes', () => {
+    authServiceMock.isAuthenticated.set(true);
+    authServiceMock.displayName.set('Alice');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.greeting').textContent).toContain('Hi, Alice');
+
+    authServiceMock.displayName.set('Bob');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.greeting').textContent).toContain('Hi, Bob');
+  });
+
   it('should not show greeting when not authenticated', () => {
     const greeting = fixture.nativeElement.querySelector('.greeting');
     expect(greeting).toBeNull();

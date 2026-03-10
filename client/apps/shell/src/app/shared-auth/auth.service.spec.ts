@@ -136,6 +136,33 @@ describe('AuthService', () => {
       expect(service.currentUser()?.preferredUsername).toBe('newuser');
     });
 
+    it('should configure OAuthService with authConfig on initialize', async () => {
+      await service.initialize();
+
+      expect(oauthMock.configure).toHaveBeenCalledWith(
+        expect.objectContaining({
+          clientId: 'yumney-web',
+          responseType: 'code',
+          scope: 'openid profile email roles',
+        }),
+      );
+    });
+
+    it('should setup automatic silent refresh on initialize', async () => {
+      await service.initialize();
+
+      expect(oauthMock.setupAutomaticSilentRefresh).toHaveBeenCalled();
+    });
+
+    it('should remain unauthenticated after failed discovery', async () => {
+      oauthMock.loadDiscoveryDocumentAndTryLogin.mockRejectedValue(new Error('Network error'));
+
+      await service.initialize();
+
+      expect(service.isAuthenticated()).toBe(false);
+      expect(service.currentUser()).toBeNull();
+    });
+
     it('should set currentUser to null when token becomes invalid via event', async () => {
       oauthMock.hasValidAccessToken.mockReturnValue(true);
       oauthMock.getIdentityClaims.mockReturnValue({
@@ -169,6 +196,12 @@ describe('AuthService', () => {
 
       expect(setItemSpy).toHaveBeenCalledWith('yn_remember_me', 'true');
       setItemSpy.mockRestore();
+    });
+
+    it('should call initCodeFlow with no extra params by default', () => {
+      service.login();
+
+      expect(oauthMock.initCodeFlow).toHaveBeenCalledWith();
     });
 
     it('should remove remember-me preference on login with rememberMe=false', () => {
@@ -249,6 +282,15 @@ describe('AuthService', () => {
 
       expect(service.isAuthenticated()).toBe(false);
       expect(service.currentUser()).toBeNull();
+    });
+
+    it('should not alter isLoading on logout', async () => {
+      await service.initialize();
+      expect(service.isLoading()).toBe(false);
+
+      service.logout();
+
+      expect(service.isLoading()).toBe(false);
     });
 
     it('should remove remember-me preference on logout', () => {
