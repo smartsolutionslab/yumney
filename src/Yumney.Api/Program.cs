@@ -10,6 +10,8 @@ using Yumney.Recipes.Api;
 using Yumney.Recipes.Application.Commands;
 using Yumney.Recipes.Application.DTOs;
 using Yumney.Recipes.Application.Interfaces;
+using Yumney.Recipes.Domain.Recipe;
+using Yumney.Recipes.Infrastructure.Persistence;
 using Yumney.Recipes.Infrastructure.Services;
 using Yumney.ServiceDefaults;
 using Yumney.Shared.Common;
@@ -52,8 +54,12 @@ builder.Services.AddInProcessEventBus();
 builder.Services.AddDbContext<UsersDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("yumneydb")));
 builder.Services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
 
+builder.Services.AddDbContext<RecipesDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("yumneydb")));
+builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+
 builder.Services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
 builder.Services.AddScoped<ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>>, ImportRecipeCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>>, SaveRecipeCommandHandler>();
 
 builder.Services.AddHttpClient<IWebScraper, WebScraper>().AddStandardResilienceHandler();
 builder.Services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();

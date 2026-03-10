@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, output, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, OnInit, inject } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -36,11 +36,12 @@ export class RecipePreviewComponent implements OnInit {
   private static readonly titleMaxLength = 200;
 
   recipe = input.required<ImportRecipeResponse>();
+  isSaving = input(false);
 
   save = output<ImportRecipeResponse>();
   discard = output<void>();
 
-  private fb = new FormBuilder();
+  private fb = inject(FormBuilder);
 
   form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.maxLength(RecipePreviewComponent.titleMaxLength)]],

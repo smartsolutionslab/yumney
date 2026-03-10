@@ -28,7 +28,7 @@
           }
         </div>
 
-        <button type="submit" [disabled]="isLoading()">
+        <button type="submit" [disabled]="isLoading() || isSaving()">
           @if (isLoading()) {
           <span class="spinner"></span>
           <span>{{ t('dashboard.import.submitting') }}</span>
@@ -40,9 +40,14 @@
     </form>
   </section>
 
-  @if (extractedRecipe()) {
+  @if (saveSuccess()) {
+  <div class="success-banner">
+    {{ t('dashboard.save.success', { title: saveSuccess() }) }}
+  </div>
+  } @if (extractedRecipe()) {
   <yn-recipe-preview
     [recipe]="extractedRecipe()!"
+    [isSaving]="isSaving()"
     (save)="onSaveRecipe($event)"
     (discard)="onDiscardRecipe()"
   />

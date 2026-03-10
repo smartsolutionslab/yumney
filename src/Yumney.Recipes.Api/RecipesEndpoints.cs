@@ -26,7 +26,58 @@ public static class RecipesEndpoints
             .ProducesProblem(StatusCodes.Status502BadGateway)
             .ProducesProblem(StatusCodes.Status504GatewayTimeout);
 
+        group.MapPost("/", SaveAsync)
+            .WithName("SaveRecipe")
+            .WithTags("Recipes")
+            .Produces<SavedRecipeDto>(StatusCodes.Status201Created)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
         return app;
+    }
+
+    private static async Task<IResult> SaveAsync(
+        SaveRecipeRequest request,
+        IValidator<SaveRecipeRequest> validator,
+        ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            return Results.ValidationProblem(validationResult.ToDictionary());
+        }
+
+        var command = new SaveRecipeCommand(
+            new RecipeTitle(request.Title),
+            new RecipeUrl(request.SourceUrl),
+            request.Ingredients.Select(i => new SaveRecipeIngredientCommand(
+                new IngredientName(i.Name),
+                i.Amount.HasValue ? new Amount(i.Amount.Value) : null,
+                !string.IsNullOrWhiteSpace(i.Unit) ? new Unit(i.Unit) : null)).ToList(),
+            request.Steps.Select(s => new SaveRecipeStepCommand(
+                new StepNumber(s.Number),
+                new StepDescription(s.Description))).ToList(),
+            !string.IsNullOrWhiteSpace(request.Description) ? new RecipeDescription(request.Description) : null,
+            request.Servings.HasValue ? new Servings(request.Servings.Value) : null,
+            request.PrepTimeMinutes.HasValue ? new PreparationTime(request.PrepTimeMinutes.Value) : null,
+            request.CookTimeMinutes.HasValue ? new CookingTime(request.CookTimeMinutes.Value) : null,
+            !string.IsNullOrWhiteSpace(request.Difficulty) ? new Difficulty(request.Difficulty) : null,
+            !string.IsNullOrWhiteSpace(request.ImageUrl) ? new ImageUrl(request.ImageUrl) : null);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error switch
+            {
+                SaveRecipeErrors.AlreadyImported => Results.Problem("This recipe has already been imported.", statusCode: 409),
+                _ => Results.Problem("Failed to save recipe.", statusCode: 500),
+            };
+        }
+
+        return Results.Created($"/api/v1/recipes/{result.Value.Identifier}", result.Value);
     }
 
     private static async Task<IResult> ImportAsync(
