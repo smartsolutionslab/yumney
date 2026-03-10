@@ -89,6 +89,12 @@
         "generic": "An unexpected error occurred. Please try again later."
       }
     },
+    "create": {
+      "title": "Create a Recipe",
+      "subtitle": "Start from scratch and enter your own recipe",
+      "submit": "Create Recipe",
+      "previewTitle": "New Recipe"
+    },
     "save": {
       "success": "Recipe \"{{title}}\" saved successfully!",
       "saving": "Saving...",

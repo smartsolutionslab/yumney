@@ -61,6 +61,7 @@ export class DashboardComponent {
   extractedRecipe = signal<ImportRecipeResponse | null>(null);
   sourceUrl = signal<string | null>(null);
   saveSuccess = signal<string | null>(null);
+  isManualEntry = signal(false);
 
   form = this.fb.nonNullable.group({
     url: [
@@ -101,11 +102,25 @@ export class DashboardComponent {
       });
   }
 
+  onCreateManually(): void {
+    this.serverError.set(null);
+    this.saveSuccess.set(null);
+    this.isManualEntry.set(true);
+    this.extractedRecipe.set({
+      title: '',
+      description: null,
+      ingredients: [{ name: '', amount: null, unit: null }],
+      steps: [{ number: 1, description: '' }],
+      servings: null,
+      prepTimeMinutes: null,
+      cookTimeMinutes: null,
+      difficulty: null,
+      imageUrl: null,
+    });
+  }
+
   onSaveRecipe(recipe: ImportRecipeResponse): void {
     const sourceUrl = this.sourceUrl();
-    if (!sourceUrl) {
-      return;
-    }
 
     const request: SaveRecipeRequest = {
       title: recipe.title,
@@ -124,7 +139,7 @@ export class DashboardComponent {
       cookTimeMinutes: recipe.cookTimeMinutes,
       difficulty: recipe.difficulty,
       imageUrl: recipe.imageUrl,
-      sourceUrl,
+      sourceUrl: sourceUrl ?? undefined,
     };
 
     this.isSaving.set(true);
@@ -138,6 +153,7 @@ export class DashboardComponent {
         next: (saved) => {
           this.isSaving.set(false);
           this.extractedRecipe.set(null);
+          this.isManualEntry.set(false);
           this.saveSuccess.set(saved.title);
         },
         error: (err: HttpErrorResponse) => {
@@ -154,6 +170,7 @@ export class DashboardComponent {
   onDiscardRecipe(): void {
     this.extractedRecipe.set(null);
     this.sourceUrl.set(null);
+    this.isManualEntry.set(false);
     this.serverError.set(null);
   }
 

@@ -1,5 +1,5 @@
 <section class="recipe-preview" *transloco="let t">
-  <h2>{{ t('dashboard.preview.title') }}</h2>
+  <h2>{{ previewTitle() ?? t('dashboard.preview.title') }}</h2>
 
   @if (recipe().imageUrl) {
     <div class="preview-image">

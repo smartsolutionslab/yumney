@@ -37,6 +37,7 @@ export class RecipePreviewComponent implements OnInit {
 
   recipe = input.required<ImportRecipeResponse>();
   isSaving = input(false);
+  previewTitle = input<string | undefined>();
 
   save = output<ImportRecipeResponse>();
   discard = output<void>();

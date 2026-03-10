@@ -39,13 +39,13 @@ export interface SaveRecipeRequest {
   cookTimeMinutes: number | null;
   difficulty: string | null;
   imageUrl: string | null;
-  sourceUrl: string;
+  sourceUrl?: string;
 }
 
 export interface SavedRecipeResponse {
   identifier: string;
   title: string;
-  importedAt: string;
+  createdAt: string;
 }
 
 @Injectable({ providedIn: 'root' })
