@@ -35,6 +35,46 @@
   }
 }
 
+.manual-create {
+  margin-top: 1.5rem;
+  padding: 2rem;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+
+  h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    margin: 0 0 1.5rem;
+    color: #666;
+    font-size: 0.875rem;
+  }
+}
+
+.create-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px dashed #f97316;
+  border-radius: 8px;
+  background: transparent;
+  color: #f97316;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #fff7ed;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
 .error-banner {
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;

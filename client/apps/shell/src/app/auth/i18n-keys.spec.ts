@@ -113,6 +113,19 @@ describe('i18n keys', () => {
     }
   });
 
+  it('should contain required dashboard.create keys', () => {
+    const requiredKeys = [
+      'dashboard.create.title',
+      'dashboard.create.subtitle',
+      'dashboard.create.submit',
+      'dashboard.create.previewTitle',
+    ];
+
+    for (const key of requiredKeys) {
+      expect(enKeys).toContain(key);
+    }
+  });
+
   it('should contain required dashboard.import keys', () => {
     const requiredKeys = [
       'dashboard.import.title',

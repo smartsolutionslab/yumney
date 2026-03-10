@@ -89,6 +89,12 @@
         "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
       }
     },
+    "create": {
+      "title": "Rezept erstellen",
+      "subtitle": "Erstelle ein eigenes Rezept von Grund auf",
+      "submit": "Rezept erstellen",
+      "previewTitle": "Neues Rezept"
+    },
     "save": {
       "success": "Rezept \"{{title}}\" erfolgreich gespeichert!",
       "saving": "Wird gespeichert...",

@@ -458,7 +458,7 @@ describe('DashboardComponent', () => {
     const savedResponse: SavedRecipeResponse = {
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     };
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
     recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
@@ -477,7 +477,7 @@ describe('DashboardComponent', () => {
     const savedResponse: SavedRecipeResponse = {
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     };
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
     recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
@@ -540,7 +540,7 @@ describe('DashboardComponent', () => {
     subject.next({
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     });
     subject.complete();
     tick();
@@ -548,17 +548,28 @@ describe('DashboardComponent', () => {
     expect(component.isSaving()).toBe(false);
   }));
 
-  it('should not call saveRecipe when sourceUrl is null', () => {
-    component.onSaveRecipe(mockRecipe);
+  it('should call saveRecipe without sourceUrl when sourceUrl is null', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      createdAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
 
-    expect(recipeApiMock.saveRecipe).not.toHaveBeenCalled();
-  });
+    component.extractedRecipe.set(mockRecipe);
+    component.onSaveRecipe(mockRecipe);
+    tick();
+
+    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
+      expect.not.objectContaining({ sourceUrl: expect.anything() }),
+    );
+  }));
 
   it('should clear saveSuccess on new import', fakeAsync(() => {
     const savedResponse: SavedRecipeResponse = {
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     };
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
     recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
@@ -582,7 +593,7 @@ describe('DashboardComponent', () => {
     const savedResponse: SavedRecipeResponse = {
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     };
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
     recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
@@ -603,7 +614,7 @@ describe('DashboardComponent', () => {
     const savedResponse: SavedRecipeResponse = {
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     };
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
     recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
@@ -668,7 +679,7 @@ describe('DashboardComponent', () => {
     const savedResponse: SavedRecipeResponse = {
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     };
     recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
     component.onSaveRecipe(mockRecipe);
@@ -695,7 +706,7 @@ describe('DashboardComponent', () => {
     subject.next({
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     });
     subject.complete();
     tick();
@@ -724,7 +735,7 @@ describe('DashboardComponent', () => {
     const savedResponse: SavedRecipeResponse = {
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     };
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
     recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
@@ -751,7 +762,7 @@ describe('DashboardComponent', () => {
     const savedResponse: SavedRecipeResponse = {
       identifier: '123',
       title: 'Pasta Carbonara',
-      importedAt: '2026-03-10T00:00:00Z',
+      createdAt: '2026-03-10T00:00:00Z',
     };
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
     recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));

@@ -42,6 +42,19 @@
     </form>
   </section>
 
+  <section class="manual-create">
+    <h2>{{ t('dashboard.create.title') }}</h2>
+    <p class="subtitle">{{ t('dashboard.create.subtitle') }}</p>
+    <button
+      type="button"
+      class="create-btn"
+      [disabled]="isLoading() || isSaving() || extractedRecipe()"
+      (click)="onCreateManually()"
+    >
+      {{ t('dashboard.create.submit') }}
+    </button>
+  </section>
+
   @if (saveSuccess()) {
     <div class="success-banner">
       {{ t('dashboard.save.success', { title: saveSuccess() }) }}
@@ -51,6 +64,7 @@
     <yn-recipe-preview
       [recipe]="extractedRecipe()!"
       [isSaving]="isSaving()"
+      [previewTitle]="isManualEntry() ? t('dashboard.create.previewTitle') : undefined"
       (save)="onSaveRecipe($event)"
       (discard)="onDiscardRecipe()"
     />
