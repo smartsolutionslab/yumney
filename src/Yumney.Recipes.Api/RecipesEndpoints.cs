@@ -51,7 +51,6 @@ public static class RecipesEndpoints
 
         var command = new SaveRecipeCommand(
             new RecipeTitle(request.Title),
-            new RecipeUrl(request.SourceUrl),
             request.Ingredients.Select(i => new SaveRecipeIngredientCommand(
                 new IngredientName(i.Name),
                 Amount.FromNullable(i.Amount),
@@ -64,7 +63,8 @@ public static class RecipesEndpoints
             PreparationTime.FromNullable(request.PrepTimeMinutes),
             CookingTime.FromNullable(request.CookTimeMinutes),
             Difficulty.FromNullable(request.Difficulty),
-            ImageUrl.FromNullable(request.ImageUrl));
+            ImageUrl.FromNullable(request.ImageUrl),
+            SourceUrl: RecipeUrl.FromNullable(request.SourceUrl));
 
         var result = await handler.HandleAsync(command, cancellationToken);
 
