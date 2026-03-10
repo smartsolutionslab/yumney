@@ -4,6 +4,9 @@ using Yumney.Users.Infrastructure.Persistence;
 
 namespace Yumney.MigrationRunner;
 
+/// <summary>
+/// Background worker that applies EF Core migrations for all modules on startup.
+/// </summary>
 public sealed partial class MigrationWorker(
     IServiceProvider serviceProvider,
     IHostApplicationLifetime lifetime,
