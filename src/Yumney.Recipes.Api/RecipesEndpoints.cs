@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Yumney.Recipes.Application.Commands;
 using Yumney.Recipes.Application.DTOs;
+using Yumney.Recipes.Application.Queries;
 using Yumney.Recipes.Domain.Recipe;
 using Yumney.Shared.Common;
 using Yumney.Shared.CQRS;
@@ -12,9 +13,18 @@ namespace Yumney.Recipes.Api;
 
 public static class RecipesEndpoints
 {
+    private const int DefaultPage = 1;
+    private const int DefaultPageSize = 20;
+    private const int MaxPageSize = 100;
+
     public static IEndpointRouteBuilder MapRecipesEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/recipes");
+
+        group.MapGet("/", GetAllAsync)
+            .WithName("GetRecipes")
+            .WithTags("Recipes")
+            .Produces<RecipeListDto>();
 
         group.MapPost("/import", ImportAsync)
             .WithName("ImportRecipe")
@@ -34,6 +44,23 @@ public static class RecipesEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         return app;
+    }
+
+    private static async Task<IResult> GetAllAsync(
+        IQueryHandler<GetRecipesQuery, Result<RecipeListDto>> handler,
+        int page = DefaultPage,
+        int pageSize = DefaultPageSize,
+        RecipeSortField sortBy = RecipeSortField.Date,
+        SortDirection sortDirection = SortDirection.Descending,
+        CancellationToken cancellationToken = default)
+    {
+        var clampedPageSize = Math.Clamp(pageSize, 1, MaxPageSize);
+        var clampedPage = Math.Max(page, 1);
+
+        var query = new GetRecipesQuery(clampedPage, clampedPageSize, sortBy, sortDirection);
+        var result = await handler.HandleAsync(query, cancellationToken);
+
+        return Results.Ok(result.Value);
     }
 
     private static async Task<IResult> SaveAsync(

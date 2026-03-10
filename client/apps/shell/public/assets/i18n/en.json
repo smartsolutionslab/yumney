@@ -66,7 +66,33 @@
     "header": {
       "greeting": "Hi, {{name}}",
       "logout": "Sign out",
-      "login": "Sign in"
+      "login": "Sign in",
+      "myRecipes": "My Recipes"
+    }
+  },
+  "recipes": {
+    "list": {
+      "title": "My Recipes",
+      "sortLabel": "Sort recipes",
+      "sort": {
+        "dateDesc": "Newest first",
+        "dateAsc": "Oldest first",
+        "nameAsc": "Name A-Z",
+        "nameDesc": "Name Z-A"
+      },
+      "servings": "{{count}} servings",
+      "prepTime": "Prep {{minutes}} min",
+      "cookTime": "Cook {{minutes}} min",
+      "loading": "Loading recipes...",
+      "loadMore": "Load more",
+      "empty": {
+        "title": "No recipes yet",
+        "message": "Import your first recipe from any website or create one from scratch.",
+        "cta": "Import a Recipe"
+      },
+      "errors": {
+        "generic": "Failed to load recipes. Please try again later."
+      }
     }
   },
   "dashboard": {
