@@ -80,6 +80,7 @@ export class DashboardComponent {
     this.serverError.set(null);
     this.extractedRecipe.set(null);
     this.saveSuccess.set(null);
+    this.isManualEntry.set(false);
 
     const { url } = this.form.getRawValue();
 
@@ -105,6 +106,7 @@ export class DashboardComponent {
   onCreateManually(): void {
     this.serverError.set(null);
     this.saveSuccess.set(null);
+    this.sourceUrl.set(null);
     this.isManualEntry.set(true);
     this.extractedRecipe.set({
       title: '',
