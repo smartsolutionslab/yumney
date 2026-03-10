@@ -13,6 +13,14 @@ export const appRoutes: Route[] = [
       import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },
   {
+    path: 'recipes',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./recipes/recipe-list/recipe-list.component').then(
+        (m) => m.RecipeListComponent,
+      ),
+  },
+  {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full',

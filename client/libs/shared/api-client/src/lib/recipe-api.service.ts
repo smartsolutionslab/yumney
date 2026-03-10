@@ -48,6 +48,32 @@ export interface SavedRecipeResponse {
   createdAt: string;
 }
 
+export interface RecipeListItem {
+  identifier: string;
+  title: string;
+  description: string | null;
+  servings: number | null;
+  prepTimeMinutes: number | null;
+  cookTimeMinutes: number | null;
+  difficulty: string | null;
+  imageUrl: string | null;
+  createdAt: string;
+}
+
+export interface RecipeListResponse {
+  items: RecipeListItem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface GetRecipesParams {
+  page?: number;
+  pageSize?: number;
+  sortBy?: 'Name' | 'Date';
+  sortDirection?: 'Ascending' | 'Descending';
+}
+
 @Injectable({ providedIn: 'root' })
 export class RecipeApiService {
   private http = inject(HttpClient);
@@ -58,5 +84,16 @@ export class RecipeApiService {
 
   saveRecipe(request: SaveRecipeRequest): Observable<SavedRecipeResponse> {
     return this.http.post<SavedRecipeResponse>('/api/v1/recipes', request);
+  }
+
+  getRecipes(params: GetRecipesParams = {}): Observable<RecipeListResponse> {
+    return this.http.get<RecipeListResponse>('/api/v1/recipes', {
+      params: {
+        ...(params.page != null && { page: params.page }),
+        ...(params.pageSize != null && { pageSize: params.pageSize }),
+        ...(params.sortBy != null && { sortBy: params.sortBy }),
+        ...(params.sortDirection != null && { sortDirection: params.sortDirection }),
+      },
+    });
   }
 }

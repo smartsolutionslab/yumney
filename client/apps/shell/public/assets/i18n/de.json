@@ -66,7 +66,33 @@
     "header": {
       "greeting": "Hallo, {{name}}",
       "logout": "Abmelden",
-      "login": "Anmelden"
+      "login": "Anmelden",
+      "myRecipes": "Meine Rezepte"
+    }
+  },
+  "recipes": {
+    "list": {
+      "title": "Meine Rezepte",
+      "sortLabel": "Rezepte sortieren",
+      "sort": {
+        "dateDesc": "Neueste zuerst",
+        "dateAsc": "Älteste zuerst",
+        "nameAsc": "Name A-Z",
+        "nameDesc": "Name Z-A"
+      },
+      "servings": "{{count}} Portionen",
+      "prepTime": "Vorbereitung {{minutes}} Min.",
+      "cookTime": "Kochen {{minutes}} Min.",
+      "loading": "Rezepte werden geladen...",
+      "loadMore": "Mehr laden",
+      "empty": {
+        "title": "Noch keine Rezepte",
+        "message": "Importiere dein erstes Rezept von einer beliebigen Website oder erstelle eines von Grund auf.",
+        "cta": "Rezept importieren"
+      },
+      "errors": {
+        "generic": "Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
+      }
     }
   },
   "dashboard": {

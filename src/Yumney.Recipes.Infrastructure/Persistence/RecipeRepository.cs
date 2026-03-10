@@ -17,4 +17,32 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             r => r.SourceUrl == sourceUrl && r.Owner == owner,
             cancellationToken);
     }
+
+    public async Task<(IReadOnlyList<Recipe> Items, int TotalCount)> GetByOwnerAsync(
+        OwnerIdentifier owner,
+        int skip,
+        int take,
+        RecipeSortField sortBy,
+        SortDirection sortDirection,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.Recipes.Where(r => r.Owner == owner);
+
+        query = (sortBy, sortDirection) switch
+        {
+            (RecipeSortField.Name, SortDirection.Ascending) => query.OrderBy(r => r.Title),
+            (RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(r => r.Title),
+            (RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
+            _ => query.OrderByDescending(r => r.CreatedAt),
+        };
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }
