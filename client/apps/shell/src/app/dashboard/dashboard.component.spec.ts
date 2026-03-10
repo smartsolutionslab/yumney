@@ -3,7 +3,11 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, Subject, throwError } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
-import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
+import {
+  RecipeApiService,
+  ImportRecipeResponse,
+  SavedRecipeResponse,
+} from '@yumney/shared/api-client';
 
 const mockRecipe: ImportRecipeResponse = {
   title: 'Pasta Carbonara',
@@ -44,6 +48,14 @@ const en = {
         generic: 'An unexpected error occurred. Please try again later.',
       },
     },
+    save: {
+      success: 'Recipe "{{title}}" saved successfully!',
+      saving: 'Saving...',
+      errors: {
+        duplicate: 'This recipe has already been imported.',
+        generic: 'Failed to save recipe. Please try again.',
+      },
+    },
     preview: {
       title: 'Review Extracted Recipe',
       recipeTitle: 'Title',
@@ -75,10 +87,13 @@ const en = {
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
-  let recipeApiMock: { importRecipe: ReturnType<typeof vi.fn> };
+  let recipeApiMock: {
+    importRecipe: ReturnType<typeof vi.fn>;
+    saveRecipe: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
-    recipeApiMock = { importRecipe: vi.fn() };
+    recipeApiMock = { importRecipe: vi.fn(), saveRecipe: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -439,13 +454,318 @@ describe('DashboardComponent', () => {
     expect(fixture.nativeElement.querySelector('yn-recipe-preview')).toBeNull();
   }));
 
-  it('should log recipe on save (placeholder for US-013)', fakeAsync(() => {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  it('should call saveRecipe API on save', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
 
     component.onSaveRecipe(mockRecipe);
+    tick();
 
-    expect(consoleSpy).toHaveBeenCalledWith('Save recipe (US-013):', mockRecipe);
-    consoleSpy.mockRestore();
+    expect(recipeApiMock.saveRecipe).toHaveBeenCalled();
+  }));
+
+  it('should set saveSuccess on successful save', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+
+    expect(component.saveSuccess()).toBe('Pasta Carbonara');
+    expect(component.extractedRecipe()).toBeNull();
+  }));
+
+  it('should show duplicate error on 409 response', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 409 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+
+    expect(component.serverError()).toBe('dashboard.save.errors.duplicate');
+  }));
+
+  it('should show generic save error on 500 response', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+
+    expect(component.serverError()).toBe('dashboard.save.errors.generic');
+  }));
+
+  it('should set isSaving during save operation', fakeAsync(() => {
+    const subject = new Subject<SavedRecipeResponse>();
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(subject);
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    expect(component.isSaving()).toBe(true);
+
+    subject.next({
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    });
+    subject.complete();
+    tick();
+
+    expect(component.isSaving()).toBe(false);
+  }));
+
+  it('should not call saveRecipe when sourceUrl is null', () => {
+    component.onSaveRecipe(mockRecipe);
+
+    expect(recipeApiMock.saveRecipe).not.toHaveBeenCalled();
+  });
+
+  it('should clear saveSuccess on new import', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+    expect(component.saveSuccess()).toBe('Pasta Carbonara');
+
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    component.form.controls.url.setValue('https://example.com/other');
+    component.onImport();
+
+    expect(component.saveSuccess()).toBeNull();
+  }));
+
+  it('should include sourceUrl in save request', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+
+    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceUrl: 'https://example.com/recipe' }),
+    );
+  }));
+
+  it('should map recipe fields to save request correctly', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+
+    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Pasta Carbonara',
+        description: 'A classic Italian pasta dish',
+        servings: 4,
+        prepTimeMinutes: 10,
+        cookTimeMinutes: 20,
+        difficulty: 'medium',
+        ingredients: [
+          { name: 'Spaghetti', amount: 400, unit: 'g' },
+          { name: 'Pancetta', amount: 200, unit: 'g' },
+        ],
+        steps: [
+          { number: 1, description: 'Cook pasta' },
+          { number: 2, description: 'Fry pancetta' },
+        ],
+      }),
+    );
+  }));
+
+  it('should set isSaving to false after save error', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+
+    expect(component.isSaving()).toBe(false);
+  }));
+
+  it('should clear serverError when starting a save', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+    expect(component.serverError()).toBe('dashboard.save.errors.generic');
+
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+    component.onSaveRecipe(mockRecipe);
+    expect(component.serverError()).toBeNull();
+
+    tick();
+  }));
+
+  it('should disable import button while saving', fakeAsync(() => {
+    const subject = new Subject<SavedRecipeResponse>();
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(subject);
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('button[type="submit"]');
+    expect(button.disabled).toBe(true);
+
+    subject.next({
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    });
+    subject.complete();
+    tick();
+  }));
+
+  it('should clear serverError on discard', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+    expect(component.serverError()).toBe('dashboard.save.errors.generic');
+
+    component.onDiscardRecipe();
+
+    expect(component.serverError()).toBeNull();
+  }));
+
+  it('should clear saveSuccess when starting a new save', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+    expect(component.saveSuccess()).toBe('Pasta Carbonara');
+
+    recipeApiMock.saveRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+    component.sourceUrl.set('https://example.com/recipe');
+    component.onSaveRecipe(mockRecipe);
+    expect(component.saveSuccess()).toBeNull();
+
+    tick();
+  }));
+
+  it('should show success banner after save', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      importedAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+    fixture.detectChanges();
+
+    const banner = fixture.nativeElement.querySelector('.success-banner');
+    expect(banner).toBeTruthy();
+    expect(banner.textContent).toContain('Pasta Carbonara');
   }));
 });

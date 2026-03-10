@@ -89,6 +89,14 @@
         "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
       }
     },
+    "save": {
+      "success": "Rezept \"{{title}}\" erfolgreich gespeichert!",
+      "saving": "Wird gespeichert...",
+      "errors": {
+        "duplicate": "Dieses Rezept wurde bereits importiert.",
+        "generic": "Rezept konnte nicht gespeichert werden. Bitte versuche es erneut."
+      }
+    },
     "preview": {
       "title": "Extrahiertes Rezept überprüfen",
       "recipeTitle": "Titel",

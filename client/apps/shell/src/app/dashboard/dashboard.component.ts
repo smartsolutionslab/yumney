@@ -9,7 +9,11 @@ import {
 } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
+import {
+  RecipeApiService,
+  ImportRecipeResponse,
+  SaveRecipeRequest,
+} from '@yumney/shared/api-client';
 import { RecipePreviewComponent } from './recipe-preview/recipe-preview.component';
 
 function urlValidator(control: AbstractControl): ValidationErrors | null {
@@ -52,8 +56,11 @@ export class DashboardComponent {
   private destroyRef = inject(DestroyRef);
 
   isLoading = signal(false);
+  isSaving = signal(false);
   serverError = signal<string | null>(null);
   extractedRecipe = signal<ImportRecipeResponse | null>(null);
+  sourceUrl = signal<string | null>(null);
+  saveSuccess = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
     url: [
@@ -71,6 +78,7 @@ export class DashboardComponent {
     this.isLoading.set(true);
     this.serverError.set(null);
     this.extractedRecipe.set(null);
+    this.saveSuccess.set(null);
 
     const { url } = this.form.getRawValue();
 
@@ -81,6 +89,7 @@ export class DashboardComponent {
         next: (response) => {
           this.isLoading.set(false);
           this.extractedRecipe.set(response);
+          this.sourceUrl.set(url);
           this.form.reset();
         },
         error: (err: HttpErrorResponse) => {
@@ -93,11 +102,59 @@ export class DashboardComponent {
   }
 
   onSaveRecipe(recipe: ImportRecipeResponse): void {
-    console.log('Save recipe (US-013):', recipe);
+    const sourceUrl = this.sourceUrl();
+    if (!sourceUrl) {
+      return;
+    }
+
+    const request: SaveRecipeRequest = {
+      title: recipe.title,
+      description: recipe.description,
+      ingredients: recipe.ingredients.map((i) => ({
+        name: i.name,
+        amount: i.amount,
+        unit: i.unit,
+      })),
+      steps: recipe.steps.map((s) => ({
+        number: s.number,
+        description: s.description,
+      })),
+      servings: recipe.servings,
+      prepTimeMinutes: recipe.prepTimeMinutes,
+      cookTimeMinutes: recipe.cookTimeMinutes,
+      difficulty: recipe.difficulty,
+      imageUrl: recipe.imageUrl,
+      sourceUrl,
+    };
+
+    this.isSaving.set(true);
+    this.serverError.set(null);
+    this.saveSuccess.set(null);
+
+    this.recipeApi
+      .saveRecipe(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (saved) => {
+          this.isSaving.set(false);
+          this.extractedRecipe.set(null);
+          this.saveSuccess.set(saved.title);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.isSaving.set(false);
+          if (err.status === 409) {
+            this.serverError.set('dashboard.save.errors.duplicate');
+          } else {
+            this.serverError.set('dashboard.save.errors.generic');
+          }
+        },
+      });
   }
 
   onDiscardRecipe(): void {
     this.extractedRecipe.set(null);
+    this.sourceUrl.set(null);
+    this.serverError.set(null);
   }
 
   hasError(field: string, error: string): boolean {

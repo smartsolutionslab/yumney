@@ -1,0 +1,24 @@
+using Yumney.Shared.Common;
+
+namespace Yumney.Recipes.Domain.Recipe;
+
+public sealed class Step : Entity<Guid>
+{
+    public StepNumber Number { get; private set; } = default!;
+
+    public StepDescription Description { get; private set; } = default!;
+
+    private Step()
+    {
+    }
+
+    public static Step Create(StepNumber number, StepDescription description)
+    {
+        return new Step
+        {
+            Id = Guid.NewGuid(),
+            Number = number,
+            Description = description,
+        };
+    }
+}

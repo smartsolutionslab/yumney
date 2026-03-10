@@ -130,11 +130,16 @@
     </div>
 
     <div class="action-buttons">
-      <button type="button" class="discard-btn" (click)="onDiscard()">
+      <button type="button" class="discard-btn" [disabled]="isSaving()" (click)="onDiscard()">
         {{ t('dashboard.preview.discard') }}
       </button>
-      <button type="submit" class="save-btn">
-        {{ t('dashboard.preview.save') }}
+      <button type="submit" class="save-btn" [disabled]="isSaving()">
+        @if (isSaving()) {
+        <span class="spinner"></span>
+        <span>{{ t('dashboard.save.saving') }}</span>
+        } @else {
+        <span>{{ t('dashboard.preview.save') }}</span>
+        }
       </button>
     </div>
   </form>

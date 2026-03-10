@@ -135,6 +135,19 @@ describe('i18n keys', () => {
     }
   });
 
+  it('should contain required dashboard.save keys', () => {
+    const requiredKeys = [
+      'dashboard.save.success',
+      'dashboard.save.saving',
+      'dashboard.save.errors.duplicate',
+      'dashboard.save.errors.generic',
+    ];
+
+    for (const key of requiredKeys) {
+      expect(enKeys).toContain(key);
+    }
+  });
+
   it('should contain required dashboard.preview keys', () => {
     const requiredKeys = [
       'dashboard.preview.title',

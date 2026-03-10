@@ -89,6 +89,14 @@
         "generic": "An unexpected error occurred. Please try again later."
       }
     },
+    "save": {
+      "success": "Recipe \"{{title}}\" saved successfully!",
+      "saving": "Saving...",
+      "errors": {
+        "duplicate": "This recipe has already been imported.",
+        "generic": "Failed to save recipe. Please try again."
+      }
+    },
     "preview": {
       "title": "Review Extracted Recipe",
       "recipeTitle": "Title",

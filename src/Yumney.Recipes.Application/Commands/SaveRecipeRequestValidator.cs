@@ -1,0 +1,82 @@
+using FluentValidation;
+using Yumney.Recipes.Domain.Recipe;
+
+namespace Yumney.Recipes.Application.Commands;
+
+public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeRequest>
+{
+    public SaveRecipeRequestValidator()
+    {
+        RuleFor(x => x.Title)
+            .NotEmpty()
+            .MaximumLength(RecipeTitle.MaxLength);
+
+        RuleFor(x => x.SourceUrl)
+            .NotEmpty()
+            .MaximumLength(RecipeUrl.MaxLength)
+            .Must(url => Uri.TryCreate(url, UriKind.Absolute, out var uri)
+                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+            .WithMessage("A valid HTTP or HTTPS URL is required.");
+
+        RuleFor(x => x.Description)
+            .MaximumLength(RecipeDescription.MaxLength)
+            .When(x => x.Description is not null);
+
+        RuleFor(x => x.ImageUrl)
+            .MaximumLength(ImageUrl.MaxLength)
+            .Must(url => Uri.TryCreate(url, UriKind.Absolute, out var uri)
+                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+            .When(x => !string.IsNullOrWhiteSpace(x.ImageUrl))
+            .WithMessage("A valid HTTP or HTTPS image URL is required.");
+
+        RuleFor(x => x.Difficulty)
+            .NotEmpty()
+            .MaximumLength(Difficulty.MaxLength)
+            .When(x => x.Difficulty is not null);
+
+        RuleFor(x => x.Servings)
+            .GreaterThan(0)
+            .When(x => x.Servings.HasValue);
+
+        RuleFor(x => x.PrepTimeMinutes)
+            .GreaterThanOrEqualTo(0)
+            .When(x => x.PrepTimeMinutes.HasValue);
+
+        RuleFor(x => x.CookTimeMinutes)
+            .GreaterThanOrEqualTo(0)
+            .When(x => x.CookTimeMinutes.HasValue);
+
+        RuleFor(x => x.Ingredients)
+            .NotEmpty()
+            .WithMessage("At least one ingredient is required.");
+
+        RuleForEach(x => x.Ingredients).ChildRules(ingredient =>
+        {
+            ingredient.RuleFor(i => i.Name)
+                .NotEmpty()
+                .MaximumLength(IngredientName.MaxLength);
+
+            ingredient.RuleFor(i => i.Amount)
+                .GreaterThanOrEqualTo(0)
+                .When(i => i.Amount.HasValue);
+
+            ingredient.RuleFor(i => i.Unit)
+                .MaximumLength(Unit.MaxLength)
+                .When(i => i.Unit is not null);
+        });
+
+        RuleFor(x => x.Steps)
+            .NotEmpty()
+            .WithMessage("At least one step is required.");
+
+        RuleForEach(x => x.Steps).ChildRules(step =>
+        {
+            step.RuleFor(s => s.Number)
+                .GreaterThan(0);
+
+            step.RuleFor(s => s.Description)
+                .NotEmpty()
+                .MaximumLength(StepDescription.MaxLength);
+        });
+    }
+}
