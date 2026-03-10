@@ -61,4 +61,22 @@ public class DifficultyTests
 
         difficulty.ToString().Should().Be("hard");
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void FromNullable_NullOrWhitespace_ReturnsNull(string? value)
+    {
+        Difficulty.FromNullable(value).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromNullable_ValidValue_ReturnsInstance()
+    {
+        var result = Difficulty.FromNullable("easy");
+
+        result.Should().NotBeNull();
+        result!.Value.Should().Be("easy");
+    }
 }

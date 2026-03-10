@@ -17,5 +17,8 @@ public sealed record Difficulty
         Value = validated.Trim();
     }
 
+    public static Difficulty? FromNullable(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : new Difficulty(value);
+
     public override string ToString() => Value;
 }

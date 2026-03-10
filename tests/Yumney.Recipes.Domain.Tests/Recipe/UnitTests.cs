@@ -79,4 +79,22 @@ public class UnitTests
 
         unit.ToString().Should().Be("cups");
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void FromNullable_NullOrWhitespace_ReturnsNull(string? value)
+    {
+        Unit.FromNullable(value).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromNullable_ValidValue_ReturnsInstance()
+    {
+        var result = Unit.FromNullable("ml");
+
+        result.Should().NotBeNull();
+        result!.Value.Should().Be("ml");
+    }
 }

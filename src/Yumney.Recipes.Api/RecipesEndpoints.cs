@@ -54,17 +54,17 @@ public static class RecipesEndpoints
             new RecipeUrl(request.SourceUrl),
             request.Ingredients.Select(i => new SaveRecipeIngredientCommand(
                 new IngredientName(i.Name),
-                i.Amount.HasValue ? new Amount(i.Amount.Value) : null,
-                !string.IsNullOrWhiteSpace(i.Unit) ? new Unit(i.Unit) : null)).ToList(),
+                Amount.FromNullable(i.Amount),
+                Unit.FromNullable(i.Unit))).ToList(),
             request.Steps.Select(s => new SaveRecipeStepCommand(
                 new StepNumber(s.Number),
                 new StepDescription(s.Description))).ToList(),
-            !string.IsNullOrWhiteSpace(request.Description) ? new RecipeDescription(request.Description) : null,
-            request.Servings.HasValue ? new Servings(request.Servings.Value) : null,
-            request.PrepTimeMinutes.HasValue ? new PreparationTime(request.PrepTimeMinutes.Value) : null,
-            request.CookTimeMinutes.HasValue ? new CookingTime(request.CookTimeMinutes.Value) : null,
-            !string.IsNullOrWhiteSpace(request.Difficulty) ? new Difficulty(request.Difficulty) : null,
-            !string.IsNullOrWhiteSpace(request.ImageUrl) ? new ImageUrl(request.ImageUrl) : null);
+            RecipeDescription.FromNullable(request.Description),
+            Servings.FromNullable(request.Servings),
+            PreparationTime.FromNullable(request.PrepTimeMinutes),
+            CookingTime.FromNullable(request.CookTimeMinutes),
+            Difficulty.FromNullable(request.Difficulty),
+            ImageUrl.FromNullable(request.ImageUrl));
 
         var result = await handler.HandleAsync(command, cancellationToken);
 

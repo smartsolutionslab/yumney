@@ -12,5 +12,8 @@ public sealed record PreparationTime
         Value = Ensure.That(value).IsNotNegative().AndReturn();
     }
 
+    public static PreparationTime? FromNullable(int? value) =>
+        value.HasValue ? new PreparationTime(value.Value) : null;
+
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

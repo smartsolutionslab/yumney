@@ -46,4 +46,19 @@ public class ServingsTests
 
         servings.ToString().Should().Be("4");
     }
+
+    [Fact]
+    public void FromNullable_Null_ReturnsNull()
+    {
+        Servings.FromNullable(null).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromNullable_ValidValue_ReturnsInstance()
+    {
+        var result = Servings.FromNullable(4);
+
+        result.Should().NotBeNull();
+        result!.Value.Should().Be(4);
+    }
 }

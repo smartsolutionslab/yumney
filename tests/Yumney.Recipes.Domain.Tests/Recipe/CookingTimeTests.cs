@@ -38,4 +38,19 @@ public class CookingTimeTests
 
         cookTime.ToString().Should().Be("20");
     }
+
+    [Fact]
+    public void FromNullable_Null_ReturnsNull()
+    {
+        CookingTime.FromNullable(null).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromNullable_ValidValue_ReturnsInstance()
+    {
+        var result = CookingTime.FromNullable(45);
+
+        result.Should().NotBeNull();
+        result!.Value.Should().Be(45);
+    }
 }

@@ -17,5 +17,8 @@ public sealed record Unit
         Value = validated.Trim();
     }
 
+    public static Unit? FromNullable(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : new Unit(value);
+
     public override string ToString() => Value;
 }
