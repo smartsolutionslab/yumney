@@ -134,4 +134,34 @@ describe('i18n keys', () => {
       expect(enKeys).toContain(key);
     }
   });
+
+  it('should contain required dashboard.preview keys', () => {
+    const requiredKeys = [
+      'dashboard.preview.title',
+      'dashboard.preview.recipeTitle',
+      'dashboard.preview.description',
+      'dashboard.preview.servings',
+      'dashboard.preview.prepTime',
+      'dashboard.preview.cookTime',
+      'dashboard.preview.difficulty',
+      'dashboard.preview.ingredients',
+      'dashboard.preview.ingredientName',
+      'dashboard.preview.amount',
+      'dashboard.preview.unit',
+      'dashboard.preview.addIngredient',
+      'dashboard.preview.steps',
+      'dashboard.preview.stepDescription',
+      'dashboard.preview.addStep',
+      'dashboard.preview.save',
+      'dashboard.preview.discard',
+      'dashboard.preview.errors.titleRequired',
+      'dashboard.preview.errors.titleMaxLength',
+      'dashboard.preview.errors.ingredientNameRequired',
+      'dashboard.preview.errors.stepDescriptionRequired',
+    ];
+
+    for (const key of requiredKeys) {
+      expect(enKeys).toContain(key);
+    }
+  });
 });

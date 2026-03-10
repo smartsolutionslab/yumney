@@ -88,6 +88,31 @@
         "noRecipe": "Auf dieser Seite wurde kein Rezept gefunden.",
         "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
       }
+    },
+    "preview": {
+      "title": "Extrahiertes Rezept überprüfen",
+      "recipeTitle": "Titel",
+      "description": "Beschreibung",
+      "servings": "Portionen",
+      "prepTime": "Vorbereitungszeit (Min.)",
+      "cookTime": "Kochzeit (Min.)",
+      "difficulty": "Schwierigkeit",
+      "ingredients": "Zutaten",
+      "ingredientName": "Zutat",
+      "amount": "Menge",
+      "unit": "Einheit",
+      "addIngredient": "Zutat hinzufügen",
+      "steps": "Schritte",
+      "stepDescription": "Beschreibung des Schritts",
+      "addStep": "Schritt hinzufügen",
+      "save": "Rezept speichern",
+      "discard": "Verwerfen",
+      "errors": {
+        "titleRequired": "Titel ist erforderlich.",
+        "titleMaxLength": "Titel darf maximal 200 Zeichen lang sein.",
+        "ingredientNameRequired": "Zutatname ist erforderlich.",
+        "stepDescriptionRequired": "Schrittbeschreibung ist erforderlich."
+      }
     }
   }
 }
