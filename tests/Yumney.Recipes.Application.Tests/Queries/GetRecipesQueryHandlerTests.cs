@@ -23,7 +23,7 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ReturnsSuccess()
+    public async Task HandleAsync_NoRecipes_ReturnsSuccessResult()
     {
         SetupEmptyRepository();
 
@@ -34,7 +34,7 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_EmptyList_ReturnsEmptyItems()
+    public async Task HandleAsync_NoRecipes_ReturnsEmptyItems()
     {
         SetupEmptyRepository();
 
@@ -60,7 +60,19 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ReturnsPaginationInfo()
+    public async Task HandleAsync_WithRecipes_ReturnsMappedCreatedAt()
+    {
+        var recipe = CreateTestRecipe("Pasta Carbonara");
+        SetupRepository([recipe], 1);
+
+        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var result = await handler.HandleAsync(query);
+
+        result.Value.Items[0].CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public async Task HandleAsync_PageThreeWithTenPerPage_ReturnsPaginationMetadata()
     {
         SetupRepository([], 50);
 
@@ -73,7 +85,7 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_UsesCurrentUserAsOwner()
+    public async Task HandleAsync_Always_FiltersOnCurrentUser()
     {
         currentUser.UserId.Returns("specific-user-id");
         SetupEmptyRepository();
@@ -91,7 +103,7 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_CalculatesSkipFromPage()
+    public async Task HandleAsync_PageThreeWithTenPerPage_CalculatesSkipAsTwenty()
     {
         SetupEmptyRepository();
 
@@ -108,7 +120,24 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_PassesSortParameters()
+    public async Task HandleAsync_FirstPage_CalculatesSkipAsZero()
+    {
+        SetupEmptyRepository();
+
+        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        await handler.HandleAsync(query);
+
+        await recipes.Received(1).GetByOwnerAsync(
+            Arg.Any<OwnerIdentifier>(),
+            0,
+            20,
+            Arg.Any<RecipeSortField>(),
+            Arg.Any<SortDirection>(),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task HandleAsync_SortByNameAscending_PassesSortToRepository()
     {
         SetupEmptyRepository();
 
@@ -125,7 +154,24 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ForwardsCancellationToken()
+    public async Task HandleAsync_SortByDateDescending_PassesSortToRepository()
+    {
+        SetupEmptyRepository();
+
+        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        await handler.HandleAsync(query);
+
+        await recipes.Received(1).GetByOwnerAsync(
+            Arg.Any<OwnerIdentifier>(),
+            Arg.Any<int>(),
+            Arg.Any<int>(),
+            RecipeSortField.Date,
+            SortDirection.Descending,
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithCancellationToken_ForwardsToRepository()
     {
         SetupEmptyRepository();
         var cts = new CancellationTokenSource();
@@ -143,7 +189,7 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_MapsOptionalFields()
+    public async Task HandleAsync_RecipeWithAllFields_MapsOptionalFieldsCorrectly()
     {
         var recipe = CreateTestRecipeWithOptionals();
         SetupRepository([recipe], 1);
@@ -161,7 +207,7 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_NullOptionalFields_MapsToNull()
+    public async Task HandleAsync_RecipeWithoutOptionals_MapsNullFields()
     {
         var recipe = CreateTestRecipe("Simple Recipe");
         SetupRepository([recipe], 1);
@@ -176,6 +222,36 @@ public class GetRecipesQueryHandlerTests
         item.CookTimeMinutes.Should().BeNull();
         item.Difficulty.Should().BeNull();
         item.ImageUrl.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task HandleAsync_MultipleRecipes_MapsAllItems()
+    {
+        var recipe1 = CreateTestRecipe("Recipe One");
+        var recipe2 = CreateTestRecipe("Recipe Two");
+        var recipe3 = CreateTestRecipe("Recipe Three");
+        SetupRepository([recipe1, recipe2, recipe3], 3);
+
+        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var result = await handler.HandleAsync(query);
+
+        result.Value.Items.Should().HaveCount(3);
+        result.Value.Items[0].Title.Should().Be("Recipe One");
+        result.Value.Items[1].Title.Should().Be("Recipe Two");
+        result.Value.Items[2].Title.Should().Be("Recipe Three");
+    }
+
+    [Fact]
+    public async Task HandleAsync_PartialPage_ReturnsTotalCountLargerThanItems()
+    {
+        var recipe = CreateTestRecipe("Only Recipe On Page");
+        SetupRepository([recipe], 25);
+
+        var query = new GetRecipesQuery(2, 20, RecipeSortField.Date, SortDirection.Descending);
+        var result = await handler.HandleAsync(query);
+
+        result.Value.Items.Should().HaveCount(1);
+        result.Value.TotalCount.Should().Be(25);
     }
 
     private static Recipe CreateTestRecipe(string title)

@@ -309,4 +309,93 @@ describe('RecipeListComponent', () => {
     const loading = fixture.nativeElement.querySelector('.loading');
     expect(loading).toBeNull();
   }));
+
+  it('should reset totalCount on sort change', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+    expect(component.totalCount()).toBe(5);
+
+    const subject = new Subject<RecipeListResponse>();
+    recipeApiMock.getRecipes.mockReturnValue(subject);
+    component.onSortChange('name-asc');
+
+    expect(component.totalCount()).toBe(0);
+
+    subject.next(mockResponse);
+    subject.complete();
+    tick();
+  }));
+
+  it('should clear error on successful retry', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(throwError(() => new Error('fail'))));
+    fixture.detectChanges();
+    tick();
+    expect(component.error()).toBe('recipes.list.errors.generic');
+
+    recipeApiMock.getRecipes.mockReturnValue(of(mockResponse));
+    component.onSortChange('date-desc');
+    tick();
+
+    expect(component.error()).toBeNull();
+  }));
+
+  it('should not show load more when items equal totalCount', fakeAsync(() => {
+    const exactResponse: RecipeListResponse = {
+      items: [mockResponse.items[0]],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+    };
+    setupTestBed(vi.fn().mockReturnValue(of(exactResponse)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const btn = fixture.nativeElement.querySelector('.load-more-button');
+    expect(btn).toBeNull();
+  }));
+
+  it('should not show empty state while loading', fakeAsync(() => {
+    const subject = new Subject<RecipeListResponse>();
+    setupTestBed(vi.fn().mockReturnValue(subject));
+    fixture.detectChanges();
+
+    const empty = fixture.nativeElement.querySelector('.empty-state');
+    expect(empty).toBeNull();
+
+    subject.next(emptyResponse);
+    subject.complete();
+    tick();
+  }));
+
+  it('should render sort dropdown', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const select = fixture.nativeElement.querySelector('.sort-select');
+    expect(select).toBeTruthy();
+    expect(select.options.length).toBe(4);
+  }));
+
+  it('should display recipe description when present', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const descriptions = fixture.nativeElement.querySelectorAll('.recipe-description');
+    expect(descriptions.length).toBe(1);
+    expect(descriptions[0].textContent).toContain('A classic Italian dish');
+  }));
+
+  it('should set isLoading to false after error', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(throwError(() => new Error('fail'))));
+    fixture.detectChanges();
+    tick();
+
+    expect(component.isLoading()).toBe(false);
+  }));
 });
