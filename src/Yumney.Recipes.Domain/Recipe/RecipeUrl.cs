@@ -18,5 +18,8 @@ public sealed record RecipeUrl
         Value = validated.Trim();
     }
 
+    public static RecipeUrl? FromNullable(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : new RecipeUrl(value);
+
     public override string ToString() => Value;
 }
