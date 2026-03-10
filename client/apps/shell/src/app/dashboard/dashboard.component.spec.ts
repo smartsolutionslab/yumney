@@ -888,6 +888,59 @@ describe('DashboardComponent', () => {
     tick();
   }));
 
+  it('should clear sourceUrl when creating manually after import', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      createdAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+    expect(component.sourceUrl()).toBe('https://example.com/recipe');
+
+    component.onCreateManually();
+
+    expect(component.sourceUrl()).toBeNull();
+  }));
+
+  it('should reset isManualEntry when starting import', () => {
+    component.onCreateManually();
+    expect(component.isManualEntry()).toBe(true);
+
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+
+    expect(component.isManualEntry()).toBe(false);
+  });
+
+  it('should clear serverError and saveSuccess on create manually', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+    recipeApiMock.saveRecipe.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+
+    component.onSaveRecipe(mockRecipe);
+    tick();
+    expect(component.serverError()).toBe('dashboard.save.errors.generic');
+
+    component.onCreateManually();
+
+    expect(component.serverError()).toBeNull();
+    expect(component.saveSuccess()).toBeNull();
+  }));
+
   it('should disable create button when recipe preview is shown', fakeAsync(() => {
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
 

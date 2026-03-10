@@ -62,6 +62,16 @@ public class SaveRecipeRequestValidatorTests
         result.ShouldNotHaveValidationErrorFor(x => x.SourceUrl);
     }
 
+    [Fact]
+    public void Validate_ValidRequestWithNullSourceUrl_HasNoErrors()
+    {
+        var request = CreateValidRequest() with { SourceUrl = null };
+
+        var result = validator.TestValidate(request);
+
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
     [Theory]
     [InlineData("not-a-url")]
     [InlineData("ftp://example.com")]

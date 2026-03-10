@@ -235,6 +235,23 @@ public class SaveRecipeCommandHandlerTests
         await recipes.Received(1).AddAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task HandleAsync_NullSourceUrl_CreatesRecipeWithNullSourceUrl()
+    {
+        Recipe? capturedRecipe = null;
+        await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
+
+        var command = new SaveRecipeCommand(
+            new RecipeTitle("Manual Recipe"),
+            [new SaveRecipeIngredientCommand(new IngredientName("Flour"), null, null)],
+            [new SaveRecipeStepCommand(new StepNumber(1), new StepDescription("Mix"))]);
+
+        await handler.HandleAsync(command);
+
+        capturedRecipe.Should().NotBeNull();
+        capturedRecipe!.SourceUrl.Should().BeNull();
+    }
+
     private static SaveRecipeCommand CreateValidCommand()
     {
         return new SaveRecipeCommand(
