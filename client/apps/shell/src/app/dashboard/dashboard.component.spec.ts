@@ -44,6 +44,31 @@ const en = {
         generic: 'An unexpected error occurred. Please try again later.',
       },
     },
+    preview: {
+      title: 'Review Extracted Recipe',
+      recipeTitle: 'Title',
+      description: 'Description',
+      servings: 'Servings',
+      prepTime: 'Prep Time (min)',
+      cookTime: 'Cook Time (min)',
+      difficulty: 'Difficulty',
+      ingredients: 'Ingredients',
+      ingredientName: 'Ingredient',
+      amount: 'Amount',
+      unit: 'Unit',
+      addIngredient: 'Add Ingredient',
+      steps: 'Steps',
+      stepDescription: 'Step Description',
+      addStep: 'Add Step',
+      save: 'Save Recipe',
+      discard: 'Discard',
+      errors: {
+        titleRequired: 'Title is required.',
+        titleMaxLength: 'Title must not exceed 200 characters.',
+        ingredientNameRequired: 'Ingredient name is required.',
+        stepDescriptionRequired: 'Step description is required.',
+      },
+    },
   },
 };
 
@@ -261,7 +286,7 @@ describe('DashboardComponent', () => {
     expect(component.isLoading()).toBe(false);
   }));
 
-  it('should show success banner with recipe title after extraction', fakeAsync(() => {
+  it('should show recipe preview after successful extraction', fakeAsync(() => {
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
 
     component.form.controls.url.setValue('https://example.com/recipe');
@@ -269,10 +294,14 @@ describe('DashboardComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const successBanner = fixture.nativeElement.querySelector('.success-banner');
-    expect(successBanner).toBeTruthy();
-    expect(successBanner.textContent).toContain('Pasta Carbonara');
+    const preview = fixture.nativeElement.querySelector('yn-recipe-preview');
+    expect(preview).toBeTruthy();
   }));
+
+  it('should not show recipe preview when no recipe is extracted', () => {
+    const preview = fixture.nativeElement.querySelector('yn-recipe-preview');
+    expect(preview).toBeNull();
+  });
 
   it('should store extracted recipe data', fakeAsync(() => {
     recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
@@ -379,5 +408,44 @@ describe('DashboardComponent', () => {
     tick();
 
     expect(component.serverError()).toBe('dashboard.import.errors.generic');
+  }));
+
+  it('should clear extracted recipe on discard', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+    expect(component.extractedRecipe()).toEqual(mockRecipe);
+
+    component.onDiscardRecipe();
+
+    expect(component.extractedRecipe()).toBeNull();
+  }));
+
+  it('should hide recipe preview after discard', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('yn-recipe-preview')).toBeTruthy();
+
+    component.onDiscardRecipe();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('yn-recipe-preview')).toBeNull();
+  }));
+
+  it('should log recipe on save (placeholder for US-013)', fakeAsync(() => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    component.onSaveRecipe(mockRecipe);
+
+    expect(consoleSpy).toHaveBeenCalledWith('Save recipe (US-013):', mockRecipe);
+    consoleSpy.mockRestore();
   }));
 });

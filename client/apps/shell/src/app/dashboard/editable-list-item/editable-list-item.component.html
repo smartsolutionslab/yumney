@@ -1,0 +1,29 @@
+<div class="editable-list-item">
+  <div class="item-content">
+    <ng-content />
+  </div>
+
+  <div class="item-actions">
+    <button
+      type="button"
+      class="action-btn"
+      [disabled]="isFirst()"
+      (click)="moveUp.emit()"
+      aria-label="Move up"
+    >
+      &#9650;
+    </button>
+    <button
+      type="button"
+      class="action-btn"
+      [disabled]="isLast()"
+      (click)="moveDown.emit()"
+      aria-label="Move down"
+    >
+      &#9660;
+    </button>
+    <button type="button" class="action-btn remove-btn" (click)="remove.emit()" aria-label="Remove">
+      &times;
+    </button>
+  </div>
+</div>

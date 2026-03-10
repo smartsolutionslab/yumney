@@ -10,6 +10,7 @@ import {
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
+import { RecipePreviewComponent } from './recipe-preview/recipe-preview.component';
 
 function urlValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
@@ -31,7 +32,7 @@ function urlValidator(control: AbstractControl): ValidationErrors | null {
 
 @Component({
   selector: 'yn-dashboard',
-  imports: [ReactiveFormsModule, TranslocoModule],
+  imports: [ReactiveFormsModule, TranslocoModule, RecipePreviewComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -89,6 +90,14 @@ export class DashboardComponent {
           );
         },
       });
+  }
+
+  onSaveRecipe(recipe: ImportRecipeResponse): void {
+    console.log('Save recipe (US-013):', recipe);
+  }
+
+  onDiscardRecipe(): void {
+    this.extractedRecipe.set(null);
   }
 
   hasError(field: string, error: string): boolean {

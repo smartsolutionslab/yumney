@@ -88,6 +88,31 @@
         "noRecipe": "No recipe found on this page.",
         "generic": "An unexpected error occurred. Please try again later."
       }
+    },
+    "preview": {
+      "title": "Review Extracted Recipe",
+      "recipeTitle": "Title",
+      "description": "Description",
+      "servings": "Servings",
+      "prepTime": "Prep Time (min)",
+      "cookTime": "Cook Time (min)",
+      "difficulty": "Difficulty",
+      "ingredients": "Ingredients",
+      "ingredientName": "Ingredient",
+      "amount": "Amount",
+      "unit": "Unit",
+      "addIngredient": "Add Ingredient",
+      "steps": "Steps",
+      "stepDescription": "Step Description",
+      "addStep": "Add Step",
+      "save": "Save Recipe",
+      "discard": "Discard",
+      "errors": {
+        "titleRequired": "Title is required.",
+        "titleMaxLength": "Title must not exceed 200 characters.",
+        "ingredientNameRequired": "Ingredient name is required.",
+        "stepDescriptionRequired": "Step description is required."
+      }
     }
   }
 }
