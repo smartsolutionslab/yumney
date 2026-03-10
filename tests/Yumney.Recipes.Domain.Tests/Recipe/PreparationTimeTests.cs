@@ -38,4 +38,19 @@ public class PreparationTimeTests
 
         prepTime.ToString().Should().Be("15");
     }
+
+    [Fact]
+    public void FromNullable_Null_ReturnsNull()
+    {
+        PreparationTime.FromNullable(null).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromNullable_ValidValue_ReturnsInstance()
+    {
+        var result = PreparationTime.FromNullable(30);
+
+        result.Should().NotBeNull();
+        result!.Value.Should().Be(30);
+    }
 }

@@ -18,5 +18,8 @@ public sealed record ImageUrl
         Value = validated.Trim();
     }
 
+    public static ImageUrl? FromNullable(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : new ImageUrl(value);
+
     public override string ToString() => Value;
 }

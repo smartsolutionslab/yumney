@@ -61,4 +61,22 @@ public class RecipeDescriptionTests
 
         description.ToString().Should().Be("Test");
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void FromNullable_NullOrWhitespace_ReturnsNull(string? value)
+    {
+        RecipeDescription.FromNullable(value).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromNullable_ValidValue_ReturnsInstance()
+    {
+        var result = RecipeDescription.FromNullable("A tasty recipe");
+
+        result.Should().NotBeNull();
+        result!.Value.Should().Be("A tasty recipe");
+    }
 }

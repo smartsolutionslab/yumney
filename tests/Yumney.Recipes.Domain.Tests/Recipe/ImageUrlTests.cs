@@ -105,4 +105,22 @@ public class ImageUrlTests
 
         imageUrl.ToString().Should().Be("https://example.com/image.jpg");
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void FromNullable_NullOrWhitespace_ReturnsNull(string? value)
+    {
+        ImageUrl.FromNullable(value).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromNullable_ValidValue_ReturnsInstance()
+    {
+        var result = ImageUrl.FromNullable("https://example.com/image.jpg");
+
+        result.Should().NotBeNull();
+        result!.Value.Should().Be("https://example.com/image.jpg");
+    }
 }

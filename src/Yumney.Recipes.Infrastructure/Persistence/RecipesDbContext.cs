@@ -21,36 +21,36 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
             entity.Property(e => e.Description)
                 .HasConversion(
                     v => v != null ? v.Value : null,
-                    v => v != null ? new RecipeDescription(v) : null)
+                    v => RecipeDescription.FromNullable(v))
                 .HasMaxLength(RecipeDescription.MaxLength);
 
             entity.Property(e => e.Servings)
                 .HasConversion(
                     v => v != null ? v.Value : (int?)null,
-                    v => v != null ? new Servings(v.Value) : null);
+                    v => Servings.FromNullable(v));
 
             entity.Property(e => e.PreparationTime)
                 .HasConversion(
                     v => v != null ? v.Value : (int?)null,
-                    v => v != null ? new PreparationTime(v.Value) : null)
+                    v => PreparationTime.FromNullable(v))
                 .HasColumnName("PreparationTimeMinutes");
 
             entity.Property(e => e.CookingTime)
                 .HasConversion(
                     v => v != null ? v.Value : (int?)null,
-                    v => v != null ? new CookingTime(v.Value) : null)
+                    v => CookingTime.FromNullable(v))
                 .HasColumnName("CookingTimeMinutes");
 
             entity.Property(e => e.Difficulty)
                 .HasConversion(
                     v => v != null ? v.Value : null,
-                    v => v != null ? new Difficulty(v) : null)
+                    v => Difficulty.FromNullable(v))
                 .HasMaxLength(Difficulty.MaxLength);
 
             entity.Property(e => e.ImageUrl)
                 .HasConversion(
                     v => v != null ? v.Value : null,
-                    v => v != null ? new ImageUrl(v) : null)
+                    v => ImageUrl.FromNullable(v))
                 .HasMaxLength(ImageUrl.MaxLength);
 
             entity.Property(e => e.SourceUrl)
@@ -76,12 +76,12 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
                 ingredient.Property(i => i.Amount)
                     .HasConversion(
                         v => v != null ? v.Value : (decimal?)null,
-                        v => v != null ? new Amount(v.Value) : null);
+                        v => Amount.FromNullable(v));
 
                 ingredient.Property(i => i.Unit)
                     .HasConversion(
                         v => v != null ? v.Value : null,
-                        v => v != null ? new Unit(v) : null)
+                        v => Unit.FromNullable(v))
                     .HasMaxLength(Unit.MaxLength);
             });
 

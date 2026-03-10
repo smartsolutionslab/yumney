@@ -12,5 +12,8 @@ public sealed record CookingTime
         Value = Ensure.That(value).IsNotNegative().AndReturn();
     }
 
+    public static CookingTime? FromNullable(int? value) =>
+        value.HasValue ? new CookingTime(value.Value) : null;
+
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

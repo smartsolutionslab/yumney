@@ -38,4 +38,19 @@ public class AmountTests
 
         amount.ToString().Should().Be("3.14");
     }
+
+    [Fact]
+    public void FromNullable_Null_ReturnsNull()
+    {
+        Amount.FromNullable(null).Should().BeNull();
+    }
+
+    [Fact]
+    public void FromNullable_ValidValue_ReturnsInstance()
+    {
+        var result = Amount.FromNullable(2.5m);
+
+        result.Should().NotBeNull();
+        result!.Value.Should().Be(2.5m);
+    }
 }

@@ -12,5 +12,8 @@ public sealed record Amount
         Value = Ensure.That(value).IsNotNegative().AndReturn();
     }
 
+    public static Amount? FromNullable(decimal? value) =>
+        value.HasValue ? new Amount(value.Value) : null;
+
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
