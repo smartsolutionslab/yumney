@@ -55,6 +55,7 @@ export class RecipeListComponent implements OnInit {
     }
     this.currentPage.set(1);
     this.recipes.set([]);
+    this.totalCount.set(0);
     this.loadRecipes(false);
   }
 

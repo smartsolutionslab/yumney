@@ -60,6 +60,11 @@ public static class RecipesEndpoints
         var query = new GetRecipesQuery(clampedPage, clampedPageSize, sortBy, sortDirection);
         var result = await handler.HandleAsync(query, cancellationToken);
 
+        if (result.IsFailure)
+        {
+            return Results.Problem("Failed to fetch recipes.", statusCode: 500);
+        }
+
         return Results.Ok(result.Value);
     }
 

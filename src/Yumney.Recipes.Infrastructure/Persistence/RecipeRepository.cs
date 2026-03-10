@@ -33,7 +33,9 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             (RecipeSortField.Name, SortDirection.Ascending) => query.OrderBy(r => r.Title),
             (RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(r => r.Title),
             (RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
-            _ => query.OrderByDescending(r => r.CreatedAt),
+            (RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
+            _ => throw new InvalidOperationException(
+                $"Unsupported sort combination: {sortBy}, {sortDirection}"),
         };
 
         var totalCount = await query.CountAsync(cancellationToken);
