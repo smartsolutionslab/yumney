@@ -101,6 +101,21 @@ describe('LoginComponent', () => {
     expect(link.textContent).toContain('Forgot your password?');
   });
 
+  it('should toggle rememberMe when checkbox is clicked', () => {
+    expect(component.rememberMe).toBe(false);
+
+    const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]');
+    checkbox.click();
+    fixture.detectChanges();
+
+    expect(component.rememberMe).toBe(true);
+  });
+
+  it('should have accessible keyboard navigation on forgot password link', () => {
+    const link = fixture.nativeElement.querySelector('.forgot-password a');
+    expect(link.getAttribute('tabindex')).toBe('0');
+  });
+
   it('should call authService.forgotPassword on forgot password click', () => {
     const link = fixture.nativeElement.querySelector('.forgot-password a');
     link.click();
