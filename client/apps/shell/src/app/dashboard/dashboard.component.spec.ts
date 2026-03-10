@@ -48,6 +48,12 @@ const en = {
         generic: 'An unexpected error occurred. Please try again later.',
       },
     },
+    create: {
+      title: 'Create a Recipe',
+      subtitle: 'Start from scratch and enter your own recipe',
+      submit: 'Create Recipe',
+      previewTitle: 'New Recipe',
+    },
     save: {
       success: 'Recipe "{{title}}" saved successfully!',
       saving: 'Saving...',
@@ -778,5 +784,119 @@ describe('DashboardComponent', () => {
     const banner = fixture.nativeElement.querySelector('.success-banner');
     expect(banner).toBeTruthy();
     expect(banner.textContent).toContain('Pasta Carbonara');
+  }));
+
+  it('should render create recipe button', () => {
+    const btn = fixture.nativeElement.querySelector('.create-btn');
+    expect(btn).toBeTruthy();
+    expect(btn.textContent).toContain('Create Recipe');
+  });
+
+  it('should show recipe preview when create button is clicked', () => {
+    const btn = fixture.nativeElement.querySelector('.create-btn');
+    btn.click();
+    fixture.detectChanges();
+
+    const preview = fixture.nativeElement.querySelector('yn-recipe-preview');
+    expect(preview).toBeTruthy();
+  });
+
+  it('should set empty recipe template on create manually', () => {
+    component.onCreateManually();
+
+    const recipe = component.extractedRecipe();
+    expect(recipe).toBeTruthy();
+    expect(recipe!.title).toBe('');
+    expect(recipe!.ingredients).toHaveLength(1);
+    expect(recipe!.steps).toHaveLength(1);
+  });
+
+  it('should set isManualEntry on create manually', () => {
+    component.onCreateManually();
+
+    expect(component.isManualEntry()).toBe(true);
+  });
+
+  it('should save manual recipe without sourceUrl', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '456',
+      title: 'My Recipe',
+      createdAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.onCreateManually();
+    const recipe = component.extractedRecipe()!;
+    component.onSaveRecipe({ ...recipe, title: 'My Recipe' });
+    tick();
+
+    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
+      expect.not.objectContaining({ sourceUrl: expect.anything() }),
+    );
+    expect(component.saveSuccess()).toBe('My Recipe');
+  }));
+
+  it('should reset isManualEntry after successful save', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '456',
+      title: 'My Recipe',
+      createdAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.onCreateManually();
+    component.onSaveRecipe(component.extractedRecipe()!);
+    tick();
+
+    expect(component.isManualEntry()).toBe(false);
+  }));
+
+  it('should reset isManualEntry on discard', () => {
+    component.onCreateManually();
+    expect(component.isManualEntry()).toBe(true);
+
+    component.onDiscardRecipe();
+
+    expect(component.isManualEntry()).toBe(false);
+  });
+
+  it('should disable create button while loading', () => {
+    component.isLoading.set(true);
+    fixture.detectChanges();
+
+    const btn = fixture.nativeElement.querySelector('.create-btn');
+    expect(btn.disabled).toBe(true);
+  });
+
+  it('should disable create button while saving', fakeAsync(() => {
+    const subject = new Subject<SavedRecipeResponse>();
+    recipeApiMock.saveRecipe.mockReturnValue(subject);
+
+    component.onCreateManually();
+    component.onSaveRecipe(component.extractedRecipe()!);
+    fixture.detectChanges();
+
+    const btn = fixture.nativeElement.querySelector('.create-btn');
+    expect(btn.disabled).toBe(true);
+
+    subject.next({
+      identifier: '123',
+      title: 'Test',
+      createdAt: '2026-03-10T00:00:00Z',
+    });
+    subject.complete();
+    tick();
+  }));
+
+  it('should disable create button when recipe preview is shown', fakeAsync(() => {
+    recipeApiMock.importRecipe.mockReturnValue(of(mockRecipe));
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onImport();
+    tick();
+    fixture.detectChanges();
+
+    const btn = fixture.nativeElement.querySelector('.create-btn');
+    expect(btn.disabled).toBe(true);
   }));
 });
