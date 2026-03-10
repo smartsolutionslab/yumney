@@ -23,7 +23,6 @@ jobs:
     name: 'Backend: ${{ matrix.project }}'
     runs-on: ubuntu-latest
     if: ${{ !inputs.frontend_only }}
-    continue-on-error: true
 
     strategy:
       fail-fast: false
@@ -60,8 +59,9 @@ jobs:
         run: dotnet restore Yumney.slnx
 
       - name: Run Stryker
+        id: stryker
         working-directory: tests/${{ matrix.project }}
-        run: dotnet stryker
+        run: dotnet stryker || echo "STRYKER_FAILED=true" >> "$GITHUB_ENV"
 
       - name: Upload HTML report
         if: always()
@@ -83,7 +83,6 @@ jobs:
     name: 'Frontend: Shell'
     runs-on: ubuntu-latest
     if: ${{ !inputs.backend_only }}
-    continue-on-error: true
 
     defaults:
       run:
@@ -104,7 +103,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Run StrykerJS
-        run: npx stryker run
+        run: npx stryker run || echo "STRYKER_FAILED=true" >> "$GITHUB_ENV"
 
       - name: Upload HTML report
         if: always()
