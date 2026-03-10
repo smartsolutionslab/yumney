@@ -4,42 +4,46 @@
     <p class="subtitle">{{ t('auth.resendVerification.subtitle') }}</p>
 
     @if (isSuccess()) {
-    <div class="success-message">
-      <h2>{{ t('auth.resendVerification.success.title') }}</h2>
-      <p>{{ t('auth.resendVerification.success.message') }}</p>
-    </div>
-    } @else {
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      @if (serverError()) {
-      <div class="error-banner">{{ t(serverError()!) }}</div>
-      }
-
-      <div class="form-field">
-        <label for="email">{{ t('auth.resendVerification.email') }}</label>
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          autocomplete="email"
-          [placeholder]="t('auth.resendVerification.emailPlaceholder')"
-        />
-        @if (hasError('email', 'required')) {
-        <span class="field-error">{{ t('auth.resendVerification.errors.emailRequired') }}</span>
-        } @if (hasError('email', 'email')) {
-        <span class="field-error">{{ t('auth.resendVerification.errors.emailInvalid') }}</span>
-        } @if (hasError('email', 'maxlength')) {
-        <span class="field-error">{{ t('auth.resendVerification.errors.emailMaxLength') }}</span>
-        }
+      <div class="success-message">
+        <h2>{{ t('auth.resendVerification.success.title') }}</h2>
+        <p>{{ t('auth.resendVerification.success.message') }}</p>
       </div>
-
-      <button type="submit" [disabled]="isLoading()">
-        @if (isLoading()) {
-        <span>{{ t('auth.resendVerification.submitting') }}</span>
-        } @else {
-        <span>{{ t('auth.resendVerification.submit') }}</span>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        @if (serverError()) {
+          <div class="error-banner">{{ t(serverError()!) }}</div>
         }
-      </button>
-    </form>
+
+        <div class="form-field">
+          <label for="email">{{ t('auth.resendVerification.email') }}</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            [placeholder]="t('auth.resendVerification.emailPlaceholder')"
+          />
+          @if (hasError('email', 'required')) {
+            <span class="field-error">{{ t('auth.resendVerification.errors.emailRequired') }}</span>
+          }
+          @if (hasError('email', 'email')) {
+            <span class="field-error">{{ t('auth.resendVerification.errors.emailInvalid') }}</span>
+          }
+          @if (hasError('email', 'maxlength')) {
+            <span class="field-error">{{
+              t('auth.resendVerification.errors.emailMaxLength')
+            }}</span>
+          }
+        </div>
+
+        <button type="submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span>{{ t('auth.resendVerification.submitting') }}</span>
+          } @else {
+            <span>{{ t('auth.resendVerification.submit') }}</span>
+          }
+        </button>
+      </form>
     }
 
     <p class="back-link">

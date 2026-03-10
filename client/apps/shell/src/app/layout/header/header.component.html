@@ -3,16 +3,16 @@
     <a class="brand" routerLink="/">Yumney</a>
     <nav>
       @if (authService.isAuthenticated()) {
-      <span class="greeting">{{
-        t('layout.header.greeting', { name: authService.displayName() })
-      }}</span>
-      <button class="logout-button" (click)="onLogout()">
-        {{ t('layout.header.logout') }}
-      </button>
+        <span class="greeting">{{
+          t('layout.header.greeting', { name: authService.displayName() })
+        }}</span>
+        <button class="logout-button" (click)="onLogout()">
+          {{ t('layout.header.logout') }}
+        </button>
       } @else {
-      <a routerLink="/auth/login" class="login-link">
-        {{ t('layout.header.login') }}
-      </a>
+        <a routerLink="/auth/login" class="login-link">
+          {{ t('layout.header.login') }}
+        </a>
       }
     </nav>
   </div>

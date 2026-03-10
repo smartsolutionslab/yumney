@@ -2,9 +2,9 @@
   <h2>{{ t('dashboard.preview.title') }}</h2>
 
   @if (recipe().imageUrl) {
-  <div class="preview-image">
-    <img [src]="recipe().imageUrl!" [alt]="form.controls.title.value" />
-  </div>
+    <div class="preview-image">
+      <img [src]="recipe().imageUrl!" [alt]="form.controls.title.value" />
+    </div>
   }
 
   <form [formGroup]="form" (ngSubmit)="onSave()">
@@ -13,9 +13,10 @@
         <label for="preview-title">{{ t('dashboard.preview.recipeTitle') }}</label>
         <input id="preview-title" type="text" formControlName="title" />
         @if (hasFieldError('title', 'required')) {
-        <span class="field-error">{{ t('dashboard.preview.errors.titleRequired') }}</span>
-        } @if (hasFieldError('title', 'maxlength')) {
-        <span class="field-error">{{ t('dashboard.preview.errors.titleMaxLength') }}</span>
+          <span class="field-error">{{ t('dashboard.preview.errors.titleRequired') }}</span>
+        }
+        @if (hasFieldError('title', 'maxlength')) {
+          <span class="field-error">{{ t('dashboard.preview.errors.titleMaxLength') }}</span>
         }
       </div>
 
@@ -49,42 +50,42 @@
 
       <div formArrayName="ingredients">
         @for (ingredient of ingredients.controls; track ingredient; let i = $index) {
-        <yn-editable-list-item
-          [index]="i"
-          [total]="ingredients.length"
-          (moveUp)="moveIngredientUp(i)"
-          (moveDown)="moveIngredientDown(i)"
-          (remove)="removeIngredient(i)"
-        >
-          <div class="ingredient-fields" [formGroupName]="i">
-            <div class="form-field ingredient-name">
-              <input
-                type="text"
-                formControlName="name"
-                [placeholder]="t('dashboard.preview.ingredientName')"
-              />
-              @if (hasIngredientError(i, 'name', 'required')) {
-              <span class="field-error">{{
-                t('dashboard.preview.errors.ingredientNameRequired')
-              }}</span>
-              }
+          <yn-editable-list-item
+            [index]="i"
+            [total]="ingredients.length"
+            (moveUp)="moveIngredientUp(i)"
+            (moveDown)="moveIngredientDown(i)"
+            (remove)="removeIngredient(i)"
+          >
+            <div class="ingredient-fields" [formGroupName]="i">
+              <div class="form-field ingredient-name">
+                <input
+                  type="text"
+                  formControlName="name"
+                  [placeholder]="t('dashboard.preview.ingredientName')"
+                />
+                @if (hasIngredientError(i, 'name', 'required')) {
+                  <span class="field-error">{{
+                    t('dashboard.preview.errors.ingredientNameRequired')
+                  }}</span>
+                }
+              </div>
+              <div class="form-field ingredient-amount">
+                <input
+                  type="number"
+                  formControlName="amount"
+                  [placeholder]="t('dashboard.preview.amount')"
+                />
+              </div>
+              <div class="form-field ingredient-unit">
+                <input
+                  type="text"
+                  formControlName="unit"
+                  [placeholder]="t('dashboard.preview.unit')"
+                />
+              </div>
             </div>
-            <div class="form-field ingredient-amount">
-              <input
-                type="number"
-                formControlName="amount"
-                [placeholder]="t('dashboard.preview.amount')"
-              />
-            </div>
-            <div class="form-field ingredient-unit">
-              <input
-                type="text"
-                formControlName="unit"
-                [placeholder]="t('dashboard.preview.unit')"
-              />
-            </div>
-          </div>
-        </yn-editable-list-item>
+          </yn-editable-list-item>
         }
       </div>
 
@@ -98,29 +99,29 @@
 
       <div formArrayName="steps">
         @for (step of steps.controls; track step; let i = $index) {
-        <yn-editable-list-item
-          [index]="i"
-          [total]="steps.length"
-          (moveUp)="moveStepUp(i)"
-          (moveDown)="moveStepDown(i)"
-          (remove)="removeStep(i)"
-        >
-          <div class="step-fields" [formGroupName]="i">
-            <span class="step-number">{{ i + 1 }}.</span>
-            <div class="form-field step-description">
-              <textarea
-                formControlName="description"
-                [placeholder]="t('dashboard.preview.stepDescription')"
-                rows="2"
-              ></textarea>
-              @if (hasStepError(i, 'description', 'required')) {
-              <span class="field-error">{{
-                t('dashboard.preview.errors.stepDescriptionRequired')
-              }}</span>
-              }
+          <yn-editable-list-item
+            [index]="i"
+            [total]="steps.length"
+            (moveUp)="moveStepUp(i)"
+            (moveDown)="moveStepDown(i)"
+            (remove)="removeStep(i)"
+          >
+            <div class="step-fields" [formGroupName]="i">
+              <span class="step-number">{{ i + 1 }}.</span>
+              <div class="form-field step-description">
+                <textarea
+                  formControlName="description"
+                  [placeholder]="t('dashboard.preview.stepDescription')"
+                  rows="2"
+                ></textarea>
+                @if (hasStepError(i, 'description', 'required')) {
+                  <span class="field-error">{{
+                    t('dashboard.preview.errors.stepDescriptionRequired')
+                  }}</span>
+                }
+              </div>
             </div>
-          </div>
-        </yn-editable-list-item>
+          </yn-editable-list-item>
         }
       </div>
 
@@ -135,10 +136,10 @@
       </button>
       <button type="submit" class="save-btn" [disabled]="isSaving()">
         @if (isSaving()) {
-        <span class="spinner"></span>
-        <span>{{ t('dashboard.save.saving') }}</span>
+          <span class="spinner"></span>
+          <span>{{ t('dashboard.save.saving') }}</span>
         } @else {
-        <span>{{ t('dashboard.preview.save') }}</span>
+          <span>{{ t('dashboard.preview.save') }}</span>
         }
       </button>
     </div>

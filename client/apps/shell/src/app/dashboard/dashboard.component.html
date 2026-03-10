@@ -8,7 +8,7 @@
 
     <form [formGroup]="form" (ngSubmit)="onImport()">
       @if (serverError()) {
-      <div class="error-banner">{{ t(serverError()!) }}</div>
+        <div class="error-banner">{{ t(serverError()!) }}</div>
       }
 
       <div class="import-row">
@@ -20,20 +20,22 @@
             [placeholder]="t('dashboard.import.placeholder')"
           />
           @if (hasError('url', 'required')) {
-          <span class="field-error">{{ t('dashboard.import.errors.urlRequired') }}</span>
-          } @if (hasError('url', 'maxlength')) {
-          <span class="field-error">{{ t('dashboard.import.errors.urlTooLong') }}</span>
-          } @if (hasError('url', 'invalidUrl')) {
-          <span class="field-error">{{ t('dashboard.import.errors.urlInvalid') }}</span>
+            <span class="field-error">{{ t('dashboard.import.errors.urlRequired') }}</span>
+          }
+          @if (hasError('url', 'maxlength')) {
+            <span class="field-error">{{ t('dashboard.import.errors.urlTooLong') }}</span>
+          }
+          @if (hasError('url', 'invalidUrl')) {
+            <span class="field-error">{{ t('dashboard.import.errors.urlInvalid') }}</span>
           }
         </div>
 
         <button type="submit" [disabled]="isLoading() || isSaving()">
           @if (isLoading()) {
-          <span class="spinner"></span>
-          <span>{{ t('dashboard.import.submitting') }}</span>
+            <span class="spinner"></span>
+            <span>{{ t('dashboard.import.submitting') }}</span>
           } @else {
-          <span>{{ t('dashboard.import.submit') }}</span>
+            <span>{{ t('dashboard.import.submit') }}</span>
           }
         </button>
       </div>
@@ -41,15 +43,16 @@
   </section>
 
   @if (saveSuccess()) {
-  <div class="success-banner">
-    {{ t('dashboard.save.success', { title: saveSuccess() }) }}
-  </div>
-  } @if (extractedRecipe()) {
-  <yn-recipe-preview
-    [recipe]="extractedRecipe()!"
-    [isSaving]="isSaving()"
-    (save)="onSaveRecipe($event)"
-    (discard)="onDiscardRecipe()"
-  />
+    <div class="success-banner">
+      {{ t('dashboard.save.success', { title: saveSuccess() }) }}
+    </div>
+  }
+  @if (extractedRecipe()) {
+    <yn-recipe-preview
+      [recipe]="extractedRecipe()!"
+      [isSaving]="isSaving()"
+      (save)="onSaveRecipe($event)"
+      (discard)="onDiscardRecipe()"
+    />
   }
 </div>
