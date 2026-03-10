@@ -47,6 +47,10 @@ appsettings.*.local.json
 coverage/
 *.tgz
 
+# Mutation Testing (Stryker)
+StrykerOutput/
+.stryker-tmp/
+
 # Storybook
 storybook-static/
 
