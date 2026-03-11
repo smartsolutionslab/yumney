@@ -1,5 +1,4 @@
 <Solution>
-  <Folder Name="/src/">
     <Folder Name="/src/Host/">
       <Project Path="src/Yumney.AppHost/Yumney.AppHost.csproj" />
       <Project Path="src/Yumney.Api/Yumney.Api.csproj" />
@@ -31,8 +30,6 @@
       <Project Path="src/Yumney.Users.Infrastructure/Yumney.Users.Infrastructure.csproj" />
       <Project Path="src/Yumney.Users.Api/Yumney.Users.Api.csproj" />
     </Folder>
-  </Folder>
-  <Folder Name="/tests/">
     <Folder Name="/tests/Shared/">
       <Project Path="tests/Yumney.Shared.Tests/Yumney.Shared.Tests.csproj" />
       <Project Path="tests/Yumney.Shared.Guards.Tests/Yumney.Shared.Guards.Tests.csproj" />
@@ -53,5 +50,4 @@
     </Folder>
     <Project Path="tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj" />
     <Project Path="tests/Yumney.Architecture.Tests/Yumney.Architecture.Tests.csproj" />
-  </Folder>
 </Solution>
