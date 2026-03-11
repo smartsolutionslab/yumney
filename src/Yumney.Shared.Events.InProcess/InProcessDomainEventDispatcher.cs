@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Shared.Events;
+namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 public sealed class InProcessDomainEventDispatcher(IServiceProvider serviceProvider, ILogger<InProcessDomainEventDispatcher> logger)
     : IDomainEventDispatcher

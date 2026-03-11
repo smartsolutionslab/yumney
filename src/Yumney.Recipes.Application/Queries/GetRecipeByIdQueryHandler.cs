@@ -1,16 +1,13 @@
 using Microsoft.Extensions.Logging;
-using Yumney.Recipes.Application.DTOs;
-using Yumney.Recipes.Domain.Recipe;
-using Yumney.Shared.Common;
-using Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.CQRS;
 
-namespace Yumney.Recipes.Application.Queries;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 
 #pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
-public sealed partial class GetRecipeByIdQueryHandler(
-    IRecipeRepository recipes,
-    ICurrentUser currentUser,
-    ILogger<GetRecipeByIdQueryHandler> logger)
+public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes, ICurrentUser currentUser, ILogger<GetRecipeByIdQueryHandler> logger)
     : IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>>
 {
     public async Task<Result<RecipeDetailDto>> HandleAsync(GetRecipeByIdQuery query, CancellationToken cancellationToken = default)

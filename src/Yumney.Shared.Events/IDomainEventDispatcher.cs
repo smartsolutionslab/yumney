@@ -1,6 +1,6 @@
-using Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Shared.Events;
+namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 public interface IDomainEventDispatcher
 {

@@ -2,11 +2,11 @@ using FluentAssertions;
 using NetArchTest.Rules;
 using Xunit;
 
-namespace Yumney.Architecture.Tests;
+namespace SmartSolutionsLab.Yumney.Architecture.Tests;
 
 public class LayerDependencyTests
 {
-    private const string SharedNamespace = "Yumney.Shared";
+    private const string SharedNamespace = "SmartSolutionsLab.Yumney.Shared";
 
     private static readonly string[] Modules = ["Recipes", "Shopping", "Users"];
 
@@ -38,7 +38,7 @@ public class LayerDependencyTests
 
         var result = Types.InAssembly(domainAssembly)
             .ShouldNot()
-            .HaveDependencyOn($"Yumney.{module}.Application")
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{module}.Application")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on {module}.Application");
@@ -54,7 +54,7 @@ public class LayerDependencyTests
 
         var result = Types.InAssembly(domainAssembly)
             .ShouldNot()
-            .HaveDependencyOn($"Yumney.{module}.Infrastructure")
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{module}.Infrastructure")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on {module}.Infrastructure");
@@ -70,7 +70,7 @@ public class LayerDependencyTests
 
         var result = Types.InAssembly(domainAssembly)
             .ShouldNot()
-            .HaveDependencyOn($"Yumney.{module}.Api")
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{module}.Api")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on {module}.Api");
@@ -86,7 +86,7 @@ public class LayerDependencyTests
 
         var result = Types.InAssembly(applicationAssembly)
             .ShouldNot()
-            .HaveDependencyOn($"Yumney.{module}.Infrastructure")
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{module}.Infrastructure")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue($"{module}.Application must not depend on {module}.Infrastructure");
@@ -102,7 +102,7 @@ public class LayerDependencyTests
 
         var result = Types.InAssembly(applicationAssembly)
             .ShouldNot()
-            .HaveDependencyOn($"Yumney.{module}.Api")
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{module}.Api")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue(
@@ -117,7 +117,7 @@ public class LayerDependencyTests
 
         var result = Types.InAssembly(domainAssembly)
             .ShouldNot()
-            .HaveDependencyOn($"Yumney.{targetModule}.Domain")
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{targetModule}.Domain")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue($"{sourceModule}.Domain must not depend on {targetModule}.Domain");
@@ -133,7 +133,7 @@ public class LayerDependencyTests
 
         var result = Types.InAssembly(domainAssembly)
             .ShouldNot()
-            .HaveDependencyOn("Yumney.Shared.CQRS")
+            .HaveDependencyOn("SmartSolutionsLab.Yumney.Shared.CQRS")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on Shared.CQRS");
@@ -149,7 +149,7 @@ public class LayerDependencyTests
 
         var result = Types.InAssembly(domainAssembly)
             .ShouldNot()
-            .HaveDependencyOn("Yumney.Shared.Events")
+            .HaveDependencyOn("SmartSolutionsLab.Yumney.Shared.Events")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on Shared.Events");
@@ -163,7 +163,7 @@ public class LayerDependencyTests
 
         var result = Types.InAssembly(applicationAssembly)
             .ShouldNot()
-            .HaveDependencyOn($"Yumney.{targetModule}.Infrastructure")
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{targetModule}.Infrastructure")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue($"{sourceModule}.Application must not depend on {targetModule}.Infrastructure");

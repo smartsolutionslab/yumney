@@ -2,14 +2,14 @@ using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Yumney.Recipes.Application.Commands;
-using Yumney.Recipes.Application.DTOs;
-using Yumney.Recipes.Application.Queries;
-using Yumney.Recipes.Domain.Recipe;
-using Yumney.Shared.Common;
-using Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.CQRS;
 
-namespace Yumney.Recipes.Api;
+namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
 public static class RecipesEndpoints
 {

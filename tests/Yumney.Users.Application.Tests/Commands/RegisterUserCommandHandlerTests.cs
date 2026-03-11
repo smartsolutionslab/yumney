@@ -1,13 +1,13 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Users.Application.Commands;
+using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using Xunit;
-using Yumney.Shared.Common;
-using Yumney.Users.Application.Commands;
-using Yumney.Users.Application.Interfaces;
-using Yumney.Users.Domain.AppUserProfile;
 
-namespace Yumney.Users.Application.Tests.Commands;
+namespace SmartSolutionsLab.Yumney.Users.Application.Tests.Commands;
 
 public class RegisterUserCommandHandlerTests
 {

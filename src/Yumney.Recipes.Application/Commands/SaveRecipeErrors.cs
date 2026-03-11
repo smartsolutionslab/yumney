@@ -1,4 +1,4 @@
-namespace Yumney.Recipes.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
 public static class SaveRecipeErrors
 {

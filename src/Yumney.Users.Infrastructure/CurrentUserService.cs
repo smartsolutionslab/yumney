@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Users.Infrastructure;
+namespace SmartSolutionsLab.Yumney.Users.Infrastructure;
 
 public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {

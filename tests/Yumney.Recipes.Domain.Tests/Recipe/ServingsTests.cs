@@ -1,9 +1,9 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 using Xunit;
-using Yumney.Recipes.Domain.Recipe;
-using Yumney.Shared.Guards;
 
-namespace Yumney.Recipes.Domain.Tests.Recipe;
+namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe;
 
 public class ServingsTests
 {

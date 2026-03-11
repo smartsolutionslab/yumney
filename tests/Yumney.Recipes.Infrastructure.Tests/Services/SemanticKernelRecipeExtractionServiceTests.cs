@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using NSubstitute;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 using Xunit;
-using Yumney.Recipes.Application.Commands;
-using Yumney.Recipes.Application.DTOs;
-using Yumney.Recipes.Infrastructure.Services;
 
-namespace Yumney.Recipes.Infrastructure.Tests.Services;
+namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;
 
 #pragma warning disable SA1311
 public class SemanticKernelRecipeExtractionServiceTests

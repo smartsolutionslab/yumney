@@ -1,8 +1,8 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using Xunit;
-using Yumney.Recipes.Application.Commands;
 
-namespace Yumney.Recipes.Application.Tests.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 
 public class ImportRecipeRequestValidatorTests
 {

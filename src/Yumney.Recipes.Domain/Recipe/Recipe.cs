@@ -1,8 +1,8 @@
-using Yumney.Recipes.Domain.Recipe.Events;
-using Yumney.Shared.Common;
-using Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Events;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 
-namespace Yumney.Recipes.Domain.Recipe;
+namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 public sealed class Recipe : AggregateRoot<Guid>
 {

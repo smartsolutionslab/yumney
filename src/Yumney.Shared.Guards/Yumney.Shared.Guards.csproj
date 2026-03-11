@@ -1,7 +1,3 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Yumney.Shared.Guards</RootNamespace>
-  </PropertyGroup>
-
 </Project>

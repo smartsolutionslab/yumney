@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-namespace Yumney.Recipes.Infrastructure.Persistence;
+namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 
 public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options) : DbContext(options)
 {

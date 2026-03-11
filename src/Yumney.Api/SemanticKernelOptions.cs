@@ -1,4 +1,4 @@
-namespace Yumney.Api;
+namespace SmartSolutionsLab.Yumney.Api;
 
 public sealed class SemanticKernelOptions
 {

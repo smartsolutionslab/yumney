@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Yumney.Shared.Events</RootNamespace>
+    <RootNamespace>SmartSolutionsLab.Yumney.Shared.Events</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

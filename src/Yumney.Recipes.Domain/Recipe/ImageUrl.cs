@@ -1,6 +1,6 @@
-using Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 
-namespace Yumney.Recipes.Domain.Recipe;
+namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 public sealed record ImageUrl
 {

@@ -1,9 +1,9 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using Xunit;
-using Yumney.Shared.Guards;
-using Yumney.Users.Domain.AppUserProfile;
 
-namespace Yumney.Users.Domain.Tests.AppUserProfile;
+namespace SmartSolutionsLab.Yumney.Users.Domain.Tests.AppUserProfile;
 
 public class DisplayNameTests
 {

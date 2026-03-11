@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Yumney.Users.Infrastructure</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Users.Application\Yumney.Users.Application.csproj" />
   </ItemGroup>

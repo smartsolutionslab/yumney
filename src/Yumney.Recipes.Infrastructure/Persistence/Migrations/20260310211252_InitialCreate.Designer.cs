@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Yumney.Recipes.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace Yumney.Recipes.Infrastructure.Persistence.Migrations
+namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(RecipesDbContext))]
     [Migration("20260310211252_InitialCreate")]
@@ -25,7 +25,7 @@ namespace Yumney.Recipes.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Yumney.Recipes.Domain.Recipe.Recipe", b =>
+            modelBuilder.Entity("SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Recipe", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -80,9 +80,9 @@ namespace Yumney.Recipes.Infrastructure.Persistence.Migrations
                     b.ToTable("Recipes", (string)null);
                 });
 
-            modelBuilder.Entity("Yumney.Recipes.Domain.Recipe.Recipe", b =>
+            modelBuilder.Entity("SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Recipe", b =>
                 {
-                    b.OwnsMany("Yumney.Recipes.Domain.Recipe.Ingredient", "Ingredients", b1 =>
+                    b.OwnsMany("SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Ingredient", "Ingredients", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .ValueGeneratedOnAdd()
@@ -113,7 +113,7 @@ namespace Yumney.Recipes.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("RecipeId");
                         });
 
-                    b.OwnsMany("Yumney.Recipes.Domain.Recipe.Step", "Steps", b1 =>
+                    b.OwnsMany("SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Step", "Steps", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .ValueGeneratedOnAdd()

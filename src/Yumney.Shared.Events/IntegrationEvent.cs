@@ -1,4 +1,4 @@
-namespace Yumney.Shared.Events;
+namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 public abstract record IntegrationEvent : IIntegrationEvent
 {

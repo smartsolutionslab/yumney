@@ -1,7 +1,7 @@
 using FluentValidation;
-using Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-namespace Yumney.Recipes.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
 public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeRequest>
 {

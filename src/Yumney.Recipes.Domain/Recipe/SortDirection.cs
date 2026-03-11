@@ -1,4 +1,4 @@
-namespace Yumney.Recipes.Domain.Recipe;
+namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 /// <summary>
 /// Direction for sorting results.

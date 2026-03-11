@@ -1,4 +1,4 @@
-namespace Yumney.Recipes.Application.Queries;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 
 public static class GetRecipeByIdErrors
 {

@@ -1,11 +1,11 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Events;
 using Xunit;
-using Yumney.Shared.Common;
-using Yumney.Shared.Events;
 
-namespace Yumney.Shared.Events.Tests;
+namespace SmartSolutionsLab.Yumney.Shared.Events.Tests;
 
 public class InProcessDomainEventDispatcherTests
 {

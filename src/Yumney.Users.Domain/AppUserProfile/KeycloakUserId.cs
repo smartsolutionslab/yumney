@@ -1,6 +1,6 @@
-using Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 
-namespace Yumney.Users.Domain.AppUserProfile;
+namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 public sealed record KeycloakUserId
 {

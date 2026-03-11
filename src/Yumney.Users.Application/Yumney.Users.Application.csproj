@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Yumney.Users.Application</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Users.Domain\Yumney.Users.Domain.csproj" />
     <ProjectReference Include="..\Yumney.Shared.CQRS\Yumney.Shared.CQRS.csproj" />

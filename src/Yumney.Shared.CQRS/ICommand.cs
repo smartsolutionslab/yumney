@@ -1,4 +1,4 @@
-namespace Yumney.Shared.CQRS;
+namespace SmartSolutionsLab.Yumney.Shared.CQRS;
 
 public interface ICommand<TResult>
 {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Routing;
 
-namespace Yumney.Shopping.Api;
+namespace SmartSolutionsLab.Yumney.Shopping.Api;
 
 public static class ShoppingEndpoints
 {

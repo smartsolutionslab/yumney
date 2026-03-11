@@ -1,9 +1,9 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
-using Yumney.Shared.Common;
-using Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 
-namespace Yumney.Api.Middleware;
+namespace SmartSolutionsLab.Yumney.Api.Middleware;
 
 public sealed class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlerMiddleware> logger)
 {

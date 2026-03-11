@@ -1,8 +1,8 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 using Xunit;
-using Yumney.Shared.Guards;
 
-namespace Yumney.Shared.Guards.Tests;
+namespace SmartSolutionsLab.Yumney.Shared.Guards.Tests;
 
 public class EnsureTests
 {

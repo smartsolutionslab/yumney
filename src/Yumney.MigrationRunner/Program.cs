@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Yumney.MigrationRunner;
-using Yumney.Recipes.Infrastructure.Persistence;
-using Yumney.ServiceDefaults;
-using Yumney.Users.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.MigrationRunner;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.ServiceDefaults;
+using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
 var builder = Host.CreateApplicationBuilder(args);
 

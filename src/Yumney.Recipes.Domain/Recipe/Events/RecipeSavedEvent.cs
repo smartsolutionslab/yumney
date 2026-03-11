@@ -1,5 +1,5 @@
-using Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Recipes.Domain.Recipe.Events;
+namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Events;
 
 public sealed record RecipeSavedEvent(Guid RecipeIdentifier, RecipeTitle Title) : DomainEvent;

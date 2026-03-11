@@ -1,7 +1,7 @@
-using Yumney.Shared.Common;
-using Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-namespace Yumney.Users.Application.Interfaces;
+namespace SmartSolutionsLab.Yumney.Users.Application.Interfaces;
 
 public interface IKeycloakAdminService
 {

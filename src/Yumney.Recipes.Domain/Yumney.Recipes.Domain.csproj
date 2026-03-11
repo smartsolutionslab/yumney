@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Yumney.Recipes.Domain</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Shared\Yumney.Shared.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Guards\Yumney.Shared.Guards.csproj" />

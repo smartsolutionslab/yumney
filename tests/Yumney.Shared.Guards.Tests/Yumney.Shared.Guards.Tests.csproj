@@ -3,7 +3,6 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <RootNamespace>Yumney.Shared.Guards.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

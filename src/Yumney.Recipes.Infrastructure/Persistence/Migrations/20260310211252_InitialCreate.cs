@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Yumney.Recipes.Infrastructure.Persistence.Migrations
+namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

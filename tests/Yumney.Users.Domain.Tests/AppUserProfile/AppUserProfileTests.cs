@@ -1,8 +1,8 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using Xunit;
-using Yumney.Users.Domain.AppUserProfile;
 
-namespace Yumney.Users.Domain.Tests.AppUserProfile;
+namespace SmartSolutionsLab.Yumney.Users.Domain.Tests.AppUserProfile;
 
 public class AppUserProfileTests
 {
