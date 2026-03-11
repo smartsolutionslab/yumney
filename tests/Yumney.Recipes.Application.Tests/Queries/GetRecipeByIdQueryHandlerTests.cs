@@ -148,6 +148,17 @@ public class GetRecipeByIdQueryHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_Always_CallsRepositoryWithCorrectIdentifier()
+    {
+        var recipe = CreateTestRecipe("user-123");
+        recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
+
+        await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+
+        await recipes.Received(1).GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task HandleAsync_RecipeExists_MapsCreatedAt()
     {
         var recipe = CreateTestRecipe("user-123");
