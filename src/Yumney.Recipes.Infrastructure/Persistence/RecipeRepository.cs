@@ -11,6 +11,14 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<Recipe?> GetByIdAsync(Guid identifier, CancellationToken cancellationToken = default)
+    {
+        return await context.Recipes
+            .Include(r => r.Ingredients)
+            .Include(r => r.Steps)
+            .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
+    }
+
     public async Task<bool> ExistsBySourceUrlAsync(RecipeUrl sourceUrl, OwnerIdentifier owner, CancellationToken cancellationToken = default)
     {
         return await context.Recipes.AnyAsync(

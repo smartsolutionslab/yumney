@@ -22,6 +22,12 @@ public static class RecipesEndpoints
             .WithTags("Recipes")
             .Produces<RecipeListDto>();
 
+        group.MapGet("/{identifier:guid}", GetByIdAsync)
+            .WithName("GetRecipeById")
+            .WithTags("Recipes")
+            .Produces<RecipeDetailDto>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         group.MapPost("/import", ImportAsync)
             .WithName("ImportRecipe")
             .WithTags("Recipes")
@@ -106,6 +112,22 @@ public static class RecipesEndpoints
         }
 
         return Results.Created($"/api/v1/recipes/{result.Value.Identifier}", result.Value);
+    }
+
+    private static async Task<IResult> GetByIdAsync(
+        Guid identifier,
+        IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetRecipeByIdQuery(identifier);
+        var result = await handler.HandleAsync(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.Problem("Recipe not found.", statusCode: 404);
+        }
+
+        return Results.Ok(result.Value);
     }
 
     private static async Task<IResult> ImportAsync(
