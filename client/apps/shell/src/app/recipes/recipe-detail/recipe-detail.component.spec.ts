@@ -63,7 +63,7 @@ describe('RecipeDetailComponent', () => {
 
   function setupTestBed(
     getRecipeByIdReturn: ReturnType<typeof vi.fn> = vi.fn(),
-    identifier: string = 'abc-123',
+    identifier = 'abc-123',
   ) {
     recipeApiMock = {
       getRecipeById: getRecipeByIdReturn,
