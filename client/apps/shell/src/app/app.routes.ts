@@ -16,9 +16,7 @@ export const appRoutes: Route[] = [
     path: 'recipes',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./recipes/recipe-list/recipe-list.component').then(
-        (m) => m.RecipeListComponent,
-      ),
+      import('./recipes/recipe-list/recipe-list.component').then((m) => m.RecipeListComponent),
   },
   {
     path: '',

@@ -13,10 +13,6 @@ namespace Yumney.Recipes.Api;
 
 public static class RecipesEndpoints
 {
-    private const int DefaultPage = 1;
-    private const int DefaultPageSize = 20;
-    private const int MaxPageSize = 100;
-
     public static IEndpointRouteBuilder MapRecipesEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/recipes");
@@ -48,13 +44,13 @@ public static class RecipesEndpoints
 
     private static async Task<IResult> GetAllAsync(
         IQueryHandler<GetRecipesQuery, Result<RecipeListDto>> handler,
-        int page = DefaultPage,
-        int pageSize = DefaultPageSize,
+        int page = 1,
+        int pageSize = 20,
         RecipeSortField sortBy = RecipeSortField.Date,
         SortDirection sortDirection = SortDirection.Descending,
         CancellationToken cancellationToken = default)
     {
-        var clampedPageSize = Math.Clamp(pageSize, 1, MaxPageSize);
+        var clampedPageSize = Math.Clamp(pageSize, 1, 100);
         var clampedPage = Math.Max(page, 1);
 
         var query = new GetRecipesQuery(clampedPage, clampedPageSize, sortBy, sortDirection);
