@@ -15,53 +15,33 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Title)
-                .HasConversion(v => v.Value, v => new RecipeTitle(v))
-                .HasMaxLength(RecipeTitle.MaxLength).IsRequired();
+                .ConfigureRequiredStringValueObject(v => v.Value, v => new RecipeTitle(v), RecipeTitle.MaxLength);
 
             entity.Property(e => e.Description)
-                .HasConversion(
-                    v => v != null ? v.Value : null,
-                    v => RecipeDescription.FromNullable(v))
-                .HasMaxLength(RecipeDescription.MaxLength);
+                .ConfigureNullableStringValueObject(v => v.Value, RecipeDescription.FromNullable, RecipeDescription.MaxLength);
 
             entity.Property(e => e.Servings)
-                .HasConversion(
-                    v => v != null ? v.Value : (int?)null,
-                    v => Servings.FromNullable(v));
+                .ConfigureNullableIntValueObject(v => v.Value, Servings.FromNullable);
 
             entity.Property(e => e.PreparationTime)
-                .HasConversion(
-                    v => v != null ? v.Value : (int?)null,
-                    v => PreparationTime.FromNullable(v))
+                .ConfigureNullableIntValueObject(v => v.Value, PreparationTime.FromNullable)
                 .HasColumnName("PreparationTimeMinutes");
 
             entity.Property(e => e.CookingTime)
-                .HasConversion(
-                    v => v != null ? v.Value : (int?)null,
-                    v => CookingTime.FromNullable(v))
+                .ConfigureNullableIntValueObject(v => v.Value, CookingTime.FromNullable)
                 .HasColumnName("CookingTimeMinutes");
 
             entity.Property(e => e.Difficulty)
-                .HasConversion(
-                    v => v != null ? v.Value : null,
-                    v => Difficulty.FromNullable(v))
-                .HasMaxLength(Difficulty.MaxLength);
+                .ConfigureNullableStringValueObject(v => v.Value, Difficulty.FromNullable, Difficulty.MaxLength);
 
             entity.Property(e => e.ImageUrl)
-                .HasConversion(
-                    v => v != null ? v.Value : null,
-                    v => ImageUrl.FromNullable(v))
-                .HasMaxLength(ImageUrl.MaxLength);
+                .ConfigureNullableStringValueObject(v => v.Value, ImageUrl.FromNullable, ImageUrl.MaxLength);
 
             entity.Property(e => e.SourceUrl)
-                .HasConversion(
-                    v => v != null ? v.Value : null,
-                    v => RecipeUrl.FromNullable(v))
-                .HasMaxLength(RecipeUrl.MaxLength);
+                .ConfigureNullableStringValueObject(v => v.Value, RecipeUrl.FromNullable, RecipeUrl.MaxLength);
 
             entity.Property(e => e.Owner)
-                .HasConversion(v => v.Value, v => new OwnerIdentifier(v))
-                .HasMaxLength(OwnerIdentifier.MaxLength).IsRequired();
+                .ConfigureRequiredStringValueObject(v => v.Value, v => new OwnerIdentifier(v), OwnerIdentifier.MaxLength);
 
             entity.Property(e => e.CreatedAt).IsRequired();
 
@@ -72,19 +52,13 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
                 ingredient.HasKey(nameof(Ingredient.Id));
 
                 ingredient.Property(i => i.Name)
-                    .HasConversion(v => v.Value, v => new IngredientName(v))
-                    .HasMaxLength(IngredientName.MaxLength).IsRequired();
+                    .ConfigureRequiredStringValueObject(v => v.Value, v => new IngredientName(v), IngredientName.MaxLength);
 
                 ingredient.Property(i => i.Amount)
-                    .HasConversion(
-                        v => v != null ? v.Value : (decimal?)null,
-                        v => Amount.FromNullable(v));
+                    .ConfigureNullableDecimalValueObject(v => v.Value, Amount.FromNullable);
 
                 ingredient.Property(i => i.Unit)
-                    .HasConversion(
-                        v => v != null ? v.Value : null,
-                        v => Unit.FromNullable(v))
-                    .HasMaxLength(Unit.MaxLength);
+                    .ConfigureNullableStringValueObject(v => v.Value, Unit.FromNullable, Unit.MaxLength);
             });
 
             entity.OwnsMany(e => e.Steps, step =>
@@ -94,12 +68,10 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
                 step.HasKey(nameof(Step.Id));
 
                 step.Property(s => s.Number)
-                    .HasConversion(v => v.Value, v => new StepNumber(v))
-                    .IsRequired();
+                    .ConfigureRequiredIntValueObject(v => v.Value, v => new StepNumber(v));
 
                 step.Property(s => s.Description)
-                    .HasConversion(v => v.Value, v => new StepDescription(v))
-                    .HasMaxLength(StepDescription.MaxLength).IsRequired();
+                    .ConfigureRequiredStringValueObject(v => v.Value, v => new StepDescription(v), StepDescription.MaxLength);
             });
 
             entity.HasIndex(e => new { e.SourceUrl, e.Owner })

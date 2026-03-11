@@ -28,7 +28,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipe("user-123");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         result.IsSuccess.Should().BeTrue();
     }
@@ -39,7 +39,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipe("user-123", "Pasta Carbonara");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         result.Value.Title.Should().Be("Pasta Carbonara");
     }
@@ -50,7 +50,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipe("user-123");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         result.Value.Identifier.Should().Be(recipe.Id);
     }
@@ -61,7 +61,7 @@ public class GetRecipeByIdQueryHandlerTests
         var id = Guid.NewGuid();
         recipes.GetByIdAsync(id, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(id));
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(GetRecipeByIdErrors.NotFound);
@@ -73,7 +73,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipe("other-user");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(GetRecipeByIdErrors.AccessDenied);
@@ -85,7 +85,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipeWithOptionals("user-123");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         var dto = result.Value;
         dto.Description.Should().Be("A test recipe");
@@ -103,7 +103,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipe("user-123");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         var dto = result.Value;
         dto.Description.Should().BeNull();
@@ -121,7 +121,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipeWithIngredients("user-123");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         result.Value.Ingredients.Should().HaveCount(2);
         result.Value.Ingredients[0].Name.Should().Be("Flour");
@@ -138,7 +138,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipeWithSteps("user-123");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         result.Value.Steps.Should().HaveCount(2);
         result.Value.Steps[0].Number.Should().Be(1);
@@ -153,7 +153,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipe("user-123");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         await recipes.Received(1).GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>());
     }
@@ -164,7 +164,7 @@ public class GetRecipeByIdQueryHandlerTests
         var recipe = CreateTestRecipe("user-123");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe.Id));
+        var result = await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(recipe.Id));
 
         result.Value.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
     }
@@ -176,7 +176,7 @@ public class GetRecipeByIdQueryHandlerTests
         var cts = new CancellationTokenSource();
         recipes.GetByIdAsync(id, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
 
-        await handler.HandleAsync(new GetRecipeByIdQuery(id), cts.Token);
+        await handler.HandleAsync(GetRecipeByIdQuery.FromRequest(id), cts.Token);
 
         await recipes.Received(1).GetByIdAsync(id, cts.Token);
     }

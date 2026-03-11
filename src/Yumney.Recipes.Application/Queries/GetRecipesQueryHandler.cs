@@ -11,19 +11,19 @@ public sealed partial class GetRecipesQueryHandler(
     IRecipeRepository recipes,
     ICurrentUser currentUser,
     ILogger<GetRecipesQueryHandler> logger)
-    : IQueryHandler<GetRecipesQuery, Result<RecipeListDto>>
+    : IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>>
 {
-    public async Task<Result<RecipeListDto>> HandleAsync(GetRecipesQuery query, CancellationToken cancellationToken = default)
+    public async Task<Result<PagedResult<RecipeListItemDto>>> HandleAsync(GetRecipesQuery query, CancellationToken cancellationToken = default)
     {
         var (page, pageSize, sortBy, sortDirection) = query;
         var owner = new OwnerIdentifier(currentUser.UserId);
 
-        LogGetRecipes(owner.Value, page, pageSize);
+        LogGetRecipes(owner.Value, page.Value, pageSize.Value);
 
-        var skip = (page - 1) * pageSize;
+        var skip = page.SkipCount(pageSize);
 
         var (items, totalCount) = await recipes.GetByOwnerAsync(
-            owner, skip, pageSize, sortBy, sortDirection, cancellationToken);
+            owner, skip, pageSize.Value, sortBy, sortDirection, cancellationToken);
 
         var dtoItems = items.Select(r => new RecipeListItemDto(
             r.Id,
@@ -36,7 +36,8 @@ public sealed partial class GetRecipesQueryHandler(
             r.ImageUrl?.Value,
             r.CreatedAt)).ToList();
 
-        return Result<RecipeListDto>.Success(new RecipeListDto(dtoItems, totalCount, page, pageSize));
+        return Result<PagedResult<RecipeListItemDto>>.Success(
+            new PagedResult<RecipeListItemDto>(dtoItems, totalCount, page.Value, pageSize.Value));
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipes for owner {OwnerId}, page {Page}, pageSize {PageSize}")]

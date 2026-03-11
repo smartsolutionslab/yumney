@@ -4,4 +4,7 @@ using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
 
-public sealed record ResendVerificationEmailCommand(Email Email) : ICommand<Result>;
+public sealed record ResendVerificationEmailCommand(Email Email) : ICommand<Result>
+{
+    public static ResendVerificationEmailCommand FromRequest(string email) => new(new Email(email));
+}

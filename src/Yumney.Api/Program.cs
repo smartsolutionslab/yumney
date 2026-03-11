@@ -67,7 +67,7 @@ builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
 builder.Services.AddScoped<ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>>, ImportRecipeCommandHandler>();
 builder.Services.AddScoped<ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>>, SaveRecipeCommandHandler>();
-builder.Services.AddScoped<IQueryHandler<GetRecipesQuery, Result<RecipeListDto>>, GetRecipesQueryHandler>();
+builder.Services.AddScoped<IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>>, GetRecipesQueryHandler>();
 builder.Services.AddScoped<IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>>, GetRecipeByIdQueryHandler>();
 
 builder.Services.AddHttpClient<IWebScraper, WebScraper>().AddStandardResilienceHandler();

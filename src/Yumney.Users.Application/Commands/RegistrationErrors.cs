@@ -1,10 +1,12 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
+
 namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
 
 public static class RegistrationErrors
 {
-    public const string EmailAlreadyExists = "REGISTRATION_EMAIL_EXISTS";
+    public static readonly ApiError EmailAlreadyExists = new("REGISTRATION_EMAIL_EXISTS", "A user with this email address already exists.", 409);
 
-    public const string IdentityProviderUnavailable = "REGISTRATION_IDP_UNAVAILABLE";
+    public static readonly ApiError IdentityProviderUnavailable = new("REGISTRATION_IDP_UNAVAILABLE", "Identity provider is unavailable.", 503);
 
-    public const string UserCreationFailed = "REGISTRATION_CREATION_FAILED";
+    public static readonly ApiError UserCreationFailed = new("REGISTRATION_CREATION_FAILED", "Failed to create user account.", 500);
 }
