@@ -13,6 +13,7 @@ import {
   ExtractedIngredient,
   ExtractedStep,
 } from '@yumney/shared/api-client';
+import { hasControlError, hasArrayItemError, VALIDATION } from '@yumney/shared/models';
 import { EditableListItemComponent } from '../editable-list-item/editable-list-item.component';
 
 interface IngredientFormGroup {
@@ -33,8 +34,6 @@ interface StepFormGroup {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipePreviewComponent implements OnInit {
-  private static readonly titleMaxLength = 200;
-
   recipe = input.required<ImportRecipeResponse>();
   isSaving = input(false);
   previewTitle = input<string | undefined>();
@@ -45,7 +44,7 @@ export class RecipePreviewComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   form = this.fb.nonNullable.group({
-    title: ['', [Validators.required, Validators.maxLength(RecipePreviewComponent.titleMaxLength)]],
+    title: ['', [Validators.required, Validators.maxLength(VALIDATION.TITLE_MAX_LENGTH)]],
     description: [''],
     servings: [null as number | null],
     prepTimeMinutes: [null as number | null],
@@ -149,18 +148,15 @@ export class RecipePreviewComponent implements OnInit {
   }
 
   hasFieldError(field: string, error: string): boolean {
-    const control = this.form.get(field);
-    return !!control?.hasError(error) && !!control?.touched;
+    return hasControlError(this.form, field, error);
   }
 
   hasIngredientError(index: number, field: string, error: string): boolean {
-    const control = this.ingredients.at(index)?.get(field);
-    return !!control?.hasError(error) && !!control?.touched;
+    return hasArrayItemError(this.ingredients, index, field, error);
   }
 
   hasStepError(index: number, field: string, error: string): boolean {
-    const control = this.steps.at(index)?.get(field);
-    return !!control?.hasError(error) && !!control?.touched;
+    return hasArrayItemError(this.steps, index, field, error);
   }
 
   private createIngredientGroup(ingredient: ExtractedIngredient): FormGroup<IngredientFormGroup> {

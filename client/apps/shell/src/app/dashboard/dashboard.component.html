@@ -32,7 +32,7 @@
 
         <button type="submit" [disabled]="isLoading() || isSaving()">
           @if (isLoading()) {
-            <span class="spinner"></span>
+            <span class="btn-spinner"></span>
             <span>{{ t('dashboard.import.submitting') }}</span>
           } @else {
             <span>{{ t('dashboard.import.submit') }}</span>

@@ -98,6 +98,10 @@ describe('RecipeListComponent', () => {
     component = fixture.componentInstance;
   }
 
+  function mockSortEvent(value: string): Event {
+    return { target: { value } } as unknown as Event;
+  }
+
   it('should create the component', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
     fixture.detectChanges();
@@ -202,7 +206,7 @@ describe('RecipeListComponent', () => {
     tick();
 
     recipeApiMock.getRecipes.mockReturnValue(of(mockResponse));
-    component.onSortChange('name-asc');
+    component.onSortChange(mockSortEvent('name-asc'));
     tick();
 
     expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
@@ -217,7 +221,7 @@ describe('RecipeListComponent', () => {
 
     component.currentPage.set(3);
     recipeApiMock.getRecipes.mockReturnValue(of(mockResponse));
-    component.onSortChange('date-asc');
+    component.onSortChange(mockSortEvent('date-asc'));
     tick();
 
     expect(component.currentPage()).toBe(1);
@@ -315,7 +319,7 @@ describe('RecipeListComponent', () => {
 
     const subject = new Subject<RecipeListResponse>();
     recipeApiMock.getRecipes.mockReturnValue(subject);
-    component.onSortChange('name-asc');
+    component.onSortChange(mockSortEvent('name-asc'));
 
     expect(component.totalCount()).toBe(0);
 
@@ -328,13 +332,13 @@ describe('RecipeListComponent', () => {
     setupTestBed(vi.fn().mockReturnValue(throwError(() => new Error('fail'))));
     fixture.detectChanges();
     tick();
-    expect(component.error()).toBe('recipes.list.errors.generic');
+    expect(component.serverError()).toBe('recipes.list.errors.generic');
 
     recipeApiMock.getRecipes.mockReturnValue(of(mockResponse));
-    component.onSortChange('date-desc');
+    component.onSortChange(mockSortEvent('date-desc'));
     tick();
 
-    expect(component.error()).toBeNull();
+    expect(component.serverError()).toBeNull();
   }));
 
   it('should not show load more when items equal totalCount', fakeAsync(() => {

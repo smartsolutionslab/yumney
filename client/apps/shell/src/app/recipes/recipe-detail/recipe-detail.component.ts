@@ -11,6 +11,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
+import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-recipe-detail',
@@ -20,18 +21,23 @@ import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipeDetailComponent implements OnInit {
+  private static readonly detailErrorMap: HttpErrorMap = {
+    404: 'recipes.detail.notFound',
+    default: 'recipes.detail.errors.generic',
+  };
+
   private recipeApi = inject(RecipeApiService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
   recipe = signal<RecipeDetail | null>(null);
   isLoading = signal(false);
-  error = signal<string | null>(null);
+  serverError = signal<string | null>(null);
 
   ngOnInit(): void {
     const identifier = this.route.snapshot.paramMap.get('identifier');
     if (!identifier) {
-      this.error.set('recipes.detail.notFound');
+      this.serverError.set('recipes.detail.notFound');
       return;
     }
 
@@ -47,11 +53,7 @@ export class RecipeDetailComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
-          if (err.status === 404) {
-            this.error.set('recipes.detail.notFound');
-          } else {
-            this.error.set('recipes.detail.errors.generic');
-          }
+          this.serverError.set(mapHttpError(err, RecipeDetailComponent.detailErrorMap));
         },
       });
   }

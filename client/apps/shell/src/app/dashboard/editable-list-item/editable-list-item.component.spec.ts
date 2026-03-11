@@ -1,6 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
+import { TranslocoTestingModule } from '@jsverse/transloco';
 import { EditableListItemComponent } from './editable-list-item.component';
+
+const en = {
+  shared: {
+    editableList: {
+      moveUp: 'Move up',
+      moveDown: 'Move down',
+      remove: 'Remove',
+    },
+  },
+};
 
 @Component({
   template: `
@@ -30,7 +41,16 @@ describe('EditableListItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TestHostComponent],
+      imports: [
+        TestHostComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { en },
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+        }),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);

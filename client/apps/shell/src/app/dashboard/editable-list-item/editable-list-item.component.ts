@@ -1,7 +1,9 @@
 import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
+import { TranslocoModule } from '@jsverse/transloco';
 
 @Component({
   selector: 'yn-editable-list-item',
+  imports: [TranslocoModule],
   templateUrl: './editable-list-item.component.html',
   styleUrl: './editable-list-item.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

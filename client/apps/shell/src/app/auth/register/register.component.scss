@@ -1,3 +1,5 @@
+@use '../../shared/banners';
+
 .register-container {
   display: flex;
   justify-content: center;
@@ -63,16 +65,6 @@
   margin-top: 0.25rem;
   color: #dc3545;
   font-size: 0.75rem;
-}
-
-.error-banner {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 4px;
-  color: #dc3545;
-  font-size: 0.875rem;
 }
 
 .success-message {

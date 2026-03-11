@@ -1,12 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  Validators,
-  AbstractControl,
-  ValidationErrors,
-} from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
@@ -14,25 +8,14 @@ import {
   ImportRecipeResponse,
   SaveRecipeRequest,
 } from '@yumney/shared/api-client';
+import {
+  urlValidator,
+  hasControlError,
+  mapHttpError,
+  VALIDATION,
+  HttpErrorMap,
+} from '@yumney/shared/models';
 import { RecipePreviewComponent } from './recipe-preview/recipe-preview.component';
-
-function urlValidator(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (!value) {
-    return null;
-  }
-
-  try {
-    const url = new URL(value);
-    if (url.protocol === 'http:' || url.protocol === 'https:') {
-      return null;
-    }
-  } catch {
-    // invalid URL
-  }
-
-  return { invalidUrl: true };
-}
 
 @Component({
   selector: 'yn-dashboard',
@@ -42,14 +25,17 @@ function urlValidator(control: AbstractControl): ValidationErrors | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent {
-  private static readonly importErrorMap: Record<number, string> = {
+  private static readonly importErrorMap: HttpErrorMap = {
     502: 'dashboard.import.errors.unreachable',
     504: 'dashboard.import.errors.timeout',
     404: 'dashboard.import.errors.noRecipe',
+    default: 'dashboard.import.errors.generic',
   };
 
-  private static readonly defaultImportError = 'dashboard.import.errors.generic';
-  private static readonly urlMaxLength = 2048;
+  private static readonly saveErrorMap: HttpErrorMap = {
+    409: 'dashboard.save.errors.duplicate',
+    default: 'dashboard.save.errors.generic',
+  };
 
   private fb = inject(FormBuilder);
   private recipeApi = inject(RecipeApiService);
@@ -66,7 +52,7 @@ export class DashboardComponent {
   form = this.fb.nonNullable.group({
     url: [
       '',
-      [Validators.required, Validators.maxLength(DashboardComponent.urlMaxLength), urlValidator],
+      [Validators.required, Validators.maxLength(VALIDATION.URL_MAX_LENGTH), urlValidator],
     ],
   });
 
@@ -96,9 +82,7 @@ export class DashboardComponent {
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
-          this.serverError.set(
-            DashboardComponent.importErrorMap[err.status] ?? DashboardComponent.defaultImportError,
-          );
+          this.serverError.set(mapHttpError(err, DashboardComponent.importErrorMap));
         },
       });
   }
@@ -160,11 +144,7 @@ export class DashboardComponent {
         },
         error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
-          if (err.status === 409) {
-            this.serverError.set('dashboard.save.errors.duplicate');
-          } else {
-            this.serverError.set('dashboard.save.errors.generic');
-          }
+          this.serverError.set(mapHttpError(err, DashboardComponent.saveErrorMap));
         },
       });
   }
@@ -177,7 +157,6 @@ export class DashboardComponent {
   }
 
   hasError(field: string, error: string): boolean {
-    const control = this.form.get(field);
-    return !!control?.hasError(error) && !!control?.touched;
+    return hasControlError(this.form, field, error);
   }
 }

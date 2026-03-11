@@ -62,6 +62,13 @@
       }
     }
   },
+  "shared": {
+    "editableList": {
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "remove": "Entfernen"
+    }
+  },
   "layout": {
     "header": {
       "greeting": "Hallo, {{name}}",

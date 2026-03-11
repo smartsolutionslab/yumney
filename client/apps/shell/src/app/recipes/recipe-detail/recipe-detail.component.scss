@@ -1,3 +1,5 @@
+@use '../../shared/banners';
+
 .recipe-detail-container {
   max-width: 900px;
   margin: 0 auto;
@@ -18,38 +20,7 @@
 }
 
 .loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
   padding: 4rem 0;
-  color: #666;
-  font-size: 0.875rem;
-}
-
-.spinner {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid rgb(249 115 22 / 30%);
-  border-top-color: #f97316;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.error-banner {
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 6px;
-  background: #fef2f2;
-  color: #dc2626;
-  font-size: 0.875rem;
 }
 
 .recipe-hero {

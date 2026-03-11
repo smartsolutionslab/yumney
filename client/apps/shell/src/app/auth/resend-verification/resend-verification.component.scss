@@ -1,3 +1,5 @@
+@use '../../shared/banners';
+
 .resend-container {
   display: flex;
   justify-content: center;
@@ -61,15 +63,6 @@
     color: #dc3545;
     font-size: 0.8rem;
   }
-}
-
-.error-banner {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  border-radius: 4px;
-  background: #fef2f2;
-  color: #dc3545;
-  font-size: 0.9rem;
 }
 
 .success-message {

@@ -23,6 +23,13 @@ const mockRecipe: ImportRecipeResponse = {
 };
 
 const en = {
+  shared: {
+    editableList: {
+      moveUp: 'Move up',
+      moveDown: 'Move down',
+      remove: 'Remove',
+    },
+  },
   dashboard: {
     preview: {
       title: 'Review Extracted Recipe',

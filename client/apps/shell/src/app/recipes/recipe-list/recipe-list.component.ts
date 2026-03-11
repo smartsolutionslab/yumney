@@ -8,9 +8,11 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
+import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-recipe-list',
@@ -20,6 +22,10 @@ import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shar
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipeListComponent implements OnInit {
+  private static readonly listErrorMap: HttpErrorMap = {
+    default: 'recipes.list.errors.generic',
+  };
+
   private recipeApi = inject(RecipeApiService);
   private destroyRef = inject(DestroyRef);
 
@@ -30,7 +36,7 @@ export class RecipeListComponent implements OnInit {
   sortBy = signal<'Name' | 'Date'>('Date');
   sortDirection = signal<'Ascending' | 'Descending'>('Descending');
   isLoading = signal(false);
-  error = signal<string | null>(null);
+  serverError = signal<string | null>(null);
 
   hasMore = computed(() => this.recipes().length < this.totalCount());
 
@@ -38,7 +44,8 @@ export class RecipeListComponent implements OnInit {
     this.loadRecipes(false);
   }
 
-  onSortChange(value: string): void {
+  onSortChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
     switch (value) {
       case 'date-desc':
         this.sortBy.set('Date');
@@ -70,7 +77,7 @@ export class RecipeListComponent implements OnInit {
 
   private loadRecipes(append: boolean): void {
     this.isLoading.set(true);
-    this.error.set(null);
+    this.serverError.set(null);
 
     const params: GetRecipesParams = {
       page: this.currentPage(),
@@ -92,9 +99,9 @@ export class RecipeListComponent implements OnInit {
             this.recipes.set(response.items);
           }
         },
-        error: () => {
+        error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
-          this.error.set('recipes.list.errors.generic');
+          this.serverError.set(mapHttpError(err, RecipeListComponent.listErrorMap));
         },
       });
   }

@@ -8,8 +8,8 @@
     </div>
   }
 
-  @if (error()) {
-    <div class="error-banner">{{ t(error()!) }}</div>
+  @if (serverError()) {
+    <div class="error-banner">{{ t(serverError()!) }}</div>
   }
 
   @if (recipe(); as recipe) {
