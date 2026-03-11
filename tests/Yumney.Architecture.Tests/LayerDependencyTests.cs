@@ -124,6 +124,38 @@ public class LayerDependencyTests
     }
 
     [Theory]
+    [InlineData("Recipes")]
+    [InlineData("Shopping")]
+    [InlineData("Users")]
+    public void Domain_ShouldNotDependOn_SharedCqrs(string module)
+    {
+        var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
+
+        var result = Types.InAssembly(domainAssembly)
+            .ShouldNot()
+            .HaveDependencyOn("Yumney.Shared.CQRS")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on Shared.CQRS");
+    }
+
+    [Theory]
+    [InlineData("Recipes")]
+    [InlineData("Shopping")]
+    [InlineData("Users")]
+    public void Domain_ShouldNotDependOn_SharedEvents(string module)
+    {
+        var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
+
+        var result = Types.InAssembly(domainAssembly)
+            .ShouldNot()
+            .HaveDependencyOn("Yumney.Shared.Events")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue($"{module}.Domain must not depend on Shared.Events");
+    }
+
+    [Theory]
     [MemberData(nameof(CrossModulePairs))]
     public void Modules_ShouldNotDependOn_OtherModuleInfrastructure(string sourceModule, string targetModule)
     {
