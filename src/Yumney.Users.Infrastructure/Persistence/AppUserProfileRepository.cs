@@ -5,14 +5,16 @@ namespace Yumney.Users.Infrastructure.Persistence;
 
 public sealed class AppUserProfileRepository(UsersDbContext context) : IAppUserProfileRepository
 {
+    private readonly DbSet<AppUserProfile> profiles = context.AppUserProfiles;
+
     public async Task<AppUserProfile?> FindByKeycloakUserIdAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default)
     {
-        return await context.AppUserProfiles.FirstOrDefaultAsync(p => p.KeycloakUserId == keycloakUserId, cancellationToken);
+        return await profiles.FirstOrDefaultAsync(p => p.KeycloakUserId == keycloakUserId, cancellationToken);
     }
 
     public async Task AddAsync(AppUserProfile profile, CancellationToken cancellationToken = default)
     {
-        await context.AppUserProfiles.AddAsync(profile, cancellationToken);
+        await profiles.AddAsync(profile, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
 }
