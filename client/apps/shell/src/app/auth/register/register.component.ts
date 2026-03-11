@@ -1,16 +1,17 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  Validators,
-  AbstractControl,
-  ValidationErrors,
-} from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
+import {
+  passwordsMatchValidator,
+  hasControlError,
+  mapHttpError,
+  VALIDATION,
+  HttpErrorMap,
+} from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-register',
@@ -20,6 +21,12 @@ import { AuthApiService } from '@yumney/shared/api-client';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {
+  private static readonly registerErrorMap: HttpErrorMap = {
+    409: 'auth.register.errors.emailAlreadyExists',
+    422: 'auth.register.errors.validationFailed',
+    default: 'auth.register.errors.generic',
+  };
+
   private fb = inject(FormBuilder);
   private authApi = inject(AuthApiService);
   private destroyRef = inject(DestroyRef);
@@ -28,34 +35,29 @@ export class RegisterComponent {
   isSuccess = signal(false);
   serverError = signal<string | null>(null);
 
-  private passwordsMatchValidator = (control: AbstractControl): ValidationErrors | null => {
-    const password = control.get('password')?.value;
-    const confirmPassword = control.get('confirmPassword')?.value;
-
-    if (password && confirmPassword && password !== confirmPassword) {
-      return { passwordsMismatch: true };
-    }
-
-    return null;
-  };
-
   form = this.fb.nonNullable.group(
     {
-      email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+      email: [
+        '',
+        [Validators.required, Validators.email, Validators.maxLength(VALIDATION.EMAIL_MAX_LENGTH)],
+      ],
       password: [
         '',
         [
           Validators.required,
-          Validators.minLength(8),
+          Validators.minLength(VALIDATION.PASSWORD_MIN_LENGTH),
           Validators.pattern(/[A-Z]/),
           Validators.pattern(/[a-z]/),
           Validators.pattern(/[0-9]/),
         ],
       ],
       confirmPassword: ['', [Validators.required]],
-      displayName: ['', [Validators.required, Validators.maxLength(200)]],
+      displayName: [
+        '',
+        [Validators.required, Validators.maxLength(VALIDATION.DISPLAY_NAME_MAX_LENGTH)],
+      ],
     },
-    { validators: [this.passwordsMatchValidator] },
+    { validators: [passwordsMatchValidator] },
   );
 
   onSubmit(): void {
@@ -80,20 +82,12 @@ export class RegisterComponent {
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
-
-          if (err.status === 409) {
-            this.serverError.set('auth.register.errors.emailAlreadyExists');
-          } else if (err.status === 422) {
-            this.serverError.set('auth.register.errors.validationFailed');
-          } else {
-            this.serverError.set('auth.register.errors.generic');
-          }
+          this.serverError.set(mapHttpError(err, RegisterComponent.registerErrorMap));
         },
       });
   }
 
   hasError(field: string, error: string): boolean {
-    const control = this.form.get(field);
-    return !!control?.hasError(error) && !!control?.touched;
+    return hasControlError(this.form, field, error);
   }
 }

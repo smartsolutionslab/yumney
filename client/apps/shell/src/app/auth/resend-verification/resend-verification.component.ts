@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
+import { hasControlError, mapHttpError, VALIDATION, HttpErrorMap } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-resend-verification',
@@ -14,6 +15,11 @@ import { AuthApiService } from '@yumney/shared/api-client';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResendVerificationComponent {
+  private static readonly resendErrorMap: HttpErrorMap = {
+    503: 'auth.resendVerification.errors.serviceUnavailable',
+    default: 'auth.resendVerification.errors.generic',
+  };
+
   private fb = inject(FormBuilder);
   private authApi = inject(AuthApiService);
   private destroyRef = inject(DestroyRef);
@@ -23,7 +29,10 @@ export class ResendVerificationComponent {
   serverError = signal<string | null>(null);
 
   form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+    email: [
+      '',
+      [Validators.required, Validators.email, Validators.maxLength(VALIDATION.EMAIL_MAX_LENGTH)],
+    ],
   });
 
   onSubmit(): void {
@@ -47,18 +56,14 @@ export class ResendVerificationComponent {
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
-
-          if (err.status === 503) {
-            this.serverError.set('auth.resendVerification.errors.serviceUnavailable');
-          } else {
-            this.serverError.set('auth.resendVerification.errors.generic');
-          }
+          this.serverError.set(
+            mapHttpError(err, ResendVerificationComponent.resendErrorMap),
+          );
         },
       });
   }
 
   hasError(field: string, error: string): boolean {
-    const control = this.form.get(field);
-    return !!control?.hasError(error) && !!control?.touched;
+    return hasControlError(this.form, field, error);
   }
 }

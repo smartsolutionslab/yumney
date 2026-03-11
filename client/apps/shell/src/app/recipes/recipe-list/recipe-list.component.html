@@ -3,7 +3,7 @@
     <h1>{{ t('recipes.list.title') }}</h1>
     <select
       class="sort-select"
-      (change)="onSortChange($any($event.target).value)"
+      (change)="onSortChange($event)"
       [attr.aria-label]="t('recipes.list.sortLabel')"
     >
       <option value="date-desc">{{ t('recipes.list.sort.dateDesc') }}</option>
@@ -13,11 +13,11 @@
     </select>
   </div>
 
-  @if (error()) {
-    <div class="error-banner">{{ t(error()!) }}</div>
+  @if (serverError()) {
+    <div class="error-banner">{{ t(serverError()!) }}</div>
   }
 
-  @if (!isLoading() && recipes().length === 0 && !error()) {
+  @if (!isLoading() && recipes().length === 0 && !serverError()) {
     <div class="empty-state">
       <h2>{{ t('recipes.list.empty.title') }}</h2>
       <p>{{ t('recipes.list.empty.message') }}</p>
