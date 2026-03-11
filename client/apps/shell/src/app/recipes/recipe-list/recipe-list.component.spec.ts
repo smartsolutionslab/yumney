@@ -91,10 +91,7 @@ describe('RecipeListComponent', () => {
           },
         }),
       ],
-      providers: [
-        provideRouter([]),
-        { provide: RecipeApiService, useValue: recipeApiMock },
-      ],
+      providers: [provideRouter([]), { provide: RecipeApiService, useValue: recipeApiMock }],
     });
 
     fixture = TestBed.createComponent(RecipeListComponent);

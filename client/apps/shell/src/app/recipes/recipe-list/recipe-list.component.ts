@@ -1,12 +1,16 @@
-import { Component, ChangeDetectionStrategy, computed, inject, OnInit, DestroyRef, signal } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  computed,
+  inject,
+  OnInit,
+  DestroyRef,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import {
-  RecipeApiService,
-  RecipeListItem,
-  GetRecipesParams,
-} from '@yumney/shared/api-client';
+import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
 
 @Component({
   selector: 'yn-recipe-list',
