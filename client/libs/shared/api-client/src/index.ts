@@ -10,4 +10,7 @@ export {
   type RecipeListItem,
   type RecipeListResponse,
   type GetRecipesParams,
+  type RecipeDetail,
+  type RecipeIngredient,
+  type RecipeStep,
 } from './lib/recipe-api.service';

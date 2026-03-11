@@ -13,6 +13,14 @@ export const appRoutes: Route[] = [
       import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },
   {
+    path: 'recipes/:identifier',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./recipes/recipe-detail/recipe-detail.component').then(
+        (m) => m.RecipeDetailComponent,
+      ),
+  },
+  {
     path: 'recipes',
     canActivate: [authGuard],
     loadComponent: () =>

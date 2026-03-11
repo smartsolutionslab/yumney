@@ -93,6 +93,28 @@
       "errors": {
         "generic": "Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
       }
+    },
+    "detail": {
+      "back": "Zurück zu Rezepten",
+      "servings": "{{count}} Portionen",
+      "prepTime": "Vorbereitung",
+      "cookTime": "Kochen",
+      "totalTime": "Gesamt",
+      "minutes": "{{minutes}} Min.",
+      "difficulty": "Schwierigkeit",
+      "ingredients": "Zutaten",
+      "steps": "Schritte",
+      "sourceUrl": "Originalrezept",
+      "actions": {
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "shoppingList": "Einkaufsliste"
+      },
+      "loading": "Rezept wird geladen...",
+      "notFound": "Rezept nicht gefunden.",
+      "errors": {
+        "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut."
+      }
     }
   },
   "dashboard": {

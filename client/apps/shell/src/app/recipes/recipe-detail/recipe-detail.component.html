@@ -1,0 +1,107 @@
+<div class="recipe-detail-container" *transloco="let t">
+  <a routerLink="/recipes" class="back-link">
+    &larr; {{ t('recipes.detail.back') }}
+  </a>
+
+  @if (isLoading()) {
+    <div class="loading">
+      <span class="spinner"></span>
+      <span>{{ t('recipes.detail.loading') }}</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-banner">{{ t(error()!) }}</div>
+  }
+
+  @if (recipe(); as recipe) {
+    <div class="recipe-hero">
+      @if (recipe.imageUrl) {
+        <img [src]="recipe.imageUrl" [alt]="recipe.title" class="hero-image" />
+      } @else {
+        <div class="hero-placeholder"></div>
+      }
+    </div>
+
+    <h1 class="recipe-title">{{ recipe.title }}</h1>
+
+    @if (recipe.description) {
+      <p class="recipe-description">{{ recipe.description }}</p>
+    }
+
+    <div class="meta-bar">
+      @if (recipe.servings) {
+        <div class="meta-item">
+          <span class="meta-label">{{ t('recipes.detail.servings', { count: recipe.servings }) }}</span>
+        </div>
+      }
+      @if (recipe.prepTimeMinutes) {
+        <div class="meta-item">
+          <span class="meta-label">{{ t('recipes.detail.prepTime') }}</span>
+          <span class="meta-value">{{ t('recipes.detail.minutes', { minutes: recipe.prepTimeMinutes }) }}</span>
+        </div>
+      }
+      @if (recipe.cookTimeMinutes) {
+        <div class="meta-item">
+          <span class="meta-label">{{ t('recipes.detail.cookTime') }}</span>
+          <span class="meta-value">{{ t('recipes.detail.minutes', { minutes: recipe.cookTimeMinutes }) }}</span>
+        </div>
+      }
+      @if (totalTime()) {
+        <div class="meta-item">
+          <span class="meta-label">{{ t('recipes.detail.totalTime') }}</span>
+          <span class="meta-value">{{ t('recipes.detail.minutes', { minutes: totalTime() }) }}</span>
+        </div>
+      }
+      @if (recipe.difficulty) {
+        <div class="meta-item">
+          <span class="meta-label">{{ t('recipes.detail.difficulty') }}</span>
+          <span class="meta-value">{{ recipe.difficulty }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="actions-bar">
+      <button class="action-button" disabled>{{ t('recipes.detail.actions.edit') }}</button>
+      <button class="action-button action-button--danger" disabled>{{ t('recipes.detail.actions.delete') }}</button>
+      <button class="action-button action-button--secondary" disabled>{{ t('recipes.detail.actions.shoppingList') }}</button>
+    </div>
+
+    <section class="ingredients-section">
+      <h2>{{ t('recipes.detail.ingredients') }}</h2>
+      <ul class="ingredients-list">
+        @for (ingredient of recipe.ingredients; track ingredient.name) {
+          <li>
+            @if (ingredient.amount) {
+              <span class="ingredient-amount">{{ ingredient.amount }}</span>
+            }
+            @if (ingredient.unit) {
+              <span class="ingredient-unit">{{ ingredient.unit }}</span>
+            }
+            <span class="ingredient-name">{{ ingredient.name }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="steps-section">
+      <h2>{{ t('recipes.detail.steps') }}</h2>
+      <ol class="steps-list">
+        @for (step of recipe.steps; track step.number) {
+          <li>
+            <span class="step-number">{{ step.number }}</span>
+            <span class="step-description">{{ step.description }}</span>
+          </li>
+        }
+      </ol>
+    </section>
+
+    @if (recipe.sourceUrl) {
+      <div class="source-link">
+        <a [href]="recipe.sourceUrl" target="_blank" rel="noopener noreferrer">
+          {{ t('recipes.detail.sourceUrl') }}
+        </a>
+      </div>
+    }
+  }
+</div>

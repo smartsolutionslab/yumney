@@ -74,6 +74,32 @@ export interface GetRecipesParams {
   sortDirection?: 'Ascending' | 'Descending';
 }
 
+export interface RecipeIngredient {
+  name: string;
+  amount: number | null;
+  unit: string | null;
+}
+
+export interface RecipeStep {
+  number: number;
+  description: string;
+}
+
+export interface RecipeDetail {
+  identifier: string;
+  title: string;
+  description: string | null;
+  servings: number | null;
+  prepTimeMinutes: number | null;
+  cookTimeMinutes: number | null;
+  difficulty: string | null;
+  imageUrl: string | null;
+  sourceUrl: string | null;
+  createdAt: string;
+  ingredients: RecipeIngredient[];
+  steps: RecipeStep[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class RecipeApiService {
   private http = inject(HttpClient);
@@ -84,6 +110,10 @@ export class RecipeApiService {
 
   saveRecipe(request: SaveRecipeRequest): Observable<SavedRecipeResponse> {
     return this.http.post<SavedRecipeResponse>('/api/v1/recipes', request);
+  }
+
+  getRecipeById(identifier: string): Observable<RecipeDetail> {
+    return this.http.get<RecipeDetail>(`/api/v1/recipes/${identifier}`);
   }
 
   getRecipes(params: GetRecipesParams = {}): Observable<RecipeListResponse> {
