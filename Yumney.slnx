@@ -11,6 +11,7 @@
       <Project Path="src/Yumney.Shared.Guards/Yumney.Shared.Guards.csproj" />
       <Project Path="src/Yumney.Shared.CQRS/Yumney.Shared.CQRS.csproj" />
       <Project Path="src/Yumney.Shared.Events/Yumney.Shared.Events.csproj" />
+      <Project Path="src/Yumney.Shared.Events.InProcess/Yumney.Shared.Events.InProcess.csproj" />
     </Folder>
     <Folder Name="/src/Recipes/">
       <Project Path="src/Yumney.Recipes.Domain/Yumney.Recipes.Domain.csproj" />

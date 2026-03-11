@@ -12,7 +12,7 @@
     <ProjectReference Include="..\Yumney.Shopping.Infrastructure\Yumney.Shopping.Infrastructure.csproj" />
     <ProjectReference Include="..\Yumney.Users.Api\Yumney.Users.Api.csproj" />
     <ProjectReference Include="..\Yumney.Users.Infrastructure\Yumney.Users.Infrastructure.csproj" />
-    <ProjectReference Include="..\Yumney.Shared.Events\Yumney.Shared.Events.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Events.InProcess\Yumney.Shared.Events.InProcess.csproj" />
   </ItemGroup>
 
   <ItemGroup>
