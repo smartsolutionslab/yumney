@@ -3,11 +3,11 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <RootNamespace>Yumney.Shared.Tests</RootNamespace>
+    <RootNamespace>Yumney.Shared.Guards.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Yumney.Shared\Yumney.Shared.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.Guards\Yumney.Shared.Guards.csproj" />
   </ItemGroup>
 
   <ItemGroup>

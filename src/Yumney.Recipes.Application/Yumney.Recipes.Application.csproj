@@ -6,10 +6,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Recipes.Domain\Yumney.Recipes.Domain.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.CQRS\Yumney.Shared.CQRS.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@ using FluentAssertions;
 using Xunit;
 using Yumney.Shared.Guards;
 
-namespace Yumney.Shared.Tests.Guards;
+namespace Yumney.Shared.Guards.Tests;
 
 public class EnsureTests
 {

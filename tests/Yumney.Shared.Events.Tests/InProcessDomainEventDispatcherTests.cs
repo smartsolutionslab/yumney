@@ -5,7 +5,7 @@ using Xunit;
 using Yumney.Shared.Common;
 using Yumney.Shared.Events;
 
-namespace Yumney.Shared.Tests.Events;
+namespace Yumney.Shared.Events.Tests;
 
 public class InProcessDomainEventDispatcherTests
 {
