@@ -5,15 +5,17 @@ namespace Yumney.Recipes.Infrastructure.Persistence;
 
 public sealed class RecipeRepository(RecipesDbContext context) : IRecipeRepository
 {
+    private readonly DbSet<Recipe> recipes = context.Recipes;
+
     public async Task AddAsync(Recipe recipe, CancellationToken cancellationToken = default)
     {
-        await context.Recipes.AddAsync(recipe, cancellationToken);
+        await recipes.AddAsync(recipe, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<Recipe?> GetByIdAsync(Guid identifier, CancellationToken cancellationToken = default)
     {
-        return await context.Recipes
+        return await recipes
             .Include(r => r.Ingredients)
             .Include(r => r.Steps)
             .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
@@ -21,7 +23,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
     public async Task<bool> ExistsBySourceUrlAsync(RecipeUrl sourceUrl, OwnerIdentifier owner, CancellationToken cancellationToken = default)
     {
-        return await context.Recipes.AnyAsync(
+        return await recipes.AnyAsync(
             r => r.SourceUrl == sourceUrl && r.Owner == owner,
             cancellationToken);
     }
@@ -34,7 +36,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         SortDirection sortDirection,
         CancellationToken cancellationToken = default)
     {
-        var query = context.Recipes.Where(r => r.Owner == owner);
+        var query = recipes.Where(r => r.Owner == owner);
 
         query = (sortBy, sortDirection) switch
         {
