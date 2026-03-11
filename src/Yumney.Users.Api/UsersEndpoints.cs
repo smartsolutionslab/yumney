@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Routing;
 
-namespace Yumney.Users.Api;
+namespace SmartSolutionsLab.Yumney.Users.Api;
 
 public static class UsersEndpoints
 {

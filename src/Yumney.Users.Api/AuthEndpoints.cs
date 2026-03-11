@@ -2,12 +2,12 @@ using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Yumney.Shared.Common;
-using Yumney.Shared.CQRS;
-using Yumney.Users.Application.Commands;
-using Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Users.Application.Commands;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-namespace Yumney.Users.Api;
+namespace SmartSolutionsLab.Yumney.Users.Api;
 
 public static class AuthEndpoints
 {
@@ -83,10 +83,8 @@ public static class AuthEndpoints
         {
             return result.Error switch
             {
-                VerificationErrors.IdentityProviderUnavailable =>
-                    Results.Problem("Identity provider is unavailable.", statusCode: 503),
-                _ =>
-                    Results.Ok(new { message = "If this email is registered, a verification email has been sent." }),
+                VerificationErrors.IdentityProviderUnavailable => Results.Problem("Identity provider is unavailable.", statusCode: 503),
+                _ => Results.Ok(new { message = "If this email is registered, a verification email has been sent." }),
             };
         }
 

@@ -1,8 +1,8 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using Xunit;
-using Yumney.Users.Application.Commands;
 
-namespace Yumney.Users.Application.Tests.Commands;
+namespace SmartSolutionsLab.Yumney.Users.Application.Tests.Commands;
 
 public class ResendVerificationEmailRequestValidatorTests
 {

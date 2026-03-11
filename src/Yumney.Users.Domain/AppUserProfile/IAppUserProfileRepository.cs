@@ -1,4 +1,4 @@
-namespace Yumney.Users.Domain.AppUserProfile;
+namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 public interface IAppUserProfileRepository
 {

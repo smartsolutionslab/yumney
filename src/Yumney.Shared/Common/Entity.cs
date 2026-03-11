@@ -1,4 +1,4 @@
-namespace Yumney.Shared.Common;
+namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public abstract class Entity<TId>
     where TId : notnull

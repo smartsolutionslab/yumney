@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Yumney.ServiceDefaults</RootNamespace>
     <IsAspireSharedProject>true</IsAspireSharedProject>
   </PropertyGroup>
 

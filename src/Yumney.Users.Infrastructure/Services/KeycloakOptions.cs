@@ -1,4 +1,4 @@
-namespace Yumney.Users.Infrastructure.Services;
+namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
 
 public sealed class KeycloakOptions
 {

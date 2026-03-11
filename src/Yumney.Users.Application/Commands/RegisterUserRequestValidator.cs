@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Yumney.Users.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
 
 public sealed class RegisterUserRequestValidator : AbstractValidator<RegisterUserRequest>
 {

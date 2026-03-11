@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Yumney.Users.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace Yumney.Users.Infrastructure.Persistence.Migrations
+namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
     [Migration("20260310211401_InitialCreate")]
@@ -25,7 +25,7 @@ namespace Yumney.Users.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Yumney.Users.Domain.AppUserProfile.AppUserProfile", b =>
+            modelBuilder.Entity("SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile.AppUserProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

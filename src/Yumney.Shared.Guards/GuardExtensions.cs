@@ -1,7 +1,7 @@
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
-namespace Yumney.Shared.Guards;
+namespace SmartSolutionsLab.Yumney.Shared.Guards;
 
 public static class GuardExtensions
 {

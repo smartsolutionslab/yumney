@@ -3,12 +3,12 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Yumney.Recipes.Application.Commands;
-using Yumney.Recipes.Application.DTOs;
-using Yumney.Recipes.Application.Interfaces;
-using Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Recipes.Infrastructure.Services;
+namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1303

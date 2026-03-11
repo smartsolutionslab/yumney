@@ -1,13 +1,13 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
-using Yumney.Recipes.Application.DTOs;
-using Yumney.Recipes.Application.Queries;
-using Yumney.Recipes.Domain.Recipe;
-using Yumney.Shared.Common;
 
-namespace Yumney.Recipes.Application.Tests.Queries;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Queries;
 
 public class GetRecipeByIdQueryHandlerTests
 {

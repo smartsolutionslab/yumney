@@ -1,4 +1,4 @@
-namespace Yumney.Recipes.Application.DTOs;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 
 public sealed record RecipeListDto(
     IReadOnlyList<RecipeListItemDto> Items,

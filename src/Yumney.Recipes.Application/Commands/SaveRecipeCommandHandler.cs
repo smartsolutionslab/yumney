@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging;
-using Yumney.Recipes.Application.DTOs;
-using Yumney.Recipes.Domain.Recipe;
-using Yumney.Shared.Common;
-using Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.CQRS;
 
-namespace Yumney.Recipes.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
 #pragma warning disable SA1601 // Partial elements should be documented (LoggerMessage generates partial methods)
 public sealed partial class SaveRecipeCommandHandler(

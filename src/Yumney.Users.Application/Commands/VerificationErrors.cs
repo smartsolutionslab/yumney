@@ -1,4 +1,4 @@
-namespace Yumney.Users.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
 
 public static class VerificationErrors
 {

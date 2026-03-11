@@ -1,8 +1,8 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using Xunit;
-using Yumney.Recipes.Domain.Recipe;
 
-namespace Yumney.Recipes.Domain.Tests.Recipe;
+namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe;
 
 public class IngredientTests
 {

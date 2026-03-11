@@ -4,7 +4,6 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Yumney.AppHost</RootNamespace>
     <IsAspireHost>true</IsAspireHost>
   </PropertyGroup>
 

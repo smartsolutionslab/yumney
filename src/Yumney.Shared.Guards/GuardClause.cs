@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Yumney.Shared.Guards;
+namespace SmartSolutionsLab.Yumney.Shared.Guards;
 
 public sealed class GuardClause<T>
 {

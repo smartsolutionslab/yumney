@@ -5,12 +5,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Yumney.Shared.Common;
-using Yumney.Users.Application.Commands;
-using Yumney.Users.Application.Interfaces;
-using Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Users.Application.Commands;
+using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-namespace Yumney.Users.Infrastructure.Services;
+namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
 
 #pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase for private fields)
 public sealed class KeycloakAdminService(

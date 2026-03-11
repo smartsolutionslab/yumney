@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Yumney.Users.Infrastructure.Persistence;
+namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
 public sealed class UsersDesignTimeDbContextFactory : IDesignTimeDbContextFactory<UsersDbContext>
 {

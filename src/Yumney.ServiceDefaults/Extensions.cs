@@ -8,7 +8,7 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
-namespace Yumney.ServiceDefaults;
+namespace SmartSolutionsLab.Yumney.ServiceDefaults;
 
 public static class Extensions
 {

@@ -1,8 +1,8 @@
-using Yumney.Recipes.Application.DTOs;
-using Yumney.Recipes.Domain.Recipe;
-using Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Recipes.Application.Interfaces;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 public interface IWebScraper
 {

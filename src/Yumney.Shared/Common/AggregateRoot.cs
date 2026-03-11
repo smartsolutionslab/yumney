@@ -1,4 +1,4 @@
-namespace Yumney.Shared.Common;
+namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public abstract class AggregateRoot<TId> : Entity<TId>, IHasDomainEvents
     where TId : notnull

@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <RootNamespace>Yumney.Gateway</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Yumney.ServiceDefaults\Yumney.ServiceDefaults.csproj" />
   </ItemGroup>

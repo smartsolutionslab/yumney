@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Yumney.Recipes.Infrastructure.Persistence;
-using Yumney.Users.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
-namespace Yumney.MigrationRunner;
+namespace SmartSolutionsLab.Yumney.MigrationRunner;
 
 /// <summary>
 /// Background worker that applies EF Core migrations for all modules on startup.

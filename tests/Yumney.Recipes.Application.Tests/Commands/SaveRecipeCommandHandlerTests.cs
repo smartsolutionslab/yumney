@@ -1,12 +1,12 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
-using Yumney.Recipes.Application.Commands;
-using Yumney.Recipes.Domain.Recipe;
-using Yumney.Shared.Common;
 
-namespace Yumney.Recipes.Application.Tests.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 
 public class SaveRecipeCommandHandlerTests
 {

@@ -1,8 +1,8 @@
-using Yumney.Shared.Common;
-using Yumney.Shared.CQRS;
-using Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-namespace Yumney.Users.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
 
 public sealed record RegisterUserCommand(
     Email Email,

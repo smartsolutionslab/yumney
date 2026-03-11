@@ -1,3 +1,3 @@
-namespace Yumney.Recipes.Application.DTOs;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 
 public sealed record ExtractedStepDto(int Number, string Description);

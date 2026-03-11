@@ -1,6 +1,6 @@
-using Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Users.Domain.AppUserProfile;
+namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 public sealed class AppUserProfile : AggregateRoot<Guid>
 {

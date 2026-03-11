@@ -1,5 +1,5 @@
 using Serilog;
-using Yumney.ServiceDefaults;
+using SmartSolutionsLab.Yumney.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 

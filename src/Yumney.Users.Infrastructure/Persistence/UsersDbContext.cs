@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-namespace Yumney.Users.Infrastructure.Persistence;
+namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
 public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options)
 {

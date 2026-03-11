@@ -1,8 +1,8 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
-using Yumney.Shared.Common;
 
-namespace Yumney.Shared.Tests.Common;
+namespace SmartSolutionsLab.Yumney.Shared.Tests.Common;
 
 public class ResultTests
 {

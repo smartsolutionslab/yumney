@@ -1,4 +1,4 @@
-namespace Yumney.Shared.Guards;
+namespace SmartSolutionsLab.Yumney.Shared.Guards;
 
 public sealed class GuardException(string parameterName, string message) : Exception(message)
 {

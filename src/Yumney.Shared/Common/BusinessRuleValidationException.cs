@@ -1,4 +1,4 @@
-namespace Yumney.Shared.Common;
+namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public sealed class BusinessRuleValidationException(IBusinessRule brokenRule) : Exception(brokenRule.Message)
 {

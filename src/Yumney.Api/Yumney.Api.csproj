@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <RootNamespace>Yumney.Api</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Yumney.ServiceDefaults\Yumney.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Yumney.Recipes.Api\Yumney.Recipes.Api.csproj" />

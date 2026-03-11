@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Yumney.Shared.Events;
+namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 public static class EventingServiceCollectionExtensions
 {

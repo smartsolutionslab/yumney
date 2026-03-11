@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Yumney.Recipes.Infrastructure</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Recipes.Application\Yumney.Recipes.Application.csproj" />
   </ItemGroup>

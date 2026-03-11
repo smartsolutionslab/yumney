@@ -1,7 +1,7 @@
-using Yumney.Recipes.Application.DTOs;
-using Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Recipes.Application.Interfaces;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 public interface IRecipeExtractionService
 {

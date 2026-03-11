@@ -1,6 +1,6 @@
-using Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Recipes.Domain.Recipe;
+namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 public sealed class Ingredient : Entity<Guid>
 {

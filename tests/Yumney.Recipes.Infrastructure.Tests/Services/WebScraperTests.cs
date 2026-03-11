@@ -2,12 +2,12 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 using Xunit;
-using Yumney.Recipes.Application.Commands;
-using Yumney.Recipes.Domain.Recipe;
-using Yumney.Recipes.Infrastructure.Services;
 
-namespace Yumney.Recipes.Infrastructure.Tests.Services;
+namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;
 
 public class WebScraperTests
 {

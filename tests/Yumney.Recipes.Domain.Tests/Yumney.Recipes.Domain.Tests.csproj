@@ -3,7 +3,6 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <RootNamespace>Yumney.Recipes.Domain.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
