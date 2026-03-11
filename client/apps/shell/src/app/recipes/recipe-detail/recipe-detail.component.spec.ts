@@ -297,4 +297,68 @@ describe('RecipeDetailComponent', () => {
 
     expect(recipeApiMock.getRecipeById).toHaveBeenCalledWith('my-recipe-id');
   }));
+
+  it('should show not-found when route has no identifier', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)), null as unknown as string);
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    expect(recipeApiMock.getRecipeById).not.toHaveBeenCalled();
+    const error = fixture.nativeElement.querySelector('.error-banner');
+    expect(error).toBeTruthy();
+    expect(error.textContent).toContain('Recipe not found.');
+  }));
+
+  it('should return null totalTime when both times are null', fakeAsync(() => {
+    const noTimes = { ...mockRecipe, prepTimeMinutes: null, cookTimeMinutes: null };
+    setupTestBed(vi.fn().mockReturnValue(of(noTimes)));
+    fixture.detectChanges();
+    tick();
+
+    expect(component.totalTime()).toBeNull();
+  }));
+
+  it('should compute totalTime as sum of prep and cook', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    expect(component.totalTime()).toBe(30);
+  }));
+
+  it('should compute totalTime with only prep time', fakeAsync(() => {
+    const prepOnly = { ...mockRecipe, cookTimeMinutes: null };
+    setupTestBed(vi.fn().mockReturnValue(of(prepOnly)));
+    fixture.detectChanges();
+    tick();
+
+    expect(component.totalTime()).toBe(10);
+  }));
+
+  it('should compute totalTime with only cook time', fakeAsync(() => {
+    const cookOnly = { ...mockRecipe, prepTimeMinutes: null };
+    setupTestBed(vi.fn().mockReturnValue(of(cookOnly)));
+    fixture.detectChanges();
+    tick();
+
+    expect(component.totalTime()).toBe(20);
+  }));
+
+  it('should set isLoading to false after successful load', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    expect(component.isLoading()).toBe(false);
+  }));
+
+  it('should set isLoading to false after error', fakeAsync(() => {
+    const httpError = new HttpErrorResponse({ status: 500 });
+    setupTestBed(vi.fn().mockReturnValue(throwError(() => httpError)));
+    fixture.detectChanges();
+    tick();
+
+    expect(component.isLoading()).toBe(false);
+  }));
 });

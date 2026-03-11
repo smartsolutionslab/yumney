@@ -124,7 +124,12 @@ public static class RecipesEndpoints
 
         if (result.IsFailure)
         {
-            return Results.Problem("Recipe not found.", statusCode: 404);
+            return result.Error switch
+            {
+                GetRecipeByIdErrors.NotFound => Results.Problem("Recipe not found.", statusCode: 404),
+                GetRecipeByIdErrors.AccessDenied => Results.Problem("Recipe not found.", statusCode: 404),
+                _ => Results.Problem("Failed to fetch recipe.", statusCode: 500),
+            };
         }
 
         return Results.Ok(result.Value);
