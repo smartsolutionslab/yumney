@@ -15,19 +15,19 @@ public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes,
         var identifier = query.Identifier;
         var owner = new OwnerIdentifier(currentUser.UserId);
 
-        LogGetRecipeById(identifier, owner.Value);
+        LogGetRecipeById(identifier.Value, owner.Value);
 
-        var recipe = await recipes.GetByIdAsync(identifier, cancellationToken);
+        var recipe = await recipes.GetByIdAsync(identifier.Value, cancellationToken);
 
         if (recipe is null)
         {
-            LogRecipeNotFound(identifier);
+            LogRecipeNotFound(identifier.Value);
             return Result<RecipeDetailDto>.Failure(GetRecipeByIdErrors.NotFound);
         }
 
         if (recipe.Owner != owner)
         {
-            LogRecipeAccessDenied(identifier, owner.Value);
+            LogRecipeAccessDenied(identifier.Value, owner.Value);
             return Result<RecipeDetailDto>.Failure(GetRecipeByIdErrors.AccessDenied);
         }
 

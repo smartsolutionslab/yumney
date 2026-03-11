@@ -27,7 +27,7 @@ public class GetRecipesQueryHandlerTests
     {
         SetupEmptyRepository();
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
 
         result.IsSuccess.Should().BeTrue();
@@ -38,7 +38,7 @@ public class GetRecipesQueryHandlerTests
     {
         SetupEmptyRepository();
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
 
         result.Value.Items.Should().BeEmpty();
@@ -51,7 +51,7 @@ public class GetRecipesQueryHandlerTests
         var recipe = CreateTestRecipe("Pasta Carbonara");
         SetupRepository([recipe], 1);
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
 
         result.Value.Items.Should().HaveCount(1);
@@ -65,7 +65,7 @@ public class GetRecipesQueryHandlerTests
         var recipe = CreateTestRecipe("Pasta Carbonara");
         SetupRepository([recipe], 1);
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
 
         result.Value.Items[0].CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
@@ -76,7 +76,7 @@ public class GetRecipesQueryHandlerTests
     {
         SetupRepository([], 50);
 
-        var query = new GetRecipesQuery(3, 10, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(3, 10, RecipeSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
 
         result.Value.Page.Should().Be(3);
@@ -90,7 +90,7 @@ public class GetRecipesQueryHandlerTests
         currentUser.UserId.Returns("specific-user-id");
         SetupEmptyRepository();
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         await handler.HandleAsync(query);
 
         await recipes.Received(1).GetByOwnerAsync(
@@ -107,7 +107,7 @@ public class GetRecipesQueryHandlerTests
     {
         SetupEmptyRepository();
 
-        var query = new GetRecipesQuery(3, 10, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(3, 10, RecipeSortField.Date, SortDirection.Descending);
         await handler.HandleAsync(query);
 
         await recipes.Received(1).GetByOwnerAsync(
@@ -124,7 +124,7 @@ public class GetRecipesQueryHandlerTests
     {
         SetupEmptyRepository();
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         await handler.HandleAsync(query);
 
         await recipes.Received(1).GetByOwnerAsync(
@@ -141,7 +141,7 @@ public class GetRecipesQueryHandlerTests
     {
         SetupEmptyRepository();
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Name, SortDirection.Ascending);
+        var query = CreateQuery(1, 20, RecipeSortField.Name, SortDirection.Ascending);
         await handler.HandleAsync(query);
 
         await recipes.Received(1).GetByOwnerAsync(
@@ -158,7 +158,7 @@ public class GetRecipesQueryHandlerTests
     {
         SetupEmptyRepository();
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         await handler.HandleAsync(query);
 
         await recipes.Received(1).GetByOwnerAsync(
@@ -176,7 +176,7 @@ public class GetRecipesQueryHandlerTests
         SetupEmptyRepository();
         var cts = new CancellationTokenSource();
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         await handler.HandleAsync(query, cts.Token);
 
         await recipes.Received(1).GetByOwnerAsync(
@@ -194,7 +194,7 @@ public class GetRecipesQueryHandlerTests
         var recipe = CreateTestRecipeWithOptionals();
         SetupRepository([recipe], 1);
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
 
         var item = result.Value.Items[0];
@@ -212,7 +212,7 @@ public class GetRecipesQueryHandlerTests
         var recipe = CreateTestRecipe("Simple Recipe");
         SetupRepository([recipe], 1);
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
 
         var item = result.Value.Items[0];
@@ -232,7 +232,7 @@ public class GetRecipesQueryHandlerTests
         var recipe3 = CreateTestRecipe("Recipe Three");
         SetupRepository([recipe1, recipe2, recipe3], 3);
 
-        var query = new GetRecipesQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
 
         result.Value.Items.Should().HaveCount(3);
@@ -247,11 +247,17 @@ public class GetRecipesQueryHandlerTests
         var recipe = CreateTestRecipe("Only Recipe On Page");
         SetupRepository([recipe], 25);
 
-        var query = new GetRecipesQuery(2, 20, RecipeSortField.Date, SortDirection.Descending);
+        var query = CreateQuery(2, 20, RecipeSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
 
         result.Value.Items.Should().HaveCount(1);
         result.Value.TotalCount.Should().Be(25);
+    }
+
+    private static GetRecipesQuery CreateQuery(
+        int page, int pageSize, RecipeSortField sortBy, SortDirection sortDirection)
+    {
+        return new GetRecipesQuery(new Page(page), new PageSize(pageSize), sortBy, sortDirection);
     }
 
     private static Recipe CreateTestRecipe(string title)

@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
+
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 public interface IRecipeRepository

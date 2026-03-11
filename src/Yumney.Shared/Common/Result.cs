@@ -4,18 +4,18 @@ public class Result
 {
     public bool IsSuccess { get; }
 
-    public string? Error { get; }
+    public ApiError? Error { get; }
 
     public bool IsFailure => !IsSuccess;
 
-    protected Result(bool isSuccess, string? error)
+    protected Result(bool isSuccess, ApiError? error)
     {
         if (isSuccess && error is not null)
         {
             throw new InvalidOperationException("A successful result cannot have an error.");
         }
 
-        if (!isSuccess && string.IsNullOrWhiteSpace(error))
+        if (!isSuccess && error is null)
         {
             throw new InvalidOperationException("A failed result must have an error.");
         }
@@ -26,11 +26,11 @@ public class Result
 
     public static Result Success() => new(true, null);
 
-    public static Result Failure(string error) => new(false, error);
+    public static Result Failure(ApiError error) => new(false, error);
 
     public static Result<T> Success<T>(T value) => new(value, true, null);
 
-    public static Result<T> Failure<T>(string error) => new(default, false, error);
+    public static Result<T> Failure<T>(ApiError error) => new(default, false, error);
 }
 
 public class Result<T> : Result
@@ -41,7 +41,7 @@ public class Result<T> : Result
         ? value!
         : throw new InvalidOperationException("Cannot access value of a failed result.");
 
-    internal Result(T? value, bool isSuccess, string? error)
+    internal Result(T? value, bool isSuccess, ApiError? error)
         : base(isSuccess, error)
     {
         this.value = value;
@@ -49,5 +49,5 @@ public class Result<T> : Result
 
     public static Result<T> Success(T value) => new(value, true, null);
 
-    public static new Result<T> Failure(string error) => new(default, false, error);
+    public static new Result<T> Failure(ApiError error) => new(default, false, error);
 }

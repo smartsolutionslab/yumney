@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace SmartSolutionsLab.Yumney.Shared.Guards;
 
+#pragma warning disable CA1708 // Identifiers should differ by more than case (C# 14 extension blocks generate same-cased identifiers)
 public static class GuardExtensions
 {
     extension(GuardClause<string> guard)
@@ -64,133 +65,154 @@ public static class GuardExtensions
 
             return guard;
         }
+
+        public GuardClause<string> IsValidUrl()
+        {
+            if (string.IsNullOrWhiteSpace(guard.Value) ||
+                !Uri.TryCreate(guard.Value, UriKind.Absolute, out var uri) ||
+                (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be a valid HTTP(S) URL.");
+            }
+
+            return guard;
+        }
     }
 
-    public static GuardClause<int> IsPositive(this GuardClause<int> guard)
+    extension(GuardClause<int> guard)
     {
-        if (guard.Value <= 0)
+        public GuardClause<int> IsPositive()
         {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
+            if (guard.Value <= 0)
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
+            }
+
+            return guard;
         }
 
-        return guard;
-    }
-
-    public static GuardClause<decimal> IsPositive(this GuardClause<decimal> guard)
-    {
-        if (guard.Value <= 0)
+        public GuardClause<int> IsNotNegative()
         {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
+            if (guard.Value < 0)
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
+            }
+
+            return guard;
         }
 
-        return guard;
+        public GuardClause<int> IsInRange(int min, int max)
+        {
+            if (guard.Value < min || guard.Value > max)
+            {
+                throw new GuardException(
+                    guard.ParameterName,
+                    $"{guard.ParameterName} must be between {min} and {max}.");
+            }
+
+            return guard;
+        }
     }
 
-    public static GuardClause<decimal> IsNotNegative(this GuardClause<decimal> guard)
+    extension(GuardClause<decimal> guard)
     {
-        if (guard.Value < 0)
+        public GuardClause<decimal> IsPositive()
         {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
+            if (guard.Value <= 0)
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
+            }
+
+            return guard;
         }
 
-        return guard;
-    }
-
-    public static GuardClause<int> IsNotNegative(this GuardClause<int> guard)
-    {
-        if (guard.Value < 0)
+        public GuardClause<decimal> IsNotNegative()
         {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
+            if (guard.Value < 0)
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
+            }
+
+            return guard;
         }
 
-        return guard;
-    }
-
-    public static GuardClause<string> IsValidUrl(this GuardClause<string> guard)
-    {
-        if (string.IsNullOrWhiteSpace(guard.Value) ||
-            !Uri.TryCreate(guard.Value, UriKind.Absolute, out var uri) ||
-            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        public GuardClause<decimal> IsInRange(decimal min, decimal max)
         {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be a valid HTTP(S) URL.");
-        }
+            if (guard.Value < min || guard.Value > max)
+            {
+                throw new GuardException(
+                    guard.ParameterName,
+                    $"{guard.ParameterName} must be between {min} and {max}.");
+            }
 
-        return guard;
+            return guard;
+        }
     }
 
-    public static GuardClause<T> IsNotNull<T>(this GuardClause<T> guard)
+    extension(GuardClause<Guid> guard)
+    {
+        public GuardClause<Guid> IsNotEmpty()
+        {
+            if (guard.Value == Guid.Empty)
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be empty.");
+            }
+
+            return guard;
+        }
+    }
+
+    extension<T>(GuardClause<T> guard)
         where T : class
     {
-        if (guard.Value is null)
+        public GuardClause<T> IsNotNull()
         {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be null.");
-        }
+            if (guard.Value is null)
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be null.");
+            }
 
-        return guard;
+            return guard;
+        }
     }
 
-    public static GuardClause<IReadOnlyCollection<T>> IsNotEmpty<T>(this GuardClause<IReadOnlyCollection<T>> guard)
-    {
-        if (guard.Value is null || guard.Value.Count == 0)
-        {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be empty.");
-        }
-
-        return guard;
-    }
-
-    public static GuardClause<IEnumerable<T>> IsNotEmpty<T>(this GuardClause<IEnumerable<T>> guard)
-    {
-        if (guard.Value is null || !guard.Value.Any())
-        {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be empty.");
-        }
-
-        return guard;
-    }
-
-    public static GuardClause<T> IsDefinedEnum<T>(this GuardClause<T> guard)
+    extension<T>(GuardClause<T> guard)
         where T : struct, Enum
     {
-        if (!Enum.IsDefined(guard.Value))
+        public GuardClause<T> IsDefinedEnum()
         {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} is not a valid {typeof(T).Name}.");
-        }
+            if (!Enum.IsDefined(guard.Value))
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} is not a valid {typeof(T).Name}.");
+            }
 
-        return guard;
+            return guard;
+        }
     }
 
-    public static GuardClause<Guid> IsNotEmpty(this GuardClause<Guid> guard)
+    extension<T>(GuardClause<IReadOnlyCollection<T>> guard)
     {
-        if (guard.Value == Guid.Empty)
+        public GuardClause<IReadOnlyCollection<T>> IsNotEmpty()
         {
-            throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be empty.");
-        }
+            if (guard.Value is null || guard.Value.Count == 0)
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be empty.");
+            }
 
-        return guard;
+            return guard;
+        }
     }
 
-    public static GuardClause<int> IsInRange(this GuardClause<int> guard, int min, int max)
+    extension<T>(GuardClause<IEnumerable<T>> guard)
     {
-        if (guard.Value < min || guard.Value > max)
+        public GuardClause<IEnumerable<T>> IsNotEmpty()
         {
-            throw new GuardException(
-                guard.ParameterName,
-                $"{guard.ParameterName} must be between {min} and {max}.");
+            if (guard.Value is null || !guard.Value.Any())
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be empty.");
+            }
+
+            return guard;
         }
-
-        return guard;
-    }
-
-    public static GuardClause<decimal> IsInRange(this GuardClause<decimal> guard, decimal min, decimal max)
-    {
-        if (guard.Value < min || guard.Value > max)
-        {
-            throw new GuardException(
-                guard.ParameterName,
-                $"{guard.ParameterName} must be between {min} and {max}.");
-        }
-
-        return guard;
     }
 }

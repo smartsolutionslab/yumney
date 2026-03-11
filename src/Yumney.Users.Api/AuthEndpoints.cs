@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
-using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Api;
 
@@ -39,24 +38,12 @@ public static class AuthEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var command = new RegisterUserCommand(
-            new Email(request.Email),
-            new Password(request.Password),
-            new DisplayName(request.DisplayName));
-
+        var command = RegisterUserCommand.FromRequest(request.Email, request.Password, request.DisplayName);
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
-            return result.Error switch
-            {
-                RegistrationErrors.EmailAlreadyExists =>
-                    Results.Conflict(new { error = "A user with this email address already exists." }),
-                RegistrationErrors.IdentityProviderUnavailable =>
-                    Results.Problem("Identity provider is unavailable.", statusCode: 503),
-                _ =>
-                    Results.Problem("Failed to create user account.", statusCode: 500),
-            };
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
         }
 
         return Results.Created("/auth/register", result.Value);
@@ -75,17 +62,13 @@ public static class AuthEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var command = new ResendVerificationEmailCommand(new Email(request.Email));
-
+        var command = ResendVerificationEmailCommand.FromRequest(request.Email);
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        if (result.IsFailure)
+        // Always return 200 to prevent email enumeration
+        if (result.IsFailure && result.Error == VerificationErrors.IdentityProviderUnavailable)
         {
-            return result.Error switch
-            {
-                VerificationErrors.IdentityProviderUnavailable => Results.Problem("Identity provider is unavailable.", statusCode: 503),
-                _ => Results.Ok(new { message = "If this email is registered, a verification email has been sent." }),
-            };
+            return Results.Problem(result.Error.Message, statusCode: result.Error.HttpStatusCode);
         }
 
         return Results.Ok(new { message = "If this email is registered, a verification email has been sent." });

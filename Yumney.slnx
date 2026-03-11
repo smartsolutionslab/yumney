@@ -48,6 +48,7 @@
     <Folder Name="/tests/Users/">
       <Project Path="tests/Yumney.Users.Domain.Tests/Yumney.Users.Domain.Tests.csproj" />
       <Project Path="tests/Yumney.Users.Application.Tests/Yumney.Users.Application.Tests.csproj" />
+      <Project Path="tests/Yumney.Users.Infrastructure.Tests/Yumney.Users.Infrastructure.Tests.csproj" />
     </Folder>
     <Project Path="tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj" />
     <Project Path="tests/Yumney.Architecture.Tests/Yumney.Architecture.Tests.csproj" />

@@ -1,10 +1,12 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
+
 namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
 
 public static class VerificationErrors
 {
-    public const string UserNotFound = "VERIFICATION_USER_NOT_FOUND";
+    public static readonly ApiError UserNotFound = new("VERIFICATION_USER_NOT_FOUND", "User not found.", 404);
 
-    public const string IdentityProviderUnavailable = "VERIFICATION_IDP_UNAVAILABLE";
+    public static readonly ApiError IdentityProviderUnavailable = new("VERIFICATION_IDP_UNAVAILABLE", "Identity provider is unavailable.", 503);
 
-    public const string SendFailed = "VERIFICATION_SEND_FAILED";
+    public static readonly ApiError SendFailed = new("VERIFICATION_SEND_FAILED", "Failed to send verification email.", 500);
 }

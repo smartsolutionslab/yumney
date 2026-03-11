@@ -1,5 +1,6 @@
 using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
@@ -11,23 +12,17 @@ public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeReq
             .NotEmpty()
             .MaximumLength(RecipeTitle.MaxLength);
 
-        RuleFor(x => x.SourceUrl)
-            .MaximumLength(RecipeUrl.MaxLength)
-            .Must(url => Uri.TryCreate(url, UriKind.Absolute, out var uri)
-                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-            .WithMessage("A valid HTTP or HTTPS URL is required.")
+        RuleFor(x => x.SourceUrl!)
+            .MustBeValidHttpUrl(RecipeUrl.MaxLength)
             .When(x => !string.IsNullOrWhiteSpace(x.SourceUrl));
 
         RuleFor(x => x.Description)
             .MaximumLength(RecipeDescription.MaxLength)
             .When(x => x.Description is not null);
 
-        RuleFor(x => x.ImageUrl)
-            .MaximumLength(ImageUrl.MaxLength)
-            .Must(url => Uri.TryCreate(url, UriKind.Absolute, out var uri)
-                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-            .When(x => !string.IsNullOrWhiteSpace(x.ImageUrl))
-            .WithMessage("A valid HTTP or HTTPS image URL is required.");
+        RuleFor(x => x.ImageUrl!)
+            .MustBeValidHttpUrl(ImageUrl.MaxLength)
+            .When(x => !string.IsNullOrWhiteSpace(x.ImageUrl));
 
         RuleFor(x => x.Difficulty)
             .NotEmpty()

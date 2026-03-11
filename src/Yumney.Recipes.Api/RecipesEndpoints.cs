@@ -20,7 +20,7 @@ public static class RecipesEndpoints
         group.MapGet("/", GetAllAsync)
             .WithName("GetRecipes")
             .WithTags("Recipes")
-            .Produces<RecipeListDto>();
+            .Produces<PagedResult<RecipeListItemDto>>();
 
         group.MapGet("/{identifier:guid}", GetByIdAsync)
             .WithName("GetRecipeById")
@@ -49,22 +49,19 @@ public static class RecipesEndpoints
     }
 
     private static async Task<IResult> GetAllAsync(
-        IQueryHandler<GetRecipesQuery, Result<RecipeListDto>> handler,
+        IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>> handler,
         int page = 1,
         int pageSize = 20,
         RecipeSortField sortBy = RecipeSortField.Date,
         SortDirection sortDirection = SortDirection.Descending,
         CancellationToken cancellationToken = default)
     {
-        var clampedPageSize = Math.Clamp(pageSize, 1, 100);
-        var clampedPage = Math.Max(page, 1);
-
-        var query = new GetRecipesQuery(clampedPage, clampedPageSize, sortBy, sortDirection);
+        var query = GetRecipesQuery.FromRequest(page, pageSize, sortBy, sortDirection);
         var result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
         {
-            return Results.Problem("Failed to fetch recipes.", statusCode: 500);
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
         }
 
         return Results.Ok(result.Value);
@@ -83,32 +80,12 @@ public static class RecipesEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var command = new SaveRecipeCommand(
-            new RecipeTitle(request.Title),
-            request.Ingredients.Select(i => new SaveRecipeIngredientCommand(
-                new IngredientName(i.Name),
-                Amount.FromNullable(i.Amount),
-                Unit.FromNullable(i.Unit))).ToList(),
-            request.Steps.Select(s => new SaveRecipeStepCommand(
-                new StepNumber(s.Number),
-                new StepDescription(s.Description))).ToList(),
-            RecipeDescription.FromNullable(request.Description),
-            Servings.FromNullable(request.Servings),
-            PreparationTime.FromNullable(request.PrepTimeMinutes),
-            CookingTime.FromNullable(request.CookTimeMinutes),
-            Difficulty.FromNullable(request.Difficulty),
-            ImageUrl.FromNullable(request.ImageUrl),
-            SourceUrl: RecipeUrl.FromNullable(request.SourceUrl));
-
+        var command = SaveRecipeCommand.FromRequest(request);
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
-            return result.Error switch
-            {
-                SaveRecipeErrors.AlreadyImported => Results.Problem("This recipe has already been imported.", statusCode: 409),
-                _ => Results.Problem("Failed to save recipe.", statusCode: 500),
-            };
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
         }
 
         return Results.Created($"/api/v1/recipes/{result.Value.Identifier}", result.Value);
@@ -119,17 +96,12 @@ public static class RecipesEndpoints
         IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var query = new GetRecipeByIdQuery(identifier);
+        var query = GetRecipeByIdQuery.FromRequest(identifier);
         var result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
         {
-            return result.Error switch
-            {
-                GetRecipeByIdErrors.NotFound => Results.Problem("Recipe not found.", statusCode: 404),
-                GetRecipeByIdErrors.AccessDenied => Results.Problem("Recipe not found.", statusCode: 404),
-                _ => Results.Problem("Failed to fetch recipe.", statusCode: 500),
-            };
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
         }
 
         return Results.Ok(result.Value);
@@ -148,20 +120,12 @@ public static class RecipesEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var command = new ImportRecipeCommand(new RecipeUrl(request.Url));
-
+        var command = ImportRecipeCommand.FromRequest(request.Url);
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
-            return result.Error switch
-            {
-                ImportRecipeErrors.PageUnreachable => Results.Problem("Could not reach the website.", statusCode: 502),
-                ImportRecipeErrors.ScrapeTimeout => Results.Problem("Extraction timed out.", statusCode: 504),
-                ImportRecipeErrors.NoRecipeFound => Results.Problem("No recipe found on this page.", statusCode: 404),
-                ImportRecipeErrors.ExtractionFailed => Results.Problem("Recipe extraction failed.", statusCode: 500),
-                _ => Results.Problem("Failed to import recipe.", statusCode: 500),
-            };
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
         }
 
         return Results.Ok(result.Value);
