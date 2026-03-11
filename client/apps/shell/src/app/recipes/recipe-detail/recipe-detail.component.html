@@ -1,7 +1,5 @@
 <div class="recipe-detail-container" *transloco="let t">
-  <a routerLink="/recipes" class="back-link">
-    &larr; {{ t('recipes.detail.back') }}
-  </a>
+  <a routerLink="/recipes" class="back-link"> &larr; {{ t('recipes.detail.back') }} </a>
 
   @if (isLoading()) {
     <div class="loading">
@@ -32,25 +30,33 @@
     <div class="meta-bar">
       @if (recipe.servings) {
         <div class="meta-item">
-          <span class="meta-label">{{ t('recipes.detail.servings', { count: recipe.servings }) }}</span>
+          <span class="meta-label">{{
+            t('recipes.detail.servings', { count: recipe.servings })
+          }}</span>
         </div>
       }
       @if (recipe.prepTimeMinutes) {
         <div class="meta-item">
           <span class="meta-label">{{ t('recipes.detail.prepTime') }}</span>
-          <span class="meta-value">{{ t('recipes.detail.minutes', { minutes: recipe.prepTimeMinutes }) }}</span>
+          <span class="meta-value">{{
+            t('recipes.detail.minutes', { minutes: recipe.prepTimeMinutes })
+          }}</span>
         </div>
       }
       @if (recipe.cookTimeMinutes) {
         <div class="meta-item">
           <span class="meta-label">{{ t('recipes.detail.cookTime') }}</span>
-          <span class="meta-value">{{ t('recipes.detail.minutes', { minutes: recipe.cookTimeMinutes }) }}</span>
+          <span class="meta-value">{{
+            t('recipes.detail.minutes', { minutes: recipe.cookTimeMinutes })
+          }}</span>
         </div>
       }
       @if (totalTime()) {
         <div class="meta-item">
           <span class="meta-label">{{ t('recipes.detail.totalTime') }}</span>
-          <span class="meta-value">{{ t('recipes.detail.minutes', { minutes: totalTime() }) }}</span>
+          <span class="meta-value">{{
+            t('recipes.detail.minutes', { minutes: totalTime() })
+          }}</span>
         </div>
       }
       @if (recipe.difficulty) {
@@ -63,8 +69,12 @@
 
     <div class="actions-bar">
       <button class="action-button" disabled>{{ t('recipes.detail.actions.edit') }}</button>
-      <button class="action-button action-button--danger" disabled>{{ t('recipes.detail.actions.delete') }}</button>
-      <button class="action-button action-button--secondary" disabled>{{ t('recipes.detail.actions.shoppingList') }}</button>
+      <button class="action-button action-button--danger" disabled>
+        {{ t('recipes.detail.actions.delete') }}
+      </button>
+      <button class="action-button action-button--secondary" disabled>
+        {{ t('recipes.detail.actions.shoppingList') }}
+      </button>
     </div>
 
     <section class="ingredients-section">
