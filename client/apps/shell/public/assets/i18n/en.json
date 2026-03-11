@@ -93,6 +93,28 @@
       "errors": {
         "generic": "Failed to load recipes. Please try again later."
       }
+    },
+    "detail": {
+      "back": "Back to Recipes",
+      "servings": "{{count}} servings",
+      "prepTime": "Prep",
+      "cookTime": "Cook",
+      "totalTime": "Total",
+      "minutes": "{{minutes}} min",
+      "difficulty": "Difficulty",
+      "ingredients": "Ingredients",
+      "steps": "Steps",
+      "sourceUrl": "Original Recipe",
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "shoppingList": "Shopping List"
+      },
+      "loading": "Loading recipe...",
+      "notFound": "Recipe not found.",
+      "errors": {
+        "generic": "Failed to load recipe. Please try again later."
+      }
     }
   },
   "dashboard": {
