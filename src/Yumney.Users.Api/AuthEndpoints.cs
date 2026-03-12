@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
-using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Api;
 
@@ -39,9 +38,7 @@ public static class AuthEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var (email, password, displayName) = request;
-
-        var command = new RegisterUserCommand(new Email(email), new Password(password), new DisplayName(displayName));
+        var command = RegisterUserCommand.From(request.Email, request.Password, request.DisplayName);
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
@@ -65,8 +62,7 @@ public static class AuthEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var email = new Email(request.Email);
-        var command = new ResendVerificationEmailCommand(email);
+        var command = ResendVerificationEmailCommand.From(request.Email);
         var result = await handler.HandleAsync(command, cancellationToken);
 
         // Always return 200 to prevent email enumeration
