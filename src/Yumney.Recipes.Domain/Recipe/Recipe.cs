@@ -75,4 +75,35 @@ public sealed class Recipe : AggregateRoot<Guid>
 
         return recipe;
     }
+
+    public void Update(
+        RecipeTitle title,
+        IReadOnlyList<Ingredient> ingredients,
+        IReadOnlyList<Step> steps,
+        RecipeDescription? description = null,
+        Servings? servings = null,
+        PreparationTime? preparationTime = null,
+        CookingTime? cookingTime = null,
+        Difficulty? difficulty = null,
+        ImageUrl? imageUrl = null)
+    {
+        Ensure.That((IReadOnlyCollection<Ingredient>)ingredients).IsNotEmpty();
+        Ensure.That((IReadOnlyCollection<Step>)steps).IsNotEmpty();
+
+        Title = title;
+        Description = description;
+        Servings = servings;
+        PreparationTime = preparationTime;
+        CookingTime = cookingTime;
+        Difficulty = difficulty;
+        ImageUrl = imageUrl;
+
+        this.ingredients.Clear();
+        this.ingredients.AddRange(ingredients);
+
+        this.steps.Clear();
+        this.steps.AddRange(steps);
+
+        AddDomainEvent(new RecipeUpdatedEvent(new RecipeIdentifier(Id), title));
+    }
 }

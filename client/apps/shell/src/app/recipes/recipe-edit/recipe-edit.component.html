@@ -1,0 +1,26 @@
+<div class="recipe-edit-container" *transloco="let t">
+  <a [routerLink]="['/recipes', identifier]" class="back-link">
+    &larr; {{ t('recipes.edit.back') }}
+  </a>
+
+  @if (isLoading()) {
+    <div class="loading">
+      <span class="spinner"></span>
+      <span>{{ t('recipes.edit.loading') }}</span>
+    </div>
+  }
+
+  @if (serverError()) {
+    <div class="error-banner">{{ t(serverError()!) }}</div>
+  }
+
+  @if (recipeData(); as recipe) {
+    <yn-recipe-preview
+      [recipe]="recipe"
+      [isSaving]="isSaving()"
+      [previewTitle]="t('recipes.edit.title')"
+      (save)="onSave($event)"
+      (discard)="onDiscard()"
+    />
+  }
+</div>

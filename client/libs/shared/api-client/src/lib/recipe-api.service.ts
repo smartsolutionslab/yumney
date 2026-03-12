@@ -43,6 +43,18 @@ export interface SaveRecipeRequest {
   sourceUrl?: string;
 }
 
+export interface UpdateRecipeRequest {
+  title: string;
+  description: string | null;
+  ingredients: { name: string; amount: number | null; unit: string | null }[];
+  steps: { number: number; description: string }[];
+  servings: number | null;
+  prepTimeMinutes: number | null;
+  cookTimeMinutes: number | null;
+  difficulty: string | null;
+  imageUrl: string | null;
+}
+
 export interface SavedRecipeResponse {
   identifier: string;
   title: string;
@@ -103,6 +115,10 @@ export class RecipeApiService {
 
   saveRecipe(request: SaveRecipeRequest): Observable<SavedRecipeResponse> {
     return this.http.post<SavedRecipeResponse>('/api/v1/recipes', request);
+  }
+
+  updateRecipe(identifier: string, request: UpdateRecipeRequest): Observable<RecipeDetail> {
+    return this.http.put<RecipeDetail>(`/api/v1/recipes/${identifier}`, request);
   }
 
   getRecipeById(identifier: string): Observable<RecipeDetail> {

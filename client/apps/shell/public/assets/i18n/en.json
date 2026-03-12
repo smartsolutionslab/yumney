@@ -100,6 +100,16 @@
         "generic": "Failed to load recipes. Please try again later."
       }
     },
+    "edit": {
+      "title": "Edit Recipe",
+      "back": "Back to Recipe",
+      "loading": "Loading recipe...",
+      "success": "Recipe \"{{title}}\" updated successfully!",
+      "errors": {
+        "notFound": "Recipe not found.",
+        "generic": "Failed to update recipe. Please try again later."
+      }
+    },
     "detail": {
       "back": "Back to Recipes",
       "servings": "{{count}} servings",

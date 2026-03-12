@@ -15,4 +15,6 @@ public interface IRecipeRepository
         PagingOptions paging,
         SortingOptions<RecipeSortField> sorting,
         CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(Recipe recipe, CancellationToken cancellationToken = default);
 }

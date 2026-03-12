@@ -44,6 +44,13 @@ public static class RecipesEndpoints
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status409Conflict);
 
+        group.MapPut("/{identifier:guid}", UpdateAsync)
+            .WithName("UpdateRecipe")
+            .WithTags("Recipes")
+            .Produces<RecipeDetailDto>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 
@@ -97,6 +104,31 @@ public static class RecipesEndpoints
     {
         var query = GetRecipeByIdQuery.From(identifier);
         var result = await handler.HandleAsync(query, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
+        }
+
+        return Results.Ok(result.Value);
+    }
+
+    private static async Task<IResult> UpdateAsync(
+        Guid identifier,
+        UpdateRecipeRequest request,
+        IValidator<UpdateRecipeRequest> validator,
+        ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            return Results.ValidationProblem(validationResult.ToDictionary());
+        }
+
+        var command = UpdateRecipeCommand.From(identifier, request);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
         {
