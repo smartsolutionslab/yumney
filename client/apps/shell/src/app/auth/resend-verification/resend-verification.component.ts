@@ -56,9 +56,7 @@ export class ResendVerificationComponent {
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading.set(false);
-          this.serverError.set(
-            mapHttpError(err, ResendVerificationComponent.resendErrorMap),
-          );
+          this.serverError.set(mapHttpError(err, ResendVerificationComponent.resendErrorMap));
         },
       });
   }

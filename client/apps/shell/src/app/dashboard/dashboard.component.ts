@@ -50,10 +50,7 @@ export class DashboardComponent {
   isManualEntry = signal(false);
 
   form = this.fb.nonNullable.group({
-    url: [
-      '',
-      [Validators.required, Validators.maxLength(VALIDATION.URL_MAX_LENGTH), urlValidator],
-    ],
+    url: ['', [Validators.required, Validators.maxLength(VALIDATION.URL_MAX_LENGTH), urlValidator]],
   });
 
   onImport(): void {
