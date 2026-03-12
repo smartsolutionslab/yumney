@@ -64,11 +64,11 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         }
         catch (Exception ex)
         {
-            LogLlmCallFailed(content.SourceUrl, ex.Message);
+            LogLlmCallFailed(content.SourceUrl.Value, ex.Message);
             return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
         }
 
-        return ParseResponse(response, content.SourceUrl);
+        return ParseResponse(response, content.SourceUrl.Value);
     }
 
     private static string ExtractJson(string response)

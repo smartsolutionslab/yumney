@@ -26,12 +26,12 @@ public sealed class AppUserProfile : AggregateRoot<Guid>
         };
     }
 
-    public void ChangePreferredLanguage(PreferredLanguage language)
+    public void SwitchLanguageTo(PreferredLanguage language)
     {
         PreferredLanguage = language;
     }
 
-    public void ChangePreferredUnitSystem(PreferredUnitSystem unitSystem)
+    public void SwitchUnitSystemTo(PreferredUnitSystem unitSystem)
     {
         PreferredUnitSystem = unitSystem;
     }

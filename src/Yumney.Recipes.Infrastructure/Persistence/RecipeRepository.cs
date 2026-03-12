@@ -14,46 +14,41 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<Recipe?> GetByIdAsync(Guid identifier, CancellationToken cancellationToken = default)
+    public async Task<Recipe?> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
     {
         return await recipes
             .Include(r => r.Ingredients)
             .Include(r => r.Steps)
-            .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
+            .FirstOrDefaultAsync(r => r.Id == identifier.Value, cancellationToken);
     }
 
     public async Task<bool> ExistsBySourceUrlAsync(RecipeUrl sourceUrl, OwnerIdentifier owner, CancellationToken cancellationToken = default)
     {
-        return await recipes.AnyAsync(
-            r => r.SourceUrl == sourceUrl && r.Owner == owner,
-            cancellationToken);
+        return await recipes.AnyAsync(r => r.SourceUrl == sourceUrl && r.Owner == owner, cancellationToken);
     }
 
     public async Task<(IReadOnlyList<Recipe> Items, int TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
-        int skip,
-        int take,
-        RecipeSortField sortBy,
-        SortDirection sortDirection,
+        PagingOptions paging,
+        SortingOptions<RecipeSortField> sorting,
         CancellationToken cancellationToken = default)
     {
         var query = recipes.Where(r => r.Owner == owner);
 
-        query = (sortBy, sortDirection) switch
+        query = (sorting.SortBy, sorting.Direction) switch
         {
             (RecipeSortField.Name, SortDirection.Ascending) => query.OrderBy(r => r.Title),
             (RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(r => r.Title),
             (RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
             (RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
-            _ => throw new InvalidOperationException(
-                $"Unsupported sort combination: {sortBy}, {sortDirection}"),
+            _ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
         };
 
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
-            .Skip(skip)
-            .Take(take)
+            .Skip(paging.Skip)
+            .Take(paging.PageSize.Value)
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);

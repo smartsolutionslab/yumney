@@ -25,7 +25,7 @@ public class WebScraperTests
         result.IsSuccess.Should().BeTrue();
         result.Value.CleanedText.Should().Contain("Recipe");
         result.Value.CleanedText.Should().Contain("Delicious pasta");
-        result.Value.SourceUrl.Should().Be("https://example.com/recipe");
+        result.Value.SourceUrl.Should().Be(new RecipeUrl("https://example.com/recipe"));
     }
 
     [Fact]

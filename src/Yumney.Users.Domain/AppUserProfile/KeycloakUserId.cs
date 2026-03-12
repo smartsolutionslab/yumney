@@ -4,12 +4,15 @@ namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 public sealed record KeycloakUserId
 {
+    public const int MaxLength = 255;
+
     public string Value { get; }
 
     public KeycloakUserId(string value)
     {
         Value = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
+            .HasMaxLength(MaxLength)
             .AndReturn();
     }
 

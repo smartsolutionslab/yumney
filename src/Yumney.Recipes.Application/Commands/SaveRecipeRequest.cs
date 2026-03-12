@@ -11,7 +11,3 @@ public sealed record SaveRecipeRequest(
     string? Difficulty,
     string? ImageUrl,
     string? SourceUrl = null);
-
-public sealed record SaveRecipeIngredientRequest(string Name, decimal? Amount, string? Unit);
-
-public sealed record SaveRecipeStepRequest(int Number, string Description);

@@ -49,7 +49,6 @@ public sealed partial class SaveRecipeCommandHandler(
         await recipes.AddAsync(recipe, cancellationToken);
 
         LogRecipeSaved(recipe.Id, title.Value);
-
         return Result<SavedRecipeDto>.Success(
             new SavedRecipeDto(recipe.Id, title.Value, recipe.CreatedAt));
     }
@@ -57,6 +56,6 @@ public sealed partial class SaveRecipeCommandHandler(
     [LoggerMessage(Level = LogLevel.Warning, Message = "Duplicate import attempt for URL {SourceUrl} by owner {Owner}")]
     private partial void LogDuplicateImport(string sourceUrl, string owner);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Recipe {RecipeId} '{Title}' saved successfully")]
-    private partial void LogRecipeSaved(Guid recipeId, string title);
+    [LoggerMessage(Level = LogLevel.Information, Message = "Recipe {RecipeIdentifier} '{Title}' saved successfully")]
+    private partial void LogRecipeSaved(Guid recipeIdentifier, string title);
 }

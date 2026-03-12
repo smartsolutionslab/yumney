@@ -15,19 +15,19 @@ public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes,
         var identifier = query.Identifier;
         var owner = new OwnerIdentifier(currentUser.UserId);
 
-        LogGetRecipeById(identifier.Value, owner.Value);
+        LogGetRecipeById(identifier, owner.Value);
 
-        var recipe = await recipes.GetByIdAsync(identifier.Value, cancellationToken);
+        var recipe = await recipes.GetByIdAsync(identifier, cancellationToken);
 
         if (recipe is null)
         {
-            LogRecipeNotFound(identifier.Value);
+            LogRecipeNotFound(identifier);
             return Result<RecipeDetailDto>.Failure(GetRecipeByIdErrors.NotFound);
         }
 
         if (recipe.Owner != owner)
         {
-            LogRecipeAccessDenied(identifier.Value, owner.Value);
+            LogRecipeAccessDenied(identifier, owner.Value);
             return Result<RecipeDetailDto>.Failure(GetRecipeByIdErrors.AccessDenied);
         }
 
@@ -53,12 +53,12 @@ public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes,
         return Result<RecipeDetailDto>.Success(dto);
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipe {RecipeId} for owner {OwnerId}")]
-    private partial void LogGetRecipeById(Guid recipeId, string ownerId);
+    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipe {RecipeIdentifier} for owner {OwnerId}")]
+    private partial void LogGetRecipeById(RecipeIdentifier recipeIdentifier, string ownerId);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Recipe {RecipeId} not found")]
-    private partial void LogRecipeNotFound(Guid recipeId);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Recipe {RecipeIdentifier} not found")]
+    private partial void LogRecipeNotFound(RecipeIdentifier recipeIdentifier);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Access denied to recipe {RecipeId} for owner {OwnerId}")]
-    private partial void LogRecipeAccessDenied(Guid recipeId, string ownerId);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Access denied to recipe {RecipeIdentifier} for owner {OwnerId}")]
+    private partial void LogRecipeAccessDenied(RecipeIdentifier recipeIdentifier, string ownerId);
 }

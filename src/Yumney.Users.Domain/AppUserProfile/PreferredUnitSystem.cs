@@ -4,13 +4,15 @@ namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 public sealed record PreferredUnitSystem
 {
+    public const int MaxLength = 20;
+
     public string Value { get; }
 
     public PreferredUnitSystem(string value)
     {
         Value = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
-            .HasMaxLength(20)
+            .HasMaxLength(MaxLength)
             .AndReturn();
     }
 

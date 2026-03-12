@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Users.Application\Yumney.Users.Application.csproj" />
+    <ProjectReference Include="..\Yumney.Users.Domain\Yumney.Users.Domain.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Persistence\Yumney.Shared.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

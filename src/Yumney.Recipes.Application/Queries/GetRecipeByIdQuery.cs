@@ -5,7 +5,4 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 
-public sealed record GetRecipeByIdQuery(RecipeIdentifier Identifier) : IQuery<Result<RecipeDetailDto>>
-{
-    public static GetRecipeByIdQuery FromRequest(Guid identifier) => new(new RecipeIdentifier(identifier));
-}
+public sealed record GetRecipeByIdQuery(RecipeIdentifier Identifier) : IQuery<Result<RecipeDetailDto>>;

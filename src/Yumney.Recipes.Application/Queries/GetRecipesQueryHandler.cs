@@ -15,15 +15,13 @@ public sealed partial class GetRecipesQueryHandler(
 {
     public async Task<Result<PagedResult<RecipeListItemDto>>> HandleAsync(GetRecipesQuery query, CancellationToken cancellationToken = default)
     {
-        var (page, pageSize, sortBy, sortDirection) = query;
+        var (paging, sorting) = query;
         var owner = new OwnerIdentifier(currentUser.UserId);
 
-        LogGetRecipes(owner.Value, page.Value, pageSize.Value);
-
-        var skip = page.SkipCount(pageSize);
+        LogGetRecipes(owner.Value, paging.Page.Value, paging.PageSize.Value);
 
         var (items, totalCount) = await recipes.GetByOwnerAsync(
-            owner, skip, pageSize.Value, sortBy, sortDirection, cancellationToken);
+            owner, paging, sorting, cancellationToken);
 
         var dtoItems = items.Select(r => new RecipeListItemDto(
             r.Id,
@@ -37,7 +35,7 @@ public sealed partial class GetRecipesQueryHandler(
             r.CreatedAt)).ToList();
 
         return Result<PagedResult<RecipeListItemDto>>.Success(
-            new PagedResult<RecipeListItemDto>(dtoItems, totalCount, page.Value, pageSize.Value));
+            new PagedResult<RecipeListItemDto>(dtoItems, totalCount, paging.Page.Value, paging.PageSize.Value));
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipes for owner {OwnerId}, page {Page}, pageSize {PageSize}")]

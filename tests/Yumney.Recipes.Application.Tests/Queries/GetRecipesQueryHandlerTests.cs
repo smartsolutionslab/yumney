@@ -95,10 +95,8 @@ public class GetRecipesQueryHandlerTests
 
         await recipes.Received(1).GetByOwnerAsync(
             Arg.Is<OwnerIdentifier>(o => o.Value == "specific-user-id"),
-            Arg.Any<int>(),
-            Arg.Any<int>(),
-            Arg.Any<RecipeSortField>(),
-            Arg.Any<SortDirection>(),
+            Arg.Any<PagingOptions>(),
+            Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -112,10 +110,8 @@ public class GetRecipesQueryHandlerTests
 
         await recipes.Received(1).GetByOwnerAsync(
             Arg.Any<OwnerIdentifier>(),
-            20,
-            10,
-            Arg.Any<RecipeSortField>(),
-            Arg.Any<SortDirection>(),
+            Arg.Is<PagingOptions>(p => p.Skip == 20 && p.PageSize.Value == 10),
+            Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -129,10 +125,8 @@ public class GetRecipesQueryHandlerTests
 
         await recipes.Received(1).GetByOwnerAsync(
             Arg.Any<OwnerIdentifier>(),
-            0,
-            20,
-            Arg.Any<RecipeSortField>(),
-            Arg.Any<SortDirection>(),
+            Arg.Is<PagingOptions>(p => p.Skip == 0 && p.PageSize.Value == 20),
+            Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -146,10 +140,8 @@ public class GetRecipesQueryHandlerTests
 
         await recipes.Received(1).GetByOwnerAsync(
             Arg.Any<OwnerIdentifier>(),
-            Arg.Any<int>(),
-            Arg.Any<int>(),
-            RecipeSortField.Name,
-            SortDirection.Ascending,
+            Arg.Any<PagingOptions>(),
+            Arg.Is<SortingOptions<RecipeSortField>>(s => s.SortBy == RecipeSortField.Name && s.Direction == SortDirection.Ascending),
             Arg.Any<CancellationToken>());
     }
 
@@ -163,10 +155,8 @@ public class GetRecipesQueryHandlerTests
 
         await recipes.Received(1).GetByOwnerAsync(
             Arg.Any<OwnerIdentifier>(),
-            Arg.Any<int>(),
-            Arg.Any<int>(),
-            RecipeSortField.Date,
-            SortDirection.Descending,
+            Arg.Any<PagingOptions>(),
+            Arg.Is<SortingOptions<RecipeSortField>>(s => s.SortBy == RecipeSortField.Date && s.Direction == SortDirection.Descending),
             Arg.Any<CancellationToken>());
     }
 
@@ -181,10 +171,8 @@ public class GetRecipesQueryHandlerTests
 
         await recipes.Received(1).GetByOwnerAsync(
             Arg.Any<OwnerIdentifier>(),
-            Arg.Any<int>(),
-            Arg.Any<int>(),
-            Arg.Any<RecipeSortField>(),
-            Arg.Any<SortDirection>(),
+            Arg.Any<PagingOptions>(),
+            Arg.Any<SortingOptions<RecipeSortField>>(),
             cts.Token);
     }
 
@@ -257,7 +245,9 @@ public class GetRecipesQueryHandlerTests
     private static GetRecipesQuery CreateQuery(
         int page, int pageSize, RecipeSortField sortBy, SortDirection sortDirection)
     {
-        return new GetRecipesQuery(new Page(page), new PageSize(pageSize), sortBy, sortDirection);
+        var paging = PagingOptions.From(new Page(page), new PageSize(pageSize));
+        var sorting = new SortingOptions<RecipeSortField>(sortBy, sortDirection);
+        return new GetRecipesQuery(paging, sorting);
     }
 
     private static Recipe CreateTestRecipe(string title)
@@ -293,10 +283,8 @@ public class GetRecipesQueryHandlerTests
     {
         recipes.GetByOwnerAsync(
             Arg.Any<OwnerIdentifier>(),
-            Arg.Any<int>(),
-            Arg.Any<int>(),
-            Arg.Any<RecipeSortField>(),
-            Arg.Any<SortDirection>(),
+            Arg.Any<PagingOptions>(),
+            Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<CancellationToken>())
             .Returns((items, totalCount));
     }

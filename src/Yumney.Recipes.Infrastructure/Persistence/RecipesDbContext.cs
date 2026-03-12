@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 

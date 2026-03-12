@@ -9,6 +9,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Users.Infrastructure;
 
 namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
 

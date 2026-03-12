@@ -71,7 +71,7 @@ public sealed class Recipe : AggregateRoot<Guid>
         recipe.ingredients.AddRange(ingredients);
         recipe.steps.AddRange(steps);
 
-        recipe.AddDomainEvent(new RecipeSavedEvent(recipe.Id, title));
+        recipe.AddDomainEvent(new RecipeSavedEvent(new RecipeIdentifier(recipe.Id), title));
 
         return recipe;
     }

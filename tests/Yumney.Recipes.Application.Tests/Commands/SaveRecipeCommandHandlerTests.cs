@@ -105,10 +105,10 @@ public class SaveRecipeCommandHandlerTests
         var command = new SaveRecipeCommand(
             new RecipeTitle("Test"),
             [
-                new SaveRecipeIngredientCommand(new IngredientName("Flour"), new Amount(500), new Unit("g")),
-                new SaveRecipeIngredientCommand(new IngredientName("Sugar"), new Amount(100), null),
+                new SaveRecipeIngredientItem(new IngredientName("Flour"), new Amount(500), new Unit("g")),
+                new SaveRecipeIngredientItem(new IngredientName("Sugar"), new Amount(100), null),
             ],
-            [new SaveRecipeStepCommand(new StepNumber(1), new StepDescription("Mix"))],
+            [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))],
             SourceUrl: new RecipeUrl("https://example.com/recipe"));
 
         await handler.HandleAsync(command);
@@ -128,10 +128,10 @@ public class SaveRecipeCommandHandlerTests
 
         var command = new SaveRecipeCommand(
             new RecipeTitle("Test"),
-            [new SaveRecipeIngredientCommand(new IngredientName("Flour"), null, null)],
+            [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
             [
-                new SaveRecipeStepCommand(new StepNumber(1), new StepDescription("Preheat oven")),
-                new SaveRecipeStepCommand(new StepNumber(2), new StepDescription("Mix ingredients")),
+                new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Preheat oven")),
+                new SaveRecipeStepItem(new StepNumber(2), new StepDescription("Mix ingredients")),
             ],
             SourceUrl: new RecipeUrl("https://example.com/recipe"));
 
@@ -151,8 +151,8 @@ public class SaveRecipeCommandHandlerTests
 
         var command = new SaveRecipeCommand(
             new RecipeTitle("Test"),
-            [new SaveRecipeIngredientCommand(new IngredientName("Flour"), null, null)],
-            [new SaveRecipeStepCommand(new StepNumber(1), new StepDescription("Mix"))],
+            [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
+            [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))],
             new RecipeDescription("A test recipe"),
             new Servings(4),
             new PreparationTime(10),
@@ -209,8 +209,8 @@ public class SaveRecipeCommandHandlerTests
     {
         var command = new SaveRecipeCommand(
             new RecipeTitle("Manual Recipe"),
-            [new SaveRecipeIngredientCommand(new IngredientName("Flour"), null, null)],
-            [new SaveRecipeStepCommand(new StepNumber(1), new StepDescription("Mix"))]);
+            [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
+            [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))]);
 
         await handler.HandleAsync(command);
 
@@ -225,8 +225,8 @@ public class SaveRecipeCommandHandlerTests
     {
         var command = new SaveRecipeCommand(
             new RecipeTitle("Manual Recipe"),
-            [new SaveRecipeIngredientCommand(new IngredientName("Flour"), null, null)],
-            [new SaveRecipeStepCommand(new StepNumber(1), new StepDescription("Mix"))]);
+            [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
+            [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))]);
 
         var result = await handler.HandleAsync(command);
 
@@ -243,8 +243,8 @@ public class SaveRecipeCommandHandlerTests
 
         var command = new SaveRecipeCommand(
             new RecipeTitle("Manual Recipe"),
-            [new SaveRecipeIngredientCommand(new IngredientName("Flour"), null, null)],
-            [new SaveRecipeStepCommand(new StepNumber(1), new StepDescription("Mix"))]);
+            [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
+            [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))]);
 
         await handler.HandleAsync(command);
 
@@ -256,8 +256,8 @@ public class SaveRecipeCommandHandlerTests
     {
         return new SaveRecipeCommand(
             new RecipeTitle("Pasta Carbonara"),
-            [new SaveRecipeIngredientCommand(new IngredientName("Spaghetti"), new Amount(400), new Unit("g"))],
-            [new SaveRecipeStepCommand(new StepNumber(1), new StepDescription("Cook pasta"))],
+            [new SaveRecipeIngredientItem(new IngredientName("Spaghetti"), new Amount(400), new Unit("g"))],
+            [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Cook pasta"))],
             SourceUrl: new RecipeUrl("https://example.com/recipe"));
     }
 }

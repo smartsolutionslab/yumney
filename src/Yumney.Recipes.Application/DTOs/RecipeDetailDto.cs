@@ -13,7 +13,3 @@ public sealed record RecipeDetailDto(
     DateTime CreatedAt,
     IReadOnlyList<RecipeIngredientDto> Ingredients,
     IReadOnlyList<RecipeStepDto> Steps);
-
-public sealed record RecipeIngredientDto(string Name, decimal? Amount, string? Unit);
-
-public sealed record RecipeStepDto(int Number, string Description);

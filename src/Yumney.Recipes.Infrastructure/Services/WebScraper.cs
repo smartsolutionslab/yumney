@@ -41,7 +41,7 @@ public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper
             return Result<ScrapedContent>.Failure(ImportRecipeErrors.NoRecipeFound);
         }
 
-        return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url.Value));
+        return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
     }
 
     private static async Task<string> CleanHtmlAsync(string html, CancellationToken cancellationToken)

@@ -4,13 +4,15 @@ namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 public sealed record PreferredLanguage
 {
+    public const int MaxLength = 10;
+
     public string Value { get; }
 
     public PreferredLanguage(string value)
     {
         Value = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
-            .HasMaxLength(10)
+            .HasMaxLength(MaxLength)
             .AndReturn();
     }
 

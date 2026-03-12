@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { PagedResponse, PaginationParams } from '@yumney/shared/models';
 
 export interface ImportRecipeRequest {
   url: string;
@@ -60,18 +61,10 @@ export interface RecipeListItem {
   createdAt: string;
 }
 
-export interface RecipeListResponse {
-  items: RecipeListItem[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-}
+export type RecipeListResponse = PagedResponse<RecipeListItem>;
 
-export interface GetRecipesParams {
-  page?: number;
-  pageSize?: number;
+export interface GetRecipesParams extends PaginationParams {
   sortBy?: 'Name' | 'Date';
-  sortDirection?: 'Ascending' | 'Descending';
 }
 
 export interface RecipeIngredient {
