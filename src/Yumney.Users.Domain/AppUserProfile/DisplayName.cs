@@ -4,13 +4,15 @@ namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 public sealed record DisplayName
 {
+    public const int MaxLength = 200;
+
     public string Value { get; }
 
     public DisplayName(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
-            .HasMaxLength(200)
+            .HasMaxLength(MaxLength)
             .AndReturn();
         Value = validated.Trim();
     }

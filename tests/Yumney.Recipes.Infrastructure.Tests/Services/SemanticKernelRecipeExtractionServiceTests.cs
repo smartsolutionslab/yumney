@@ -7,6 +7,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 using Xunit;
 
@@ -41,7 +42,7 @@ public class SemanticKernelRecipeExtractionServiceTests
     public async Task ExtractAsync_ValidRecipeJson_ReturnsExtractedRecipe()
     {
         var sut = CreateSut(validRecipeJson);
-        var content = new ScrapedContent("Some recipe text", "https://example.com/recipe");
+        var content = new ScrapedContent("Some recipe text", new RecipeUrl("https://example.com/recipe"));
 
         var result = await sut.ExtractAsync(content);
 
@@ -62,7 +63,7 @@ public class SemanticKernelRecipeExtractionServiceTests
     {
         var wrapped = $"```json\n{validRecipeJson}\n```";
         var sut = CreateSut(wrapped);
-        var content = new ScrapedContent("Some recipe text", "https://example.com/recipe");
+        var content = new ScrapedContent("Some recipe text", new RecipeUrl("https://example.com/recipe"));
 
         var result = await sut.ExtractAsync(content);
 
@@ -75,7 +76,7 @@ public class SemanticKernelRecipeExtractionServiceTests
     {
         var wrapped = $"```\n{validRecipeJson}\n```";
         var sut = CreateSut(wrapped);
-        var content = new ScrapedContent("Some recipe text", "https://example.com/recipe");
+        var content = new ScrapedContent("Some recipe text", new RecipeUrl("https://example.com/recipe"));
 
         var result = await sut.ExtractAsync(content);
 
@@ -87,7 +88,7 @@ public class SemanticKernelRecipeExtractionServiceTests
     public async Task ExtractAsync_NoRecipeFoundResponse_ReturnsNoRecipeFound()
     {
         var sut = CreateSut("""{ "error": "NO_RECIPE_FOUND" }""");
-        var content = new ScrapedContent("Random page text", "https://example.com/page");
+        var content = new ScrapedContent("Random page text", new RecipeUrl("https://example.com/page"));
 
         var result = await sut.ExtractAsync(content);
 
@@ -99,7 +100,7 @@ public class SemanticKernelRecipeExtractionServiceTests
     public async Task ExtractAsync_InvalidJson_ReturnsExtractionFailed()
     {
         var sut = CreateSut("this is not valid JSON at all");
-        var content = new ScrapedContent("Some text", "https://example.com/page");
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
 
         var result = await sut.ExtractAsync(content);
 
@@ -111,7 +112,7 @@ public class SemanticKernelRecipeExtractionServiceTests
     public async Task ExtractAsync_LlmThrowsException_ReturnsExtractionFailed()
     {
         var sut = CreateSutWithException(new HttpRequestException("Service unavailable"));
-        var content = new ScrapedContent("Some text", "https://example.com/page");
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
 
         var result = await sut.ExtractAsync(content);
 
@@ -126,7 +127,7 @@ public class SemanticKernelRecipeExtractionServiceTests
         await cts.CancelAsync();
 
         var sut = CreateSutWithException(new OperationCanceledException(cts.Token));
-        var content = new ScrapedContent("Some text", "https://example.com/page");
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
 
         var act = () => sut.ExtractAsync(content, cts.Token);
 
@@ -144,7 +145,7 @@ public class SemanticKernelRecipeExtractionServiceTests
             }
             """;
         var sut = CreateSut(json);
-        var content = new ScrapedContent("Some text", "https://example.com/page");
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
 
         var result = await sut.ExtractAsync(content);
 
@@ -159,7 +160,7 @@ public class SemanticKernelRecipeExtractionServiceTests
     public async Task ExtractAsync_EmptyContent_ReturnsExtractionFailed()
     {
         var sut = CreateSut(string.Empty);
-        var content = new ScrapedContent("Some text", "https://example.com/page");
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
 
         var result = await sut.ExtractAsync(content);
 
@@ -171,7 +172,7 @@ public class SemanticKernelRecipeExtractionServiceTests
     public async Task ExtractAsync_NullLlmContent_ReturnsExtractionFailed()
     {
         var sut = CreateSutWithNullContent();
-        var content = new ScrapedContent("Some text", "https://example.com/page");
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
 
         var result = await sut.ExtractAsync(content);
 

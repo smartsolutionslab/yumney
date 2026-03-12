@@ -32,22 +32,3 @@ public class Result
 
     public static Result<T> Failure<T>(ApiError error) => new(default, false, error);
 }
-
-public class Result<T> : Result
-{
-    private readonly T? value;
-
-    public T Value => IsSuccess
-        ? value!
-        : throw new InvalidOperationException("Cannot access value of a failed result.");
-
-    internal Result(T? value, bool isSuccess, ApiError? error)
-        : base(isSuccess, error)
-    {
-        this.value = value;
-    }
-
-    public static Result<T> Success(T value) => new(value, true, null);
-
-    public static new Result<T> Failure(ApiError error) => new(default, false, error);
-}

@@ -20,7 +20,7 @@ public class ImportRecipeCommandHandlerTests
     public async Task HandleAsync_ValidUrl_ReturnsExtractedRecipe()
     {
         var url = new RecipeUrl("https://example.com/recipe");
-        var scrapedContent = new ScrapedContent("Recipe content", url.Value);
+        var scrapedContent = new ScrapedContent("Recipe content", url);
         var expectedRecipe = CreateExtractedRecipe("Pasta Carbonara");
 
         scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
@@ -54,7 +54,7 @@ public class ImportRecipeCommandHandlerTests
     public async Task HandleAsync_NoRecipeFound_ReturnsFailure()
     {
         var url = new RecipeUrl("https://example.com/recipe");
-        var scrapedContent = new ScrapedContent("Some content", url.Value);
+        var scrapedContent = new ScrapedContent("Some content", url);
 
         scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
             .Returns(Result<ScrapedContent>.Success(scrapedContent));
@@ -72,7 +72,7 @@ public class ImportRecipeCommandHandlerTests
     public async Task HandleAsync_ScrapeSucceeds_CallsExtraction()
     {
         var url = new RecipeUrl("https://example.com/recipe");
-        var scrapedContent = new ScrapedContent("Recipe content", url.Value);
+        var scrapedContent = new ScrapedContent("Recipe content", url);
         var expectedRecipe = CreateExtractedRecipe();
 
         scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
@@ -120,7 +120,7 @@ public class ImportRecipeCommandHandlerTests
     public async Task HandleAsync_ExtractionFailed_PropagatesExtractionError()
     {
         var url = new RecipeUrl("https://example.com/recipe");
-        var scrapedContent = new ScrapedContent("Some content", url.Value);
+        var scrapedContent = new ScrapedContent("Some content", url);
 
         scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
             .Returns(Result<ScrapedContent>.Success(scrapedContent));
@@ -139,7 +139,7 @@ public class ImportRecipeCommandHandlerTests
     {
         var url = new RecipeUrl("https://example.com/recipe");
         var cts = new CancellationTokenSource();
-        var scrapedContent = new ScrapedContent("Content", url.Value);
+        var scrapedContent = new ScrapedContent("Content", url);
         var expectedRecipe = CreateExtractedRecipe();
 
         scraper.ScrapeAsync(url, cts.Token)
@@ -158,7 +158,7 @@ public class ImportRecipeCommandHandlerTests
     {
         var url = new RecipeUrl("https://example.com/recipe");
         var cts = new CancellationTokenSource();
-        var scrapedContent = new ScrapedContent("Content", url.Value);
+        var scrapedContent = new ScrapedContent("Content", url);
         var expectedRecipe = CreateExtractedRecipe();
 
         scraper.ScrapeAsync(url, cts.Token)
@@ -176,7 +176,7 @@ public class ImportRecipeCommandHandlerTests
     public async Task HandleAsync_MinimalRecipeData_ReturnsSuccess()
     {
         var url = new RecipeUrl("https://example.com/recipe");
-        var scrapedContent = new ScrapedContent("Content", url.Value);
+        var scrapedContent = new ScrapedContent("Content", url);
         var minimalRecipe = new ExtractedRecipeDto("Simple Dish", [], []);
 
         scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
@@ -216,7 +216,7 @@ public class ImportRecipeCommandHandlerTests
         var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
-        var scrapedContent = new ScrapedContent("Content", url.Value);
+        var scrapedContent = new ScrapedContent("Content", url);
 
         scraper.ScrapeAsync(url, cts.Token)
             .Returns(Result<ScrapedContent>.Success(scrapedContent));

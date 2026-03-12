@@ -177,7 +177,7 @@ public class RecipeTests
         var domainEvent = recipe.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<RecipeSavedEvent>().Subject;
 
-        domainEvent.RecipeIdentifier.Should().Be(recipe.Id);
+        domainEvent.RecipeIdentifier.Value.Should().Be(recipe.Id);
     }
 
     private static Domain.Recipe.Recipe CreateValidRecipe(

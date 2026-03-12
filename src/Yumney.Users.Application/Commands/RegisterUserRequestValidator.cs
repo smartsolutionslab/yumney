@@ -1,4 +1,5 @@
 using FluentValidation;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
 
@@ -8,18 +9,18 @@ public sealed class RegisterUserRequestValidator : AbstractValidator<RegisterUse
     {
         RuleFor(x => x.Email)
             .NotEmpty()
-            .MaximumLength(254)
+            .MaximumLength(Email.MaxLength)
             .EmailAddress();
 
         RuleFor(x => x.Password)
             .NotEmpty()
-            .MinimumLength(8)
-            .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
-            .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
-            .Matches("[0-9]").WithMessage("Password must contain at least one digit.");
+            .MinimumLength(Password.MinLength)
+            .Matches(Password.UppercasePattern).WithMessage(Password.UppercaseMessage)
+            .Matches(Password.LowercasePattern).WithMessage(Password.LowercaseMessage)
+            .Matches(Password.DigitPattern).WithMessage(Password.DigitMessage);
 
         RuleFor(x => x.DisplayName)
             .NotEmpty()
-            .MaximumLength(200);
+            .MaximumLength(DisplayName.MaxLength);
     }
 }

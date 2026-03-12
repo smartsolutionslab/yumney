@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
+namespace SmartSolutionsLab.Yumney.Shared.Persistence;
 
-internal static class ValueObjectPropertyExtensions
+public static class ValueObjectPropertyExtensions
 {
-    internal static PropertyBuilder<T> ConfigureRequiredStringValueObject<T>(
+    public static PropertyBuilder<T> ConfigureRequiredStringValueObject<T>(
         this PropertyBuilder<T> builder,
         Func<T, string> toProvider,
         Func<string, T> fromProvider,
@@ -16,7 +16,7 @@ internal static class ValueObjectPropertyExtensions
             .IsRequired();
     }
 
-    internal static PropertyBuilder<T?> ConfigureNullableStringValueObject<T>(
+    public static PropertyBuilder<T?> ConfigureNullableStringValueObject<T>(
         this PropertyBuilder<T?> builder,
         Func<T, string> toProvider,
         Func<string?, T?> fromNullable,
@@ -28,7 +28,7 @@ internal static class ValueObjectPropertyExtensions
             .HasMaxLength(maxLength);
     }
 
-    internal static PropertyBuilder<T?> ConfigureNullableIntValueObject<T>(
+    public static PropertyBuilder<T?> ConfigureNullableIntValueObject<T>(
         this PropertyBuilder<T?> builder,
         Func<T, int> toProvider,
         Func<int?, T?> fromNullable)
@@ -38,7 +38,7 @@ internal static class ValueObjectPropertyExtensions
             .HasConversion(v => v != null ? toProvider(v) : (int?)null, v => fromNullable(v));
     }
 
-    internal static PropertyBuilder<T?> ConfigureNullableDecimalValueObject<T>(
+    public static PropertyBuilder<T?> ConfigureNullableDecimalValueObject<T>(
         this PropertyBuilder<T?> builder,
         Func<T, decimal> toProvider,
         Func<decimal?, T?> fromNullable)
@@ -48,7 +48,7 @@ internal static class ValueObjectPropertyExtensions
             .HasConversion(v => v != null ? toProvider(v) : (decimal?)null, v => fromNullable(v));
     }
 
-    internal static PropertyBuilder<T> ConfigureRequiredIntValueObject<T>(
+    public static PropertyBuilder<T> ConfigureRequiredIntValueObject<T>(
         this PropertyBuilder<T> builder,
         Func<T, int> toProvider,
         Func<int, T> fromProvider)

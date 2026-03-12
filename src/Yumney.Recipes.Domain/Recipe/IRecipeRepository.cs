@@ -8,13 +8,11 @@ public interface IRecipeRepository
 
     Task<bool> ExistsBySourceUrlAsync(RecipeUrl sourceUrl, OwnerIdentifier owner, CancellationToken cancellationToken = default);
 
-    Task<Recipe?> GetByIdAsync(Guid identifier, CancellationToken cancellationToken = default);
+    Task<Recipe?> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<Recipe> Items, int TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
-        int skip,
-        int take,
-        RecipeSortField sortBy,
-        SortDirection sortDirection,
+        PagingOptions paging,
+        SortingOptions<RecipeSortField> sorting,
         CancellationToken cancellationToken = default);
 }

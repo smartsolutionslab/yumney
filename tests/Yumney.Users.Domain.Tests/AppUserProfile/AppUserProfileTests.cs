@@ -63,23 +63,23 @@ public class AppUserProfileTests
     }
 
     [Fact]
-    public void ChangePreferredLanguage_NewLanguage_UpdatesLanguage()
+    public void SwitchLanguageTo_NewLanguage_UpdatesLanguage()
     {
         var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
         var german = new PreferredLanguage("de");
 
-        profile.ChangePreferredLanguage(german);
+        profile.SwitchLanguageTo(german);
 
         profile.PreferredLanguage.Should().Be(german);
     }
 
     [Fact]
-    public void ChangePreferredUnitSystem_NewUnitSystem_UpdatesUnitSystem()
+    public void SwitchUnitSystemTo_NewUnitSystem_UpdatesUnitSystem()
     {
         var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
         var imperial = new PreferredUnitSystem("imperial");
 
-        profile.ChangePreferredUnitSystem(imperial);
+        profile.SwitchUnitSystemTo(imperial);
 
         profile.PreferredUnitSystem.Should().Be(imperial);
     }

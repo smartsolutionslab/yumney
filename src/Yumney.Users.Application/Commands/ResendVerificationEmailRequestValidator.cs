@@ -1,4 +1,5 @@
 using FluentValidation;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
 
@@ -8,7 +9,7 @@ public sealed class ResendVerificationEmailRequestValidator : AbstractValidator<
     {
         RuleFor(x => x.Email)
             .NotEmpty()
-            .MaximumLength(254)
+            .MaximumLength(Email.MaxLength)
             .EmailAddress();
     }
 }
