@@ -139,23 +139,6 @@
   border-radius: 4px;
 }
 
-.load-more {
-  display: flex;
-  justify-content: center;
-  padding: 2rem 0;
-}
-
-.load-more-button {
-  padding: 0.75rem 2rem;
-  border: 2px solid #f97316;
-  border-radius: 8px;
-  background: transparent;
-  color: #f97316;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  &:hover {
-    background: #fff7ed;
-  }
+.scroll-sentinel {
+  height: 1px;
 }

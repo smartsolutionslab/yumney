@@ -91,7 +91,6 @@
       "prepTime": "Vorbereitung {{minutes}} Min.",
       "cookTime": "Kochen {{minutes}} Min.",
       "loading": "Rezepte werden geladen...",
-      "loadMore": "Mehr laden",
       "empty": {
         "title": "Noch keine Rezepte",
         "message": "Importiere dein erstes Rezept von einer beliebigen Website oder erstelle eines von Grund auf.",
