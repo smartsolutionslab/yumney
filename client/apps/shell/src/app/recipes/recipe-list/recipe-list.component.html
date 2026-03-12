@@ -67,6 +67,8 @@
     </div>
   }
 
+  <div #scrollSentinel class="scroll-sentinel"></div>
+
   @if (isLoading()) {
     <div class="loading">
       <span class="spinner"></span>
@@ -74,11 +76,4 @@
     </div>
   }
 
-  @if (hasMore() && !isLoading()) {
-    <div class="load-more">
-      <button class="load-more-button" (click)="onLoadMore()">
-        {{ t('recipes.list.loadMore') }}
-      </button>
-    </div>
-  }
 </div>

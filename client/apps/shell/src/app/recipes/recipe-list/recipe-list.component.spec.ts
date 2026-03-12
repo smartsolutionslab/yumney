@@ -5,6 +5,33 @@ import { of, Subject, throwError } from 'rxjs';
 import { RecipeListComponent } from './recipe-list.component';
 import { RecipeApiService, RecipeListResponse } from '@yumney/shared/api-client';
 
+let intersectionCallback: IntersectionObserverCallback;
+
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | Document | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+  observedElement: Element | null = null;
+
+  constructor(callback: IntersectionObserverCallback) {
+    intersectionCallback = callback;
+  }
+
+  observe(target: Element): void {
+    this.observedElement = target;
+  }
+
+  unobserve(): void {}
+
+  disconnect(): void {
+    this.observedElement = null;
+  }
+
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+}
+
 const mockResponse: RecipeListResponse = {
   items: [
     {
@@ -57,7 +84,6 @@ const en = {
       prepTime: 'Prep {{minutes}} min',
       cookTime: 'Cook {{minutes}} min',
       loading: 'Loading recipes...',
-      loadMore: 'Load more',
       empty: {
         title: 'No recipes yet',
         message: 'Import your first recipe from any website or create one from scratch.',
@@ -74,6 +100,14 @@ describe('RecipeListComponent', () => {
   let component: RecipeListComponent;
   let fixture: ComponentFixture<RecipeListComponent>;
   let recipeApiMock: { getRecipes: ReturnType<typeof vi.fn> };
+
+  beforeAll(() => {
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
+  });
+
+  afterAll(() => {
+    vi.unstubAllGlobals();
+  });
 
   function setupTestBed(getRecipesReturn: ReturnType<typeof vi.fn> = vi.fn()) {
     recipeApiMock = {
@@ -100,6 +134,13 @@ describe('RecipeListComponent', () => {
 
   function mockSortEvent(value: string): Event {
     return { target: { value } } as unknown as Event;
+  }
+
+  function triggerIntersection(isIntersecting: boolean): void {
+    intersectionCallback(
+      [{ isIntersecting } as IntersectionObserverEntry],
+      {} as IntersectionObserver,
+    );
   }
 
   it('should create the component', fakeAsync(() => {
@@ -227,29 +268,17 @@ describe('RecipeListComponent', () => {
     expect(component.currentPage()).toBe(1);
   }));
 
-  it('should show load more button when hasMore is true', fakeAsync(() => {
+  it('should render scroll sentinel element', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
     fixture.detectChanges();
     tick();
     fixture.detectChanges();
 
-    const btn = fixture.nativeElement.querySelector('.load-more-button');
-    expect(btn).toBeTruthy();
-    expect(btn.textContent).toContain('Load more');
+    const sentinel = fixture.nativeElement.querySelector('.scroll-sentinel');
+    expect(sentinel).toBeTruthy();
   }));
 
-  it('should not show load more when all loaded', fakeAsync(() => {
-    const fullResponse: RecipeListResponse = { ...mockResponse, totalCount: 2 };
-    setupTestBed(vi.fn().mockReturnValue(of(fullResponse)));
-    fixture.detectChanges();
-    tick();
-    fixture.detectChanges();
-
-    const btn = fixture.nativeElement.querySelector('.load-more-button');
-    expect(btn).toBeNull();
-  }));
-
-  it('should append recipes on load more', fakeAsync(() => {
+  it('should call loadMore when sentinel intersects and hasMore', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
     fixture.detectChanges();
     tick();
@@ -273,11 +302,62 @@ describe('RecipeListComponent', () => {
       pageSize: 20,
     };
     recipeApiMock.getRecipes.mockReturnValue(of(moreResponse));
-    component.onLoadMore();
+    triggerIntersection(true);
     tick();
 
     expect(component.recipes().length).toBe(3);
     expect(component.currentPage()).toBe(2);
+  }));
+
+  it('should not call loadMore when sentinel intersects but no more items', fakeAsync(() => {
+    const fullResponse: RecipeListResponse = { ...mockResponse, totalCount: 2 };
+    setupTestBed(vi.fn().mockReturnValue(of(fullResponse)));
+    fixture.detectChanges();
+    tick();
+
+    const callCount = recipeApiMock.getRecipes.mock.calls.length;
+    triggerIntersection(true);
+    tick();
+
+    expect(recipeApiMock.getRecipes.mock.calls.length).toBe(callCount);
+  }));
+
+  it('should not call loadMore when sentinel is not intersecting', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    const callCount = recipeApiMock.getRecipes.mock.calls.length;
+    triggerIntersection(false);
+    tick();
+
+    expect(recipeApiMock.getRecipes.mock.calls.length).toBe(callCount);
+  }));
+
+  it('should not call loadMore when sentinel intersects but isLoading', fakeAsync(() => {
+    const subject = new Subject<RecipeListResponse>();
+    setupTestBed(vi.fn().mockReturnValue(subject));
+    fixture.detectChanges();
+
+    expect(component.isLoading()).toBe(true);
+    triggerIntersection(true);
+
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledTimes(1);
+
+    subject.next(mockResponse);
+    subject.complete();
+    tick();
+  }));
+
+  it('should disconnect observer on destroy', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    const disconnectSpy = vi.spyOn(MockIntersectionObserver.prototype, 'disconnect');
+    fixture.destroy();
+    expect(disconnectSpy).toHaveBeenCalled();
+    disconnectSpy.mockRestore();
   }));
 
   it('should show recipe image when available', fakeAsync(() => {
@@ -339,22 +419,6 @@ describe('RecipeListComponent', () => {
     tick();
 
     expect(component.serverError()).toBeNull();
-  }));
-
-  it('should not show load more when items equal totalCount', fakeAsync(() => {
-    const exactResponse: RecipeListResponse = {
-      items: [mockResponse.items[0]],
-      totalCount: 1,
-      page: 1,
-      pageSize: 20,
-    };
-    setupTestBed(vi.fn().mockReturnValue(of(exactResponse)));
-    fixture.detectChanges();
-    tick();
-    fixture.detectChanges();
-
-    const btn = fixture.nativeElement.querySelector('.load-more-button');
-    expect(btn).toBeNull();
   }));
 
   it('should not show empty state while loading', fakeAsync(() => {

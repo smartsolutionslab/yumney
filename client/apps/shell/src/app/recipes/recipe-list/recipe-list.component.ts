@@ -1,11 +1,14 @@
 import {
+  AfterViewInit,
   Component,
   ChangeDetectionStrategy,
   computed,
+  ElementRef,
   inject,
   OnInit,
   DestroyRef,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -21,13 +24,16 @@ import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
   styleUrl: './recipe-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RecipeListComponent implements OnInit {
+export class RecipeListComponent implements OnInit, AfterViewInit {
   private static readonly listErrorMap: HttpErrorMap = {
     default: 'recipes.list.errors.generic',
   };
 
   private recipeApi = inject(RecipeApiService);
   private destroyRef = inject(DestroyRef);
+  private observer: IntersectionObserver | null = null;
+
+  scrollSentinel = viewChild<ElementRef>('scrollSentinel');
 
   recipes = signal<RecipeListItem[]>([]);
   totalCount = signal(0);
@@ -70,7 +76,20 @@ export class RecipeListComponent implements OnInit {
     this.loadRecipes(false);
   }
 
-  onLoadMore(): void {
+  ngAfterViewInit(): void {
+    this.observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && this.hasMore() && !this.isLoading()) {
+        this.loadMore();
+      }
+    });
+    const sentinel = this.scrollSentinel()?.nativeElement;
+    if (sentinel) {
+      this.observer.observe(sentinel);
+    }
+    this.destroyRef.onDestroy(() => this.observer?.disconnect());
+  }
+
+  private loadMore(): void {
     this.currentPage.update((p) => p + 1);
     this.loadRecipes(true);
   }
