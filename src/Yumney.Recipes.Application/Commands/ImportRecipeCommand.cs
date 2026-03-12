@@ -5,4 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
-public sealed record ImportRecipeCommand(RecipeUrl Url) : ICommand<Result<ExtractedRecipeDto>>;
+public sealed record ImportRecipeCommand(RecipeUrl Url) : ICommand<Result<ExtractedRecipeDto>>
+{
+    public static ImportRecipeCommand From(string url) => new(new RecipeUrl(url));
+}

@@ -15,4 +15,25 @@ public sealed record SaveRecipeCommand(
     CookingTime? CookingTime = null,
     Difficulty? Difficulty = null,
     ImageUrl? ImageUrl = null,
-    RecipeUrl? SourceUrl = null) : ICommand<Result<SavedRecipeDto>>;
+    RecipeUrl? SourceUrl = null) : ICommand<Result<SavedRecipeDto>>
+{
+    public static SaveRecipeCommand From(SaveRecipeRequest request)
+    {
+        return new SaveRecipeCommand(
+            new RecipeTitle(request.Title),
+            request.Ingredients.Select(i => new SaveRecipeIngredientItem(
+                new IngredientName(i.Name),
+                Amount.FromNullable(i.Amount),
+                Unit.FromNullable(i.Unit))).ToList(),
+            request.Steps.Select(s => new SaveRecipeStepItem(
+                new StepNumber(s.Number),
+                new StepDescription(s.Description))).ToList(),
+            RecipeDescription.FromNullable(request.Description),
+            Servings.FromNullable(request.Servings),
+            PreparationTime.FromNullable(request.PrepTimeMinutes),
+            CookingTime.FromNullable(request.CookTimeMinutes),
+            Difficulty.FromNullable(request.Difficulty),
+            ImageUrl.FromNullable(request.ImageUrl),
+            RecipeUrl.FromNullable(request.SourceUrl));
+    }
+}

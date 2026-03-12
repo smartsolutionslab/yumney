@@ -6,4 +6,5 @@ namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
 
 public sealed record ResendVerificationEmailCommand(Email Email) : ICommand<Result>
 {
+    public static ResendVerificationEmailCommand From(string email) => new(new Email(email));
 }
