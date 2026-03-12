@@ -6,6 +6,7 @@ export {
   type ExtractedIngredient,
   type ExtractedStep,
   type SaveRecipeRequest,
+  type UpdateRecipeRequest,
   type SavedRecipeResponse,
   type RecipeListItem,
   type RecipeListResponse,

@@ -277,17 +277,27 @@ describe('RecipeDetailComponent', () => {
     expect(sourceLink.textContent).toContain('Original Recipe');
   }));
 
-  it('should render action buttons as disabled', fakeAsync(() => {
+  it('should render edit button as link with correct routerLink', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
     fixture.detectChanges();
     tick();
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('.action-button');
-    expect(buttons.length).toBe(3);
-    buttons.forEach((btn: HTMLButtonElement) => {
-      expect(btn.disabled).toBe(true);
-    });
+    const editLink = fixture.nativeElement.querySelector('.action-button[href]');
+    expect(editLink).toBeTruthy();
+    expect(editLink.tagName).toBe('A');
+    expect(editLink.getAttribute('href')).toBe('/recipes/abc-123/edit');
+    expect(editLink.textContent.trim()).toBe('Edit');
+  }));
+
+  it('should render delete and shopping list buttons as disabled', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const disabledButtons = fixture.nativeElement.querySelectorAll('.action-button:disabled');
+    expect(disabledButtons.length).toBe(2);
   }));
 
   it('should call getRecipeById with correct identifier', fakeAsync(() => {

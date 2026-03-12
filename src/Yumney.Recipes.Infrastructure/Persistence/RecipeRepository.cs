@@ -27,6 +27,11 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         return await recipes.AnyAsync(r => r.SourceUrl == sourceUrl && r.Owner == owner, cancellationToken);
     }
 
+    public async Task UpdateAsync(Recipe recipe, CancellationToken cancellationToken = default)
+    {
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<(IReadOnlyList<Recipe> Items, int TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
         PagingOptions paging,

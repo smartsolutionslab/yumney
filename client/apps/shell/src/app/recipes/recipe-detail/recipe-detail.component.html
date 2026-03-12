@@ -68,7 +68,9 @@
     </div>
 
     <div class="actions-bar">
-      <button class="action-button" disabled>{{ t('recipes.detail.actions.edit') }}</button>
+      <a class="action-button" [routerLink]="['/recipes', recipe.identifier, 'edit']">
+        {{ t('recipes.detail.actions.edit') }}
+      </a>
       <button class="action-button action-button--danger" disabled>
         {{ t('recipes.detail.actions.delete') }}
       </button>

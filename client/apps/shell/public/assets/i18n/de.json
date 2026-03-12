@@ -100,6 +100,16 @@
         "generic": "Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
       }
     },
+    "edit": {
+      "title": "Rezept bearbeiten",
+      "back": "Zurück zum Rezept",
+      "loading": "Rezept wird geladen...",
+      "success": "Rezept \"{{title}}\" erfolgreich aktualisiert!",
+      "errors": {
+        "notFound": "Rezept nicht gefunden.",
+        "generic": "Rezept konnte nicht aktualisiert werden. Bitte versuche es später erneut."
+      }
+    },
     "detail": {
       "back": "Zurück zu Rezepten",
       "servings": "{{count}} Portionen",
