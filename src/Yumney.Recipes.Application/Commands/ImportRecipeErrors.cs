@@ -8,4 +8,5 @@ public static class ImportRecipeErrors
     public static readonly ApiError ScrapeTimeout = new("IMPORT_SCRAPE_TIMEOUT", "Extraction timed out.", 504);
     public static readonly ApiError NoRecipeFound = new("IMPORT_NO_RECIPE_FOUND", "No recipe found on this page.", 404);
     public static readonly ApiError ExtractionFailed = new("IMPORT_EXTRACTION_FAILED", "Recipe extraction failed.", 500);
+    public static readonly ApiError ContentTooLarge = new("IMPORT_CONTENT_TOO_LARGE", "The page content is too large to process.", 413);
 }

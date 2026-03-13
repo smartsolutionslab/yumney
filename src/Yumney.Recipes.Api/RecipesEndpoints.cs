@@ -33,9 +33,12 @@ public static class RecipesEndpoints
             .Produces<ExtractedRecipeDto>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .ProducesProblem(StatusCodes.Status502BadGateway)
-            .ProducesProblem(StatusCodes.Status504GatewayTimeout);
+            .ProducesProblem(StatusCodes.Status504GatewayTimeout)
+            .RequireRateLimiting("RecipeImport");
 
         group.MapPost("/", SaveAsync)
             .WithName("SaveRecipe")

@@ -1,4 +1,6 @@
+using System.Threading.RateLimiting;
 using FluentValidation;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.SemanticKernel;
@@ -72,6 +74,7 @@ builder.Services.AddScoped<ICommandHandler<UpdateRecipeCommand, Result<RecipeDet
 builder.Services.AddScoped<ICommandHandler<DeleteRecipeCommand, Result>, DeleteRecipeCommandHandler>();
 builder.Services.AddScoped<IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>>, GetRecipeByIdQueryHandler>();
 
+builder.Services.Configure<ScrapingOptions>(builder.Configuration.GetSection(ScrapingOptions.SectionName));
 builder.Services.AddHttpClient<IWebScraper, WebScraper>().AddStandardResilienceHandler();
 builder.Services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
 
@@ -99,6 +102,21 @@ builder.Services.AddScoped<ICommandHandler<ResendVerificationEmailCommand, Resul
 builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client => { client.BaseAddress = new Uri("https+http://keycloak"); })
 .AddStandardResilienceHandler();
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("RecipeImport", httpContext =>
+    {
+        var userId = httpContext.User?.FindFirst("sub")?.Value ?? "anonymous";
+        return RateLimitPartition.GetFixedWindowLimiter(userId, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0,
+        });
+    });
+});
+
 builder.Services.AddOpenApi();
 
 WebApplication app = builder.Build();
@@ -108,6 +126,8 @@ app.UseSerilogRequestLogging()
 
 app.UseAuthentication()
     .UseAuthorization();
+
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {
