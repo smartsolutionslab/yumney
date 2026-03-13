@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { provideRouter, ActivatedRoute } from '@angular/router';
+import { provideRouter, ActivatedRoute, Router } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { of, Subject, throwError } from 'rxjs';
+import { of, Subject, throwError, EMPTY } from 'rxjs';
 import { RecipeDetailComponent } from './recipe-detail.component';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -49,6 +49,15 @@ const en = {
       },
       loading: 'Loading recipe...',
       notFound: 'Recipe not found.',
+      delete: {
+        confirm: 'Are you sure you want to delete "{{title}}"? This cannot be undone.',
+        deleting: 'Deleting...',
+        success: 'Recipe deleted successfully.',
+        errors: {
+          notFound: 'Recipe not found.',
+          generic: 'Failed to delete recipe. Please try again later.',
+        },
+      },
       errors: {
         generic: 'Failed to load recipe. Please try again later.',
       },
@@ -59,7 +68,10 @@ const en = {
 describe('RecipeDetailComponent', () => {
   let component: RecipeDetailComponent;
   let fixture: ComponentFixture<RecipeDetailComponent>;
-  let recipeApiMock: { getRecipeById: ReturnType<typeof vi.fn> };
+  let recipeApiMock: {
+    getRecipeById: ReturnType<typeof vi.fn>;
+    deleteRecipe: ReturnType<typeof vi.fn>;
+  };
 
   function setupTestBed(
     getRecipeByIdReturn: ReturnType<typeof vi.fn> = vi.fn(),
@@ -67,6 +79,7 @@ describe('RecipeDetailComponent', () => {
   ) {
     recipeApiMock = {
       getRecipeById: getRecipeByIdReturn,
+      deleteRecipe: vi.fn().mockReturnValue(EMPTY),
     };
 
     TestBed.configureTestingModule({
@@ -290,14 +303,15 @@ describe('RecipeDetailComponent', () => {
     expect(editLink.textContent.trim()).toBe('Edit');
   }));
 
-  it('should render delete and shopping list buttons as disabled', fakeAsync(() => {
+  it('should render shopping list button as disabled', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
     fixture.detectChanges();
     tick();
     fixture.detectChanges();
 
     const disabledButtons = fixture.nativeElement.querySelectorAll('.action-button:disabled');
-    expect(disabledButtons.length).toBe(2);
+    expect(disabledButtons.length).toBe(1);
+    expect(disabledButtons[0].textContent).toContain('Shopping List');
   }));
 
   it('should call getRecipeById with correct identifier', fakeAsync(() => {
@@ -370,5 +384,144 @@ describe('RecipeDetailComponent', () => {
     tick();
 
     expect(component.isLoading()).toBe(false);
+  }));
+
+  it('should render delete button as enabled', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const deleteButton = fixture.nativeElement.querySelector(
+      '.action-button--danger',
+    );
+    expect(deleteButton).toBeTruthy();
+    expect(deleteButton.disabled).toBe(false);
+    expect(deleteButton.textContent.trim()).toBe('Delete');
+  }));
+
+  it('should show confirmation dialog on delete click', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    const deleteButton = fixture.nativeElement.querySelector(
+      '.action-button--danger',
+    );
+    deleteButton.click();
+    tick();
+
+    expect(confirmSpy).toHaveBeenCalled();
+    confirmSpy.mockRestore();
+  }));
+
+  it('should call deleteRecipe API when confirmed', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    recipeApiMock.deleteRecipe.mockReturnValue(of(undefined));
+
+    const deleteButton = fixture.nativeElement.querySelector(
+      '.action-button--danger',
+    );
+    deleteButton.click();
+    tick();
+
+    expect(recipeApiMock.deleteRecipe).toHaveBeenCalledWith('abc-123');
+    vi.restoreAllMocks();
+  }));
+
+  it('should NOT call deleteRecipe API when cancelled', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    const deleteButton = fixture.nativeElement.querySelector(
+      '.action-button--danger',
+    );
+    deleteButton.click();
+    tick();
+
+    expect(recipeApiMock.deleteRecipe).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+  }));
+
+  it('should show deleting state while in progress', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const deleteSubject = new Subject<void>();
+    recipeApiMock.deleteRecipe.mockReturnValue(deleteSubject);
+
+    const deleteButton = fixture.nativeElement.querySelector(
+      '.action-button--danger',
+    );
+    deleteButton.click();
+    fixture.detectChanges();
+
+    expect(component.isDeleting()).toBe(true);
+    expect(deleteButton.textContent.trim()).toBe('Deleting...');
+
+    deleteSubject.next(undefined);
+    deleteSubject.complete();
+    tick();
+
+    vi.restoreAllMocks();
+  }));
+
+  it('should navigate to /recipes on successful delete', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    recipeApiMock.deleteRecipe.mockReturnValue(of(undefined));
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    const deleteButton = fixture.nativeElement.querySelector(
+      '.action-button--danger',
+    );
+    deleteButton.click();
+    tick();
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/recipes']);
+    vi.restoreAllMocks();
+  }));
+
+  it('should show error message on delete API failure', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const httpError = new HttpErrorResponse({ status: 500 });
+    recipeApiMock.deleteRecipe.mockReturnValue(throwError(() => httpError));
+
+    const deleteButton = fixture.nativeElement.querySelector(
+      '.action-button--danger',
+    );
+    deleteButton.click();
+    tick();
+    fixture.detectChanges();
+
+    const error = fixture.nativeElement.querySelector('.error-banner');
+    expect(error).toBeTruthy();
+    expect(error.textContent).toContain('Failed to delete recipe.');
+    vi.restoreAllMocks();
   }));
 });

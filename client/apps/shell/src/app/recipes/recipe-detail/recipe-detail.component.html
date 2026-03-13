@@ -71,8 +71,11 @@
       <a class="action-button" [routerLink]="['/recipes', recipe.identifier, 'edit']">
         {{ t('recipes.detail.actions.edit') }}
       </a>
-      <button class="action-button action-button--danger" disabled>
-        {{ t('recipes.detail.actions.delete') }}
+      <button
+        class="action-button action-button--danger"
+        [disabled]="isDeleting()"
+        (click)="onDelete()">
+        {{ isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete') }}
       </button>
       <button class="action-button action-button--secondary" disabled>
         {{ t('recipes.detail.actions.shoppingList') }}

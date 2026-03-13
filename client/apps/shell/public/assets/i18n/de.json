@@ -128,6 +128,15 @@
       },
       "loading": "Rezept wird geladen...",
       "notFound": "Rezept nicht gefunden.",
+      "delete": {
+        "confirm": "Möchtest du \"{{title}}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden.",
+        "deleting": "Wird gelöscht...",
+        "success": "Rezept erfolgreich gelöscht.",
+        "errors": {
+          "notFound": "Rezept nicht gefunden.",
+          "generic": "Rezept konnte nicht gelöscht werden. Bitte versuche es später erneut."
+        }
+      },
       "errors": {
         "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut."
       }
