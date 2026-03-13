@@ -194,6 +194,21 @@ public class ImportRecipeCommandHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_ContentTooLarge_ReturnsFailure()
+    {
+        var url = new RecipeUrl("https://example.com/recipe");
+
+        scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
+            .Returns(Result<ScrapedContent>.Failure(ImportRecipeErrors.ContentTooLarge));
+
+        var sut = CreateSut();
+        var result = await sut.HandleAsync(new ImportRecipeCommand(url));
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ImportRecipeErrors.ContentTooLarge);
+    }
+
+    [Fact]
     public async Task HandleAsync_ScraperThrowsOperationCanceledException_PropagatesException()
     {
         var url = new RecipeUrl("https://example.com/recipe");

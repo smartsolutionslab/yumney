@@ -1,6 +1,7 @@
 using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -9,16 +10,30 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;
 
+#pragma warning disable SA1202
 public class WebScraperTests
 {
     private readonly ILogger<WebScraper> logger = Substitute.For<ILogger<WebScraper>>();
+
+    private static IOptions<ScrapingOptions> CreateOptions(
+        int maxContentLength = 12_000,
+        int maxRawHtmlLength = 500_000)
+    {
+        var options = Substitute.For<IOptions<ScrapingOptions>>();
+        options.Value.Returns(new ScrapingOptions
+        {
+            MaxContentLength = maxContentLength,
+            MaxRawHtmlLength = maxRawHtmlLength,
+        });
+        return options;
+    }
 
     [Fact]
     public async Task ScrapeAsync_ValidHtml_ReturnsCleanedText()
     {
         var html = "<html><body><main><h1>Recipe</h1><p>Delicious pasta</p></main></body></html>";
         var httpClient = CreateHttpClient(html);
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -39,7 +54,7 @@ public class WebScraperTests
             </body></html>
             """;
         var httpClient = CreateHttpClient(html);
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -62,7 +77,7 @@ public class WebScraperTests
             </body></html>
             """;
         var httpClient = CreateHttpClient(html);
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -84,7 +99,7 @@ public class WebScraperTests
             </body></html>
             """;
         var httpClient = CreateHttpClient(html);
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -102,7 +117,7 @@ public class WebScraperTests
             </body></html>
             """;
         var httpClient = CreateHttpClient(html);
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -115,7 +130,7 @@ public class WebScraperTests
     {
         var html = "<html><body><p>Body only content</p></body></html>";
         var httpClient = CreateHttpClient(html);
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -128,7 +143,7 @@ public class WebScraperTests
     {
         var html = "<html><body><script>only scripts</script></body></html>";
         var httpClient = CreateHttpClient(html);
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -140,7 +155,7 @@ public class WebScraperTests
     public async Task ScrapeAsync_HttpError_ReturnsPageUnreachable()
     {
         var httpClient = CreateHttpClient(statusCode: HttpStatusCode.InternalServerError);
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -153,7 +168,7 @@ public class WebScraperTests
     {
         var handler = new TimeoutHandler();
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://example.com") };
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -167,7 +182,7 @@ public class WebScraperTests
         var cts = new CancellationTokenSource();
         await cts.CancelAsync();
         var httpClient = CreateHttpClient("<html><body>content</body></html>");
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var act = () => sut.ScrapeAsync(
             new RecipeUrl("https://example.com/recipe"), cts.Token);
@@ -186,7 +201,7 @@ public class WebScraperTests
             </body></html>
             """;
         var httpClient = CreateHttpClient(html);
-        var sut = new WebScraper(httpClient, logger);
+        var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
         var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
 
@@ -264,6 +279,60 @@ public class WebScraperTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.CleanedText.Should().Contain("1 & 2 < 3");
+    }
+
+    [Fact]
+    public async Task ScrapeAsync_RawHtmlExceedsMaxLength_ReturnsContentTooLarge()
+    {
+        var html = new string('x', 1_000);
+        var httpClient = CreateHttpClient(html);
+        var sut = new WebScraper(httpClient, CreateOptions(maxRawHtmlLength: 500), logger);
+
+        var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ImportRecipeErrors.ContentTooLarge);
+    }
+
+    [Fact]
+    public async Task ScrapeAsync_CleanedTextExceedsLimit_TruncatesContent()
+    {
+        var longText = string.Join(" ", Enumerable.Repeat("word", 500));
+        var html = $"<html><body><main><p>{longText}</p></main></body></html>";
+        var httpClient = CreateHttpClient(html);
+        var sut = new WebScraper(httpClient, CreateOptions(maxContentLength: 100), logger);
+
+        var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.CleanedText.Length.Should().BeLessThanOrEqualTo(100);
+    }
+
+    [Fact]
+    public async Task ScrapeAsync_CleanedTextWithinLimit_ReturnsFullContent()
+    {
+        var html = "<html><body><main><p>Short recipe content</p></main></body></html>";
+        var httpClient = CreateHttpClient(html);
+        var sut = new WebScraper(httpClient, CreateOptions(maxContentLength: 12_000), logger);
+
+        var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.CleanedText.Should().Contain("Short recipe content");
+    }
+
+    [Fact]
+    public async Task ScrapeAsync_TruncationPreservesWordBoundary()
+    {
+        var html = "<html><body><main><p>hello world testing truncation here</p></main></body></html>";
+        var httpClient = CreateHttpClient(html);
+        var sut = new WebScraper(httpClient, CreateOptions(maxContentLength: 16), logger);
+
+        var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.CleanedText.Should().NotEndWith("t");
+        result.Value.CleanedText.Should().EndWith("world");
     }
 
     private static HttpClient CreateHttpClient(string content = "", HttpStatusCode statusCode = HttpStatusCode.OK)
