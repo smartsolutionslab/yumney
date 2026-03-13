@@ -106,9 +106,7 @@ export class RecipeDetailComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           this.isDeleting.set(false);
-          this.serverError.set(
-            mapHttpError(err, RecipeDetailComponent.deleteErrorMap),
-          );
+          this.serverError.set(mapHttpError(err, RecipeDetailComponent.deleteErrorMap));
         },
       });
   }

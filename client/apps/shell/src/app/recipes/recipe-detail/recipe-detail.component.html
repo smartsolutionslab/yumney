@@ -74,8 +74,11 @@
       <button
         class="action-button action-button--danger"
         [disabled]="isDeleting()"
-        (click)="onDelete()">
-        {{ isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete') }}
+        (click)="onDelete()"
+      >
+        {{
+          isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete')
+        }}
       </button>
       <button class="action-button action-button--secondary" disabled>
         {{ t('recipes.detail.actions.shoppingList') }}
