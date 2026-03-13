@@ -392,9 +392,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const deleteButton = fixture.nativeElement.querySelector(
-      '.action-button--danger',
-    );
+    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
     expect(deleteButton).toBeTruthy();
     expect(deleteButton.disabled).toBe(false);
     expect(deleteButton.textContent.trim()).toBe('Delete');
@@ -408,9 +406,7 @@ describe('RecipeDetailComponent', () => {
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    const deleteButton = fixture.nativeElement.querySelector(
-      '.action-button--danger',
-    );
+    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
     deleteButton.click();
     tick();
 
@@ -427,9 +423,7 @@ describe('RecipeDetailComponent', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     recipeApiMock.deleteRecipe.mockReturnValue(of(undefined));
 
-    const deleteButton = fixture.nativeElement.querySelector(
-      '.action-button--danger',
-    );
+    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
     deleteButton.click();
     tick();
 
@@ -445,9 +439,7 @@ describe('RecipeDetailComponent', () => {
 
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
-    const deleteButton = fixture.nativeElement.querySelector(
-      '.action-button--danger',
-    );
+    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
     deleteButton.click();
     tick();
 
@@ -465,9 +457,7 @@ describe('RecipeDetailComponent', () => {
     const deleteSubject = new Subject<void>();
     recipeApiMock.deleteRecipe.mockReturnValue(deleteSubject);
 
-    const deleteButton = fixture.nativeElement.querySelector(
-      '.action-button--danger',
-    );
+    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
     deleteButton.click();
     fixture.detectChanges();
 
@@ -492,9 +482,7 @@ describe('RecipeDetailComponent', () => {
     const router = TestBed.inject(Router);
     const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
-    const deleteButton = fixture.nativeElement.querySelector(
-      '.action-button--danger',
-    );
+    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
     deleteButton.click();
     tick();
 
@@ -512,9 +500,7 @@ describe('RecipeDetailComponent', () => {
     const httpError = new HttpErrorResponse({ status: 500 });
     recipeApiMock.deleteRecipe.mockReturnValue(throwError(() => httpError));
 
-    const deleteButton = fixture.nativeElement.querySelector(
-      '.action-button--danger',
-    );
+    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
     deleteButton.click();
     tick();
     fixture.detectChanges();
