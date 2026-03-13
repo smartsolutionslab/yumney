@@ -16,9 +16,7 @@ export const appRoutes: Route[] = [
     path: 'recipes/:identifier/edit',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./recipes/recipe-edit/recipe-edit.component').then(
-        (m) => m.RecipeEditComponent,
-      ),
+      import('./recipes/recipe-edit/recipe-edit.component').then((m) => m.RecipeEditComponent),
   },
   {
     path: 'recipes/:identifier',
