@@ -180,6 +180,240 @@ public class SemanticKernelRecipeExtractionServiceTests
         result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
     }
 
+    [Fact]
+    public async Task ExtractAsync_TruncatedJson_ReturnsExtractionFailed()
+    {
+        var sut = CreateSut("""{ "title": "Pasta", "ingredients": [{ "name": "Flour" """);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
+    }
+
+    [Fact]
+    public async Task ExtractAsync_ExtraUnknownFields_IgnoresAndReturnsRecipe()
+    {
+        var json = """
+            {
+              "title": "Pasta",
+              "ingredients": [{ "name": "Flour", "amount": 500, "unit": "g" }],
+              "steps": [{ "number": 1, "description": "Mix" }],
+              "unknownField": "should be ignored",
+              "rating": 4.5,
+              "tags": ["italian", "quick"]
+            }
+            """;
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Title.Should().Be("Pasta");
+    }
+
+    [Fact]
+    public async Task ExtractAsync_UnicodeCharacters_ReturnsExtractedRecipe()
+    {
+        var json = """
+            {
+              "title": "Crème Brûlée",
+              "description": "Französisches Dessert mit Karamellkruste",
+              "ingredients": [{ "name": "Süße Sahne", "amount": 500, "unit": "ml" }],
+              "steps": [{ "number": 1, "description": "Sahne erhitzen — nicht kochen lassen" }]
+            }
+            """;
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Title.Should().Be("Crème Brûlée");
+        result.Value.Description.Should().Be("Französisches Dessert mit Karamellkruste");
+        result.Value.Ingredients[0].Name.Should().Be("Süße Sahne");
+    }
+
+    [Fact]
+    public async Task ExtractAsync_WhitespaceOnlyResponse_ReturnsExtractionFailed()
+    {
+        var sut = CreateSut("   \n\t  ");
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
+    }
+
+    [Fact]
+    public async Task ExtractAsync_LlmPreambleBeforeJson_ReturnsExtractionFailed()
+    {
+        var json = """
+            Here is the extracted recipe:
+            { "title": "Pasta", "ingredients": [{ "name": "Flour", "amount": 1, "unit": "kg" }], "steps": [{ "number": 1, "description": "Mix" }] }
+            """;
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
+    }
+
+    [Fact]
+    public async Task ExtractAsync_LlmPreambleInsideMarkdownFence_ReturnsExtractionFailed()
+    {
+        var json = """
+            Here is the recipe:
+            ```json
+            { "title": "Pasta", "ingredients": [{ "name": "Flour", "amount": 1, "unit": "kg" }], "steps": [{ "number": 1, "description": "Mix" }] }
+            ```
+            """;
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ExtractAsync_EmptyIngredientsArray_ReturnsRecipeWithEmptyIngredients()
+    {
+        var json = """
+            {
+              "title": "Water",
+              "ingredients": [],
+              "steps": [{ "number": 1, "description": "Pour water" }]
+            }
+            """;
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Ingredients.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ExtractAsync_EmptyStepsArray_ReturnsRecipeWithEmptySteps()
+    {
+        var json = """
+            {
+              "title": "Instant Noodles",
+              "ingredients": [{ "name": "Noodles", "amount": 1, "unit": "pack" }],
+              "steps": []
+            }
+            """;
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Steps.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ExtractAsync_NullTitle_ReturnsExtractionFailed()
+    {
+        var json = """
+            {
+              "title": null,
+              "ingredients": [{ "name": "Flour", "amount": 1, "unit": "kg" }],
+              "steps": [{ "number": 1, "description": "Mix" }]
+            }
+            """;
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsFailure.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ExtractAsync_ServingsAsString_ReturnsExtractionFailed()
+    {
+        var json = """
+            {
+              "title": "Pasta",
+              "ingredients": [{ "name": "Flour", "amount": 1, "unit": "kg" }],
+              "steps": [{ "number": 1, "description": "Mix" }],
+              "servings": "four"
+            }
+            """;
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
+    }
+
+    [Fact]
+    public async Task ExtractAsync_IngredientAmountAsDecimal_ReturnsExtractedRecipe()
+    {
+        var json = """
+            {
+              "title": "Pasta",
+              "ingredients": [{ "name": "Butter", "amount": 0.5, "unit": "cup" }],
+              "steps": [{ "number": 1, "description": "Melt butter" }]
+            }
+            """;
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Ingredients[0].Amount.Should().Be(0.5m);
+    }
+
+    [Fact]
+    public async Task ExtractAsync_JsonArray_ReturnsExtractionFailed()
+    {
+        var sut = CreateSut("""[{ "title": "Pasta" }]""");
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
+    }
+
+    [Fact]
+    public async Task ExtractAsync_ErrorPropertyWithDifferentCase_DoesNotDetectAsNoRecipeFound()
+    {
+        var json = """{ "Error": "NO_RECIPE_FOUND" }""";
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().NotBe(ImportRecipeErrors.NoRecipeFound);
+    }
+
+    [Fact]
+    public async Task ExtractAsync_ErrorPropertyWithDifferentValue_DoesNotDetectAsNoRecipe()
+    {
+        var json = """{ "error": "SOME_OTHER_ERROR" }""";
+        var sut = CreateSut(json);
+        var content = new ScrapedContent("Some text", new RecipeUrl("https://example.com/page"));
+
+        var result = await sut.ExtractAsync(content);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().NotBe(ImportRecipeErrors.NoRecipeFound);
+    }
+
     private static Kernel CreateKernel(IChatCompletionService chatCompletionService)
     {
         var builder = Kernel.CreateBuilder();

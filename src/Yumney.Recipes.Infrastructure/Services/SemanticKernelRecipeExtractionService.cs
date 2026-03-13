@@ -109,15 +109,18 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
             }
 
             var recipe = root.Deserialize<ExtractedRecipeDto>(jsonOptions);
-            if (recipe is null)
+            if (recipe is null
+                || string.IsNullOrWhiteSpace(recipe.Title)
+                || recipe.Ingredients is null
+                || recipe.Steps is null)
             {
-                LogParsingFailed(sourceUrl, "Deserialization returned null");
+                LogParsingFailed(sourceUrl, "Required fields missing or null");
                 return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
             }
 
             return Result<ExtractedRecipeDto>.Success(recipe);
         }
-        catch (JsonException ex)
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException)
         {
             LogParsingFailed(sourceUrl, ex.Message);
             return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);

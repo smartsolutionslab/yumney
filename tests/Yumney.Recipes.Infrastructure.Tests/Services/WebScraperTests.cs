@@ -195,6 +195,77 @@ public class WebScraperTests
         result.Value.CleanedText.Should().NotContain("Enable JavaScript");
     }
 
+    [Fact]
+    public async Task ScrapeAsync_MalformedHtml_ExtractsTextGracefully()
+    {
+        var html = "<html><body><main><p>Recipe content<p>More content</div></main></body></html>";
+        var httpClient = CreateHttpClient(html);
+        var sut = new WebScraper(httpClient, logger);
+
+        var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.CleanedText.Should().Contain("Recipe content");
+        result.Value.CleanedText.Should().Contain("More content");
+    }
+
+    [Fact]
+    public async Task ScrapeAsync_UnicodeContent_PreservesSpecialCharacters()
+    {
+        var html = "<html><body><main><p>Crème Brûlée — ein französisches Dessert</p></main></body></html>";
+        var httpClient = CreateHttpClient(html);
+        var sut = new WebScraper(httpClient, logger);
+
+        var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.CleanedText.Should().Contain("Crème Brûlée");
+        result.Value.CleanedText.Should().Contain("französisches");
+    }
+
+    [Fact]
+    public async Task ScrapeAsync_HtmlWithoutBodyTag_ReturnsNoRecipeFound()
+    {
+        var html = "<html></html>";
+        var httpClient = CreateHttpClient(html);
+        var sut = new WebScraper(httpClient, logger);
+
+        var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ImportRecipeErrors.NoRecipeFound);
+    }
+
+    [Fact]
+    public async Task ScrapeAsync_DeepNestedContent_ExtractsText()
+    {
+        var html = """
+            <html><body><main>
+            <div><div><div><p>Deeply nested recipe content</p></div></div></div>
+            </main></body></html>
+            """;
+        var httpClient = CreateHttpClient(html);
+        var sut = new WebScraper(httpClient, logger);
+
+        var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.CleanedText.Should().Contain("Deeply nested recipe content");
+    }
+
+    [Fact]
+    public async Task ScrapeAsync_HtmlEntities_DecodesCorrectly()
+    {
+        var html = "<html><body><main><p>1 &amp; 2 &lt; 3 &mdash; done</p></main></body></html>";
+        var httpClient = CreateHttpClient(html);
+        var sut = new WebScraper(httpClient, logger);
+
+        var result = await sut.ScrapeAsync(new RecipeUrl("https://example.com/recipe"));
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.CleanedText.Should().Contain("1 & 2 < 3");
+    }
+
     private static HttpClient CreateHttpClient(string content = "", HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         var handler = new FakeHttpMessageHandler(content, statusCode);
