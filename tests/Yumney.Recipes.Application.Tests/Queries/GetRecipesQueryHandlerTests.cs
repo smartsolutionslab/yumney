@@ -97,6 +97,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Is<OwnerIdentifier>(o => o.Value == "specific-user-id"),
             Arg.Any<PagingOptions>(),
             Arg.Any<SortingOptions<RecipeSortField>>(),
+            Arg.Any<SearchTerm?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -112,6 +113,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<OwnerIdentifier>(),
             Arg.Is<PagingOptions>(p => p.Skip == 20 && p.PageSize.Value == 10),
             Arg.Any<SortingOptions<RecipeSortField>>(),
+            Arg.Any<SearchTerm?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -127,6 +129,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<OwnerIdentifier>(),
             Arg.Is<PagingOptions>(p => p.Skip == 0 && p.PageSize.Value == 20),
             Arg.Any<SortingOptions<RecipeSortField>>(),
+            Arg.Any<SearchTerm?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -142,6 +145,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<OwnerIdentifier>(),
             Arg.Any<PagingOptions>(),
             Arg.Is<SortingOptions<RecipeSortField>>(s => s.SortBy == RecipeSortField.Name && s.Direction == SortDirection.Ascending),
+            Arg.Any<SearchTerm?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -157,6 +161,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<OwnerIdentifier>(),
             Arg.Any<PagingOptions>(),
             Arg.Is<SortingOptions<RecipeSortField>>(s => s.SortBy == RecipeSortField.Date && s.Direction == SortDirection.Descending),
+            Arg.Any<SearchTerm?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -173,7 +178,41 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<OwnerIdentifier>(),
             Arg.Any<PagingOptions>(),
             Arg.Any<SortingOptions<RecipeSortField>>(),
+            Arg.Any<SearchTerm?>(),
             cts.Token);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithSearchTerm_ForwardsSearchToRepository()
+    {
+        SetupEmptyRepository();
+
+        var search = new SearchTerm("pasta");
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending, search);
+        await handler.HandleAsync(query);
+
+        await recipes.Received(1).GetByOwnerAsync(
+            Arg.Any<OwnerIdentifier>(),
+            Arg.Any<PagingOptions>(),
+            Arg.Any<SortingOptions<RecipeSortField>>(),
+            Arg.Is<SearchTerm?>(s => s != null && s.Value == "pasta"),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithoutSearchTerm_PassesNullToRepository()
+    {
+        SetupEmptyRepository();
+
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        await handler.HandleAsync(query);
+
+        await recipes.Received(1).GetByOwnerAsync(
+            Arg.Any<OwnerIdentifier>(),
+            Arg.Any<PagingOptions>(),
+            Arg.Any<SortingOptions<RecipeSortField>>(),
+            null,
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -243,11 +282,11 @@ public class GetRecipesQueryHandlerTests
     }
 
     private static GetRecipesQuery CreateQuery(
-        int page, int pageSize, RecipeSortField sortBy, SortDirection sortDirection)
+        int page, int pageSize, RecipeSortField sortBy, SortDirection sortDirection, SearchTerm? search = null)
     {
         var paging = PagingOptions.From(new Page(page), new PageSize(pageSize));
         var sorting = new SortingOptions<RecipeSortField>(sortBy, sortDirection);
-        return new GetRecipesQuery(paging, sorting);
+        return new GetRecipesQuery(paging, sorting, search);
     }
 
     private static Recipe CreateTestRecipe(string title)
@@ -285,6 +324,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<OwnerIdentifier>(),
             Arg.Any<PagingOptions>(),
             Arg.Any<SortingOptions<RecipeSortField>>(),
+            Arg.Any<SearchTerm?>(),
             Arg.Any<CancellationToken>())
             .Returns((items, totalCount));
     }

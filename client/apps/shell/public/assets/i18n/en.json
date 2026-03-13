@@ -96,6 +96,12 @@
         "message": "Import your first recipe from any website or create one from scratch.",
         "cta": "Import a Recipe"
       },
+      "search": {
+        "placeholder": "Search recipes...",
+        "label": "Search recipes",
+        "noResults": "No recipes found",
+        "noResultsMessage": "No recipes match \"{{query}}\". Try a different search term."
+      },
       "errors": {
         "generic": "Failed to load recipes. Please try again later."
       }

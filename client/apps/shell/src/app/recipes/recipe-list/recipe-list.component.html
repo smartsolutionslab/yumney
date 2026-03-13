@@ -13,18 +13,36 @@
     </select>
   </div>
 
+  <div class="search-bar">
+    <input
+      type="search"
+      class="search-input"
+      [value]="searchQuery()"
+      (input)="onSearchInput($event)"
+      [placeholder]="t('recipes.list.search.placeholder')"
+      [attr.aria-label]="t('recipes.list.search.label')"
+    />
+  </div>
+
   @if (serverError()) {
     <div class="error-banner">{{ t(serverError()!) }}</div>
   }
 
   @if (!isLoading() && recipes().length === 0 && !serverError()) {
-    <div class="empty-state">
-      <h2>{{ t('recipes.list.empty.title') }}</h2>
-      <p>{{ t('recipes.list.empty.message') }}</p>
-      <a routerLink="/dashboard" class="cta-button">
-        {{ t('recipes.list.empty.cta') }}
-      </a>
-    </div>
+    @if (activeSearch()) {
+      <div class="empty-state">
+        <h2>{{ t('recipes.list.search.noResults') }}</h2>
+        <p>{{ t('recipes.list.search.noResultsMessage', { query: activeSearch() }) }}</p>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <h2>{{ t('recipes.list.empty.title') }}</h2>
+        <p>{{ t('recipes.list.empty.message') }}</p>
+        <a routerLink="/dashboard" class="cta-button">
+          {{ t('recipes.list.empty.cta') }}
+        </a>
+      </div>
+    }
   }
 
   @if (recipes().length > 0) {

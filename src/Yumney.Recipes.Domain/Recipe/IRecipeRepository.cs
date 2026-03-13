@@ -14,6 +14,7 @@ public interface IRecipeRepository
         OwnerIdentifier owner,
         PagingOptions paging,
         SortingOptions<RecipeSortField> sorting,
+        SearchTerm? search = null,
         CancellationToken cancellationToken = default);
 
     Task UpdateAsync(Recipe recipe, CancellationToken cancellationToken = default);
