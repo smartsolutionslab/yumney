@@ -85,6 +85,12 @@ const en = {
       prepTime: 'Prep {{minutes}} min',
       cookTime: 'Cook {{minutes}} min',
       loading: 'Loading recipes...',
+      search: {
+        placeholder: 'Search recipes...',
+        label: 'Search recipes',
+        noResults: 'No recipes found',
+        noResultsMessage: 'No recipes match "{{query}}". Try a different search term.',
+      },
       empty: {
         title: 'No recipes yet',
         message: 'Import your first recipe from any website or create one from scratch.',
@@ -463,5 +469,94 @@ describe('RecipeListComponent', () => {
     tick();
 
     expect(component.isLoading()).toBe(false);
+  }));
+
+  it('should render search input', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const input = fixture.nativeElement.querySelector('.search-input');
+    expect(input).toBeTruthy();
+    expect(input.type).toBe('search');
+  }));
+
+  it('should debounce search input and call API after 300ms', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+
+    recipeApiMock.getRecipes.mockClear();
+    recipeApiMock.getRecipes.mockReturnValue(of(emptyResponse));
+
+    component.onSearchInput({ target: { value: 'pasta' } } as unknown as Event);
+    expect(recipeApiMock.getRecipes).not.toHaveBeenCalled();
+
+    tick(300);
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
+      expect.objectContaining({ search: 'pasta' }),
+    );
+  }));
+
+  it('should reset pagination when searching', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.currentPage.set(3);
+    recipeApiMock.getRecipes.mockReturnValue(of(emptyResponse));
+    component.onSearchInput({ target: { value: 'test' } } as unknown as Event);
+    tick(300);
+
+    expect(component.currentPage()).toBe(1);
+  }));
+
+  it('should show no-results empty state when search has no results', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+
+    recipeApiMock.getRecipes.mockReturnValue(of(emptyResponse));
+    component.onSearchInput({ target: { value: 'nonexistent' } } as unknown as Event);
+    tick(300);
+    fixture.detectChanges();
+
+    const empty = fixture.nativeElement.querySelector('.empty-state');
+    expect(empty).toBeTruthy();
+    expect(empty.textContent).toContain('No recipes found');
+  }));
+
+  it('should clear search and reload recipes', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.searchQuery.set('pasta');
+    component.activeSearch.set('pasta');
+
+    recipeApiMock.getRecipes.mockClear();
+    recipeApiMock.getRecipes.mockReturnValue(of(mockResponse));
+    component.onSearchClear();
+    tick();
+
+    expect(component.searchQuery()).toBe('');
+    expect(component.activeSearch()).toBe('');
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
+      expect.not.objectContaining({ search: expect.anything() }),
+    );
+  }));
+
+  it('should not include search param when search is empty', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith({
+      page: 1,
+      pageSize: 20,
+      sortBy: 'Date',
+      sortDirection: 'Descending',
+    });
   }));
 });

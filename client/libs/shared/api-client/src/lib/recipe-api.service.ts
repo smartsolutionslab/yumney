@@ -77,6 +77,7 @@ export type RecipeListResponse = PagedResponse<RecipeListItem>;
 
 export interface GetRecipesParams extends PaginationParams {
   sortBy?: 'Name' | 'Date';
+  search?: string;
 }
 
 export interface RecipeIngredient {
@@ -136,6 +137,7 @@ export class RecipeApiService {
         ...(params.pageSize != null && { pageSize: params.pageSize }),
         ...(params.sortBy != null && { sortBy: params.sortBy }),
         ...(params.sortDirection != null && { sortDirection: params.sortDirection }),
+        ...(params.search != null && params.search !== '' && { search: params.search }),
       },
     });
   }

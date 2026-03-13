@@ -7,10 +7,11 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 
 public sealed record GetRecipesQuery(
     PagingOptions Paging,
-    SortingOptions<RecipeSortField> Sorting) : IQuery<Result<PagedResult<RecipeListItemDto>>>
+    SortingOptions<RecipeSortField> Sorting,
+    SearchTerm? Search = null) : IQuery<Result<PagedResult<RecipeListItemDto>>>
 {
     public static GetRecipesQuery From(
-        int page, int pageSize, string sortBy, SortDirection sortDirection)
+        int page, int pageSize, string sortBy, SortDirection sortDirection, string? search = null)
     {
         var clampedPage = new Page(Math.Max(page, 1));
         var clampedSize = new PageSize(Math.Clamp(pageSize, 1, PagingOptions.MaxPageSize));
@@ -21,6 +22,7 @@ public sealed record GetRecipesQuery(
             : RecipeSortField.Date;
         var sorting = new SortingOptions<RecipeSortField>(parsedSortBy, sortDirection);
 
-        return new GetRecipesQuery(paging, sorting);
+        var searchTerm = SearchTerm.FromNullable(search);
+        return new GetRecipesQuery(paging, sorting, searchTerm);
     }
 }

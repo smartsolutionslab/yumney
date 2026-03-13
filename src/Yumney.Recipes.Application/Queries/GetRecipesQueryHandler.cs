@@ -15,13 +15,13 @@ public sealed partial class GetRecipesQueryHandler(
 {
     public async Task<Result<PagedResult<RecipeListItemDto>>> HandleAsync(GetRecipesQuery query, CancellationToken cancellationToken = default)
     {
-        var (paging, sorting) = query;
+        var (paging, sorting, search) = query;
         var owner = new OwnerIdentifier(currentUser.UserId);
 
-        LogGetRecipes(owner.Value, paging.Page.Value, paging.PageSize.Value);
+        LogGetRecipes(owner.Value, paging.Page.Value, paging.PageSize.Value, search?.Value);
 
         var (items, totalCount) = await recipes.GetByOwnerAsync(
-            owner, paging, sorting, cancellationToken);
+            owner, paging, sorting, search, cancellationToken);
 
         var dtoItems = items.Select(r => new RecipeListItemDto(
             r.Id,
@@ -38,6 +38,6 @@ public sealed partial class GetRecipesQueryHandler(
             new PagedResult<RecipeListItemDto>(dtoItems, totalCount, paging.Page.Value, paging.PageSize.Value));
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipes for owner {OwnerId}, page {Page}, pageSize {PageSize}")]
-    private partial void LogGetRecipes(string ownerId, int page, int pageSize);
+    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipes for owner {OwnerId}, page {Page}, pageSize {PageSize}, search {Search}")]
+    private partial void LogGetRecipes(string ownerId, int page, int pageSize, string? search);
 }

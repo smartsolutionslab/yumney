@@ -32,6 +32,7 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   private recipeApi = inject(RecipeApiService);
   private destroyRef = inject(DestroyRef);
   private observer: IntersectionObserver | null = null;
+  private searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
   scrollSentinel = viewChild<ElementRef>('scrollSentinel');
 
@@ -43,14 +44,51 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   sortDirection = signal<'Ascending' | 'Descending'>('Descending');
   isLoading = signal(false);
   serverError = signal<string | null>(null);
+  searchQuery = signal('');
+  activeSearch = signal('');
 
   hasMore = computed(() => this.recipes().length < this.totalCount());
 
   ngOnInit(): void {
     this.loadRecipes(false);
+    this.destroyRef.onDestroy(() => {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+      }
+    });
+  }
+
+  onSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQuery.set(value);
+
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+
+    this.searchTimeout = setTimeout(() => {
+      this.activeSearch.set(value.trim());
+      this.currentPage.set(1);
+      this.recipes.set([]);
+      this.totalCount.set(0);
+      this.loadRecipes(false);
+    }, 300);
+  }
+
+  onSearchClear(): void {
+    this.searchQuery.set('');
+    this.activeSearch.set('');
+    this.currentPage.set(1);
+    this.recipes.set([]);
+    this.totalCount.set(0);
+    this.loadRecipes(false);
   }
 
   onSortChange(event: Event): void {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = null;
+    }
     const value = (event.target as HTMLSelectElement).value;
     switch (value) {
       case 'date-desc':
@@ -98,11 +136,13 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
     this.isLoading.set(true);
     this.serverError.set(null);
 
+    const search = this.activeSearch();
     const params: GetRecipesParams = {
       page: this.currentPage(),
       pageSize: this.pageSize(),
       sortBy: this.sortBy(),
       sortDirection: this.sortDirection(),
+      ...(search !== '' && { search }),
     };
 
     this.recipeApi

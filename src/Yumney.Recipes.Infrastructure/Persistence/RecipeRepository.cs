@@ -42,9 +42,19 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         OwnerIdentifier owner,
         PagingOptions paging,
         SortingOptions<RecipeSortField> sorting,
+        SearchTerm? search = null,
         CancellationToken cancellationToken = default)
     {
         var query = recipes.Where(r => r.Owner == owner);
+
+        if (search is not null)
+        {
+            var pattern = $"%{search.Value}%";
+            query = query.Where(r =>
+                EF.Functions.ILike(r.Title.Value, pattern) ||
+                (r.Description != null && EF.Functions.ILike(r.Description.Value, pattern)) ||
+                r.Ingredients.Any(i => EF.Functions.ILike(i.Name.Value, pattern)));
+        }
 
         query = (sorting.SortBy, sorting.Direction) switch
         {

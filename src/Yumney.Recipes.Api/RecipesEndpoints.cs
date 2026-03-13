@@ -66,9 +66,10 @@ public static class RecipesEndpoints
         int pageSize = PagingOptions.DefaultPageSize,
         string sortBy = "Date",
         SortDirection sortDirection = SortDirection.Descending,
+        string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var query = GetRecipesQuery.From(page, pageSize, sortBy, sortDirection);
+        var query = GetRecipesQuery.From(page, pageSize, sortBy, sortDirection, search);
         var result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
