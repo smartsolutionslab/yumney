@@ -21,6 +21,7 @@ class MockIntersectionObserver implements IntersectionObserver {
     this.observedElement = target;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   unobserve(): void {}
 
   disconnect(): void {
