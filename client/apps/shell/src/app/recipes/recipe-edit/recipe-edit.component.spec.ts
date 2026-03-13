@@ -146,7 +146,7 @@ describe('RecipeEditComponent', () => {
 
     expect(recipeApiMock.getRecipeById).toHaveBeenCalledWith('abc-123');
     expect(component.recipeData()).toBeTruthy();
-    expect(component.recipeData()!.title).toBe('Pasta Carbonara');
+    expect(component.recipeData()?.title).toBe('Pasta Carbonara');
   }));
 
   it('should show loading state while fetching', fakeAsync(() => {
@@ -222,16 +222,17 @@ describe('RecipeEditComponent', () => {
     fixture.detectChanges();
     tick();
 
-    const data = component.recipeData()!;
-    expect(data.title).toBe('Pasta Carbonara');
-    expect(data.description).toBe('A classic Italian dish');
-    expect(data.servings).toBe(4);
-    expect(data.prepTimeMinutes).toBe(10);
-    expect(data.cookTimeMinutes).toBe(20);
-    expect(data.difficulty).toBe('medium');
-    expect(data.imageUrl).toBe('https://example.com/image.jpg');
-    expect(data.ingredients).toEqual(mockRecipeDetail.ingredients);
-    expect(data.steps).toEqual(mockRecipeDetail.steps);
+    const data = component.recipeData();
+    expect(data).toBeTruthy();
+    expect(data?.title).toBe('Pasta Carbonara');
+    expect(data?.description).toBe('A classic Italian dish');
+    expect(data?.servings).toBe(4);
+    expect(data?.prepTimeMinutes).toBe(10);
+    expect(data?.cookTimeMinutes).toBe(20);
+    expect(data?.difficulty).toBe('medium');
+    expect(data?.imageUrl).toBe('https://example.com/image.jpg');
+    expect(data?.ingredients).toEqual(mockRecipeDetail.ingredients);
+    expect(data?.steps).toEqual(mockRecipeDetail.steps);
     expect((data as Record<string, unknown>)['sourceUrl']).toBeUndefined();
     expect((data as Record<string, unknown>)['createdAt']).toBeUndefined();
   }));
