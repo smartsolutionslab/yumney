@@ -5,13 +5,14 @@ import {
   OnInit,
   DestroyRef,
   signal,
+  computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
-import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
+import { mapHttpError, HttpErrorMap, scaleIngredients } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-recipe-detail',
@@ -41,6 +42,25 @@ export class RecipeDetailComponent implements OnInit {
   isLoading = signal(false);
   isDeleting = signal(false);
   serverError = signal<string | null>(null);
+  desiredServings = signal<number | null>(null);
+
+  scaledIngredients = computed(() => {
+    const recipe = this.recipe();
+    if (!recipe) {
+      return [];
+    }
+    const desired = this.desiredServings();
+    if (!desired || !recipe.servings) {
+      return recipe.ingredients;
+    }
+    return scaleIngredients(recipe.ingredients, recipe.servings, desired);
+  });
+
+  isScaled = computed(() => {
+    const recipe = this.recipe();
+    const desired = this.desiredServings();
+    return recipe?.servings != null && desired != null && desired !== recipe.servings;
+  });
 
   ngOnInit(): void {
     const identifier = this.route.snapshot.paramMap.get('identifier');
@@ -57,6 +77,7 @@ export class RecipeDetailComponent implements OnInit {
       .subscribe({
         next: (recipe) => {
           this.recipe.set(recipe);
+          this.desiredServings.set(recipe.servings);
           this.isLoading.set(false);
         },
         error: (err: HttpErrorResponse) => {
@@ -77,6 +98,27 @@ export class RecipeDetailComponent implements OnInit {
       return null;
     }
     return prep + cook;
+  }
+
+  onIncreaseServings(): void {
+    const current = this.desiredServings();
+    if (current !== null) {
+      this.desiredServings.set(current + 1);
+    }
+  }
+
+  onDecreaseServings(): void {
+    const current = this.desiredServings();
+    if (current !== null && current > 1) {
+      this.desiredServings.set(current - 1);
+    }
+  }
+
+  onResetServings(): void {
+    const recipe = this.recipe();
+    if (recipe?.servings != null) {
+      this.desiredServings.set(recipe.servings);
+    }
   }
 
   onDelete(): void {

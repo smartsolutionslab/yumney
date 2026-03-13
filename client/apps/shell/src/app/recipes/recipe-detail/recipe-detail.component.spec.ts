@@ -58,6 +58,7 @@ const en = {
           generic: 'Failed to delete recipe. Please try again later.',
         },
       },
+      resetServings: 'Reset',
       errors: {
         generic: 'Failed to load recipe. Please try again later.',
       },
@@ -509,5 +510,80 @@ describe('RecipeDetailComponent', () => {
     expect(error).toBeTruthy();
     expect(error.textContent).toContain('Failed to delete recipe.');
     vi.restoreAllMocks();
+  }));
+
+  it('should initialize desiredServings from recipe.servings', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    expect(component.desiredServings()).toBe(4);
+  }));
+
+  it('should increase servings on + click', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    component.onIncreaseServings();
+
+    expect(component.desiredServings()).toBe(5);
+  }));
+
+  it('should decrease servings on - click', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    component.onDecreaseServings();
+
+    expect(component.desiredServings()).toBe(3);
+  }));
+
+  it('should not decrease below 1', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    component.desiredServings.set(1);
+    component.onDecreaseServings();
+
+    expect(component.desiredServings()).toBe(1);
+  }));
+
+  it('should reset to original servings', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    component.desiredServings.set(8);
+    component.onResetServings();
+
+    expect(component.desiredServings()).toBe(4);
+  }));
+
+  it('should display scaled ingredient amounts', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    component.desiredServings.set(8);
+    fixture.detectChanges();
+
+    const scaled = component.scaledIngredients();
+    expect(scaled[0].amount).toBe(800);
+    expect(scaled[1].amount).toBe(8);
+  }));
+
+  it('should show isScaled as true when servings differ', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    expect(component.isScaled()).toBe(false);
+
+    component.desiredServings.set(6);
+
+    expect(component.isScaled()).toBe(true);
   }));
 });

@@ -29,10 +29,18 @@
 
     <div class="meta-bar">
       @if (recipe.servings) {
-        <div class="meta-item">
-          <span class="meta-label">{{
-            t('recipes.detail.servings', { count: recipe.servings })
-          }}</span>
+        <div class="meta-item servings-adjuster">
+          <span class="meta-label">{{ t('recipes.detail.servings', { count: desiredServings() }) }}</span>
+          <div class="servings-control">
+            <button class="servings-button" (click)="onDecreaseServings()" [disabled]="desiredServings() === 1">&minus;</button>
+            <span class="servings-value">{{ desiredServings() }}</span>
+            <button class="servings-button" (click)="onIncreaseServings()">+</button>
+          </div>
+          @if (isScaled()) {
+            <button class="reset-link" (click)="onResetServings()">
+              {{ t('recipes.detail.resetServings') }}
+            </button>
+          }
         </div>
       }
       @if (recipe.prepTimeMinutes) {
@@ -88,7 +96,7 @@
     <section class="ingredients-section">
       <h2>{{ t('recipes.detail.ingredients') }}</h2>
       <ul class="ingredients-list">
-        @for (ingredient of recipe.ingredients; track ingredient.name) {
+        @for (ingredient of scaledIngredients(); track ingredient.name) {
           <li>
             @if (ingredient.amount) {
               <span class="ingredient-amount">{{ ingredient.amount }}</span>
