@@ -143,6 +143,7 @@
           "generic": "Rezept konnte nicht gelöscht werden. Bitte versuche es später erneut."
         }
       },
+      "resetServings": "Zurücksetzen",
       "errors": {
         "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut."
       }

@@ -143,6 +143,7 @@
           "generic": "Failed to delete recipe. Please try again later."
         }
       },
+      "resetServings": "Reset",
       "errors": {
         "generic": "Failed to load recipe. Please try again later."
       }
