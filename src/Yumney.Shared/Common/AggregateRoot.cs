@@ -1,19 +1,27 @@
-namespace Yumney.Shared.Common;
+namespace SmartSolutionsLab.Yumney.Shared.Common;
 
-public abstract class AggregateRoot<TId> : Entity<TId>
+public abstract class AggregateRoot<TId> : Entity<TId>, IHasDomainEvents
     where TId : notnull
 {
-    private readonly List<IDomainEvent> _domainEvents = [];
+    private readonly List<IDomainEvent> domainEvents = [];
 
-    public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
-
-    protected void AddDomainEvent(IDomainEvent domainEvent)
-    {
-        _domainEvents.Add(domainEvent);
-    }
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => domainEvents.AsReadOnly();
 
     public void ClearDomainEvents()
     {
-        _domainEvents.Clear();
+        domainEvents.Clear();
+    }
+
+    protected static void CheckRule(IBusinessRule rule)
+    {
+        if (rule.IsBroken())
+        {
+            throw new BusinessRuleValidationException(rule);
+        }
+    }
+
+    protected void AddDomainEvent(IDomainEvent domainEvent)
+    {
+        domainEvents.Add(domainEvent);
     }
 }

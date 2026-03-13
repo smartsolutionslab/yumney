@@ -1,8 +1,6 @@
-using MediatR;
+namespace SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace Yumney.Shared.Common;
-
-public interface IDomainEvent : INotification
+public interface IDomainEvent
 {
     DateTime OccurredOn { get; }
 }

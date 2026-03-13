@@ -1,0 +1,34 @@
+<div class="editable-list-item" *transloco="let t">
+  <div class="item-content">
+    <ng-content />
+  </div>
+
+  <div class="item-actions">
+    <button
+      type="button"
+      class="action-btn"
+      [disabled]="isFirst()"
+      (click)="moveUp.emit()"
+      [attr.aria-label]="t('shared.editableList.moveUp')"
+    >
+      &#9650;
+    </button>
+    <button
+      type="button"
+      class="action-btn"
+      [disabled]="isLast()"
+      (click)="moveDown.emit()"
+      [attr.aria-label]="t('shared.editableList.moveDown')"
+    >
+      &#9660;
+    </button>
+    <button
+      type="button"
+      class="action-btn remove-btn"
+      (click)="remove.emit()"
+      [attr.aria-label]="t('shared.editableList.remove')"
+    >
+      &times;
+    </button>
+  </div>
+</div>

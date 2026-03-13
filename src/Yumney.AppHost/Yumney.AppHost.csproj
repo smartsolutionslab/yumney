@@ -1,11 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.1.0" />
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="13.1.2" />
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsAspireHost>true</IsAspireHost>
   </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Api\Yumney.Api.csproj" />
-    <ProjectReference Include="..\Yumney.ServiceDefaults\Yumney.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Yumney.Gateway\Yumney.Gateway.csproj" />
+    <ProjectReference Include="..\Yumney.MigrationRunner\Yumney.MigrationRunner.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Keycloak" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" />
+  </ItemGroup>
+
 </Project>

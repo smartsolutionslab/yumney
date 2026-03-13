@@ -1,0 +1,211 @@
+{
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your Yumney account",
+      "submit": "Sign in with Keycloak",
+      "rememberMe": "Stay logged in",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Create one",
+      "forgotPassword": "Forgot your password?"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join Yumney and start collecting recipes",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "displayName": "Display Name",
+      "displayNamePlaceholder": "Your name",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "submitting": "Creating account...",
+      "success": {
+        "title": "Check your email",
+        "message": "We've sent a verification link to your email address. Please click it to activate your account.",
+        "resendLink": "Didn't receive the email? Resend verification email"
+      },
+      "errors": {
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Please enter a valid email address.",
+        "emailMaxLength": "Email must not exceed 254 characters.",
+        "displayNameRequired": "Display name is required.",
+        "displayNameMaxLength": "Display name must not exceed 200 characters.",
+        "passwordRequired": "Password is required.",
+        "passwordMinLength": "Password must be at least 8 characters.",
+        "passwordPattern": "Password must contain uppercase, lowercase, and a digit.",
+        "confirmPasswordRequired": "Please confirm your password.",
+        "passwordsMismatch": "Passwords do not match.",
+        "emailAlreadyExists": "A user with this email address already exists.",
+        "validationFailed": "Please check your input and try again.",
+        "generic": "An unexpected error occurred. Please try again later."
+      }
+    },
+    "resendVerification": {
+      "title": "Resend Verification Email",
+      "subtitle": "Enter your email address and we'll send you a new verification link",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Resend Verification Email",
+      "submitting": "Sending...",
+      "backToRegister": "Back to registration",
+      "success": {
+        "title": "Email sent",
+        "message": "If this email is registered, a verification email has been sent. Please check your inbox."
+      },
+      "errors": {
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Please enter a valid email address.",
+        "emailMaxLength": "Email must not exceed 254 characters.",
+        "serviceUnavailable": "The service is temporarily unavailable. Please try again later.",
+        "generic": "An unexpected error occurred. Please try again later."
+      }
+    }
+  },
+  "shared": {
+    "editableList": {
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove"
+    }
+  },
+  "layout": {
+    "header": {
+      "greeting": "Hi, {{name}}",
+      "logout": "Sign out",
+      "login": "Sign in",
+      "myRecipes": "My Recipes"
+    }
+  },
+  "recipes": {
+    "list": {
+      "title": "My Recipes",
+      "sortLabel": "Sort recipes",
+      "sort": {
+        "dateDesc": "Newest first",
+        "dateAsc": "Oldest first",
+        "nameAsc": "Name A-Z",
+        "nameDesc": "Name Z-A"
+      },
+      "servings": "{{count}} servings",
+      "prepTime": "Prep {{minutes}} min",
+      "cookTime": "Cook {{minutes}} min",
+      "loading": "Loading recipes...",
+      "empty": {
+        "title": "No recipes yet",
+        "message": "Import your first recipe from any website or create one from scratch.",
+        "cta": "Import a Recipe"
+      },
+      "search": {
+        "placeholder": "Search recipes...",
+        "label": "Search recipes",
+        "noResults": "No recipes found",
+        "noResultsMessage": "No recipes match \"{{query}}\". Try a different search term."
+      },
+      "errors": {
+        "generic": "Failed to load recipes. Please try again later."
+      }
+    },
+    "edit": {
+      "title": "Edit Recipe",
+      "back": "Back to Recipe",
+      "loading": "Loading recipe...",
+      "success": "Recipe \"{{title}}\" updated successfully!",
+      "errors": {
+        "notFound": "Recipe not found.",
+        "generic": "Failed to update recipe. Please try again later."
+      }
+    },
+    "detail": {
+      "back": "Back to Recipes",
+      "servings": "{{count}} servings",
+      "prepTime": "Prep",
+      "cookTime": "Cook",
+      "totalTime": "Total",
+      "minutes": "{{minutes}} min",
+      "difficulty": "Difficulty",
+      "ingredients": "Ingredients",
+      "steps": "Steps",
+      "sourceUrl": "Original Recipe",
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "shoppingList": "Shopping List"
+      },
+      "loading": "Loading recipe...",
+      "notFound": "Recipe not found.",
+      "delete": {
+        "confirm": "Are you sure you want to delete \"{{title}}\"? This cannot be undone.",
+        "deleting": "Deleting...",
+        "success": "Recipe deleted successfully.",
+        "errors": {
+          "notFound": "Recipe not found.",
+          "generic": "Failed to delete recipe. Please try again later."
+        }
+      },
+      "errors": {
+        "generic": "Failed to load recipe. Please try again later."
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to Yumney!",
+    "import": {
+      "title": "Import a Recipe",
+      "subtitle": "Paste a URL from any recipe website",
+      "placeholder": "https://example.com/recipe/...",
+      "submit": "Import Recipe",
+      "submitting": "Importing...",
+      "success": "Recipe \"{{title}}\" extracted successfully!",
+      "errors": {
+        "urlRequired": "Please enter a URL.",
+        "urlInvalid": "Please enter a valid HTTP or HTTPS URL.",
+        "urlTooLong": "URL must not exceed 2048 characters.",
+        "unreachable": "Could not reach the website. Please check the URL.",
+        "timeout": "Extraction timed out. Please try again.",
+        "noRecipe": "No recipe found on this page.",
+        "generic": "An unexpected error occurred. Please try again later."
+      }
+    },
+    "create": {
+      "title": "Create a Recipe",
+      "subtitle": "Start from scratch and enter your own recipe",
+      "submit": "Create Recipe",
+      "previewTitle": "New Recipe"
+    },
+    "save": {
+      "success": "Recipe \"{{title}}\" saved successfully!",
+      "saving": "Saving...",
+      "errors": {
+        "duplicate": "This recipe has already been imported.",
+        "generic": "Failed to save recipe. Please try again."
+      }
+    },
+    "preview": {
+      "title": "Review Extracted Recipe",
+      "recipeTitle": "Title",
+      "description": "Description",
+      "servings": "Servings",
+      "prepTime": "Prep Time (min)",
+      "cookTime": "Cook Time (min)",
+      "difficulty": "Difficulty",
+      "ingredients": "Ingredients",
+      "ingredientName": "Ingredient",
+      "amount": "Amount",
+      "unit": "Unit",
+      "addIngredient": "Add Ingredient",
+      "steps": "Steps",
+      "stepDescription": "Step Description",
+      "addStep": "Add Step",
+      "save": "Save Recipe",
+      "discard": "Discard",
+      "errors": {
+        "titleRequired": "Title is required.",
+        "titleMaxLength": "Title must not exceed 200 characters.",
+        "ingredientNameRequired": "Ingredient name is required.",
+        "stepDescriptionRequired": "Step description is required."
+      }
+    }
+  }
+}

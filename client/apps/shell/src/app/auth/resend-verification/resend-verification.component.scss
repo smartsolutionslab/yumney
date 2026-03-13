@@ -1,0 +1,115 @@
+@use '../../shared/banners';
+
+.resend-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.resend-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+  background: #fff;
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    margin: 0 0 1.5rem;
+    color: #666;
+    font-size: 0.9rem;
+  }
+}
+
+.form-field {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: #4a90d9;
+      box-shadow: 0 0 0 2px rgb(74 144 217 / 20%);
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: #dc3545;
+    }
+  }
+
+  .field-error {
+    display: block;
+    margin-top: 0.25rem;
+    color: #dc3545;
+    font-size: 0.8rem;
+  }
+}
+
+.success-message {
+  text-align: center;
+  color: #059669;
+
+  h2 {
+    margin: 0 0 0.5rem;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+button[type='submit'] {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background: #4a90d9;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #3a7bc8;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.back-link {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+
+  a {
+    color: #4a90d9;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

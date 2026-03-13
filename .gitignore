@@ -47,6 +47,10 @@ appsettings.*.local.json
 coverage/
 *.tgz
 
+# Mutation Testing (Stryker)
+StrykerOutput/
+.stryker-tmp/
+
 # Storybook
 storybook-static/
 
@@ -61,3 +65,9 @@ yarn-error.log*
 *.pfx
 *.key
 *.pem
+
+# Claude Code
+.claude/
+
+# Docs (local only)
+Yumney-Spezifikation.docx

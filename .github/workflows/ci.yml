@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 env:
   DOTNET_VERSION: '10.0.x'
@@ -23,17 +23,20 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Install Aspire workload
+        run: dotnet workload install aspire
+
       - name: Restore
-        run: dotnet restore Yumney.sln
+        run: dotnet restore Yumney.slnx
 
       - name: Check formatting
-        run: dotnet format Yumney.sln --verify-no-changes
+        run: dotnet format Yumney.slnx --verify-no-changes
 
       - name: Build
-        run: dotnet build Yumney.sln --no-restore --configuration Release
+        run: dotnet build Yumney.slnx --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test Yumney.sln --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+        run: dotnet test Yumney.slnx --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
 
       - name: Upload coverage
         uses: actions/upload-artifact@v4
@@ -58,10 +61,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Yarn
-        run: corepack enable && corepack prepare yarn@stable --activate
+        run: corepack enable
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Lint
         run: yarn nx run-many -t lint

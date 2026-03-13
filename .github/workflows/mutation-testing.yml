@@ -1,0 +1,248 @@
+name: Mutation Testing
+
+on:
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      backend_only:
+        description: 'Run backend mutation tests only'
+        type: boolean
+        default: false
+      frontend_only:
+        description: 'Run frontend mutation tests only'
+        type: boolean
+        default: false
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  NODE_VERSION: '22'
+
+jobs:
+  backend:
+    name: 'Backend: ${{ matrix.project }}'
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.frontend_only }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: Yumney.Shared.Tests
+            display: Shared
+          - project: Yumney.Recipes.Domain.Tests
+            display: Recipes.Domain
+          - project: Yumney.Recipes.Application.Tests
+            display: Recipes.Application
+          - project: Yumney.Recipes.Infrastructure.Tests
+            display: Recipes.Infrastructure
+          - project: Yumney.Users.Domain.Tests
+            display: Users.Domain
+          - project: Yumney.Users.Application.Tests
+            display: Users.Application
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install Aspire workload
+        run: dotnet workload install aspire
+
+      - name: Restore tools
+        run: dotnet tool restore
+
+      - name: Restore packages
+        run: dotnet restore Yumney.slnx
+
+      - name: Run Stryker
+        id: stryker
+        working-directory: tests/${{ matrix.project }}
+        run: dotnet stryker || echo "STRYKER_FAILED=true" >> "$GITHUB_ENV"
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-report-${{ matrix.display }}
+          path: tests/${{ matrix.project }}/StrykerOutput/**/reports/
+          retention-days: 14
+
+      - name: Upload JSON report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-json-${{ matrix.display }}
+          path: tests/${{ matrix.project }}/StrykerOutput/**/reports/mutation-report.json
+          retention-days: 14
+
+  frontend:
+    name: 'Frontend: Shell'
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.backend_only }}
+
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Yarn
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Run StrykerJS
+        run: npx stryker run || echo "STRYKER_FAILED=true" >> "$GITHUB_ENV"
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-report-frontend
+          path: client/reports/mutation/
+          retention-days: 14
+
+      - name: Upload JSON report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-json-frontend
+          path: client/reports/mutation/mutation.json
+          retention-days: 14
+
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    if: always() && github.event_name == 'pull_request'
+    needs: [backend, frontend]
+
+    steps:
+      - name: Download all JSON reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: stryker-json-*
+          path: reports
+          merge-multiple: false
+
+      - name: Generate summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const results = [];
+            const reportsDir = 'reports';
+
+            if (!fs.existsSync(reportsDir)) {
+              console.log('No reports directory found');
+              return;
+            }
+
+            // Walk through all downloaded artifacts
+            const artifacts = fs.readdirSync(reportsDir);
+            for (const artifact of artifacts) {
+              const artifactDir = path.join(reportsDir, artifact);
+              if (!fs.statSync(artifactDir).isDirectory()) continue;
+
+              // Find mutation-report.json or mutation.json recursively
+              const findJson = (dir) => {
+                const entries = fs.readdirSync(dir, { withFileTypes: true });
+                for (const entry of entries) {
+                  const full = path.join(dir, entry.name);
+                  if (entry.isDirectory()) {
+                    const found = findJson(full);
+                    if (found) return found;
+                  } else if (entry.name === 'mutation-report.json' || entry.name === 'mutation.json') {
+                    return full;
+                  }
+                }
+                return null;
+              };
+
+              const jsonFile = findJson(artifactDir);
+              if (!jsonFile) continue;
+
+              try {
+                const report = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
+                const files = report.files || {};
+                let killed = 0, survived = 0, timeout = 0, noCoverage = 0, total = 0;
+
+                for (const file of Object.values(files)) {
+                  for (const mutant of (file.mutants || [])) {
+                    total++;
+                    if (mutant.status === 'Killed') killed++;
+                    else if (mutant.status === 'Survived') survived++;
+                    else if (mutant.status === 'Timeout') timeout++;
+                    else if (mutant.status === 'NoCoverage') noCoverage++;
+                  }
+                }
+
+                const detected = killed + timeout;
+                const score = total > 0 ? ((detected / total) * 100).toFixed(1) : 'N/A';
+                const name = artifact.replace('stryker-json-', '');
+
+                results.push({ name, score, killed, survived, timeout, noCoverage, total });
+              } catch (e) {
+                console.log(`Failed to parse ${jsonFile}: ${e.message}`);
+              }
+            }
+
+            if (results.length === 0) {
+              console.log('No mutation reports found');
+              return;
+            }
+
+            // Build markdown table
+            let body = '## Mutation Testing Results\n\n';
+            body += '| Module | Score | Killed | Survived | Timeout | No Coverage | Total |\n';
+            body += '|--------|------:|-------:|---------:|--------:|------------:|------:|\n';
+
+            for (const r of results.sort((a, b) => a.name.localeCompare(b.name))) {
+              const icon = r.score === 'N/A' ? '⚪' : r.score >= 80 ? '🟢' : r.score >= 60 ? '🟡' : '🔴';
+              body += `| ${icon} ${r.name} | ${r.score}% | ${r.killed} | ${r.survived} | ${r.timeout} | ${r.noCoverage} | ${r.total} |\n`;
+            }
+
+            body += '\n> **Thresholds:** 🟢 ≥ 80% | 🟡 ≥ 60% | 🔴 < 60%\n';
+            body += '> This is an advisory check — it does not block merging.\n';
+
+            // Find existing comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const marker = '## Mutation Testing Results';
+            const existing = comments.find(c => c.body && c.body.startsWith(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+            // Also add to job summary
+            core.summary.addRaw(body);
+            await core.summary.write();

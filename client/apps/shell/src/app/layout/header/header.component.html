@@ -1,0 +1,22 @@
+<header *transloco="let t">
+  <div class="header-content">
+    <a class="brand" routerLink="/">Yumney</a>
+    <nav>
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/recipes" class="nav-link">
+          {{ t('layout.header.myRecipes') }}
+        </a>
+        <span class="greeting">{{
+          t('layout.header.greeting', { name: authService.displayName() })
+        }}</span>
+        <button class="logout-button" (click)="onLogout()">
+          {{ t('layout.header.logout') }}
+        </button>
+      } @else {
+        <a routerLink="/auth/login" class="login-link">
+          {{ t('layout.header.login') }}
+        </a>
+      }
+    </nav>
+  </div>
+</header>

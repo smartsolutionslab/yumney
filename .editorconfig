@@ -10,6 +10,21 @@ insert_final_newline = true
 
 [*.cs]
 max_line_length = 120
+
+# StyleCop suppressions
+dotnet_diagnostic.SA0001.severity = none
+dotnet_diagnostic.SA1101.severity = none
+dotnet_diagnostic.SA1200.severity = none
+dotnet_diagnostic.SA1201.severity = none
+dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.SA1402.severity = none
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1633.severity = none
+
+# CA suppressions
+dotnet_diagnostic.CA1000.severity = suggestion
+dotnet_diagnostic.CA1716.severity = none
+dotnet_diagnostic.CA1848.severity = suggestion
 dotnet_sort_system_directives_first = true
 csharp_using_directive_placement = outside_namespace
 csharp_new_line_before_open_brace = all
@@ -25,12 +40,11 @@ csharp_style_namespace_declarations = file_scoped:warning
 
 # Naming rules
 dotnet_naming_rule.private_fields_must_be_camel_case.symbols = private_fields
-dotnet_naming_rule.private_fields_must_be_camel_case.style = prefix_underscore
+dotnet_naming_rule.private_fields_must_be_camel_case.style = camel_case_style
 dotnet_naming_rule.private_fields_must_be_camel_case.severity = warning
 dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
-dotnet_naming_style.prefix_underscore.required_prefix = _
-dotnet_naming_style.prefix_underscore.capitalization = camel_case
+dotnet_naming_style.camel_case_style.capitalization = camel_case
 
 dotnet_naming_rule.interfaces_must_begin_with_i.symbols = interfaces
 dotnet_naming_rule.interfaces_must_begin_with_i.style = begins_with_i
@@ -46,6 +60,9 @@ dotnet_naming_symbols.async_methods.applicable_kinds = method
 dotnet_naming_symbols.async_methods.required_modifiers = async
 dotnet_naming_style.end_with_async.required_suffix = Async
 dotnet_naming_style.end_with_async.capitalization = pascal_case
+
+[**/Migrations/*.cs]
+generated_code = true
 
 [*.{ts,tsx,js,jsx}]
 indent_size = 2

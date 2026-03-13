@@ -1,0 +1,12 @@
+{
+  "stryker-config": {
+    "project": "Yumney.Recipes.Domain.csproj",
+    "reporters": ["html", "json", "progress", "cleartext"],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    },
+    "coverage-analysis": "perTest"
+  }
+}

@@ -1,0 +1,104 @@
+<div class="register-container" *transloco="let t">
+  <div class="register-card">
+    <h1>{{ t('auth.register.title') }}</h1>
+    <p class="subtitle">{{ t('auth.register.subtitle') }}</p>
+
+    @if (isSuccess()) {
+      <div class="success-message">
+        <h2>{{ t('auth.register.success.title') }}</h2>
+        <p>{{ t('auth.register.success.message') }}</p>
+        <p class="resend-link">
+          <a routerLink="/auth/resend-verification">{{ t('auth.register.success.resendLink') }}</a>
+        </p>
+      </div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        @if (serverError()) {
+          <div class="error-banner">{{ t(serverError()!) }}</div>
+        }
+
+        <div class="form-field">
+          <label for="email">{{ t('auth.register.email') }}</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            [placeholder]="t('auth.register.emailPlaceholder')"
+          />
+          @if (hasError('email', 'required')) {
+            <span class="field-error">{{ t('auth.register.errors.emailRequired') }}</span>
+          }
+          @if (hasError('email', 'email')) {
+            <span class="field-error">{{ t('auth.register.errors.emailInvalid') }}</span>
+          }
+          @if (hasError('email', 'maxlength')) {
+            <span class="field-error">{{ t('auth.register.errors.emailMaxLength') }}</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="displayName">{{ t('auth.register.displayName') }}</label>
+          <input
+            id="displayName"
+            type="text"
+            formControlName="displayName"
+            autocomplete="name"
+            [placeholder]="t('auth.register.displayNamePlaceholder')"
+          />
+          @if (hasError('displayName', 'required')) {
+            <span class="field-error">{{ t('auth.register.errors.displayNameRequired') }}</span>
+          }
+          @if (hasError('displayName', 'maxlength')) {
+            <span class="field-error">{{ t('auth.register.errors.displayNameMaxLength') }}</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="password">{{ t('auth.register.password') }}</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            autocomplete="new-password"
+          />
+          @if (hasError('password', 'required')) {
+            <span class="field-error">{{ t('auth.register.errors.passwordRequired') }}</span>
+          }
+          @if (hasError('password', 'minlength')) {
+            <span class="field-error">{{ t('auth.register.errors.passwordMinLength') }}</span>
+          }
+          @if (hasError('password', 'pattern')) {
+            <span class="field-error">{{ t('auth.register.errors.passwordPattern') }}</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="confirmPassword">{{ t('auth.register.confirmPassword') }}</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            autocomplete="new-password"
+          />
+          @if (hasError('confirmPassword', 'required')) {
+            <span class="field-error">
+              {{ t('auth.register.errors.confirmPasswordRequired') }}
+            </span>
+          }
+          @if (form.hasError('passwordsMismatch') && form.get('confirmPassword')?.touched) {
+            <span class="field-error">{{ t('auth.register.errors.passwordsMismatch') }}</span>
+          }
+        </div>
+
+        <button type="submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span>{{ t('auth.register.submitting') }}</span>
+          } @else {
+            <span>{{ t('auth.register.submit') }}</span>
+          }
+        </button>
+      </form>
+    }
+  </div>
+</div>
