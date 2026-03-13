@@ -7,9 +7,9 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
 
@@ -26,12 +26,20 @@ export class RecipeDetailComponent implements OnInit {
     default: 'recipes.detail.errors.generic',
   };
 
+  private static readonly deleteErrorMap: HttpErrorMap = {
+    404: 'recipes.detail.delete.errors.notFound',
+    default: 'recipes.detail.delete.errors.generic',
+  };
+
   private recipeApi = inject(RecipeApiService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private transloco = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
 
   recipe = signal<RecipeDetail | null>(null);
   isLoading = signal(false);
+  isDeleting = signal(false);
   serverError = signal<string | null>(null);
 
   ngOnInit(): void {
@@ -69,5 +77,39 @@ export class RecipeDetailComponent implements OnInit {
       return null;
     }
     return prep + cook;
+  }
+
+  onDelete(): void {
+    const recipe = this.recipe();
+    if (!recipe) {
+      return;
+    }
+
+    const message = this.transloco.translate('recipes.detail.delete.confirm', {
+      title: recipe.title,
+    });
+
+    if (!confirm(message)) {
+      return;
+    }
+
+    this.isDeleting.set(true);
+    this.serverError.set(null);
+
+    this.recipeApi
+      .deleteRecipe(recipe.identifier)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.isDeleting.set(false);
+          this.router.navigate(['/recipes']);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.isDeleting.set(false);
+          this.serverError.set(
+            mapHttpError(err, RecipeDetailComponent.deleteErrorMap),
+          );
+        },
+      });
   }
 }

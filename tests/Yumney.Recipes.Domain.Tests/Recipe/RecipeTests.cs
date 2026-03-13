@@ -381,6 +381,62 @@ public class RecipeTests
         recipe.ImageUrl.Should().BeNull();
     }
 
+    [Fact]
+    public void MarkAsDeleted_RaisesRecipeDeletedEvent()
+    {
+        var recipe = CreateValidRecipe();
+        recipe.ClearDomainEvents();
+
+        recipe.MarkAsDeleted();
+
+        recipe.DomainEvents.Should().ContainSingle()
+            .Which.Should().BeOfType<RecipeDeletedEvent>();
+    }
+
+    [Fact]
+    public void MarkAsDeleted_EventContainsRecipeIdentifier()
+    {
+        var recipe = CreateValidRecipe();
+        recipe.ClearDomainEvents();
+
+        recipe.MarkAsDeleted();
+
+        var domainEvent = recipe.DomainEvents.Should().ContainSingle()
+            .Which.Should().BeOfType<RecipeDeletedEvent>().Subject;
+
+        domainEvent.RecipeIdentifier.Value.Should().Be(recipe.Id);
+    }
+
+    [Fact]
+    public void MarkAsDeleted_EventContainsTitle()
+    {
+        var title = new RecipeTitle("Pasta Carbonara");
+        var recipe = CreateValidRecipe(title: title);
+        recipe.ClearDomainEvents();
+
+        recipe.MarkAsDeleted();
+
+        var domainEvent = recipe.DomainEvents.Should().ContainSingle()
+            .Which.Should().BeOfType<RecipeDeletedEvent>().Subject;
+
+        domainEvent.Title.Should().Be(title);
+    }
+
+    [Fact]
+    public void MarkAsDeleted_EventContainsOwner()
+    {
+        var owner = new OwnerIdentifier("user-123");
+        var recipe = CreateValidRecipe(owner: owner);
+        recipe.ClearDomainEvents();
+
+        recipe.MarkAsDeleted();
+
+        var domainEvent = recipe.DomainEvents.Should().ContainSingle()
+            .Which.Should().BeOfType<RecipeDeletedEvent>().Subject;
+
+        domainEvent.Owner.Should().Be(owner);
+    }
+
     private static Domain.Recipe.Recipe CreateValidRecipe(
         RecipeTitle? title = null,
         RecipeUrl? sourceUrl = null,

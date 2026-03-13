@@ -106,4 +106,9 @@ public sealed class Recipe : AggregateRoot<Guid>
 
         AddDomainEvent(new RecipeUpdatedEvent(new RecipeIdentifier(Id), title));
     }
+
+    public void MarkAsDeleted()
+    {
+        AddDomainEvent(new RecipeDeletedEvent(new RecipeIdentifier(Id), Title, Owner));
+    }
 }

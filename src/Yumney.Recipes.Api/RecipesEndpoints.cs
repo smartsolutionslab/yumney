@@ -51,6 +51,12 @@ public static class RecipesEndpoints
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapDelete("/{identifier:guid}", DeleteAsync)
+            .WithName("DeleteRecipe")
+            .WithTags("Recipes")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 
@@ -136,6 +142,22 @@ public static class RecipesEndpoints
         }
 
         return Results.Ok(result.Value);
+    }
+
+    private static async Task<IResult> DeleteAsync(
+        Guid identifier,
+        ICommandHandler<DeleteRecipeCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = DeleteRecipeCommand.From(identifier);
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
+        }
+
+        return Results.NoContent();
     }
 
     private static async Task<IResult> ImportAsync(

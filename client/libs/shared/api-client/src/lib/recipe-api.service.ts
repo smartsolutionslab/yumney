@@ -121,6 +121,10 @@ export class RecipeApiService {
     return this.http.put<RecipeDetail>(`/api/v1/recipes/${identifier}`, request);
   }
 
+  deleteRecipe(identifier: string): Observable<void> {
+    return this.http.delete<void>(`/api/v1/recipes/${identifier}`);
+  }
+
   getRecipeById(identifier: string): Observable<RecipeDetail> {
     return this.http.get<RecipeDetail>(`/api/v1/recipes/${identifier}`);
   }

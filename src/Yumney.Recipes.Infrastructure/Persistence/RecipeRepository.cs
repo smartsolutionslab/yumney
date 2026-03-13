@@ -32,6 +32,12 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task DeleteAsync(Recipe recipe, CancellationToken cancellationToken = default)
+    {
+        context.Recipes.Remove(recipe);
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<(IReadOnlyList<Recipe> Items, int TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
         PagingOptions paging,

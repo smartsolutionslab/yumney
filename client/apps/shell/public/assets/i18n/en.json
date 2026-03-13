@@ -128,6 +128,15 @@
       },
       "loading": "Loading recipe...",
       "notFound": "Recipe not found.",
+      "delete": {
+        "confirm": "Are you sure you want to delete \"{{title}}\"? This cannot be undone.",
+        "deleting": "Deleting...",
+        "success": "Recipe deleted successfully.",
+        "errors": {
+          "notFound": "Recipe not found.",
+          "generic": "Failed to delete recipe. Please try again later."
+        }
+      },
       "errors": {
         "generic": "Failed to load recipe. Please try again later."
       }
