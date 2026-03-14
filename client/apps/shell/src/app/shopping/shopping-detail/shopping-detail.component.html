@@ -1,0 +1,42 @@
+<div class="shopping-detail-container" *transloco="let t">
+  <a routerLink="/shopping" class="back-link">
+    &larr; {{ t('shopping.detail.back') }}
+  </a>
+
+  @if (isLoading()) {
+    <div class="loading">
+      <span class="spinner"></span>
+      <span>{{ t('shopping.detail.loading') }}</span>
+    </div>
+  }
+
+  @if (serverError()) {
+    <div class="error-banner">{{ t(serverError()!) }}</div>
+  }
+
+  @if (shoppingList(); as list) {
+    <h1>{{ list.title }}</h1>
+
+    <ul class="items-list">
+      @for (item of list.items; track item.name) {
+        <li>
+          @if (item.amount) {
+            <span class="item-amount">{{ item.amount }}</span>
+          }
+          @if (item.unit) {
+            <span class="item-unit">{{ item.unit }}</span>
+          }
+          <span class="item-name">{{ item.name }}</span>
+        </li>
+      }
+    </ul>
+
+    @if (list.recipeIdentifier) {
+      <div class="source-link">
+        <a [routerLink]="['/recipes', list.recipeIdentifier]">
+          {{ t('shopping.detail.viewRecipe') }}
+        </a>
+      </div>
+    }
+  }
+</div>

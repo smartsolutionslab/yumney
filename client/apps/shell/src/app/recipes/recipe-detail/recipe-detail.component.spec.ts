@@ -304,15 +304,19 @@ describe('RecipeDetailComponent', () => {
     expect(editLink.textContent.trim()).toBe('Edit');
   }));
 
-  it('should render shopping list button as disabled', fakeAsync(() => {
+  it('should render shopping list button as link', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
     fixture.detectChanges();
     tick();
     fixture.detectChanges();
 
-    const disabledButtons = fixture.nativeElement.querySelectorAll('.action-button:disabled');
-    expect(disabledButtons.length).toBe(1);
-    expect(disabledButtons[0].textContent).toContain('Shopping List');
+    const shoppingLink = fixture.nativeElement.querySelector(
+      '.action-button--secondary',
+    );
+    expect(shoppingLink).toBeTruthy();
+    expect(shoppingLink.tagName).toBe('A');
+    expect(shoppingLink.getAttribute('href')).toBe('/shopping/create/abc-123');
+    expect(shoppingLink.textContent).toContain('Shopping List');
   }));
 
   it('should call getRecipeById with correct identifier', fakeAsync(() => {

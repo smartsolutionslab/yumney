@@ -74,7 +74,8 @@
       "greeting": "Hi, {{name}}",
       "logout": "Sign out",
       "login": "Sign in",
-      "myRecipes": "My Recipes"
+      "myRecipes": "My Recipes",
+      "shoppingLists": "Shopping Lists"
     }
   },
   "recipes": {
@@ -146,6 +147,45 @@
       "resetServings": "Reset",
       "errors": {
         "generic": "Failed to load recipe. Please try again later."
+      }
+    }
+  },
+  "shopping": {
+    "list": {
+      "title": "Shopping Lists",
+      "loading": "Loading shopping lists...",
+      "itemCount": "{{count}} items",
+      "empty": {
+        "title": "No shopping lists yet",
+        "message": "Create a shopping list from any recipe to get started."
+      },
+      "errors": {
+        "generic": "Failed to load shopping lists. Please try again later."
+      }
+    },
+    "create": {
+      "title": "Create Shopping List",
+      "back": "Back to Recipe",
+      "listTitle": "List Title",
+      "ingredients": "Ingredients",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "submit": "Create Shopping List",
+      "creating": "Creating...",
+      "loading": "Loading recipe...",
+      "errors": {
+        "recipeNotFound": "Recipe not found.",
+        "generic": "Failed to load recipe. Please try again later.",
+        "createFailed": "Failed to create shopping list. Please try again."
+      }
+    },
+    "detail": {
+      "back": "Back to Shopping Lists",
+      "loading": "Loading shopping list...",
+      "viewRecipe": "View Recipe",
+      "errors": {
+        "notFound": "Shopping list not found.",
+        "generic": "Failed to load shopping list. Please try again later."
       }
     }
   },
