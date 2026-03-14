@@ -1,0 +1,79 @@
+@use '../../shared/banners';
+
+.shopping-detail-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: #f97316;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &:hover {
+    color: #ea580c;
+  }
+}
+
+.loading {
+  padding: 4rem 0;
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+
+  li {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.9375rem;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.item-amount {
+  font-weight: 600;
+  color: #f97316;
+  min-width: 2.5rem;
+}
+
+.item-unit {
+  color: #888;
+  min-width: 2rem;
+}
+
+.item-name {
+  color: #333;
+}
+
+.source-link {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+
+  a {
+    color: #f97316;
+    text-decoration: none;
+    font-size: 0.875rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

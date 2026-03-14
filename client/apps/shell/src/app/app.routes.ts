@@ -33,6 +33,30 @@ export const appRoutes: Route[] = [
       import('./recipes/recipe-list/recipe-list.component').then((m) => m.RecipeListComponent),
   },
   {
+    path: 'shopping/create/:recipeIdentifier',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./shopping/shopping-create/shopping-create.component').then(
+        (m) => m.ShoppingCreateComponent,
+      ),
+  },
+  {
+    path: 'shopping/:identifier',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./shopping/shopping-detail/shopping-detail.component').then(
+        (m) => m.ShoppingDetailComponent,
+      ),
+  },
+  {
+    path: 'shopping',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./shopping/shopping-list/shopping-list.component').then(
+        (m) => m.ShoppingListComponent,
+      ),
+  },
+  {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full',

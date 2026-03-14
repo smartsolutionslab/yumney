@@ -19,6 +19,11 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shopping.Api;
+using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
+using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
+using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Users.Api;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
@@ -74,6 +79,17 @@ builder.Services.AddScoped<IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetail
 
 builder.Services.AddHttpClient<IWebScraper, WebScraper>().AddStandardResilienceHandler();
 builder.Services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
+
+// Shopping module
+builder.Services.AddDbContext<ShoppingDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("yumneydb"),
+        x => x.MigrationsHistoryTable("__ShoppingMigrationsHistory")));
+builder.Services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateShoppingListRequestValidator>();
+builder.Services.AddScoped<ICommandHandler<CreateShoppingListCommand, Result<ShoppingListDetailDto>>, CreateShoppingListCommandHandler>();
+builder.Services.AddScoped<IQueryHandler<GetShoppingListsQuery, Result<IReadOnlyList<ShoppingListSummaryDto>>>, GetShoppingListsQueryHandler>();
+builder.Services.AddScoped<IQueryHandler<GetShoppingListByIdQuery, Result<ShoppingListDetailDto>>, GetShoppingListByIdQueryHandler>();
 
 var skOptions = builder.Configuration.GetSection(SemanticKernelOptions.SectionName).Get<SemanticKernelOptions>() ?? new SemanticKernelOptions();
 
