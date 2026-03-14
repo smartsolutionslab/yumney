@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Shopping.Application\Yumney.Shopping.Application.csproj" />
+    <ProjectReference Include="..\Yumney.Shopping.Domain\Yumney.Shopping.Domain.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Persistence\Yumney.Shared.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

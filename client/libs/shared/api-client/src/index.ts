@@ -15,3 +15,11 @@ export {
   type RecipeIngredient,
   type RecipeStep,
 } from './lib/recipe-api.service';
+export {
+  ShoppingApiService,
+  type CreateShoppingListItem,
+  type CreateShoppingListRequest,
+  type ShoppingListItemResponse,
+  type ShoppingListDetail,
+  type ShoppingListSummary,
+} from './lib/shopping-api.service';

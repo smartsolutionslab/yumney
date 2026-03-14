@@ -88,9 +88,12 @@
           isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete')
         }}
       </button>
-      <button class="action-button action-button--secondary" disabled>
+      <a
+        class="action-button action-button--secondary"
+        [routerLink]="['/shopping', 'create', recipe.identifier]"
+      >
         {{ t('recipes.detail.actions.shoppingList') }}
-      </button>
+      </a>
     </div>
 
     <section class="ingredients-section">

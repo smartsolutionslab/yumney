@@ -1,0 +1,80 @@
+<div class="shopping-create-container" *transloco="let t">
+  <a routerLink="/recipes" class="back-link"> &larr; {{ t('shopping.create.back') }} </a>
+
+  @if (isLoading()) {
+    <div class="loading">
+      <span class="spinner"></span>
+      <span>{{ t('shopping.create.loading') }}</span>
+    </div>
+  }
+
+  @if (serverError()) {
+    <div class="error-banner">{{ t(serverError()!) }}</div>
+  }
+
+  @if (recipe(); as recipe) {
+    <h1>{{ t('shopping.create.title') }}</h1>
+
+    <div class="title-field">
+      <label for="shopping-list-title">{{ t('shopping.create.listTitle') }}</label>
+      <input
+        id="shopping-list-title"
+        type="text"
+        [ngModel]="title()"
+        (ngModelChange)="title.set($event)"
+        maxlength="200"
+      />
+    </div>
+
+    <section class="ingredients-section">
+      <div class="ingredients-header">
+        <h2>{{ t('shopping.create.ingredients') }}</h2>
+        <div class="selection-actions">
+          <button class="link-button" (click)="onSelectAll()">
+            {{ t('shopping.create.selectAll') }}
+          </button>
+          <button class="link-button" (click)="onDeselectAll()">
+            {{ t('shopping.create.deselectAll') }}
+          </button>
+        </div>
+      </div>
+
+      <ul class="ingredients-list">
+        @for (ingredient of recipe.ingredients; track ingredient.name; let i = $index) {
+          <li>
+            <label class="ingredient-check">
+              <input
+                type="checkbox"
+                [checked]="ingredientSelections()[i]"
+                (change)="onToggleIngredient(i)"
+              />
+              <span class="ingredient-text">
+                @if (ingredient.amount) {
+                  <span class="ingredient-amount">{{ ingredient.amount }}</span>
+                }
+                @if (ingredient.unit) {
+                  <span class="ingredient-unit">{{ ingredient.unit }}</span>
+                }
+                <span class="ingredient-name">{{ ingredient.name }}</span>
+              </span>
+            </label>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <div class="actions-bar">
+      <button
+        class="create-button"
+        [disabled]="isCreating() || !hasSelectedIngredients()"
+        (click)="onCreateShoppingList()"
+      >
+        {{
+          isCreating()
+            ? t('shopping.create.creating')
+            : t('shopping.create.submit')
+        }}
+      </button>
+    </div>
+  }
+</div>
