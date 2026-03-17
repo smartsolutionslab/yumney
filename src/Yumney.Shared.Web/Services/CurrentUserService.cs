@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace SmartSolutionsLab.Yumney.Users.Infrastructure;
+namespace SmartSolutionsLab.Yumney.Shared.Web.Services;
 
 public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {

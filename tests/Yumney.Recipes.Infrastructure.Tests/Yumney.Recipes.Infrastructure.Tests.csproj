@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Yumney.Recipes.Infrastructure\Yumney.Recipes.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Recipes.Extraction\Yumney.Recipes.Extraction.csproj" />
   </ItemGroup>
 
   <ItemGroup>

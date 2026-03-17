@@ -8,7 +8,7 @@ using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
-using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;

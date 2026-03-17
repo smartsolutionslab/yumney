@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
 namespace SmartSolutionsLab.Yumney.MigrationRunner;
@@ -18,6 +19,7 @@ public sealed partial class MigrationWorker(
         {
             await ApplyMigrationsAsync<RecipesDbContext>("Recipes", stoppingToken);
             await ApplyMigrationsAsync<UsersDbContext>("Users", stoppingToken);
+            await ApplyMigrationsAsync<ShoppingDbContext>("Shopping", stoppingToken);
 
             LogAllMigrationsApplied(logger);
         }

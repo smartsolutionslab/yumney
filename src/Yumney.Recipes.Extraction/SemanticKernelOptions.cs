@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Api;
+namespace SmartSolutionsLab.Yumney.Recipes.Extraction;
 
 public sealed class SemanticKernelOptions
 {
