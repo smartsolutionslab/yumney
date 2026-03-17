@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
@@ -67,12 +68,16 @@ public static class RecipesEndpoints
         IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>> handler,
         int page = PagingOptions.DefaultPage,
         int pageSize = PagingOptions.DefaultPageSize,
-        string sortBy = "Date",
+        RecipeSortField sortBy = RecipeSortField.Date,
         SortDirection sortDirection = SortDirection.Descending,
         string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var query = GetRecipesQuery.From(page, pageSize, sortBy, sortDirection, search);
+        var query = new GetRecipesQuery(
+            PagingOptions.Of(Page.From(page), PageSize.From(pageSize)),
+            new SortingOptions<RecipeSortField>(sortBy, sortDirection),
+            SearchTerm.FromNullable(search));
+
         var result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)

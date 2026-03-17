@@ -4,6 +4,9 @@
   "license": "MIT",
   "private": true,
   "packageManager": "yarn@4.6.0",
+  "scripts": {
+    "serve:shell": "nx serve shell"
+  },
   "dependencies": {
     "@angular-devkit/build-angular": "21.2.1",
     "@angular/common": "21.2.2",
