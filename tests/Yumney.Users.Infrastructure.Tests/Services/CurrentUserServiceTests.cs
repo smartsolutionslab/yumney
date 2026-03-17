@@ -2,6 +2,7 @@ using System.Security.Claims;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using NSubstitute;
+using SmartSolutionsLab.Yumney.Shared.Web.Services;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Tests.Services;
