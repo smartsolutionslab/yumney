@@ -284,7 +284,7 @@ public class GetRecipesQueryHandlerTests
     private static GetRecipesQuery CreateQuery(
         int page, int pageSize, RecipeSortField sortBy, SortDirection sortDirection, SearchTerm? search = null)
     {
-        var paging = PagingOptions.From(new Page(page), new PageSize(pageSize));
+        var paging = PagingOptions.Of(Page.From(page), PageSize.From(pageSize));
         var sorting = new SortingOptions<RecipeSortField>(sortBy, sortDirection);
         return new GetRecipesQuery(paging, sorting, search);
     }
