@@ -9,7 +9,7 @@ public class PagingOptionsTests
     [Fact]
     public void From_ValidPageAndPageSize_ReturnsPagingOptions()
     {
-        var paging = PagingOptions.From(new Page(3), new PageSize(50));
+        var paging = PagingOptions.Of(Page.From(3), PageSize.From(50));
 
         paging.Page.Value.Should().Be(3);
         paging.PageSize.Value.Should().Be(50);
@@ -18,7 +18,7 @@ public class PagingOptionsTests
     [Fact]
     public void Skip_FirstPage_ReturnsZero()
     {
-        var paging = PagingOptions.From(new Page(1), new PageSize(20));
+        var paging = PagingOptions.Of(Page.From(1), PageSize.From(20));
 
         paging.Skip.Should().Be(0);
     }
@@ -26,7 +26,7 @@ public class PagingOptionsTests
     [Fact]
     public void Skip_SecondPage_ReturnsPageSize()
     {
-        var paging = PagingOptions.From(new Page(2), new PageSize(20));
+        var paging = PagingOptions.Of(Page.From(2), PageSize.From(20));
 
         paging.Skip.Should().Be(20);
     }
@@ -34,7 +34,7 @@ public class PagingOptionsTests
     [Fact]
     public void Skip_ThirdPageWithTenPerPage_ReturnsTwenty()
     {
-        var paging = PagingOptions.From(new Page(3), new PageSize(10));
+        var paging = PagingOptions.Of(Page.From(3), PageSize.From(10));
 
         paging.Skip.Should().Be(20);
     }

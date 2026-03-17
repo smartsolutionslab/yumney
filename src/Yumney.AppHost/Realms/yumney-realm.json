@@ -55,21 +55,29 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": [
-        "http://localhost:4200/*",
-        "https://localhost:4200/*"
-      ],
-      "webOrigins": [
-        "http://localhost:4200",
-        "https://localhost:4200"
-      ],
+      "redirectUris": ["http://localhost:5100/*"],
+      "webOrigins": ["http://localhost:5100"],
       "protocol": "openid-connect",
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:4200/*##https://localhost:4200/*"
+        "post.logout.redirect.uris": "http://localhost:5100/*"
       },
+      "protocolMappers": [
+        {
+          "name": "yumney-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "yumney-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ],
       "defaultClientScopes": [
-        "openid",
+        "basic",
         "profile",
         "email",
         "roles"
@@ -87,7 +95,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "test",
+          "value": "Test1234",
           "temporary": false
         }
       ],
@@ -103,7 +111,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "admin",
+          "value": "Admin1234",
           "temporary": false
         }
       ],

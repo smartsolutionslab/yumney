@@ -6,8 +6,10 @@ public sealed record PageSize
 {
     public int Value { get; }
 
-    public PageSize(int value)
+    private PageSize(int value)
     {
         Value = Ensure.That(value).IsPositive().AndReturn();
     }
+
+    public static PageSize From(int value) => new(value);
 }

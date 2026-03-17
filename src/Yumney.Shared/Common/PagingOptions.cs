@@ -18,5 +18,5 @@ public sealed record PagingOptions
         PageSize = pageSize;
     }
 
-    public static PagingOptions From(Page page, PageSize pageSize) => new(page, pageSize);
+    public static PagingOptions Of(Page page, PageSize pageSize) => new(page, pageSize);
 }
