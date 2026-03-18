@@ -22,7 +22,11 @@ public sealed class ShoppingList : AggregateRoot<Guid>
     {
     }
 
-    public static ShoppingList Create(ShoppingListTitle title, OwnerIdentifier owner, IReadOnlyList<ShoppingListItem> items, Guid? recipeIdentifier = null)
+    public static ShoppingList Create(
+        ShoppingListTitle title,
+        OwnerIdentifier owner,
+        IReadOnlyList<ShoppingListItem> items,
+        Guid? recipeIdentifier = null)
     {
         Ensure.That((IReadOnlyCollection<ShoppingListItem>)items).IsNotEmpty();
 
@@ -37,7 +41,8 @@ public sealed class ShoppingList : AggregateRoot<Guid>
 
         shoppingList.items.AddRange(items);
 
-        shoppingList.AddDomainEvent(new ShoppingListCreatedEvent(new ShoppingListIdentifier(shoppingList.Id), title));
+        shoppingList.AddDomainEvent(
+            new ShoppingListCreatedEvent(new ShoppingListIdentifier(shoppingList.Id), title));
 
         return shoppingList;
     }

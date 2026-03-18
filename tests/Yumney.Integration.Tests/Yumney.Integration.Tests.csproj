@@ -6,9 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Yumney.Recipes.Host\Yumney.Recipes.Host.csproj" />
-    <ProjectReference Include="..\..\src\Yumney.Shopping.Host\Yumney.Shopping.Host.csproj" />
-    <ProjectReference Include="..\..\src\Yumney.Users.Host\Yumney.Users.Host.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Api\Yumney.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

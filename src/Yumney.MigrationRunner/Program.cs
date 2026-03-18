@@ -1,28 +1,25 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using SmartSolutionsLab.Yumney.MigrationRunner;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddSerilog(configuration => configuration.ReadFrom.Configuration(builder.Configuration));
 
 builder.AddServiceDefaults();
 
 builder.Services.AddDbContext<RecipesDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("recipesdb"),
+        builder.Configuration.GetConnectionString("yumneydb"),
         x => x.MigrationsHistoryTable("__RecipesMigrationsHistory")));
 
 builder.Services.AddDbContext<UsersDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("usersdb"),
+        builder.Configuration.GetConnectionString("yumneydb"),
         x => x.MigrationsHistoryTable("__UsersMigrationsHistory")));
-
-builder.Services.AddDbContext<ShoppingDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("shoppingdb"),
-        x => x.MigrationsHistoryTable("__ShoppingMigrationsHistory")));
 
 builder.Services.AddHostedService<MigrationWorker>();
 
