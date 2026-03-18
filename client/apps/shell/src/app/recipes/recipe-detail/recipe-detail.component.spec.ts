@@ -310,9 +310,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const shoppingLink = fixture.nativeElement.querySelector(
-      '.action-button--secondary',
-    );
+    const shoppingLink = fixture.nativeElement.querySelector('.action-button--secondary');
     expect(shoppingLink).toBeTruthy();
     expect(shoppingLink.tagName).toBe('A');
     expect(shoppingLink.getAttribute('href')).toBe('/shopping/create/abc-123');

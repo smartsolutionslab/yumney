@@ -22,10 +22,7 @@ export class AuthService {
   isAuthenticated = signal(false);
   currentUser = signal<AuthUser | null>(null);
   displayName = computed(
-    () =>
-      this.currentUser()?.preferredUsername ??
-      this.currentUser()?.email ??
-      null,
+    () => this.currentUser()?.preferredUsername ?? this.currentUser()?.email ?? null,
   );
 
   constructor(private oauthService: OAuthService) {}

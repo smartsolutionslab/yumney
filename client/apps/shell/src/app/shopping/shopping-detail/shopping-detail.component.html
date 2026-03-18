@@ -1,7 +1,5 @@
 <div class="shopping-detail-container" *transloco="let t">
-  <a routerLink="/shopping" class="back-link">
-    &larr; {{ t('shopping.detail.back') }}
-  </a>
+  <a routerLink="/shopping" class="back-link"> &larr; {{ t('shopping.detail.back') }} </a>
 
   @if (isLoading()) {
     <div class="loading">

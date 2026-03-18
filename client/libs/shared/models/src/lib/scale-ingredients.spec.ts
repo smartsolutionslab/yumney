@@ -1,7 +1,4 @@
-import {
-  scaleIngredients,
-  ScalableIngredient,
-} from './scale-ingredients';
+import { scaleIngredients, ScalableIngredient } from './scale-ingredients';
 
 describe('scaleIngredients', () => {
   const baseIngredients: ScalableIngredient[] = [
@@ -47,9 +44,7 @@ describe('scaleIngredients', () => {
   });
 
   it('should round decimal amounts to 2 decimal places', () => {
-    const ingredients: ScalableIngredient[] = [
-      { name: 'Butter', amount: 1.5, unit: 'tbsp' },
-    ];
+    const ingredients: ScalableIngredient[] = [{ name: 'Butter', amount: 1.5, unit: 'tbsp' }];
 
     const result = scaleIngredients(ingredients, 4, 3);
 

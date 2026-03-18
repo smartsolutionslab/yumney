@@ -69,11 +69,7 @@
         [disabled]="isCreating() || !hasSelectedIngredients()"
         (click)="onCreateShoppingList()"
       >
-        {{
-          isCreating()
-            ? t('shopping.create.creating')
-            : t('shopping.create.submit')
-        }}
+        {{ isCreating() ? t('shopping.create.creating') : t('shopping.create.submit') }}
       </button>
     </div>
   }

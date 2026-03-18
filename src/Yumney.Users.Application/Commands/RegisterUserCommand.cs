@@ -9,4 +9,9 @@ public sealed record RegisterUserCommand(
     Password Password,
     DisplayName DisplayName) : ICommand<Result<RegisterUserResultDto>>
 {
+    public static RegisterUserCommand From(RegisterUserRequest request)
+    {
+        var (email, password, displayName) = request;
+        return new RegisterUserCommand(new Email(email), new Password(password), new DisplayName(displayName));
+    }
 }
