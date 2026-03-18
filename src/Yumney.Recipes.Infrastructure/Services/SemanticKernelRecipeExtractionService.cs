@@ -8,7 +8,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
+namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1303

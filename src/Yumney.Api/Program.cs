@@ -1,0 +1,142 @@
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http.Resilience;
+using Microsoft.SemanticKernel;
+using Scalar.AspNetCore;
+using Serilog;
+using SmartSolutionsLab.Yumney.Api;
+using SmartSolutionsLab.Yumney.Api.Middleware;
+using SmartSolutionsLab.Yumney.Recipes.Api;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+using SmartSolutionsLab.Yumney.ServiceDefaults;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shopping.Api;
+using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
+using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
+using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Users.Api;
+using SmartSolutionsLab.Yumney.Users.Application.Commands;
+using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Users.Infrastructure;
+using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
+
+builder.AddServiceDefaults();
+
+var keycloakOptions = builder.Configuration.GetSection(KeycloakOptions.SectionName).Get<KeycloakOptions>() ?? new KeycloakOptions();
+
+builder.Services.Configure<KeycloakOptions>(builder.Configuration.GetSection(KeycloakOptions.SectionName));
+
+builder.Services.AddAuthentication()
+    .AddKeycloakJwtBearer(
+        serviceName: "keycloak",
+        realm: keycloakOptions.Realm,
+        configureOptions: options =>
+        {
+            options.RequireHttpsMetadata = false;
+        });
+
+builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUserService>();
+
+builder.Services.AddInProcessEventBus();
+
+builder.Services.AddDbContext<UsersDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("yumneydb"),
+        x => x.MigrationsHistoryTable("__UsersMigrationsHistory")));
+builder.Services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
+
+builder.Services.AddDbContext<RecipesDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("yumneydb"),
+        x => x.MigrationsHistoryTable("__RecipesMigrationsHistory")));
+builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
+builder.Services.AddScoped<ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>>, ImportRecipeCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>>, SaveRecipeCommandHandler>();
+builder.Services.AddScoped<IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>>, GetRecipesQueryHandler>();
+builder.Services.AddScoped<ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>>, UpdateRecipeCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<DeleteRecipeCommand, Result>, DeleteRecipeCommandHandler>();
+builder.Services.AddScoped<IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>>, GetRecipeByIdQueryHandler>();
+
+builder.Services.AddHttpClient<IWebScraper, WebScraper>().AddStandardResilienceHandler();
+builder.Services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
+
+// Shopping module
+builder.Services.AddDbContext<ShoppingDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("yumneydb"),
+        x => x.MigrationsHistoryTable("__ShoppingMigrationsHistory")));
+builder.Services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateShoppingListRequestValidator>();
+builder.Services.AddScoped<ICommandHandler<CreateShoppingListCommand, Result<ShoppingListDetailDto>>, CreateShoppingListCommandHandler>();
+builder.Services.AddScoped<IQueryHandler<GetShoppingListsQuery, Result<IReadOnlyList<ShoppingListSummaryDto>>>, GetShoppingListsQueryHandler>();
+builder.Services.AddScoped<IQueryHandler<GetShoppingListByIdQuery, Result<ShoppingListDetailDto>>, GetShoppingListByIdQueryHandler>();
+
+var skOptions = builder.Configuration.GetSection(SemanticKernelOptions.SectionName).Get<SemanticKernelOptions>() ?? new SemanticKernelOptions();
+
+var kernelBuilder = builder.Services.AddKernel();
+
+switch (skOptions.Provider)
+{
+    case SemanticKernelOptions.ProviderAzureOpenAI:
+        kernelBuilder.AddAzureOpenAIChatCompletion(skOptions.ModelId, skOptions.Endpoint, skOptions.ApiKey);
+        break;
+    case SemanticKernelOptions.ProviderOllama:
+        kernelBuilder.AddOpenAIChatCompletion(skOptions.ModelId, new Uri(skOptions.Endpoint), apiKey: null);
+        break;
+    default:
+        kernelBuilder.AddOpenAIChatCompletion(skOptions.ModelId, skOptions.ApiKey);
+        break;
+}
+
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserRequestValidator>();
+builder.Services.AddScoped<ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>, RegisterUserCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<ResendVerificationEmailCommand, Result>, ResendVerificationEmailCommandHandler>();
+
+builder.Services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client => { client.BaseAddress = new Uri("https+http://keycloak"); })
+.AddStandardResilienceHandler();
+
+builder.Services.AddOpenApi();
+
+WebApplication app = builder.Build();
+
+app.UseSerilogRequestLogging()
+    .UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
+app.UseAuthentication()
+    .UseAuthorization();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+
+app.MapDefaultEndpoints();
+
+var api = app.MapGroup("/api/v1")
+    .RequireAuthorization()
+    .MapRecipesEndpoints()
+    .MapShoppingEndpoints()
+    .MapUsersEndpoints();
+
+app.Run();

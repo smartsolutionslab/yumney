@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { AppConfig, createAuthConfig } from './auth-config';
+import { authConfig } from './auth-config';
 import { REMEMBER_ME_KEY } from './auth-storage.factory';
 
 export interface AuthUser {
@@ -10,34 +10,18 @@ export interface AuthUser {
   roles: string[];
 }
 
-const DEFAULT_CONFIG: AppConfig = {
-  keycloakUrl: 'http://localhost:8080',
-  keycloakRealm: 'yumney',
-  keycloakClientId: 'yumney-web',
-};
-
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   isLoading = signal(true);
   isAuthenticated = signal(false);
   currentUser = signal<AuthUser | null>(null);
   displayName = computed(
-    () =>
-      this.currentUser()?.preferredUsername ??
-      this.currentUser()?.email ??
-      null,
+    () => this.currentUser()?.preferredUsername ?? this.currentUser()?.email ?? null,
   );
 
   constructor(private oauthService: OAuthService) {}
 
   async initialize(): Promise<void> {
-    const appConfig = await this.loadAppConfig();
-    const authConfig = createAuthConfig(
-      appConfig.keycloakUrl,
-      appConfig.keycloakRealm,
-      appConfig.keycloakClientId,
-    );
-
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
 
@@ -73,18 +57,6 @@ export class AuthService {
 
   forgotPassword(): void {
     this.oauthService.initCodeFlow('', { kc_action: 'UPDATE_PASSWORD' });
-  }
-
-  private async loadAppConfig(): Promise<AppConfig> {
-    try {
-      const response = await fetch('/assets/config/app-config.json');
-      if (response.ok) {
-        return await response.json();
-      }
-    } catch {
-      // Config file unavailable — use defaults
-    }
-    return DEFAULT_CONFIG;
   }
 
   private updateAuthState(): void {
