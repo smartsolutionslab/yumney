@@ -30,9 +30,17 @@
     <div class="meta-bar">
       @if (recipe.servings) {
         <div class="meta-item servings-adjuster">
-          <span class="meta-label">{{ t('recipes.detail.servings', { count: desiredServings() }) }}</span>
+          <span class="meta-label">{{
+            t('recipes.detail.servings', { count: desiredServings() })
+          }}</span>
           <div class="servings-control">
-            <button class="servings-button" (click)="onDecreaseServings()" [disabled]="desiredServings() === 1">&minus;</button>
+            <button
+              class="servings-button"
+              (click)="onDecreaseServings()"
+              [disabled]="desiredServings() === 1"
+            >
+              &minus;
+            </button>
             <span class="servings-value">{{ desiredServings() }}</span>
             <button class="servings-button" (click)="onIncreaseServings()">+</button>
           </div>

@@ -12,10 +12,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
-import {
-  ShoppingApiService,
-  CreateShoppingListItem,
-} from '@yumney/shared/api-client';
+import { ShoppingApiService, CreateShoppingListItem } from '@yumney/shared/api-client';
 import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
 
 @Component({

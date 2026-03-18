@@ -8,4 +8,8 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 public sealed record GetShoppingListByIdQuery(
     ShoppingListIdentifier Identifier) : IQuery<Result<ShoppingListDetailDto>>
 {
+    public static GetShoppingListByIdQuery From(Guid identifier)
+    {
+        return new GetShoppingListByIdQuery(new ShoppingListIdentifier(identifier));
+    }
 }

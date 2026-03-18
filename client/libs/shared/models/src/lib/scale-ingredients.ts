@@ -22,7 +22,6 @@ export function scaleIngredients(
   const ratio = desiredServings / originalServings;
   return ingredients.map((i) => ({
     ...i,
-    amount:
-      i.amount !== null ? roundAmount(i.amount * ratio, i.amount) : null,
+    amount: i.amount !== null ? roundAmount(i.amount * ratio, i.amount) : null,
   }));
 }

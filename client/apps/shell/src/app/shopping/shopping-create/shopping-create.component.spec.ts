@@ -101,8 +101,7 @@ describe('ShoppingCreateComponent', () => {
           useValue: {
             snapshot: {
               paramMap: {
-                get: (key: string) =>
-                  key === 'recipeIdentifier' ? recipeIdentifier : null,
+                get: (key: string) => (key === 'recipeIdentifier' ? recipeIdentifier : null),
               },
             },
           },
@@ -251,9 +250,7 @@ describe('ShoppingCreateComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const checkboxes = fixture.nativeElement.querySelectorAll(
-      'input[type="checkbox"]',
-    );
+    const checkboxes = fixture.nativeElement.querySelectorAll('input[type="checkbox"]');
     expect(checkboxes.length).toBe(3);
     expect(checkboxes[0].checked).toBe(true);
     expect(checkboxes[1].checked).toBe(true);
