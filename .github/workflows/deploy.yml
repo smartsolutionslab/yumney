@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
 
 permissions:
   id-token: write
@@ -17,7 +17,7 @@ jobs:
     name: Deploy to Azure
     needs: test
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
@@ -41,6 +41,16 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Write environment-specific frontend config
+        run: |
+          mkdir -p apps/shell/src/assets/config
+          echo '{
+            "keycloakUrl": "${{ vars.KEYCLOAK_URL }}",
+            "keycloakRealm": "yumney",
+            "keycloakClientId": "yumney-web"
+          }' > apps/shell/src/assets/config/app-config.json
+        working-directory: client
+
       - name: Build Angular frontend
         run: |
           corepack enable
@@ -62,3 +72,6 @@ jobs:
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           Azure__Location: ${{ vars.AZURE_LOCATION }}
           Azure__ResourceGroup: ${{ vars.AZURE_RESOURCE_GROUP }}
+          Parameters__PostgresUser: ${{ vars.POSTGRES_USER }}
+          Parameters__PostgresPassword: ${{ secrets.POSTGRES_PASSWORD }}
+          Parameters__KeycloakPassword: ${{ secrets.KEYCLOAK_PASSWORD }}
