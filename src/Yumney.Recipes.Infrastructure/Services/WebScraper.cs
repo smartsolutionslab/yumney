@@ -1,5 +1,6 @@
 using AngleSharp;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
@@ -10,10 +11,15 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1303
-public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper> logger)
+public sealed partial class WebScraper(
+    HttpClient httpClient,
+    IOptions<ScrapingOptions> scrapingOptions,
+    ILogger<WebScraper> logger)
     : IWebScraper
 {
     private const string removeSelector = "script, style, nav, footer, header, aside, iframe, noscript";
+
+    private readonly ScrapingOptions options = scrapingOptions.Value;
 
     public async Task<Result<ScrapedContent>> ScrapeAsync(RecipeUrl url, CancellationToken cancellationToken = default)
     {
@@ -33,12 +39,24 @@ public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper
             return Result<ScrapedContent>.Failure(ImportRecipeErrors.PageUnreachable);
         }
 
+        if (html.Length > options.MaxRawHtmlLength)
+        {
+            LogContentTooLarge(url.Value, html.Length, options.MaxRawHtmlLength);
+            return Result<ScrapedContent>.Failure(ImportRecipeErrors.ContentTooLarge);
+        }
+
         var cleanedText = await CleanHtmlAsync(html, cancellationToken);
 
         if (string.IsNullOrWhiteSpace(cleanedText))
         {
             LogEmptyContent(url.Value);
             return Result<ScrapedContent>.Failure(ImportRecipeErrors.NoRecipeFound);
+        }
+
+        if (cleanedText.Length > options.MaxContentLength)
+        {
+            LogContentTruncated(url.Value, cleanedText.Length, options.MaxContentLength);
+            cleanedText = TruncateAtWordBoundary(cleanedText, options.MaxContentLength);
         }
 
         return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
@@ -62,6 +80,17 @@ public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper
         return contentElement?.TextContent.Trim() ?? string.Empty;
     }
 
+    private static string TruncateAtWordBoundary(string text, int maxLength)
+    {
+        if (text.Length <= maxLength)
+        {
+            return text;
+        }
+
+        var lastSpace = text.LastIndexOf(' ', maxLength);
+        return lastSpace > 0 ? text[..lastSpace] : text[..maxLength];
+    }
+
     [LoggerMessage(Level = LogLevel.Warning, Message = "Scrape timed out for URL {SourceUrl}")]
     private partial void LogScrapeTimeout(string sourceUrl);
 
@@ -70,4 +99,10 @@ public sealed partial class WebScraper(HttpClient httpClient, ILogger<WebScraper
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "No content extracted from URL {SourceUrl}")]
     private partial void LogEmptyContent(string sourceUrl);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Raw HTML too large for URL {SourceUrl}: {ActualLength} chars exceeds limit of {MaxLength}")]
+    private partial void LogContentTooLarge(string sourceUrl, int actualLength, int maxLength);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Content truncated for URL {SourceUrl}: {OriginalLength} chars truncated to {MaxLength}")]
+    private partial void LogContentTruncated(string sourceUrl, int originalLength, int maxLength);
 }
