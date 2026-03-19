@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Shared.Web.Services;
 
-public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUser
+public sealed class CurrentUserProvider(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
     public string UserId => User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
                             ?? User?.FindFirst("sub")?.Value

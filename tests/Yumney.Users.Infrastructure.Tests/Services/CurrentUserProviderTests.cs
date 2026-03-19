@@ -7,7 +7,7 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Tests.Services;
 
-public class CurrentUserServiceTests
+public class CurrentUserProviderTests
 {
     private readonly IHttpContextAccessor httpContextAccessor = Substitute.For<IHttpContextAccessor>();
 
@@ -16,7 +16,7 @@ public class CurrentUserServiceTests
     {
         SetupUser(new Claim("sub", "user-123"));
 
-        var sut = new CurrentUserService(httpContextAccessor);
+        var sut = new CurrentUserProvider(httpContextAccessor);
 
         sut.UserId.Should().Be("user-123");
     }
@@ -26,7 +26,7 @@ public class CurrentUserServiceTests
     {
         httpContextAccessor.HttpContext.Returns((HttpContext?)null);
 
-        var sut = new CurrentUserService(httpContextAccessor);
+        var sut = new CurrentUserProvider(httpContextAccessor);
 
         sut.UserId.Should().BeEmpty();
     }
@@ -36,7 +36,7 @@ public class CurrentUserServiceTests
     {
         SetupUser(new Claim(ClaimTypes.Email, "test@example.com"));
 
-        var sut = new CurrentUserService(httpContextAccessor);
+        var sut = new CurrentUserProvider(httpContextAccessor);
 
         sut.Email.Should().Be("test@example.com");
     }
@@ -46,7 +46,7 @@ public class CurrentUserServiceTests
     {
         SetupAuthenticatedUser("user-123");
 
-        var sut = new CurrentUserService(httpContextAccessor);
+        var sut = new CurrentUserProvider(httpContextAccessor);
 
         sut.IsAuthenticated.Should().BeTrue();
     }
@@ -56,7 +56,7 @@ public class CurrentUserServiceTests
     {
         httpContextAccessor.HttpContext.Returns((HttpContext?)null);
 
-        var sut = new CurrentUserService(httpContextAccessor);
+        var sut = new CurrentUserProvider(httpContextAccessor);
 
         sut.IsAuthenticated.Should().BeFalse();
     }
@@ -68,7 +68,7 @@ public class CurrentUserServiceTests
             new Claim(ClaimTypes.Role, "admin"),
             new Claim(ClaimTypes.Role, "user"));
 
-        var sut = new CurrentUserService(httpContextAccessor);
+        var sut = new CurrentUserProvider(httpContextAccessor);
 
         sut.Roles.Should().BeEquivalentTo(["admin", "user"]);
     }
@@ -78,7 +78,7 @@ public class CurrentUserServiceTests
     {
         SetupAuthenticatedUser("user-123", "admin");
 
-        var sut = new CurrentUserService(httpContextAccessor);
+        var sut = new CurrentUserProvider(httpContextAccessor);
 
         sut.IsInRole("admin").Should().BeTrue();
     }

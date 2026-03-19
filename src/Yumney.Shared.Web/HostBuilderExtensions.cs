@@ -33,7 +33,7 @@ public static class HostBuilderExtensions
 
         builder.Services.AddAuthorization();
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<ICurrentUser, CurrentUserService>();
+        builder.Services.AddScoped<ICurrentUser, CurrentUserProvider>();
         builder.Services.AddInProcessEventBus();
         builder.Services.AddOpenApi();
 

@@ -40,7 +40,7 @@ yumney/
 │   │
 │   ├── Yumney.Users.Domain/        # Minimal: AppUserProfile, preferences
 │   ├── Yumney.Users.Application/
-│   ├── Yumney.Users.Infrastructure/ # CurrentUserService, DB persistence
+│   ├── Yumney.Users.Infrastructure/ # CurrentUserProvider, DB persistence
 │   └── Yumney.Users.Api/
 ├── tests/
 │   ├── Yumney.Shared.Tests/
@@ -508,7 +508,7 @@ Scopes: recipes, shopping, users, account, shared, api, shell, infra, ui
 
 - **Auth:** Keycloak (OIDC) via .NET Aspire integration
 - JWT Bearer Tokens validated against Keycloak
-- `ICurrentUser` in Shared, implemented by `CurrentUserService` in Users.Infrastructure (reads JWT claims)
+- `ICurrentUser` in Shared, implemented by `CurrentUserProvider` in Users.Infrastructure (reads JWT claims)
 - Users module syncs Keycloak claims → `AppUserProfile` (KeycloakUserId, DisplayName, PreferredLanguage, PreferredUnitSystem)
 - HTTPS only + HSTS
 - CORS: only allowed origins (enforced at Gateway, not API)
