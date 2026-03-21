@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed class Recipe : AggregateRoot<Guid>
+public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 {
     private readonly List<Ingredient> ingredients = [];
     private readonly List<Step> steps = [];
@@ -55,7 +55,7 @@ public sealed class Recipe : AggregateRoot<Guid>
 
         var recipe = new Recipe
         {
-            Id = Guid.NewGuid(),
+            Id = new RecipeIdentifier(Guid.NewGuid()),
             Title = title,
             SourceUrl = sourceUrl,
             Owner = owner,
@@ -71,7 +71,7 @@ public sealed class Recipe : AggregateRoot<Guid>
         recipe.ingredients.AddRange(ingredients);
         recipe.steps.AddRange(steps);
 
-        recipe.AddDomainEvent(new RecipeSavedEvent(new RecipeIdentifier(recipe.Id), title));
+        recipe.AddDomainEvent(new RecipeSavedEvent(recipe.Id, title));
 
         return recipe;
     }
@@ -104,11 +104,11 @@ public sealed class Recipe : AggregateRoot<Guid>
         this.steps.Clear();
         this.steps.AddRange(steps);
 
-        AddDomainEvent(new RecipeUpdatedEvent(new RecipeIdentifier(Id), title));
+        AddDomainEvent(new RecipeUpdatedEvent(Id, title));
     }
 
     public void MarkAsDeleted()
     {
-        AddDomainEvent(new RecipeDeletedEvent(new RecipeIdentifier(Id), Title, Owner));
+        AddDomainEvent(new RecipeDeletedEvent(Id, Title, Owner));
     }
 }

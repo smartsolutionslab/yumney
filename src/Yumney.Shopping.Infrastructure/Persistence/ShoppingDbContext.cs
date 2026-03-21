@@ -14,6 +14,8 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
         {
             entity.ToTable("ShoppingLists");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasConversion(v => v.Value, v => new ShoppingListIdentifier(v));
 
             entity.Property(e => e.Title)
                 .ConfigureRequiredStringValueObject(

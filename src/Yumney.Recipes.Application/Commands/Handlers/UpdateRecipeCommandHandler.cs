@@ -57,10 +57,10 @@ public sealed partial class UpdateRecipeCommandHandler(
 
         await recipes.UpdateAsync(recipe, cancellationToken);
 
-        LogRecipeUpdated(recipe.Id, title.Value);
+        LogRecipeUpdated(recipe.Id.Value, title.Value);
 
         var dto = new RecipeDetailDto(
-            recipe.Id,
+            recipe.Id.Value,
             recipe.Title.Value,
             recipe.Description?.Value,
             recipe.Servings?.Value,

@@ -19,7 +19,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         return await recipes
             .Include(r => r.Ingredients)
             .Include(r => r.Steps)
-            .FirstOrDefaultAsync(r => r.Id == identifier.Value, cancellationToken);
+            .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
     }
 
     public async Task<bool> ExistsBySourceUrlAsync(RecipeUrl sourceUrl, OwnerIdentifier owner, CancellationToken cancellationToken = default)

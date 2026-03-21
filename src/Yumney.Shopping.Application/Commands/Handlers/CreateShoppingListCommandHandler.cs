@@ -27,7 +27,7 @@ public sealed partial class CreateShoppingListCommandHandler(
 
         await shoppingLists.AddAsync(shoppingList, cancellationToken);
 
-        LogShoppingListCreated(shoppingList.Id, title.Value);
+        LogShoppingListCreated(shoppingList.Id.Value, title.Value);
 
         var itemDtos = shoppingList.Items
             .Select(i => new ShoppingListItemDto(i.Name.Value, i.Amount?.Value, i.Unit?.Value))
@@ -35,7 +35,7 @@ public sealed partial class CreateShoppingListCommandHandler(
 
         return Result<ShoppingListDetailDto>.Success(
             new ShoppingListDetailDto(
-                shoppingList.Id,
+                shoppingList.Id.Value,
                 title.Value,
                 recipeIdentifier,
                 shoppingList.CreatedAt,
