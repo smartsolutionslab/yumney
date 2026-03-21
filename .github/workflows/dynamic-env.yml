@@ -152,7 +152,8 @@ jobs:
         run: |
           corepack enable
           yarn install --immutable
-          yarn nx build shell --configuration=production
+          yarn build:all
+          node scripts/copy-remotes.mjs
         working-directory: client
 
       - name: Deploy to Azure
@@ -249,7 +250,8 @@ jobs:
         run: |
           corepack enable
           yarn install --immutable
-          yarn nx build shell --configuration=production
+          yarn build:all
+          node scripts/copy-remotes.mjs
         working-directory: client
 
       - name: Deploy to Azure
