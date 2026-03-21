@@ -62,7 +62,7 @@ var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumne
     .WaitFor(usersDb);
 
 // Recipes API (needs keycloak, recipesdb, redis, ollama)
-var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Host>("recipes-api")
+var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
     .WithHttpEndpoint()
     .WithReference(keycloak)
     .WithReference(recipesDb)
@@ -79,7 +79,7 @@ var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Host>("recipes-api")
     });
 
 // Shopping API (needs keycloak, shoppingdb, redis)
-var shoppingApi = builder.AddProject<Projects.Yumney_Shopping_Host>("shopping-api")
+var shoppingApi = builder.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
     .WithHttpEndpoint()
     .WithReference(keycloak)
     .WithReference(shoppingDb)
@@ -94,7 +94,7 @@ var shoppingApi = builder.AddProject<Projects.Yumney_Shopping_Host>("shopping-ap
     });
 
 // Users API (needs keycloak, usersdb, redis)
-var usersApi = builder.AddProject<Projects.Yumney_Users_Host>("users-api")
+var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
     .WithHttpEndpoint()
     .WithReference(keycloak)
     .WithReference(usersDb)
