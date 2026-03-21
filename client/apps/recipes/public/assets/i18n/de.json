@@ -1,0 +1,111 @@
+{
+  "shared": {
+    "editableList": {
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "remove": "Entfernen"
+    }
+  },
+  "recipes": {
+    "list": {
+      "title": "Meine Rezepte",
+      "sortLabel": "Rezepte sortieren",
+      "sort": {
+        "dateDesc": "Neueste zuerst",
+        "dateAsc": "Älteste zuerst",
+        "nameAsc": "Name A-Z",
+        "nameDesc": "Name Z-A"
+      },
+      "servings": "{{count}} Portionen",
+      "prepTime": "Vorbereitung {{minutes}} Min.",
+      "cookTime": "Kochen {{minutes}} Min.",
+      "loading": "Rezepte werden geladen...",
+      "empty": {
+        "title": "Noch keine Rezepte",
+        "message": "Importiere dein erstes Rezept von einer beliebigen Website oder erstelle eines von Grund auf.",
+        "cta": "Rezept importieren"
+      },
+      "search": {
+        "placeholder": "Rezepte suchen...",
+        "label": "Rezepte suchen",
+        "noResults": "Keine Rezepte gefunden",
+        "noResultsMessage": "Keine Rezepte für \"{{query}}\" gefunden. Versuche einen anderen Suchbegriff."
+      },
+      "errors": {
+        "generic": "Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
+      }
+    },
+    "edit": {
+      "title": "Rezept bearbeiten",
+      "back": "Zurück zum Rezept",
+      "loading": "Rezept wird geladen...",
+      "success": "Rezept \"{{title}}\" erfolgreich aktualisiert!",
+      "errors": {
+        "notFound": "Rezept nicht gefunden.",
+        "generic": "Rezept konnte nicht aktualisiert werden. Bitte versuche es später erneut."
+      }
+    },
+    "detail": {
+      "back": "Zurück zu Rezepten",
+      "servings": "{{count}} Portionen",
+      "prepTime": "Vorbereitung",
+      "cookTime": "Kochen",
+      "totalTime": "Gesamt",
+      "minutes": "{{minutes}} Min.",
+      "difficulty": "Schwierigkeit",
+      "ingredients": "Zutaten",
+      "steps": "Schritte",
+      "sourceUrl": "Originalrezept",
+      "actions": {
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "shoppingList": "Einkaufsliste"
+      },
+      "loading": "Rezept wird geladen...",
+      "notFound": "Rezept nicht gefunden.",
+      "delete": {
+        "confirm": "Möchtest du \"{{title}}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden.",
+        "deleting": "Wird gelöscht...",
+        "success": "Rezept erfolgreich gelöscht.",
+        "errors": {
+          "notFound": "Rezept nicht gefunden.",
+          "generic": "Rezept konnte nicht gelöscht werden. Bitte versuche es später erneut."
+        }
+      },
+      "resetServings": "Zurücksetzen",
+      "errors": {
+        "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut."
+      }
+    }
+  },
+  "dashboard": {
+    "preview": {
+      "title": "Extrahiertes Rezept überprüfen",
+      "recipeTitle": "Titel",
+      "description": "Beschreibung",
+      "servings": "Portionen",
+      "prepTime": "Vorbereitungszeit (Min.)",
+      "cookTime": "Kochzeit (Min.)",
+      "difficulty": "Schwierigkeit",
+      "ingredients": "Zutaten",
+      "ingredientName": "Zutat",
+      "amount": "Menge",
+      "unit": "Einheit",
+      "addIngredient": "Zutat hinzufügen",
+      "steps": "Schritte",
+      "stepDescription": "Beschreibung des Schritts",
+      "addStep": "Schritt hinzufügen",
+      "save": "Rezept speichern",
+      "discard": "Verwerfen",
+      "errors": {
+        "titleRequired": "Titel ist erforderlich.",
+        "titleMaxLength": "Titel darf maximal 200 Zeichen lang sein.",
+        "ingredientNameRequired": "Zutatname ist erforderlich.",
+        "stepDescriptionRequired": "Schrittbeschreibung ist erforderlich."
+      }
+    },
+    "save": {
+      "saving": "Wird gespeichert..."
+    }
+  }
+}

@@ -3,8 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
+using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handler;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
+using SmartSolutionsLab.Yumney.Shopping.Application.Requests;
+using GetShoppingListByIdQueryHandler = SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers.GetShoppingListByIdQueryHandler;
+using GetShoppingListsQueryHandler = SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers.GetShoppingListsQueryHandler;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application;
 

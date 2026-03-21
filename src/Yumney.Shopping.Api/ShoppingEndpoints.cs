@@ -7,6 +7,8 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
+using SmartSolutionsLab.Yumney.Shopping.Application.Requests;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
 
@@ -49,7 +51,13 @@ public static class ShoppingEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var command = CreateShoppingListCommand.From(request);
+        var command = new CreateShoppingListCommand(
+            new ShoppingListTitle(request.Title),
+            request.Items.Select(i => new CreateShoppingListItemCommand(
+                new ItemName(i.Name),
+                Amount.FromNullable(i.Amount),
+                Unit.FromNullable(i.Unit))).ToList(),
+            request.RecipeIdentifier);
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
