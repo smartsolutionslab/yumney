@@ -111,7 +111,7 @@ var usersApi = builder.AddProject<Projects.Yumney_Users_Host>("users-api")
 // Frontend + Gateway
 if (builder.ExecutionContext.IsRunMode)
 {
-    var frontend = builder.AddJavaScriptApp("frontend", "../../client", "serve:shell")
+    var frontend = builder.AddJavaScriptApp("frontend", "../../client", "serve:all")
         .WithYarn()
         .WithHttpEndpoint(targetPort: 4200);
 

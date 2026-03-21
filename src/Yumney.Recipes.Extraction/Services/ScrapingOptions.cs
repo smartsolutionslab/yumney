@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 public sealed class ScrapingOptions
 {

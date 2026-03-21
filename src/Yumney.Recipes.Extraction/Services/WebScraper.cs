@@ -11,10 +11,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1303
-public sealed partial class WebScraper(
-    HttpClient httpClient,
-    IOptions<ScrapingOptions> scrapingOptions,
-    ILogger<WebScraper> logger)
+public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingOptions> scrapingOptions, ILogger<WebScraper> logger)
     : IWebScraper
 {
     private const string removeSelector = "script, style, nav, footer, header, aside, iframe, noscript";
@@ -57,14 +54,17 @@ public sealed partial class WebScraper(
         {
             LogContentTruncated(url.Value, cleanedText.Length, options.MaxContentLength);
             cleanedText = TruncateAtWordBoundary(cleanedText, options.MaxContentLength);
+            return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
         }
-
-        return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
+        else
+        {
+            return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
+        }
     }
 
     private static async Task<string> CleanHtmlAsync(string html, CancellationToken cancellationToken)
     {
-        var config = Configuration.Default;
+        IConfiguration config = Configuration.Default;
         using var context = BrowsingContext.New(config);
         using var document = await context.OpenAsync(req => req.Content(html), cancellationToken);
 

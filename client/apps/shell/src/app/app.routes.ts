@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { loadRemoteModule } from '@angular-architects/native-federation';
 import { authGuard } from '@yumney/shared/auth';
 
 export const appRoutes: Route[] = [
@@ -13,48 +14,22 @@ export const appRoutes: Route[] = [
       import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },
   {
-    path: 'recipes/:identifier/edit',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./recipes/recipe-edit/recipe-edit.component').then((m) => m.RecipeEditComponent),
-  },
-  {
-    path: 'recipes/:identifier',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./recipes/recipe-detail/recipe-detail.component').then(
-        (m) => m.RecipeDetailComponent,
-      ),
-  },
-  {
     path: 'recipes',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./recipes/recipe-list/recipe-list.component').then((m) => m.RecipeListComponent),
-  },
-  {
-    path: 'shopping/create/:recipeIdentifier',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./shopping/shopping-create/shopping-create.component').then(
-        (m) => m.ShoppingCreateComponent,
-      ),
-  },
-  {
-    path: 'shopping/:identifier',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./shopping/shopping-detail/shopping-detail.component').then(
-        (m) => m.ShoppingDetailComponent,
-      ),
+    loadChildren: () =>
+      loadRemoteModule('recipes', './routes').then((m) => m.recipesRoutes),
   },
   {
     path: 'shopping',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./shopping/shopping-list/shopping-list.component').then(
-        (m) => m.ShoppingListComponent,
-      ),
+    loadChildren: () =>
+      loadRemoteModule('shopping', './routes').then((m) => m.shoppingRoutes),
+  },
+  {
+    path: 'account',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      loadRemoteModule('account', './routes').then((m) => m.accountRoutes),
   },
   {
     path: '',

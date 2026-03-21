@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
+using SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
 

@@ -15,7 +15,7 @@ import {
   VALIDATION,
   HttpErrorMap,
 } from '@yumney/shared/models';
-import { RecipePreviewComponent } from './recipe-preview/recipe-preview.component';
+import { RecipePreviewComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-dashboard',
