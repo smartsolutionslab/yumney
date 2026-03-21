@@ -1,4 +1,14 @@
 {
+  "layout": {
+    "header": {
+      "greeting": "Hi, {{name}}",
+      "logout": "Sign out",
+      "login": "Sign in",
+      "myRecipes": "My Recipes",
+      "shoppingLists": "Shopping Lists",
+      "navigation": "Main navigation"
+    }
+  },
   "shared": {
     "editableList": {
       "moveUp": "Move up",
