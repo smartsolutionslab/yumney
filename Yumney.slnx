@@ -18,7 +18,6 @@
     <Folder Name="/src/Recipes/">
       <Project Path="src/Yumney.Recipes.Domain/Yumney.Recipes.Domain.csproj" />
       <Project Path="src/Yumney.Recipes.Application/Yumney.Recipes.Application.csproj" />
-      <Project Path="src/Yumney.Recipes.Host/Yumney.Recipes.Host.csproj" />
       <Project Path="src/Yumney.Recipes.Infrastructure/Yumney.Recipes.Infrastructure.csproj" />
       <Project Path="src/Yumney.Recipes.Extraction/Yumney.Recipes.Extraction.csproj" />
       <Project Path="src/Yumney.Recipes.Api/Yumney.Recipes.Api.csproj" />
@@ -26,14 +25,12 @@
     <Folder Name="/src/Shopping/">
       <Project Path="src/Yumney.Shopping.Domain/Yumney.Shopping.Domain.csproj" />
       <Project Path="src/Yumney.Shopping.Application/Yumney.Shopping.Application.csproj" />
-      <Project Path="src/Yumney.Shopping.Host/Yumney.Shopping.Host.csproj" />
       <Project Path="src/Yumney.Shopping.Infrastructure/Yumney.Shopping.Infrastructure.csproj" />
       <Project Path="src/Yumney.Shopping.Api/Yumney.Shopping.Api.csproj" />
     </Folder>
     <Folder Name="/src/Users/">
       <Project Path="src/Yumney.Users.Domain/Yumney.Users.Domain.csproj" />
       <Project Path="src/Yumney.Users.Application/Yumney.Users.Application.csproj" />
-      <Project Path="src/Yumney.Users.Host/Yumney.Users.Host.csproj" />
       <Project Path="src/Yumney.Users.Infrastructure/Yumney.Users.Infrastructure.csproj" />
       <Project Path="src/Yumney.Users.Api/Yumney.Users.Api.csproj" />
     </Folder>
@@ -44,15 +41,18 @@
     </Folder>
     <Folder Name="/tests/" />
     <Folder Name="/tests/Recipes/">
+      <Project Path="tests/Yumney.Recipes.Api.Tests/Yumney.Recipes.Api.Tests.csproj" />
       <Project Path="tests/Yumney.Recipes.Domain.Tests/Yumney.Recipes.Domain.Tests.csproj" />
       <Project Path="tests/Yumney.Recipes.Application.Tests/Yumney.Recipes.Application.Tests.csproj" />
       <Project Path="tests/Yumney.Recipes.Infrastructure.Tests/Yumney.Recipes.Infrastructure.Tests.csproj" />
     </Folder>
     <Folder Name="/tests/Shopping/">
+      <Project Path="tests/Yumney.Shopping.Api.Tests/Yumney.Shopping.Api.Tests.csproj" />
       <Project Path="tests/Yumney.Shopping.Domain.Tests/Yumney.Shopping.Domain.Tests.csproj" />
       <Project Path="tests/Yumney.Shopping.Application.Tests/Yumney.Shopping.Application.Tests.csproj" />
     </Folder>
     <Folder Name="/tests/Users/">
+      <Project Path="tests/Yumney.Users.Api.Tests/Yumney.Users.Api.Tests.csproj" />
       <Project Path="tests/Yumney.Users.Domain.Tests/Yumney.Users.Domain.Tests.csproj" />
       <Project Path="tests/Yumney.Users.Application.Tests/Yumney.Users.Application.Tests.csproj" />
       <Project Path="tests/Yumney.Users.Infrastructure.Tests/Yumney.Users.Infrastructure.Tests.csproj" />
