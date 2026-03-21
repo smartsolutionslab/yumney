@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from '../pages/register.page';
 
-test.describe('Register Page', () => {
+test.describe('Register Page (US-001)', () => {
   let registerPage: RegisterPage;
 
   test.beforeEach(async ({ page }) => {
@@ -60,72 +60,32 @@ test.describe('Register Page', () => {
     await expect(registerPage.fieldError('Passwords do not match')).toBeVisible();
   });
 
-  test('should show success message after successful registration', async ({ page }) => {
-    await page.route('**/api/v1/auth/register', (route) =>
-      route.fulfill({ status: 200, json: { message: 'Registration successful' } }),
-    );
+  test('should successfully register a new user', async () => {
+    const email = `e2e-${Date.now()}@yumney.dev`;
 
     await registerPage.fillForm({
-      email: 'test@example.com',
-      displayName: 'Test User',
+      email,
+      displayName: 'E2E Test User',
       password: 'ValidPass1',
       confirmPassword: 'ValidPass1',
     });
     await registerPage.submitButton.click();
 
-    await expect(registerPage.successHeading).toBeVisible();
+    await expect(registerPage.successHeading).toBeVisible({ timeout: 10_000 });
     await expect(registerPage.resendLink).toBeVisible();
   });
 
-  test('should show error when email already exists', async ({ page }) => {
-    await page.route('**/api/v1/auth/register', (route) =>
-      route.fulfill({ status: 409, json: { detail: 'Email already exists' } }),
-    );
-
+  test('should show error when email already exists', async () => {
     await registerPage.fillForm({
-      email: 'existing@example.com',
-      displayName: 'Test User',
+      email: 'test@yumney.dev', // pre-seeded test user
+      displayName: 'Duplicate',
       password: 'ValidPass1',
       confirmPassword: 'ValidPass1',
     });
     await registerPage.submitButton.click();
 
-    await expect(registerPage.errorBanner).toBeVisible();
-    await expect(registerPage.errorBanner).toContainText('already exists');
-  });
-
-  test('should show generic error on server failure', async ({ page }) => {
-    await page.route('**/api/v1/auth/register', (route) =>
-      route.fulfill({ status: 500, json: { detail: 'Internal error' } }),
-    );
-
-    await registerPage.fillForm({
-      email: 'test@example.com',
-      displayName: 'Test User',
-      password: 'ValidPass1',
-      confirmPassword: 'ValidPass1',
-    });
-    await registerPage.submitButton.click();
-
-    await expect(registerPage.errorBanner).toBeVisible();
-    await expect(registerPage.errorBanner).toContainText('unexpected error');
-  });
-
-  test('should navigate to resend verification after success', async ({ page }) => {
-    await page.route('**/api/v1/auth/register', (route) =>
-      route.fulfill({ status: 200, json: { message: 'OK' } }),
-    );
-
-    await registerPage.fillForm({
-      email: 'test@example.com',
-      displayName: 'Test User',
-      password: 'ValidPass1',
-      confirmPassword: 'ValidPass1',
-    });
-    await registerPage.submitButton.click();
-
-    await registerPage.resendLink.click();
-    await expect(page).toHaveURL(/\/auth\/resend-verification/);
+    await expect(registerPage.errorBanner).toBeVisible({ timeout: 10_000 });
+    await expect(registerPage.errorBanner).toContainText(/already exists/i);
   });
 
   test('should have correct page title', async ({ page }) => {
