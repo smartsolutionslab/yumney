@@ -19,6 +19,10 @@ export class LoginComponent {
     this.authService.login(this.rememberMe());
   }
 
+  onRememberMeChange(event: Event): void {
+    this.rememberMe.set((event.target as HTMLInputElement).checked);
+  }
+
   onForgotPassword(): void {
     this.authService.forgotPassword();
   }

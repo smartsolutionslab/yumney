@@ -9,7 +9,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { ShoppingApiService, CreateShoppingListItem } from '@yumney/shared/api-client';
@@ -17,7 +16,7 @@ import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-shopping-create',
-  imports: [TranslocoModule, FormsModule, RouterLink],
+  imports: [TranslocoModule, RouterLink],
   templateUrl: './shopping-create.component.html',
   styleUrl: './shopping-create.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,6 +68,10 @@ export class ShoppingCreateComponent implements OnInit {
           this.serverError.set(mapHttpError(err, ShoppingCreateComponent.loadErrorMap));
         },
       });
+  }
+
+  onTitleChange(event: Event): void {
+    this.title.set((event.target as HTMLInputElement).value);
   }
 
   onToggleIngredient(index: number): void {

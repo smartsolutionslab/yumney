@@ -25,14 +25,14 @@ export class ShoppingListComponent implements OnInit {
   };
 
   private shoppingApi = inject(ShoppingApiService);
-  private async = createAsyncState(inject(DestroyRef));
+  private asyncState = createAsyncState(inject(DestroyRef));
 
   lists = signal<ShoppingListSummary[]>([]);
-  isLoading = this.async.isLoading;
-  serverError = this.async.serverError;
+  isLoading = this.asyncState.isLoading;
+  serverError = this.asyncState.serverError;
 
   ngOnInit(): void {
-    this.async.execute(
+    this.asyncState.execute(
       this.shoppingApi.getShoppingLists(),
       ShoppingListComponent.errorMap,
       (lists) => this.lists.set(lists),
