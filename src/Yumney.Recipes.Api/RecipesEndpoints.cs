@@ -9,6 +9,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
@@ -99,11 +100,10 @@ public static class RecipesEndpoints
         ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
         var command = new SaveRecipeCommand(
@@ -155,11 +155,10 @@ public static class RecipesEndpoints
         ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
         var command = new UpdateRecipeCommand(
@@ -210,11 +209,10 @@ public static class RecipesEndpoints
         ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
         var command = new ImportRecipeCommand(new RecipeUrl(request.Url));
