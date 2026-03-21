@@ -41,11 +41,11 @@ export class RecipeEditComponent implements OnInit {
   isSaving = signal(false);
   serverError = signal<string | null>(null);
 
-  identifier = '';
+  identifier = signal('');
 
   ngOnInit(): void {
-    this.identifier = this.route.snapshot.paramMap.get('identifier') ?? '';
-    if (!this.identifier) {
+    this.identifier.set(this.route.snapshot.paramMap.get('identifier') ?? '');
+    if (!this.identifier()) {
       this.serverError.set('recipes.edit.errors.notFound');
       return;
     }
@@ -53,7 +53,7 @@ export class RecipeEditComponent implements OnInit {
     this.isLoading.set(true);
 
     this.recipeApi
-      .getRecipeById(this.identifier)
+      .getRecipeById(this.identifier())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (recipe) => {
@@ -101,12 +101,12 @@ export class RecipeEditComponent implements OnInit {
     this.serverError.set(null);
 
     this.recipeApi
-      .updateRecipe(this.identifier, request)
+      .updateRecipe(this.identifier(), request)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isSaving.set(false);
-          this.router.navigate(['/recipes', this.identifier]);
+          this.router.navigate(['/recipes', this.identifier()]);
         },
         error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
@@ -116,6 +116,6 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onDiscard(): void {
-    this.router.navigate(['/recipes', this.identifier]);
+    this.router.navigate(['/recipes', this.identifier()]);
   }
 }

@@ -1,5 +1,5 @@
 <div class="recipe-edit-container" *transloco="let t">
-  <a [routerLink]="['/recipes', identifier]" class="back-link">
+  <a [routerLink]="['/recipes', identifier()]" class="back-link">
     &larr; {{ t('recipes.edit.back') }}
   </a>
 

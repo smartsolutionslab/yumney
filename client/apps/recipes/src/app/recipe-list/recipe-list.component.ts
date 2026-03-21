@@ -13,6 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
+import { Subject, debounceTime } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
 import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
@@ -32,7 +33,7 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   private recipeApi = inject(RecipeApiService);
   private destroyRef = inject(DestroyRef);
   private observer: IntersectionObserver | null = null;
-  private searchTimeout: ReturnType<typeof setTimeout> | null = null;
+  private searchSubject = new Subject<string>();
 
   scrollSentinel = viewChild<ElementRef>('scrollSentinel');
 
@@ -51,28 +52,22 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadRecipes(false);
-    this.destroyRef.onDestroy(() => {
-      if (this.searchTimeout) {
-        clearTimeout(this.searchTimeout);
-      }
-    });
+
+    this.searchSubject
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        this.activeSearch.set(value.trim());
+        this.currentPage.set(1);
+        this.recipes.set([]);
+        this.totalCount.set(0);
+        this.loadRecipes(false);
+      });
   }
 
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
-
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-    }
-
-    this.searchTimeout = setTimeout(() => {
-      this.activeSearch.set(value.trim());
-      this.currentPage.set(1);
-      this.recipes.set([]);
-      this.totalCount.set(0);
-      this.loadRecipes(false);
-    }, 300);
+    this.searchSubject.next(value);
   }
 
   onSearchClear(): void {
@@ -85,10 +80,6 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   }
 
   onSortChange(event: Event): void {
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-      this.searchTimeout = null;
-    }
     const value = (event.target as HTMLSelectElement).value;
     switch (value) {
       case 'date-desc':

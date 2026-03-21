@@ -1,18 +1,24 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import angular from '@analogjs/vite-plugin-angular';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
-export default defineConfig(({ mode }) => ({
-  plugins: [angular()],
+export default defineConfig(() => ({
+  root: __dirname,
+  cacheDir: '../../node_modules/.vite/apps/shopping',
+  plugins: [angular(), nxViteTsPaths()],
   test: {
     name: 'shopping',
+    watch: false,
     globals: true,
+    environment: 'jsdom',
+    include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    passWithNoTests: true,
     setupFiles: ['src/test-setup.ts'],
-    include: ['src/**/*.spec.ts'],
     reporters: ['default'],
-    cacheDir: '../../node_modules/.vite/apps/shopping',
-  },
-  define: {
-    'import.meta.vitest': mode !== 'production',
+    coverage: {
+      reportsDirectory: '../../coverage/apps/shopping',
+      provider: 'v8' as const,
+    },
   },
 }));
