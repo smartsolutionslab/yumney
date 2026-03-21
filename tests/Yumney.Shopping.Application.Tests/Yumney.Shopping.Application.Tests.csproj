@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Yumney.Shopping.Api\Yumney.Shopping.Api.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shopping.Application\Yumney.Shopping.Application.csproj" />
   </ItemGroup>
 

@@ -2,7 +2,7 @@ using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 
 public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeRequest>
 {
