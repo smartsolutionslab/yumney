@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Yumney.Shared\Yumney.Shared.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.CQRS\Yumney.Shared.CQRS.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,6 +17,7 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="NSubstitute" />
   </ItemGroup>
 
 </Project>
