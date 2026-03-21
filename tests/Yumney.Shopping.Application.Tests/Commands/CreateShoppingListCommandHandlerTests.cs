@@ -6,6 +6,7 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
+using ShoppingListItem = SmartSolutionsLab.Yumney.Shopping.Application.Commands.ShoppingListItem;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
 
@@ -62,14 +63,14 @@ public class CreateShoppingListCommandHandlerTests
         var command = new CreateShoppingListCommand(
             new ShoppingListTitle("Big List"),
             [
-                new CreateShoppingListItemCommand(new ItemName("Flour"), new Amount(500), new Unit("g")),
-                new CreateShoppingListItemCommand(new ItemName("Sugar"), new Amount(200), new Unit("g")),
-                new CreateShoppingListItemCommand(new ItemName("Butter"), new Amount(250), new Unit("g")),
-                new CreateShoppingListItemCommand(new ItemName("Eggs"), new Amount(6), null),
-                new CreateShoppingListItemCommand(new ItemName("Milk"), new Amount(1), new Unit("l")),
-                new CreateShoppingListItemCommand(new ItemName("Salt"), null, null),
-                new CreateShoppingListItemCommand(new ItemName("Pepper"), null, null),
-                new CreateShoppingListItemCommand(new ItemName("Vanilla"), new Amount(1), new Unit("tsp")),
+                new ShoppingListItem(new ItemName("Flour"), new Amount(500), new Unit("g")),
+                new ShoppingListItem(new ItemName("Sugar"), new Amount(200), new Unit("g")),
+                new ShoppingListItem(new ItemName("Butter"), new Amount(250), new Unit("g")),
+                new ShoppingListItem(new ItemName("Eggs"), new Amount(6), null),
+                new ShoppingListItem(new ItemName("Milk"), new Amount(1), new Unit("l")),
+                new ShoppingListItem(new ItemName("Salt"), null, null),
+                new ShoppingListItem(new ItemName("Pepper"), null, null),
+                new ShoppingListItem(new ItemName("Vanilla"), new Amount(1), new Unit("tsp")),
             ]);
 
         var result = await handler.HandleAsync(command);
@@ -113,7 +114,7 @@ public class CreateShoppingListCommandHandlerTests
         var recipeId = Guid.NewGuid();
         var command = new CreateShoppingListCommand(
             new ShoppingListTitle("From Recipe"),
-            [new CreateShoppingListItemCommand(new ItemName("Flour"), new Amount(500), new Unit("g"))],
+            [new ShoppingListItem(new ItemName("Flour"), new Amount(500), new Unit("g"))],
             new RecipeReference(recipeId));
 
         var result = await handler.HandleAsync(command);
@@ -127,8 +128,8 @@ public class CreateShoppingListCommandHandlerTests
         var command = new CreateShoppingListCommand(
             new ShoppingListTitle("Test"),
             [
-                new CreateShoppingListItemCommand(new ItemName("Flour"), new Amount(500), new Unit("g")),
-                new CreateShoppingListItemCommand(new ItemName("Salt"), null, null),
+                new ShoppingListItem(new ItemName("Flour"), new Amount(500), new Unit("g")),
+                new ShoppingListItem(new ItemName("Salt"), null, null),
             ]);
 
         var result = await handler.HandleAsync(command);
@@ -145,6 +146,6 @@ public class CreateShoppingListCommandHandlerTests
     {
         return new CreateShoppingListCommand(
             new ShoppingListTitle("Weekly Groceries"),
-            [new CreateShoppingListItemCommand(new ItemName("Spaghetti"), new Amount(400), new Unit("g"))]);
+            [new ShoppingListItem(new ItemName("Spaghetti"), new Amount(400), new Unit("g"))]);
     }
 }

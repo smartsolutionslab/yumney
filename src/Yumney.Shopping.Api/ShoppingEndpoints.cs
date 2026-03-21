@@ -10,6 +10,7 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using ShoppingListItem = SmartSolutionsLab.Yumney.Shopping.Application.Commands.ShoppingListItem;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
 
@@ -53,7 +54,7 @@ public static class ShoppingEndpoints
 
         var command = new CreateShoppingListCommand(
             new ShoppingListTitle(request.Title),
-            request.Items.Select(i => new CreateShoppingListItemCommand(
+            request.Items.Select(i => new ShoppingListItem(
                 new ItemName(i.Name),
                 Amount.FromNullable(i.Amount),
                 Unit.FromNullable(i.Unit))).ToList(),

@@ -7,5 +7,5 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 
 public sealed record CreateShoppingListCommand(
     ShoppingListTitle Title,
-    IReadOnlyList<CreateShoppingListItemCommand> Items,
+    IReadOnlyList<ShoppingListItem> Items,
     RecipeReference? RecipeReference = null) : ICommand<Result<ShoppingListDetailDto>>;
