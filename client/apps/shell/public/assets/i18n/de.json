@@ -75,7 +75,8 @@
       "logout": "Abmelden",
       "login": "Anmelden",
       "myRecipes": "Meine Rezepte",
-      "shoppingLists": "Einkaufslisten"
+      "shoppingLists": "Einkaufslisten",
+      "navigation": "Hauptnavigation"
     }
   },
   "recipes": {
@@ -196,6 +197,7 @@
       "title": "Rezept importieren",
       "subtitle": "Füge eine URL von einer beliebigen Rezept-Website ein",
       "placeholder": "https://example.com/rezept/...",
+      "urlLabel": "Rezept-URL",
       "submit": "Rezept importieren",
       "submitting": "Wird importiert...",
       "success": "Rezept \"{{title}}\" erfolgreich extrahiert!",

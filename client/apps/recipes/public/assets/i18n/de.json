@@ -75,6 +75,10 @@
         }
       },
       "resetServings": "Zurücksetzen",
+      "a11y": {
+        "decreaseServings": "Portionen verringern",
+        "increaseServings": "Portionen erhöhen"
+      },
       "errors": {
         "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut."
       }

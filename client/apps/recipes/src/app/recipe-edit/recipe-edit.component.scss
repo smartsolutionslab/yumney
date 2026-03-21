@@ -9,13 +9,13 @@
 .back-link {
   display: inline-block;
   margin-bottom: 1.5rem;
-  color: #f97316;
+  color: var(--yn-primary);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
 
   &:hover {
-    color: #ea580c;
+    color: var(--yn-primary-hover);
   }
 }
 

@@ -11,6 +11,7 @@ const en = {
       greeting: 'Hi, {{name}}',
       logout: 'Sign out',
       login: 'Sign in',
+      navigation: 'Main navigation',
     },
   },
 };

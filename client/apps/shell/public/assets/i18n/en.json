@@ -75,7 +75,8 @@
       "logout": "Sign out",
       "login": "Sign in",
       "myRecipes": "My Recipes",
-      "shoppingLists": "Shopping Lists"
+      "shoppingLists": "Shopping Lists",
+      "navigation": "Main navigation"
     }
   },
   "recipes": {
@@ -196,6 +197,7 @@
       "title": "Import a Recipe",
       "subtitle": "Paste a URL from any recipe website",
       "placeholder": "https://example.com/recipe/...",
+      "urlLabel": "Recipe URL",
       "submit": "Import Recipe",
       "submitting": "Importing...",
       "success": "Recipe \"{{title}}\" extracted successfully!",

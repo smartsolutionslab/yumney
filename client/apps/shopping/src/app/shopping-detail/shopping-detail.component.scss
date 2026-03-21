@@ -9,13 +9,13 @@
 .back-link {
   display: inline-block;
   margin-bottom: 1.5rem;
-  color: #f97316;
+  color: var(--yn-primary);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
 
   &:hover {
-    color: #ea580c;
+    color: var(--yn-primary-hover);
   }
 }
 
@@ -38,7 +38,7 @@ h1 {
     display: flex;
     gap: 0.5rem;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--yn-border-light);
     font-size: 0.9375rem;
 
     &:last-child {
@@ -49,26 +49,26 @@ h1 {
 
 .item-amount {
   font-weight: 600;
-  color: #f97316;
+  color: var(--yn-primary);
   min-width: 2.5rem;
 }
 
 .item-unit {
-  color: #888;
+  color: var(--yn-text-light);
   min-width: 2rem;
 }
 
 .item-name {
-  color: #333;
+  color: var(--yn-text);
 }
 
 .source-link {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--yn-border-medium);
 
   a {
-    color: #f97316;
+    color: var(--yn-primary);
     text-decoration: none;
     font-size: 0.875rem;
 

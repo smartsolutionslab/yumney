@@ -2,7 +2,7 @@
   margin-top: 2rem;
   padding: 2rem;
   border-radius: 12px;
-  background: #fff;
+  background: var(--yn-surface);
   box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
 
   h2 {
@@ -43,21 +43,21 @@
     margin-bottom: 0.25rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--yn-text-body);
   }
 
   input,
   textarea {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--yn-border);
     border-radius: 6px;
     font-size: 0.875rem;
     outline: none;
     box-sizing: border-box;
 
     &:focus {
-      border-color: #f97316;
+      border-color: var(--yn-primary);
       box-shadow: 0 0 0 3px rgb(249 115 22 / 15%);
     }
   }
@@ -69,7 +69,7 @@
   .field-error {
     display: block;
     margin-top: 0.25rem;
-    color: #dc2626;
+    color: var(--yn-danger);
     font-size: 0.8125rem;
   }
 }
@@ -88,7 +88,7 @@
 .list-section {
   margin-bottom: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--yn-border-medium);
 }
 
 .ingredient-fields {
@@ -123,7 +123,7 @@
 
   .step-number {
     font-weight: 600;
-    color: #6b7280;
+    color: var(--yn-text-muted);
     padding-top: 0.5rem;
     min-width: 1.5rem;
   }
@@ -136,19 +136,19 @@
 
 .add-btn {
   padding: 0.5rem 1rem;
-  border: 1px dashed #d1d5db;
+  border: 1px dashed var(--yn-border);
   border-radius: 6px;
   background: transparent;
-  color: #6b7280;
+  color: var(--yn-text-muted);
   font-size: 0.875rem;
   cursor: pointer;
   width: 100%;
   margin-top: 0.5rem;
 
   &:hover {
-    border-color: #f97316;
-    color: #f97316;
-    background: #fff7ed;
+    border-color: var(--yn-primary);
+    color: var(--yn-primary);
+    background: var(--yn-primary-light);
   }
 }
 
@@ -157,21 +157,21 @@
   justify-content: flex-end;
   gap: 0.75rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--yn-border-medium);
 }
 
 .discard-btn {
   padding: 0.75rem 1.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--yn-border);
   border-radius: 8px;
-  background: #fff;
-  color: #374151;
+  background: var(--yn-surface);
+  color: var(--yn-text-body);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
 
   &:hover {
-    background: #f3f4f6;
+    background: var(--yn-background-hover);
   }
 }
 
@@ -179,13 +179,13 @@
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
-  background: #f97316;
-  color: #fff;
+  background: var(--yn-primary);
+  color: var(--yn-surface);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
 
   &:hover {
-    background: #ea580c;
+    background: var(--yn-primary-hover);
   }
 }
