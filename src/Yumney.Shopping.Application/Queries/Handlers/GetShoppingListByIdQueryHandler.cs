@@ -38,7 +38,7 @@ public sealed partial class GetShoppingListByIdQueryHandler(
 
         return Result<ShoppingListDetailDto>.Success(
             new ShoppingListDetailDto(
-                shoppingList.Id,
+                shoppingList.Id.Value,
                 shoppingList.Title.Value,
                 shoppingList.RecipeIdentifier,
                 shoppingList.CreatedAt,

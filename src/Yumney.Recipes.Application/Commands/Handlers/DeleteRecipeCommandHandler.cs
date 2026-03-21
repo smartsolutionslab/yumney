@@ -37,7 +37,7 @@ public sealed partial class DeleteRecipeCommandHandler(
 
         await recipes.DeleteAsync(recipe, cancellationToken);
 
-        LogRecipeDeleted(recipe.Id, recipe.Title.Value);
+        LogRecipeDeleted(recipe.Id.Value, recipe.Title.Value);
 
         return Result.Success();
     }

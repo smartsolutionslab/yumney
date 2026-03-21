@@ -26,10 +26,9 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_ValidCommand_ReturnsSuccess()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
-        recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+        recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var command = CreateValidCommand(recipeId);
+        var command = CreateValidCommand(recipe.Id);
 
         var result = await handler.HandleAsync(command);
 
@@ -40,14 +39,13 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_ValidCommand_ReturnsRecipeDetailDto()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
-        recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+        recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var command = CreateValidCommand(recipeId);
+        var command = CreateValidCommand(recipe.Id);
 
         var result = await handler.HandleAsync(command);
 
-        result.Value.Identifier.Should().Be(recipe.Id);
+        result.Value.Identifier.Should().Be(recipe.Id.Value);
         result.Value.Title.Should().Be("Updated Pasta");
         result.Value.Ingredients.Should().HaveCount(1);
         result.Value.Steps.Should().HaveCount(1);
@@ -71,10 +69,9 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_WrongOwner_ReturnsAccessDenied()
     {
         var recipe = CreateTestRecipe("other-user");
-        var recipeId = new RecipeIdentifier(recipe.Id);
-        recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+        recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var command = CreateValidCommand(recipeId);
+        var command = CreateValidCommand(recipe.Id);
 
         var result = await handler.HandleAsync(command);
 
@@ -99,10 +96,9 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_WrongOwner_DoesNotCallUpdateAsync()
     {
         var recipe = CreateTestRecipe("other-user");
-        var recipeId = new RecipeIdentifier(recipe.Id);
-        recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+        recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var command = CreateValidCommand(recipeId);
+        var command = CreateValidCommand(recipe.Id);
 
         await handler.HandleAsync(command);
 
@@ -113,7 +109,7 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_ValidCommand_CallsUpdateAsync()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = CreateValidCommand(recipeId);
@@ -127,7 +123,7 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_ValidCommand_UpdatesRecipeFields()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = new UpdateRecipeCommand(
@@ -161,7 +157,7 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_ForwardsCancellationToken()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
         var cts = new CancellationTokenSource();
 
@@ -177,7 +173,7 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_PreservesSourceUrl()
     {
         var recipe = CreateTestRecipeWithSourceUrl("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = CreateValidCommand(recipeId);
@@ -202,7 +198,7 @@ public class UpdateRecipeCommandHandlerTests
             new Difficulty("easy"),
             new ImageUrl("https://example.com/old.jpg"));
 
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = new UpdateRecipeCommand(
@@ -225,7 +221,7 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_PreservesCreatedAt()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         var originalCreatedAt = recipe.CreatedAt;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 

@@ -13,7 +13,7 @@ public class ShoppingListTests
     {
         var shoppingList = CreateValidShoppingList();
 
-        shoppingList.Id.Should().NotBeEmpty();
+        shoppingList.Id.Should().NotBeNull();
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class ShoppingListTests
         var domainEvent = shoppingList.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<ShoppingListCreatedEvent>().Subject;
 
-        domainEvent.ShoppingListIdentifier.Value.Should().Be(shoppingList.Id);
+        domainEvent.ShoppingListIdentifier.Should().Be(shoppingList.Id);
     }
 
     [Fact]

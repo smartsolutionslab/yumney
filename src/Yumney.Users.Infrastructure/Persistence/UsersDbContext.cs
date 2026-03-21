@@ -14,6 +14,8 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
         {
             entity.ToTable("AppUserProfiles");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasConversion(v => v.Value, v => new AppUserProfileIdentifier(v));
             entity.Property(e => e.KeycloakUserId)
                 .ConfigureRequiredStringValueObject(v => v.Value, v => new KeycloakUserId(v), KeycloakUserId.MaxLength);
             entity.Property(e => e.DisplayName)

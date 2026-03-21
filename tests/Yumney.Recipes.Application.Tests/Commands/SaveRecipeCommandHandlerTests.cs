@@ -184,7 +184,7 @@ public class SaveRecipeCommandHandlerTests
         var result = await handler.HandleAsync(command);
 
         capturedRecipe.Should().NotBeNull();
-        result.Value.Identifier.Should().Be(capturedRecipe!.Id);
+        result.Value.Identifier.Should().Be(capturedRecipe!.Id.Value);
     }
 
     [Fact]

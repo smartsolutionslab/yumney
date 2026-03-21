@@ -11,8 +11,10 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1303
-public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingOptions> scrapingOptions, ILogger<WebScraper> logger)
-    : IWebScraper
+public sealed partial class WebScraper(
+    HttpClient httpClient,
+    IOptions<ScrapingOptions> scrapingOptions,
+    ILogger<WebScraper> logger) : IWebScraper
 {
     private const string removeSelector = "script, style, nav, footer, header, aside, iframe, noscript";
 

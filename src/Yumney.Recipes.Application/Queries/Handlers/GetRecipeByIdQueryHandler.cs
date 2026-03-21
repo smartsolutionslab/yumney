@@ -32,7 +32,7 @@ public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes,
         }
 
         var dto = new RecipeDetailDto(
-            recipe.Id,
+            recipe.Id.Value,
             recipe.Title.Value,
             recipe.Description?.Value,
             recipe.Servings?.Value,

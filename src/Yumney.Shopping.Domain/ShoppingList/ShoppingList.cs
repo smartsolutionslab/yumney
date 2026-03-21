@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-public sealed class ShoppingList : AggregateRoot<Guid>
+public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
 {
     private readonly List<ShoppingListItem> items = [];
 
@@ -28,7 +28,7 @@ public sealed class ShoppingList : AggregateRoot<Guid>
 
         var shoppingList = new ShoppingList
         {
-            Id = Guid.NewGuid(),
+            Id = new ShoppingListIdentifier(Guid.NewGuid()),
             Title = title,
             Owner = owner,
             RecipeIdentifier = recipeIdentifier,
@@ -37,7 +37,7 @@ public sealed class ShoppingList : AggregateRoot<Guid>
 
         shoppingList.items.AddRange(items);
 
-        shoppingList.AddDomainEvent(new ShoppingListCreatedEvent(new ShoppingListIdentifier(shoppingList.Id), title));
+        shoppingList.AddDomainEvent(new ShoppingListCreatedEvent(shoppingList.Id, title));
 
         return shoppingList;
     }

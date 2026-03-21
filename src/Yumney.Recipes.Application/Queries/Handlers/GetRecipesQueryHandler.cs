@@ -24,7 +24,7 @@ public sealed partial class GetRecipesQueryHandler(
             owner, paging, sorting, search, cancellationToken);
 
         var dtoItems = items.Select(r => new RecipeListItemDto(
-            r.Id,
+            r.Id.Value,
             r.Title.Value,
             r.Description?.Value,
             r.Servings?.Value,

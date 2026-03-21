@@ -14,6 +14,8 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
         {
             entity.ToTable("Recipes");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasConversion(v => v.Value, v => new RecipeIdentifier(v));
 
             entity.Property(e => e.Title)
                 .ConfigureRequiredStringValueObject(v => v.Value, v => new RecipeTitle(v), RecipeTitle.MaxLength);
