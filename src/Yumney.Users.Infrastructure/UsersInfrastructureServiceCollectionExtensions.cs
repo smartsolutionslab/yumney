@@ -33,6 +33,8 @@ public static class UsersInfrastructureServiceCollectionExtensions
             client.BaseAddress = new Uri("https+http://keycloak");
         }).AddStandardResilienceHandler();
 
+        services.AddHealthChecks().AddDbContextCheck<UsersDbContext>("usersdb");
+
         return services;
     }
 }
