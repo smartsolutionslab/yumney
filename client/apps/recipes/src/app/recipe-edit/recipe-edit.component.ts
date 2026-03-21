@@ -78,23 +78,19 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onSave(recipe: ImportRecipeResponse): void {
+    const { title, description, ingredients, steps, servings, prepTimeMinutes, cookTimeMinutes, difficulty, imageUrl } =
+      recipe;
+
     const request: UpdateRecipeRequest = {
-      title: recipe.title,
-      description: recipe.description,
-      ingredients: recipe.ingredients.map((i) => ({
-        name: i.name,
-        amount: i.amount,
-        unit: i.unit,
-      })),
-      steps: recipe.steps.map((s) => ({
-        number: s.number,
-        description: s.description,
-      })),
-      servings: recipe.servings,
-      prepTimeMinutes: recipe.prepTimeMinutes,
-      cookTimeMinutes: recipe.cookTimeMinutes,
-      difficulty: recipe.difficulty,
-      imageUrl: recipe.imageUrl,
+      title,
+      description,
+      ingredients: ingredients.map(({ name, amount, unit }) => ({ name, amount, unit })),
+      steps: steps.map(({ number, description }) => ({ number, description })),
+      servings,
+      prepTimeMinutes,
+      cookTimeMinutes,
+      difficulty,
+      imageUrl,
     };
 
     this.isSaving.set(true);

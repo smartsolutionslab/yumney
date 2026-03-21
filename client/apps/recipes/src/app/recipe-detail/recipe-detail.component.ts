@@ -93,12 +93,10 @@ export class RecipeDetailComponent implements OnInit {
     if (!recipe) {
       return null;
     }
-    const prep = recipe.prepTimeMinutes ?? 0;
-    const cook = recipe.cookTimeMinutes ?? 0;
-    if (prep === 0 && cook === 0) {
-      return null;
-    }
-    return prep + cook;
+    const { prepTimeMinutes, cookTimeMinutes } = recipe;
+    const prep = prepTimeMinutes ?? 0;
+    const cook = cookTimeMinutes ?? 0;
+    return prep === 0 && cook === 0 ? null : prep + cook;
   }
 
   onIncreaseServings(): void {

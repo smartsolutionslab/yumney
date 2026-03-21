@@ -96,11 +96,12 @@ export class AuthService {
     if (hasValidToken) {
       const claims = this.oauthService.getIdentityClaims();
       if (claims) {
+        const { sub, email, preferred_username, realm_access } = claims;
         this.currentUser.set({
-          sub: claims['sub'],
-          email: claims['email'],
-          preferredUsername: claims['preferred_username'],
-          roles: claims['realm_access']?.['roles'] ?? [],
+          sub,
+          email,
+          preferredUsername: preferred_username,
+          roles: realm_access?.['roles'] ?? [],
         });
       }
     } else {

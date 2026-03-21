@@ -103,26 +103,20 @@ export class DashboardComponent {
   }
 
   onSaveRecipe(recipe: ImportRecipeResponse): void {
-    const sourceUrl = this.sourceUrl();
+    const { title, description, ingredients, steps, servings, prepTimeMinutes, cookTimeMinutes, difficulty, imageUrl } =
+      recipe;
 
     const request: SaveRecipeRequest = {
-      title: recipe.title,
-      description: recipe.description,
-      ingredients: recipe.ingredients.map((i) => ({
-        name: i.name,
-        amount: i.amount,
-        unit: i.unit,
-      })),
-      steps: recipe.steps.map((s) => ({
-        number: s.number,
-        description: s.description,
-      })),
-      servings: recipe.servings,
-      prepTimeMinutes: recipe.prepTimeMinutes,
-      cookTimeMinutes: recipe.cookTimeMinutes,
-      difficulty: recipe.difficulty,
-      imageUrl: recipe.imageUrl,
-      sourceUrl: sourceUrl ?? undefined,
+      title,
+      description,
+      ingredients: ingredients.map(({ name, amount, unit }) => ({ name, amount, unit })),
+      steps: steps.map(({ number, description }) => ({ number, description })),
+      servings,
+      prepTimeMinutes,
+      cookTimeMinutes,
+      difficulty,
+      imageUrl,
+      sourceUrl: this.sourceUrl() ?? undefined,
     };
 
     this.isSaving.set(true);
