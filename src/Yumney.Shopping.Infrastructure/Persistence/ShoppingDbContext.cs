@@ -25,7 +25,11 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
                 .ConfigureRequiredStringValueObject(
                     v => v.Value, v => new OwnerIdentifier(v), OwnerIdentifier.MaxLength);
 
-            entity.Property(e => e.RecipeIdentifier);
+            entity.Property(e => e.RecipeReference)
+                .HasConversion(
+                    v => v != null ? v.Value : (Guid?)null,
+                    v => v.HasValue ? new RecipeReference(v.Value) : null)
+                .HasColumnName("RecipeIdentifier");
 
             entity.Property(e => e.CreatedAt).IsRequired();
 

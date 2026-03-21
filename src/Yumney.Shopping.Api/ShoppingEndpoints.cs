@@ -57,7 +57,7 @@ public static class ShoppingEndpoints
                 new ItemName(i.Name),
                 Amount.FromNullable(i.Amount),
                 Unit.FromNullable(i.Unit))).ToList(),
-            request.RecipeIdentifier);
+            RecipeReference.FromNullable(request.RecipeReference));
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
