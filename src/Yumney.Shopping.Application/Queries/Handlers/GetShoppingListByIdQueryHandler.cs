@@ -40,7 +40,7 @@ public sealed partial class GetShoppingListByIdQueryHandler(
             new ShoppingListDetailDto(
                 shoppingList.Id.Value,
                 shoppingList.Title.Value,
-                shoppingList.RecipeIdentifier,
+                shoppingList.RecipeReference?.Value,
                 shoppingList.CreatedAt,
                 itemDtos));
     }
