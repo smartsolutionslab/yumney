@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Shopping.Application.Requests;
+namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
 public sealed record CreateShoppingListRequest(
     string Title,

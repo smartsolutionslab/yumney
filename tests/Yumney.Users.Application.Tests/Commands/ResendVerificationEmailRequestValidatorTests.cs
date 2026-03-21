@@ -1,5 +1,5 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Users.Application.Commands;
+using SmartSolutionsLab.Yumney.Users.Api.Requests;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Tests.Commands;

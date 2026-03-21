@@ -8,4 +8,8 @@
     <ProjectReference Include="..\Yumney.Shopping.Application\Yumney.Shopping.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+  </ItemGroup>
+
 </Project>
