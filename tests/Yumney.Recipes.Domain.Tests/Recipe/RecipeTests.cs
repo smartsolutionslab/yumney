@@ -13,7 +13,7 @@ public class RecipeTests
     {
         var recipe = CreateValidRecipe();
 
-        recipe.Id.Should().NotBeEmpty();
+        recipe.Id.Should().NotBeNull();
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public class RecipeTests
         var domainEvent = recipe.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<RecipeSavedEvent>().Subject;
 
-        domainEvent.RecipeIdentifier.Value.Should().Be(recipe.Id);
+        domainEvent.RecipeIdentifier.Should().Be(recipe.Id);
     }
 
     [Fact]
@@ -286,7 +286,7 @@ public class RecipeTests
         var domainEvent = recipe.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<RecipeUpdatedEvent>().Subject;
 
-        domainEvent.RecipeIdentifier.Value.Should().Be(recipe.Id);
+        domainEvent.RecipeIdentifier.Should().Be(recipe.Id);
     }
 
     [Fact]
@@ -404,7 +404,7 @@ public class RecipeTests
         var domainEvent = recipe.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<RecipeDeletedEvent>().Subject;
 
-        domainEvent.RecipeIdentifier.Value.Should().Be(recipe.Id);
+        domainEvent.RecipeIdentifier.Should().Be(recipe.Id);
     }
 
     [Fact]

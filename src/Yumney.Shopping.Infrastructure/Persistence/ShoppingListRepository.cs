@@ -19,7 +19,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
     {
         return await shoppingLists
             .Include(l => l.Items)
-            .FirstOrDefaultAsync(l => l.Id == identifier.Value, cancellationToken);
+            .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken);
     }
 
     public async Task<IReadOnlyList<ShoppingList>> GetByOwnerAsync(

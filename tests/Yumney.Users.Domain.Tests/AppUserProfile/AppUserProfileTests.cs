@@ -23,7 +23,7 @@ public class AppUserProfileTests
     {
         var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
 
-        profile.Id.Should().NotBeEmpty();
+        profile.Id.Should().NotBeNull();
     }
 
     [Fact]

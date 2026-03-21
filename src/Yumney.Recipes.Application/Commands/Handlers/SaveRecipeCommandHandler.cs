@@ -48,9 +48,9 @@ public sealed partial class SaveRecipeCommandHandler(
 
         await recipes.AddAsync(recipe, cancellationToken);
 
-        LogRecipeSaved(recipe.Id, title.Value);
+        LogRecipeSaved(recipe.Id.Value, title.Value);
         return Result<SavedRecipeDto>.Success(
-            new SavedRecipeDto(recipe.Id, title.Value, recipe.CreatedAt));
+            new SavedRecipeDto(recipe.Id.Value, title.Value, recipe.CreatedAt));
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Duplicate import attempt for URL {SourceUrl} by owner {Owner}")]

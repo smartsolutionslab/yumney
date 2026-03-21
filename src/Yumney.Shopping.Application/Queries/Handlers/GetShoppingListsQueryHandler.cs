@@ -25,7 +25,7 @@ public sealed partial class GetShoppingListsQueryHandler(
 
         var dtos = lists
             .Select(l => new ShoppingListSummaryDto(
-                l.Id,
+                l.Id.Value,
                 l.Title.Value,
                 l.Items.Count,
                 l.CreatedAt))

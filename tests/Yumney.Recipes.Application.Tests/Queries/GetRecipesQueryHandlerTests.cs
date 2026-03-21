@@ -57,7 +57,7 @@ public class GetRecipesQueryHandlerTests
 
         result.Value.Items.Should().HaveCount(1);
         result.Value.Items[0].Title.Should().Be("Pasta Carbonara");
-        result.Value.Items[0].Identifier.Should().Be(recipe.Id);
+        result.Value.Items[0].Identifier.Should().Be(recipe.Id.Value);
     }
 
     [Fact]
