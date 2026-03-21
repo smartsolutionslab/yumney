@@ -88,7 +88,7 @@ public static class ShoppingEndpoints
         IQueryHandler<GetShoppingListByIdQuery, Result<ShoppingListDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var query = GetShoppingListByIdQuery.From(identifier);
+        var query = new GetShoppingListByIdQuery(new ShoppingListIdentifier(identifier));
         var result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
