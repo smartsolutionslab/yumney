@@ -49,6 +49,11 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   activeSearch = signal('');
 
   hasMore = computed(() => this.recipes().length < this.totalCount());
+  currentSort = computed(() => {
+    const by = this.sortBy().toLowerCase();
+    const dir = this.sortDirection() === 'Ascending' ? 'asc' : 'desc';
+    return `${by}-${dir}`;
+  });
 
   ngOnInit(): void {
     this.loadRecipes(false);
