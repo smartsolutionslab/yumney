@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 #pragma warning disable SA1601 // Partial elements should be documented (LoggerMessage generates partial methods)
 public sealed partial class DeleteRecipeCommandHandler(
