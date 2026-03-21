@@ -77,6 +77,7 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
                     .ConfigureRequiredStringValueObject(v => v.Value, v => new StepDescription(v), StepDescription.MaxLength);
             });
 
+            entity.HasIndex(e => e.Owner);
             entity.HasIndex(e => new { e.SourceUrl, e.Owner })
                 .IsUnique()
                 .HasFilter("\"SourceUrl\" IS NOT NULL");

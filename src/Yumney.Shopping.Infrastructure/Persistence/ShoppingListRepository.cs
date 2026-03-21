@@ -18,6 +18,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         CancellationToken cancellationToken = default)
     {
         return await shoppingLists
+            .AsNoTracking()
             .Include(l => l.Items)
             .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken);
     }
@@ -27,6 +28,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         CancellationToken cancellationToken = default)
     {
         return await shoppingLists
+            .AsNoTracking()
             .Include(l => l.Items)
             .Where(l => l.Owner == owner)
             .OrderByDescending(l => l.CreatedAt)

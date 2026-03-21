@@ -47,6 +47,6 @@ public sealed partial class GetShoppingListByIdQueryHandler(
                 itemDtos));
     }
 
-    [LoggerMessage(Level = LogLevel.Debug, Message = "Fetching shopping list {ShoppingListId}")]
+    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping list {ShoppingListId}")]
     private partial void LogGetShoppingListById(Guid shoppingListId);
 }

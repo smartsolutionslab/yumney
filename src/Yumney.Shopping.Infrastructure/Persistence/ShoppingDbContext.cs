@@ -31,6 +31,7 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
                     v => v.HasValue ? new RecipeReference(v.Value) : null)
                 .HasColumnName("RecipeIdentifier");
 
+            entity.HasIndex(e => e.Owner);
             entity.Property(e => e.CreatedAt).IsRequired();
 
             entity.OwnsMany(e => e.Items, item =>
