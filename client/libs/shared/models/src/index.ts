@@ -7,3 +7,4 @@ export { scaleIngredients, type ScalableIngredient } from './lib/scale-ingredien
 export { UI } from './lib/ui-constants';
 export { createAsyncState, type AsyncState } from './lib/async-state';
 export { TranslocoHttpLoader } from './lib/transloco-loader';
+export { IS_STANDALONE } from './lib/federation-context';

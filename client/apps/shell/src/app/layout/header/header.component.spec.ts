@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { HeaderComponent } from './header.component';
+import { HeaderComponent } from '@yumney/ui';
 import { AuthService } from '@yumney/shared/auth';
 
 const en = {

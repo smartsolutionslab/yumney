@@ -1,4 +1,14 @@
 {
+  "layout": {
+    "header": {
+      "greeting": "Hallo, {{name}}",
+      "logout": "Abmelden",
+      "login": "Anmelden",
+      "myRecipes": "Meine Rezepte",
+      "shoppingLists": "Einkaufslisten",
+      "navigation": "Hauptnavigation"
+    }
+  },
   "shopping": {
     "list": {
       "title": "Einkaufslisten",

@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { HeaderComponent } from './layout/header/header.component';
+import { HeaderComponent } from '@yumney/ui';
 
 @Component({
   imports: [RouterModule, HeaderComponent],

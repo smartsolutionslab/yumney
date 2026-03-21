@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { AppLayoutComponent } from '@yumney/ui';
 
 @Component({
-  selector: 'yn-root',
-  imports: [RouterOutlet],
-  template: '<router-outlet />',
+  selector: 'yn-shopping-root',
+  imports: [AppLayoutComponent],
+  template: '<yn-app-layout />',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {}
