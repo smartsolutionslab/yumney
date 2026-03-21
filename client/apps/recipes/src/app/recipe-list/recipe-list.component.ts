@@ -16,7 +16,7 @@ import { RouterLink } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
-import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
+import { mapHttpError, HttpErrorMap, UI } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-recipe-list',
@@ -40,7 +40,7 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   recipes = signal<RecipeListItem[]>([]);
   totalCount = signal(0);
   currentPage = signal(1);
-  pageSize = signal(20);
+  pageSize = signal(UI.DEFAULT_PAGE_SIZE);
   sortBy = signal<'Name' | 'Date'>('Date');
   sortDirection = signal<'Ascending' | 'Descending'>('Descending');
   isLoading = signal(false);
@@ -54,7 +54,7 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
     this.loadRecipes(false);
 
     this.searchSubject
-      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .pipe(debounceTime(UI.SEARCH_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         this.activeSearch.set(value.trim());
         this.currentPage.set(1);

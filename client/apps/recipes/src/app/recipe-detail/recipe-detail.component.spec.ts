@@ -61,6 +61,10 @@ const en = {
         },
       },
       resetServings: 'Reset',
+      a11y: {
+        decreaseServings: 'Decrease servings',
+        increaseServings: 'Increase servings',
+      },
       errors: {
         generic: 'Failed to load recipe. Please try again later.',
       },

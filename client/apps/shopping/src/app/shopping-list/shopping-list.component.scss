@@ -19,13 +19,13 @@ h1 {
 .empty-state {
   text-align: center;
   padding: 4rem 1rem;
-  color: #888;
+  color: var(--yn-text-light);
 
   h2 {
     margin: 0 0 0.5rem;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #555;
+    color: var(--yn-text-secondary);
   }
 
   p {
@@ -43,7 +43,7 @@ h1 {
 .list-card {
   display: block;
   padding: 1.25rem;
-  background: #fff;
+  background: var(--yn-surface);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
   text-decoration: none;
@@ -59,17 +59,17 @@ h1 {
   margin: 0 0 0.75rem;
   font-size: 1.0625rem;
   font-weight: 600;
-  color: #333;
+  color: var(--yn-text);
 }
 
 .list-meta {
   display: flex;
   justify-content: space-between;
   font-size: 0.8125rem;
-  color: #888;
+  color: var(--yn-text-light);
 }
 
 .item-count {
-  color: #f97316;
+  color: var(--yn-primary);
   font-weight: 500;
 }

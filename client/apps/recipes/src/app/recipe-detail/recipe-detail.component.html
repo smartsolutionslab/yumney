@@ -9,7 +9,7 @@
   }
 
   @if (serverError()) {
-    <div class="error-banner">{{ t(serverError()!) }}</div>
+    <div class="error-banner" role="alert">{{ t(serverError()!) }}</div>
   }
 
   @if (recipe(); as recipe) {
@@ -38,11 +38,16 @@
               class="servings-button"
               (click)="onDecreaseServings()"
               [disabled]="desiredServings() === 1"
+              [attr.aria-label]="t('recipes.detail.a11y.decreaseServings')"
             >
               &minus;
             </button>
-            <span class="servings-value">{{ desiredServings() }}</span>
-            <button class="servings-button" (click)="onIncreaseServings()">+</button>
+            <span class="servings-value" aria-live="polite">{{ desiredServings() }}</span>
+            <button
+              class="servings-button"
+              (click)="onIncreaseServings()"
+              [attr.aria-label]="t('recipes.detail.a11y.increaseServings')"
+            >+</button>
           </div>
           @if (isScaled()) {
             <button class="reset-link" (click)="onResetServings()">

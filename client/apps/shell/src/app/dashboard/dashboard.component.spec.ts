@@ -35,6 +35,7 @@ const en = {
       title: 'Import a Recipe',
       subtitle: 'Paste a URL from any recipe website',
       placeholder: 'https://example.com/recipe/...',
+      urlLabel: 'Recipe URL',
       submit: 'Import Recipe',
       submitting: 'Importing...',
       success: 'Recipe "{{title}}" extracted successfully!',

@@ -2,7 +2,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: #fff;
+  background-color: var(--yn-surface);
   box-shadow: 0 1px 4px rgb(0 0 0 / 10%);
 }
 
@@ -18,7 +18,7 @@ header {
 .brand {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #4a90d9;
+  color: var(--yn-link);
   text-decoration: none;
 }
 
@@ -30,27 +30,27 @@ nav {
 
 .greeting {
   font-size: 0.875rem;
-  color: #333;
+  color: var(--yn-text);
 }
 
 .logout-button {
   padding: 0.375rem 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--yn-border);
   border-radius: 4px;
   background: none;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--yn-text-muted);
   cursor: pointer;
 
   &:hover {
-    background-color: #f5f5f5;
-    border-color: #ccc;
+    background-color: var(--yn-background);
+    border-color: var(--yn-border);
   }
 }
 
 .login-link {
   font-size: 0.875rem;
-  color: #4a90d9;
+  color: var(--yn-link);
   text-decoration: none;
 
   &:hover {

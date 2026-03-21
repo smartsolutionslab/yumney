@@ -14,7 +14,7 @@
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
-  background: #fff;
+  background: var(--yn-surface);
 
   h1 {
     margin: 0 0 0.25rem;
@@ -23,7 +23,7 @@
 
   .subtitle {
     margin: 0 0 1.5rem;
-    color: #666;
+    color: var(--yn-text-muted);
     font-size: 0.9rem;
   }
 }
@@ -41,33 +41,33 @@
   input {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--yn-border);
     border-radius: 4px;
     font-size: 1rem;
     box-sizing: border-box;
 
     &:focus {
       outline: none;
-      border-color: #4a90d9;
+      border-color: var(--yn-link);
       box-shadow: 0 0 0 2px rgb(74 144 217 / 20%);
     }
 
     &.ng-invalid.ng-touched {
-      border-color: #dc3545;
+      border-color: var(--yn-danger);
     }
   }
 
   .field-error {
     display: block;
     margin-top: 0.25rem;
-    color: #dc3545;
+    color: var(--yn-danger);
     font-size: 0.8rem;
   }
 }
 
 .success-message {
   text-align: center;
-  color: #059669;
+  color: var(--yn-success);
 
   h2 {
     margin: 0 0 0.5rem;
@@ -84,13 +84,13 @@ button[type='submit'] {
   margin-top: 0.5rem;
   border: none;
   border-radius: 4px;
-  background: #4a90d9;
-  color: #fff;
+  background: var(--yn-link);
+  color: var(--yn-surface);
   font-size: 1rem;
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background: #3a7bc8;
+    background: var(--yn-link-hover);
   }
 
   &:disabled {
@@ -105,7 +105,7 @@ button[type='submit'] {
   font-size: 0.9rem;
 
   a {
-    color: #4a90d9;
+    color: var(--yn-link);
     text-decoration: none;
 
     &:hover {
