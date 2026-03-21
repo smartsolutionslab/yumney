@@ -79,28 +79,21 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
     this.loadRecipes(false);
   }
 
+  private static readonly sortOptions: Record<string, { by: 'Name' | 'Date'; dir: 'Ascending' | 'Descending' }> = {
+    'date-desc': { by: 'Date', dir: 'Descending' },
+    'date-asc': { by: 'Date', dir: 'Ascending' },
+    'name-asc': { by: 'Name', dir: 'Ascending' },
+    'name-desc': { by: 'Name', dir: 'Descending' },
+  };
+
   onSortChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-    switch (value) {
-      case 'date-desc':
-        this.sortBy.set('Date');
-        this.sortDirection.set('Descending');
-        break;
-      case 'date-asc':
-        this.sortBy.set('Date');
-        this.sortDirection.set('Ascending');
-        break;
-      case 'name-asc':
-        this.sortBy.set('Name');
-        this.sortDirection.set('Ascending');
-        break;
-      case 'name-desc':
-        this.sortBy.set('Name');
-        this.sortDirection.set('Descending');
-        break;
-      default:
-        return;
+    const option = RecipeListComponent.sortOptions[(event.target as HTMLSelectElement).value];
+    if (!option) {
+      return;
     }
+    const { by, dir } = option;
+    this.sortBy.set(by);
+    this.sortDirection.set(dir);
     this.currentPage.set(1);
     this.recipes.set([]);
     this.totalCount.set(0);
