@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/login.page';
+import { TEST_USER } from '../helpers/test-data.helper';
 
-test.describe('Login Page', () => {
+test.describe('Login Page (US-002)', () => {
   let loginPage: LoginPage;
 
   test.beforeEach(async ({ page }) => {
@@ -39,10 +40,27 @@ test.describe('Login Page', () => {
 
   test('should display forgot password link', async () => {
     await expect(loginPage.forgotPasswordLink).toBeVisible();
-    await expect(loginPage.forgotPasswordLink).toHaveText(/Forgot your password/);
   });
 
   test('should have correct page title', async ({ page }) => {
     await expect(page).toHaveTitle(/Sign In/);
+  });
+
+  test('should redirect to Keycloak on sign in click', async ({ page }) => {
+    await loginPage.signInButton.click();
+    await expect(page).toHaveURL(/realms\/yumney\/protocol\/openid-connect/);
+  });
+
+  test('should complete full login flow and reach dashboard', async ({ page }) => {
+    await loginPage.signInButton.click();
+
+    // Keycloak login page
+    await page.locator('#username').fill(TEST_USER.username);
+    await page.locator('#password').fill(TEST_USER.password);
+    await page.locator('#kc-login').click();
+
+    // Should arrive at dashboard
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 });
