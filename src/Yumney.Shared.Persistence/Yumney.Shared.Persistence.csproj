@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\Yumney.Shared\Yumney.Shared.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Events\Yumney.Shared.Events.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
 

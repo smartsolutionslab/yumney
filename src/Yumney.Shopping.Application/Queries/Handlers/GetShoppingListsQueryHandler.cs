@@ -34,6 +34,6 @@ public sealed partial class GetShoppingListsQueryHandler(
         return Result<IReadOnlyList<ShoppingListSummaryDto>>.Success(dtos);
     }
 
-    [LoggerMessage(Level = LogLevel.Debug, Message = "Fetching shopping lists for owner {OwnerId}")]
+    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping lists for owner {OwnerId}")]
     private partial void LogGetShoppingLists(string ownerId);
 }
