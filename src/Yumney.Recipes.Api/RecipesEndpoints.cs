@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
@@ -72,7 +73,14 @@ public static class RecipesEndpoints
         string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var query = GetRecipesQuery.From(page, pageSize, sortBy, sortDirection, search);
+        var sortField = Enum.TryParse<RecipeSortField>(sortBy, ignoreCase: true, out var parsed)
+            ? parsed
+            : RecipeSortField.Date;
+
+        var query = new GetRecipesQuery(
+            PagingOptions.Of(Page.From(page), PageSize.From(pageSize)),
+            new SortingOptions<RecipeSortField>(sortField, sortDirection),
+            SearchTerm.FromNullable(search));
 
         var result = await handler.HandleAsync(query, cancellationToken);
 
@@ -97,7 +105,22 @@ public static class RecipesEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var command = SaveRecipeCommand.From(request);
+        var command = new SaveRecipeCommand(
+            new RecipeTitle(request.Title),
+            request.Ingredients.Select(i => new SaveRecipeIngredientItem(
+                new IngredientName(i.Name),
+                Amount.FromNullable(i.Amount),
+                Unit.FromNullable(i.Unit))).ToList(),
+            request.Steps.Select(s => new SaveRecipeStepItem(
+                new StepNumber(s.Number),
+                new StepDescription(s.Description))).ToList(),
+            RecipeDescription.FromNullable(request.Description),
+            Servings.FromNullable(request.Servings),
+            PreparationTime.FromNullable(request.PrepTimeMinutes),
+            CookingTime.FromNullable(request.CookTimeMinutes),
+            Difficulty.FromNullable(request.Difficulty),
+            ImageUrl.FromNullable(request.ImageUrl),
+            RecipeUrl.FromNullable(request.SourceUrl));
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
@@ -113,7 +136,7 @@ public static class RecipesEndpoints
         IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var query = GetRecipeByIdQuery.From(identifier);
+        var query = new GetRecipeByIdQuery(new RecipeIdentifier(identifier));
         var result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
@@ -138,7 +161,22 @@ public static class RecipesEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var command = UpdateRecipeCommand.From(identifier, request);
+        var command = new UpdateRecipeCommand(
+            new RecipeIdentifier(identifier),
+            new RecipeTitle(request.Title),
+            request.Ingredients.Select(i => new SaveRecipeIngredientItem(
+                new IngredientName(i.Name),
+                Amount.FromNullable(i.Amount),
+                Unit.FromNullable(i.Unit))).ToList(),
+            request.Steps.Select(s => new SaveRecipeStepItem(
+                new StepNumber(s.Number),
+                new StepDescription(s.Description))).ToList(),
+            RecipeDescription.FromNullable(request.Description),
+            Servings.FromNullable(request.Servings),
+            PreparationTime.FromNullable(request.PrepTimeMinutes),
+            CookingTime.FromNullable(request.CookTimeMinutes),
+            Difficulty.FromNullable(request.Difficulty),
+            ImageUrl.FromNullable(request.ImageUrl));
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
@@ -154,7 +192,7 @@ public static class RecipesEndpoints
         ICommandHandler<DeleteRecipeCommand, Result> handler,
         CancellationToken cancellationToken)
     {
-        var command = DeleteRecipeCommand.From(identifier);
+        var command = new DeleteRecipeCommand(new RecipeIdentifier(identifier));
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
@@ -178,7 +216,7 @@ public static class RecipesEndpoints
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        var command = ImportRecipeCommand.From(request.Url);
+        var command = new ImportRecipeCommand(new RecipeUrl(request.Url));
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
