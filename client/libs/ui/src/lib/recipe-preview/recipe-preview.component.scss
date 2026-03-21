@@ -1,3 +1,6 @@
+@use 'forms';
+@use 'buttons';
+
 .recipe-preview {
   margin-top: 2rem;
   padding: 2rem;
@@ -39,27 +42,7 @@
   margin-bottom: 0.75rem;
 
   label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
     color: var(--yn-text-body);
-  }
-
-  input,
-  textarea {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--yn-border);
-    border-radius: 6px;
-    font-size: 0.875rem;
-    outline: none;
-    box-sizing: border-box;
-
-    &:focus {
-      border-color: var(--yn-primary);
-      box-shadow: 0 0 0 3px rgb(249 115 22 / 15%);
-    }
   }
 
   textarea {
@@ -67,9 +50,6 @@
   }
 
   .field-error {
-    display: block;
-    margin-top: 0.25rem;
-    color: var(--yn-danger);
     font-size: 0.8125rem;
   }
 }
