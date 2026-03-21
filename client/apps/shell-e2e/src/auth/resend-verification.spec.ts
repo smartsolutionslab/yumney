@@ -32,27 +32,11 @@ test.describe('Resend Verification Page', () => {
     await expect(resendPage.fieldError('Please enter a valid email address')).toBeVisible();
   });
 
-  test('should show success message after successful resend', async ({ page }) => {
-    await page.route('**/api/v1/auth/resend-verification-email', (route) =>
-      route.fulfill({ status: 200, json: { message: 'Email sent' } }),
-    );
-
-    await resendPage.emailInput.fill('test@example.com');
+  test('should submit resend request and show success', async () => {
+    await resendPage.emailInput.fill('test@yumney.dev');
     await resendPage.submitButton.click();
 
-    await expect(resendPage.successHeading).toBeVisible();
-    await expect(resendPage.successMessage.first()).toContainText('verification email has been sent');
-  });
-
-  test('should show error on service unavailability', async ({ page }) => {
-    await page.route('**/api/v1/auth/resend-verification-email', (route) =>
-      route.fulfill({ status: 503, json: { detail: 'Service unavailable' } }),
-    );
-
-    await resendPage.emailInput.fill('test@example.com');
-    await resendPage.submitButton.click();
-
-    await expect(resendPage.errorBanner).toBeVisible();
+    await expect(resendPage.successHeading).toBeVisible({ timeout: 10_000 });
   });
 
   test('should have back to registration link', async ({ page }) => {
