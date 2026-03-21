@@ -3,7 +3,7 @@ using FluentValidation.TestHelper;
 using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using Xunit;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests;
 
 public class SaveRecipeRequestValidatorTests
 {

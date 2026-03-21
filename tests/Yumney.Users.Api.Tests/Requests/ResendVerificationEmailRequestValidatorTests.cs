@@ -2,7 +2,7 @@ using FluentAssertions;
 using SmartSolutionsLab.Yumney.Users.Api.Requests;
 using Xunit;
 
-namespace SmartSolutionsLab.Yumney.Users.Application.Tests.Commands;
+namespace SmartSolutionsLab.Yumney.Users.Api.Tests.Requests;
 
 public class ResendVerificationEmailRequestValidatorTests
 {
