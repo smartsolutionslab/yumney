@@ -1,10 +1,10 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { AppLayoutComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipes-root',
-  imports: [RouterOutlet],
-  template: '<router-outlet />',
+  imports: [AppLayoutComponent],
+  template: '<yn-app-layout />',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {}
