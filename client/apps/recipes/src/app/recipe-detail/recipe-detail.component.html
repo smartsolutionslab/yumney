@@ -140,5 +140,15 @@
         </a>
       </div>
     }
+
+    @if (showDeleteConfirm()) {
+      <yn-confirm-dialog
+        [message]="t('recipes.detail.delete.confirm', { title: recipe.title })"
+        [confirmLabel]="t('recipes.detail.delete.confirmButton')"
+        [cancelLabel]="t('recipes.detail.delete.cancelButton')"
+        (confirmed)="onDeleteConfirmed()"
+        (cancelled)="onDeleteCancelled()"
+      />
+    }
   }
 </div>

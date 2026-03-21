@@ -10,13 +10,14 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { mapHttpError, HttpErrorMap, scaleIngredients } from '@yumney/shared/models';
+import { ConfirmDialogComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-detail',
-  imports: [TranslocoModule, RouterLink],
+  imports: [TranslocoModule, RouterLink, ConfirmDialogComponent],
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,7 +36,6 @@ export class RecipeDetailComponent implements OnInit {
   private recipeApi = inject(RecipeApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private transloco = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
 
   recipe = signal<RecipeDetail | null>(null);
@@ -43,6 +43,7 @@ export class RecipeDetailComponent implements OnInit {
   isDeleting = signal(false);
   serverError = signal<string | null>(null);
   desiredServings = signal<number | null>(null);
+  showDeleteConfirm = signal(false);
 
   scaledIngredients = computed(() => {
     const recipe = this.recipe();
@@ -122,19 +123,19 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onDelete(): void {
+    if (!this.recipe()) {
+      return;
+    }
+    this.showDeleteConfirm.set(true);
+  }
+
+  onDeleteConfirmed(): void {
     const recipe = this.recipe();
     if (!recipe) {
       return;
     }
 
-    const message = this.transloco.translate('recipes.detail.delete.confirm', {
-      title: recipe.title,
-    });
-
-    if (!confirm(message)) {
-      return;
-    }
-
+    this.showDeleteConfirm.set(false);
     this.isDeleting.set(true);
     this.serverError.set(null);
 
@@ -151,5 +152,9 @@ export class RecipeDetailComponent implements OnInit {
           this.serverError.set(mapHttpError(err, RecipeDetailComponent.deleteErrorMap));
         },
       });
+  }
+
+  onDeleteCancelled(): void {
+    this.showDeleteConfirm.set(false);
   }
 }

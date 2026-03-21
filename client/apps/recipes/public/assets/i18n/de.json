@@ -65,6 +65,8 @@
       "notFound": "Rezept nicht gefunden.",
       "delete": {
         "confirm": "Möchtest du \"{{title}}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden.",
+        "confirmButton": "Löschen",
+        "cancelButton": "Abbrechen",
         "deleting": "Wird gelöscht...",
         "success": "Rezept erfolgreich gelöscht.",
         "errors": {
