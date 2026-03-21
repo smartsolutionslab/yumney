@@ -51,6 +51,8 @@ const en = {
       notFound: 'Recipe not found.',
       delete: {
         confirm: 'Are you sure you want to delete "{{title}}"? This cannot be undone.',
+        confirmButton: 'Delete',
+        cancelButton: 'Cancel',
         deleting: 'Deleting...',
         success: 'Recipe deleted successfully.',
         errors: {
@@ -407,14 +409,13 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-
     const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
     deleteButton.click();
-    tick();
+    fixture.detectChanges();
 
-    expect(confirmSpy).toHaveBeenCalled();
-    confirmSpy.mockRestore();
+    expect(component.showDeleteConfirm()).toBe(true);
+    const dialog = fixture.nativeElement.querySelector('yn-confirm-dialog');
+    expect(dialog).toBeTruthy();
   }));
 
   it('should call deleteRecipe API when confirmed', fakeAsync(() => {
@@ -423,15 +424,12 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     recipeApiMock.deleteRecipe.mockReturnValue(of(undefined));
 
-    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
-    deleteButton.click();
+    component.onDeleteConfirmed();
     tick();
 
     expect(recipeApiMock.deleteRecipe).toHaveBeenCalledWith('abc-123');
-    vi.restoreAllMocks();
   }));
 
   it('should NOT call deleteRecipe API when cancelled', fakeAsync(() => {
@@ -440,14 +438,13 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    component.onDelete();
+    expect(component.showDeleteConfirm()).toBe(true);
 
-    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
-    deleteButton.click();
-    tick();
+    component.onDeleteCancelled();
 
+    expect(component.showDeleteConfirm()).toBe(false);
     expect(recipeApiMock.deleteRecipe).not.toHaveBeenCalled();
-    vi.restoreAllMocks();
   }));
 
   it('should show deleting state while in progress', fakeAsync(() => {
@@ -456,22 +453,19 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     const deleteSubject = new Subject<void>();
     recipeApiMock.deleteRecipe.mockReturnValue(deleteSubject);
 
-    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
-    deleteButton.click();
+    component.onDeleteConfirmed();
     fixture.detectChanges();
 
+    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
     expect(component.isDeleting()).toBe(true);
     expect(deleteButton.textContent.trim()).toBe('Deleting...');
 
     deleteSubject.next(undefined);
     deleteSubject.complete();
     tick();
-
-    vi.restoreAllMocks();
   }));
 
   it('should navigate to /recipes on successful delete', fakeAsync(() => {
@@ -480,17 +474,15 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     recipeApiMock.deleteRecipe.mockReturnValue(of(undefined));
     const router = TestBed.inject(Router);
     const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
-    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
-    deleteButton.click();
+    component.onDeleteConfirmed();
     tick();
 
     expect(navigateSpy).toHaveBeenCalledWith(['/recipes']);
-    vi.restoreAllMocks();
+    navigateSpy.mockRestore();
   }));
 
   it('should show error message on delete API failure', fakeAsync(() => {
@@ -499,19 +491,16 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     const httpError = new HttpErrorResponse({ status: 500 });
     recipeApiMock.deleteRecipe.mockReturnValue(throwError(() => httpError));
 
-    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
-    deleteButton.click();
+    component.onDeleteConfirmed();
     tick();
     fixture.detectChanges();
 
     const error = fixture.nativeElement.querySelector('.error-banner');
     expect(error).toBeTruthy();
     expect(error.textContent).toContain('Failed to delete recipe.');
-    vi.restoreAllMocks();
   }));
 
   it('should initialize desiredServings from recipe.servings', fakeAsync(() => {

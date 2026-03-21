@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 
 @Component({
@@ -6,5 +6,6 @@ import { TranslocoModule } from '@jsverse/transloco';
   imports: [TranslocoModule],
   templateUrl: './account-placeholder.component.html',
   styleUrl: './account-placeholder.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountPlaceholderComponent {}
