@@ -1,0 +1,8 @@
+{
+  "name": "shell-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/shell-e2e/src",
+  "tags": ["scope:shell", "type:e2e"],
+  "implicitDependencies": ["shell", "recipes", "shopping", "account"]
+}
