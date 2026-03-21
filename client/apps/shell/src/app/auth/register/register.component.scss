@@ -1,4 +1,7 @@
 @use 'banners';
+@use 'forms';
+@use 'buttons';
+@use 'cards';
 
 .register-container {
   display: flex;
@@ -30,43 +33,6 @@
   }
 }
 
-.form-field {
-  margin-bottom: 1rem;
-
-  label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  input {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--yn-border);
-    border-radius: 4px;
-    font-size: 0.875rem;
-    box-sizing: border-box;
-
-    &:focus {
-      outline: none;
-      border-color: var(--yn-link);
-      box-shadow: 0 0 0 2px rgb(74 144 217 / 20%);
-    }
-
-    &.ng-invalid.ng-touched {
-      border-color: var(--yn-danger);
-    }
-  }
-}
-
-.field-error {
-  display: block;
-  margin-top: 0.25rem;
-  color: var(--yn-danger);
-  font-size: 0.75rem;
-}
-
 .success-message {
   text-align: center;
   padding: 1rem 0;
@@ -86,22 +52,5 @@
 
 button[type='submit'] {
   width: 100%;
-  padding: 0.625rem;
   margin-top: 0.5rem;
-  border: none;
-  border-radius: 4px;
-  background-color: var(--yn-link);
-  color: var(--yn-surface);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  &:hover:not(:disabled) {
-    background-color: var(--yn-link-hover);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 }
