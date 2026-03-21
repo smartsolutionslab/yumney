@@ -1,5 +1,8 @@
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,9 +30,13 @@ public static class HostBuilderExtensions
                 realm: realm,
                 configureOptions: options =>
                 {
-                    options.Authority = $"http://keycloak/realms/{realm}";
-                    options.RequireHttpsMetadata = false;
                     options.Audience = "yumney-api";
+
+                    if (builder.Environment.IsDevelopment())
+                    {
+                        options.Authority = $"http://keycloak/realms/{realm}";
+                        options.RequireHttpsMetadata = false;
+                    }
                 });
 
         builder.Services.AddAuthorization();
@@ -39,6 +46,19 @@ public static class HostBuilderExtensions
         builder.Services.AddScoped<DomainEventDispatchInterceptor>();
         builder.Services.AddOpenApi();
 
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.AddSlidingWindowLimiter("RecipeImport", limiter =>
+            {
+                limiter.Window = TimeSpan.FromMinutes(1);
+                limiter.SegmentsPerWindow = 4;
+                limiter.PermitLimit = 10;
+                limiter.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                limiter.QueueLimit = 2;
+            });
+        });
+
         return builder;
     }
 
@@ -46,8 +66,17 @@ public static class HostBuilderExtensions
     {
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
+
         app.UseAuthentication()
             .UseAuthorization();
+
+        app.UseRateLimiter();
 
         if (app.Environment.IsDevelopment())
         {

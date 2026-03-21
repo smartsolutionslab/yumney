@@ -19,6 +19,7 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
                 .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>()));
 
         services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
+        services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");
 
         return services;
     }
