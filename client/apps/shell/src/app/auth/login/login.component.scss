@@ -4,14 +4,14 @@
   align-items: center;
   min-height: 100vh;
   padding: 1rem;
-  background-color: #f5f5f5;
+  background-color: var(--yn-background);
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
   padding: 2rem;
-  background: #fff;
+  background: var(--yn-surface);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 
@@ -23,7 +23,7 @@
 
   .subtitle {
     margin: 0 0 1.5rem;
-    color: #666;
+    color: var(--yn-text-muted);
     font-size: 0.875rem;
   }
 }
@@ -48,14 +48,14 @@ button {
   padding: 0.625rem;
   border: none;
   border-radius: 4px;
-  background-color: #4a90d9;
-  color: #fff;
+  background-color: var(--yn-link);
+  color: var(--yn-surface);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
 
   &:hover {
-    background-color: #357abd;
+    background-color: var(--yn-link-hover);
   }
 }
 
@@ -65,7 +65,7 @@ button {
   font-size: 0.875rem;
 
   a {
-    color: #4a90d9;
+    color: var(--yn-link);
     text-decoration: none;
     cursor: pointer;
 
@@ -79,10 +79,10 @@ button {
   margin-top: 1rem;
   text-align: center;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--yn-text-muted);
 
   a {
-    color: #4a90d9;
+    color: var(--yn-link);
     text-decoration: none;
 
     &:hover {

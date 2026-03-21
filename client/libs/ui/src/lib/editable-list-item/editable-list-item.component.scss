@@ -24,10 +24,10 @@
   width: 1.75rem;
   height: 1.75rem;
   padding: 0;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--yn-border);
   border-radius: 4px;
-  background: #fff;
-  color: #374151;
+  background: var(--yn-surface);
+  color: var(--yn-text-body);
   font-size: 0.75rem;
   cursor: pointer;
   display: flex;
@@ -35,7 +35,7 @@
   justify-content: center;
 
   &:hover:not(:disabled) {
-    background: #f3f4f6;
+    background: var(--yn-background-hover);
   }
 
   &:disabled {
@@ -45,11 +45,11 @@
 }
 
 .remove-btn {
-  color: #dc2626;
+  color: var(--yn-danger);
   font-size: 1rem;
 
   &:hover:not(:disabled) {
-    background: #fef2f2;
-    border-color: #fca5a5;
+    background: var(--yn-danger-light);
+    border-color: var(--yn-danger-border);
   }
 }

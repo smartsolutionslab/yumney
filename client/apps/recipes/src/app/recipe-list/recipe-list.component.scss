@@ -21,14 +21,14 @@
 
 .sort-select {
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--yn-border);
   border-radius: 8px;
   font-size: 0.875rem;
   outline: none;
   cursor: pointer;
 
   &:focus {
-    border-color: #f97316;
+    border-color: var(--yn-primary);
     box-shadow: 0 0 0 3px rgb(249 115 22 / 15%);
   }
 }
@@ -40,26 +40,26 @@
 .search-input {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--yn-border);
   border-radius: 8px;
   font-size: 0.875rem;
   outline: none;
   box-sizing: border-box;
 
   &:focus {
-    border-color: #f97316;
+    border-color: var(--yn-primary);
     box-shadow: 0 0 0 3px rgb(249 115 22 / 15%);
   }
 
   &::placeholder {
-    color: #9ca3af;
+    color: var(--yn-text-placeholder);
   }
 }
 
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  background: #fff;
+  background: var(--yn-surface);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
 
@@ -71,7 +71,7 @@
 
   p {
     margin: 0 0 1.5rem;
-    color: #666;
+    color: var(--yn-text-muted);
     font-size: 0.875rem;
   }
 }
@@ -80,15 +80,15 @@
   display: inline-block;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  background: #f97316;
-  color: #fff;
+  background: var(--yn-primary);
+  color: var(--yn-surface);
   font-size: 1rem;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
 
   &:hover {
-    background: #ea580c;
+    background: var(--yn-primary-hover);
   }
 }
 
@@ -100,7 +100,7 @@
 
 .recipe-card {
   display: block;
-  background: #fff;
+  background: var(--yn-surface);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
   overflow: hidden;
@@ -123,7 +123,7 @@
 .recipe-image-placeholder {
   width: 100%;
   height: 180px;
-  background: linear-gradient(135deg, #fff7ed, #fed7aa);
+  background: linear-gradient(135deg, var(--yn-primary-light), var(--yn-primary-light-end));
 }
 
 .recipe-info {
@@ -139,7 +139,7 @@
 
 .recipe-description {
   margin: 0 0 0.75rem;
-  color: #666;
+  color: var(--yn-text-muted);
   font-size: 0.8125rem;
   line-height: 1.4;
   display: -webkit-box;
@@ -156,8 +156,8 @@
 
 .meta-item {
   font-size: 0.75rem;
-  color: #888;
-  background: #f9fafb;
+  color: var(--yn-text-light);
+  background: var(--yn-background-subtle);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }

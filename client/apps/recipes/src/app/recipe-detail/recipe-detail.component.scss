@@ -9,13 +9,13 @@
 .back-link {
   display: inline-block;
   margin-bottom: 1.5rem;
-  color: #f97316;
+  color: var(--yn-primary);
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
 
   &:hover {
-    color: #ea580c;
+    color: var(--yn-primary-hover);
   }
 }
 
@@ -38,7 +38,7 @@
 .hero-placeholder {
   width: 100%;
   height: 240px;
-  background: linear-gradient(135deg, #fff7ed, #fed7aa);
+  background: linear-gradient(135deg, var(--yn-primary-light), var(--yn-primary-light-end));
 }
 
 .recipe-title {
@@ -50,7 +50,7 @@
 
 .recipe-description {
   margin: 0 0 1.5rem;
-  color: #555;
+  color: var(--yn-text-secondary);
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -61,7 +61,7 @@
   gap: 1rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
-  background: #fff;
+  background: var(--yn-surface);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
 }
@@ -77,7 +77,7 @@
 
 .meta-label {
   font-size: 0.75rem;
-  color: #888;
+  color: var(--yn-text-light);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -98,18 +98,18 @@
   justify-content: center;
   width: 1.75rem;
   height: 1.75rem;
-  border: 1px solid #f97316;
+  border: 1px solid var(--yn-primary);
   border-radius: 50%;
   background: transparent;
-  color: #f97316;
+  color: var(--yn-primary);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   line-height: 1;
 
   &:hover:not(:disabled) {
-    background: #f97316;
-    color: #fff;
+    background: var(--yn-primary);
+    color: var(--yn-surface);
   }
 
   &:disabled {
@@ -123,27 +123,27 @@
   text-align: center;
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--yn-text);
 }
 
 .reset-link {
   background: none;
   border: none;
-  color: #f97316;
+  color: var(--yn-primary);
   font-size: 0.6875rem;
   cursor: pointer;
   padding: 0;
   text-decoration: underline;
 
   &:hover {
-    color: #ea580c;
+    color: var(--yn-primary-hover);
   }
 }
 
 .meta-value {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #333;
+  color: var(--yn-text);
 }
 
 .actions-bar {
@@ -155,10 +155,10 @@
 
 .action-button {
   padding: 0.5rem 1.25rem;
-  border: 2px solid #f97316;
+  border: 2px solid var(--yn-primary);
   border-radius: 8px;
-  background: #f97316;
-  color: #fff;
+  background: var(--yn-primary);
+  color: var(--yn-surface);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -170,14 +170,14 @@
 
   &--danger {
     background: transparent;
-    border-color: #dc2626;
-    color: #dc2626;
+    border-color: var(--yn-danger);
+    color: var(--yn-danger);
   }
 
   &--secondary {
     background: transparent;
-    border-color: #f97316;
-    color: #f97316;
+    border-color: var(--yn-primary);
+    color: var(--yn-primary);
   }
 }
 
@@ -201,7 +201,7 @@
     display: flex;
     gap: 0.5rem;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--yn-border-light);
     font-size: 0.9375rem;
 
     &:last-child {
@@ -212,17 +212,17 @@
 
 .ingredient-amount {
   font-weight: 600;
-  color: #f97316;
+  color: var(--yn-primary);
   min-width: 2.5rem;
 }
 
 .ingredient-unit {
-  color: #888;
+  color: var(--yn-text-light);
   min-width: 2rem;
 }
 
 .ingredient-name {
-  color: #333;
+  color: var(--yn-text);
 }
 
 .steps-list {
@@ -235,7 +235,7 @@
     display: flex;
     gap: 1rem;
     padding: 1rem 0;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--yn-border-light);
 
     &:last-child {
       border-bottom: none;
@@ -251,8 +251,8 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: #f97316;
-  color: #fff;
+  background: var(--yn-primary);
+  color: var(--yn-surface);
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -261,16 +261,16 @@
   padding-top: 0.25rem;
   font-size: 0.9375rem;
   line-height: 1.6;
-  color: #333;
+  color: var(--yn-text);
 }
 
 .source-link {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--yn-border-medium);
 
   a {
-    color: #f97316;
+    color: var(--yn-primary);
     text-decoration: none;
     font-size: 0.875rem;
 

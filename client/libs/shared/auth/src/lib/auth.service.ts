@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { AppConfig, createAuthConfig } from './auth-config';
 import { REMEMBER_ME_KEY } from './auth-storage.factory';
@@ -25,6 +26,8 @@ export class AuthService {
     () => this.currentUser()?.preferredUsername ?? this.currentUser()?.email ?? null,
   );
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(private oauthService: OAuthService) {}
 
   async initialize(): Promise<void> {
@@ -38,9 +41,11 @@ export class AuthService {
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
 
-    this.oauthService.events.subscribe(() => {
-      this.updateAuthState();
-    });
+    this.oauthService.events
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.updateAuthState();
+      });
 
     try {
       await this.oauthService.loadDiscoveryDocumentAndTryLogin();
