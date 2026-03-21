@@ -3,6 +3,7 @@
     <h1>{{ t('recipes.list.title') }}</h1>
     <select
       class="sort-select"
+      [value]="currentSort()"
       (change)="onSortChange($event)"
       [attr.aria-label]="t('recipes.list.sortLabel')"
     >
