@@ -34,7 +34,26 @@
 }
 
 .search-bar {
+  position: relative;
   margin-bottom: 1.5rem;
+}
+
+.search-clear {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--yn-text-light);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+
+  &:hover {
+    color: var(--yn-text);
+  }
 }
 
 .search-input {

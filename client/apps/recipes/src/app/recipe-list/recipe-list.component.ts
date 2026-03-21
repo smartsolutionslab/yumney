@@ -98,6 +98,8 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
         this.sortBy.set('Name');
         this.sortDirection.set('Descending');
         break;
+      default:
+        return;
     }
     this.currentPage.set(1);
     this.recipes.set([]);
