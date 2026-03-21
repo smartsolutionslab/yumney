@@ -120,24 +120,18 @@ export class RecipePreviewComponent implements OnInit {
       return;
     }
 
-    const value = this.form.getRawValue();
+    const { title, description, servings, prepTimeMinutes, cookTimeMinutes, difficulty, ingredients, steps } =
+      this.form.getRawValue();
     const result: ImportRecipeResponse = {
-      title: value.title,
-      description: value.description || null,
-      servings: value.servings,
-      prepTimeMinutes: value.prepTimeMinutes,
-      cookTimeMinutes: value.cookTimeMinutes,
-      difficulty: value.difficulty || null,
+      title,
+      description: description || null,
+      servings,
+      prepTimeMinutes,
+      cookTimeMinutes,
+      difficulty: difficulty || null,
       imageUrl: this.recipe().imageUrl,
-      ingredients: value.ingredients.map((i) => ({
-        name: i.name,
-        amount: i.amount,
-        unit: i.unit,
-      })),
-      steps: value.steps.map((s, index) => ({
-        number: index + 1,
-        description: s.description,
-      })),
+      ingredients: ingredients.map(({ name, amount, unit }) => ({ name, amount, unit })),
+      steps: steps.map(({ description }, index) => ({ number: index + 1, description })),
     };
 
     this.save.emit(result);

@@ -98,11 +98,7 @@ export class ShoppingCreateComponent implements OnInit {
     const selections = this.ingredientSelections();
     const selectedItems: CreateShoppingListItem[] = recipe.ingredients
       .filter((_, i) => selections[i])
-      .map((ingredient) => ({
-        name: ingredient.name,
-        amount: ingredient.amount,
-        unit: ingredient.unit,
-      }));
+      .map(({ name, amount, unit }) => ({ name, amount, unit }));
 
     if (selectedItems.length === 0) {
       return;
