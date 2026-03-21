@@ -8,4 +8,4 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 public sealed record CreateShoppingListCommand(
     ShoppingListTitle Title,
     IReadOnlyList<CreateShoppingListItemCommand> Items,
-    Guid? RecipeIdentifier = null) : ICommand<Result<ShoppingListDetailDto>>;
+    RecipeReference? RecipeReference = null) : ICommand<Result<ShoppingListDetailDto>>;

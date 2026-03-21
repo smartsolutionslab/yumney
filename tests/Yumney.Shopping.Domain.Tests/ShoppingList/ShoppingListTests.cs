@@ -62,21 +62,21 @@ public class ShoppingListTests
     }
 
     [Fact]
-    public void Create_WithRecipeIdentifier_SetsRecipeIdentifier()
+    public void Create_WithRecipeReference_SetsRecipeReference()
     {
-        var recipeId = Guid.NewGuid();
+        var recipeReference = new RecipeReference(Guid.NewGuid());
 
-        var shoppingList = CreateValidShoppingList(recipeIdentifier: recipeId);
+        var shoppingList = CreateValidShoppingList(recipeReference: recipeReference);
 
-        shoppingList.RecipeIdentifier.Should().Be(recipeId);
+        shoppingList.RecipeReference.Should().Be(recipeReference);
     }
 
     [Fact]
-    public void Create_WithoutRecipeIdentifier_RecipeIdentifierIsNull()
+    public void Create_WithoutRecipeReference_RecipeReferenceIsNull()
     {
         var shoppingList = CreateValidShoppingList();
 
-        shoppingList.RecipeIdentifier.Should().BeNull();
+        shoppingList.RecipeReference.Should().BeNull();
     }
 
     [Fact]
@@ -123,12 +123,12 @@ public class ShoppingListTests
         ShoppingListTitle? title = null,
         OwnerIdentifier? owner = null,
         IReadOnlyList<ShoppingListItem>? items = null,
-        Guid? recipeIdentifier = null)
+        RecipeReference? recipeReference = null)
     {
         return Domain.ShoppingList.ShoppingList.Create(
             title ?? new ShoppingListTitle("Test Shopping List"),
             owner ?? new OwnerIdentifier("user-123"),
             items ?? [ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"))],
-            recipeIdentifier);
+            recipeReference);
     }
 }

@@ -108,17 +108,17 @@ public class CreateShoppingListCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_WithRecipeIdentifier_IncludesInDto()
+    public async Task HandleAsync_WithRecipeReference_IncludesInDto()
     {
         var recipeId = Guid.NewGuid();
         var command = new CreateShoppingListCommand(
             new ShoppingListTitle("From Recipe"),
             [new CreateShoppingListItemCommand(new ItemName("Flour"), new Amount(500), new Unit("g"))],
-            recipeId);
+            new RecipeReference(recipeId));
 
         var result = await handler.HandleAsync(command);
 
-        result.Value.RecipeIdentifier.Should().Be(recipeId);
+        result.Value.RecipeReference.Should().Be(recipeId);
     }
 
     [Fact]

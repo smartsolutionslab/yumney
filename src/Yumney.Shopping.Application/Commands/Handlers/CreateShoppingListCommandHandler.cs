@@ -15,7 +15,7 @@ public sealed partial class CreateShoppingListCommandHandler(
 {
     public async Task<Result<ShoppingListDetailDto>> HandleAsync(CreateShoppingListCommand command, CancellationToken cancellationToken = default)
     {
-        var (title, itemCommands, recipeIdentifier) = command;
+        var (title, itemCommands, recipeReference) = command;
 
         var owner = new OwnerIdentifier(currentUser.UserId);
 
@@ -23,7 +23,7 @@ public sealed partial class CreateShoppingListCommandHandler(
             .Select(i => ShoppingListItem.Create(i.Name, i.Amount, i.Unit))
             .ToList();
 
-        var shoppingList = ShoppingList.Create(title, owner, items, recipeIdentifier);
+        var shoppingList = ShoppingList.Create(title, owner, items, recipeReference);
 
         await shoppingLists.AddAsync(shoppingList, cancellationToken);
 
@@ -37,7 +37,7 @@ public sealed partial class CreateShoppingListCommandHandler(
             new ShoppingListDetailDto(
                 shoppingList.Id.Value,
                 title.Value,
-                recipeIdentifier,
+                shoppingList.RecipeReference?.Value,
                 shoppingList.CreatedAt,
                 itemDtos));
     }
