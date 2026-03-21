@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handler;
+namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
 #pragma warning disable SA1601
 public sealed partial class CreateShoppingListCommandHandler(

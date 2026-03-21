@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Users.Application.Commands.Handlers;
 
 #pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
 public sealed partial class RegisterUserCommandHandler(IKeycloakAdminService keycloakAdmin, IAppUserProfileRepository users, ILogger<RegisterUserCommandHandler> logger)

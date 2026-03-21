@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
 
-namespace SmartSolutionsLab.Yumney.Users.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Users.Application.Commands.Handlers;
 
 #pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
 public sealed partial class ResendVerificationEmailCommandHandler(IKeycloakAdminService keycloakAdmin, ILogger<ResendVerificationEmailCommandHandler> logger)

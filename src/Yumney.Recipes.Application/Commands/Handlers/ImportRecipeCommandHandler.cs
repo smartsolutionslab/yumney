@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 #pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
 public sealed partial class ImportRecipeCommandHandler(IWebScraper scraper, IRecipeExtractionService extraction, ILogger<ImportRecipeCommandHandler> logger)

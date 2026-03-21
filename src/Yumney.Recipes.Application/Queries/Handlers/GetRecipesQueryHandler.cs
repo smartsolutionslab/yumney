@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 
 #pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
 public sealed partial class GetRecipesQueryHandler(
