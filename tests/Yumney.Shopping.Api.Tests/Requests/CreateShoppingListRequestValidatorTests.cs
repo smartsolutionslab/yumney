@@ -2,7 +2,7 @@ using FluentAssertions;
 using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 using Xunit;
 
-namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
+namespace SmartSolutionsLab.Yumney.Shopping.Api.Tests.Requests;
 
 public class CreateShoppingListRequestValidatorTests
 {

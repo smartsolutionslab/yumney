@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Yumney.Users.Application\Yumney.Users.Application.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Users.Api\Yumney.Users.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,8 +15,6 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="FluentAssertions" />
-    <PackageReference Include="NSubstitute" />
-    <PackageReference Include="Bogus" />
     <PackageReference Include="FluentValidation" />
   </ItemGroup>
 
