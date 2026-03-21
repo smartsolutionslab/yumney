@@ -45,7 +45,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         SearchTerm? search = null,
         CancellationToken cancellationToken = default)
     {
-        var query = recipes.Where(r => r.Owner == owner);
+        var query = recipes.AsNoTracking().Where(r => r.Owner == owner);
 
         if (search is not null)
         {

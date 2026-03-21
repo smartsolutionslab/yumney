@@ -7,6 +7,7 @@ using Scalar.AspNetCore;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Web.Middleware;
 using SmartSolutionsLab.Yumney.Shared.Web.Services;
 
@@ -35,6 +36,7 @@ public static class HostBuilderExtensions
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ICurrentUser, CurrentUserProvider>();
         builder.Services.AddInProcessEventBus();
+        builder.Services.AddScoped<DomainEventDispatchInterceptor>();
         builder.Services.AddOpenApi();
 
         return builder;
