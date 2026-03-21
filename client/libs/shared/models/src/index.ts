@@ -6,3 +6,4 @@ export { VALIDATION } from './lib/validation-constants';
 export { scaleIngredients, type ScalableIngredient } from './lib/scale-ingredients';
 export { UI } from './lib/ui-constants';
 export { createAsyncState, type AsyncState } from './lib/async-state';
+export { TranslocoHttpLoader } from './lib/transloco-loader';

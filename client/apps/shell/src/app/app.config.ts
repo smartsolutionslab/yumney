@@ -9,7 +9,7 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideTransloco } from '@jsverse/transloco';
 import { authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { appRoutes } from './app.routes';
-import { TranslocoHttpLoader } from './transloco-loader';
+import { TranslocoHttpLoader } from '@yumney/shared/models';
 
 export const appConfig: ApplicationConfig = {
   providers: [

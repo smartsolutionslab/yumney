@@ -26,11 +26,11 @@ export class ShoppingDetailComponent implements OnInit {
 
   private shoppingApi = inject(ShoppingApiService);
   private route = inject(ActivatedRoute);
-  private async = createAsyncState(inject(DestroyRef));
+  private asyncState = createAsyncState(inject(DestroyRef));
 
   shoppingList = signal<ShoppingListDetail | null>(null);
-  isLoading = this.async.isLoading;
-  serverError = this.async.serverError;
+  isLoading = this.asyncState.isLoading;
+  serverError = this.asyncState.serverError;
 
   ngOnInit(): void {
     const identifier = this.route.snapshot.paramMap.get('identifier');
@@ -39,7 +39,7 @@ export class ShoppingDetailComponent implements OnInit {
       return;
     }
 
-    this.async.execute(
+    this.asyncState.execute(
       this.shoppingApi.getShoppingListById(identifier),
       ShoppingDetailComponent.errorMap,
       (list) => this.shoppingList.set(list),

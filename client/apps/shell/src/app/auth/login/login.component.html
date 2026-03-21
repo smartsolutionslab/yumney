@@ -8,7 +8,7 @@
         <input
           type="checkbox"
           [checked]="rememberMe()"
-          (change)="rememberMe.set($any($event.target).checked)"
+          (change)="onRememberMeChange($event)"
         />
         {{ t('auth.login.rememberMe') }}
       </label>
