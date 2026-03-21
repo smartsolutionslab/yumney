@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
@@ -44,11 +45,10 @@ public static class ShoppingEndpoints
         ICommandHandler<CreateShoppingListCommand, Result<ShoppingListDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
         var command = new CreateShoppingListCommand(
