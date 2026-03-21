@@ -1,0 +1,110 @@
+{
+  "name": "shopping",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "yn",
+  "sourceRoot": "apps/shopping/src",
+  "tags": ["scope:shopping"],
+  "targets": {
+    "build": {
+      "executor": "@angular-architects/native-federation:build",
+      "options": {
+        "target": "shopping:esbuild",
+        "outputPath": "dist/apps/shopping"
+      },
+      "configurations": {
+        "production": {
+          "target": "shopping:esbuild:production"
+        },
+        "development": {
+          "target": "shopping:esbuild:development",
+          "dev": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "esbuild": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/shopping",
+        "browser": "apps/shopping/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/shopping/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/shopping/public"
+          }
+        ],
+        "styles": ["apps/shopping/src/styles.scss"],
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/src/lib/styles"]
+        }
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-architects/native-federation:build",
+      "options": {
+        "target": "shopping:serve-original",
+        "rebuildDelay": 0,
+        "dev": true,
+        "port": 4202
+      },
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "target": "shopping:serve-original:production"
+        },
+        "development": {
+          "target": "shopping:serve-original:development"
+        }
+      }
+    },
+    "serve-original": {
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "shopping:esbuild:production"
+        },
+        "development": {
+          "buildTarget": "shopping:esbuild:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/apps/shopping"
+      }
+    }
+  }
+}

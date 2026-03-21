@@ -5,7 +5,13 @@
   "private": true,
   "packageManager": "yarn@4.6.0",
   "scripts": {
-    "serve:shell": "nx serve shell"
+    "serve:shell": "nx serve shell",
+    "serve:recipes": "nx serve recipes",
+    "serve:shopping": "nx serve shopping",
+    "serve:account": "nx serve account",
+    "serve:all": "nx run-many --target=serve --projects=shell,recipes,shopping,account --parallel=4",
+    "build:all": "nx run-many --target=build --projects=shell,recipes,shopping,account --parallel=4",
+    "postbuild:all": "node scripts/copy-remotes.mjs"
   },
   "dependencies": {
     "@angular-devkit/build-angular": "21.2.1",
@@ -26,6 +32,7 @@
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "2.3.1",
     "@analogjs/vitest-angular": "2.3.1",
+    "@angular-architects/native-federation": "^21.2.1",
     "@angular-devkit/core": "21.2.1",
     "@angular-devkit/schematics": "21.2.1",
     "@angular/build": "21.2.1",

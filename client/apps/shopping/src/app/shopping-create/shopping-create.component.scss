@@ -1,0 +1,168 @@
+@use 'banners';
+
+.shopping-create-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: #f97316;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &:hover {
+    color: #ea580c;
+  }
+}
+
+.loading {
+  padding: 4rem 0;
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.title-field {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #555;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: #f97316;
+      box-shadow: 0 0 0 2px rgb(249 115 22 / 20%);
+    }
+  }
+}
+
+.ingredients-section {
+  margin-bottom: 2rem;
+}
+
+.ingredients-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+}
+
+.selection-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #f97316;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+
+  &:hover {
+    color: #ea580c;
+  }
+}
+
+.ingredients-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.ingredient-check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: #f97316;
+    cursor: pointer;
+  }
+}
+
+.ingredient-text {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.ingredient-amount {
+  font-weight: 600;
+  color: #f97316;
+  min-width: 2.5rem;
+}
+
+.ingredient-unit {
+  color: #888;
+  min-width: 2rem;
+}
+
+.ingredient-name {
+  color: #333;
+}
+
+.actions-bar {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.create-button {
+  padding: 0.625rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: #f97316;
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #ea580c;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

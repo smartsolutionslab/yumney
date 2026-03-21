@@ -7,6 +7,23 @@
   "tags": ["scope:shell"],
   "targets": {
     "build": {
+      "executor": "@angular-architects/native-federation:build",
+      "options": {
+        "target": "shell:esbuild",
+        "outputPath": "dist/apps/shell"
+      },
+      "configurations": {
+        "production": {
+          "target": "shell:esbuild:production"
+        },
+        "development": {
+          "target": "shell:esbuild:development",
+          "dev": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "esbuild": {
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
       "options": {
@@ -25,7 +42,10 @@
             "output": "assets"
           }
         ],
-        "styles": ["apps/shell/src/styles.scss"]
+        "styles": ["apps/shell/src/styles.scss"],
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/src/lib/styles"]
+        }
       },
       "configurations": {
         "production": {
@@ -52,14 +72,31 @@
       "defaultConfiguration": "production"
     },
     "serve": {
-      "continuous": true,
+      "executor": "@angular-architects/native-federation:build",
+      "options": {
+        "target": "shell:serve-original",
+        "rebuildDelay": 0,
+        "dev": true,
+        "port": 4200
+      },
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "target": "shell:serve-original:production"
+        },
+        "development": {
+          "target": "shell:serve-original:development"
+        }
+      }
+    },
+    "serve-original": {
       "executor": "@angular/build:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "shell:build:production"
+          "buildTarget": "shell:esbuild:production"
         },
         "development": {
-          "buildTarget": "shell:build:development"
+          "buildTarget": "shell:esbuild:development"
         }
       },
       "defaultConfiguration": "development"

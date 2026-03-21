@@ -1,0 +1,111 @@
+{
+  "shared": {
+    "editableList": {
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove"
+    }
+  },
+  "recipes": {
+    "list": {
+      "title": "My Recipes",
+      "sortLabel": "Sort recipes",
+      "sort": {
+        "dateDesc": "Newest first",
+        "dateAsc": "Oldest first",
+        "nameAsc": "Name A-Z",
+        "nameDesc": "Name Z-A"
+      },
+      "servings": "{{count}} servings",
+      "prepTime": "Prep {{minutes}} min",
+      "cookTime": "Cook {{minutes}} min",
+      "loading": "Loading recipes...",
+      "empty": {
+        "title": "No recipes yet",
+        "message": "Import your first recipe from any website or create one from scratch.",
+        "cta": "Import a Recipe"
+      },
+      "search": {
+        "placeholder": "Search recipes...",
+        "label": "Search recipes",
+        "noResults": "No recipes found",
+        "noResultsMessage": "No recipes match \"{{query}}\". Try a different search term."
+      },
+      "errors": {
+        "generic": "Failed to load recipes. Please try again later."
+      }
+    },
+    "edit": {
+      "title": "Edit Recipe",
+      "back": "Back to Recipe",
+      "loading": "Loading recipe...",
+      "success": "Recipe \"{{title}}\" updated successfully!",
+      "errors": {
+        "notFound": "Recipe not found.",
+        "generic": "Failed to update recipe. Please try again later."
+      }
+    },
+    "detail": {
+      "back": "Back to Recipes",
+      "servings": "{{count}} servings",
+      "prepTime": "Prep",
+      "cookTime": "Cook",
+      "totalTime": "Total",
+      "minutes": "{{minutes}} min",
+      "difficulty": "Difficulty",
+      "ingredients": "Ingredients",
+      "steps": "Steps",
+      "sourceUrl": "Original Recipe",
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "shoppingList": "Shopping List"
+      },
+      "loading": "Loading recipe...",
+      "notFound": "Recipe not found.",
+      "delete": {
+        "confirm": "Are you sure you want to delete \"{{title}}\"? This cannot be undone.",
+        "deleting": "Deleting...",
+        "success": "Recipe deleted successfully.",
+        "errors": {
+          "notFound": "Recipe not found.",
+          "generic": "Failed to delete recipe. Please try again later."
+        }
+      },
+      "resetServings": "Reset",
+      "errors": {
+        "generic": "Failed to load recipe. Please try again later."
+      }
+    }
+  },
+  "dashboard": {
+    "preview": {
+      "title": "Review Extracted Recipe",
+      "recipeTitle": "Title",
+      "description": "Description",
+      "servings": "Servings",
+      "prepTime": "Prep Time (min)",
+      "cookTime": "Cook Time (min)",
+      "difficulty": "Difficulty",
+      "ingredients": "Ingredients",
+      "ingredientName": "Ingredient",
+      "amount": "Amount",
+      "unit": "Unit",
+      "addIngredient": "Add Ingredient",
+      "steps": "Steps",
+      "stepDescription": "Step Description",
+      "addStep": "Add Step",
+      "save": "Save Recipe",
+      "discard": "Discard",
+      "errors": {
+        "titleRequired": "Title is required.",
+        "titleMaxLength": "Title must not exceed 200 characters.",
+        "ingredientNameRequired": "Ingredient name is required.",
+        "stepDescriptionRequired": "Step description is required."
+      }
+    },
+    "save": {
+      "saving": "Saving..."
+    }
+  }
+}

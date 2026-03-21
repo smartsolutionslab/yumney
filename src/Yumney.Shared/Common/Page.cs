@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Shared.Common;
