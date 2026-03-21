@@ -65,7 +65,7 @@ describe('LoginComponent', () => {
   });
 
   it('should pass rememberMe=true when checkbox is checked', () => {
-    component.rememberMe = true;
+    component.rememberMe.set(true);
     fixture.detectChanges();
 
     const button = fixture.nativeElement.querySelector('button');
@@ -85,7 +85,7 @@ describe('LoginComponent', () => {
   });
 
   it('should have rememberMe unchecked by default', () => {
-    expect(component.rememberMe).toBe(false);
+    expect(component.rememberMe()).toBe(false);
     const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]');
     expect(checkbox.checked).toBe(false);
   });
@@ -102,13 +102,13 @@ describe('LoginComponent', () => {
   });
 
   it('should toggle rememberMe when checkbox is clicked', () => {
-    expect(component.rememberMe).toBe(false);
+    expect(component.rememberMe()).toBe(false);
 
     const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]');
     checkbox.click();
     fixture.detectChanges();
 
-    expect(component.rememberMe).toBe(true);
+    expect(component.rememberMe()).toBe(true);
   });
 
   it('should have accessible keyboard navigation on forgot password link', () => {
