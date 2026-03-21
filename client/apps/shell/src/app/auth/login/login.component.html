@@ -5,7 +5,11 @@
 
     <div class="login-form">
       <label class="remember-me">
-        <input type="checkbox" [(ngModel)]="rememberMe" />
+        <input
+          type="checkbox"
+          [checked]="rememberMe()"
+          (change)="rememberMe.set($any($event.target).checked)"
+        />
         {{ t('auth.login.rememberMe') }}
       </label>
 
