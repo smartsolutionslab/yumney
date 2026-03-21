@@ -6,10 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Recipes.Application\Yumney.Recipes.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FluentValidation" />
+    <ProjectReference Include="..\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
   </ItemGroup>
 
 </Project>

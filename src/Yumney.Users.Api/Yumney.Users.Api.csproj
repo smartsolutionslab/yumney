@@ -5,12 +5,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Yumney.Shared\Yumney.Shared.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
     <ProjectReference Include="..\Yumney.Users.Application\Yumney.Users.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FluentValidation" />
   </ItemGroup>
 
 </Project>

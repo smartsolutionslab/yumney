@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 using SmartSolutionsLab.Yumney.Users.Api.Requests;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using SmartSolutionsLab.Yumney.Users.Application.DTOs;
@@ -34,11 +35,10 @@ public static class AuthEndpoints
         ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
         var (email, password, displayName) = request;
@@ -59,11 +59,10 @@ public static class AuthEndpoints
         ICommandHandler<ResendVerificationEmailCommand, Result> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
         var command = new ResendVerificationEmailCommand(new Email(request.Email));

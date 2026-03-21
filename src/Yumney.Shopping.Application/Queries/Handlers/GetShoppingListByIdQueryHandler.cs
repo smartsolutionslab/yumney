@@ -9,7 +9,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 #pragma warning disable SA1601
 public sealed partial class GetShoppingListByIdQueryHandler(
 #pragma warning restore SA1601
-    IShoppingListRepository shoppingLists, ICurrentUser currentUser, ILogger<GetShoppingListByIdQueryHandler> logger)
+    IShoppingListRepository shoppingLists,
+    ICurrentUser currentUser,
+    ILogger<GetShoppingListByIdQueryHandler> logger)
     : IQueryHandler<GetShoppingListByIdQuery, Result<ShoppingListDetailDto>>
 {
     public async Task<Result<ShoppingListDetailDto>> HandleAsync(GetShoppingListByIdQuery query, CancellationToken cancellationToken = default)
