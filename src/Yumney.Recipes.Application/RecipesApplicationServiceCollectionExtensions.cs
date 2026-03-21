@@ -1,8 +1,10 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 

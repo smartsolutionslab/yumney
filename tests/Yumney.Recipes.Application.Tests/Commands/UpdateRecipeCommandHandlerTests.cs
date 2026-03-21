@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
+using SmartSolutionsLab.Yumney.Users.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using Xunit;
