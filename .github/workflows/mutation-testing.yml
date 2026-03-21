@@ -30,12 +30,20 @@ jobs:
         include:
           - project: Yumney.Shared.Tests
             display: Shared
+          - project: Yumney.Recipes.Api.Tests
+            display: Recipes.Api
           - project: Yumney.Recipes.Domain.Tests
             display: Recipes.Domain
           - project: Yumney.Recipes.Application.Tests
             display: Recipes.Application
           - project: Yumney.Recipes.Infrastructure.Tests
             display: Recipes.Infrastructure
+          - project: Yumney.Shopping.Api.Tests
+            display: Shopping.Api
+          - project: Yumney.Shopping.Application.Tests
+            display: Shopping.Application
+          - project: Yumney.Users.Api.Tests
+            display: Users.Api
           - project: Yumney.Users.Domain.Tests
             display: Users.Domain
           - project: Yumney.Users.Application.Tests
