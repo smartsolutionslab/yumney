@@ -29,7 +29,8 @@
         "placeholder": "Rezepte suchen...",
         "label": "Rezepte suchen",
         "noResults": "Keine Rezepte gefunden",
-        "noResultsMessage": "Keine Rezepte für \"{{query}}\" gefunden. Versuche einen anderen Suchbegriff."
+        "noResultsMessage": "Keine Rezepte für \"{{query}}\" gefunden. Versuche einen anderen Suchbegriff.",
+        "clear": "Suche löschen"
       },
       "errors": {
         "generic": "Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
