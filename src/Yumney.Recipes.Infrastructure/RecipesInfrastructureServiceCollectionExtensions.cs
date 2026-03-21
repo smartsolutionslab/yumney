@@ -19,6 +19,7 @@ public static class RecipesInfrastructureServiceCollectionExtensions
                 .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>()));
 
         services.AddScoped<IRecipeRepository, RecipeRepository>();
+        services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
 
         return services;
     }
