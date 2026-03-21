@@ -8,8 +8,8 @@
     </div>
   }
 
-  @if (serverError()) {
-    <div class="error-banner" role="alert">{{ t(serverError()!) }}</div>
+  @if (serverError(); as error) {
+    <div class="error-banner" role="alert">{{ t(error) }}</div>
   }
 
   @if (recipe(); as recipe) {
@@ -20,8 +20,8 @@
       <input
         id="shopping-list-title"
         type="text"
-        [ngModel]="title()"
-        (ngModelChange)="title.set($event)"
+        [value]="title()"
+        (input)="onTitleChange($event)"
         maxlength="200"
       />
     </div>

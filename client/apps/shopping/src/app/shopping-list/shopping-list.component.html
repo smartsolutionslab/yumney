@@ -8,8 +8,8 @@
     </div>
   }
 
-  @if (serverError()) {
-    <div class="error-banner" role="alert">{{ t(serverError()!) }}</div>
+  @if (serverError(); as error) {
+    <div class="error-banner" role="alert">{{ t(error) }}</div>
   }
 
   @if (!isLoading() && !serverError()) {

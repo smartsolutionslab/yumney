@@ -7,8 +7,8 @@
     <p class="subtitle">{{ t('dashboard.import.subtitle') }}</p>
 
     <form [formGroup]="form" (ngSubmit)="onImport()">
-      @if (serverError()) {
-        <div class="error-banner" role="alert">{{ t(serverError()!) }}</div>
+      @if (serverError(); as error) {
+        <div class="error-banner" role="alert">{{ t(error) }}</div>
       }
 
       <div class="import-row">
