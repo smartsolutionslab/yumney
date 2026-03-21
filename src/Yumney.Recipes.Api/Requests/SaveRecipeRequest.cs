@@ -1,6 +1,6 @@
-namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 
-public sealed record UpdateRecipeRequest(
+public sealed record SaveRecipeRequest(
     string Title,
     string? Description,
     List<SaveRecipeIngredientRequest> Ingredients,
@@ -9,4 +9,5 @@ public sealed record UpdateRecipeRequest(
     int? PrepTimeMinutes,
     int? CookTimeMinutes,
     string? Difficulty,
-    string? ImageUrl);
+    string? ImageUrl,
+    string? SourceUrl = null);

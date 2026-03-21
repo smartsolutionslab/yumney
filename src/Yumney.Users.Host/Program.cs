@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddYumneyDefaults();
 
+builder.Services.AddUsersApi();
 builder.Services.AddUsersApplication();
 builder.Services.AddUsersInfrastructure(builder.Configuration);
 

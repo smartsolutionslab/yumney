@@ -1,4 +1,3 @@
-using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
@@ -14,8 +13,6 @@ public static class RecipesApplicationServiceCollectionExtensions
 {
     public static IServiceCollection AddRecipesApplication(this IServiceCollection services)
     {
-        services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
-
         services.AddScoped<ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>>, ImportRecipeCommandHandler>();
         services.AddScoped<ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>>, SaveRecipeCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>>, UpdateRecipeCommandHandler>();

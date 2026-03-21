@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddYumneyDefaults();
 
+builder.Services.AddRecipesApi();
 builder.Services.AddRecipesApplication();
 builder.Services.AddRecipesInfrastructure(builder.Configuration);
 builder.Services.AddRecipeExtraction(builder.Configuration);
