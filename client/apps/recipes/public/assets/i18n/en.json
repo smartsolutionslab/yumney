@@ -29,7 +29,8 @@
         "placeholder": "Search recipes...",
         "label": "Search recipes",
         "noResults": "No recipes found",
-        "noResultsMessage": "No recipes match \"{{query}}\". Try a different search term."
+        "noResultsMessage": "No recipes match \"{{query}}\". Try a different search term.",
+        "clear": "Clear search"
       },
       "errors": {
         "generic": "Failed to load recipes. Please try again later."
