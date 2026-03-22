@@ -5,6 +5,8 @@ export class DashboardPage {
   readonly urlInput: Locator;
   readonly importButton: Locator;
   readonly createButton: Locator;
+  readonly photoUploadInput: Locator;
+  readonly photoUploadLabel: Locator;
   readonly recipePreview: Locator;
   readonly successBanner: Locator;
   readonly errorBanner: Locator;
@@ -14,6 +16,8 @@ export class DashboardPage {
     this.urlInput = page.locator('#url');
     this.importButton = page.getByRole('button', { name: /import recipe/i });
     this.createButton = page.getByRole('button', { name: /create recipe/i });
+    this.photoUploadInput = page.locator('.photo-import input[type="file"]');
+    this.photoUploadLabel = page.locator('.photo-upload-btn');
     this.recipePreview = page.locator('yn-recipe-preview');
     this.successBanner = page.locator('.success-banner');
     this.errorBanner = page.locator('[role="alert"]');
