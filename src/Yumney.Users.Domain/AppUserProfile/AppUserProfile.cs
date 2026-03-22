@@ -20,7 +20,7 @@ public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
     {
         return new AppUserProfile
         {
-            Id = new AppUserProfileIdentifier(Guid.NewGuid()),
+            Id = AppUserProfileIdentifier.New(),
             KeycloakUserId = keycloakUserId,
             DisplayName = displayName,
         };
