@@ -7,15 +7,17 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 #pragma warning disable SA1601
+#pragma warning disable SA1303
+#pragma warning disable SA1311
 public sealed partial class ImportRecipeFromPhotosCommandHandler(
     IRecipeExtractionService extractionService,
     ILogger<ImportRecipeFromPhotosCommandHandler> logger)
     : ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>>
 {
-    private const int MaxPhotos = 10;
-    private const long MaxPhotoSizeBytes = 10 * 1024 * 1024;
+    private const int maxPhotos = 10;
+    private const long maxPhotoSizeBytes = 10 * 1024 * 1024;
 
-    private static readonly HashSet<string> AllowedContentTypes =
+    private static readonly HashSet<string> allowedContentTypes =
     [
         "image/jpeg",
         "image/png",
@@ -28,20 +30,20 @@ public sealed partial class ImportRecipeFromPhotosCommandHandler(
     {
         var photos = command.Photos;
 
-        if (photos.Count == 0 || photos.Count > MaxPhotos)
+        if (photos.Count == 0 || photos.Count > maxPhotos)
         {
             return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.TooManyPhotos);
         }
 
         foreach (var photo in photos)
         {
-            if (photo.Content.Length > MaxPhotoSizeBytes)
+            if (photo.Content.Length > maxPhotoSizeBytes)
             {
                 LogPhotoTooLarge(photo.FileName, photo.Content.Length);
                 return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.PhotoTooLarge);
             }
 
-            if (!AllowedContentTypes.Contains(photo.ContentType.ToLowerInvariant()))
+            if (!allowedContentTypes.Contains(photo.ContentType.ToLowerInvariant()))
             {
                 LogInvalidFormat(photo.FileName, photo.ContentType);
                 return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.InvalidPhotoFormat);
