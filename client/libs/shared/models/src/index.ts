@@ -8,10 +8,16 @@ export { UI } from './lib/ui-constants';
 export { createAsyncState, type AsyncState } from './lib/async-state';
 export { TranslocoHttpLoader } from './lib/transloco-loader';
 export { IS_STANDALONE } from './lib/federation-context';
-export { LanguageService, type LanguageCode } from './lib/language.service';
+export {
+  LanguageService,
+  type LanguageCode,
+  SUPPORTED_LANGUAGES,
+  DEFAULT_LANGUAGE,
+} from './lib/language.service';
 export {
   mapToSaveRecipeRequest,
   mapToUpdateRecipeRequest,
   mapDetailToImportResponse,
 } from './lib/recipe-mapping';
 export { createMfeAppConfig } from './lib/mfe-app-config';
+export { ROUTES } from './lib/route-paths';

@@ -11,7 +11,13 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { appRoutes } from './app.routes';
-import { TranslocoHttpLoader, LanguageService, UI } from '@yumney/shared/models';
+import {
+  TranslocoHttpLoader,
+  LanguageService,
+  UI,
+  SUPPORTED_LANGUAGES,
+  DEFAULT_LANGUAGE,
+} from '@yumney/shared/models';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,8 +32,8 @@ export const appConfig: ApplicationConfig = {
     }),
     provideTransloco({
       config: {
-        availableLangs: ['en', 'de'],
-        defaultLang: 'en',
+        availableLangs: [...SUPPORTED_LANGUAGES],
+        defaultLang: DEFAULT_LANGUAGE,
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),
       },

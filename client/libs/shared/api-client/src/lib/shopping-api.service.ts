@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from './api-endpoints';
 
 export interface CreateShoppingListItem {
   name: string;
@@ -42,15 +43,15 @@ export class ShoppingApiService {
   private http = inject(HttpClient);
 
   createShoppingList(request: CreateShoppingListRequest): Observable<ShoppingListDetail> {
-    return this.http.post<ShoppingListDetail>('/api/v1/shopping-lists', request);
+    return this.http.post<ShoppingListDetail>(API_ENDPOINTS.shoppingLists.base, request);
   }
 
   getShoppingLists(): Observable<ShoppingListSummary[]> {
-    return this.http.get<ShoppingListSummary[]>('/api/v1/shopping-lists');
+    return this.http.get<ShoppingListSummary[]>(API_ENDPOINTS.shoppingLists.base);
   }
 
   getShoppingListById(identifier: string): Observable<ShoppingListDetail> {
-    return this.http.get<ShoppingListDetail>(`/api/v1/shopping-lists/${identifier}`);
+    return this.http.get<ShoppingListDetail>(API_ENDPOINTS.shoppingLists.byIdentifier(identifier));
   }
 
   checkOffItem(
@@ -59,13 +60,13 @@ export class ShoppingApiService {
     isChecked: boolean,
   ): Observable<void> {
     return this.http.put<void>(
-      `/api/v1/shopping-lists/${listIdentifier}/items/${itemIdentifier}/check`,
+      API_ENDPOINTS.shoppingLists.checkItem(listIdentifier, itemIdentifier),
       { isChecked },
     );
   }
 
   checkOffAllItems(listIdentifier: string, isChecked: boolean): Observable<void> {
-    return this.http.put<void>(`/api/v1/shopping-lists/${listIdentifier}/check-all`, {
+    return this.http.put<void>(API_ENDPOINTS.shoppingLists.checkAll(listIdentifier), {
       isChecked,
     });
   }
