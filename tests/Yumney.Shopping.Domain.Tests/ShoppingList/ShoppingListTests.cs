@@ -119,6 +119,76 @@ public class ShoppingListTests
         list1.Id.Should().NotBe(list2.Id);
     }
 
+    [Fact]
+    public void CheckOffItem_ChecksTheItem()
+    {
+        var items = new List<ShoppingListItem>
+        {
+            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+        };
+        var shoppingList = CreateValidShoppingList(items: items);
+
+        shoppingList.CheckOffItem(items[0].Id);
+
+        shoppingList.Items[0].IsChecked.Should().BeTrue();
+    }
+
+    [Fact]
+    public void UncheckItem_UnchecksTheItem()
+    {
+        var items = new List<ShoppingListItem>
+        {
+            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+        };
+        var shoppingList = CreateValidShoppingList(items: items);
+        shoppingList.CheckOffItem(items[0].Id);
+
+        shoppingList.UncheckItem(items[0].Id);
+
+        shoppingList.Items[0].IsChecked.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CheckAllItems_ChecksAllItems()
+    {
+        var items = new List<ShoppingListItem>
+        {
+            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+            ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
+        };
+        var shoppingList = CreateValidShoppingList(items: items);
+
+        shoppingList.CheckAllItems();
+
+        shoppingList.Items.Should().OnlyContain(i => i.IsChecked);
+    }
+
+    [Fact]
+    public void UncheckAllItems_UnchecksAllItems()
+    {
+        var items = new List<ShoppingListItem>
+        {
+            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+            ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
+        };
+        var shoppingList = CreateValidShoppingList(items: items);
+        shoppingList.CheckAllItems();
+
+        shoppingList.UncheckAllItems();
+
+        shoppingList.Items.Should().OnlyContain(i => !i.IsChecked);
+    }
+
+    [Fact]
+    public void CheckOffItem_InvalidItemId_Throws()
+    {
+        var shoppingList = CreateValidShoppingList();
+
+        var act = () => shoppingList.CheckOffItem(Guid.NewGuid());
+
+        act.Should().Throw<InvalidOperationException>();
+    }
+
     private static Domain.ShoppingList.ShoppingList CreateValidShoppingList(
         ShoppingListTitle? title = null,
         OwnerIdentifier? owner = null,

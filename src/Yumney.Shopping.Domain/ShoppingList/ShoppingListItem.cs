@@ -10,6 +10,8 @@ public sealed class ShoppingListItem : Entity<Guid>
 
     public Unit? Unit { get; private set; }
 
+    public bool IsChecked { get; private set; }
+
     private ShoppingListItem()
     {
     }
@@ -22,6 +24,17 @@ public sealed class ShoppingListItem : Entity<Guid>
             Name = name,
             Amount = amount,
             Unit = unit,
+            IsChecked = false,
         };
+    }
+
+    public void Check()
+    {
+        IsChecked = true;
+    }
+
+    public void Uncheck()
+    {
+        IsChecked = false;
     }
 }

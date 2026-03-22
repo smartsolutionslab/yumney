@@ -42,6 +42,8 @@
       "back": "Zurück zu Einkaufslisten",
       "loading": "Einkaufsliste wird geladen...",
       "viewRecipe": "Rezept anzeigen",
+      "checkAll": "Alle abhaken",
+      "reset": "Zurücksetzen",
       "errors": {
         "notFound": "Einkaufsliste nicht gefunden.",
         "generic": "Einkaufsliste konnte nicht geladen werden. Bitte versuche es später erneut."

@@ -15,9 +15,26 @@
   @if (shoppingList(); as list) {
     <h1>{{ list.title }}</h1>
 
+    <div class="actions">
+      <span class="progress">{{ checkedCount }} / {{ totalCount }}</span>
+      <button class="btn-secondary" (click)="onCheckAll()">
+        {{ t('shopping.detail.checkAll') }}
+      </button>
+      <button class="btn-secondary" (click)="onReset()">
+        {{ t('shopping.detail.reset') }}
+      </button>
+    </div>
+
     <ul class="items-list">
-      @for (item of list.items; track item.name) {
-        <li>
+      @for (item of list.items; track item.identifier) {
+        <li [class.checked]="item.isChecked" (click)="onToggleItem(item)">
+          <input
+            type="checkbox"
+            [checked]="item.isChecked"
+            [attr.aria-label]="item.name"
+            (click)="$event.stopPropagation()"
+            (change)="onToggleItem(item)"
+          />
           @if (item.amount) {
             <span class="item-amount">{{ item.amount }}</span>
           }
