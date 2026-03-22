@@ -32,7 +32,7 @@ public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
 
         var shoppingList = new ShoppingList
         {
-            Id = new ShoppingListIdentifier(Guid.NewGuid()),
+            Id = ShoppingListIdentifier.New(),
             Title = title,
             Owner = owner,
             RecipeReference = recipeReference,

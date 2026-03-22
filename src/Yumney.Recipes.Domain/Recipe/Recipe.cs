@@ -62,7 +62,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 
         var recipe = new Recipe
         {
-            Id = new RecipeIdentifier(Guid.NewGuid()),
+            Id = RecipeIdentifier.New(),
             Title = title,
             SourceUrl = sourceUrl,
             Owner = owner,
