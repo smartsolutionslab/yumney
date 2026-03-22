@@ -41,6 +41,7 @@ export interface SaveRecipeRequest {
   difficulty: string | null;
   imageUrl: string | null;
   sourceUrl?: string;
+  tags?: string[];
 }
 
 export interface UpdateRecipeRequest {
@@ -53,6 +54,7 @@ export interface UpdateRecipeRequest {
   cookTimeMinutes: number | null;
   difficulty: string | null;
   imageUrl: string | null;
+  tags?: string[];
 }
 
 export interface SavedRecipeResponse {
@@ -71,6 +73,7 @@ export interface RecipeListItem {
   difficulty: string | null;
   imageUrl: string | null;
   createdAt: string;
+  tags: string[];
 }
 
 export type RecipeListResponse = PagedResponse<RecipeListItem>;
@@ -104,6 +107,7 @@ export interface RecipeDetail {
   createdAt: string;
   ingredients: RecipeIngredient[];
   steps: RecipeStep[];
+  tags: string[];
 }
 
 @Injectable({ providedIn: 'root' })

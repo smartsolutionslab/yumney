@@ -9,4 +9,5 @@ public sealed record RecipeListItemDto(
     int? CookTimeMinutes,
     string? Difficulty,
     string? ImageUrl,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    IReadOnlyList<string> Tags);

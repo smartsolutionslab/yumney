@@ -11,4 +11,5 @@ public sealed record SaveRecipeRequest(
     string? Difficulty,
     string? ImageUrl,
     string? Language = null,
-    string? SourceUrl = null);
+    string? SourceUrl = null,
+    List<string>? Tags = null);
