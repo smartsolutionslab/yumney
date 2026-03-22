@@ -22,7 +22,11 @@ public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
     {
     }
 
-    public static ShoppingList Create(ShoppingListTitle title, OwnerIdentifier owner, IReadOnlyList<ShoppingListItem> items, RecipeReference? recipeReference = null)
+    public static ShoppingList Create(
+        ShoppingListTitle title,
+        OwnerIdentifier owner,
+        IReadOnlyList<ShoppingListItem> items,
+        RecipeReference? recipeReference = null)
     {
         Ensure.That((IReadOnlyCollection<ShoppingListItem>)items).IsNotEmpty();
 

@@ -76,7 +76,8 @@
       "login": "Sign in",
       "myRecipes": "My Recipes",
       "shoppingLists": "Shopping Lists",
-      "navigation": "Main navigation"
+      "navigation": "Main navigation",
+      "switchLanguage": "Switch language"
     },
     "offlineIndicator": {
       "offline": "You are offline. Some features may be unavailable.",
