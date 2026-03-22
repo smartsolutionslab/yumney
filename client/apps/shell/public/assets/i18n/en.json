@@ -216,6 +216,13 @@
         "generic": "An unexpected error occurred. Please try again later."
       }
     },
+    "photoImport": {
+      "title": "Import from Photos",
+      "subtitle": "Upload photos of a recipe from a cookbook or handwritten notes",
+      "submit": "Upload Photos",
+      "extracting": "Extracting recipe...",
+      "hint": "JPG, PNG or WebP. Up to 10 images, max 10 MB each."
+    },
     "create": {
       "title": "Create a Recipe",
       "subtitle": "Start from scratch and enter your own recipe",
