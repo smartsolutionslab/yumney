@@ -9,6 +9,7 @@ public sealed record RecipeDetailDto(
     int? CookTimeMinutes,
     string? Difficulty,
     string? ImageUrl,
+    string? Language,
     string? SourceUrl,
     DateTime CreatedAt,
     IReadOnlyList<RecipeIngredientDto> Ingredients,

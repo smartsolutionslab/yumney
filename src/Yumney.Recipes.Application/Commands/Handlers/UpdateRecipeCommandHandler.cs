@@ -68,6 +68,7 @@ public sealed partial class UpdateRecipeCommandHandler(
             recipe.CookingTime?.Value,
             recipe.Difficulty?.Value,
             recipe.ImageUrl?.Value,
+            recipe.Language?.Value,
             recipe.SourceUrl?.Value,
             recipe.CreatedAt,
             recipe.Ingredients.Select(i => new RecipeIngredientDto(
