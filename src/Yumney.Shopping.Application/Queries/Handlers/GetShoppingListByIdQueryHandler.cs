@@ -35,7 +35,7 @@ public sealed partial class GetShoppingListByIdQueryHandler(
         }
 
         var itemDtos = shoppingList.Items
-            .Select(i => new ShoppingListItemDto(i.Name.Value, i.Amount?.Value, i.Unit?.Value))
+            .Select(i => new ShoppingListItemDto(i.Id, i.Name.Value, i.Amount?.Value, i.Unit?.Value, i.IsChecked))
             .ToList();
 
         return Result<ShoppingListDetailDto>.Success(

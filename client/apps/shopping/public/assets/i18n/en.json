@@ -42,6 +42,8 @@
       "back": "Back to Shopping Lists",
       "loading": "Loading shopping list...",
       "viewRecipe": "View Recipe",
+      "checkAll": "Check all",
+      "reset": "Reset",
       "errors": {
         "notFound": "Shopping list not found.",
         "generic": "Failed to load shopping list. Please try again later."

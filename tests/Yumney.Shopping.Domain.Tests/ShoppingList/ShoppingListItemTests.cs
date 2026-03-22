@@ -37,4 +37,33 @@ public class ShoppingListItemTests
         item.Unit.Should().BeNull();
         item.Amount!.Value.Should().Be(3);
     }
+
+    [Fact]
+    public void Create_SetsIsCheckedToFalse()
+    {
+        var item = ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"));
+
+        item.IsChecked.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Check_SetsIsCheckedToTrue()
+    {
+        var item = ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"));
+
+        item.Check();
+
+        item.IsChecked.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Uncheck_SetsIsCheckedToFalse()
+    {
+        var item = ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"));
+        item.Check();
+
+        item.Uncheck();
+
+        item.IsChecked.Should().BeFalse();
+    }
 }

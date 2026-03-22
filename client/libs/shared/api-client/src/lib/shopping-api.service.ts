@@ -15,9 +15,11 @@ export interface CreateShoppingListRequest {
 }
 
 export interface ShoppingListItemResponse {
+  identifier: string;
   name: string;
   amount: number | null;
   unit: string | null;
+  isChecked: boolean;
 }
 
 export interface ShoppingListDetail {
@@ -49,5 +51,22 @@ export class ShoppingApiService {
 
   getShoppingListById(identifier: string): Observable<ShoppingListDetail> {
     return this.http.get<ShoppingListDetail>(`/api/v1/shopping-lists/${identifier}`);
+  }
+
+  checkOffItem(
+    listIdentifier: string,
+    itemIdentifier: string,
+    isChecked: boolean,
+  ): Observable<void> {
+    return this.http.put<void>(
+      `/api/v1/shopping-lists/${listIdentifier}/items/${itemIdentifier}/check`,
+      { isChecked },
+    );
+  }
+
+  checkOffAllItems(listIdentifier: string, isChecked: boolean): Observable<void> {
+    return this.http.put<void>(`/api/v1/shopping-lists/${listIdentifier}/check-all`, {
+      isChecked,
+    });
   }
 }
