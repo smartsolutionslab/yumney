@@ -77,6 +77,10 @@
       "myRecipes": "My Recipes",
       "shoppingLists": "Shopping Lists",
       "navigation": "Main navigation"
+    },
+    "offlineIndicator": {
+      "offline": "You are offline. Some features may be unavailable.",
+      "backOnline": "You are back online."
     }
   },
   "recipes": {

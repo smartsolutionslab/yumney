@@ -43,6 +43,7 @@
           }
         ],
         "styles": ["apps/shell/src/styles.scss"],
+        "serviceWorker": "apps/shell/ngsw-config.json",
         "stylePreprocessorOptions": {
           "includePaths": ["libs/ui/src/lib/styles"]
         }
