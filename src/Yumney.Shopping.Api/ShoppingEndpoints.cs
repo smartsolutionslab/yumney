@@ -101,7 +101,7 @@ public static class ShoppingEndpoints
         IQueryHandler<GetShoppingListByIdQuery, Result<ShoppingListDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var query = new GetShoppingListByIdQuery(new ShoppingListIdentifier(identifier));
+        var query = new GetShoppingListByIdQuery(ShoppingListIdentifier.From(identifier));
         var result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
@@ -120,7 +120,7 @@ public static class ShoppingEndpoints
         CancellationToken cancellationToken)
     {
         var command = new CheckOffItemCommand(
-            new ShoppingListIdentifier(identifier),
+            ShoppingListIdentifier.From(identifier),
             itemId,
             request.IsChecked);
         var result = await handler.HandleAsync(command, cancellationToken);
@@ -140,7 +140,7 @@ public static class ShoppingEndpoints
         CancellationToken cancellationToken)
     {
         var command = new CheckOffAllItemsCommand(
-            new ShoppingListIdentifier(identifier),
+            ShoppingListIdentifier.From(identifier),
             request.IsChecked);
         var result = await handler.HandleAsync(command, cancellationToken);
 
