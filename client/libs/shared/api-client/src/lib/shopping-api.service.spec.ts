@@ -20,8 +20,18 @@ const mockDetail: ShoppingListDetail = {
 };
 
 const mockSummaries: ShoppingListSummary[] = [
-  { identifier: 'list-123', title: 'Weekly Groceries', itemCount: 2, createdAt: '2026-03-10T00:00:00Z' },
-  { identifier: 'list-456', title: 'Party Supplies', itemCount: 5, createdAt: '2026-03-11T00:00:00Z' },
+  {
+    identifier: 'list-123',
+    title: 'Weekly Groceries',
+    itemCount: 2,
+    createdAt: '2026-03-10T00:00:00Z',
+  },
+  {
+    identifier: 'list-456',
+    title: 'Party Supplies',
+    itemCount: 5,
+    createdAt: '2026-03-11T00:00:00Z',
+  },
 ];
 
 describe('ShoppingApiService', () => {

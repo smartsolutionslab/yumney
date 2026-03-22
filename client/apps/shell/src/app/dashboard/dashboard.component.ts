@@ -103,8 +103,17 @@ export class DashboardComponent {
   }
 
   onSaveRecipe(recipe: ImportRecipeResponse): void {
-    const { title, description, ingredients, steps, servings, prepTimeMinutes, cookTimeMinutes, difficulty, imageUrl } =
-      recipe;
+    const {
+      title,
+      description,
+      ingredients,
+      steps,
+      servings,
+      prepTimeMinutes,
+      cookTimeMinutes,
+      difficulty,
+      imageUrl,
+    } = recipe;
 
     const request: SaveRecipeRequest = {
       title,

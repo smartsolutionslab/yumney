@@ -7,8 +7,18 @@ import { ShoppingListComponent } from './shopping-list.component';
 import { ShoppingApiService, ShoppingListSummary } from '@yumney/shared/api-client';
 
 const mockLists: ShoppingListSummary[] = [
-  { identifier: 'list-1', title: 'Weekly Groceries', itemCount: 5, createdAt: '2026-03-10T00:00:00Z' },
-  { identifier: 'list-2', title: 'Party Supplies', itemCount: 3, createdAt: '2026-03-11T00:00:00Z' },
+  {
+    identifier: 'list-1',
+    title: 'Weekly Groceries',
+    itemCount: 5,
+    createdAt: '2026-03-10T00:00:00Z',
+  },
+  {
+    identifier: 'list-2',
+    title: 'Party Supplies',
+    itemCount: 3,
+    createdAt: '2026-03-11T00:00:00Z',
+  },
 ];
 
 const en = {
@@ -44,10 +54,7 @@ describe('ShoppingListComponent', () => {
           translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
         }),
       ],
-      providers: [
-        provideRouter([]),
-        { provide: ShoppingApiService, useValue: shoppingApiMock },
-      ],
+      providers: [provideRouter([]), { provide: ShoppingApiService, useValue: shoppingApiMock }],
     });
 
     fixture = TestBed.createComponent(ShoppingListComponent);

@@ -84,7 +84,10 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
     this.loadRecipes(false);
   }
 
-  private static readonly sortOptions: Record<string, { by: 'Name' | 'Date'; dir: 'Ascending' | 'Descending' }> = {
+  private static readonly sortOptions: Record<
+    string,
+    { by: 'Name' | 'Date'; dir: 'Ascending' | 'Descending' }
+  > = {
     'date-desc': { by: 'Date', dir: 'Descending' },
     'date-asc': { by: 'Date', dir: 'Ascending' },
     'name-asc': { by: 'Name', dir: 'Ascending' },

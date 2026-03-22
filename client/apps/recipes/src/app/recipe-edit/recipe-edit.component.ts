@@ -78,8 +78,17 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onSave(recipe: ImportRecipeResponse): void {
-    const { title, description, ingredients, steps, servings, prepTimeMinutes, cookTimeMinutes, difficulty, imageUrl } =
-      recipe;
+    const {
+      title,
+      description,
+      ingredients,
+      steps,
+      servings,
+      prepTimeMinutes,
+      cookTimeMinutes,
+      difficulty,
+      imageUrl,
+    } = recipe;
 
     const request: UpdateRecipeRequest = {
       title,

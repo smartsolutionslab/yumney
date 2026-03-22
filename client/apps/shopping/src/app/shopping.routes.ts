@@ -5,17 +5,13 @@ export const shoppingRoutes: Route[] = [
     path: 'create/:recipeIdentifier',
     title: 'Create Shopping List — Yumney',
     loadComponent: () =>
-      import('./shopping-create/shopping-create.component').then(
-        (m) => m.ShoppingCreateComponent,
-      ),
+      import('./shopping-create/shopping-create.component').then((m) => m.ShoppingCreateComponent),
   },
   {
     path: ':identifier',
     title: 'Shopping List — Yumney',
     loadComponent: () =>
-      import('./shopping-detail/shopping-detail.component').then(
-        (m) => m.ShoppingDetailComponent,
-      ),
+      import('./shopping-detail/shopping-detail.component').then((m) => m.ShoppingDetailComponent),
   },
   {
     path: '',

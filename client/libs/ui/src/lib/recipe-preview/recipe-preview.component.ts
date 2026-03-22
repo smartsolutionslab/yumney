@@ -120,8 +120,16 @@ export class RecipePreviewComponent implements OnInit {
       return;
     }
 
-    const { title, description, servings, prepTimeMinutes, cookTimeMinutes, difficulty, ingredients, steps } =
-      this.form.getRawValue();
+    const {
+      title,
+      description,
+      servings,
+      prepTimeMinutes,
+      cookTimeMinutes,
+      difficulty,
+      ingredients,
+      steps,
+    } = this.form.getRawValue();
     const result: ImportRecipeResponse = {
       title,
       description: description || null,
