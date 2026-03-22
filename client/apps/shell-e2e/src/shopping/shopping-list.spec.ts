@@ -80,7 +80,9 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
     }
   });
 
-  test('should disable create button when no ingredients selected', async ({ authenticatedPage }) => {
+  test('should disable create button when no ingredients selected', async ({
+    authenticatedPage,
+  }) => {
     test.skip(!recipeIdentifier, 'No recipe created');
 
     const createPage = new ShoppingCreatePage(authenticatedPage);

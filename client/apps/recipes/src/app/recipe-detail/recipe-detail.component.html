@@ -47,7 +47,9 @@
               class="servings-button"
               (click)="onIncreaseServings()"
               [attr.aria-label]="t('recipes.detail.a11y.increaseServings')"
-            >+</button>
+            >
+              +
+            </button>
           </div>
           @if (isScaled()) {
             <button class="reset-link" (click)="onResetServings()">
