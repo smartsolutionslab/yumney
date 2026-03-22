@@ -11,5 +11,7 @@ public sealed record AppUserProfileIdentifier
         Value = Ensure.That(value).IsNotEmpty().AndReturn();
     }
 
+    public static AppUserProfileIdentifier New() => new(Guid.NewGuid());
+
     public override string ToString() => Value.ToString();
 }

@@ -14,7 +14,9 @@ public sealed partial class GetShoppingListByIdQueryHandler(
     ILogger<GetShoppingListByIdQueryHandler> logger)
     : IQueryHandler<GetShoppingListByIdQuery, Result<ShoppingListDetailDto>>
 {
-    public async Task<Result<ShoppingListDetailDto>> HandleAsync(GetShoppingListByIdQuery query, CancellationToken cancellationToken = default)
+    public async Task<Result<ShoppingListDetailDto>> HandleAsync(
+        GetShoppingListByIdQuery query,
+        CancellationToken cancellationToken = default)
     {
         var identifier = query.Identifier;
 
