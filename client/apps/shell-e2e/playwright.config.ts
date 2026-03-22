@@ -23,7 +23,10 @@ export default defineConfig({
   retries: process.env['CI'] ? 2 : 0,
   workers: 1, // serial — tests may share DB state
   reporter: process.env['CI']
-    ? [['html', { open: 'never' }], ['junit', { outputFile: '../../test-results/shell-e2e/results.xml' }]]
+    ? [
+        ['html', { open: 'never' }],
+        ['junit', { outputFile: '../../test-results/shell-e2e/results.xml' }],
+      ]
     : [['html', { open: 'on-failure' }]],
   use: {
     baseURL,

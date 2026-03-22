@@ -41,11 +41,9 @@ export class AuthService {
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
 
-    this.oauthService.events
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.updateAuthState();
-      });
+    this.oauthService.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.updateAuthState();
+    });
 
     try {
       await this.oauthService.loadDiscoveryDocumentAndTryLogin();

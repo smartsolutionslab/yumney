@@ -18,22 +18,19 @@ export const appRoutes: Route[] = [
     path: 'recipes',
     title: 'Recipes — Yumney',
     canActivate: [authGuard],
-    loadChildren: () =>
-      loadRemoteModule('recipes', './routes').then((m) => m.recipesRoutes),
+    loadChildren: () => loadRemoteModule('recipes', './routes').then((m) => m.recipesRoutes),
   },
   {
     path: 'shopping',
     title: 'Shopping Lists — Yumney',
     canActivate: [authGuard],
-    loadChildren: () =>
-      loadRemoteModule('shopping', './routes').then((m) => m.shoppingRoutes),
+    loadChildren: () => loadRemoteModule('shopping', './routes').then((m) => m.shoppingRoutes),
   },
   {
     path: 'account',
     title: 'Account — Yumney',
     canActivate: [authGuard],
-    loadChildren: () =>
-      loadRemoteModule('account', './routes').then((m) => m.accountRoutes),
+    loadChildren: () => loadRemoteModule('account', './routes').then((m) => m.accountRoutes),
   },
   {
     path: '',
