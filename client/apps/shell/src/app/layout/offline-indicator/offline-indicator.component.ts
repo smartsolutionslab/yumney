@@ -1,20 +1,6 @@
-import { Component, ChangeDetectionStrategy, Injectable, signal, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
-
-@Injectable({ providedIn: 'root' })
-export class OfflineStatusService {
-  readonly isOffline = signal(!navigator.onLine);
-  readonly justCameOnline = signal(false);
-
-  constructor() {
-    window.addEventListener('online', () => {
-      this.isOffline.set(false);
-      this.justCameOnline.set(true);
-      setTimeout(() => this.justCameOnline.set(false), 3000);
-    });
-    window.addEventListener('offline', () => this.isOffline.set(true));
-  }
-}
+import { OfflineStatusService } from './offline-status.service';
 
 @Component({
   selector: 'yn-offline-indicator',

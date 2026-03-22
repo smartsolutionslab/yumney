@@ -55,7 +55,7 @@ describe('LanguageService', () => {
   });
 
   it('should ignore unsupported language', () => {
-    service.switchTo('fr');
+    service.switchTo('fr' as never);
     expect(mockTransloco.setActiveLang).not.toHaveBeenCalled();
     expect(localStorage.getItem('yn-language')).toBeNull();
   });

@@ -9,6 +9,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
@@ -94,13 +95,7 @@ public static class RecipesEndpoints
             SearchTerm.FromNullable(search));
 
         var result = await handler.HandleAsync(query, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> SaveAsync(
@@ -129,13 +124,7 @@ public static class RecipesEndpoints
             RecipeUrl.FromNullable(request.SourceUrl),
             request.Tags?.Select(t => new RecipeTag(t)).ToList());
         var result = await handler.HandleAsync(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Created($"/api/v1/recipes/{result.Value.Identifier}", result.Value);
+        return result.ToCreated($"/api/v1/recipes/{result.Value?.Identifier}");
     }
 
     private static async Task<IResult> GetByIdAsync(
@@ -145,13 +134,7 @@ public static class RecipesEndpoints
     {
         var query = new GetRecipeByIdQuery(RecipeIdentifier.From(identifier));
         var result = await handler.HandleAsync(query, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> UpdateAsync(
@@ -183,13 +166,7 @@ public static class RecipesEndpoints
             ImageUrl.FromNullable(imageUrl),
             tags?.Select(t => new RecipeTag(t)).ToList());
         var result = await handler.HandleAsync(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> DeleteAsync(
@@ -199,13 +176,7 @@ public static class RecipesEndpoints
     {
         var command = new DeleteRecipeCommand(RecipeIdentifier.From(identifier));
         var result = await handler.HandleAsync(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.NoContent();
+        return result.ToNoContent();
     }
 
     private static async Task<IResult> ImportAsync(
@@ -222,13 +193,7 @@ public static class RecipesEndpoints
 
         var command = new ImportRecipeCommand(new RecipeUrl(request.Url));
         var result = await handler.HandleAsync(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> ImportFromPhotosAsync(
@@ -247,12 +212,6 @@ public static class RecipesEndpoints
 
         var command = new ImportRecipeFromPhotosCommand(photoDataList);
         var result = await handler.HandleAsync(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 }

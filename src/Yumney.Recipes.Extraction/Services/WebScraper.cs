@@ -56,12 +56,9 @@ public sealed partial class WebScraper(
         {
             LogContentTruncated(url.Value, cleanedText.Length, options.MaxContentLength);
             cleanedText = TruncateAtWordBoundary(cleanedText, options.MaxContentLength);
-            return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
         }
-        else
-        {
-            return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
-        }
+
+        return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
     }
 
     private static async Task<string> CleanHtmlAsync(string html, CancellationToken cancellationToken)
