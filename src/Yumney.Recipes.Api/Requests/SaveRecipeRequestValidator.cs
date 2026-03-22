@@ -16,6 +16,13 @@ public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeReq
             .MustBeValidHttpUrl(RecipeUrl.MaxLength)
             .When(x => !string.IsNullOrWhiteSpace(x.SourceUrl));
 
+        ConfigureOptionalFieldRules();
+        ConfigureIngredientRules();
+        ConfigureStepRules();
+    }
+
+    private void ConfigureOptionalFieldRules()
+    {
         RuleFor(x => x.Description)
             .MaximumLength(RecipeDescription.MaxLength)
             .When(x => x.Description is not null);
@@ -40,7 +47,10 @@ public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeReq
         RuleFor(x => x.CookTimeMinutes)
             .GreaterThanOrEqualTo(0)
             .When(x => x.CookTimeMinutes.HasValue);
+    }
 
+    private void ConfigureIngredientRules()
+    {
         RuleFor(x => x.Ingredients)
             .NotEmpty()
             .WithMessage("At least one ingredient is required.");
@@ -59,7 +69,10 @@ public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeReq
                 .MaximumLength(Unit.MaxLength)
                 .When(i => i.Unit is not null);
         });
+    }
 
+    private void ConfigureStepRules()
+    {
         RuleFor(x => x.Steps)
             .NotEmpty()
             .WithMessage("At least one step is required.");

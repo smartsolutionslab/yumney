@@ -21,11 +21,18 @@ public static class AuthEndpoints
 
         group.MapPost("/register", RegisterAsync)
             .AllowAnonymous()
-            .WithName("RegisterUser");
+            .WithName("RegisterUser")
+            .WithTags("Auth")
+            .Produces<RegisterUserResultDto>(StatusCodes.Status201Created)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status409Conflict);
 
         group.MapPost("/resend-verification-email", ResendVerificationEmailAsync)
             .AllowAnonymous()
-            .WithName("ResendVerificationEmail");
+            .WithName("ResendVerificationEmail")
+            .WithTags("Auth")
+            .Produces<ResendVerificationEmailResultDto>()
+            .ProducesValidationProblem();
 
         return app;
     }

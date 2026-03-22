@@ -73,38 +73,19 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
     public async Task<Result<ExtractedRecipeDto>> ExtractAsync(ScrapedContent content, CancellationToken cancellationToken = default)
     {
-        var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
         var sanitized = SanitizeContent(content.CleanedText);
 
         var chatHistory = new ChatHistory();
         chatHistory.AddSystemMessage(systemPrompt);
         chatHistory.AddUserMessage($"<webpage_content>{sanitized}</webpage_content>");
 
-        string response;
-        try
-        {
-            var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
-            response = result.Content ?? string.Empty;
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            LogLlmCallFailed(content.SourceUrl.Value, ex.Message);
-            return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
-        }
-
-        return ParseResponse(response, content.SourceUrl.Value);
+        return await CallLlmAndParseAsync(chatHistory, content.SourceUrl.Value, cancellationToken);
     }
 
     public async Task<Result<ExtractedRecipeDto>> ExtractFromPhotosAsync(
         IReadOnlyList<PhotoData> photos,
         CancellationToken cancellationToken = default)
     {
-        var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
-
         var chatHistory = new ChatHistory();
         chatHistory.AddSystemMessage(photoSystemPrompt);
 
@@ -118,23 +99,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
         chatHistory.AddUserMessage(messageItems);
 
-        string response;
-        try
-        {
-            var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
-            response = result.Content ?? string.Empty;
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            LogLlmCallFailed("photo-import", ex.Message);
-            return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
-        }
-
-        return ParseResponse(response, "photo-import");
+        return await CallLlmAndParseAsync(chatHistory, "photo-import", cancellationToken);
     }
 
     private static string ExtractJson(string response)
@@ -163,6 +128,32 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         var sanitized = injectionPatterns.Replace(text, string.Empty);
         sanitized = excessiveWhitespace.Replace(sanitized, " ");
         return sanitized.Trim();
+    }
+
+    private async Task<Result<ExtractedRecipeDto>> CallLlmAndParseAsync(
+        ChatHistory chatHistory,
+        string source,
+        CancellationToken cancellationToken)
+    {
+        var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
+
+        string response;
+        try
+        {
+            var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
+            response = result.Content ?? string.Empty;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            LogLlmCallFailed(source, ex.Message);
+            return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
+        }
+
+        return ParseResponse(response, source);
     }
 
     private Result<ExtractedRecipeDto> ParseResponse(string response, string sourceUrl)

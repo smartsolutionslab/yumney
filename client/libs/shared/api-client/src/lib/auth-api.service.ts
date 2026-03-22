@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from './api-endpoints';
 
 export interface RegisterRequest {
   email: string;
@@ -25,14 +26,14 @@ export class AuthApiService {
   private http = inject(HttpClient);
 
   register(request: RegisterRequest): Observable<RegisterResponse> {
-    return this.http.post<RegisterResponse>('/api/v1/auth/register', request);
+    return this.http.post<RegisterResponse>(API_ENDPOINTS.auth.register, request);
   }
 
   resendVerificationEmail(
     request: ResendVerificationRequest,
   ): Observable<ResendVerificationResponse> {
     return this.http.post<ResendVerificationResponse>(
-      '/api/v1/auth/resend-verification-email',
+      API_ENDPOINTS.auth.resendVerificationEmail,
       request,
     );
   }

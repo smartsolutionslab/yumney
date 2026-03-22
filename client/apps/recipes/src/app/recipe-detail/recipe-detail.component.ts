@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
-import { createAsyncState, scaleIngredients, HttpErrorMap } from '@yumney/shared/models';
+import { createAsyncState, scaleIngredients, HttpErrorMap, ROUTES } from '@yumney/shared/models';
 import { ConfirmDialogComponent } from '@yumney/ui';
 
 @Component({
@@ -131,7 +131,7 @@ export class RecipeDetailComponent implements OnInit {
     this.deleteState.execute(
       this.recipeApi.deleteRecipe(recipe.identifier),
       RecipeDetailComponent.deleteErrorMap,
-      () => this.router.navigate(['/recipes']),
+      () => this.router.navigate([ROUTES.recipes.list]),
       (error) => this.serverError.set(error),
     );
   }

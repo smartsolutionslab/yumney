@@ -9,6 +9,7 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideTransloco } from '@jsverse/transloco';
 import { authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { TranslocoHttpLoader } from './transloco-loader';
+import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from './language.service';
 
 export function createMfeAppConfig(routes: Routes): ApplicationConfig {
   return {
@@ -20,8 +21,8 @@ export function createMfeAppConfig(routes: Routes): ApplicationConfig {
       provideAuth(),
       provideTransloco({
         config: {
-          availableLangs: ['en', 'de'],
-          defaultLang: 'en',
+          availableLangs: [...SUPPORTED_LANGUAGES],
+          defaultLang: DEFAULT_LANGUAGE,
           reRenderOnLangChange: true,
           prodMode: !isDevMode(),
         },

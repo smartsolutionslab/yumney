@@ -14,6 +14,7 @@ import {
   mapToUpdateRecipeRequest,
   mapDetailToImportResponse,
   HttpErrorMap,
+  ROUTES,
 } from '@yumney/shared/models';
 import { RecipePreviewComponent } from '@yumney/ui';
 
@@ -66,12 +67,12 @@ export class RecipeEditComponent implements OnInit {
     this.saveState.execute(
       this.recipeApi.updateRecipe(this.identifier(), request),
       RecipeEditComponent.errorMap,
-      () => this.router.navigate(['/recipes', this.identifier()]),
+      () => this.router.navigate([ROUTES.recipes.list, this.identifier()]),
       (error) => this.serverError.set(error),
     );
   }
 
   onDiscard(): void {
-    this.router.navigate(['/recipes', this.identifier()]);
+    this.router.navigate([ROUTES.recipes.list, this.identifier()]);
   }
 }
