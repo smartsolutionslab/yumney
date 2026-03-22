@@ -51,3 +51,25 @@ test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', ()
     await expect(dashboard.recipePreview).not.toBeVisible();
   });
 });
+
+test.describe('Dashboard — Photo Import (US-130)', () => {
+  let dashboard: DashboardPage;
+
+  test.beforeEach(async ({ authenticatedPage }) => {
+    dashboard = new DashboardPage(authenticatedPage);
+    await dashboard.goto();
+  });
+
+  test('should display photo upload section', async () => {
+    await expect(dashboard.photoUploadLabel).toBeVisible();
+  });
+
+  test('should have file input that accepts images', async () => {
+    await expect(dashboard.photoUploadInput).toHaveAttribute('accept', /image/);
+    await expect(dashboard.photoUploadInput).toHaveAttribute('multiple', '');
+  });
+
+  test('should have camera capture attribute for mobile', async () => {
+    await expect(dashboard.photoUploadInput).toHaveAttribute('capture', 'environment');
+  });
+});
