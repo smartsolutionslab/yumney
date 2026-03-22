@@ -29,7 +29,7 @@
       "options": {
         "outputPath": "dist/apps/shell",
         "browser": "apps/shell/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": ["zone.js", "es-module-shims"],
         "tsConfig": "apps/shell/tsconfig.app.json",
         "assets": [
           {

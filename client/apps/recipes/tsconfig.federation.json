@@ -24,11 +24,7 @@
     "..\\..\\node_modules\\@jsverse\\transloco\\esm2022\\jsverse-transloco.mjs",
     "..\\..\\node_modules\\angular-oauth2-oidc\\fesm2022\\angular-oauth2-oidc.mjs",
     "..\\..\\node_modules\\rxjs\\dist\\esm\\index.js",
-    "..\\..\\node_modules\\rxjs\\dist\\esm\\operators\\index.js",
-    "..\\..\\node_modules\\zone.js\\fesm2015\\zone.js",
-    "..\\..\\node_modules\\zone.js\\fesm2015\\zone-testing.js",
-    "..\\..\\node_modules\\zone.js\\fesm2015\\zone-node.js",
-    "..\\..\\node_modules\\zone.js\\fesm2015\\zone-mix.js"
+    "..\\..\\node_modules\\rxjs\\dist\\esm\\operators\\index.js"
   ],
   "exclude": [
     "jest.config.ts",
