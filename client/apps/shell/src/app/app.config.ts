@@ -3,6 +3,7 @@ import {
   isDevMode,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
+  APP_INITIALIZER,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
@@ -10,7 +11,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { appRoutes } from './app.routes';
-import { TranslocoHttpLoader } from '@yumney/shared/models';
+import { TranslocoHttpLoader, LanguageService } from '@yumney/shared/models';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -32,5 +33,11 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader,
     }),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (lang: LanguageService) => () => lang.initialize(),
+      deps: [LanguageService],
+      multi: true,
+    },
   ],
 };

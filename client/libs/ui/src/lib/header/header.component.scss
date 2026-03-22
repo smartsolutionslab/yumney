@@ -48,6 +48,22 @@ nav {
   }
 }
 
+.lang-toggle {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--yn-border);
+  border-radius: 4px;
+  background: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--yn-text-muted);
+  cursor: pointer;
+  letter-spacing: 0.05em;
+
+  &:hover {
+    background-color: var(--yn-background);
+  }
+}
+
 .login-link {
   font-size: 0.875rem;
   color: var(--yn-link);

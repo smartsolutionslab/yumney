@@ -6,7 +6,8 @@
       "login": "Anmelden",
       "myRecipes": "Meine Rezepte",
       "shoppingLists": "Einkaufslisten",
-      "navigation": "Hauptnavigation"
+      "navigation": "Hauptnavigation",
+      "switchLanguage": "Sprache wechseln"
     }
   },
   "shared": {
