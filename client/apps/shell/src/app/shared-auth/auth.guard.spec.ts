@@ -1,10 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  ActivatedRouteSnapshot,
-  Router,
-  RouterStateSnapshot,
-  UrlTree,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { AuthService, authGuard } from '@yumney/shared/auth';
 
@@ -22,19 +17,14 @@ describe('authGuard', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: authServiceMock },
-      ],
+      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceMock }],
     });
   });
 
   it('should return true when authenticated', () => {
     authServiceMock.isAuthenticated.mockReturnValue(true);
 
-    const result = TestBed.runInInjectionContext(() =>
-      authGuard(route, state),
-    );
+    const result = TestBed.runInInjectionContext(() => authGuard(route, state));
 
     expect(result).toBe(true);
   });
@@ -42,23 +32,17 @@ describe('authGuard', () => {
   it('should redirect to /auth/login when not authenticated', () => {
     authServiceMock.isAuthenticated.mockReturnValue(false);
 
-    const result = TestBed.runInInjectionContext(() =>
-      authGuard(route, state),
-    );
+    const result = TestBed.runInInjectionContext(() => authGuard(route, state));
 
     expect(result).toBeInstanceOf(UrlTree);
     const router = TestBed.inject(Router);
-    expect((result as UrlTree).toString()).toBe(
-      router.createUrlTree(['/auth/login']).toString(),
-    );
+    expect((result as UrlTree).toString()).toBe(router.createUrlTree(['/auth/login']).toString());
   });
 
   it('should not redirect when already authenticated', () => {
     authServiceMock.isAuthenticated.mockReturnValue(true);
 
-    const result = TestBed.runInInjectionContext(() =>
-      authGuard(route, state),
-    );
+    const result = TestBed.runInInjectionContext(() => authGuard(route, state));
 
     expect(result).not.toBeInstanceOf(UrlTree);
   });
@@ -66,9 +50,7 @@ describe('authGuard', () => {
   it('should return a UrlTree when not authenticated', () => {
     authServiceMock.isAuthenticated.mockReturnValue(false);
 
-    const result = TestBed.runInInjectionContext(() =>
-      authGuard(route, state),
-    );
+    const result = TestBed.runInInjectionContext(() => authGuard(route, state));
 
     expect(result).toBeInstanceOf(UrlTree);
   });

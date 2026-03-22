@@ -1,10 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  Injectable,
-  signal,
-  inject,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, Injectable, signal, inject } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 
 @Injectable({ providedIn: 'root' })
