@@ -34,17 +34,7 @@ public sealed partial class GetShoppingListByIdQueryHandler(
             return Result<ShoppingListDetailDto>.Failure(GetShoppingListByIdErrors.AccessDenied);
         }
 
-        var itemDtos = shoppingList.Items
-            .Select(i => new ShoppingListItemDto(i.Id, i.Name.Value, i.Amount?.Value, i.Unit?.Value, i.IsChecked))
-            .ToList();
-
-        return Result<ShoppingListDetailDto>.Success(
-            new ShoppingListDetailDto(
-                shoppingList.Id.Value,
-                shoppingList.Title.Value,
-                shoppingList.RecipeReference?.Value,
-                shoppingList.CreatedAt,
-                itemDtos));
+        return Result<ShoppingListDetailDto>.Success(shoppingList.ToDetailDto());
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping list {ShoppingListId}")]
