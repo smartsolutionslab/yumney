@@ -1,7 +1,8 @@
+using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests;
+namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
 public static class RequestMappingExtensions
 {
