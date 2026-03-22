@@ -117,13 +117,8 @@ public static class RecipesEndpoints
 
         var command = new SaveRecipeCommand(
             new RecipeTitle(request.Title),
-            request.Ingredients.Select(i => new SaveRecipeIngredientItem(
-                new IngredientName(i.Name),
-                Amount.FromNullable(i.Amount),
-                Unit.FromNullable(i.Unit))).ToList(),
-            request.Steps.Select(s => new SaveRecipeStepItem(
-                new StepNumber(s.Number),
-                new StepDescription(s.Description))).ToList(),
+            request.Ingredients.Select(i => i.ToCommandItem()).ToList(),
+            request.Steps.Select(s => s.ToCommandItem()).ToList(),
             RecipeDescription.FromNullable(request.Description),
             Servings.FromNullable(request.Servings),
             PreparationTime.FromNullable(request.PrepTimeMinutes),
@@ -175,13 +170,8 @@ public static class RecipesEndpoints
         var command = new UpdateRecipeCommand(
             RecipeIdentifier.From(identifier),
             new RecipeTitle(request.Title),
-            request.Ingredients.Select(i => new SaveRecipeIngredientItem(
-                new IngredientName(i.Name),
-                Amount.FromNullable(i.Amount),
-                Unit.FromNullable(i.Unit))).ToList(),
-            request.Steps.Select(s => new SaveRecipeStepItem(
-                new StepNumber(s.Number),
-                new StepDescription(s.Description))).ToList(),
+            request.Ingredients.Select(i => i.ToCommandItem()).ToList(),
+            request.Steps.Select(s => s.ToCommandItem()).ToList(),
             RecipeDescription.FromNullable(request.Description),
             Servings.FromNullable(request.Servings),
             PreparationTime.FromNullable(request.PrepTimeMinutes),

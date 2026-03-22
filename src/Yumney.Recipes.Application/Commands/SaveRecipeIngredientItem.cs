@@ -5,4 +5,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 public sealed record SaveRecipeIngredientItem(
     IngredientName Name,
     Amount? Amount,
-    Unit? Unit);
+    Unit? Unit)
+{
+    public Ingredient ToDomain() => Ingredient.Create(Name, Amount, Unit);
+}

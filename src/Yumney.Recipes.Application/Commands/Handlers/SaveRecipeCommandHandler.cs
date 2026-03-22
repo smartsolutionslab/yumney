@@ -25,13 +25,8 @@ public sealed partial class SaveRecipeCommandHandler(
             return Result<SavedRecipeDto>.Failure(SaveRecipeErrors.AlreadyImported);
         }
 
-        var ingredients = ingredientCommands
-            .Select(i => Ingredient.Create(i.Name, i.Amount, i.Unit))
-            .ToList();
-
-        var steps = stepCommands
-            .Select(s => Step.Create(s.Number, s.Description))
-            .ToList();
+        var ingredients = ingredientCommands.Select(i => i.ToDomain()).ToList();
+        var steps = stepCommands.Select(s => s.ToDomain()).ToList();
 
         var recipe = Recipe.Create(
             title,
