@@ -86,9 +86,7 @@ public static class RecipesEndpoints
         string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var sortField = Enum.TryParse<RecipeSortField>(sortBy, ignoreCase: true, out var parsed)
-            ? parsed
-            : RecipeSortField.Date;
+        var sortField = default(RecipeSortField).ParseNullable(sortBy) ?? RecipeSortField.Date;
 
         var query = new GetRecipesQuery(
             PagingOptions.Of(Page.From(page), PageSize.From(pageSize)),
