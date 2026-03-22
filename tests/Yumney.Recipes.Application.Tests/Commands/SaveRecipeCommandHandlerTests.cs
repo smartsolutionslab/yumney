@@ -160,7 +160,7 @@ public class SaveRecipeCommandHandlerTests
             new CookingTime(20),
             new Difficulty("easy"),
             new ImageUrl("https://example.com/image.jpg"),
-            new RecipeUrl("https://example.com/recipe"));
+            SourceUrl: new RecipeUrl("https://example.com/recipe"));
 
         await handler.HandleAsync(command);
 

@@ -10,4 +10,5 @@ public sealed record SaveRecipeRequest(
     int? CookTimeMinutes,
     string? Difficulty,
     string? ImageUrl,
+    string? Language = null,
     string? SourceUrl = null);

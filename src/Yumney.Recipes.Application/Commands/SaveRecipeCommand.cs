@@ -15,4 +15,5 @@ public sealed record SaveRecipeCommand(
     CookingTime? CookingTime = null,
     Difficulty? Difficulty = null,
     ImageUrl? ImageUrl = null,
+    RecipeLanguage? Language = null,
     RecipeUrl? SourceUrl = null) : ICommand<Result<SavedRecipeDto>>;

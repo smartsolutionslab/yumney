@@ -216,7 +216,7 @@ public class GetRecipeByIdQueryHandlerTests
             new CookingTime(20),
             new Difficulty("easy"),
             new ImageUrl("https://example.com/image.jpg"),
-            new RecipeUrl("https://example.com/recipe"));
+            sourceUrl: new RecipeUrl("https://example.com/recipe"));
     }
 
     private static Recipe CreateTestRecipeWithIngredients(string ownerId)

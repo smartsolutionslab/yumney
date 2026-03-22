@@ -23,12 +23,15 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
     private const string fenceMarker = "```";
 
     private const string systemPrompt = $$"""
-        You are a recipe extraction assistant. Extract structured recipe data
+        You are a multilingual recipe extraction assistant. Extract structured recipe data
         from the webpage content enclosed in <webpage_content> tags.
+        The content may be in any language (e.g. English, German, French, Italian, Spanish, or others).
+        Detect the language automatically and KEEP all text in the ORIGINAL language — do NOT translate.
         Respond ONLY with valid JSON matching this schema:
         {
           "title": "string (required)",
           "description": "string or null",
+          "language": "string (required, ISO 639-1 code: en, de, fr, it, es, etc.)",
           "ingredients": [{ "name": "string", "amount": number or null, "unit": "string or null" }],
           "steps": [{ "number": integer, "description": "string" }],
           "servings": integer or null,

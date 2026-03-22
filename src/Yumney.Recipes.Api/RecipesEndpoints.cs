@@ -121,6 +121,7 @@ public static class RecipesEndpoints
             CookingTime.FromNullable(request.CookTimeMinutes),
             Difficulty.FromNullable(request.Difficulty),
             ImageUrl.FromNullable(request.ImageUrl),
+            RecipeLanguage.FromNullable(request.Language),
             RecipeUrl.FromNullable(request.SourceUrl));
         var result = await handler.HandleAsync(command, cancellationToken);
 

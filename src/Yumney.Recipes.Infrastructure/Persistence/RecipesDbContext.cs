@@ -40,6 +40,9 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
             entity.Property(e => e.ImageUrl)
                 .ConfigureNullableStringValueObject(v => v.Value, ImageUrl.FromNullable, ImageUrl.MaxLength);
 
+            entity.Property(e => e.Language)
+                .ConfigureNullableStringValueObject(v => v.Value, RecipeLanguage.FromNullable, RecipeLanguage.MaxLength);
+
             entity.Property(e => e.SourceUrl)
                 .ConfigureNullableStringValueObject(v => v.Value, RecipeUrl.FromNullable, RecipeUrl.MaxLength);
 
