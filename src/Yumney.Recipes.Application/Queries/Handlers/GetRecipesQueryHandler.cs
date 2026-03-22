@@ -23,16 +23,7 @@ public sealed partial class GetRecipesQueryHandler(
         var (items, totalCount) = await recipes.GetByOwnerAsync(
             owner, paging, sorting, search, cancellationToken);
 
-        var dtoItems = items.Select(r => new RecipeListItemDto(
-            r.Id.Value,
-            r.Title.Value,
-            r.Description?.Value,
-            r.Servings?.Value,
-            r.PreparationTime?.Value,
-            r.CookingTime?.Value,
-            r.Difficulty?.Value,
-            r.ImageUrl?.Value,
-            r.CreatedAt)).ToList();
+        var dtoItems = items.Select(r => r.ToListItemDto()).ToList();
 
         return Result<PagedResult<RecipeListItemDto>>.Success(
             new PagedResult<RecipeListItemDto>(dtoItems, totalCount, paging.Page.Value, paging.PageSize.Value));

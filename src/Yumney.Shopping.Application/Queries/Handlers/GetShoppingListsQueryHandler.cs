@@ -23,13 +23,7 @@ public sealed partial class GetShoppingListsQueryHandler(
 
         var lists = await shoppingLists.GetByOwnerAsync(owner, cancellationToken);
 
-        var dtos = lists
-            .Select(l => new ShoppingListSummaryDto(
-                l.Id.Value,
-                l.Title.Value,
-                l.Items.Count,
-                l.CreatedAt))
-            .ToList();
+        var dtos = lists.Select(l => l.ToSummaryDto()).ToList();
 
         return Result<IReadOnlyList<ShoppingListSummaryDto>>.Success(dtos);
     }

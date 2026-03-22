@@ -29,17 +29,7 @@ public sealed partial class CreateShoppingListCommandHandler(
 
         LogShoppingListCreated(shoppingList.Id.Value, title.Value);
 
-        var itemDtos = shoppingList.Items
-            .Select(i => new ShoppingListItemDto(i.Id, i.Name.Value, i.Amount?.Value, i.Unit?.Value, i.IsChecked))
-            .ToList();
-
-        return Result<ShoppingListDetailDto>.Success(
-            new ShoppingListDetailDto(
-                shoppingList.Id.Value,
-                title.Value,
-                shoppingList.RecipeReference?.Value,
-                shoppingList.CreatedAt,
-                itemDtos));
+        return Result<ShoppingListDetailDto>.Success(shoppingList.ToDetailDto());
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Shopping list {ShoppingListId} created: {Title}")]
