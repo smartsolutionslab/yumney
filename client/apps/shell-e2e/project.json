@@ -4,5 +4,13 @@
   "projectType": "application",
   "sourceRoot": "apps/shell-e2e/src",
   "tags": ["scope:shell", "type:e2e"],
-  "implicitDependencies": ["shell", "recipes", "shopping", "account"]
+  "implicitDependencies": ["shell", "recipes", "shopping", "account"],
+  "targets": {
+    "pwa-e2e": {
+      "executor": "@nx/playwright:playwright",
+      "options": {
+        "config": "apps/shell-e2e/playwright.pwa.config.ts"
+      }
+    }
+  }
 }
