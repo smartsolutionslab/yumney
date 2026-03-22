@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 using SmartSolutionsLab.Yumney.Users.Api.Requests;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
@@ -44,13 +45,7 @@ public static class AuthEndpoints
         var (email, password, displayName) = request;
         var command = new RegisterUserCommand(new Email(email), new Password(password), new DisplayName(displayName));
         var result = await handler.HandleAsync(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Created("/api/v1/users/me", result.Value);
+        return result.ToCreated("/api/v1/users/me");
     }
 
     private static async Task<IResult> ResendVerificationEmailAsync(

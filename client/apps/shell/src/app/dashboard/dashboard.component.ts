@@ -1,17 +1,12 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
-import {
-  RecipeApiService,
-  ImportRecipeResponse,
-  SaveRecipeRequest,
-} from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
 import {
   urlValidator,
   hasControlError,
-  mapHttpError,
+  createAsyncState,
+  mapToSaveRecipeRequest,
   VALIDATION,
   HttpErrorMap,
 } from '@yumney/shared/models';
@@ -39,10 +34,11 @@ export class DashboardComponent {
 
   private fb = inject(FormBuilder);
   private recipeApi = inject(RecipeApiService);
-  private destroyRef = inject(DestroyRef);
+  private importState = createAsyncState(inject(DestroyRef));
+  private saveState = createAsyncState(inject(DestroyRef));
 
-  isLoading = signal(false);
-  isSaving = signal(false);
+  isLoading = this.importState.isLoading;
+  isSaving = this.saveState.isLoading;
   serverError = signal<string | null>(null);
   extractedRecipe = signal<ImportRecipeResponse | null>(null);
   sourceUrl = signal<string | null>(null);
@@ -59,29 +55,20 @@ export class DashboardComponent {
       return;
     }
 
-    this.isLoading.set(true);
-    this.serverError.set(null);
-    this.extractedRecipe.set(null);
-    this.saveSuccess.set(null);
-    this.isManualEntry.set(false);
+    this.resetImportState();
 
     const { url } = this.form.getRawValue();
 
-    this.recipeApi
-      .importRecipe({ url })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.isLoading.set(false);
-          this.extractedRecipe.set(response);
-          this.sourceUrl.set(url);
-          this.form.reset();
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.serverError.set(mapHttpError(err, DashboardComponent.importErrorMap));
-        },
-      });
+    this.importState.execute(
+      this.recipeApi.importRecipe({ url }),
+      DashboardComponent.importErrorMap,
+      (response) => {
+        this.extractedRecipe.set(response);
+        this.sourceUrl.set(url);
+        this.form.reset();
+      },
+      (error) => this.serverError.set(error),
+    );
   }
 
   onImportFromPhotos(event: Event): void {
@@ -94,31 +81,21 @@ export class DashboardComponent {
     const photos = Array.from(files);
     input.value = '';
 
-    this.isLoading.set(true);
-    this.serverError.set(null);
-    this.extractedRecipe.set(null);
-    this.saveSuccess.set(null);
-    this.isManualEntry.set(false);
+    this.resetImportState();
 
-    this.recipeApi
-      .importFromPhotos(photos)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.isLoading.set(false);
-          this.extractedRecipe.set(response);
-          this.sourceUrl.set(null);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.serverError.set(mapHttpError(err, DashboardComponent.importErrorMap));
-        },
-      });
+    this.importState.execute(
+      this.recipeApi.importFromPhotos(photos),
+      DashboardComponent.importErrorMap,
+      (response) => {
+        this.extractedRecipe.set(response);
+        this.sourceUrl.set(null);
+      },
+      (error) => this.serverError.set(error),
+    );
   }
 
   onCreateManually(): void {
-    this.serverError.set(null);
-    this.saveSuccess.set(null);
+    this.resetImportState();
     this.sourceUrl.set(null);
     this.isManualEntry.set(true);
     this.extractedRecipe.set({
@@ -135,50 +112,21 @@ export class DashboardComponent {
   }
 
   onSaveRecipe(recipe: ImportRecipeResponse): void {
-    const {
-      title,
-      description,
-      ingredients,
-      steps,
-      servings,
-      prepTimeMinutes,
-      cookTimeMinutes,
-      difficulty,
-      imageUrl,
-    } = recipe;
+    const request = mapToSaveRecipeRequest(recipe, this.sourceUrl() ?? undefined);
 
-    const request: SaveRecipeRequest = {
-      title,
-      description,
-      ingredients: ingredients.map(({ name, amount, unit }) => ({ name, amount, unit })),
-      steps: steps.map(({ number, description }) => ({ number, description })),
-      servings,
-      prepTimeMinutes,
-      cookTimeMinutes,
-      difficulty,
-      imageUrl,
-      sourceUrl: this.sourceUrl() ?? undefined,
-    };
-
-    this.isSaving.set(true);
     this.serverError.set(null);
     this.saveSuccess.set(null);
 
-    this.recipeApi
-      .saveRecipe(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (saved) => {
-          this.isSaving.set(false);
-          this.extractedRecipe.set(null);
-          this.isManualEntry.set(false);
-          this.saveSuccess.set(saved.title);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isSaving.set(false);
-          this.serverError.set(mapHttpError(err, DashboardComponent.saveErrorMap));
-        },
-      });
+    this.saveState.execute(
+      this.recipeApi.saveRecipe(request),
+      DashboardComponent.saveErrorMap,
+      (saved) => {
+        this.extractedRecipe.set(null);
+        this.isManualEntry.set(false);
+        this.saveSuccess.set(saved.title);
+      },
+      (error) => this.serverError.set(error),
+    );
   }
 
   onDiscardRecipe(): void {

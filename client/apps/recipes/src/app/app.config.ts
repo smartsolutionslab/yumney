@@ -1,31 +1,4 @@
-import {
-  ApplicationConfig,
-  isDevMode,
-  provideBrowserGlobalErrorListeners,
-  provideZoneChangeDetection,
-} from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { provideTransloco } from '@jsverse/transloco';
-import { authInterceptor, provideAuth } from '@yumney/shared/auth';
+import { createMfeAppConfig } from '@yumney/shared/models';
 import { recipesRoutes } from './recipes.routes';
-import { TranslocoHttpLoader } from '@yumney/shared/models';
 
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(recipesRoutes),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
-    provideAuth(),
-    provideTransloco({
-      config: {
-        availableLangs: ['en', 'de'],
-        defaultLang: 'en',
-        reRenderOnLangChange: true,
-        prodMode: !isDevMode(),
-      },
-      loader: TranslocoHttpLoader,
-    }),
-  ],
-};
+export const appConfig = createMfeAppConfig(recipesRoutes);

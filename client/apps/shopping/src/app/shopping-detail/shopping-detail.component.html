@@ -16,7 +16,7 @@
     <h1>{{ list.title }}</h1>
 
     <div class="actions">
-      <span class="progress">{{ checkedCount }} / {{ totalCount }}</span>
+      <span class="progress">{{ checkedCount() }} / {{ totalItemCount() }}</span>
       <button class="btn-secondary" (click)="onCheckAll()">
         {{ t('shopping.detail.checkAll') }}
       </button>

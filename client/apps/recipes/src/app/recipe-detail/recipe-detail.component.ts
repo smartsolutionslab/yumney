@@ -7,12 +7,10 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
-import { mapHttpError, HttpErrorMap, scaleIngredients } from '@yumney/shared/models';
+import { createAsyncState, scaleIngredients, HttpErrorMap } from '@yumney/shared/models';
 import { ConfirmDialogComponent } from '@yumney/ui';
 
 @Component({
@@ -36,11 +34,12 @@ export class RecipeDetailComponent implements OnInit {
   private recipeApi = inject(RecipeApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private destroyRef = inject(DestroyRef);
+  private loadState = createAsyncState(inject(DestroyRef));
+  private deleteState = createAsyncState(inject(DestroyRef));
 
   recipe = signal<RecipeDetail | null>(null);
-  isLoading = signal(false);
-  isDeleting = signal(false);
+  isLoading = this.loadState.isLoading;
+  isDeleting = this.deleteState.isLoading;
   serverError = signal<string | null>(null);
   desiredServings = signal<number | null>(null);
   showDeleteConfirm = signal(false);
@@ -70,22 +69,15 @@ export class RecipeDetailComponent implements OnInit {
       return;
     }
 
-    this.isLoading.set(true);
-
-    this.recipeApi
-      .getRecipeById(identifier)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (recipe) => {
-          this.recipe.set(recipe);
-          this.desiredServings.set(recipe.servings);
-          this.isLoading.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.serverError.set(mapHttpError(err, RecipeDetailComponent.detailErrorMap));
-        },
-      });
+    this.loadState.execute(
+      this.recipeApi.getRecipeById(identifier),
+      RecipeDetailComponent.detailErrorMap,
+      (recipe) => {
+        this.recipe.set(recipe);
+        this.desiredServings.set(recipe.servings);
+      },
+      (error) => this.serverError.set(error),
+    );
   }
 
   totalTime(): number | null {
@@ -134,22 +126,14 @@ export class RecipeDetailComponent implements OnInit {
     }
 
     this.showDeleteConfirm.set(false);
-    this.isDeleting.set(true);
     this.serverError.set(null);
 
-    this.recipeApi
-      .deleteRecipe(recipe.identifier)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.isDeleting.set(false);
-          this.router.navigate(['/recipes']);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isDeleting.set(false);
-          this.serverError.set(mapHttpError(err, RecipeDetailComponent.deleteErrorMap));
-        },
-      });
+    this.deleteState.execute(
+      this.recipeApi.deleteRecipe(recipe.identifier),
+      RecipeDetailComponent.deleteErrorMap,
+      () => this.router.navigate(['/recipes']),
+      (error) => this.serverError.set(error),
+    );
   }
 
   onDeleteCancelled(): void {

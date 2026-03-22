@@ -6,16 +6,15 @@ import {
   DestroyRef,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
+import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
 import {
-  RecipeApiService,
-  ImportRecipeResponse,
-  UpdateRecipeRequest,
-} from '@yumney/shared/api-client';
-import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
+  createAsyncState,
+  mapToUpdateRecipeRequest,
+  mapDetailToImportResponse,
+  HttpErrorMap,
+} from '@yumney/shared/models';
 import { RecipePreviewComponent } from '@yumney/ui';
 
 @Component({
@@ -34,11 +33,12 @@ export class RecipeEditComponent implements OnInit {
   private recipeApi = inject(RecipeApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private destroyRef = inject(DestroyRef);
+  private loadState = createAsyncState(inject(DestroyRef));
+  private saveState = createAsyncState(inject(DestroyRef));
 
   recipeData = signal<ImportRecipeResponse | null>(null);
-  isLoading = signal(false);
-  isSaving = signal(false);
+  isLoading = this.loadState.isLoading;
+  isSaving = this.saveState.isLoading;
   serverError = signal<string | null>(null);
 
   identifier = signal('');
@@ -50,74 +50,25 @@ export class RecipeEditComponent implements OnInit {
       return;
     }
 
-    this.isLoading.set(true);
-
-    this.recipeApi
-      .getRecipeById(this.identifier())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (recipe) => {
-          this.recipeData.set({
-            title: recipe.title,
-            description: recipe.description,
-            ingredients: recipe.ingredients,
-            steps: recipe.steps,
-            servings: recipe.servings,
-            prepTimeMinutes: recipe.prepTimeMinutes,
-            cookTimeMinutes: recipe.cookTimeMinutes,
-            difficulty: recipe.difficulty,
-            imageUrl: recipe.imageUrl,
-          });
-          this.isLoading.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.serverError.set(mapHttpError(err, RecipeEditComponent.errorMap));
-        },
-      });
+    this.loadState.execute(
+      this.recipeApi.getRecipeById(this.identifier()),
+      RecipeEditComponent.errorMap,
+      (recipe) => this.recipeData.set(mapDetailToImportResponse(recipe)),
+      (error) => this.serverError.set(error),
+    );
   }
 
   onSave(recipe: ImportRecipeResponse): void {
-    const {
-      title,
-      description,
-      ingredients,
-      steps,
-      servings,
-      prepTimeMinutes,
-      cookTimeMinutes,
-      difficulty,
-      imageUrl,
-    } = recipe;
+    const request = mapToUpdateRecipeRequest(recipe);
 
-    const request: UpdateRecipeRequest = {
-      title,
-      description,
-      ingredients: ingredients.map(({ name, amount, unit }) => ({ name, amount, unit })),
-      steps: steps.map(({ number, description }) => ({ number, description })),
-      servings,
-      prepTimeMinutes,
-      cookTimeMinutes,
-      difficulty,
-      imageUrl,
-    };
-
-    this.isSaving.set(true);
     this.serverError.set(null);
 
-    this.recipeApi
-      .updateRecipe(this.identifier(), request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.isSaving.set(false);
-          this.router.navigate(['/recipes', this.identifier()]);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isSaving.set(false);
-          this.serverError.set(mapHttpError(err, RecipeEditComponent.errorMap));
-        },
-      });
+    this.saveState.execute(
+      this.recipeApi.updateRecipe(this.identifier(), request),
+      RecipeEditComponent.errorMap,
+      () => this.router.navigate(['/recipes', this.identifier()]),
+      (error) => this.serverError.set(error),
+    );
   }
 
   onDiscard(): void {

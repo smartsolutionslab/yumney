@@ -11,12 +11,11 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
-import { mapHttpError, HttpErrorMap, UI } from '@yumney/shared/models';
+import { createAsyncState, HttpErrorMap, UI } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-recipe-list',
@@ -32,6 +31,7 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
 
   private recipeApi = inject(RecipeApiService);
   private destroyRef = inject(DestroyRef);
+  private asyncState = createAsyncState(this.destroyRef);
   private observer: IntersectionObserver | null = null;
   private searchSubject = new Subject<string>();
 
@@ -43,8 +43,8 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   pageSize = signal(UI.DEFAULT_PAGE_SIZE);
   sortBy = signal<'Name' | 'Date'>('Date');
   sortDirection = signal<'Ascending' | 'Descending'>('Descending');
-  isLoading = signal(false);
-  serverError = signal<string | null>(null);
+  isLoading = this.asyncState.isLoading;
+  serverError = this.asyncState.serverError;
   searchQuery = signal('');
   activeSearch = signal('');
 
@@ -127,9 +127,6 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   }
 
   private loadRecipes(append: boolean): void {
-    this.isLoading.set(true);
-    this.serverError.set(null);
-
     const search = this.activeSearch();
     const params: GetRecipesParams = {
       page: this.currentPage(),
@@ -139,23 +136,17 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
       ...(search !== '' && { search }),
     };
 
-    this.recipeApi
-      .getRecipes(params)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.isLoading.set(false);
-          this.totalCount.set(response.totalCount);
-          if (append) {
-            this.recipes.update((existing) => [...existing, ...response.items]);
-          } else {
-            this.recipes.set(response.items);
-          }
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.serverError.set(mapHttpError(err, RecipeListComponent.listErrorMap));
-        },
-      });
+    this.asyncState.execute(
+      this.recipeApi.getRecipes(params),
+      RecipeListComponent.listErrorMap,
+      (response) => {
+        this.totalCount.set(response.totalCount);
+        if (append) {
+          this.recipes.update((existing) => [...existing, ...response.items]);
+        } else {
+          this.recipes.set(response.items);
+        }
+      },
+    );
   }
 }

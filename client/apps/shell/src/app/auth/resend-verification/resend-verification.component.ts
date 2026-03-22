@@ -1,11 +1,9 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
-import { hasControlError, mapHttpError, VALIDATION, HttpErrorMap } from '@yumney/shared/models';
+import { hasControlError, createAsyncState, VALIDATION, HttpErrorMap } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-resend-verification',
@@ -22,11 +20,11 @@ export class ResendVerificationComponent {
 
   private fb = inject(FormBuilder);
   private authApi = inject(AuthApiService);
-  private destroyRef = inject(DestroyRef);
+  private asyncState = createAsyncState(inject(DestroyRef));
 
-  isLoading = signal(false);
+  isLoading = this.asyncState.isLoading;
   isSuccess = signal(false);
-  serverError = signal<string | null>(null);
+  serverError = this.asyncState.serverError;
 
   form = this.fb.nonNullable.group({
     email: [
@@ -41,24 +39,13 @@ export class ResendVerificationComponent {
       return;
     }
 
-    this.isLoading.set(true);
-    this.serverError.set(null);
-
     const { email } = this.form.getRawValue();
 
-    this.authApi
-      .resendVerificationEmail({ email })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.isSuccess.set(true);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.serverError.set(mapHttpError(err, ResendVerificationComponent.resendErrorMap));
-        },
-      });
+    this.asyncState.execute(
+      this.authApi.resendVerificationEmail({ email }),
+      ResendVerificationComponent.resendErrorMap,
+      () => this.isSuccess.set(true),
+    );
   }
 
   hasError(field: string, error: string): boolean {
