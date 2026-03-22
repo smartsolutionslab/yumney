@@ -36,13 +36,8 @@ public sealed partial class UpdateRecipeCommandHandler(
             return Result<RecipeDetailDto>.Failure(UpdateRecipeErrors.AccessDenied);
         }
 
-        var ingredients = ingredientCommands
-            .Select(i => Ingredient.Create(i.Name, i.Amount, i.Unit))
-            .ToList();
-
-        var steps = stepCommands
-            .Select(s => Step.Create(s.Number, s.Description))
-            .ToList();
+        var ingredients = ingredientCommands.Select(i => i.ToDomain()).ToList();
+        var steps = stepCommands.Select(s => s.ToDomain()).ToList();
 
         recipe.Update(
             title,
