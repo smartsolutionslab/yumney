@@ -167,18 +167,21 @@ public static class RecipesEndpoints
             return problem;
         }
 
+        var (title, description, ingredients, steps, servings, prepTimeMinutes, cookTimeMinutes, difficulty, imageUrl,
+            tags) = request;
+
         var command = new UpdateRecipeCommand(
             RecipeIdentifier.From(identifier),
-            new RecipeTitle(request.Title),
-            request.Ingredients.Select(i => i.ToCommandItem()).ToList(),
-            request.Steps.Select(s => s.ToCommandItem()).ToList(),
-            RecipeDescription.FromNullable(request.Description),
-            Servings.FromNullable(request.Servings),
-            PreparationTime.FromNullable(request.PrepTimeMinutes),
-            CookingTime.FromNullable(request.CookTimeMinutes),
-            Difficulty.FromNullable(request.Difficulty),
-            ImageUrl.FromNullable(request.ImageUrl),
-            request.Tags?.Select(t => new RecipeTag(t)).ToList());
+            new RecipeTitle(title),
+            ingredients.Select(i => i.ToCommandItem()).ToList(),
+            steps.Select(s => s.ToCommandItem()).ToList(),
+            RecipeDescription.FromNullable(description),
+            Servings.FromNullable(servings),
+            PreparationTime.FromNullable(prepTimeMinutes),
+            CookingTime.FromNullable(cookTimeMinutes),
+            Difficulty.FromNullable(difficulty),
+            ImageUrl.FromNullable(imageUrl),
+            tags?.Select(t => new RecipeTag(t)).ToList());
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
