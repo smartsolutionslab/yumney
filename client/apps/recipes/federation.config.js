@@ -22,9 +22,9 @@ module.exports = withNativeFederation({
     '@jsverse/transloco': { singleton: true, strictVersion: true, requiredVersion: 'auto' },
     'angular-oauth2-oidc': { singleton: true, strictVersion: true, requiredVersion: 'auto' },
     rxjs: { singleton: true, strictVersion: true, requiredVersion: 'auto' },
-    'zone.js': { singleton: true, strictVersion: true, requiredVersion: 'auto' },
   }),
   skip: [
+    'zone.js',
     'rxjs/ajax',
     'rxjs/fetch',
     'rxjs/testing',

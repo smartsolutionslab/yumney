@@ -24,20 +24,16 @@ public static class HostBuilderExtensions
 
         var realm = builder.Configuration.GetValue<string>("Keycloak:Realm") ?? "yumney";
 
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddKeycloakJwtBearer(
-                serviceName: "keycloak",
-                realm: realm,
-                configureOptions: options =>
-                {
-                    options.Audience = "yumney-api";
+        var keycloakUrl = builder.Configuration.GetConnectionString("keycloak")
+            ?? "http://localhost:8080";
 
-                    if (builder.Environment.IsDevelopment())
-                    {
-                        options.Authority = $"http://keycloak/realms/{realm}";
-                        options.RequireHttpsMetadata = false;
-                    }
-                });
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = $"{keycloakUrl}/realms/{realm}";
+                options.Audience = "yumney-api";
+                options.RequireHttpsMetadata = false;
+            });
 
         builder.Services.AddAuthorization();
         builder.Services.AddHttpContextAccessor();

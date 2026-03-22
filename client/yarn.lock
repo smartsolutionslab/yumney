@@ -5864,6 +5864,7 @@ __metadata:
     "@vitest/ui": "npm:4.0.18"
     angular-eslint: "npm:21.3.0"
     angular-oauth2-oidc: "npm:^20.0.2"
+    es-module-shims: "npm:^2.8.0"
     esbuild: "npm:^0.27.3"
     eslint: "npm:^10.0.3"
     eslint-config-prettier: "npm:^10.1.8"
@@ -10988,6 +10989,13 @@ __metadata:
   version: 2.0.0
   resolution: "es-module-lexer@npm:2.0.0"
   checksum: 10c0/ae78dbbd43035a4b972c46cfb6877e374ea290adfc62bc2f5a083fea242c0b2baaab25c5886af86be55f092f4a326741cb94334cd3c478c383fdc8a9ec5ff817
+  languageName: node
+  linkType: hard
+
+"es-module-shims@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "es-module-shims@npm:2.8.0"
+  checksum: 10c0/f1dee4592b6b6cf995a0e57b0b355218bb1a3e29143d77ed48babf5667787701c8489c096709a281260754a1682ea8f7ddfc0e1333c15f3c82df90ed90cb1637
   languageName: node
   linkType: hard
 
