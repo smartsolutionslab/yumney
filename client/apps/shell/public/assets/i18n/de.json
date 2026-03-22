@@ -77,6 +77,10 @@
       "myRecipes": "Meine Rezepte",
       "shoppingLists": "Einkaufslisten",
       "navigation": "Hauptnavigation"
+    },
+    "offlineIndicator": {
+      "offline": "Du bist offline. Einige Funktionen sind nicht verfügbar.",
+      "backOnline": "Du bist wieder online."
     }
   },
   "recipes": {
