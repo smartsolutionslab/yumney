@@ -23,6 +23,8 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 
     public ImageUrl? ImageUrl { get; private set; }
 
+    public RecipeLanguage? Language { get; private set; }
+
     public RecipeUrl? SourceUrl { get; private set; }
 
     public OwnerIdentifier Owner { get; private set; } = default!;
@@ -48,6 +50,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         CookingTime? cookingTime = null,
         Difficulty? difficulty = null,
         ImageUrl? imageUrl = null,
+        RecipeLanguage? language = null,
         RecipeUrl? sourceUrl = null)
     {
         Ensure.That((IReadOnlyCollection<Ingredient>)ingredients).IsNotEmpty();
@@ -65,6 +68,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
             CookingTime = cookingTime,
             Difficulty = difficulty,
             ImageUrl = imageUrl,
+            Language = language,
             CreatedAt = DateTime.UtcNow,
         };
 
