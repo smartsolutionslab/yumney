@@ -29,7 +29,7 @@
       "options": {
         "outputPath": "dist/apps/shopping",
         "browser": "apps/shopping/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": ["zone.js", "es-module-shims"],
         "tsConfig": "apps/shopping/tsconfig.app.json",
         "assets": [
           {

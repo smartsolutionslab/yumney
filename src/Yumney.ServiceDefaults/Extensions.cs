@@ -12,52 +12,55 @@ namespace SmartSolutionsLab.Yumney.ServiceDefaults;
 
 public static class Extensions
 {
-    public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder)
+    extension(IHostApplicationBuilder builder)
     {
-        builder.ConfigureOpenTelemetry();
-        builder.AddDefaultHealthChecks();
-        builder.Services.AddServiceDiscovery();
-        builder.Services.ConfigureHttpClientDefaults(http =>
+        public IHostApplicationBuilder AddServiceDefaults()
         {
-            http.AddStandardResilienceHandler();
-            http.AddServiceDiscovery();
-        });
-
-        return builder;
-    }
-
-    public static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
-    {
-        builder.Logging.AddOpenTelemetry(logging =>
-        {
-            logging.IncludeFormattedMessage = true;
-            logging.IncludeScopes = true;
-        });
-
-        builder.Services.AddOpenTelemetry().WithMetrics(metrics =>
+            builder.ConfigureOpenTelemetry();
+            builder.AddDefaultHealthChecks();
+            builder.Services.AddServiceDiscovery();
+            builder.Services.ConfigureHttpClientDefaults(http =>
             {
-                metrics.AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation();
-            })
-            .WithTracing(tracing =>
-            {
-                tracing.AddSource(builder.Environment.ApplicationName)
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation();
+                http.AddStandardResilienceHandler();
+                http.AddServiceDiscovery();
             });
 
-        builder.AddOpenTelemetryExporters();
+            return builder;
+        }
 
-        return builder;
-    }
+        public IHostApplicationBuilder ConfigureOpenTelemetry()
+        {
+            builder.Logging.AddOpenTelemetry(logging =>
+            {
+                logging.IncludeFormattedMessage = true;
+                logging.IncludeScopes = true;
+            });
 
-    public static IHostApplicationBuilder AddDefaultHealthChecks(this IHostApplicationBuilder builder)
-    {
-        builder.Services.AddHealthChecks()
-            .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+            builder.Services.AddOpenTelemetry().WithMetrics(metrics =>
+                {
+                    metrics.AddAspNetCoreInstrumentation()
+                        .AddHttpClientInstrumentation()
+                        .AddRuntimeInstrumentation();
+                })
+                .WithTracing(tracing =>
+                {
+                    tracing.AddSource(builder.Environment.ApplicationName)
+                        .AddAspNetCoreInstrumentation()
+                        .AddHttpClientInstrumentation();
+                });
 
-        return builder;
+            builder.AddOpenTelemetryExporters();
+
+            return builder;
+        }
+
+        public IHostApplicationBuilder AddDefaultHealthChecks()
+        {
+            builder.Services.AddHealthChecks()
+                .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+
+            return builder;
+        }
     }
 
     public static WebApplication MapDefaultEndpoints(this WebApplication app)

@@ -26,7 +26,11 @@ public static class ExtractionServiceCollectionExtensions
                 kernelBuilder.AddAzureOpenAIChatCompletion(skOptions.ModelId, skOptions.Endpoint, skOptions.ApiKey);
                 break;
             case SemanticKernelOptions.ProviderOllama:
-                kernelBuilder.AddOpenAIChatCompletion(skOptions.ModelId, new Uri(skOptions.Endpoint), apiKey: null);
+                var ollamaEndpoint = !string.IsNullOrEmpty(skOptions.Endpoint)
+                    ? skOptions.Endpoint
+                    : configuration.GetConnectionString("ollama")
+                      ?? throw new InvalidOperationException("Ollama endpoint not configured. Provide SemanticKernel:Endpoint or ConnectionStrings:ollama.");
+                kernelBuilder.AddOpenAIChatCompletion(skOptions.ModelId, new Uri(ollamaEndpoint), apiKey: null);
                 break;
             default:
                 kernelBuilder.AddOpenAIChatCompletion(skOptions.ModelId, skOptions.ApiKey);

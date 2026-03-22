@@ -12,7 +12,7 @@ public sealed class SemanticKernelOptions
 
     public string Provider { get; init; } = ProviderOpenAI;
 
-    public string ModelId { get; init; } = "gpt-4o-mini";
+    public string ModelId { get; init; } = string.Empty;
 
     public string ApiKey { get; init; } = string.Empty;
 

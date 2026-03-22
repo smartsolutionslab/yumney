@@ -56,14 +56,10 @@ module.exports = withNativeFederation({
       strictVersion: true,
       requiredVersion: 'auto',
     },
-    'zone.js': {
-      singleton: true,
-      strictVersion: true,
-      requiredVersion: 'auto',
-    },
   }),
 
   skip: [
+    'zone.js',
     'rxjs/ajax',
     'rxjs/fetch',
     'rxjs/testing',

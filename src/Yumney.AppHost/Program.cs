@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Azure Container Apps environment
@@ -48,9 +50,22 @@ else
         .WithEndpoint("http", e => e.IsExternal = true);
 }
 
-// Ollama
-var ollama = builder.AddOllama("ollama")
-    .WithDataVolume();
+// LLM Provider — configurable via appsettings.json ("Ollama" or "OpenAI")
+var llmProvider = builder.Configuration.GetValue<string>("LlmProvider") ?? "Ollama";
+var useOllama = llmProvider.Equals("Ollama", StringComparison.OrdinalIgnoreCase);
+
+IResourceBuilder<OllamaResource>? ollama = null;
+IResourceBuilder<ParameterResource>? openAiApiKey = null;
+
+if (useOllama)
+{
+    ollama = builder.AddOllama("ollama")
+        .WithDataVolume();
+}
+else
+{
+    openAiApiKey = builder.AddParameter("OpenAiApiKey", secret: true);
+}
 
 // Migration Runner
 var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
@@ -61,22 +76,36 @@ var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumne
     .WaitFor(shoppingDb)
     .WaitFor(usersDb);
 
-// Recipes API (needs keycloak, recipesdb, redis, ollama)
+// Recipes API (needs keycloak, recipesdb, redis, LLM provider)
 var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
     .WithHttpEndpoint()
     .WithReference(keycloak)
     .WithReference(recipesDb)
     .WithReference(redis)
-    .WithReference(ollama)
     .WaitFor(keycloak)
     .WaitFor(migrationRunner)
     .WaitFor(redis)
-    .WaitFor(ollama)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar";
         url.Url = "/scalar/v1";
     });
+
+if (useOllama)
+{
+    recipesApi
+        .WithReference(ollama!)
+        .WaitFor(ollama!);
+}
+else
+{
+    var openAiModel = builder.Configuration.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.3-chat-latest";
+
+    recipesApi
+        .WithEnvironment("SemanticKernel__Provider", "OpenAI")
+        .WithEnvironment("SemanticKernel__ModelId", openAiModel)
+        .WithEnvironment("SemanticKernel__ApiKey", openAiApiKey!);
+}
 
 // Shopping API (needs keycloak, shoppingdb, redis)
 var shoppingApi = builder.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
@@ -108,24 +137,39 @@ var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
         url.Url = "/scalar/v1";
     });
 
-// Frontend + Gateway
+// Frontend Micro-Frontends + Gateway
 if (builder.ExecutionContext.IsRunMode)
 {
-    var frontend = builder.AddJavaScriptApp("frontend", "../../client", "serve:all")
+    var shell = builder.AddJavaScriptApp("shell", "../../client", "serve:shell")
         .WithYarn()
         .WithHttpEndpoint(targetPort: 4200);
+
+    var recipesMfe = builder.AddJavaScriptApp("recipes-mfe", "../../client", "serve:recipes")
+        .WithYarn()
+        .WithHttpEndpoint(targetPort: 4201);
+
+    var shoppingMfe = builder.AddJavaScriptApp("shopping-mfe", "../../client", "serve:shopping")
+        .WithYarn()
+        .WithHttpEndpoint(targetPort: 4202);
+
+    var accountMfe = builder.AddJavaScriptApp("account-mfe", "../../client", "serve:account")
+        .WithYarn()
+        .WithHttpEndpoint(targetPort: 4203);
 
     builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
         .WithHttpEndpoint(port: 5100)
         .WithReference(recipesApi)
         .WithReference(shoppingApi)
         .WithReference(usersApi)
-        .WithReference(frontend)
+        .WithReference(shell)
         .WithReference(keycloak)
         .WaitFor(recipesApi)
         .WaitFor(shoppingApi)
         .WaitFor(usersApi)
-        .WaitFor(frontend);
+        .WaitFor(shell)
+        .WaitFor(recipesMfe)
+        .WaitFor(shoppingMfe)
+        .WaitFor(accountMfe);
 }
 else
 {
