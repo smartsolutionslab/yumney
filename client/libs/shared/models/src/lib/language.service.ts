@@ -3,9 +3,10 @@ import { TranslocoService } from '@jsverse/transloco';
 
 export type LanguageCode = 'en' | 'de';
 
+export const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['en', 'de'] as const;
+export const DEFAULT_LANGUAGE: LanguageCode = 'en';
+
 const LANGUAGE_KEY = 'yn-language';
-const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['en', 'de'] as const;
-const DEFAULT_LANGUAGE: LanguageCode = 'en';
 
 function isSupportedLanguage(lang: string): lang is LanguageCode {
   return SUPPORTED_LANGUAGES.includes(lang as LanguageCode);

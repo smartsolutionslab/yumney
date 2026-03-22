@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PagedResponse, PaginationParams } from '@yumney/shared/models';
+import { API_ENDPOINTS } from './api-endpoints';
 
 export interface ImportRecipeRequest {
   url: string;
@@ -115,33 +116,33 @@ export class RecipeApiService {
   private http = inject(HttpClient);
 
   importRecipe(request: ImportRecipeRequest): Observable<ImportRecipeResponse> {
-    return this.http.post<ImportRecipeResponse>('/api/v1/recipes/import', request);
+    return this.http.post<ImportRecipeResponse>(API_ENDPOINTS.recipes.import, request);
   }
 
   importFromPhotos(photos: File[]): Observable<ImportRecipeResponse> {
     const formData = new FormData();
     photos.forEach((photo) => formData.append('photos', photo));
-    return this.http.post<ImportRecipeResponse>('/api/v1/recipes/import-from-photos', formData);
+    return this.http.post<ImportRecipeResponse>(API_ENDPOINTS.recipes.importFromPhotos, formData);
   }
 
   saveRecipe(request: SaveRecipeRequest): Observable<SavedRecipeResponse> {
-    return this.http.post<SavedRecipeResponse>('/api/v1/recipes', request);
+    return this.http.post<SavedRecipeResponse>(API_ENDPOINTS.recipes.base, request);
   }
 
   updateRecipe(identifier: string, request: UpdateRecipeRequest): Observable<RecipeDetail> {
-    return this.http.put<RecipeDetail>(`/api/v1/recipes/${identifier}`, request);
+    return this.http.put<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier), request);
   }
 
   deleteRecipe(identifier: string): Observable<void> {
-    return this.http.delete<void>(`/api/v1/recipes/${identifier}`);
+    return this.http.delete<void>(API_ENDPOINTS.recipes.byIdentifier(identifier));
   }
 
   getRecipeById(identifier: string): Observable<RecipeDetail> {
-    return this.http.get<RecipeDetail>(`/api/v1/recipes/${identifier}`);
+    return this.http.get<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier));
   }
 
   getRecipes(params: GetRecipesParams = {}): Observable<RecipeListResponse> {
-    return this.http.get<RecipeListResponse>('/api/v1/recipes', {
+    return this.http.get<RecipeListResponse>(API_ENDPOINTS.recipes.base, {
       params: {
         ...(params.page != null && { page: params.page }),
         ...(params.pageSize != null && { pageSize: params.pageSize }),

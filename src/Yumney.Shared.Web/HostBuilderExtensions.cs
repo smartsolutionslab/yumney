@@ -22,16 +22,16 @@ public static class HostBuilderExtensions
     {
         builder.AddServiceDefaults();
 
-        var realm = builder.Configuration.GetValue<string>("Keycloak:Realm") ?? "yumney";
+        var realm = builder.Configuration.GetValue<string>(KeycloakDefaults.RealmConfigKey) ?? KeycloakDefaults.DefaultRealm;
 
-        var keycloakUrl = builder.Configuration.GetConnectionString("keycloak")
-            ?? "http://localhost:8080";
+        var keycloakUrl = builder.Configuration.GetConnectionString(KeycloakDefaults.ConnectionStringName)
+            ?? KeycloakDefaults.DefaultUrl;
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.Authority = $"{keycloakUrl}/realms/{realm}";
-                options.Audience = "yumney-api";
+                options.Audience = KeycloakDefaults.Audience;
                 options.RequireHttpsMetadata = false;
             });
 

@@ -11,7 +11,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { ShoppingApiService, CreateShoppingListItem } from '@yumney/shared/api-client';
-import { createAsyncState, HttpErrorMap } from '@yumney/shared/models';
+import { createAsyncState, HttpErrorMap, ROUTES } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-shopping-create',
@@ -107,7 +107,7 @@ export class ShoppingCreateComponent implements OnInit {
         recipeIdentifier: recipe.identifier,
       }),
       ShoppingCreateComponent.createErrorMap,
-      (result) => this.router.navigate(['/shopping', result.identifier]),
+      (result) => this.router.navigate([ROUTES.shopping.list, result.identifier]),
       (error) => this.serverError.set(error),
     );
   }
