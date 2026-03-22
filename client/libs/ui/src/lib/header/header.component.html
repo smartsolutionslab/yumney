@@ -25,7 +25,7 @@
         (click)="onSwitchLanguage()"
         [attr.aria-label]="t('layout.header.switchLanguage')"
       >
-        {{ languageService.activeLang === 'en' ? 'DE' : 'EN' }}
+        {{ t(nextLanguageKey()) }}
       </button>
     </nav>
   </div>

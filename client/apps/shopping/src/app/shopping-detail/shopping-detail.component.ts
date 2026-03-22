@@ -39,9 +39,7 @@ export class ShoppingDetailComponent implements OnInit {
   isLoading = this.asyncState.isLoading;
   serverError = this.asyncState.serverError;
 
-  checkedCount = computed(
-    () => this.shoppingList()?.items.filter((i) => i.isChecked).length ?? 0,
-  );
+  checkedCount = computed(() => this.shoppingList()?.items.filter((i) => i.isChecked).length ?? 0);
 
   totalItemCount = computed(() => this.shoppingList()?.items.length ?? 0);
 

@@ -139,4 +139,11 @@ export class DashboardComponent {
   hasError(field: string, error: string): boolean {
     return hasControlError(this.form, field, error);
   }
+
+  private resetImportState(): void {
+    this.serverError.set(null);
+    this.extractedRecipe.set(null);
+    this.saveSuccess.set(null);
+    this.isManualEntry.set(false);
+  }
 }
