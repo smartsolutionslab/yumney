@@ -13,5 +13,10 @@ public sealed record AppUserProfileIdentifier
 
     public static AppUserProfileIdentifier New() => new(Guid.NewGuid());
 
+    public static AppUserProfileIdentifier From(Guid value) => new(value);
+
+    public static AppUserProfileIdentifier? FromNullable(Guid? value) =>
+        value.HasValue ? new AppUserProfileIdentifier(value.Value) : null;
+
     public override string ToString() => Value.ToString();
 }

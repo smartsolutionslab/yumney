@@ -150,7 +150,7 @@ public static class RecipesEndpoints
         IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var query = new GetRecipeByIdQuery(new RecipeIdentifier(identifier));
+        var query = new GetRecipeByIdQuery(RecipeIdentifier.From(identifier));
         var result = await handler.HandleAsync(query, cancellationToken);
 
         if (result.IsFailure)
@@ -175,7 +175,7 @@ public static class RecipesEndpoints
         }
 
         var command = new UpdateRecipeCommand(
-            new RecipeIdentifier(identifier),
+            RecipeIdentifier.From(identifier),
             new RecipeTitle(request.Title),
             request.Ingredients.Select(i => new SaveRecipeIngredientItem(
                 new IngredientName(i.Name),
@@ -206,7 +206,7 @@ public static class RecipesEndpoints
         ICommandHandler<DeleteRecipeCommand, Result> handler,
         CancellationToken cancellationToken)
     {
-        var command = new DeleteRecipeCommand(new RecipeIdentifier(identifier));
+        var command = new DeleteRecipeCommand(RecipeIdentifier.From(identifier));
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
