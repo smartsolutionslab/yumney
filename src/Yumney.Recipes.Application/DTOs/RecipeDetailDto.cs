@@ -13,4 +13,5 @@ public sealed record RecipeDetailDto(
     string? SourceUrl,
     DateTime CreatedAt,
     IReadOnlyList<RecipeIngredientDto> Ingredients,
-    IReadOnlyList<RecipeStepDto> Steps);
+    IReadOnlyList<RecipeStepDto> Steps,
+    IReadOnlyList<string> Tags);

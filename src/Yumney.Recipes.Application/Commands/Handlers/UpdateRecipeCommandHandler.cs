@@ -16,7 +16,7 @@ public sealed partial class UpdateRecipeCommandHandler(
     public async Task<Result<RecipeDetailDto>> HandleAsync(UpdateRecipeCommand command, CancellationToken cancellationToken = default)
     {
         var (identifier, title, ingredientCommands, stepCommands, description, servings,
-             preparationTime, cookingTime, difficulty, imageUrl) = command;
+             preparationTime, cookingTime, difficulty, imageUrl, tags) = command;
 
         var owner = new OwnerIdentifier(currentUser.UserId);
 
@@ -53,7 +53,8 @@ public sealed partial class UpdateRecipeCommandHandler(
             preparationTime,
             cookingTime,
             difficulty,
-            imageUrl);
+            imageUrl,
+            tags);
 
         await recipes.UpdateAsync(recipe, cancellationToken);
 

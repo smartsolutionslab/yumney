@@ -80,6 +80,15 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
                     .ConfigureRequiredStringValueObject(v => v.Value, v => new StepDescription(v), StepDescription.MaxLength);
             });
 
+            entity.OwnsMany(e => e.Tags, tag =>
+            {
+                tag.ToTable("RecipeTags");
+                tag.WithOwner().HasForeignKey("RecipeId");
+                tag.Property(t => t.Value)
+                    .HasColumnName("Tag")
+                    .HasMaxLength(RecipeTag.MaxLength);
+            });
+
             entity.HasIndex(e => e.Owner);
             entity.HasIndex(e => new { e.SourceUrl, e.Owner })
                 .IsUnique()

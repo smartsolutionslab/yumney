@@ -8,6 +8,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 {
     private readonly List<Ingredient> ingredients = [];
     private readonly List<Step> steps = [];
+    private readonly List<RecipeTag> tags = [];
 
     public RecipeTitle Title { get; private set; } = default!;
 
@@ -35,6 +36,8 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 
     public IReadOnlyList<Step> Steps => steps.AsReadOnly();
 
+    public IReadOnlyList<RecipeTag> Tags => tags.AsReadOnly();
+
     private Recipe()
     {
     }
@@ -51,7 +54,8 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         Difficulty? difficulty = null,
         ImageUrl? imageUrl = null,
         RecipeLanguage? language = null,
-        RecipeUrl? sourceUrl = null)
+        RecipeUrl? sourceUrl = null,
+        IReadOnlyList<RecipeTag>? tags = null)
     {
         Ensure.That((IReadOnlyCollection<Ingredient>)ingredients).IsNotEmpty();
         Ensure.That((IReadOnlyCollection<Step>)steps).IsNotEmpty();
@@ -74,6 +78,10 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 
         recipe.ingredients.AddRange(ingredients);
         recipe.steps.AddRange(steps);
+        if (tags is not null)
+        {
+            recipe.tags.AddRange(tags);
+        }
 
         recipe.AddDomainEvent(new RecipeSavedEvent(recipe.Id, title));
 
@@ -89,7 +97,8 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         PreparationTime? preparationTime = null,
         CookingTime? cookingTime = null,
         Difficulty? difficulty = null,
-        ImageUrl? imageUrl = null)
+        ImageUrl? imageUrl = null,
+        IReadOnlyList<RecipeTag>? tags = null)
     {
         Ensure.That((IReadOnlyCollection<Ingredient>)ingredients).IsNotEmpty();
         Ensure.That((IReadOnlyCollection<Step>)steps).IsNotEmpty();
@@ -107,6 +116,12 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 
         this.steps.Clear();
         this.steps.AddRange(steps);
+
+        this.tags.Clear();
+        if (tags is not null)
+        {
+            this.tags.AddRange(tags);
+        }
 
         AddDomainEvent(new RecipeUpdatedEvent(Id, title));
     }

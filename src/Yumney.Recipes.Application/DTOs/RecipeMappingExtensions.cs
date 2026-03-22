@@ -21,7 +21,8 @@ public static class RecipeMappingExtensions
                 recipe.SourceUrl?.Value,
                 recipe.CreatedAt,
                 recipe.Ingredients.Select(i => i.ToDto()).ToList(),
-                recipe.Steps.Select(s => s.ToDto()).ToList());
+                recipe.Steps.Select(s => s.ToDto()).ToList(),
+                recipe.Tags.Select(t => t.Value).ToList());
         }
 
         public RecipeListItemDto ToListItemDto()
@@ -35,7 +36,8 @@ public static class RecipeMappingExtensions
                 recipe.CookingTime?.Value,
                 recipe.Difficulty?.Value,
                 recipe.ImageUrl?.Value,
-                recipe.CreatedAt);
+                recipe.CreatedAt,
+                recipe.Tags.Select(t => t.Value).ToList());
         }
     }
 

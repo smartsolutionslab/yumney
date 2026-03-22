@@ -437,6 +437,53 @@ public class RecipeTests
         domainEvent.Owner.Should().Be(owner);
     }
 
+    [Fact]
+    public void Create_WithTags_SetsTags()
+    {
+        var tags = new List<RecipeTag> { new("italian"), new("pasta") };
+
+        var recipe = CreateValidRecipe(tags: tags);
+
+        recipe.Tags.Should().HaveCount(2);
+        recipe.Tags[0].Value.Should().Be("italian");
+        recipe.Tags[1].Value.Should().Be("pasta");
+    }
+
+    [Fact]
+    public void Create_WithoutTags_TagsEmpty()
+    {
+        var recipe = CreateValidRecipe();
+
+        recipe.Tags.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Update_WithTags_ReplacesTags()
+    {
+        var recipe = CreateValidRecipe(tags: [new RecipeTag("old-tag")]);
+
+        recipe.Update(
+            new RecipeTitle("Updated"),
+            [Ingredient.Create(new IngredientName("Flour"), null, null)],
+            [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
+            tags: [new RecipeTag("new-tag")]);
+
+        recipe.Tags.Should().ContainSingle().Which.Value.Should().Be("new-tag");
+    }
+
+    [Fact]
+    public void Update_WithNullTags_ClearsTags()
+    {
+        var recipe = CreateValidRecipe(tags: [new RecipeTag("old-tag")]);
+
+        recipe.Update(
+            new RecipeTitle("Updated"),
+            [Ingredient.Create(new IngredientName("Flour"), null, null)],
+            [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
+
+        recipe.Tags.Should().BeEmpty();
+    }
+
     private static Domain.Recipe.Recipe CreateValidRecipe(
         RecipeTitle? title = null,
         RecipeUrl? sourceUrl = null,
@@ -448,7 +495,8 @@ public class RecipeTests
         PreparationTime? preparationTime = null,
         CookingTime? cookingTime = null,
         Difficulty? difficulty = null,
-        ImageUrl? imageUrl = null)
+        ImageUrl? imageUrl = null,
+        IReadOnlyList<RecipeTag>? tags = null)
     {
         return Domain.Recipe.Recipe.Create(
             title ?? new RecipeTitle("Test Recipe"),
@@ -461,6 +509,7 @@ public class RecipeTests
             cookingTime,
             difficulty,
             imageUrl,
-            sourceUrl: sourceUrl);
+            sourceUrl: sourceUrl,
+            tags: tags);
     }
 }
