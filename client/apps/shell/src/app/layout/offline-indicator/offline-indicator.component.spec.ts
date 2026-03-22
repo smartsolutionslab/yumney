@@ -1,10 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { signal } from '@angular/core';
-import {
-  OfflineIndicatorComponent,
-  OfflineStatusService,
-} from './offline-indicator.component';
+import { OfflineIndicatorComponent, OfflineStatusService } from './offline-indicator.component';
 
 const en = {
   layout: {
@@ -21,11 +18,9 @@ describe('OfflineStatusService', () => {
 
   beforeEach(() => {
     listeners = {};
-    vi.spyOn(window, 'addEventListener').mockImplementation(
-      (event, handler) => {
-        listeners[event as string] = handler as EventListener;
-      },
-    );
+    vi.spyOn(window, 'addEventListener').mockImplementation((event, handler) => {
+      listeners[event as string] = handler as EventListener;
+    });
     Object.defineProperty(navigator, 'onLine', {
       value: true,
       writable: true,
@@ -104,9 +99,7 @@ describe('OfflineIndicatorComponent', () => {
           },
         }),
       ],
-      providers: [
-        { provide: OfflineStatusService, useValue: offlineStatusMock },
-      ],
+      providers: [{ provide: OfflineStatusService, useValue: offlineStatusMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OfflineIndicatorComponent);
@@ -114,9 +107,7 @@ describe('OfflineIndicatorComponent', () => {
   });
 
   it('should not show any banner when online', () => {
-    const banners = fixture.nativeElement.querySelectorAll(
-      '.offline-banner, .online-banner',
-    );
+    const banners = fixture.nativeElement.querySelectorAll('.offline-banner, .online-banner');
     expect(banners.length).toBe(0);
   });
 
@@ -159,9 +150,7 @@ describe('OfflineIndicatorComponent', () => {
     offlineStatusMock.justCameOnline.set(true);
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('.offline-banner'),
-    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.offline-banner')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('.online-banner')).toBeFalsy();
   });
 });

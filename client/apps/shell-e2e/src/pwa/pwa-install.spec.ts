@@ -48,8 +48,7 @@ test.describe('PWA Installation', () => {
       }
       const deadline = Date.now() + 35000;
       while (Date.now() < deadline) {
-        const registrations =
-          await navigator.serviceWorker.getRegistrations();
+        const registrations = await navigator.serviceWorker.getRegistrations();
         if (registrations.length > 0) {
           return true;
         }
