@@ -9,4 +9,5 @@ public sealed record UpdateRecipeRequest(
     int? PrepTimeMinutes,
     int? CookTimeMinutes,
     string? Difficulty,
-    string? ImageUrl);
+    string? ImageUrl,
+    List<string>? Tags = null);

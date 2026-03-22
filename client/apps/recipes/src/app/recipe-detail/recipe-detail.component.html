@@ -90,6 +90,14 @@
       }
     </div>
 
+    @if (recipe.tags && recipe.tags.length > 0) {
+      <div class="tags">
+        @for (tag of recipe.tags; track tag) {
+          <span class="tag">{{ tag }}</span>
+        }
+      </div>
+    }
+
     <div class="actions-bar">
       <a class="action-button" [routerLink]="['/recipes', recipe.identifier, 'edit']">
         {{ t('recipes.detail.actions.edit') }}

@@ -15,4 +15,5 @@ public sealed record UpdateRecipeCommand(
     PreparationTime? PreparationTime = null,
     CookingTime? CookingTime = null,
     Difficulty? Difficulty = null,
-    ImageUrl? ImageUrl = null) : ICommand<Result<RecipeDetailDto>>;
+    ImageUrl? ImageUrl = null,
+    IReadOnlyList<RecipeTag>? Tags = null) : ICommand<Result<RecipeDetailDto>>;

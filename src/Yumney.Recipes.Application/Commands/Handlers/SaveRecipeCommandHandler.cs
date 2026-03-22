@@ -15,7 +15,7 @@ public sealed partial class SaveRecipeCommandHandler(
 {
     public async Task<Result<SavedRecipeDto>> HandleAsync(SaveRecipeCommand command, CancellationToken cancellationToken = default)
     {
-        var (title, ingredientCommands, stepCommands, description, servings, preparationTime, cookingTime, difficulty, imageUrl, language, sourceUrl) = command;
+        var (title, ingredientCommands, stepCommands, description, servings, preparationTime, cookingTime, difficulty, imageUrl, language, sourceUrl, tags) = command;
 
         var owner = new OwnerIdentifier(currentUser.UserId);
 
@@ -45,7 +45,8 @@ public sealed partial class SaveRecipeCommandHandler(
             difficulty,
             imageUrl,
             language,
-            sourceUrl);
+            sourceUrl,
+            tags);
 
         await recipes.AddAsync(recipe, cancellationToken);
 

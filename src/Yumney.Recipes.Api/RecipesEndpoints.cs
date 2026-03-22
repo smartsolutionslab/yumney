@@ -133,7 +133,8 @@ public static class RecipesEndpoints
             Difficulty.FromNullable(request.Difficulty),
             ImageUrl.FromNullable(request.ImageUrl),
             RecipeLanguage.FromNullable(request.Language),
-            RecipeUrl.FromNullable(request.SourceUrl));
+            RecipeUrl.FromNullable(request.SourceUrl),
+            request.Tags?.Select(t => new RecipeTag(t)).ToList());
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
@@ -188,7 +189,8 @@ public static class RecipesEndpoints
             PreparationTime.FromNullable(request.PrepTimeMinutes),
             CookingTime.FromNullable(request.CookTimeMinutes),
             Difficulty.FromNullable(request.Difficulty),
-            ImageUrl.FromNullable(request.ImageUrl));
+            ImageUrl.FromNullable(request.ImageUrl),
+            request.Tags?.Select(t => new RecipeTag(t)).ToList());
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)
