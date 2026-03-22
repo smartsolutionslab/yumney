@@ -37,6 +37,18 @@ public static class ShoppingEndpoints
             .Produces<ShoppingListDetailDto>()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapPut("/{identifier:guid}/items/{itemId:guid}/check", CheckOffItemAsync)
+            .WithName("CheckOffItem")
+            .WithTags("Shopping")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapPut("/{identifier:guid}/check-all", CheckOffAllItemsAsync)
+            .WithName("CheckOffAllItems")
+            .WithTags("Shopping")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 
@@ -98,5 +110,45 @@ public static class ShoppingEndpoints
         }
 
         return Results.Ok(result.Value);
+    }
+
+    private static async Task<IResult> CheckOffItemAsync(
+        Guid identifier,
+        Guid itemId,
+        CheckOffItemRequest request,
+        ICommandHandler<CheckOffItemCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new CheckOffItemCommand(
+            new ShoppingListIdentifier(identifier),
+            itemId,
+            request.IsChecked);
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
+        }
+
+        return Results.NoContent();
+    }
+
+    private static async Task<IResult> CheckOffAllItemsAsync(
+        Guid identifier,
+        CheckOffItemRequest request,
+        ICommandHandler<CheckOffAllItemsCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new CheckOffAllItemsCommand(
+            new ShoppingListIdentifier(identifier),
+            request.IsChecked);
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
+        }
+
+        return Results.NoContent();
     }
 }

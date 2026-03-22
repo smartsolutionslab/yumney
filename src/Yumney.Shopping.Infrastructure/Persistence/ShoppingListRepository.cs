@@ -23,6 +23,20 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
             .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken);
     }
 
+    public async Task<ShoppingList?> GetByIdForUpdateAsync(
+        ShoppingListIdentifier identifier,
+        CancellationToken cancellationToken = default)
+    {
+        return await shoppingLists
+            .Include(l => l.Items)
+            .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<ShoppingList>> GetByOwnerAsync(
         OwnerIdentifier owner,
         CancellationToken cancellationToken = default)

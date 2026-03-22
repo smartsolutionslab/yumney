@@ -41,4 +41,32 @@ public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
 
         return shoppingList;
     }
+
+    public void CheckOffItem(Guid itemId)
+    {
+        var item = items.First(i => i.Id == itemId);
+        item.Check();
+    }
+
+    public void UncheckItem(Guid itemId)
+    {
+        var item = items.First(i => i.Id == itemId);
+        item.Uncheck();
+    }
+
+    public void CheckAllItems()
+    {
+        foreach (var item in items)
+        {
+            item.Check();
+        }
+    }
+
+    public void UncheckAllItems()
+    {
+        foreach (var item in items)
+        {
+            item.Uncheck();
+        }
+    }
 }
