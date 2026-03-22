@@ -43,6 +43,17 @@ public static class RecipesEndpoints
             .ProducesProblem(StatusCodes.Status504GatewayTimeout)
             .RequireRateLimiting("RecipeImport");
 
+        group.MapPost("/import-from-photos", ImportFromPhotosAsync)
+            .WithName("ImportRecipeFromPhotos")
+            .WithTags("Recipes")
+            .Produces<ExtractedRecipeDto>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .RequireRateLimiting("RecipeImport")
+            .DisableAntiforgery();
+
         group.MapPost("/", SaveAsync)
             .WithName("SaveRecipe")
             .WithTags("Recipes")
@@ -217,6 +228,31 @@ public static class RecipesEndpoints
         }
 
         var command = new ImportRecipeCommand(new RecipeUrl(request.Url));
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
+        }
+
+        return Results.Ok(result.Value);
+    }
+
+    private static async Task<IResult> ImportFromPhotosAsync(
+        IFormFileCollection photos,
+        ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var photoDataList = new List<PhotoData>();
+
+        foreach (var file in photos)
+        {
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream, cancellationToken);
+            photoDataList.Add(new PhotoData(memoryStream.ToArray(), file.ContentType, file.FileName));
+        }
+
+        var command = new ImportRecipeFromPhotosCommand(photoDataList);
         var result = await handler.HandleAsync(command, cancellationToken);
 
         if (result.IsFailure)

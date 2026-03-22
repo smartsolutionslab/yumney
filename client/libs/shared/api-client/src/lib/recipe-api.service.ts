@@ -114,6 +114,12 @@ export class RecipeApiService {
     return this.http.post<ImportRecipeResponse>('/api/v1/recipes/import', request);
   }
 
+  importFromPhotos(photos: File[]): Observable<ImportRecipeResponse> {
+    const formData = new FormData();
+    photos.forEach((photo) => formData.append('photos', photo));
+    return this.http.post<ImportRecipeResponse>('/api/v1/recipes/import-from-photos', formData);
+  }
+
   saveRecipe(request: SaveRecipeRequest): Observable<SavedRecipeResponse> {
     return this.http.post<SavedRecipeResponse>('/api/v1/recipes', request);
   }

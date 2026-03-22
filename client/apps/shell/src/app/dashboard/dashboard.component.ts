@@ -84,6 +84,38 @@ export class DashboardComponent {
       });
   }
 
+  onImportFromPhotos(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    const photos = Array.from(files);
+    input.value = '';
+
+    this.isLoading.set(true);
+    this.serverError.set(null);
+    this.extractedRecipe.set(null);
+    this.saveSuccess.set(null);
+    this.isManualEntry.set(false);
+
+    this.recipeApi
+      .importFromPhotos(photos)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.isLoading.set(false);
+          this.extractedRecipe.set(response);
+          this.sourceUrl.set(null);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.isLoading.set(false);
+          this.serverError.set(mapHttpError(err, DashboardComponent.importErrorMap));
+        },
+      });
+  }
+
   onCreateManually(): void {
     this.serverError.set(null);
     this.saveSuccess.set(null);
