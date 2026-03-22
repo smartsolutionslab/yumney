@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 
+export type LanguageCode = 'en' | 'de';
+
 const LANGUAGE_KEY = 'yn-language';
-const SUPPORTED_LANGUAGES = ['en', 'de'];
-const DEFAULT_LANGUAGE = 'en';
+const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['en', 'de'] as const;
+const DEFAULT_LANGUAGE: LanguageCode = 'en';
+
+function isSupportedLanguage(lang: string): lang is LanguageCode {
+  return SUPPORTED_LANGUAGES.includes(lang as LanguageCode);
+}
 
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
@@ -14,12 +20,12 @@ export class LanguageService {
     this.transloco.setActiveLang(lang);
   }
 
-  get activeLang(): string {
-    return this.transloco.getActiveLang();
+  get activeLang(): LanguageCode {
+    return this.transloco.getActiveLang() as LanguageCode;
   }
 
-  switchTo(lang: string): void {
-    if (!SUPPORTED_LANGUAGES.includes(lang)) {
+  switchTo(lang: LanguageCode): void {
+    if (!isSupportedLanguage(lang)) {
       return;
     }
 
@@ -27,13 +33,13 @@ export class LanguageService {
     localStorage.setItem(LANGUAGE_KEY, lang);
   }
 
-  private getStoredLanguage(): string | null {
+  private getStoredLanguage(): LanguageCode | null {
     const stored = localStorage.getItem(LANGUAGE_KEY);
-    return stored && SUPPORTED_LANGUAGES.includes(stored) ? stored : null;
+    return stored && isSupportedLanguage(stored) ? stored : null;
   }
 
-  private detectBrowserLanguage(): string {
-    const browserLang = navigator.language?.split('-')[0]?.toLowerCase();
-    return SUPPORTED_LANGUAGES.includes(browserLang) ? browserLang : DEFAULT_LANGUAGE;
+  private detectBrowserLanguage(): LanguageCode {
+    const browserLang = navigator.language?.split('-')[0]?.toLowerCase() ?? '';
+    return isSupportedLanguage(browserLang) ? browserLang : DEFAULT_LANGUAGE;
   }
 }

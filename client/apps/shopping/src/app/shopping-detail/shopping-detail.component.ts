@@ -5,6 +5,7 @@ import {
   OnInit,
   DestroyRef,
   signal,
+  computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -32,11 +33,17 @@ export class ShoppingDetailComponent implements OnInit {
   private shoppingApi = inject(ShoppingApiService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
-  private asyncState = createAsyncState(inject(DestroyRef));
+  private asyncState = createAsyncState(this.destroyRef);
 
   shoppingList = signal<ShoppingListDetail | null>(null);
   isLoading = this.asyncState.isLoading;
   serverError = this.asyncState.serverError;
+
+  checkedCount = computed(
+    () => this.shoppingList()?.items.filter((i) => i.isChecked).length ?? 0,
+  );
+
+  totalItemCount = computed(() => this.shoppingList()?.items.length ?? 0);
 
   ngOnInit(): void {
     const identifier = this.route.snapshot.paramMap.get('identifier');
@@ -58,14 +65,19 @@ export class ShoppingDetailComponent implements OnInit {
       return;
     }
 
-    const newState = !item.isChecked;
-    item.isChecked = newState;
+    const previousState = item.isChecked;
+    item.isChecked = !previousState;
     this.shoppingList.set({ ...list });
 
     this.shoppingApi
-      .checkOffItem(list.identifier, item.identifier, newState)
+      .checkOffItem(list.identifier, item.identifier, !previousState)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+      .subscribe({
+        error: () => {
+          item.isChecked = previousState;
+          this.shoppingList.set({ ...list });
+        },
+      });
   }
 
   onCheckAll(): void {
@@ -74,13 +86,19 @@ export class ShoppingDetailComponent implements OnInit {
       return;
     }
 
+    const previousStates = list.items.map((i) => i.isChecked);
     list.items.forEach((item) => (item.isChecked = true));
     this.shoppingList.set({ ...list });
 
     this.shoppingApi
       .checkOffAllItems(list.identifier, true)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+      .subscribe({
+        error: () => {
+          list.items.forEach((item, i) => (item.isChecked = previousStates[i]));
+          this.shoppingList.set({ ...list });
+        },
+      });
   }
 
   onReset(): void {
@@ -89,20 +107,18 @@ export class ShoppingDetailComponent implements OnInit {
       return;
     }
 
+    const previousStates = list.items.map((i) => i.isChecked);
     list.items.forEach((item) => (item.isChecked = false));
     this.shoppingList.set({ ...list });
 
     this.shoppingApi
       .checkOffAllItems(list.identifier, false)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
-  }
-
-  get checkedCount(): number {
-    return this.shoppingList()?.items.filter((i) => i.isChecked).length ?? 0;
-  }
-
-  get totalCount(): number {
-    return this.shoppingList()?.items.length ?? 0;
+      .subscribe({
+        error: () => {
+          list.items.forEach((item, i) => (item.isChecked = previousStates[i]));
+          this.shoppingList.set({ ...list });
+        },
+      });
   }
 }

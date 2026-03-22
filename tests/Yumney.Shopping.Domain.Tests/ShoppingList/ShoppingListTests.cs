@@ -186,7 +186,7 @@ public class ShoppingListTests
 
         var act = () => shoppingList.CheckOffItem(Guid.NewGuid());
 
-        act.Should().Throw<InvalidOperationException>();
+        act.Should().Throw<GuardException>();
     }
 
     private static Domain.ShoppingList.ShoppingList CreateValidShoppingList(

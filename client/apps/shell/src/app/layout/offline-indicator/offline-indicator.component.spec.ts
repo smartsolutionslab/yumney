@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { signal } from '@angular/core';
-import { OfflineIndicatorComponent, OfflineStatusService } from './offline-indicator.component';
+import { OfflineIndicatorComponent } from './offline-indicator.component';
+import { OfflineStatusService } from './offline-status.service';
 
 const en = {
   layout: {

@@ -12,9 +12,12 @@ export function createAsyncState(destroyRef: DestroyRef) {
     source: Observable<T>,
     errorMap: HttpErrorMap,
     onSuccess: (result: T) => void,
+    onError?: (error: string) => void,
   ): void {
     isLoading.set(true);
-    serverError.set(null);
+    if (!onError) {
+      serverError.set(null);
+    }
 
     source.pipe(takeUntilDestroyed(destroyRef)).subscribe({
       next: (result) => {
@@ -23,7 +26,12 @@ export function createAsyncState(destroyRef: DestroyRef) {
       },
       error: (err: HttpErrorResponse) => {
         isLoading.set(false);
-        serverError.set(mapHttpError(err, errorMap));
+        const mapped = mapHttpError(err, errorMap);
+        if (onError) {
+          onError(mapped);
+        } else {
+          serverError.set(mapped);
+        }
       },
     });
   }

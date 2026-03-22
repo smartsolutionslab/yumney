@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
@@ -73,12 +74,7 @@ public static class ShoppingEndpoints
             RecipeReference.FromNullable(request.RecipeReference));
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Created($"/api/v1/shopping-lists/{result.Value.Identifier}", result.Value);
+        return result.ToCreated($"/api/v1/shopping-lists/{result.Value?.Identifier}");
     }
 
     private static async Task<IResult> GetAllAsync(
@@ -88,12 +84,7 @@ public static class ShoppingEndpoints
         var query = new GetShoppingListsQuery();
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> GetByIdAsync(
@@ -104,12 +95,7 @@ public static class ShoppingEndpoints
         var query = new GetShoppingListByIdQuery(ShoppingListIdentifier.From(identifier));
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> CheckOffItemAsync(
@@ -125,12 +111,7 @@ public static class ShoppingEndpoints
             request.IsChecked);
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.NoContent();
+        return result.ToNoContent();
     }
 
     private static async Task<IResult> CheckOffAllItemsAsync(
@@ -144,11 +125,6 @@ public static class ShoppingEndpoints
             request.IsChecked);
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.NoContent();
+        return result.ToNoContent();
     }
 }

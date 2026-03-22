@@ -203,6 +203,19 @@ public static class GuardExtensions
         }
     }
 
+    extension<T>(GuardClause<IReadOnlyList<T>> guard)
+    {
+        public GuardClause<IReadOnlyList<T>> IsNotEmpty()
+        {
+            if (guard.Value is null || guard.Value.Count == 0)
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be empty.");
+            }
+
+            return guard;
+        }
+    }
+
     extension<T>(GuardClause<IEnumerable<T>> guard)
     {
         public GuardClause<IEnumerable<T>> IsNotEmpty()

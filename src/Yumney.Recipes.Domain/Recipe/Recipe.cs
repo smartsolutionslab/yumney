@@ -57,8 +57,8 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         RecipeUrl? sourceUrl = null,
         IReadOnlyList<RecipeTag>? tags = null)
     {
-        Ensure.That((IReadOnlyCollection<Ingredient>)ingredients).IsNotEmpty();
-        Ensure.That((IReadOnlyCollection<Step>)steps).IsNotEmpty();
+        Ensure.That(ingredients).IsNotEmpty();
+        Ensure.That(steps).IsNotEmpty();
 
         var recipe = new Recipe
         {
@@ -100,8 +100,8 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         ImageUrl? imageUrl = null,
         IReadOnlyList<RecipeTag>? tags = null)
     {
-        Ensure.That((IReadOnlyCollection<Ingredient>)ingredients).IsNotEmpty();
-        Ensure.That((IReadOnlyCollection<Step>)steps).IsNotEmpty();
+        Ensure.That(ingredients).IsNotEmpty();
+        Ensure.That(steps).IsNotEmpty();
 
         Title = title;
         Description = description;

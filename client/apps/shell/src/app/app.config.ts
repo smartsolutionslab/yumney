@@ -11,7 +11,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { appRoutes } from './app.routes';
-import { TranslocoHttpLoader, LanguageService } from '@yumney/shared/models';
+import { TranslocoHttpLoader, LanguageService, UI } from '@yumney/shared/models';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideAuth(),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000',
+      registrationStrategy: `registerWhenStable:${UI.SERVICE_WORKER_REGISTRATION_MS}`,
     }),
     provideTransloco({
       config: {

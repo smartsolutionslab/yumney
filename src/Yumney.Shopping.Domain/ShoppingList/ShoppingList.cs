@@ -28,7 +28,7 @@ public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
         IReadOnlyList<ShoppingListItem> items,
         RecipeReference? recipeReference = null)
     {
-        Ensure.That((IReadOnlyCollection<ShoppingListItem>)items).IsNotEmpty();
+        Ensure.That(items).IsNotEmpty();
 
         var shoppingList = new ShoppingList
         {
@@ -48,13 +48,15 @@ public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
 
     public void CheckOffItem(Guid itemId)
     {
-        var item = items.First(i => i.Id == itemId);
+        var item = items.FirstOrDefault(i => i.Id == itemId)
+            ?? throw new GuardException(nameof(itemId), $"Item {itemId} not found in shopping list.");
         item.Check();
     }
 
     public void UncheckItem(Guid itemId)
     {
-        var item = items.First(i => i.Id == itemId);
+        var item = items.FirstOrDefault(i => i.Id == itemId)
+            ?? throw new GuardException(nameof(itemId), $"Item {itemId} not found in shopping list.");
         item.Uncheck();
     }
 

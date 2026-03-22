@@ -5,14 +5,13 @@ import {
   OnInit,
   DestroyRef,
   signal,
+  computed,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { ShoppingApiService, CreateShoppingListItem } from '@yumney/shared/api-client';
-import { mapHttpError, HttpErrorMap } from '@yumney/shared/models';
+import { createAsyncState, HttpErrorMap } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-shopping-create',
@@ -35,11 +34,12 @@ export class ShoppingCreateComponent implements OnInit {
   private shoppingApi = inject(ShoppingApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private destroyRef = inject(DestroyRef);
+  private loadState = createAsyncState(inject(DestroyRef));
+  private createState = createAsyncState(inject(DestroyRef));
 
   recipe = signal<RecipeDetail | null>(null);
-  isLoading = signal(false);
-  isCreating = signal(false);
+  isLoading = this.loadState.isLoading;
+  isCreating = this.createState.isLoading;
   serverError = signal<string | null>(null);
   title = signal('');
   ingredientSelections = signal<boolean[]>([]);
@@ -51,23 +51,16 @@ export class ShoppingCreateComponent implements OnInit {
       return;
     }
 
-    this.isLoading.set(true);
-
-    this.recipeApi
-      .getRecipeById(recipeIdentifier)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (recipe) => {
-          this.recipe.set(recipe);
-          this.title.set(recipe.title);
-          this.ingredientSelections.set(recipe.ingredients.map(() => true));
-          this.isLoading.set(false);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.serverError.set(mapHttpError(err, ShoppingCreateComponent.loadErrorMap));
-        },
-      });
+    this.loadState.execute(
+      this.recipeApi.getRecipeById(recipeIdentifier),
+      ShoppingCreateComponent.loadErrorMap,
+      (recipe) => {
+        this.recipe.set(recipe);
+        this.title.set(recipe.title);
+        this.ingredientSelections.set(recipe.ingredients.map(() => true));
+      },
+      (error) => this.serverError.set(error),
+    );
   }
 
   onTitleChange(event: Event): void {
@@ -88,9 +81,7 @@ export class ShoppingCreateComponent implements OnInit {
     this.ingredientSelections.set(this.ingredientSelections().map(() => false));
   }
 
-  hasSelectedIngredients(): boolean {
-    return this.ingredientSelections().some((s) => s);
-  }
+  hasSelectedIngredients = computed(() => this.ingredientSelections().some((s) => s));
 
   onCreateShoppingList(): void {
     const recipe = this.recipe();
@@ -107,25 +98,17 @@ export class ShoppingCreateComponent implements OnInit {
       return;
     }
 
-    this.isCreating.set(true);
     this.serverError.set(null);
 
-    this.shoppingApi
-      .createShoppingList({
+    this.createState.execute(
+      this.shoppingApi.createShoppingList({
         title: this.title(),
         items: selectedItems,
         recipeIdentifier: recipe.identifier,
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (result) => {
-          this.isCreating.set(false);
-          this.router.navigate(['/shopping', result.identifier]);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isCreating.set(false);
-          this.serverError.set(mapHttpError(err, ShoppingCreateComponent.createErrorMap));
-        },
-      });
+      }),
+      ShoppingCreateComponent.createErrorMap,
+      (result) => this.router.navigate(['/shopping', result.identifier]),
+      (error) => this.serverError.set(error),
+    );
   }
 }
