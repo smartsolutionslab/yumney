@@ -12,8 +12,7 @@ export const API_ENDPOINTS = {
     byIdentifier: (identifier: string) => `${API_BASE}/shopping-lists/${identifier}`,
     checkItem: (listIdentifier: string, itemIdentifier: string) =>
       `${API_BASE}/shopping-lists/${listIdentifier}/items/${itemIdentifier}/check`,
-    checkAll: (listIdentifier: string) =>
-      `${API_BASE}/shopping-lists/${listIdentifier}/check-all`,
+    checkAll: (listIdentifier: string) => `${API_BASE}/shopping-lists/${listIdentifier}/check-all`,
   },
   auth: {
     register: `${API_BASE}/auth/register`,
