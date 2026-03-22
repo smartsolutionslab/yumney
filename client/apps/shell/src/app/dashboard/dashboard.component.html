@@ -43,6 +43,29 @@
     </form>
   </section>
 
+  <section class="photo-import">
+    <h2>{{ t('dashboard.photoImport.title') }}</h2>
+    <p class="subtitle">{{ t('dashboard.photoImport.subtitle') }}</p>
+    <label class="photo-upload-btn" [class.disabled]="isLoading() || isSaving()">
+      <input
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+        capture="environment"
+        [disabled]="isLoading() || isSaving()"
+        (change)="onImportFromPhotos($event)"
+        hidden
+      />
+      @if (isLoading()) {
+        <span class="btn-spinner"></span>
+        <span>{{ t('dashboard.photoImport.extracting') }}</span>
+      } @else {
+        <span>{{ t('dashboard.photoImport.submit') }}</span>
+      }
+    </label>
+    <p class="hint">{{ t('dashboard.photoImport.hint') }}</p>
+  </section>
+
   <section class="manual-create">
     <h2>{{ t('dashboard.create.title') }}</h2>
     <p class="subtitle">{{ t('dashboard.create.subtitle') }}</p>
