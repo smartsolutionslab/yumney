@@ -1,6 +1,7 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { DashboardPage } from '../pages/dashboard.page';
 import { ShoppingCreatePage } from '../pages/shopping-create.page';
+import { ShoppingDetailPage } from '../pages/shopping-detail.page';
 import { uniqueTitle } from '../helpers/test-data.helper';
 
 test.describe('Shopping List — Generate from Recipe (US-040)', () => {
@@ -112,6 +113,64 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
     const cards = authenticatedPage.locator('.list-card');
     const empty = authenticatedPage.locator('.empty-state');
     await expect(cards.or(empty).first()).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('should check off an item with strikethrough', async ({ authenticatedPage }) => {
+    test.skip(!recipeIdentifier, 'No recipe created');
+
+    // Navigate to the most recently created shopping list
+    await authenticatedPage.goto('/shopping');
+    const firstCard = authenticatedPage.locator('.list-card').first();
+    await firstCard.click();
+    await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: 10_000 });
+
+    const detailPage = new ShoppingDetailPage(authenticatedPage);
+    await expect(detailPage.items.first()).toBeVisible({ timeout: 10_000 });
+
+    // Check the first item
+    const firstCheckbox = detailPage.itemCheckboxes.first();
+    await firstCheckbox.check();
+
+    // Verify strikethrough (checked class)
+    await expect(detailPage.checkedItems.first()).toBeVisible();
+  });
+
+  test('should check all items and reset', async ({ authenticatedPage }) => {
+    test.skip(!recipeIdentifier, 'No recipe created');
+
+    await authenticatedPage.goto('/shopping');
+    const firstCard = authenticatedPage.locator('.list-card').first();
+    await firstCard.click();
+    await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: 10_000 });
+
+    const detailPage = new ShoppingDetailPage(authenticatedPage);
+    await expect(detailPage.items.first()).toBeVisible({ timeout: 10_000 });
+
+    // Check all
+    await detailPage.checkAllButton.click();
+    const allItems = await detailPage.items.all();
+    for (const item of allItems) {
+      await expect(item).toHaveClass(/checked/);
+    }
+
+    // Reset
+    await detailPage.resetButton.click();
+    for (const item of allItems) {
+      await expect(item).not.toHaveClass(/checked/);
+    }
+  });
+
+  test('should show progress counter', async ({ authenticatedPage }) => {
+    test.skip(!recipeIdentifier, 'No recipe created');
+
+    await authenticatedPage.goto('/shopping');
+    const firstCard = authenticatedPage.locator('.list-card').first();
+    await firstCard.click();
+    await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: 10_000 });
+
+    const detailPage = new ShoppingDetailPage(authenticatedPage);
+    await expect(detailPage.progress).toBeVisible({ timeout: 10_000 });
+    await expect(detailPage.progress).toContainText('/');
   });
 
   // Cleanup: delete the recipe (cascade should handle shopping list)
