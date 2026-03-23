@@ -1,3 +1,4 @@
+using System.Reflection;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,13 +14,25 @@ public static class MassTransitEventBusExtensions
     /// <summary>
     /// Registers MassTransit with RabbitMQ as the integration event bus.
     /// Domain events remain in-process via InProcessDomainEventDispatcher.
+    /// Integration events are published/consumed via RabbitMQ.
     /// </summary>
-    /// <returns></returns>
-    public static IServiceCollection AddMassTransitEventBus(this IServiceCollection services, IConfiguration configuration)
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="assemblies">Assemblies to scan for IIntegrationEventHandler implementations.</param>
+    /// <returns>The service collection for chaining.</returns>
+    public static IServiceCollection AddMassTransitEventBus(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        params Assembly[] assemblies)
     {
         services.AddMassTransit(x =>
         {
             x.SetKebabCaseEndpointNameFormatter();
+
+            foreach (var assembly in assemblies)
+            {
+                x.AddConsumers(assembly);
+            }
 
             x.UsingRabbitMq((context, cfg) =>
             {
