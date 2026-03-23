@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -73,19 +74,38 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
     public async Task<Result<ExtractedRecipeDto>> ExtractAsync(ScrapedContent content, CancellationToken cancellationToken = default)
     {
+        using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.url");
+        activity?.SetTag("extract.source", content.SourceUrl.Value);
+        activity?.SetTag("extract.content_length", content.CleanedText.Length);
+
         var sanitized = SanitizeContent(content.CleanedText);
 
         var chatHistory = new ChatHistory();
         chatHistory.AddSystemMessage(systemPrompt);
         chatHistory.AddUserMessage($"<webpage_content>{sanitized}</webpage_content>");
 
-        return await CallLlmAndParseAsync(chatHistory, content.SourceUrl.Value, cancellationToken);
+        var result = await CallLlmAndParseAsync(chatHistory, content.SourceUrl.Value, cancellationToken);
+        activity?.SetTag("extract.success", result.IsSuccess);
+        if (result.IsSuccess)
+        {
+            activity?.SetTag("extract.recipe_title", result.Value!.Title);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        else
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, result.Error?.Message);
+        }
+
+        return result;
     }
 
     public async Task<Result<ExtractedRecipeDto>> ExtractFromPhotosAsync(
         IReadOnlyList<PhotoData> photos,
         CancellationToken cancellationToken = default)
     {
+        using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.photos");
+        activity?.SetTag("extract.photo_count", photos.Count);
+
         var chatHistory = new ChatHistory();
         chatHistory.AddSystemMessage(photoSystemPrompt);
 
@@ -99,7 +119,19 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
         chatHistory.AddUserMessage(messageItems);
 
-        return await CallLlmAndParseAsync(chatHistory, "photo-import", cancellationToken);
+        var result = await CallLlmAndParseAsync(chatHistory, "photo-import", cancellationToken);
+        activity?.SetTag("extract.success", result.IsSuccess);
+        if (result.IsSuccess)
+        {
+            activity?.SetTag("extract.recipe_title", result.Value!.Title);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        else
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, result.Error?.Message);
+        }
+
+        return result;
     }
 
     public async IAsyncEnumerable<string> StreamExtractAsync(
@@ -155,6 +187,9 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         string source,
         CancellationToken cancellationToken)
     {
+        using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.llm_call");
+        activity?.SetTag("llm.source", source);
+
         var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
 
         string response;
@@ -162,6 +197,8 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         {
             var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
             response = result.Content ?? string.Empty;
+            activity?.SetTag("llm.response_length", response.Length);
+            activity?.SetTag("llm.model", result.ModelId);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -169,6 +206,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             LogLlmCallFailed(source, ex.Message);
             return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
         }

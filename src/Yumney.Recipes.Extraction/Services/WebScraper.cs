@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AngleSharp;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,6 +23,9 @@ public sealed partial class WebScraper(
 
     public async Task<Result<ScrapedContent>> ScrapeAsync(RecipeUrl url, CancellationToken cancellationToken = default)
     {
+        using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("scrape.webpage");
+        activity?.SetTag("scrape.url", url.Value);
+
         string html;
         try
         {
@@ -29,17 +33,22 @@ public sealed partial class WebScraper(
         }
         catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, "Timeout");
             LogScrapeTimeout(url.Value);
             return Result<ScrapedContent>.Failure(ImportRecipeErrors.ScrapeTimeout);
         }
         catch (HttpRequestException ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             LogPageUnreachable(url.Value, ex.Message);
             return Result<ScrapedContent>.Failure(ImportRecipeErrors.PageUnreachable);
         }
 
+        activity?.SetTag("scrape.html_length", html.Length);
+
         if (html.Length > options.MaxRawHtmlLength)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, "Content too large");
             LogContentTooLarge(url.Value, html.Length, options.MaxRawHtmlLength);
             return Result<ScrapedContent>.Failure(ImportRecipeErrors.ContentTooLarge);
         }
@@ -48,6 +57,7 @@ public sealed partial class WebScraper(
 
         if (!cleanedText.HasValue())
         {
+            activity?.SetStatus(ActivityStatusCode.Error, "Empty content");
             LogEmptyContent(url.Value);
             return Result<ScrapedContent>.Failure(ImportRecipeErrors.NoRecipeFound);
         }
@@ -58,6 +68,8 @@ public sealed partial class WebScraper(
             cleanedText = TruncateAtWordBoundary(cleanedText, options.MaxContentLength);
         }
 
+        activity?.SetTag("scrape.cleaned_length", cleanedText.Length);
+        activity?.SetStatus(ActivityStatusCode.Ok);
         return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
     }
 
