@@ -41,6 +41,17 @@
         </button>
       </div>
     </form>
+
+    @if (streamingStatus()) {
+      <div class="streaming-status">
+        <span class="btn-spinner"></span>
+        <span>{{ streamingStatus() }}</span>
+      </div>
+    }
+
+    @if (streamingChunks()) {
+      <pre class="streaming-preview">{{ streamingChunks() }}</pre>
+    }
   </section>
 
   <section class="photo-import">
