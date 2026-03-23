@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthService } from '@yumney/shared/auth';
 import { PagedResponse, PaginationParams } from '@yumney/shared/models';
 import { API_ENDPOINTS } from './api-endpoints';
 
@@ -119,6 +120,7 @@ export interface RecipeDetail {
 @Injectable({ providedIn: 'root' })
 export class RecipeApiService {
   private http = inject(HttpClient);
+  private auth = inject(AuthService);
 
   importRecipe(request: ImportRecipeRequest): Observable<ImportRecipeResponse> {
     return this.http.post<ImportRecipeResponse>(API_ENDPOINTS.recipes.import, request);
@@ -126,35 +128,82 @@ export class RecipeApiService {
 
   importRecipeStream(url: string): Observable<ImportStreamEvent> {
     return new Observable((subscriber) => {
-      const eventSource = new EventSource(API_ENDPOINTS.recipes.importStream(url));
+      const abortController = new AbortController();
 
-      eventSource.addEventListener('status', (e: MessageEvent) => {
-        subscriber.next({ type: 'status', data: e.data });
-      });
+      this.fetchSseStream(url, abortController.signal, subscriber);
 
-      eventSource.addEventListener('chunk', (e: MessageEvent) => {
-        subscriber.next({ type: 'chunk', data: e.data });
-      });
-
-      eventSource.addEventListener('done', (e: MessageEvent) => {
-        subscriber.next({ type: 'done', data: e.data });
-        subscriber.complete();
-        eventSource.close();
-      });
-
-      eventSource.addEventListener('fail', (e: MessageEvent) => {
-        subscriber.next({ type: 'fail', data: e.data });
-        subscriber.complete();
-        eventSource.close();
-      });
-
-      eventSource.onerror = () => {
-        subscriber.error(new Error('Connection lost'));
-        eventSource.close();
-      };
-
-      return () => eventSource.close();
+      return () => abortController.abort();
     });
+  }
+
+  private async fetchSseStream(
+    url: string,
+    signal: AbortSignal,
+    subscriber: import('rxjs').Subscriber<ImportStreamEvent>,
+  ): Promise<void> {
+    const headers: Record<string, string> = { Accept: 'text/event-stream' };
+    const token = this.auth.getAccessToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    let response: Response;
+    try {
+      response = await fetch(API_ENDPOINTS.recipes.importStream(url), { headers, signal });
+    } catch {
+      if (!signal.aborted) {
+        subscriber.error(new Error('Connection failed'));
+      }
+      return;
+    }
+
+    if (!response.ok || !response.body) {
+      subscriber.error(new Error(`HTTP ${response.status}`));
+      return;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        let eventType: string | null = null;
+        for (const line of lines) {
+          if (line.startsWith('event: ')) {
+            eventType = line.slice(7).trim();
+          } else if (line.startsWith('data: ') && eventType) {
+            const data = line.slice(6);
+            const type = eventType as ImportStreamEvent['type'];
+
+            subscriber.next({ type, data });
+
+            if (type === 'done' || type === 'fail') {
+              subscriber.complete();
+              reader.cancel();
+              return;
+            }
+
+            eventType = null;
+          }
+        }
+      }
+
+      subscriber.complete();
+    } catch {
+      if (!signal.aborted) {
+        subscriber.error(new Error('Connection lost'));
+      }
+    }
   }
 
   importFromPhotos(photos: File[]): Observable<ImportRecipeResponse> {

@@ -68,11 +68,7 @@ export class DashboardComponent {
 
     const { url } = this.form.getRawValue();
 
-    if (typeof EventSource !== 'undefined') {
-      this.importWithStreaming(url);
-    } else {
-      this.importWithoutStreaming(url);
-    }
+    this.importWithStreaming(url);
   }
 
   private importWithStreaming(url: string): void {
@@ -89,19 +85,6 @@ export class DashboardComponent {
           this.serverError.set('dashboard.import.errors.generic');
         },
       });
-  }
-
-  private importWithoutStreaming(url: string): void {
-    this.importState.execute(
-      this.recipeApi.importRecipe({ url }),
-      DashboardComponent.importErrorMap,
-      (response) => {
-        this.extractedRecipe.set(response);
-        this.sourceUrl.set(url);
-        this.form.reset();
-      },
-      (error) => this.serverError.set(error),
-    );
   }
 
   private handleStreamEvent(event: ImportStreamEvent, url: string): void {
