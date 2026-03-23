@@ -8,6 +8,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 
@@ -221,6 +222,8 @@ public static class RecipesEndpoints
         return result.ToOk();
     }
 
+    private const int MaxStreamBufferLength = 100_000;
+
     private static async Task ImportStreamAsync(
         HttpContext httpContext,
         string url,
@@ -232,8 +235,6 @@ public static class RecipesEndpoints
         httpContext.Response.Headers.CacheControl = "no-cache";
         httpContext.Response.Headers.Connection = "keep-alive";
 
-        var writer = httpContext.Response.BodyWriter;
-
         async Task WriteSseEventAsync(string eventType, string data)
         {
             var line = $"event: {eventType}\ndata: {data}\n\n";
@@ -241,7 +242,16 @@ public static class RecipesEndpoints
             await httpContext.Response.Body.FlushAsync(cancellationToken);
         }
 
-        var recipeUrl = new RecipeUrl(url);
+        RecipeUrl recipeUrl;
+        try
+        {
+            recipeUrl = new RecipeUrl(url);
+        }
+        catch (GuardException)
+        {
+            await WriteSseEventAsync("fail", "Invalid URL");
+            return;
+        }
 
         await WriteSseEventAsync("status", "Fetching page...");
 
@@ -255,10 +265,29 @@ public static class RecipesEndpoints
         await WriteSseEventAsync("status", "Extracting recipe...");
 
         var buffer = new StringBuilder();
-        await foreach (var chunk in extraction.StreamExtractAsync(scrapeResult.Value, cancellationToken))
+        try
         {
-            buffer.Append(chunk);
-            await WriteSseEventAsync("chunk", chunk);
+            await foreach (var chunk in extraction.StreamExtractAsync(scrapeResult.Value, cancellationToken))
+            {
+                buffer.Append(chunk);
+
+                if (buffer.Length > MaxStreamBufferLength)
+                {
+                    await WriteSseEventAsync("fail", "Response too large");
+                    return;
+                }
+
+                await WriteSseEventAsync("chunk", chunk);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+        catch (Exception)
+        {
+            await WriteSseEventAsync("fail", "Extraction failed");
+            return;
         }
 
         await WriteSseEventAsync("done", buffer.ToString());
