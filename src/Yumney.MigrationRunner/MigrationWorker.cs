@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
@@ -7,6 +9,7 @@ namespace SmartSolutionsLab.Yumney.MigrationRunner;
 
 /// <summary>
 /// Background worker that applies EF Core migrations for all modules on startup.
+/// Uses PostgreSQL advisory locks to prevent concurrent migration from multiple instances.
 /// </summary>
 public sealed partial class MigrationWorker(
     IServiceProvider serviceProvider,
@@ -47,26 +50,59 @@ public sealed partial class MigrationWorker(
     [LoggerMessage(Level = LogLevel.Information, Message = "{Module}: {Count} migration(s) now applied")]
     private static partial void LogMigrationsApplied(ILogger logger, string module, int count);
 
+    [LoggerMessage(Level = LogLevel.Information, Message = "{Module}: acquiring advisory lock {LockId}")]
+    private static partial void LogAcquiringLock(ILogger logger, string module, int lockId);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "{Module}: advisory lock released")]
+    private static partial void LogLockReleased(ILogger logger, string module);
+
+    private static int GenerateLockId(string moduleName)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"yumney-migration-{moduleName}"));
+        return BitConverter.ToInt32(hash, 0);
+    }
+
     private async Task ApplyMigrationsAsync<TContext>(string moduleName, CancellationToken cancellationToken)
         where TContext : DbContext
     {
         await using var scope = serviceProvider.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<TContext>();
 
-        var pending = (await context.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
+        var lockId = GenerateLockId(moduleName);
+        LogAcquiringLock(logger, moduleName, lockId);
 
-        if (pending.Count == 0)
+        var connection = context.Database.GetDbConnection();
+        await connection.OpenAsync(cancellationToken);
+
+        try
         {
-            LogNoPendingMigrations(logger, moduleName);
-            return;
+            await using var lockCmd = connection.CreateCommand();
+            lockCmd.CommandText = $"SELECT pg_advisory_lock({lockId})";
+            await lockCmd.ExecuteNonQueryAsync(cancellationToken);
+
+            var pending = (await context.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
+
+            if (pending.Count == 0)
+            {
+                LogNoPendingMigrations(logger, moduleName);
+                return;
+            }
+
+            var migrationNames = string.Join(", ", pending);
+            LogApplyingMigrations(logger, moduleName, pending.Count, migrationNames);
+
+            await context.Database.MigrateAsync(cancellationToken);
+
+            var appliedCount = (await context.Database.GetAppliedMigrationsAsync(cancellationToken)).Count();
+            LogMigrationsApplied(logger, moduleName, appliedCount);
         }
+        finally
+        {
+            await using var unlockCmd = connection.CreateCommand();
+            unlockCmd.CommandText = $"SELECT pg_advisory_unlock({lockId})";
+            await unlockCmd.ExecuteNonQueryAsync(CancellationToken.None);
 
-        var migrationNames = string.Join(", ", pending);
-        LogApplyingMigrations(logger, moduleName, pending.Count, migrationNames);
-
-        await context.Database.MigrateAsync(cancellationToken);
-
-        var appliedCount = (await context.Database.GetAppliedMigrationsAsync(cancellationToken)).Count();
-        LogMigrationsApplied(logger, moduleName, appliedCount);
+            LogLockReleased(logger, moduleName);
+        }
     }
 }

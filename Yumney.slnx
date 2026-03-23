@@ -1,5 +1,7 @@
 <Solution>
-    <Folder Name="/src/" />
+    <Folder Name="/src/">
+        <Project Path="src/Yumney.Shared.Events.MassTransit/Yumney.Shared.Events.MassTransit.csproj" />
+    </Folder>
     <Folder Name="/src/Host/">
       <Project Path="src/Yumney.AppHost/Yumney.AppHost.csproj" />
       <Project Path="src/Yumney.Gateway/Yumney.Gateway.csproj" />
