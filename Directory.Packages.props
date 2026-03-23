@@ -10,6 +10,7 @@
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.1.3" />
     <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="13.1.3" />
     <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="13.1.3" />
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.1.3" />
     <PackageVersion Include="Aspire.Hosting.Yarp" Version="13.1.3" />
     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.1.3" />
     <PackageVersion Include="Aspire.Keycloak.Authentication" Version="13.1.3-preview.1.26166.8" />

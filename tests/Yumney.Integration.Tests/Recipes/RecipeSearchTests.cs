@@ -15,7 +15,7 @@ public class RecipeSearchTests : IAsyncLifetime
     private static readonly SortingOptions<RecipeSortField> DefaultSorting = new(RecipeSortField.Date, SortDirection.Descending);
 
     private readonly AspireFixture fixture;
-    private readonly OwnerIdentifier owner = new($"search-test-{Guid.NewGuid():N}");
+    private readonly OwnerIdentifier owner = OwnerIdentifier.From($"search-test-{Guid.NewGuid():N}");
 
     public RecipeSearchTests(AspireFixture fixture)
     {
