@@ -1,3 +1,4 @@
+using Azure.Provisioning.AppContainers;
 using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -72,7 +73,7 @@ else
     openAiApiKey = builder.AddParameter("OpenAiApiKey", secret: true);
 }
 
-// Migration Runner
+// Migration Runner — single instance, runs once then exits
 var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
     .WithReference(recipesDb)
     .WithReference(shoppingDb)
@@ -80,6 +81,12 @@ var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumne
     .WaitFor(recipesDb)
     .WaitFor(shoppingDb)
     .WaitFor(usersDb);
+
+migrationRunner.PublishAsAzureContainerApp((infra, app) =>
+{
+    app.Template.Scale.MinReplicas = 0;
+    app.Template.Scale.MaxReplicas = 1;
+});
 
 // Recipes API (needs keycloak, recipesdb, redis, LLM provider)
 var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
@@ -147,6 +154,49 @@ var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
         url.DisplayText = "Scalar";
         url.Url = "/scalar/v1";
     });
+
+// Azure Container Apps — scaling configuration
+recipesApi.PublishAsAzureContainerApp((infra, app) =>
+{
+    app.Template.Scale.MinReplicas = 1;
+    app.Template.Scale.MaxReplicas = 10;
+    app.Template.Scale.Rules.Add(new ContainerAppScaleRule
+    {
+        Name = "http-scaling",
+        Http = new ContainerAppHttpScaleRule
+        {
+            Metadata = { { "concurrentRequests", "20" }, },
+        },
+    });
+});
+
+shoppingApi.PublishAsAzureContainerApp((infra, app) =>
+{
+    app.Template.Scale.MinReplicas = 0;
+    app.Template.Scale.MaxReplicas = 5;
+    app.Template.Scale.Rules.Add(new ContainerAppScaleRule
+    {
+        Name = "http-scaling",
+        Http = new ContainerAppHttpScaleRule
+        {
+            Metadata = { { "concurrentRequests", "50" }, },
+        },
+    });
+});
+
+usersApi.PublishAsAzureContainerApp((infra, app) =>
+{
+    app.Template.Scale.MinReplicas = 0;
+    app.Template.Scale.MaxReplicas = 3;
+    app.Template.Scale.Rules.Add(new ContainerAppScaleRule
+    {
+        Name = "http-scaling",
+        Http = new ContainerAppHttpScaleRule
+        {
+            Metadata = { { "concurrentRequests", "50" }, },
+        },
+    });
+});
 
 // Frontend Micro-Frontends + Gateway
 if (builder.ExecutionContext.IsRunMode)
