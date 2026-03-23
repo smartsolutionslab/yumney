@@ -9,7 +9,7 @@ export interface ImportRecipeRequest {
 }
 
 export interface ImportStreamEvent {
-  type: 'status' | 'chunk' | 'done' | 'error';
+  type: 'status' | 'chunk' | 'done' | 'fail';
   data: string;
 }
 
@@ -142,8 +142,8 @@ export class RecipeApiService {
         eventSource.close();
       });
 
-      eventSource.addEventListener('error', (e: MessageEvent) => {
-        subscriber.next({ type: 'error', data: e.data });
+      eventSource.addEventListener('fail', (e: MessageEvent) => {
+        subscriber.next({ type: 'fail', data: e.data });
         subscriber.complete();
         eventSource.close();
       });

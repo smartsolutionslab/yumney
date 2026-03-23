@@ -124,7 +124,7 @@ export class DashboardComponent {
           this.serverError.set('dashboard.import.errors.generic');
         }
         break;
-      case 'error':
+      case 'fail':
         this.importState.isLoading.set(false);
         this.streamingStatus.set(null);
         this.serverError.set('dashboard.import.errors.generic');
