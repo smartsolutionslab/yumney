@@ -1,3 +1,4 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -17,7 +18,7 @@ public sealed record Unit
         Value = validated.Trim();
     }
 
-    public static Unit? FromNullable(string? value) => string.IsNullOrWhiteSpace(value) ? null : new Unit(value);
+    public static Unit? FromNullable(string? value) => value.HasValue() ? new Unit(value!) : null;
 
     public override string ToString() => Value;
 }

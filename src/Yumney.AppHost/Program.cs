@@ -153,10 +153,10 @@ var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
 
 // Container images — use pre-built GHCR images when ImagePrefix is configured (CI/CD),
 // otherwise aspire deploy builds images and pushes to the auto-provisioned ACR.
-var imagePrefix = builder.Configuration.GetValue<string>("ImagePrefix") ?? "";
+var imagePrefix = builder.Configuration.GetValue<string>("ImagePrefix") ?? string.Empty;
 var imageTag = builder.Configuration.GetValue<string>("ImageTag") ?? "latest";
 
-if (!string.IsNullOrEmpty(imagePrefix))
+if (!string.IsNullOrWhiteSpace(imagePrefix))
 {
 #pragma warning disable ASPIREPIPELINES003
     migrationRunner

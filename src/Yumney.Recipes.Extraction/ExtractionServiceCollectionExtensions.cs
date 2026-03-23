@@ -6,6 +6,7 @@ using Microsoft.Extensions.Http.Resilience;
 using Microsoft.SemanticKernel;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction;
 
@@ -53,7 +54,7 @@ public static class ExtractionServiceCollectionExtensions
                 kernelBuilder.AddAzureOpenAIChatCompletion(skOptions.ModelId, skOptions.Endpoint, skOptions.ApiKey);
                 break;
             case SemanticKernelOptions.ProviderOllama:
-                var ollamaEndpoint = !string.IsNullOrEmpty(skOptions.Endpoint)
+                var ollamaEndpoint = skOptions.Endpoint.HasValue()
                     ? skOptions.Endpoint
                     : configuration.GetConnectionString("ollama")
                       ?? throw new InvalidOperationException("Ollama endpoint not configured. Provide SemanticKernel:Endpoint or ConnectionStrings:ollama.");

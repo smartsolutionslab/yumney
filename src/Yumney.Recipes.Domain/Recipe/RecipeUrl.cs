@@ -1,3 +1,4 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -19,7 +20,7 @@ public sealed record RecipeUrl
     }
 
     public static RecipeUrl? FromNullable(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? null : new RecipeUrl(value);
+        value.HasValue() ? new RecipeUrl(value!) : null;
 
     public override string ToString() => Value;
 }

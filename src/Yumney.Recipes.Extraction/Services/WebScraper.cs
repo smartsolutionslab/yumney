@@ -46,7 +46,7 @@ public sealed partial class WebScraper(
 
         var cleanedText = await CleanHtmlAsync(html, cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(cleanedText))
+        if (!cleanedText.HasValue())
         {
             LogEmptyContent(url.Value);
             return Result<ScrapedContent>.Failure(ImportRecipeErrors.NoRecipeFound);

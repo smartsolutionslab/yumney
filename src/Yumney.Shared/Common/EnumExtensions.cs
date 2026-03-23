@@ -6,7 +6,7 @@ public static class EnumExtensions
     public static TEnum? ParseNullable<TEnum>(this TEnum _, string? value)
         where TEnum : struct, Enum
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (!value.HasValue())
         {
             return null;
         }
