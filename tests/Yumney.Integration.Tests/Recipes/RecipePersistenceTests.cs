@@ -247,7 +247,7 @@ public class RecipePersistenceTests : IAsyncLifetime
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var repository2 = new RecipeRepository(readContext);
-        var exists = await repository2.ExistsBySourceUrlAsync(sourceUrl, new OwnerIdentifier("other-user"));
+        var exists = await repository2.ExistsBySourceUrlAsync(sourceUrl, OwnerIdentifier.From("other-user"));
 
         exists.Should().BeFalse();
     }

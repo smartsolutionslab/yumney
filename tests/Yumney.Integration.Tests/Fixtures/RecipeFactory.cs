@@ -27,7 +27,7 @@ public static class RecipeFactory
 
         return Recipe.Create(
             new RecipeTitle(title),
-            new OwnerIdentifier(owner ?? DefaultOwner),
+            OwnerIdentifier.From(owner ?? DefaultOwner),
             recipeIngredients,
             recipeSteps,
             RecipeDescription.FromNullable(description),

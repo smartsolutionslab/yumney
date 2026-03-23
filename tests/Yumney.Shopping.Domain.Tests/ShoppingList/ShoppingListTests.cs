@@ -64,7 +64,7 @@ public class ShoppingListTests
     [Fact]
     public void Create_WithRecipeReference_SetsRecipeReference()
     {
-        var recipeReference = new RecipeReference(Guid.NewGuid());
+        var recipeReference = RecipeReference.From(Guid.NewGuid());
 
         var shoppingList = CreateValidShoppingList(recipeReference: recipeReference);
 

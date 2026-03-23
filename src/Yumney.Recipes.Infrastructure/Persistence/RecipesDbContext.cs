@@ -47,7 +47,7 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
                 .ConfigureNullableStringValueObject(v => v.Value, RecipeUrl.FromNullable, RecipeUrl.MaxLength);
 
             entity.Property(e => e.Owner)
-                .ConfigureRequiredStringValueObject(v => v.Value, v => new OwnerIdentifier(v), OwnerIdentifier.MaxLength);
+                .ConfigureRequiredStringValueObject(v => v.Value, OwnerIdentifier.From, OwnerIdentifier.MaxLength);
 
             entity.Property(e => e.CreatedAt).IsRequired();
 

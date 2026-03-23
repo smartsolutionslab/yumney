@@ -22,7 +22,6 @@ public sealed partial class CreateShoppingListCommandHandler(
         var items = itemCommands
             .Select(i => Domain.ShoppingList.ShoppingListItem.Create(i.Name, i.Amount, i.Unit))
             .ToList();
-
         var shoppingList = ShoppingList.Create(title, owner, items, recipeReference);
 
         await shoppingLists.AddAsync(shoppingList, cancellationToken);

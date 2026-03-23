@@ -8,19 +8,19 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.Tests.ShoppingList;
 public class RecipeReferenceTests
 {
     [Fact]
-    public void Constructor_ValidGuid_CreatesInstance()
+    public void From_ValidGuid_CreatesInstance()
     {
         var guid = Guid.NewGuid();
 
-        var reference = new RecipeReference(guid);
+        var reference = RecipeReference.From(guid);
 
         reference.Value.Should().Be(guid);
     }
 
     [Fact]
-    public void Constructor_EmptyGuid_ThrowsGuardException()
+    public void From_EmptyGuid_ThrowsGuardException()
     {
-        var act = () => new RecipeReference(Guid.Empty);
+        var act = () => RecipeReference.From(Guid.Empty);
 
         act.Should().Throw<GuardException>();
     }
@@ -30,7 +30,7 @@ public class RecipeReferenceTests
     {
         var guid = Guid.NewGuid();
 
-        var reference = new RecipeReference(guid);
+        var reference = RecipeReference.From(guid);
 
         reference.ToString().Should().Be(guid.ToString());
     }
@@ -59,8 +59,8 @@ public class RecipeReferenceTests
     {
         var guid = Guid.NewGuid();
 
-        var a = new RecipeReference(guid);
-        var b = new RecipeReference(guid);
+        var a = RecipeReference.From(guid);
+        var b = RecipeReference.From(guid);
 
         a.Should().Be(b);
     }
@@ -68,8 +68,8 @@ public class RecipeReferenceTests
     [Fact]
     public void Equality_DifferentValues_AreNotEqual()
     {
-        var a = new RecipeReference(Guid.NewGuid());
-        var b = new RecipeReference(Guid.NewGuid());
+        var a = RecipeReference.From(Guid.NewGuid());
+        var b = RecipeReference.From(Guid.NewGuid());
 
         a.Should().NotBe(b);
     }

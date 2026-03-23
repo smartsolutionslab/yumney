@@ -198,7 +198,7 @@ public class GetRecipeByIdQueryHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle(title),
-            new OwnerIdentifier(ownerId),
+            OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
     }
@@ -207,7 +207,7 @@ public class GetRecipeByIdQueryHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle("Full Recipe"),
-            new OwnerIdentifier(ownerId),
+            OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
             new RecipeDescription("A test recipe"),
@@ -223,7 +223,7 @@ public class GetRecipeByIdQueryHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle("Recipe With Ingredients"),
-            new OwnerIdentifier(ownerId),
+            OwnerIdentifier.From(ownerId),
             [
                 Ingredient.Create(new IngredientName("Flour"), new Amount(500m), new Unit("g")),
                 Ingredient.Create(new IngredientName("Eggs"), null, null),
@@ -235,7 +235,7 @@ public class GetRecipeByIdQueryHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle("Recipe With Steps"),
-            new OwnerIdentifier(ownerId),
+            OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [
                 Step.Create(new StepNumber(1), new StepDescription("Mix flour")),

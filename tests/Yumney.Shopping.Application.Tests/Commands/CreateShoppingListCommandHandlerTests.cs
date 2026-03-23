@@ -115,7 +115,7 @@ public class CreateShoppingListCommandHandlerTests
         var command = new CreateShoppingListCommand(
             new ShoppingListTitle("From Recipe"),
             [new ShoppingListItem(new ItemName("Flour"), new Amount(500), new Unit("g"))],
-            new RecipeReference(recipeId));
+            RecipeReference.From(recipeId));
 
         var result = await handler.HandleAsync(command);
 
