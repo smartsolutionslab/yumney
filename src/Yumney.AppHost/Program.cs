@@ -25,8 +25,7 @@ var shoppingDb = postgres.AddDatabase("shoppingdb");
 var usersDb = postgres.AddDatabase("usersdb");
 
 // Redis
-var redis = builder.AddRedis("redis")
-    .WithDataVolume();
+var redis = builder.AddRedis("redis").WithDataVolume();
 
 // RabbitMQ
 var messaging = builder.AddRabbitMQ("messaging")
@@ -43,9 +42,7 @@ if (builder.ExecutionContext.IsRunMode)
         .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
         .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp");
 
-    keycloak
-        .WithRealmImport("Realms")
-        .WaitFor(mailpit);
+    keycloak.WithRealmImport("Realms").WaitFor(mailpit);
 }
 else
 {
@@ -65,8 +62,7 @@ IResourceBuilder<ParameterResource>? openAiApiKey = null;
 
 if (useOllama)
 {
-    ollama = builder.AddOllama("ollama")
-        .WithDataVolume();
+    ollama = builder.AddOllama("ollama").WithDataVolume();
 }
 else
 {
@@ -113,7 +109,7 @@ if (useOllama)
 }
 else
 {
-    var openAiModel = builder.Configuration.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.3-chat-latest";
+    var openAiModel = builder.Configuration.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini";
 
     recipesApi
         .WithEnvironment("SemanticKernel__Provider", "OpenAI")
