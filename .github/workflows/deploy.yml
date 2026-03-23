@@ -127,7 +127,6 @@ jobs:
             ["recipes-api"]="Yumney.Recipes.Api"
             ["shopping-api"]="Yumney.Shopping.Api"
             ["users-api"]="Yumney.Users.Api"
-            ["gateway"]="Yumney.Gateway"
             ["migration-runner"]="Yumney.MigrationRunner"
           )
 
@@ -153,6 +152,13 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: client/dist/
+          retention-days: 1
+
   deploy:
     name: Deploy to ${{ needs.version.outputs.environment }}
     needs: [build-and-push, version]
@@ -165,6 +171,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: client/dist/
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -191,6 +203,8 @@ jobs:
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           Azure__Location: ${{ vars.AZURE_LOCATION }}
           Azure__ResourceGroup: ${{ vars.AZURE_RESOURCE_GROUP }}
+          ImagePrefix: ${{ env.IMAGE_PREFIX }}
+          ImageTag: ${{ needs.version.outputs.image_tag }}
           Parameters__PostgresUser: ${{ vars.POSTGRES_USER }}
           Parameters__PostgresPassword: ${{ secrets.POSTGRES_PASSWORD }}
           Parameters__KeycloakPassword: ${{ secrets.KEYCLOAK_PASSWORD }}

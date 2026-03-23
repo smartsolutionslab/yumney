@@ -155,6 +155,29 @@ var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
         url.Url = "/scalar/v1";
     });
 
+// Container images — use pre-built GHCR images when ImagePrefix is configured (CI/CD),
+// otherwise aspire deploy builds images and pushes to the auto-provisioned ACR.
+var imagePrefix = builder.Configuration.GetValue<string>("ImagePrefix") ?? "";
+var imageTag = builder.Configuration.GetValue<string>("ImageTag") ?? "latest";
+
+if (!string.IsNullOrEmpty(imagePrefix))
+{
+#pragma warning disable ASPIREPIPELINES003
+    migrationRunner
+        .WithRemoteImageName($"{imagePrefix}/migration-runner")
+        .WithRemoteImageTag(imageTag);
+    recipesApi
+        .WithRemoteImageName($"{imagePrefix}/recipes-api")
+        .WithRemoteImageTag(imageTag);
+    shoppingApi
+        .WithRemoteImageName($"{imagePrefix}/shopping-api")
+        .WithRemoteImageTag(imageTag);
+    usersApi
+        .WithRemoteImageName($"{imagePrefix}/users-api")
+        .WithRemoteImageTag(imageTag);
+#pragma warning restore ASPIREPIPELINES003
+}
+
 // Azure Container Apps — scaling configuration
 recipesApi.PublishAsAzureContainerApp((infra, app) =>
 {
