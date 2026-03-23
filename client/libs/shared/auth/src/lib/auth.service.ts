@@ -71,6 +71,10 @@ export class AuthService {
     localStorage.removeItem(REMEMBER_ME_KEY);
   }
 
+  getAccessToken(): string | null {
+    return this.oauthService.hasValidAccessToken() ? this.oauthService.getAccessToken() : null;
+  }
+
   forgotPassword(): void {
     this.oauthService.initCodeFlow('', { kc_action: 'UPDATE_PASSWORD' });
   }
