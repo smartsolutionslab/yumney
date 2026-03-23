@@ -11,7 +11,7 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes;
 public class RecipePersistenceTests : IAsyncLifetime
 {
     private readonly AspireFixture fixture;
-    private readonly OwnerIdentifier owner = new($"persist-test-{Guid.NewGuid():N}");
+    private readonly OwnerIdentifier owner = OwnerIdentifier.From($"persist-test-{Guid.NewGuid():N}");
 
     public RecipePersistenceTests(AspireFixture fixture)
     {
