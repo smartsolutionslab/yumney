@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
   RecipeApiService,
@@ -38,6 +39,7 @@ export class DashboardComponent {
   };
 
   private fb = inject(FormBuilder);
+  private router = inject(Router);
   private recipeApi = inject(RecipeApiService);
   private importState = createAsyncState(inject(DestroyRef));
   private saveState = createAsyncState(inject(DestroyRef));
@@ -165,9 +167,7 @@ export class DashboardComponent {
       this.recipeApi.saveRecipe(request),
       DashboardComponent.saveErrorMap,
       (saved) => {
-        this.extractedRecipe.set(null);
-        this.isManualEntry.set(false);
-        this.saveSuccess.set(saved.title);
+        this.router.navigate(['/recipes', saved.identifier]);
       },
       (error) => this.serverError.set(error),
     );
