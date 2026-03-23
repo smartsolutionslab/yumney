@@ -24,6 +24,14 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
       - name: Install Aspire workload
         run: dotnet workload install aspire
 
@@ -40,7 +48,7 @@ jobs:
         run: dotnet test Yumney.slnx --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
 
       - name: Upload coverage
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
           path: ./coverage
@@ -64,6 +72,18 @@ jobs:
       - name: Install Yarn
         run: corepack enable
 
+      - name: Get yarn cache directory
+        id: yarn-cache-dir
+        run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Yarn
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir.outputs.dir }}
+          key: yarn-${{ runner.os }}-${{ hashFiles('client/yarn.lock') }}
+          restore-keys: |
+            yarn-${{ runner.os }}-
+
       - name: Install dependencies
         run: yarn install --immutable
 
@@ -77,7 +97,14 @@ jobs:
         run: yarn nx run-many -t test --coverage
 
       - name: Build
-        run: yarn nx run-many -t build --configuration=production
+        run: yarn build:all
+
+      - name: Upload frontend dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: client/dist/
+          retention-days: 1
 
   commitlint:
     name: Commit Messages
