@@ -23,7 +23,7 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
 
             entity.Property(e => e.Owner)
                 .ConfigureRequiredStringValueObject(
-                    v => v.Value, v => new OwnerIdentifier(v), OwnerIdentifier.MaxLength);
+                    v => v.Value, v => OwnerIdentifier.From(v), OwnerIdentifier.MaxLength);
 
             entity.Property(e => e.RecipeReference)
                 .HasConversion(

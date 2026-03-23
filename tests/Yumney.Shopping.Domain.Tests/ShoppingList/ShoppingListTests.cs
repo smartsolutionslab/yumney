@@ -29,7 +29,7 @@ public class ShoppingListTests
     [Fact]
     public void Create_ValidInput_SetsOwner()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
 
         var shoppingList = CreateValidShoppingList(owner: owner);
 
@@ -197,7 +197,7 @@ public class ShoppingListTests
     {
         return Domain.ShoppingList.ShoppingList.Create(
             title ?? new ShoppingListTitle("Test Shopping List"),
-            owner ?? new OwnerIdentifier("user-123"),
+            owner ?? OwnerIdentifier.From("user-123"),
             items ?? [ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"))],
             recipeReference);
     }

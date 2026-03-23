@@ -41,11 +41,11 @@ public class GetShoppingListsQueryHandlerTests
         {
             ShoppingList.Create(
                 new ShoppingListTitle("List 1"),
-                new OwnerIdentifier("user-123"),
+                OwnerIdentifier.From("user-123"),
                 [ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"))]),
             ShoppingList.Create(
                 new ShoppingListTitle("List 2"),
-                new OwnerIdentifier("user-123"),
+                OwnerIdentifier.From("user-123"),
                 [
                     ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
                     ShoppingListItem.Create(new ItemName("Butter"), new Amount(100), new Unit("g")),
