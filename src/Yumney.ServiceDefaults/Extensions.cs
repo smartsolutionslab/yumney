@@ -45,6 +45,7 @@ public static class Extensions
                 .WithTracing(tracing =>
                 {
                     tracing.AddSource(builder.Environment.ApplicationName)
+                        .AddSource("Yumney.Recipes.Extraction")
                         .AddAspNetCoreInstrumentation()
                         .AddHttpClientInstrumentation();
                 });
