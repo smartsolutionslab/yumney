@@ -48,8 +48,13 @@ public static class HostBuilderExtensions
         builder.Services.AddAuthorization();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ICurrentUser, CurrentUserProvider>();
+
+        // Domain events: dispatched in-process (same transaction boundary)
+        // Integration events: published via MassTransit/RabbitMQ (cross-instance)
+        // MassTransit registration overrides InProcessEventBus for IEventBus (last-wins in DI)
         builder.Services.AddInProcessEventBus();
         builder.Services.AddMassTransitEventBus(builder.Configuration);
+
         builder.Services.AddScoped<DomainEventDispatchInterceptor>();
         builder.Services.AddOpenApi();
 

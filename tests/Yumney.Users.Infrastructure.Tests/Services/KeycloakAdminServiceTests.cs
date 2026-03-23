@@ -150,6 +150,58 @@ public class KeycloakAdminServiceTests
         result.Error.Should().Be(VerificationErrors.SendFailed);
     }
 
+    [Fact]
+    public async Task CreateUserAsync_SecondCall_UsesDistributedCacheToken()
+    {
+        var handler = new FakeHttpHandler()
+            .WithTokenResponse()
+            .WithResponse(
+                HttpMethod.Post,
+                "/admin/realms/test-realm/users",
+                HttpStatusCode.Created,
+                new Dictionary<string, string> { { "Location", "/admin/realms/test-realm/users/kc-123" } });
+
+        // Simulate cache miss on first call, cache hit on second
+        cache.GetAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(
+                (byte[]?)null,
+                System.Text.Encoding.UTF8.GetBytes("fake-token"));
+
+        var service = CreateService(handler);
+
+        await service.CreateUserAsync(
+            new Email("first@test.com"), new Password("Test123!"), new DisplayName("First"));
+        await service.CreateUserAsync(
+            new Email("second@test.com"), new Password("Test123!"), new DisplayName("Second"));
+
+        handler.TokenRequestCount.Should().Be(1, "second call should use cached token");
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_CachesTokenWithCorrectTTL()
+    {
+        var handler = new FakeHttpHandler()
+            .WithTokenResponse()
+            .WithResponse(
+                HttpMethod.Post,
+                "/admin/realms/test-realm/users",
+                HttpStatusCode.Created,
+                new Dictionary<string, string> { { "Location", "/admin/realms/test-realm/users/kc-123" } });
+
+        var service = CreateService(handler);
+
+        await service.CreateUserAsync(
+            new Email("test@test.com"), new Password("Test123!"), new DisplayName("Test"));
+
+        await cache.Received(1).SetAsync(
+            "keycloak:admin:token",
+            Arg.Any<byte[]>(),
+            Arg.Is<DistributedCacheEntryOptions>(o =>
+                o.AbsoluteExpirationRelativeToNow > TimeSpan.FromSeconds(200) &&
+                o.AbsoluteExpirationRelativeToNow < TimeSpan.FromSeconds(300)),
+            Arg.Any<CancellationToken>());
+    }
+
     private KeycloakAdminService CreateService(HttpMessageHandler handler)
     {
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://keycloak.test") };
@@ -160,10 +212,12 @@ public class KeycloakAdminServiceTests
     {
         private readonly List<(HttpMethod Method, string PathPrefix, HttpStatusCode Status, string? JsonBody, Dictionary<string, string>? Headers)> responses = [];
 
+        public int TokenRequestCount { get; private set; }
+
         public FakeHttpHandler WithTokenResponse()
         {
             responses.Add((HttpMethod.Post, "/realms/test-realm/protocol/openid-connect/token",
-                HttpStatusCode.OK, JsonSerializer.Serialize(new { access_token = "fake-token" }), null));
+                HttpStatusCode.OK, JsonSerializer.Serialize(new { access_token = "fake-token", expires_in = 300 }), null));
             return this;
         }
 
@@ -181,6 +235,11 @@ public class KeycloakAdminServiceTests
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            if (request.RequestUri!.PathAndQuery.Contains("openid-connect/token"))
+            {
+                TokenRequestCount++;
+            }
+
             var match = responses.FirstOrDefault(r =>
                 r.Method == request.Method &&
                 request.RequestUri!.PathAndQuery.StartsWith(r.PathPrefix, StringComparison.OrdinalIgnoreCase));
