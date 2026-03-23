@@ -12,7 +12,6 @@ permissions:
 
 env:
   DOTNET_VERSION: '10.0.x'
-  NODE_VERSION: '22'
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/yumney
 
@@ -75,43 +74,22 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # --- Backend: versioned build + publish (no tests, already passed in CI) ---
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
       - name: Install Aspire workload
         run: dotnet workload install aspire
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Write environment-specific frontend config
-        run: |
-          mkdir -p apps/shell/src/assets/config
-          echo '{
-            "keycloakUrl": "${{ vars.KEYCLOAK_URL }}",
-            "keycloakRealm": "yumney",
-            "keycloakClientId": "yumney-web"
-          }' > apps/shell/src/assets/config/app-config.json
-        working-directory: client
-
-      - name: Build Angular frontend
-        run: |
-          corepack enable
-          yarn install --immutable
-          yarn build:all
-          node scripts/copy-remotes.mjs
-        working-directory: client
 
       - name: Restore .NET
         run: dotnet restore Yumney.slnx
@@ -119,7 +97,44 @@ jobs:
       - name: Build .NET with version
         run: dotnet build Yumney.slnx --no-restore --configuration Release /p:Version=${{ needs.version.outputs.version }}
 
-      - name: Publish and containerize services
+      - name: Publish services
+        run: |
+          declare -A SERVICES=(
+            ["recipes-api"]="Yumney.Recipes.Api"
+            ["shopping-api"]="Yumney.Shopping.Api"
+            ["users-api"]="Yumney.Users.Api"
+            ["migration-runner"]="Yumney.MigrationRunner"
+          )
+          for SLUG in "${!SERVICES[@]}"; do
+            PROJECT="${SERVICES[$SLUG]}"
+            dotnet publish "src/${PROJECT}/${PROJECT}.csproj" \
+              --no-build --configuration Release --output "./publish/${SLUG}"
+          done
+
+      # --- Frontend: reuse CI artifact, inject environment config ---
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: client/dist/
+
+      - name: Write environment-specific frontend config
+        run: |
+          echo '{
+            "keycloakUrl": "${{ vars.KEYCLOAK_URL }}",
+            "keycloakRealm": "yumney",
+            "keycloakClientId": "yumney-web"
+          }' > client/dist/apps/shell/browser/assets/config/app-config.json
+
+      # --- Docker: build and push all images in parallel ---
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker images
         run: |
           TAG="${{ needs.version.outputs.image_tag }}"
 
@@ -130,34 +145,29 @@ jobs:
             ["migration-runner"]="Yumney.MigrationRunner"
           )
 
+          pids=()
           for SLUG in "${!SERVICES[@]}"; do
-            PROJECT="${SERVICES[$SLUG]}"
             IMAGE="${{ env.IMAGE_PREFIX }}/${SLUG}"
-            echo "::group::${SLUG} (${PROJECT})"
-
-            dotnet publish "src/${PROJECT}/${PROJECT}.csproj" \
-              --no-build --configuration Release --output "./publish/${SLUG}"
-
-            docker build \
-              --tag "${IMAGE}:${TAG}" \
-              --tag "${IMAGE}:latest" \
-              --label "org.opencontainers.image.version=${TAG}" \
-              --label "org.opencontainers.image.revision=${{ github.sha }}" \
-              --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" \
-              --file docker/Dockerfile.service \
-              "./publish/${SLUG}"
-
-            docker push "${IMAGE}:${TAG}"
-            docker push "${IMAGE}:latest"
-            echo "::endgroup::"
+            (
+              echo "::group::${SLUG}"
+              docker build \
+                --tag "${IMAGE}:${TAG}" \
+                --tag "${IMAGE}:latest" \
+                --label "org.opencontainers.image.version=${TAG}" \
+                --label "org.opencontainers.image.revision=${{ github.sha }}" \
+                --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" \
+                --file docker/Dockerfile.service \
+                "./publish/${SLUG}" &&
+              docker push "${IMAGE}:${TAG}" &&
+              docker push "${IMAGE}:latest"
+              echo "::endgroup::"
+            ) &
+            pids+=($!)
           done
 
-      - name: Upload frontend build
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: client/dist/
-          retention-days: 1
+          for pid in "${pids[@]}"; do
+            wait "$pid" || exit 1
+          done
 
   deploy:
     name: Deploy to ${{ needs.version.outputs.environment }}
@@ -178,10 +188,26 @@ jobs:
           name: frontend-dist
           path: client/dist/
 
+      - name: Write environment-specific frontend config
+        run: |
+          echo '{
+            "keycloakUrl": "${{ vars.KEYCLOAK_URL }}",
+            "keycloakRealm": "yumney",
+            "keycloakClientId": "yumney-web"
+          }' > client/dist/apps/shell/browser/assets/config/app-config.json
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
 
       - name: Install Aspire workload & CLI
         run: |
