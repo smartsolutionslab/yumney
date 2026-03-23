@@ -12,6 +12,8 @@ public static class EventingServiceCollectionExtensions
     /// When using a distributed event bus (e.g. MassTransit), call this first for domain events,
     /// then register the distributed IEventBus which will override the in-process one.
     /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddInProcessEventBus(this IServiceCollection services)
     {
         services.AddScoped<IDomainEventDispatcher, InProcessDomainEventDispatcher>();
