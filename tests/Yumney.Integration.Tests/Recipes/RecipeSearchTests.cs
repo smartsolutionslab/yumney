@@ -147,7 +147,7 @@ public class RecipeSearchTests : IAsyncLifetime
     {
         await using var context = await fixture.CreateRecipesDbContextAsync();
         var repository = new RecipeRepository(context);
-        var otherOwner = new OwnerIdentifier("nonexistent-user");
+        var otherOwner = OwnerIdentifier.From("nonexistent-user");
 
         var (items, totalCount) = await repository.GetByOwnerAsync(
             otherOwner, DefaultPaging, DefaultSorting, new SearchTerm("lasagne"));

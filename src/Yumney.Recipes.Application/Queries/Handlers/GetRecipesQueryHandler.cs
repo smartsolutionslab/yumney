@@ -16,7 +16,7 @@ public sealed partial class GetRecipesQueryHandler(
     public async Task<Result<PagedResult<RecipeListItemDto>>> HandleAsync(GetRecipesQuery query, CancellationToken cancellationToken = default)
     {
         var (paging, sorting, search) = query;
-        var owner = new OwnerIdentifier(currentUser.UserId);
+        var owner = OwnerIdentifier.From(currentUser.UserId);
 
         LogGetRecipes(owner.Value, paging.Page.Value, paging.PageSize.Value, search?.Value);
 

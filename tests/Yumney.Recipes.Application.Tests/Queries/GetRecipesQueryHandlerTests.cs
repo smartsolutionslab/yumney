@@ -294,7 +294,7 @@ public class GetRecipesQueryHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle(title),
-            new OwnerIdentifier("user-123"),
+            OwnerIdentifier.From("user-123"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
     }
@@ -303,7 +303,7 @@ public class GetRecipesQueryHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle("Full Recipe"),
-            new OwnerIdentifier("user-123"),
+            OwnerIdentifier.From("user-123"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
             new RecipeDescription("A test recipe"),

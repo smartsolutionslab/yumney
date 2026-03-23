@@ -13,7 +13,7 @@ public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes,
     public async Task<Result<RecipeDetailDto>> HandleAsync(GetRecipeByIdQuery query, CancellationToken cancellationToken = default)
     {
         var identifier = query.Identifier;
-        var owner = new OwnerIdentifier(currentUser.UserId);
+        var owner = OwnerIdentifier.From(currentUser.UserId);
 
         LogGetRecipeById(identifier, owner.Value);
 

@@ -39,7 +39,7 @@ public class RecipeTests
     [Fact]
     public void Create_ValidInput_SetsOwner()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
 
         var recipe = CreateValidRecipe(owner: owner);
 
@@ -318,7 +318,7 @@ public class RecipeTests
     [Fact]
     public void Update_DoesNotChangeOwner()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
         var recipe = CreateValidRecipe(owner: owner);
 
         recipe.Update(
@@ -425,7 +425,7 @@ public class RecipeTests
     [Fact]
     public void MarkAsDeleted_EventContainsOwner()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
         var recipe = CreateValidRecipe(owner: owner);
         recipe.ClearDomainEvents();
 
@@ -500,7 +500,7 @@ public class RecipeTests
     {
         return Domain.Recipe.Recipe.Create(
             title ?? new RecipeTitle("Test Recipe"),
-            owner ?? new OwnerIdentifier("user-123"),
+            owner ?? OwnerIdentifier.From("user-123"),
             ingredients ?? [Ingredient.Create(new IngredientName("Flour"), new Amount(500), new Unit("g"))],
             steps ?? [Step.Create(new StepNumber(1), new StepDescription("Mix ingredients"))],
             description,

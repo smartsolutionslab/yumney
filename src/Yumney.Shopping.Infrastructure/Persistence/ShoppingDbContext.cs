@@ -28,7 +28,7 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
             entity.Property(e => e.RecipeReference)
                 .HasConversion(
                     v => v != null ? v.Value : (Guid?)null,
-                    v => v.HasValue ? new RecipeReference(v.Value) : null)
+                    v => RecipeReference.FromNullable(v))
                 .HasColumnName("RecipeIdentifier");
 
             entity.HasIndex(e => e.Owner);
