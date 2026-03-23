@@ -6,15 +6,15 @@ public sealed record RecipeReference
 {
     public Guid Value { get; }
 
-    public RecipeReference(Guid value)
+    private RecipeReference(Guid value)
     {
         Value = Ensure.That(value).IsNotEmpty().AndReturn();
     }
 
-    public static RecipeReference? FromNullable(Guid? value)
-    {
-        return value.HasValue ? new RecipeReference(value.Value) : null;
-    }
+    public static RecipeReference From(Guid value) => new(value);
+
+    public static RecipeReference? FromNullable(Guid? value) =>
+        value.HasValue ? new RecipeReference(value.Value) : null;
 
     public override string ToString() => Value.ToString();
 }

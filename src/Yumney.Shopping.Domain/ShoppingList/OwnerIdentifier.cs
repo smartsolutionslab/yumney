@@ -8,7 +8,7 @@ public sealed record OwnerIdentifier
 
     public string Value { get; }
 
-    public OwnerIdentifier(string value)
+    private OwnerIdentifier(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()

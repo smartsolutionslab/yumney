@@ -23,7 +23,7 @@ public sealed partial class CheckOffAllItemsCommandHandler(
             return Result.Failure(CheckOffItemErrors.ListNotFound);
         }
 
-        var owner = new OwnerIdentifier(currentUser.UserId);
+        var owner = OwnerIdentifier.From(currentUser.UserId);
 
         if (shoppingList.Owner != owner)
         {

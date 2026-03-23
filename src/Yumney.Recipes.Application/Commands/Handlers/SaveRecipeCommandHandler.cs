@@ -18,7 +18,7 @@ public sealed partial class SaveRecipeCommandHandler(
         var (title, ingredientCommands, stepCommands, description, servings, preparationTime, cookingTime, difficulty,
             imageUrl, language, sourceUrl, tags) = command;
 
-        var owner = new OwnerIdentifier(currentUser.UserId);
+        var owner = OwnerIdentifier.From(currentUser.UserId);
 
         if (sourceUrl is not null && await recipes.ExistsBySourceUrlAsync(sourceUrl, owner, cancellationToken))
         {

@@ -188,7 +188,7 @@ public class UpdateRecipeCommandHandlerTests
     {
         var recipe = Recipe.Create(
             new RecipeTitle("Original"),
-            new OwnerIdentifier("user-123"),
+            OwnerIdentifier.From("user-123"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
             new RecipeDescription("Old description"),
@@ -245,7 +245,7 @@ public class UpdateRecipeCommandHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle("Test Recipe"),
-            new OwnerIdentifier(ownerId),
+            OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
     }
@@ -254,7 +254,7 @@ public class UpdateRecipeCommandHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle("Test Recipe"),
-            new OwnerIdentifier(ownerId),
+            OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
             sourceUrl: new RecipeUrl("https://example.com/recipe"));
