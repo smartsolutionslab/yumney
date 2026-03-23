@@ -17,5 +17,7 @@ public sealed record OwnerIdentifier
         Value = validated.Trim();
     }
 
+    public static OwnerIdentifier From(string value) => new(value);
+
     public override string ToString() => Value;
 }

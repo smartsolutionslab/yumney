@@ -10,7 +10,7 @@ public class OwnerIdentifierTests
     [Fact]
     public void Constructor_ValidValue_CreatesInstance()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
 
         owner.Value.Should().Be("user-123");
     }
@@ -21,7 +21,7 @@ public class OwnerIdentifierTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new OwnerIdentifier(value!);
+        var act = () => OwnerIdentifier.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -29,7 +29,7 @@ public class OwnerIdentifierTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
 
         owner.ToString().Should().Be("user-123");
     }

@@ -17,7 +17,7 @@ public sealed partial class GetShoppingListsQueryHandler(
         GetShoppingListsQuery query,
         CancellationToken cancellationToken = default)
     {
-        var owner = new OwnerIdentifier(currentUser.UserId);
+        var owner = OwnerIdentifier.From(currentUser.UserId);
 
         LogGetShoppingLists(owner.Value);
 
