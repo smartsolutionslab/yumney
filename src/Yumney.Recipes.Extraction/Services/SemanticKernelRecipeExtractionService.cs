@@ -102,6 +102,27 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         return await CallLlmAndParseAsync(chatHistory, "photo-import", cancellationToken);
     }
 
+    public async IAsyncEnumerable<string> StreamExtractAsync(
+        ScrapedContent content,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
+        var sanitized = SanitizeContent(content.CleanedText);
+
+        var chatHistory = new ChatHistory();
+        chatHistory.AddSystemMessage(systemPrompt);
+        chatHistory.AddUserMessage($"<webpage_content>{sanitized}</webpage_content>");
+
+        await foreach (var chunk in chatCompletion.GetStreamingChatMessageContentsAsync(
+            chatHistory, cancellationToken: cancellationToken))
+        {
+            if (chunk.Content is not null)
+            {
+                yield return chunk.Content;
+            }
+        }
+    }
+
     private static string ExtractJson(string response)
     {
         var trimmed = response.Trim();

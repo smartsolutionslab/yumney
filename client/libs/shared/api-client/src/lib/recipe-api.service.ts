@@ -8,6 +8,11 @@ export interface ImportRecipeRequest {
   url: string;
 }
 
+export interface ImportStreamEvent {
+  type: 'status' | 'chunk' | 'done' | 'error';
+  data: string;
+}
+
 export interface ExtractedIngredient {
   name: string;
   amount: number | null;
@@ -117,6 +122,39 @@ export class RecipeApiService {
 
   importRecipe(request: ImportRecipeRequest): Observable<ImportRecipeResponse> {
     return this.http.post<ImportRecipeResponse>(API_ENDPOINTS.recipes.import, request);
+  }
+
+  importRecipeStream(url: string): Observable<ImportStreamEvent> {
+    return new Observable((subscriber) => {
+      const eventSource = new EventSource(API_ENDPOINTS.recipes.importStream(url));
+
+      eventSource.addEventListener('status', (e: MessageEvent) => {
+        subscriber.next({ type: 'status', data: e.data });
+      });
+
+      eventSource.addEventListener('chunk', (e: MessageEvent) => {
+        subscriber.next({ type: 'chunk', data: e.data });
+      });
+
+      eventSource.addEventListener('done', (e: MessageEvent) => {
+        subscriber.next({ type: 'done', data: e.data });
+        subscriber.complete();
+        eventSource.close();
+      });
+
+      eventSource.addEventListener('error', (e: MessageEvent) => {
+        subscriber.next({ type: 'error', data: e.data });
+        subscriber.complete();
+        eventSource.close();
+      });
+
+      eventSource.onerror = () => {
+        subscriber.error(new Error('Connection lost'));
+        eventSource.close();
+      };
+
+      return () => eventSource.close();
+    });
   }
 
   importFromPhotos(photos: File[]): Observable<ImportRecipeResponse> {
