@@ -248,7 +248,7 @@ public static class RecipesEndpoints
         var scrapeResult = await scraper.ScrapeAsync(recipeUrl, cancellationToken);
         if (scrapeResult.IsFailure)
         {
-            await WriteSseEventAsync("error", scrapeResult.Error!.Message);
+            await WriteSseEventAsync("fail", scrapeResult.Error!.Message);
             return;
         }
 
