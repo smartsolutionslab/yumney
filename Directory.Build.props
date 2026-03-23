@@ -7,6 +7,9 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <RootNamespace>SmartSolutionsLab.$(MSBuildProjectName)</RootNamespace>
+
+    <!-- Versioning — overridden by CI via /p:Version -->
+    <VersionPrefix>1.0.0</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -111,6 +112,13 @@ public static class HostBuilderExtensions
         }
 
         app.MapDefaultEndpoints();
+
+        app.MapGet("/version", () => new
+        {
+            Version = typeof(HostBuilderExtensions).Assembly
+                .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown",
+            Environment = app.Environment.EnvironmentName,
+        }).AllowAnonymous();
 
         return app;
     }
