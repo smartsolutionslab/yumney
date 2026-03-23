@@ -129,10 +129,17 @@ export class RecipeApiService {
   importRecipeStream(url: string): Observable<ImportStreamEvent> {
     return new Observable((subscriber) => {
       const abortController = new AbortController();
+      let completed = false;
 
-      this.fetchSseStream(url, abortController.signal, subscriber);
+      this.fetchSseStream(url, abortController.signal, subscriber).then(
+        () => (completed = true),
+      );
 
-      return () => abortController.abort();
+      return () => {
+        if (!completed) {
+          abortController.abort();
+        }
+      };
     });
   }
 
