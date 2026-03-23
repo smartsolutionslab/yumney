@@ -3,25 +3,74 @@ name: Deploy
 on:
   push:
     branches: [main, develop]
+    tags: ['v*']
 
 permissions:
   id-token: write
   contents: read
+  packages: write
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  NODE_VERSION: '22'
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/yumney
 
 jobs:
   test:
     name: Run Tests
     uses: ./.github/workflows/ci.yml
 
-  deploy:
-    name: Deploy to Azure
-    needs: test
+  version:
+    name: Determine Version
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
-    env:
-      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      image_tag: ${{ steps.version.outputs.image_tag }}
+      environment: ${{ steps.version.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Determine version and environment
+        id: version
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            IMAGE_TAG="${VERSION}"
+            ENVIRONMENT="production"
+          elif [[ "${{ github.ref_name }}" == "main" ]]; then
+            LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            VERSION="${LATEST_TAG#v}"
+            IMAGE_TAG="${VERSION}"
+            ENVIRONMENT="production"
+          elif [[ "${{ github.ref_name }}" == "develop" ]]; then
+            LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            BASE_VERSION="${LATEST_TAG#v}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+            NEXT_PATCH=$((PATCH + 1))
+            VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}-dev.${{ github.run_number }}"
+            IMAGE_TAG="${MAJOR}.${MINOR}.${NEXT_PATCH}-dev.${{ github.run_number }}"
+            ENVIRONMENT="staging"
+          else
+            BRANCH_SLUG=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g' | cut -c1-30)
+            VERSION="0.0.0-${BRANCH_SLUG}.${{ github.run_number }}"
+            IMAGE_TAG="${BRANCH_SLUG}-${{ github.run_number }}"
+            ENVIRONMENT="staging"
+          fi
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "environment=${ENVIRONMENT}" >> "$GITHUB_OUTPUT"
+          echo "### Version: \`${VERSION}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Image Tag: \`${IMAGE_TAG}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Environment: \`${ENVIRONMENT}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  build-and-push:
+    name: Build & Push Images
+    needs: [test, version]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
@@ -29,17 +78,22 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Install Aspire workload & CLI
-        run: |
-          dotnet workload install aspire
-          dotnet tool install -g aspire
+      - name: Install Aspire workload
+        run: dotnet workload install aspire
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Write environment-specific frontend config
         run: |
@@ -59,6 +113,69 @@ jobs:
           node scripts/copy-remotes.mjs
         working-directory: client
 
+      - name: Restore .NET
+        run: dotnet restore Yumney.slnx
+
+      - name: Build .NET with version
+        run: dotnet build Yumney.slnx --no-restore --configuration Release /p:Version=${{ needs.version.outputs.version }}
+
+      - name: Publish and containerize services
+        run: |
+          TAG="${{ needs.version.outputs.image_tag }}"
+
+          declare -A SERVICES=(
+            ["recipes-api"]="Yumney.Recipes.Api"
+            ["shopping-api"]="Yumney.Shopping.Api"
+            ["users-api"]="Yumney.Users.Api"
+            ["gateway"]="Yumney.Gateway"
+            ["migration-runner"]="Yumney.MigrationRunner"
+          )
+
+          for SLUG in "${!SERVICES[@]}"; do
+            PROJECT="${SERVICES[$SLUG]}"
+            IMAGE="${{ env.IMAGE_PREFIX }}/${SLUG}"
+            echo "::group::${SLUG} (${PROJECT})"
+
+            dotnet publish "src/${PROJECT}/${PROJECT}.csproj" \
+              --no-build --configuration Release --output "./publish/${SLUG}"
+
+            docker build \
+              --tag "${IMAGE}:${TAG}" \
+              --tag "${IMAGE}:latest" \
+              --label "org.opencontainers.image.version=${TAG}" \
+              --label "org.opencontainers.image.revision=${{ github.sha }}" \
+              --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" \
+              --file docker/Dockerfile.service \
+              "./publish/${SLUG}"
+
+            docker push "${IMAGE}:${TAG}"
+            docker push "${IMAGE}:latest"
+            echo "::endgroup::"
+          done
+
+  deploy:
+    name: Deploy to ${{ needs.version.outputs.environment }}
+    needs: [build-and-push, version]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.version.outputs.environment }}
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install Aspire workload & CLI
+        run: |
+          dotnet workload install aspire
+          dotnet tool install -g aspire
+
       - name: Azure login
         uses: azure/login@v2
         with:
@@ -70,9 +187,11 @@ jobs:
         run: aspire deploy
         working-directory: src/Yumney.AppHost
         env:
+          ASPNETCORE_ENVIRONMENT: ${{ needs.version.outputs.environment == 'production' && 'Production' || 'Staging' }}
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           Azure__Location: ${{ vars.AZURE_LOCATION }}
           Azure__ResourceGroup: ${{ vars.AZURE_RESOURCE_GROUP }}
           Parameters__PostgresUser: ${{ vars.POSTGRES_USER }}
           Parameters__PostgresPassword: ${{ secrets.POSTGRES_PASSWORD }}
           Parameters__KeycloakPassword: ${{ secrets.KEYCLOAK_PASSWORD }}
+          Parameters__OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}

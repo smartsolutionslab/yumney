@@ -1,0 +1,12 @@
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+
+ARG ENTRY_DLL
+ENV ASPNETCORE_URLS=http://+:8080
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+
+WORKDIR /app
+COPY . .
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet"]
