@@ -14,6 +14,7 @@ using SmartSolutionsLab.Yumney.Users.Infrastructure;
 
 namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
 
+#pragma warning disable SA1303 // Const field names should begin with upper-case letter (editorconfig requires camelCase for private fields)
 #pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase for private fields)
 public sealed class KeycloakAdminService(
     HttpClient httpClient,
@@ -22,7 +23,7 @@ public sealed class KeycloakAdminService(
     ILogger<KeycloakAdminService> logger)
     : IKeycloakAdminService
 {
-    private const string TokenCacheKey = "keycloak:admin:token";
+    private const string tokenCacheKey = "keycloak:admin:token";
 
     private static readonly JsonSerializerOptions jsonOptions = new()
     {
@@ -141,7 +142,7 @@ public sealed class KeycloakAdminService(
 
     private async Task<Result<string>> GetServiceAccountTokenAsync(CancellationToken cancellationToken)
     {
-        var cachedToken = await cache.GetStringAsync(TokenCacheKey, cancellationToken);
+        var cachedToken = await cache.GetStringAsync(tokenCacheKey, cancellationToken);
         if (!string.IsNullOrEmpty(cachedToken))
         {
             return Result<string>.Success(cachedToken);
@@ -168,7 +169,7 @@ public sealed class KeycloakAdminService(
             var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
 
             await cache.SetStringAsync(
-                TokenCacheKey,
+                tokenCacheKey,
                 tokenResponse!.AccessToken,
                 new DistributedCacheEntryOptions
                 {

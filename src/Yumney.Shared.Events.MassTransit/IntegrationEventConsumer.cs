@@ -8,6 +8,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Events.MassTransit;
 /// <summary>
 /// Generic MassTransit consumer that delegates to IIntegrationEventHandler&lt;TEvent&gt; implementations.
 /// </summary>
+/// <typeparam name="TEvent">The integration event type to consume.</typeparam>
 public sealed class IntegrationEventConsumer<TEvent>(
     IServiceProvider serviceProvider,
     ILogger<IntegrationEventConsumer<TEvent>> logger) : IConsumer<TEvent>
