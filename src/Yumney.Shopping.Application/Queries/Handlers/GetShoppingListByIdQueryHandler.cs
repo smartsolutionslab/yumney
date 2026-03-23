@@ -29,7 +29,7 @@ public sealed partial class GetShoppingListByIdQueryHandler(
             return Result<ShoppingListDetailDto>.Failure(GetShoppingListByIdErrors.NotFound);
         }
 
-        var owner = new OwnerIdentifier(currentUser.UserId);
+        var owner = OwnerIdentifier.From(currentUser.UserId);
 
         if (shoppingList.Owner != owner)
         {
