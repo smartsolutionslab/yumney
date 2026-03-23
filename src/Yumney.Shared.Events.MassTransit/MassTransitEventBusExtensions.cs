@@ -2,6 +2,7 @@ using System.Reflection;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events.MassTransit;
@@ -37,7 +38,7 @@ public static class MassTransitEventBusExtensions
             x.UsingRabbitMq((context, cfg) =>
             {
                 var connectionString = configuration.GetConnectionString("messaging");
-                if (!string.IsNullOrEmpty(connectionString))
+                if (connectionString.HasValue())
                 {
                     cfg.Host(connectionString);
                 }

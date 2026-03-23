@@ -1,3 +1,4 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -19,7 +20,7 @@ public sealed record SearchTerm
 
     public static SearchTerm? FromNullable(string? value)
     {
-        return string.IsNullOrWhiteSpace(value) ? null : new SearchTerm(value);
+        return value.HasValue() ? new SearchTerm(value!) : null;
     }
 
     public override string ToString() => Value;

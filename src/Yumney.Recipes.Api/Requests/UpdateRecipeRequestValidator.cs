@@ -1,5 +1,6 @@
 using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests;
@@ -18,7 +19,7 @@ public sealed class UpdateRecipeRequestValidator : AbstractValidator<UpdateRecip
 
         RuleFor(x => x.ImageUrl!)
             .MustBeValidHttpUrl(ImageUrl.MaxLength)
-            .When(x => !string.IsNullOrWhiteSpace(x.ImageUrl));
+            .When(x => x.ImageUrl.HasValue());
 
         RuleFor(x => x.Difficulty)
             .NotEmpty()

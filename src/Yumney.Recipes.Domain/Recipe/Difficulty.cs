@@ -1,3 +1,4 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -18,7 +19,7 @@ public sealed record Difficulty
     }
 
     public static Difficulty? FromNullable(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? null : new Difficulty(value);
+        value.HasValue() ? new Difficulty(value!) : null;
 
     public override string ToString() => Value;
 }

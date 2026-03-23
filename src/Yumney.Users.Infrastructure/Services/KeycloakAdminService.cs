@@ -143,9 +143,9 @@ public sealed class KeycloakAdminService(
     private async Task<Result<string>> GetServiceAccountTokenAsync(CancellationToken cancellationToken)
     {
         var cachedToken = await cache.GetStringAsync(tokenCacheKey, cancellationToken);
-        if (!string.IsNullOrEmpty(cachedToken))
+        if (cachedToken.HasValue())
         {
-            return Result<string>.Success(cachedToken);
+            return Result<string>.Success(cachedToken!);
         }
 
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -233,20 +233,20 @@ public sealed class KeycloakAdminService(
     private Result<KeycloakUserId> ExtractKeycloakUserId(HttpResponseMessage response)
     {
         var locationHeader = response.Headers.Location?.ToString();
-        if (string.IsNullOrEmpty(locationHeader))
+        if (!locationHeader.HasValue())
         {
             logger.LogError("Keycloak did not return a Location header after user creation");
             return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
         }
 
-        var keycloakUserIdString = locationHeader.Split('/').LastOrDefault();
-        if (string.IsNullOrEmpty(keycloakUserIdString))
+        var keycloakUserIdString = locationHeader!.Split('/').LastOrDefault();
+        if (!keycloakUserIdString.HasValue())
         {
             logger.LogError("Malformed Location header: {LocationHeader}", locationHeader);
             return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
         }
 
-        return Result<KeycloakUserId>.Success(new KeycloakUserId(keycloakUserIdString));
+        return Result<KeycloakUserId>.Success(new KeycloakUserId(keycloakUserIdString!));
     }
 
     private sealed record TokenResponse(
