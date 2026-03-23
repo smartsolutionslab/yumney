@@ -1,10 +1,9 @@
+using System.Text;
 using FluentValidation;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
@@ -54,6 +53,13 @@ public static class RecipesEndpoints
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .RequireRateLimiting("RecipeImport")
             .DisableAntiforgery();
+
+        group.MapGet("/import/stream", ImportStreamAsync)
+            .WithName("ImportRecipeStream")
+            .WithTags("Recipes")
+            .Produces(StatusCodes.Status200OK, contentType: "text/event-stream")
+            .ProducesProblem(StatusCodes.Status502BadGateway)
+            .RequireRateLimiting("RecipeImport");
 
         group.MapPost("/", SaveAsync)
             .WithName("SaveRecipe")
@@ -213,5 +219,48 @@ public static class RecipesEndpoints
         var command = new ImportRecipeFromPhotosCommand(photoDataList);
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
+    }
+
+    private static async Task ImportStreamAsync(
+        HttpContext httpContext,
+        string url,
+        IWebScraper scraper,
+        IRecipeExtractionService extraction,
+        CancellationToken cancellationToken)
+    {
+        httpContext.Response.ContentType = "text/event-stream";
+        httpContext.Response.Headers.CacheControl = "no-cache";
+        httpContext.Response.Headers.Connection = "keep-alive";
+
+        var writer = httpContext.Response.BodyWriter;
+
+        async Task WriteSseEventAsync(string eventType, string data)
+        {
+            var line = $"event: {eventType}\ndata: {data}\n\n";
+            await httpContext.Response.WriteAsync(line, cancellationToken);
+            await httpContext.Response.Body.FlushAsync(cancellationToken);
+        }
+
+        var recipeUrl = new RecipeUrl(url);
+
+        await WriteSseEventAsync("status", "Fetching page...");
+
+        var scrapeResult = await scraper.ScrapeAsync(recipeUrl, cancellationToken);
+        if (scrapeResult.IsFailure)
+        {
+            await WriteSseEventAsync("error", scrapeResult.Error!.Message);
+            return;
+        }
+
+        await WriteSseEventAsync("status", "Extracting recipe...");
+
+        var buffer = new StringBuilder();
+        await foreach (var chunk in extraction.StreamExtractAsync(scrapeResult.Value, cancellationToken))
+        {
+            buffer.Append(chunk);
+            await WriteSseEventAsync("chunk", chunk);
+        }
+
+        await WriteSseEventAsync("done", buffer.ToString());
     }
 }

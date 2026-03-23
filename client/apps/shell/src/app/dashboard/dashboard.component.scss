@@ -2,6 +2,29 @@
 @use 'buttons';
 @use 'forms';
 
+.streaming-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--yn-text-muted);
+}
+
+.streaming-preview {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--yn-background-subtle);
+  border: 1px solid var(--yn-border-light);
+  font-size: 0.75rem;
+  color: var(--yn-text-muted);
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .dashboard-container {
   max-width: 1200px;
   margin: 0 auto;

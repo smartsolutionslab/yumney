@@ -1,7 +1,12 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
+import {
+  RecipeApiService,
+  ImportRecipeResponse,
+  ImportStreamEvent,
+} from '@yumney/shared/api-client';
 import {
   urlValidator,
   hasControlError,
@@ -37,6 +42,8 @@ export class DashboardComponent {
   private importState = createAsyncState(inject(DestroyRef));
   private saveState = createAsyncState(inject(DestroyRef));
 
+  private destroyRef = inject(DestroyRef);
+
   isLoading = this.importState.isLoading;
   isSaving = this.saveState.isLoading;
   serverError = signal<string | null>(null);
@@ -44,6 +51,8 @@ export class DashboardComponent {
   sourceUrl = signal<string | null>(null);
   saveSuccess = signal<string | null>(null);
   isManualEntry = signal(false);
+  streamingStatus = signal<string | null>(null);
+  streamingChunks = signal('');
 
   form = this.fb.nonNullable.group({
     url: ['', [Validators.required, Validators.maxLength(VALIDATION.URL_MAX_LENGTH), urlValidator]],
@@ -59,6 +68,30 @@ export class DashboardComponent {
 
     const { url } = this.form.getRawValue();
 
+    if (typeof EventSource !== 'undefined') {
+      this.importWithStreaming(url);
+    } else {
+      this.importWithoutStreaming(url);
+    }
+  }
+
+  private importWithStreaming(url: string): void {
+    this.importState.isLoading.set(true);
+
+    this.recipeApi
+      .importRecipeStream(url)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (event: ImportStreamEvent) => this.handleStreamEvent(event, url),
+        error: () => {
+          this.importState.isLoading.set(false);
+          this.streamingStatus.set(null);
+          this.serverError.set('dashboard.import.errors.generic');
+        },
+      });
+  }
+
+  private importWithoutStreaming(url: string): void {
     this.importState.execute(
       this.recipeApi.importRecipe({ url }),
       DashboardComponent.importErrorMap,
@@ -69,6 +102,34 @@ export class DashboardComponent {
       },
       (error) => this.serverError.set(error),
     );
+  }
+
+  private handleStreamEvent(event: ImportStreamEvent, url: string): void {
+    switch (event.type) {
+      case 'status':
+        this.streamingStatus.set(event.data);
+        break;
+      case 'chunk':
+        this.streamingChunks.update((prev) => prev + event.data);
+        break;
+      case 'done':
+        this.importState.isLoading.set(false);
+        this.streamingStatus.set(null);
+        try {
+          const recipe = JSON.parse(event.data) as ImportRecipeResponse;
+          this.extractedRecipe.set(recipe);
+          this.sourceUrl.set(url);
+          this.form.reset();
+        } catch {
+          this.serverError.set('dashboard.import.errors.generic');
+        }
+        break;
+      case 'error':
+        this.importState.isLoading.set(false);
+        this.streamingStatus.set(null);
+        this.serverError.set('dashboard.import.errors.generic');
+        break;
+    }
   }
 
   onImportFromPhotos(event: Event): void {
@@ -145,5 +206,7 @@ export class DashboardComponent {
     this.extractedRecipe.set(null);
     this.saveSuccess.set(null);
     this.isManualEntry.set(false);
+    this.streamingStatus.set(null);
+    this.streamingChunks.set('');
   }
 }

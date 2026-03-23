@@ -4,6 +4,8 @@ export const API_ENDPOINTS = {
   recipes: {
     base: `${API_BASE}/recipes`,
     import: `${API_BASE}/recipes/import`,
+    importStream: (url: string) =>
+      `${API_BASE}/recipes/import/stream?url=${encodeURIComponent(url)}`,
     importFromPhotos: `${API_BASE}/recipes/import-from-photos`,
     byIdentifier: (identifier: string) => `${API_BASE}/recipes/${identifier}`,
   },
