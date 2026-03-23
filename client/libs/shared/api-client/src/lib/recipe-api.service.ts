@@ -129,23 +129,16 @@ export class RecipeApiService {
   importRecipeStream(url: string): Observable<ImportStreamEvent> {
     return new Observable((subscriber) => {
       const abortController = new AbortController();
-      let completed = false;
 
-      this.fetchSseStream(url, abortController.signal, subscriber).then(
-        () => (completed = true),
-      );
+      this.fetchSseStream(url, abortController, subscriber);
 
-      return () => {
-        if (!completed) {
-          abortController.abort();
-        }
-      };
+      return () => abortController.abort();
     });
   }
 
   private async fetchSseStream(
     url: string,
-    signal: AbortSignal,
+    abortController: AbortController,
     subscriber: import('rxjs').Subscriber<ImportStreamEvent>,
   ): Promise<void> {
     const headers: Record<string, string> = { Accept: 'text/event-stream' };
@@ -153,6 +146,8 @@ export class RecipeApiService {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
+
+    const signal = abortController.signal;
 
     let response: Response;
     try {
@@ -195,8 +190,9 @@ export class RecipeApiService {
             subscriber.next({ type, data });
 
             if (type === 'done' || type === 'fail') {
+              await reader.cancel();
+              abortController.abort();
               subscriber.complete();
-              reader.cancel();
               return;
             }
 
@@ -205,6 +201,7 @@ export class RecipeApiService {
         }
       }
 
+      abortController.abort();
       subscriber.complete();
     } catch {
       if (!signal.aborted) {
