@@ -222,18 +222,26 @@ if (builder.ExecutionContext.IsRunMode)
 {
     var shell = builder.AddJavaScriptApp("shell", "../../client", "serve:shell")
         .WithYarn()
+        .WithEnvironment("NX_DAEMON", "false")
+        .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
         .WithHttpEndpoint(targetPort: 4200);
 
     var recipesMfe = builder.AddJavaScriptApp("recipes-mfe", "../../client", "serve:recipes")
         .WithYarn()
+        .WithEnvironment("NX_DAEMON", "false")
+        .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
         .WithHttpEndpoint(targetPort: 4201);
 
     var shoppingMfe = builder.AddJavaScriptApp("shopping-mfe", "../../client", "serve:shopping")
         .WithYarn()
+        .WithEnvironment("NX_DAEMON", "false")
+        .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
         .WithHttpEndpoint(targetPort: 4202);
 
     var accountMfe = builder.AddJavaScriptApp("account-mfe", "../../client", "serve:account")
         .WithYarn()
+        .WithEnvironment("NX_DAEMON", "false")
+        .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
         .WithHttpEndpoint(targetPort: 4203);
 
     builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")

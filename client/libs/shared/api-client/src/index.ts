@@ -3,6 +3,7 @@ export {
   RecipeApiService,
   type ImportRecipeRequest,
   type ImportRecipeResponse,
+  type ImportStreamEvent,
   type ExtractedIngredient,
   type ExtractedStep,
   type SaveRecipeRequest,
