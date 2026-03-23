@@ -1,30 +1,36 @@
-using Serilog;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
-
 builder.AddServiceDefaults();
-
-builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? ["http://localhost:4200"])
-            .AllowAnyHeader()
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? ["http://localhost:4200"];
+
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyMethod()
+            .AllowAnyHeader()
             .AllowCredentials();
     });
 });
 
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddServiceDiscoveryDestinationResolver();
+
 var app = builder.Build();
 
-app.UseSerilogRequestLogging()
-    .UseCors();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseCors();
 
 app.MapDefaultEndpoints()
     .MapReverseProxy();

@@ -1,12 +1,11 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '@yumney/shared/auth';
 
 @Component({
   selector: 'yn-login',
-  imports: [FormsModule, TranslocoModule, RouterLink],
+  imports: [TranslocoModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -14,10 +13,14 @@ import { AuthService } from '@yumney/shared/auth';
 export class LoginComponent {
   private authService = inject(AuthService);
 
-  rememberMe = false;
+  rememberMe = signal(false);
 
   onLogin(): void {
-    this.authService.login(this.rememberMe);
+    this.authService.login(this.rememberMe());
+  }
+
+  onRememberMeChange(event: Event): void {
+    this.rememberMe.set((event.target as HTMLInputElement).checked);
   }
 
   onForgotPassword(): void {

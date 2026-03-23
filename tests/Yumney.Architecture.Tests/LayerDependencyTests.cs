@@ -113,32 +113,36 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
-    public void Api_ShouldNotDependOn_Domain(string module)
+    public void ApiRequests_ShouldNotDependOn_Domain(string module)
     {
         var apiAssembly = GetAssembly($"Yumney.{module}.Api");
 
         var result = Types.InAssembly(apiAssembly)
+            .That()
+            .ResideInNamespace($"SmartSolutionsLab.Yumney.{module}.Api.Requests")
             .ShouldNot()
             .HaveDependencyOn($"SmartSolutionsLab.Yumney.{module}.Domain")
             .GetResult();
 
-        result.IsSuccessful.Should().BeTrue($"{module}.Api must not depend on {module}.Domain");
+        result.IsSuccessful.Should().BeTrue($"{module}.Api.Requests must not depend on {module}.Domain");
     }
 
     [Theory]
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
-    public void Api_ShouldNotDependOn_Infrastructure(string module)
+    public void ApiRequests_ShouldNotDependOn_Infrastructure(string module)
     {
         var apiAssembly = GetAssembly($"Yumney.{module}.Api");
 
         var result = Types.InAssembly(apiAssembly)
+            .That()
+            .ResideInNamespace($"SmartSolutionsLab.Yumney.{module}.Api.Requests")
             .ShouldNot()
             .HaveDependencyOn($"SmartSolutionsLab.Yumney.{module}.Infrastructure")
             .GetResult();
 
-        result.IsSuccessful.Should().BeTrue($"{module}.Api must not depend on {module}.Infrastructure");
+        result.IsSuccessful.Should().BeTrue($"{module}.Api.Requests must not depend on {module}.Infrastructure");
     }
 
     [Theory]

@@ -1,13 +1,14 @@
 using FluentValidation;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shared.Web.Validation;
+using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using ShoppingListItem = SmartSolutionsLab.Yumney.Shopping.Application.Commands.ShoppingListItem;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
 
@@ -34,6 +35,18 @@ public static class ShoppingEndpoints
             .Produces<ShoppingListDetailDto>()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapPut("/{identifier:guid}/items/{itemId:guid}/check", CheckOffItemAsync)
+            .WithName("CheckOffItem")
+            .WithTags("Shopping")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        group.MapPut("/{identifier:guid}/check-all", CheckOffAllItemsAsync)
+            .WithName("CheckOffAllItems")
+            .WithTags("Shopping")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 
@@ -43,28 +56,22 @@ public static class ShoppingEndpoints
         ICommandHandler<CreateShoppingListCommand, Result<ShoppingListDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
         var command = new CreateShoppingListCommand(
             new ShoppingListTitle(request.Title),
-            request.Items.Select(i => new CreateShoppingListItemCommand(
+            request.Items.Select(i => new ShoppingListItem(
                 new ItemName(i.Name),
                 Amount.FromNullable(i.Amount),
                 Unit.FromNullable(i.Unit))).ToList(),
-            request.RecipeIdentifier);
+            RecipeReference.FromNullable(request.RecipeReference));
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Created($"/api/v1/shopping-lists/{result.Value.Identifier}", result.Value);
+        return result.ToCreated($"/api/v1/shopping-lists/{result.Value?.Identifier}");
     }
 
     private static async Task<IResult> GetAllAsync(
@@ -74,12 +81,7 @@ public static class ShoppingEndpoints
         var query = new GetShoppingListsQuery();
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> GetByIdAsync(
@@ -87,14 +89,39 @@ public static class ShoppingEndpoints
         IQueryHandler<GetShoppingListByIdQuery, Result<ShoppingListDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var query = new GetShoppingListByIdQuery(new ShoppingListIdentifier(identifier));
+        var query = new GetShoppingListByIdQuery(ShoppingListIdentifier.From(identifier));
         var result = await handler.HandleAsync(query, cancellationToken);
 
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
+        return result.ToOk();
+    }
 
-        return Results.Ok(result.Value);
+    private static async Task<IResult> CheckOffItemAsync(
+        Guid identifier,
+        Guid itemId,
+        CheckOffItemRequest request,
+        ICommandHandler<CheckOffItemCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new CheckOffItemCommand(
+            ShoppingListIdentifier.From(identifier),
+            itemId,
+            request.IsChecked);
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        return result.ToNoContent();
+    }
+
+    private static async Task<IResult> CheckOffAllItemsAsync(
+        Guid identifier,
+        CheckOffItemRequest request,
+        ICommandHandler<CheckOffAllItemsCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new CheckOffAllItemsCommand(
+            ShoppingListIdentifier.From(identifier),
+            request.IsChecked);
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        return result.ToNoContent();
     }
 }

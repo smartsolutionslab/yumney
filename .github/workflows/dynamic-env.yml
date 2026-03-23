@@ -1,0 +1,334 @@
+name: Dynamic Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Action to perform
+        required: true
+        type: choice
+        options:
+          - create
+          - update
+          - destroy
+      env_name:
+        description: Environment name (defaults to branch name)
+        required: false
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  prepare:
+    name: Prepare Environment Name
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.sanitize.outputs.env_name }}
+      resource_group: ${{ steps.sanitize.outputs.resource_group }}
+      keyvault_name: ${{ steps.sanitize.outputs.keyvault_name }}
+    steps:
+      - name: Sanitize environment name
+        id: sanitize
+        run: |
+          RAW_NAME="${{ inputs.env_name }}"
+          if [[ -z "${RAW_NAME}" ]]; then
+            RAW_NAME="${GITHUB_REF_NAME}"
+          fi
+
+          # Lowercase, replace non-alphanumeric with hyphens, trim hyphens, truncate to 20 chars
+          SANITIZED=$(echo "${RAW_NAME}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//' | cut -c1-20)
+
+          if [[ -z "${SANITIZED}" ]]; then
+            echo "::error::Environment name resolved to empty string"
+            exit 1
+          fi
+
+          # Block reserved names
+          if [[ "${SANITIZED}" == "staging" || "${SANITIZED}" == "production" ]]; then
+            echo "::error::Reserved environment name '${SANITIZED}' cannot be used for dynamic environments"
+            exit 1
+          fi
+
+          echo "env_name=${SANITIZED}" >> "$GITHUB_OUTPUT"
+          echo "resource_group=rg-yumney-${SANITIZED}" >> "$GITHUB_OUTPUT"
+          echo "keyvault_name=kv-yumney-${SANITIZED}" >> "$GITHUB_OUTPUT"
+
+          echo "### Dynamic Environment" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Action:** ${{ inputs.action }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Name:** ${SANITIZED}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Resource Group:** rg-yumney-${SANITIZED}" >> "$GITHUB_STEP_SUMMARY"
+
+  create:
+    name: Create Environment
+    if: inputs.action == 'create'
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: dynamic
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install Aspire workload & CLI
+        run: |
+          dotnet workload install aspire
+          dotnet tool install -g aspire
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create resource group
+        run: |
+          az group create \
+            --name "${{ needs.prepare.outputs.resource_group }}" \
+            --location "${{ vars.AZURE_LOCATION }}" \
+            --tags environment=dynamic branch="${GITHUB_REF_NAME}" created-by=github-actions \
+            --output none
+          echo "Resource group created: ${{ needs.prepare.outputs.resource_group }}"
+
+      - name: Generate passwords and create Key Vault
+        id: secrets
+        run: |
+          POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | cut -c1-32)
+          KEYCLOAK_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=' | cut -c1-32)
+
+          echo "::add-mask::${POSTGRES_PASSWORD}"
+          echo "::add-mask::${KEYCLOAK_PASSWORD}"
+
+          # Create Key Vault
+          az keyvault create \
+            --name "${{ needs.prepare.outputs.keyvault_name }}" \
+            --resource-group "${{ needs.prepare.outputs.resource_group }}" \
+            --location "${{ vars.AZURE_LOCATION }}" \
+            --enable-rbac-authorization false \
+            --output none
+
+          # Store secrets
+          az keyvault secret set \
+            --vault-name "${{ needs.prepare.outputs.keyvault_name }}" \
+            --name "postgres-password" \
+            --value "${POSTGRES_PASSWORD}" \
+            --output none
+
+          az keyvault secret set \
+            --vault-name "${{ needs.prepare.outputs.keyvault_name }}" \
+            --name "keycloak-password" \
+            --value "${KEYCLOAK_PASSWORD}" \
+            --output none
+
+          echo "postgres_password=${POSTGRES_PASSWORD}" >> "$GITHUB_OUTPUT"
+          echo "keycloak_password=${KEYCLOAK_PASSWORD}" >> "$GITHUB_OUTPUT"
+
+      - name: Write frontend config
+        run: |
+          mkdir -p apps/shell/src/assets/config
+          echo '{
+            "keycloakUrl": "https://placeholder.keycloak.url",
+            "keycloakRealm": "yumney",
+            "keycloakClientId": "yumney-web"
+          }' > apps/shell/src/assets/config/app-config.json
+        working-directory: client
+
+      - name: Build Angular frontend
+        run: |
+          corepack enable
+          yarn install --immutable
+          yarn build:all
+          node scripts/copy-remotes.mjs
+        working-directory: client
+
+      - name: Deploy to Azure
+        run: aspire deploy
+        working-directory: src/Yumney.AppHost
+        env:
+          Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          Azure__Location: ${{ vars.AZURE_LOCATION }}
+          Azure__ResourceGroup: ${{ needs.prepare.outputs.resource_group }}
+          Parameters__PostgresUser: ${{ vars.POSTGRES_USER }}
+          Parameters__PostgresPassword: ${{ steps.secrets.outputs.postgres_password }}
+          Parameters__KeycloakPassword: ${{ steps.secrets.outputs.keycloak_password }}
+
+      - name: Print summary
+        run: |
+          echo "### Environment Created" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Resource Group:** ${{ needs.prepare.outputs.resource_group }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Key Vault:** ${{ needs.prepare.outputs.keyvault_name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Branch:** ${GITHUB_REF_NAME}" >> "$GITHUB_STEP_SUMMARY"
+
+  update:
+    name: Update Environment
+    if: inputs.action == 'update'
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: dynamic
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install Aspire workload & CLI
+        run: |
+          dotnet workload install aspire
+          dotnet tool install -g aspire
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify resource group exists
+        run: |
+          if ! az group show --name "${{ needs.prepare.outputs.resource_group }}" --output none 2>/dev/null; then
+            echo "::error::Resource group '${{ needs.prepare.outputs.resource_group }}' does not exist. Run 'create' first."
+            exit 1
+          fi
+
+      - name: Retrieve passwords from Key Vault
+        id: secrets
+        run: |
+          POSTGRES_PASSWORD=$(az keyvault secret show \
+            --vault-name "${{ needs.prepare.outputs.keyvault_name }}" \
+            --name "postgres-password" \
+            --query value --output tsv)
+
+          KEYCLOAK_PASSWORD=$(az keyvault secret show \
+            --vault-name "${{ needs.prepare.outputs.keyvault_name }}" \
+            --name "keycloak-password" \
+            --query value --output tsv)
+
+          echo "::add-mask::${POSTGRES_PASSWORD}"
+          echo "::add-mask::${KEYCLOAK_PASSWORD}"
+
+          echo "postgres_password=${POSTGRES_PASSWORD}" >> "$GITHUB_OUTPUT"
+          echo "keycloak_password=${KEYCLOAK_PASSWORD}" >> "$GITHUB_OUTPUT"
+
+      - name: Write frontend config
+        run: |
+          mkdir -p apps/shell/src/assets/config
+          echo '{
+            "keycloakUrl": "https://placeholder.keycloak.url",
+            "keycloakRealm": "yumney",
+            "keycloakClientId": "yumney-web"
+          }' > apps/shell/src/assets/config/app-config.json
+        working-directory: client
+
+      - name: Build Angular frontend
+        run: |
+          corepack enable
+          yarn install --immutable
+          yarn build:all
+          node scripts/copy-remotes.mjs
+        working-directory: client
+
+      - name: Deploy to Azure
+        run: aspire deploy
+        working-directory: src/Yumney.AppHost
+        env:
+          Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          Azure__Location: ${{ vars.AZURE_LOCATION }}
+          Azure__ResourceGroup: ${{ needs.prepare.outputs.resource_group }}
+          Parameters__PostgresUser: ${{ vars.POSTGRES_USER }}
+          Parameters__PostgresPassword: ${{ steps.secrets.outputs.postgres_password }}
+          Parameters__KeycloakPassword: ${{ steps.secrets.outputs.keycloak_password }}
+
+      - name: Print summary
+        run: |
+          echo "### Environment Updated" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Resource Group:** ${{ needs.prepare.outputs.resource_group }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Branch:** ${GITHUB_REF_NAME}" >> "$GITHUB_STEP_SUMMARY"
+
+  destroy:
+    name: Destroy Environment
+    if: inputs.action == 'destroy'
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: dynamic
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify resource group exists
+        id: check
+        run: |
+          if ! az group show --name "${{ needs.prepare.outputs.resource_group }}" --output none 2>/dev/null; then
+            echo "::warning::Resource group '${{ needs.prepare.outputs.resource_group }}' does not exist. Nothing to destroy."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Purge Key Vault
+        if: steps.check.outputs.exists == 'true'
+        run: |
+          # Delete the Key Vault (moves to soft-deleted state)
+          az keyvault delete \
+            --name "${{ needs.prepare.outputs.keyvault_name }}" \
+            --resource-group "${{ needs.prepare.outputs.resource_group }}" \
+            --output none 2>/dev/null || true
+
+          # Purge to release the name (removes from soft-deleted state)
+          az keyvault purge \
+            --name "${{ needs.prepare.outputs.keyvault_name }}" \
+            --output none 2>/dev/null || true
+
+      - name: Delete resource group
+        if: steps.check.outputs.exists == 'true'
+        run: |
+          az group delete \
+            --name "${{ needs.prepare.outputs.resource_group }}" \
+            --yes \
+            --no-wait
+          echo "Resource group deletion initiated: ${{ needs.prepare.outputs.resource_group }}"
+
+      - name: Print summary
+        run: |
+          if [[ "${{ steps.check.outputs.exists }}" == "true" ]]; then
+            echo "### Environment Destroyed" >> "$GITHUB_STEP_SUMMARY"
+            echo "- **Resource Group:** ${{ needs.prepare.outputs.resource_group }} (deletion in progress)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Nothing to Destroy" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Resource group ${{ needs.prepare.outputs.resource_group }} did not exist." >> "$GITHUB_STEP_SUMMARY"
+          fi

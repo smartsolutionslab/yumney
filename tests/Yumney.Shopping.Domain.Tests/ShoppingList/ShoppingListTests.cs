@@ -13,7 +13,7 @@ public class ShoppingListTests
     {
         var shoppingList = CreateValidShoppingList();
 
-        shoppingList.Id.Should().NotBeEmpty();
+        shoppingList.Id.Should().NotBeNull();
     }
 
     [Fact]
@@ -29,7 +29,7 @@ public class ShoppingListTests
     [Fact]
     public void Create_ValidInput_SetsOwner()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
 
         var shoppingList = CreateValidShoppingList(owner: owner);
 
@@ -62,21 +62,21 @@ public class ShoppingListTests
     }
 
     [Fact]
-    public void Create_WithRecipeIdentifier_SetsRecipeIdentifier()
+    public void Create_WithRecipeReference_SetsRecipeReference()
     {
-        var recipeId = Guid.NewGuid();
+        var recipeReference = RecipeReference.From(Guid.NewGuid());
 
-        var shoppingList = CreateValidShoppingList(recipeIdentifier: recipeId);
+        var shoppingList = CreateValidShoppingList(recipeReference: recipeReference);
 
-        shoppingList.RecipeIdentifier.Should().Be(recipeId);
+        shoppingList.RecipeReference.Should().Be(recipeReference);
     }
 
     [Fact]
-    public void Create_WithoutRecipeIdentifier_RecipeIdentifierIsNull()
+    public void Create_WithoutRecipeReference_RecipeReferenceIsNull()
     {
         var shoppingList = CreateValidShoppingList();
 
-        shoppingList.RecipeIdentifier.Should().BeNull();
+        shoppingList.RecipeReference.Should().BeNull();
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class ShoppingListTests
         var domainEvent = shoppingList.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<ShoppingListCreatedEvent>().Subject;
 
-        domainEvent.ShoppingListIdentifier.Value.Should().Be(shoppingList.Id);
+        domainEvent.ShoppingListIdentifier.Should().Be(shoppingList.Id);
     }
 
     [Fact]
@@ -119,16 +119,86 @@ public class ShoppingListTests
         list1.Id.Should().NotBe(list2.Id);
     }
 
+    [Fact]
+    public void CheckOffItem_ChecksTheItem()
+    {
+        var items = new List<ShoppingListItem>
+        {
+            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+        };
+        var shoppingList = CreateValidShoppingList(items: items);
+
+        shoppingList.CheckOffItem(items[0].Id);
+
+        shoppingList.Items[0].IsChecked.Should().BeTrue();
+    }
+
+    [Fact]
+    public void UncheckItem_UnchecksTheItem()
+    {
+        var items = new List<ShoppingListItem>
+        {
+            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+        };
+        var shoppingList = CreateValidShoppingList(items: items);
+        shoppingList.CheckOffItem(items[0].Id);
+
+        shoppingList.UncheckItem(items[0].Id);
+
+        shoppingList.Items[0].IsChecked.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CheckAllItems_ChecksAllItems()
+    {
+        var items = new List<ShoppingListItem>
+        {
+            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+            ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
+        };
+        var shoppingList = CreateValidShoppingList(items: items);
+
+        shoppingList.CheckAllItems();
+
+        shoppingList.Items.Should().OnlyContain(i => i.IsChecked);
+    }
+
+    [Fact]
+    public void UncheckAllItems_UnchecksAllItems()
+    {
+        var items = new List<ShoppingListItem>
+        {
+            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+            ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
+        };
+        var shoppingList = CreateValidShoppingList(items: items);
+        shoppingList.CheckAllItems();
+
+        shoppingList.UncheckAllItems();
+
+        shoppingList.Items.Should().OnlyContain(i => !i.IsChecked);
+    }
+
+    [Fact]
+    public void CheckOffItem_InvalidItemId_Throws()
+    {
+        var shoppingList = CreateValidShoppingList();
+
+        var act = () => shoppingList.CheckOffItem(Guid.NewGuid());
+
+        act.Should().Throw<GuardException>();
+    }
+
     private static Domain.ShoppingList.ShoppingList CreateValidShoppingList(
         ShoppingListTitle? title = null,
         OwnerIdentifier? owner = null,
         IReadOnlyList<ShoppingListItem>? items = null,
-        Guid? recipeIdentifier = null)
+        RecipeReference? recipeReference = null)
     {
         return Domain.ShoppingList.ShoppingList.Create(
             title ?? new ShoppingListTitle("Test Shopping List"),
-            owner ?? new OwnerIdentifier("user-123"),
+            owner ?? OwnerIdentifier.From("user-123"),
             items ?? [ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"))],
-            recipeIdentifier);
+            recipeReference);
     }
 }

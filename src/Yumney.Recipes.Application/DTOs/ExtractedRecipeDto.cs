@@ -5,6 +5,7 @@ public sealed record ExtractedRecipeDto(
     IReadOnlyList<ExtractedIngredientDto> Ingredients,
     IReadOnlyList<ExtractedStepDto> Steps,
     string? Description = null,
+    string? Language = null,
     int? Servings = null,
     int? PrepTimeMinutes = null,
     int? CookTimeMinutes = null,

@@ -1,0 +1,110 @@
+{
+  "name": "recipes",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "yn",
+  "sourceRoot": "apps/recipes/src",
+  "tags": ["scope:recipes"],
+  "targets": {
+    "build": {
+      "executor": "@angular-architects/native-federation:build",
+      "options": {
+        "target": "recipes:esbuild",
+        "outputPath": "dist/apps/recipes"
+      },
+      "configurations": {
+        "production": {
+          "target": "recipes:esbuild:production"
+        },
+        "development": {
+          "target": "recipes:esbuild:development",
+          "dev": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "esbuild": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/recipes",
+        "browser": "apps/recipes/src/main.ts",
+        "polyfills": ["zone.js", "es-module-shims"],
+        "tsConfig": "apps/recipes/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/recipes/public"
+          }
+        ],
+        "styles": ["apps/recipes/src/styles.scss"],
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/src/lib/styles"]
+        }
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-architects/native-federation:build",
+      "options": {
+        "target": "recipes:serve-original",
+        "rebuildDelay": 0,
+        "dev": true,
+        "port": 4201
+      },
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "target": "recipes:serve-original:production"
+        },
+        "development": {
+          "target": "recipes:serve-original:development"
+        }
+      }
+    },
+    "serve-original": {
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "recipes:esbuild:production"
+        },
+        "development": {
+          "buildTarget": "recipes:esbuild:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/apps/recipes"
+      }
+    }
+  }
+}

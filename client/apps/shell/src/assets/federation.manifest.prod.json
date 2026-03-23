@@ -1,0 +1,5 @@
+{
+  "recipes": "/recipes/remoteEntry.json",
+  "shopping": "/shopping/remoteEntry.json",
+  "account": "/account/remoteEntry.json"
+}

@@ -15,25 +15,5 @@ public sealed record UpdateRecipeCommand(
     PreparationTime? PreparationTime = null,
     CookingTime? CookingTime = null,
     Difficulty? Difficulty = null,
-    ImageUrl? ImageUrl = null) : ICommand<Result<RecipeDetailDto>>
-{
-    public static UpdateRecipeCommand From(Guid identifier, UpdateRecipeRequest request)
-    {
-        return new UpdateRecipeCommand(
-            new RecipeIdentifier(identifier),
-            new RecipeTitle(request.Title),
-            request.Ingredients.Select(i => new SaveRecipeIngredientItem(
-                new IngredientName(i.Name),
-                Amount.FromNullable(i.Amount),
-                Unit.FromNullable(i.Unit))).ToList(),
-            request.Steps.Select(s => new SaveRecipeStepItem(
-                new StepNumber(s.Number),
-                new StepDescription(s.Description))).ToList(),
-            RecipeDescription.FromNullable(request.Description),
-            Servings.FromNullable(request.Servings),
-            PreparationTime.FromNullable(request.PrepTimeMinutes),
-            CookingTime.FromNullable(request.CookTimeMinutes),
-            Difficulty.FromNullable(request.Difficulty),
-            ImageUrl.FromNullable(request.ImageUrl));
-    }
-}
+    ImageUrl? ImageUrl = null,
+    IReadOnlyList<RecipeTag>? Tags = null) : ICommand<Result<RecipeDetailDto>>;

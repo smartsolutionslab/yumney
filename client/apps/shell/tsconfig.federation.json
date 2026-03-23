@@ -1,0 +1,44 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "..\\..\\node_modules\\@angular\\core\\fesm2022\\core.mjs",
+    "..\\..\\node_modules\\@angular\\core\\event-dispatch-contract.min.js",
+    "..\\..\\node_modules\\@angular\\core\\fesm2022\\primitives-di.mjs",
+    "..\\..\\node_modules\\@angular\\core\\fesm2022\\primitives-event-dispatch.mjs",
+    "..\\..\\node_modules\\@angular\\core\\fesm2022\\primitives-signals.mjs",
+    "..\\..\\node_modules\\@angular\\core\\fesm2022\\rxjs-interop.mjs",
+    "..\\..\\node_modules\\@angular\\common\\fesm2022\\common.mjs",
+    "..\\..\\node_modules\\@angular\\common\\fesm2022\\http.mjs",
+    "..\\..\\node_modules\\@angular\\router\\fesm2022\\router.mjs",
+    "..\\..\\node_modules\\@angular\\forms\\fesm2022\\forms.mjs",
+    "..\\..\\node_modules\\@angular\\forms\\fesm2022\\signals.mjs",
+    "..\\..\\node_modules\\@angular\\forms\\fesm2022\\signals-compat.mjs",
+    "..\\..\\node_modules\\@angular\\platform-browser\\fesm2022\\platform-browser.mjs",
+    "..\\..\\node_modules\\@jsverse\\transloco\\esm2022\\jsverse-transloco.mjs",
+    "..\\..\\node_modules\\angular-oauth2-oidc\\fesm2022\\angular-oauth2-oidc.mjs",
+    "..\\..\\node_modules\\rxjs\\dist\\esm\\index.js",
+    "..\\..\\node_modules\\rxjs\\dist\\esm\\operators\\index.js"
+  ],
+  "exclude": [
+    "jest.config.ts",
+    "src/test-setup.ts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "vite.config.ts",
+    "vite.config.mts",
+    "vitest.config.ts",
+    "vitest.config.mts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.tsx",
+    "src/**/*.test.js",
+    "src/**/*.spec.js",
+    "src/**/*.test.jsx",
+    "src/**/*.spec.jsx",
+    "src/test-setup.ts"
+  ]
+}

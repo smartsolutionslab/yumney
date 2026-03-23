@@ -1,14 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <Sdk Name="Aspire.AppHost.Sdk" Version="13.1.2" />
+<Project Sdk="Aspire.AppHost.Sdk/13.1.3">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
     <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>yumney-apphost</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Yumney.Api\Yumney.Api.csproj" />
+    <ProjectReference Include="..\Yumney.Recipes.Api\Yumney.Recipes.Api.csproj" />
+    <ProjectReference Include="..\Yumney.Shopping.Api\Yumney.Shopping.Api.csproj" />
+    <ProjectReference Include="..\Yumney.Users.Api\Yumney.Users.Api.csproj" />
     <ProjectReference Include="..\Yumney.Gateway\Yumney.Gateway.csproj" />
     <ProjectReference Include="..\Yumney.MigrationRunner\Yumney.MigrationRunner.csproj" />
   </ItemGroup>
@@ -18,6 +20,10 @@
     <PackageReference Include="Aspire.Hosting.PostgreSQL" />
     <PackageReference Include="Aspire.Hosting.Redis" />
     <PackageReference Include="CommunityToolkit.Aspire.Hosting.Ollama" />
+    <PackageReference Include="Aspire.Hosting.Azure.AppContainers" />
+    <PackageReference Include="Aspire.Hosting.Azure.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Yarp" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" />
   </ItemGroup>
 
 </Project>

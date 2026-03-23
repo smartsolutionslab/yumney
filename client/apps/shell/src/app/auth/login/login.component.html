@@ -5,7 +5,7 @@
 
     <div class="login-form">
       <label class="remember-me">
-        <input type="checkbox" [(ngModel)]="rememberMe" />
+        <input type="checkbox" [checked]="rememberMe()" (change)="onRememberMeChange($event)" />
         {{ t('auth.login.rememberMe') }}
       </label>
 
@@ -14,7 +14,12 @@
       </button>
 
       <p class="forgot-password">
-        <a (click)="onForgotPassword()" (keydown.enter)="onForgotPassword()" tabindex="0">
+        <a
+          (click)="onForgotPassword()"
+          (keydown.enter)="onForgotPassword()"
+          tabindex="0"
+          role="button"
+        >
           {{ t('auth.login.forgotPassword') }}
         </a>
       </p>

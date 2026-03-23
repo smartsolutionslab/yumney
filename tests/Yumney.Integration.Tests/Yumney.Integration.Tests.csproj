@@ -6,16 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Yumney.Api\Yumney.Api.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.AppHost\Yumney.AppHost.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Recipes.Infrastructure\Yumney.Recipes.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shopping.Infrastructure\Yumney.Shopping.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Users.Infrastructure\Yumney.Users.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Testing" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Bogus" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 
 </Project>

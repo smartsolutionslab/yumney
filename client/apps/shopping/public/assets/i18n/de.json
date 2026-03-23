@@ -1,0 +1,54 @@
+{
+  "layout": {
+    "header": {
+      "greeting": "Hallo, {{name}}",
+      "logout": "Abmelden",
+      "login": "Anmelden",
+      "myRecipes": "Meine Rezepte",
+      "shoppingLists": "Einkaufslisten",
+      "navigation": "Hauptnavigation",
+      "switchLanguage": "Sprache wechseln"
+    }
+  },
+  "shopping": {
+    "list": {
+      "title": "Einkaufslisten",
+      "loading": "Einkaufslisten werden geladen...",
+      "itemCount": "{{count}} Artikel",
+      "empty": {
+        "title": "Noch keine Einkaufslisten",
+        "message": "Erstelle eine Einkaufsliste aus einem Rezept, um loszulegen."
+      },
+      "errors": {
+        "generic": "Einkaufslisten konnten nicht geladen werden. Bitte versuche es später erneut."
+      }
+    },
+    "create": {
+      "title": "Einkaufsliste erstellen",
+      "back": "Zurück zum Rezept",
+      "listTitle": "Listenname",
+      "ingredients": "Zutaten",
+      "selectAll": "Alle auswählen",
+      "deselectAll": "Alle abwählen",
+      "submit": "Einkaufsliste erstellen",
+      "creating": "Wird erstellt...",
+      "loading": "Rezept wird geladen...",
+      "errors": {
+        "recipeNotFound": "Rezept nicht gefunden.",
+        "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut.",
+        "createFailed": "Einkaufsliste konnte nicht erstellt werden. Bitte versuche es erneut."
+      }
+    },
+    "detail": {
+      "back": "Zurück zu Einkaufslisten",
+      "loading": "Einkaufsliste wird geladen...",
+      "viewRecipe": "Rezept anzeigen",
+      "checkAll": "Alle abhaken",
+      "reset": "Zurücksetzen",
+      "errors": {
+        "notFound": "Einkaufsliste nicht gefunden.",
+        "generic": "Einkaufsliste konnte nicht geladen werden. Bitte versuche es später erneut."
+      }
+    }
+  }
+}

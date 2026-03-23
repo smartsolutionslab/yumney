@@ -48,5 +48,10 @@ Thumbs.db
 .claude
 .playwright-mcp
 
+# Playwright
+test-results/
+playwright-report/
+apps/shell-e2e/.auth/
+
 vite.config.*.timestamp*
 vitest.config.*.timestamp*

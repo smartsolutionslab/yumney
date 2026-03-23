@@ -13,8 +13,8 @@
       </div>
     } @else {
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        @if (serverError()) {
-          <div class="error-banner">{{ t(serverError()!) }}</div>
+        @if (serverError(); as error) {
+          <div class="error-banner" role="alert">{{ t(error) }}</div>
         }
 
         <div class="form-field">

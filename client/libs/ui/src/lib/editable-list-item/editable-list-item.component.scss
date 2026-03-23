@@ -1,0 +1,55 @@
+.editable-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.item-content {
+  flex: 1;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.item-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  padding-top: 0.25rem;
+}
+
+.action-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--yn-border);
+  border-radius: 4px;
+  background: var(--yn-surface);
+  color: var(--yn-text-body);
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(:disabled) {
+    background: var(--yn-background-hover);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.remove-btn {
+  color: var(--yn-danger);
+  font-size: 1rem;
+
+  &:hover:not(:disabled) {
+    background: var(--yn-danger-light);
+    border-color: var(--yn-danger-border);
+  }
+}

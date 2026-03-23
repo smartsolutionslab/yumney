@@ -1,0 +1,169 @@
+<div class="recipe-detail-container" *transloco="let t">
+  <a routerLink="/recipes" class="back-link"> &larr; {{ t('recipes.detail.back') }} </a>
+
+  @if (isLoading()) {
+    <div class="loading">
+      <span class="spinner"></span>
+      <span>{{ t('recipes.detail.loading') }}</span>
+    </div>
+  }
+
+  @if (serverError(); as error) {
+    <div class="error-banner" role="alert">{{ t(error) }}</div>
+  }
+
+  @if (recipe(); as recipe) {
+    <div class="recipe-hero">
+      @if (recipe.imageUrl) {
+        <img [src]="recipe.imageUrl" [alt]="recipe.title" class="hero-image" />
+      } @else {
+        <div class="hero-placeholder"></div>
+      }
+    </div>
+
+    <h1 class="recipe-title">{{ recipe.title }}</h1>
+
+    @if (recipe.description) {
+      <p class="recipe-description">{{ recipe.description }}</p>
+    }
+
+    <div class="meta-bar">
+      @if (recipe.servings) {
+        <div class="meta-item servings-adjuster">
+          <span class="meta-label">{{
+            t('recipes.detail.servings', { count: desiredServings() })
+          }}</span>
+          <div class="servings-control">
+            <button
+              class="servings-button"
+              (click)="onDecreaseServings()"
+              [disabled]="desiredServings() === 1"
+              [attr.aria-label]="t('recipes.detail.a11y.decreaseServings')"
+            >
+              &minus;
+            </button>
+            <span class="servings-value" aria-live="polite">{{ desiredServings() }}</span>
+            <button
+              class="servings-button"
+              (click)="onIncreaseServings()"
+              [attr.aria-label]="t('recipes.detail.a11y.increaseServings')"
+            >
+              +
+            </button>
+          </div>
+          @if (isScaled()) {
+            <button class="reset-link" (click)="onResetServings()">
+              {{ t('recipes.detail.resetServings') }}
+            </button>
+          }
+        </div>
+      }
+      @if (recipe.prepTimeMinutes) {
+        <div class="meta-item">
+          <span class="meta-label">{{ t('recipes.detail.prepTime') }}</span>
+          <span class="meta-value">{{
+            t('recipes.detail.minutes', { minutes: recipe.prepTimeMinutes })
+          }}</span>
+        </div>
+      }
+      @if (recipe.cookTimeMinutes) {
+        <div class="meta-item">
+          <span class="meta-label">{{ t('recipes.detail.cookTime') }}</span>
+          <span class="meta-value">{{
+            t('recipes.detail.minutes', { minutes: recipe.cookTimeMinutes })
+          }}</span>
+        </div>
+      }
+      @if (totalTime()) {
+        <div class="meta-item">
+          <span class="meta-label">{{ t('recipes.detail.totalTime') }}</span>
+          <span class="meta-value">{{
+            t('recipes.detail.minutes', { minutes: totalTime() })
+          }}</span>
+        </div>
+      }
+      @if (recipe.difficulty) {
+        <div class="meta-item">
+          <span class="meta-label">{{ t('recipes.detail.difficulty') }}</span>
+          <span class="meta-value">{{ recipe.difficulty }}</span>
+        </div>
+      }
+    </div>
+
+    @if (recipe.tags && recipe.tags.length > 0) {
+      <div class="tags">
+        @for (tag of recipe.tags; track tag) {
+          <span class="tag">{{ tag }}</span>
+        }
+      </div>
+    }
+
+    <div class="actions-bar">
+      <a class="action-button" [routerLink]="['/recipes', recipe.identifier, 'edit']">
+        {{ t('recipes.detail.actions.edit') }}
+      </a>
+      <button
+        class="action-button action-button--danger"
+        [disabled]="isDeleting()"
+        (click)="onDelete()"
+      >
+        {{
+          isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete')
+        }}
+      </button>
+      <a
+        class="action-button action-button--secondary"
+        [routerLink]="['/shopping', 'create', recipe.identifier]"
+      >
+        {{ t('recipes.detail.actions.shoppingList') }}
+      </a>
+    </div>
+
+    <section class="ingredients-section">
+      <h2>{{ t('recipes.detail.ingredients') }}</h2>
+      <ul class="ingredients-list">
+        @for (ingredient of scaledIngredients(); track ingredient.name) {
+          <li>
+            @if (ingredient.amount) {
+              <span class="ingredient-amount">{{ ingredient.amount }}</span>
+            }
+            @if (ingredient.unit) {
+              <span class="ingredient-unit">{{ ingredient.unit }}</span>
+            }
+            <span class="ingredient-name">{{ ingredient.name }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="steps-section">
+      <h2>{{ t('recipes.detail.steps') }}</h2>
+      <ol class="steps-list">
+        @for (step of recipe.steps; track step.number) {
+          <li>
+            <span class="step-number">{{ step.number }}</span>
+            <span class="step-description">{{ step.description }}</span>
+          </li>
+        }
+      </ol>
+    </section>
+
+    @if (recipe.sourceUrl) {
+      <div class="source-link">
+        <a [href]="recipe.sourceUrl" target="_blank" rel="noopener noreferrer">
+          {{ t('recipes.detail.sourceUrl') }}
+        </a>
+      </div>
+    }
+
+    @if (showDeleteConfirm()) {
+      <yn-confirm-dialog
+        [message]="t('recipes.detail.delete.confirm', { title: recipe.title })"
+        [confirmLabel]="t('recipes.detail.delete.confirmButton')"
+        [cancelLabel]="t('recipes.detail.delete.cancelButton')"
+        (confirmed)="onDeleteConfirmed()"
+        (cancelled)="onDeleteCancelled()"
+      />
+    }
+  }
+</div>

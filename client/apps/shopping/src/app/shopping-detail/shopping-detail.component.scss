@@ -1,0 +1,99 @@
+@use 'banners';
+@use 'buttons';
+
+.shopping-detail-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+// .back-link provided by @use 'buttons'
+
+.loading {
+  padding: 4rem 0;
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.progress {
+  font-size: 0.875rem;
+  color: var(--yn-text-muted);
+  margin-right: auto;
+}
+
+.items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--yn-border-light);
+    font-size: 0.9375rem;
+    cursor: pointer;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &.checked .item-name,
+    &.checked .item-amount,
+    &.checked .item-unit {
+      text-decoration: line-through;
+      color: var(--yn-text-light);
+    }
+  }
+
+  input[type='checkbox'] {
+    width: 1.125rem;
+    height: 1.125rem;
+    accent-color: var(--yn-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+}
+
+.item-amount {
+  font-weight: 600;
+  color: var(--yn-primary);
+  min-width: 2.5rem;
+}
+
+.item-unit {
+  color: var(--yn-text-light);
+  min-width: 2rem;
+}
+
+.item-name {
+  color: var(--yn-text);
+}
+
+.source-link {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--yn-border-medium);
+
+  a {
+    color: var(--yn-primary);
+    text-decoration: none;
+    font-size: 0.875rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

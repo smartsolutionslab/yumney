@@ -1,0 +1,42 @@
+:root {
+  // Brand
+  --yn-primary: #f97316;
+  --yn-primary-hover: #ea580c;
+  --yn-primary-light: #fff7ed;
+  --yn-primary-light-end: #fed7aa;
+
+  // Danger
+  --yn-danger: #dc2626;
+  --yn-danger-light: #fef2f2;
+  --yn-danger-border: #fca5a5;
+
+  // Success
+  --yn-success: #059669;
+  --yn-success-light: #f0fdf4;
+
+  // Link
+  --yn-link: #4a90d9;
+  --yn-link-hover: #357abd;
+
+  // Text
+  --yn-text: #333;
+  --yn-text-secondary: #555;
+  --yn-text-muted: #666;
+  --yn-text-light: #888;
+  --yn-text-placeholder: #9ca3af;
+  --yn-text-body: #374151;
+
+  // Surface
+  --yn-surface: #fff;
+  --yn-background: #f5f5f5;
+  --yn-background-subtle: #f9fafb;
+  --yn-background-hover: #f3f4f6;
+
+  // Border
+  --yn-border: #d1d5db;
+  --yn-border-light: #f3f4f6;
+  --yn-border-medium: #e5e7eb;
+
+  // Spinner
+  --yn-spinner-track: rgb(249 115 22 / 30%);
+}

@@ -1,21 +1,21 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
   RecipeApiService,
   ImportRecipeResponse,
-  SaveRecipeRequest,
+  ImportStreamEvent,
 } from '@yumney/shared/api-client';
 import {
   urlValidator,
   hasControlError,
-  mapHttpError,
+  createAsyncState,
+  mapToSaveRecipeRequest,
   VALIDATION,
   HttpErrorMap,
 } from '@yumney/shared/models';
-import { RecipePreviewComponent } from './recipe-preview/recipe-preview.component';
+import { RecipePreviewComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-dashboard',
@@ -39,15 +39,20 @@ export class DashboardComponent {
 
   private fb = inject(FormBuilder);
   private recipeApi = inject(RecipeApiService);
+  private importState = createAsyncState(inject(DestroyRef));
+  private saveState = createAsyncState(inject(DestroyRef));
+
   private destroyRef = inject(DestroyRef);
 
-  isLoading = signal(false);
-  isSaving = signal(false);
+  isLoading = this.importState.isLoading;
+  isSaving = this.saveState.isLoading;
   serverError = signal<string | null>(null);
   extractedRecipe = signal<ImportRecipeResponse | null>(null);
   sourceUrl = signal<string | null>(null);
   saveSuccess = signal<string | null>(null);
   isManualEntry = signal(false);
+  streamingStatus = signal<string | null>(null);
+  streamingChunks = signal('');
 
   form = this.fb.nonNullable.group({
     url: ['', [Validators.required, Validators.maxLength(VALIDATION.URL_MAX_LENGTH), urlValidator]],
@@ -59,34 +64,99 @@ export class DashboardComponent {
       return;
     }
 
-    this.isLoading.set(true);
-    this.serverError.set(null);
-    this.extractedRecipe.set(null);
-    this.saveSuccess.set(null);
-    this.isManualEntry.set(false);
+    this.resetImportState();
 
     const { url } = this.form.getRawValue();
 
+    if (typeof EventSource !== 'undefined') {
+      this.importWithStreaming(url);
+    } else {
+      this.importWithoutStreaming(url);
+    }
+  }
+
+  private importWithStreaming(url: string): void {
+    this.importState.isLoading.set(true);
+
     this.recipeApi
-      .importRecipe({ url })
+      .importRecipeStream(url)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response) => {
-          this.isLoading.set(false);
-          this.extractedRecipe.set(response);
-          this.sourceUrl.set(url);
-          this.form.reset();
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.serverError.set(mapHttpError(err, DashboardComponent.importErrorMap));
+        next: (event: ImportStreamEvent) => this.handleStreamEvent(event, url),
+        error: () => {
+          this.importState.isLoading.set(false);
+          this.streamingStatus.set(null);
+          this.serverError.set('dashboard.import.errors.generic');
         },
       });
   }
 
+  private importWithoutStreaming(url: string): void {
+    this.importState.execute(
+      this.recipeApi.importRecipe({ url }),
+      DashboardComponent.importErrorMap,
+      (response) => {
+        this.extractedRecipe.set(response);
+        this.sourceUrl.set(url);
+        this.form.reset();
+      },
+      (error) => this.serverError.set(error),
+    );
+  }
+
+  private handleStreamEvent(event: ImportStreamEvent, url: string): void {
+    switch (event.type) {
+      case 'status':
+        this.streamingStatus.set(event.data);
+        break;
+      case 'chunk':
+        this.streamingChunks.update((prev) => prev + event.data);
+        break;
+      case 'done':
+        this.importState.isLoading.set(false);
+        this.streamingStatus.set(null);
+        try {
+          const recipe = JSON.parse(event.data) as ImportRecipeResponse;
+          this.extractedRecipe.set(recipe);
+          this.sourceUrl.set(url);
+          this.form.reset();
+        } catch {
+          this.serverError.set('dashboard.import.errors.generic');
+        }
+        break;
+      case 'error':
+        this.importState.isLoading.set(false);
+        this.streamingStatus.set(null);
+        this.serverError.set('dashboard.import.errors.generic');
+        break;
+    }
+  }
+
+  onImportFromPhotos(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    const photos = Array.from(files);
+    input.value = '';
+
+    this.resetImportState();
+
+    this.importState.execute(
+      this.recipeApi.importFromPhotos(photos),
+      DashboardComponent.importErrorMap,
+      (response) => {
+        this.extractedRecipe.set(response);
+        this.sourceUrl.set(null);
+      },
+      (error) => this.serverError.set(error),
+    );
+  }
+
   onCreateManually(): void {
-    this.serverError.set(null);
-    this.saveSuccess.set(null);
+    this.resetImportState();
     this.sourceUrl.set(null);
     this.isManualEntry.set(true);
     this.extractedRecipe.set({
@@ -103,47 +173,21 @@ export class DashboardComponent {
   }
 
   onSaveRecipe(recipe: ImportRecipeResponse): void {
-    const sourceUrl = this.sourceUrl();
+    const request = mapToSaveRecipeRequest(recipe, this.sourceUrl() ?? undefined);
 
-    const request: SaveRecipeRequest = {
-      title: recipe.title,
-      description: recipe.description,
-      ingredients: recipe.ingredients.map((i) => ({
-        name: i.name,
-        amount: i.amount,
-        unit: i.unit,
-      })),
-      steps: recipe.steps.map((s) => ({
-        number: s.number,
-        description: s.description,
-      })),
-      servings: recipe.servings,
-      prepTimeMinutes: recipe.prepTimeMinutes,
-      cookTimeMinutes: recipe.cookTimeMinutes,
-      difficulty: recipe.difficulty,
-      imageUrl: recipe.imageUrl,
-      sourceUrl: sourceUrl ?? undefined,
-    };
-
-    this.isSaving.set(true);
     this.serverError.set(null);
     this.saveSuccess.set(null);
 
-    this.recipeApi
-      .saveRecipe(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (saved) => {
-          this.isSaving.set(false);
-          this.extractedRecipe.set(null);
-          this.isManualEntry.set(false);
-          this.saveSuccess.set(saved.title);
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isSaving.set(false);
-          this.serverError.set(mapHttpError(err, DashboardComponent.saveErrorMap));
-        },
-      });
+    this.saveState.execute(
+      this.recipeApi.saveRecipe(request),
+      DashboardComponent.saveErrorMap,
+      (saved) => {
+        this.extractedRecipe.set(null);
+        this.isManualEntry.set(false);
+        this.saveSuccess.set(saved.title);
+      },
+      (error) => this.serverError.set(error),
+    );
   }
 
   onDiscardRecipe(): void {
@@ -155,5 +199,14 @@ export class DashboardComponent {
 
   hasError(field: string, error: string): boolean {
     return hasControlError(this.form, field, error);
+  }
+
+  private resetImportState(): void {
+    this.serverError.set(null);
+    this.extractedRecipe.set(null);
+    this.saveSuccess.set(null);
+    this.isManualEntry.set(false);
+    this.streamingStatus.set(null);
+    this.streamingChunks.set('');
   }
 }

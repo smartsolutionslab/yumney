@@ -4,10 +4,14 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public sealed record PageSize
 {
+    public const int MaxPageSize = 100;
+
     public int Value { get; }
 
-    public PageSize(int value)
+    private PageSize(int value)
     {
-        Value = Ensure.That(value).IsPositive().AndReturn();
+        Value = Ensure.That(value).IsInRange(1, MaxPageSize).AndReturn();
     }
+
+    public static PageSize From(int value) => new(value);
 }

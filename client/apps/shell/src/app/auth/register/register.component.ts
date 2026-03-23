@@ -1,14 +1,12 @@
 import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
 import {
   passwordsMatchValidator,
   hasControlError,
-  mapHttpError,
+  createAsyncState,
   VALIDATION,
   HttpErrorMap,
 } from '@yumney/shared/models';
@@ -29,11 +27,11 @@ export class RegisterComponent {
 
   private fb = inject(FormBuilder);
   private authApi = inject(AuthApiService);
-  private destroyRef = inject(DestroyRef);
+  private asyncState = createAsyncState(inject(DestroyRef));
 
-  isLoading = signal(false);
+  isLoading = this.asyncState.isLoading;
   isSuccess = signal(false);
-  serverError = signal<string | null>(null);
+  serverError = this.asyncState.serverError;
 
   form = this.fb.nonNullable.group(
     {
@@ -66,25 +64,16 @@ export class RegisterComponent {
       return;
     }
 
-    this.isLoading.set(true);
-    this.serverError.set(null);
-
     const { email, password, displayName } = this.form.getRawValue();
 
-    this.authApi
-      .register({ email, password, displayName })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.isSuccess.set(true);
-          this.form.reset();
-        },
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.serverError.set(mapHttpError(err, RegisterComponent.registerErrorMap));
-        },
-      });
+    this.asyncState.execute(
+      this.authApi.register({ email, password, displayName }),
+      RegisterComponent.registerErrorMap,
+      () => {
+        this.isSuccess.set(true);
+        this.form.reset();
+      },
+    );
   }
 
   hasError(field: string, error: string): boolean {

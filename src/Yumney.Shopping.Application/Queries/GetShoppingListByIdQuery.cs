@@ -6,6 +6,4 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 
 public sealed record GetShoppingListByIdQuery(
-    ShoppingListIdentifier Identifier) : IQuery<Result<ShoppingListDetailDto>>
-{
-}
+    ShoppingListIdentifier Identifier) : IQuery<Result<ShoppingListDetailDto>>;

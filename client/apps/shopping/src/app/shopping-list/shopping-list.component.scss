@@ -1,0 +1,75 @@
+@use 'banners';
+
+.shopping-list-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.loading {
+  padding: 4rem 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--yn-text-light);
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--yn-text-secondary);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+}
+
+.lists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.list-card {
+  display: block;
+  padding: 1.25rem;
+  background: var(--yn-surface);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
+  }
+}
+
+.list-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--yn-text);
+}
+
+.list-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: var(--yn-text-light);
+}
+
+.item-count {
+  color: var(--yn-primary);
+  font-weight: 500;
+}

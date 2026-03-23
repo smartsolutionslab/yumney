@@ -17,6 +17,17 @@ describe('AuthService', () => {
   };
 
   beforeEach(() => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          keycloakUrl: 'http://localhost:8080',
+          keycloakRealm: 'yumney',
+          keycloakClientId: 'yumney-web',
+        }),
+        { status: 200 },
+      ),
+    );
+
     oauthMock = {
       configure: vi.fn(),
       setupAutomaticSilentRefresh: vi.fn(),

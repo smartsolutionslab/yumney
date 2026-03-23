@@ -1,11 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
+    <ProjectReference Include="..\Yumney.Recipes.Application\Yumney.Recipes.Application.csproj" />
+    <ProjectReference Include="..\Yumney.Recipes.Infrastructure\Yumney.Recipes.Infrastructure.csproj" />
+    <ProjectReference Include="..\Yumney.Recipes.Extraction\Yumney.Recipes.Extraction.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Yumney.Recipes.Application\Yumney.Recipes.Application.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

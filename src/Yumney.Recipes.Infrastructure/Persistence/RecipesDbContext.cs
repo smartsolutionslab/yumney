@@ -14,6 +14,8 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
         {
             entity.ToTable("Recipes");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasConversion(v => v.Value, v => new RecipeIdentifier(v));
 
             entity.Property(e => e.Title)
                 .ConfigureRequiredStringValueObject(v => v.Value, v => new RecipeTitle(v), RecipeTitle.MaxLength);
@@ -38,11 +40,14 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
             entity.Property(e => e.ImageUrl)
                 .ConfigureNullableStringValueObject(v => v.Value, ImageUrl.FromNullable, ImageUrl.MaxLength);
 
+            entity.Property(e => e.Language)
+                .ConfigureNullableStringValueObject(v => v.Value, RecipeLanguage.FromNullable, RecipeLanguage.MaxLength);
+
             entity.Property(e => e.SourceUrl)
                 .ConfigureNullableStringValueObject(v => v.Value, RecipeUrl.FromNullable, RecipeUrl.MaxLength);
 
             entity.Property(e => e.Owner)
-                .ConfigureRequiredStringValueObject(v => v.Value, v => new OwnerIdentifier(v), OwnerIdentifier.MaxLength);
+                .ConfigureRequiredStringValueObject(v => v.Value, OwnerIdentifier.From, OwnerIdentifier.MaxLength);
 
             entity.Property(e => e.CreatedAt).IsRequired();
 
@@ -75,6 +80,16 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
                     .ConfigureRequiredStringValueObject(v => v.Value, v => new StepDescription(v), StepDescription.MaxLength);
             });
 
+            entity.OwnsMany(e => e.Tags, tag =>
+            {
+                tag.ToTable("RecipeTags");
+                tag.WithOwner().HasForeignKey("RecipeId");
+                tag.Property(t => t.Value)
+                    .HasColumnName("Tag")
+                    .HasMaxLength(RecipeTag.MaxLength);
+            });
+
+            entity.HasIndex(e => e.Owner);
             entity.HasIndex(e => new { e.SourceUrl, e.Owner })
                 .IsUnique()
                 .HasFilter("\"SourceUrl\" IS NOT NULL");

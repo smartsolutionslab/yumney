@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
@@ -159,7 +160,7 @@ public class SaveRecipeCommandHandlerTests
             new CookingTime(20),
             new Difficulty("easy"),
             new ImageUrl("https://example.com/image.jpg"),
-            new RecipeUrl("https://example.com/recipe"));
+            SourceUrl: new RecipeUrl("https://example.com/recipe"));
 
         await handler.HandleAsync(command);
 
@@ -183,7 +184,7 @@ public class SaveRecipeCommandHandlerTests
         var result = await handler.HandleAsync(command);
 
         capturedRecipe.Should().NotBeNull();
-        result.Value.Identifier.Should().Be(capturedRecipe!.Id);
+        result.Value.Identifier.Should().Be(capturedRecipe!.Id.Value);
     }
 
     [Fact]

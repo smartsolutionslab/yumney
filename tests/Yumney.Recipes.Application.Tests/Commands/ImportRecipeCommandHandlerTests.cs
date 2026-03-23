@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -191,6 +192,21 @@ public class ImportRecipeCommandHandlerTests
         result.Value.Title.Should().Be("Simple Dish");
         result.Value.Description.Should().BeNull();
         result.Value.Servings.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task HandleAsync_ContentTooLarge_ReturnsFailure()
+    {
+        var url = new RecipeUrl("https://example.com/recipe");
+
+        scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
+            .Returns(Result<ScrapedContent>.Failure(ImportRecipeErrors.ContentTooLarge));
+
+        var sut = CreateSut();
+        var result = await sut.HandleAsync(new ImportRecipeCommand(url));
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ImportRecipeErrors.ContentTooLarge);
     }
 
     [Fact]

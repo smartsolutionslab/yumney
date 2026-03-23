@@ -2,8 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { HeaderComponent } from './header.component';
+import { HeaderComponent } from '@yumney/ui';
 import { AuthService } from '@yumney/shared/auth';
+import { LanguageService } from '@yumney/shared/models';
 
 const en = {
   layout: {
@@ -11,6 +12,10 @@ const en = {
       greeting: 'Hi, {{name}}',
       logout: 'Sign out',
       login: 'Sign in',
+      navigation: 'Main navigation',
+      switchLanguage: 'Switch language',
+      languageDe: 'DE',
+      languageEn: 'EN',
     },
   },
 };
@@ -23,6 +28,7 @@ describe('HeaderComponent', () => {
     displayName: ReturnType<typeof signal<string | null>>;
     logout: ReturnType<typeof vi.fn>;
   };
+  let languageServiceMock: { activeLang: string; switchTo: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     authServiceMock = {
@@ -30,6 +36,7 @@ describe('HeaderComponent', () => {
       displayName: signal<string | null>(null),
       logout: vi.fn(),
     };
+    languageServiceMock = { activeLang: 'en', switchTo: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -42,7 +49,11 @@ describe('HeaderComponent', () => {
           },
         }),
       ],
-      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceMock }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authServiceMock },
+        { provide: LanguageService, useValue: languageServiceMock },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HeaderComponent);

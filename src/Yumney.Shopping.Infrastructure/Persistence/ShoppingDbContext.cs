@@ -14,6 +14,8 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
         {
             entity.ToTable("ShoppingLists");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasConversion(v => v.Value, v => new ShoppingListIdentifier(v));
 
             entity.Property(e => e.Title)
                 .ConfigureRequiredStringValueObject(
@@ -21,10 +23,15 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
 
             entity.Property(e => e.Owner)
                 .ConfigureRequiredStringValueObject(
-                    v => v.Value, v => new OwnerIdentifier(v), OwnerIdentifier.MaxLength);
+                    v => v.Value, v => OwnerIdentifier.From(v), OwnerIdentifier.MaxLength);
 
-            entity.Property(e => e.RecipeIdentifier);
+            entity.Property(e => e.RecipeReference)
+                .HasConversion(
+                    v => v != null ? v.Value : (Guid?)null,
+                    v => RecipeReference.FromNullable(v))
+                .HasColumnName("RecipeIdentifier");
 
+            entity.HasIndex(e => e.Owner);
             entity.Property(e => e.CreatedAt).IsRequired();
 
             entity.OwnsMany(e => e.Items, item =>

@@ -75,7 +75,15 @@
       "logout": "Sign out",
       "login": "Sign in",
       "myRecipes": "My Recipes",
-      "shoppingLists": "Shopping Lists"
+      "shoppingLists": "Shopping Lists",
+      "navigation": "Main navigation",
+      "switchLanguage": "Switch language",
+      "languageDe": "DE",
+      "languageEn": "EN"
+    },
+    "offlineIndicator": {
+      "offline": "You are offline. Some features may be unavailable.",
+      "backOnline": "You are back online."
     }
   },
   "recipes": {
@@ -196,6 +204,7 @@
       "title": "Import a Recipe",
       "subtitle": "Paste a URL from any recipe website",
       "placeholder": "https://example.com/recipe/...",
+      "urlLabel": "Recipe URL",
       "submit": "Import Recipe",
       "submitting": "Importing...",
       "success": "Recipe \"{{title}}\" extracted successfully!",
@@ -208,6 +217,13 @@
         "noRecipe": "No recipe found on this page.",
         "generic": "An unexpected error occurred. Please try again later."
       }
+    },
+    "photoImport": {
+      "title": "Import from Photos",
+      "subtitle": "Upload photos of a recipe from a cookbook or handwritten notes",
+      "submit": "Upload Photos",
+      "extracting": "Extracting recipe...",
+      "hint": "JPG, PNG or WebP. Up to 10 images, max 10 MB each."
     },
     "create": {
       "title": "Create a Recipe",

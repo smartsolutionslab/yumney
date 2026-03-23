@@ -4,10 +4,11 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed class Recipe : AggregateRoot<Guid>
+public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 {
     private readonly List<Ingredient> ingredients = [];
     private readonly List<Step> steps = [];
+    private readonly List<RecipeTag> tags = [];
 
     public RecipeTitle Title { get; private set; } = default!;
 
@@ -23,6 +24,8 @@ public sealed class Recipe : AggregateRoot<Guid>
 
     public ImageUrl? ImageUrl { get; private set; }
 
+    public RecipeLanguage? Language { get; private set; }
+
     public RecipeUrl? SourceUrl { get; private set; }
 
     public OwnerIdentifier Owner { get; private set; } = default!;
@@ -32,6 +35,8 @@ public sealed class Recipe : AggregateRoot<Guid>
     public IReadOnlyList<Ingredient> Ingredients => ingredients.AsReadOnly();
 
     public IReadOnlyList<Step> Steps => steps.AsReadOnly();
+
+    public IReadOnlyList<RecipeTag> Tags => tags.AsReadOnly();
 
     private Recipe()
     {
@@ -48,14 +53,16 @@ public sealed class Recipe : AggregateRoot<Guid>
         CookingTime? cookingTime = null,
         Difficulty? difficulty = null,
         ImageUrl? imageUrl = null,
-        RecipeUrl? sourceUrl = null)
+        RecipeLanguage? language = null,
+        RecipeUrl? sourceUrl = null,
+        IReadOnlyList<RecipeTag>? tags = null)
     {
-        Ensure.That((IReadOnlyCollection<Ingredient>)ingredients).IsNotEmpty();
-        Ensure.That((IReadOnlyCollection<Step>)steps).IsNotEmpty();
+        Ensure.That(ingredients).IsNotEmpty();
+        Ensure.That(steps).IsNotEmpty();
 
         var recipe = new Recipe
         {
-            Id = Guid.NewGuid(),
+            Id = RecipeIdentifier.New(),
             Title = title,
             SourceUrl = sourceUrl,
             Owner = owner,
@@ -65,13 +72,18 @@ public sealed class Recipe : AggregateRoot<Guid>
             CookingTime = cookingTime,
             Difficulty = difficulty,
             ImageUrl = imageUrl,
+            Language = language,
             CreatedAt = DateTime.UtcNow,
         };
 
         recipe.ingredients.AddRange(ingredients);
         recipe.steps.AddRange(steps);
+        if (tags is not null)
+        {
+            recipe.tags.AddRange(tags);
+        }
 
-        recipe.AddDomainEvent(new RecipeSavedEvent(new RecipeIdentifier(recipe.Id), title));
+        recipe.AddDomainEvent(new RecipeSavedEvent(recipe.Id, title));
 
         return recipe;
     }
@@ -85,10 +97,11 @@ public sealed class Recipe : AggregateRoot<Guid>
         PreparationTime? preparationTime = null,
         CookingTime? cookingTime = null,
         Difficulty? difficulty = null,
-        ImageUrl? imageUrl = null)
+        ImageUrl? imageUrl = null,
+        IReadOnlyList<RecipeTag>? tags = null)
     {
-        Ensure.That((IReadOnlyCollection<Ingredient>)ingredients).IsNotEmpty();
-        Ensure.That((IReadOnlyCollection<Step>)steps).IsNotEmpty();
+        Ensure.That(ingredients).IsNotEmpty();
+        Ensure.That(steps).IsNotEmpty();
 
         Title = title;
         Description = description;
@@ -104,11 +117,17 @@ public sealed class Recipe : AggregateRoot<Guid>
         this.steps.Clear();
         this.steps.AddRange(steps);
 
-        AddDomainEvent(new RecipeUpdatedEvent(new RecipeIdentifier(Id), title));
+        this.tags.Clear();
+        if (tags is not null)
+        {
+            this.tags.AddRange(tags);
+        }
+
+        AddDomainEvent(new RecipeUpdatedEvent(Id, title));
     }
 
     public void MarkAsDeleted()
     {
-        AddDomainEvent(new RecipeDeletedEvent(new RecipeIdentifier(Id), Title, Owner));
+        AddDomainEvent(new RecipeDeletedEvent(Id, Title, Owner));
     }
 }

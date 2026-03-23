@@ -8,7 +8,7 @@ public sealed record OwnerIdentifier
 
     public string Value { get; }
 
-    public OwnerIdentifier(string value)
+    private OwnerIdentifier(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -16,6 +16,8 @@ public sealed record OwnerIdentifier
             .AndReturn();
         Value = validated.Trim();
     }
+
+    public static OwnerIdentifier From(string value) => new(value);
 
     public override string ToString() => Value;
 }

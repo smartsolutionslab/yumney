@@ -1,0 +1,32 @@
+<header *transloco="let t">
+  <div class="header-content">
+    <a class="brand" routerLink="/">Yumney</a>
+    <nav [attr.aria-label]="t('layout.header.navigation')">
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/recipes" class="nav-link">
+          {{ t('layout.header.myRecipes') }}
+        </a>
+        <a routerLink="/shopping" class="nav-link">
+          {{ t('layout.header.shoppingLists') }}
+        </a>
+        <span class="greeting">{{
+          t('layout.header.greeting', { name: authService.displayName() })
+        }}</span>
+        <button class="logout-button" (click)="onLogout()">
+          {{ t('layout.header.logout') }}
+        </button>
+      } @else {
+        <a routerLink="/auth/login" class="login-link">
+          {{ t('layout.header.login') }}
+        </a>
+      }
+      <button
+        class="lang-toggle"
+        (click)="onSwitchLanguage()"
+        [attr.aria-label]="t('layout.header.switchLanguage')"
+      >
+        {{ t(nextLanguageKey()) }}
+      </button>
+    </nav>
+  </div>
+</header>

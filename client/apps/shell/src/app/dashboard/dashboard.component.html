@@ -7,8 +7,8 @@
     <p class="subtitle">{{ t('dashboard.import.subtitle') }}</p>
 
     <form [formGroup]="form" (ngSubmit)="onImport()">
-      @if (serverError()) {
-        <div class="error-banner">{{ t(serverError()!) }}</div>
+      @if (serverError(); as error) {
+        <div class="error-banner" role="alert">{{ t(error) }}</div>
       }
 
       <div class="import-row">
@@ -18,6 +18,7 @@
             type="url"
             formControlName="url"
             [placeholder]="t('dashboard.import.placeholder')"
+            [attr.aria-label]="t('dashboard.import.urlLabel')"
           />
           @if (hasError('url', 'required')) {
             <span class="field-error">{{ t('dashboard.import.errors.urlRequired') }}</span>
@@ -40,6 +41,40 @@
         </button>
       </div>
     </form>
+
+    @if (streamingStatus()) {
+      <div class="streaming-status">
+        <span class="btn-spinner"></span>
+        <span>{{ streamingStatus() }}</span>
+      </div>
+    }
+
+    @if (streamingChunks()) {
+      <pre class="streaming-preview">{{ streamingChunks() }}</pre>
+    }
+  </section>
+
+  <section class="photo-import">
+    <h2>{{ t('dashboard.photoImport.title') }}</h2>
+    <p class="subtitle">{{ t('dashboard.photoImport.subtitle') }}</p>
+    <label class="photo-upload-btn" [class.disabled]="isLoading() || isSaving()">
+      <input
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+        capture="environment"
+        [disabled]="isLoading() || isSaving()"
+        (change)="onImportFromPhotos($event)"
+        hidden
+      />
+      @if (isLoading()) {
+        <span class="btn-spinner"></span>
+        <span>{{ t('dashboard.photoImport.extracting') }}</span>
+      } @else {
+        <span>{{ t('dashboard.photoImport.submit') }}</span>
+      }
+    </label>
+    <p class="hint">{{ t('dashboard.photoImport.hint') }}</p>
   </section>
 
   <section class="manual-create">
@@ -56,7 +91,7 @@
   </section>
 
   @if (saveSuccess()) {
-    <div class="success-banner">
+    <div class="success-banner" role="status">
       {{ t('dashboard.save.success', { title: saveSuccess() }) }}
     </div>
   }

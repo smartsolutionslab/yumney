@@ -1,0 +1,19 @@
+{
+  "layout": {
+    "header": {
+      "greeting": "Hi, {{name}}",
+      "logout": "Sign out",
+      "login": "Sign in",
+      "myRecipes": "My Recipes",
+      "shoppingLists": "Shopping Lists",
+      "navigation": "Main navigation",
+      "switchLanguage": "Switch language"
+    }
+  },
+  "account": {
+    "placeholder": {
+      "title": "Account Settings",
+      "message": "Account management features are coming soon."
+    }
+  }
+}

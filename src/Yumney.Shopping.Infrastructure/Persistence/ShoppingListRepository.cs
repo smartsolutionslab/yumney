@@ -18,8 +18,23 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         CancellationToken cancellationToken = default)
     {
         return await shoppingLists
+            .AsNoTracking()
             .Include(l => l.Items)
-            .FirstOrDefaultAsync(l => l.Id == identifier.Value, cancellationToken);
+            .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken);
+    }
+
+    public async Task<ShoppingList?> GetByIdForUpdateAsync(
+        ShoppingListIdentifier identifier,
+        CancellationToken cancellationToken = default)
+    {
+        return await shoppingLists
+            .Include(l => l.Items)
+            .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<ShoppingList>> GetByOwnerAsync(
@@ -27,6 +42,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         CancellationToken cancellationToken = default)
     {
         return await shoppingLists
+            .AsNoTracking()
             .Include(l => l.Items)
             .Where(l => l.Owner == owner)
             .OrderByDescending(l => l.CreatedAt)

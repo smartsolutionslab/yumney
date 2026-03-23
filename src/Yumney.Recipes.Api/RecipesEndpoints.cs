@@ -1,12 +1,15 @@
+using System.Text;
 using FluentValidation;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
+using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
@@ -33,9 +36,30 @@ public static class RecipesEndpoints
             .Produces<ExtractedRecipeDto>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .ProducesProblem(StatusCodes.Status502BadGateway)
-            .ProducesProblem(StatusCodes.Status504GatewayTimeout);
+            .ProducesProblem(StatusCodes.Status504GatewayTimeout)
+            .RequireRateLimiting("RecipeImport");
+
+        group.MapPost("/import-from-photos", ImportFromPhotosAsync)
+            .WithName("ImportRecipeFromPhotos")
+            .WithTags("Recipes")
+            .Produces<ExtractedRecipeDto>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .RequireRateLimiting("RecipeImport")
+            .DisableAntiforgery();
+
+        group.MapGet("/import/stream", ImportStreamAsync)
+            .WithName("ImportRecipeStream")
+            .WithTags("Recipes")
+            .Produces(StatusCodes.Status200OK, contentType: "text/event-stream")
+            .ProducesProblem(StatusCodes.Status502BadGateway)
+            .RequireRateLimiting("RecipeImport");
 
         group.MapPost("/", SaveAsync)
             .WithName("SaveRecipe")
@@ -69,15 +93,15 @@ public static class RecipesEndpoints
         string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var query = GetRecipesQuery.From(page, pageSize, sortBy, sortDirection, search);
+        var sortField = default(RecipeSortField).ParseNullable(sortBy) ?? RecipeSortField.Date;
+
+        var query = new GetRecipesQuery(
+            PagingOptions.Of(Page.From(page), PageSize.From(pageSize)),
+            new SortingOptions<RecipeSortField>(sortField, sortDirection),
+            SearchTerm.FromNullable(search));
+
         var result = await handler.HandleAsync(query, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> SaveAsync(
@@ -86,22 +110,27 @@ public static class RecipesEndpoints
         ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
-        var command = SaveRecipeCommand.From(request);
+        var command = new SaveRecipeCommand(
+            new RecipeTitle(request.Title),
+            request.Ingredients.Select(i => i.ToCommandItem()).ToList(),
+            request.Steps.Select(s => s.ToCommandItem()).ToList(),
+            RecipeDescription.FromNullable(request.Description),
+            Servings.FromNullable(request.Servings),
+            PreparationTime.FromNullable(request.PrepTimeMinutes),
+            CookingTime.FromNullable(request.CookTimeMinutes),
+            Difficulty.FromNullable(request.Difficulty),
+            ImageUrl.FromNullable(request.ImageUrl),
+            RecipeLanguage.FromNullable(request.Language),
+            RecipeUrl.FromNullable(request.SourceUrl),
+            request.Tags?.Select(t => new RecipeTag(t)).ToList());
         var result = await handler.HandleAsync(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Created($"/api/v1/recipes/{result.Value.Identifier}", result.Value);
+        return result.ToCreated($"/api/v1/recipes/{result.Value?.Identifier}");
     }
 
     private static async Task<IResult> GetByIdAsync(
@@ -109,15 +138,9 @@ public static class RecipesEndpoints
         IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var query = GetRecipeByIdQuery.From(identifier);
+        var query = new GetRecipeByIdQuery(RecipeIdentifier.From(identifier));
         var result = await handler.HandleAsync(query, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> UpdateAsync(
@@ -127,22 +150,29 @@ public static class RecipesEndpoints
         ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
-        var command = UpdateRecipeCommand.From(identifier, request);
+        var (title, description, ingredients, steps, servings, prepTimeMinutes, cookTimeMinutes, difficulty, imageUrl,
+            tags) = request;
+
+        var command = new UpdateRecipeCommand(
+            RecipeIdentifier.From(identifier),
+            new RecipeTitle(title),
+            ingredients.Select(i => i.ToCommandItem()).ToList(),
+            steps.Select(s => s.ToCommandItem()).ToList(),
+            RecipeDescription.FromNullable(description),
+            Servings.FromNullable(servings),
+            PreparationTime.FromNullable(prepTimeMinutes),
+            CookingTime.FromNullable(cookTimeMinutes),
+            Difficulty.FromNullable(difficulty),
+            ImageUrl.FromNullable(imageUrl),
+            tags?.Select(t => new RecipeTag(t)).ToList());
         var result = await handler.HandleAsync(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.Ok(result.Value);
+        return result.ToOk();
     }
 
     private static async Task<IResult> DeleteAsync(
@@ -150,15 +180,9 @@ public static class RecipesEndpoints
         ICommandHandler<DeleteRecipeCommand, Result> handler,
         CancellationToken cancellationToken)
     {
-        var command = DeleteRecipeCommand.From(identifier);
+        var command = new DeleteRecipeCommand(RecipeIdentifier.From(identifier));
         var result = await handler.HandleAsync(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
-        }
-
-        return Results.NoContent();
+        return result.ToNoContent();
     }
 
     private static async Task<IResult> ImportAsync(
@@ -167,21 +191,76 @@ public static class RecipesEndpoints
         ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
+        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
+        if (problem is not null)
         {
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return problem;
         }
 
-        var command = ImportRecipeCommand.From(request.Url);
+        var command = new ImportRecipeCommand(new RecipeUrl(request.Url));
         var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
 
-        if (result.IsFailure)
+    private static async Task<IResult> ImportFromPhotosAsync(
+        IFormFileCollection photos,
+        ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var photoDataList = new List<PhotoData>();
+
+        foreach (var file in photos)
         {
-            return Results.Problem(result.Error!.Message, statusCode: result.Error.HttpStatusCode);
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream, cancellationToken);
+            photoDataList.Add(new PhotoData(memoryStream.ToArray(), file.ContentType, file.FileName));
         }
 
-        return Results.Ok(result.Value);
+        var command = new ImportRecipeFromPhotosCommand(photoDataList);
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task ImportStreamAsync(
+        HttpContext httpContext,
+        string url,
+        IWebScraper scraper,
+        IRecipeExtractionService extraction,
+        CancellationToken cancellationToken)
+    {
+        httpContext.Response.ContentType = "text/event-stream";
+        httpContext.Response.Headers.CacheControl = "no-cache";
+        httpContext.Response.Headers.Connection = "keep-alive";
+
+        var writer = httpContext.Response.BodyWriter;
+
+        async Task WriteSseEventAsync(string eventType, string data)
+        {
+            var line = $"event: {eventType}\ndata: {data}\n\n";
+            await httpContext.Response.WriteAsync(line, cancellationToken);
+            await httpContext.Response.Body.FlushAsync(cancellationToken);
+        }
+
+        var recipeUrl = new RecipeUrl(url);
+
+        await WriteSseEventAsync("status", "Fetching page...");
+
+        var scrapeResult = await scraper.ScrapeAsync(recipeUrl, cancellationToken);
+        if (scrapeResult.IsFailure)
+        {
+            await WriteSseEventAsync("error", scrapeResult.Error!.Message);
+            return;
+        }
+
+        await WriteSseEventAsync("status", "Extracting recipe...");
+
+        var buffer = new StringBuilder();
+        await foreach (var chunk in extraction.StreamExtractAsync(scrapeResult.Value, cancellationToken))
+        {
+            buffer.Append(chunk);
+            await WriteSseEventAsync("chunk", chunk);
+        }
+
+        await WriteSseEventAsync("done", buffer.ToString());
     }
 }

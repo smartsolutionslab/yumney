@@ -9,7 +9,7 @@ public sealed class AppUserProfileRepository(UsersDbContext context) : IAppUserP
 
     public async Task<AppUserProfile?> FindByKeycloakUserIdAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default)
     {
-        return await profiles.FirstOrDefaultAsync(p => p.KeycloakUserId == keycloakUserId, cancellationToken);
+        return await profiles.AsNoTracking().FirstOrDefaultAsync(p => p.KeycloakUserId == keycloakUserId, cancellationToken);
     }
 
     public async Task AddAsync(AppUserProfile profile, CancellationToken cancellationToken = default)

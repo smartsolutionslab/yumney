@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Events;
 using SmartSolutionsLab.Yumney.Shared.Common;
@@ -26,7 +27,7 @@ public class DeleteRecipeCommandHandlerTests
     public async Task HandleAsync_ExistingRecipe_ReturnsSuccess()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = new DeleteRecipeCommand(recipeId);
@@ -54,7 +55,7 @@ public class DeleteRecipeCommandHandlerTests
     public async Task HandleAsync_WrongOwner_ReturnsAccessDenied()
     {
         var recipe = CreateTestRecipe("other-user");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = new DeleteRecipeCommand(recipeId);
@@ -69,7 +70,7 @@ public class DeleteRecipeCommandHandlerTests
     public async Task HandleAsync_ExistingRecipe_CallsMarkAsDeleted()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = new DeleteRecipeCommand(recipeId);
@@ -83,7 +84,7 @@ public class DeleteRecipeCommandHandlerTests
     public async Task HandleAsync_ExistingRecipe_CallsDeleteAsync()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = new DeleteRecipeCommand(recipeId);
@@ -110,7 +111,7 @@ public class DeleteRecipeCommandHandlerTests
     public async Task HandleAsync_WrongOwner_DoesNotCallDeleteAsync()
     {
         var recipe = CreateTestRecipe("other-user");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = new DeleteRecipeCommand(recipeId);
@@ -124,7 +125,7 @@ public class DeleteRecipeCommandHandlerTests
     public async Task HandleAsync_ForwardsCancellationToken()
     {
         var recipe = CreateTestRecipe("user-123");
-        var recipeId = new RecipeIdentifier(recipe.Id);
+        var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
         var cts = new CancellationTokenSource();
 
@@ -140,7 +141,7 @@ public class DeleteRecipeCommandHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle("Test Recipe"),
-            new OwnerIdentifier(ownerId),
+            OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
     }

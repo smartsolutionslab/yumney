@@ -11,5 +11,7 @@ public sealed record Page
         Value = Ensure.That(value).IsPositive().AndReturn();
     }
 
+    public static Page From(int value) => new(value);
+
     public int SkipCount(PageSize pageSize) => (Value - 1) * pageSize.Value;
 }

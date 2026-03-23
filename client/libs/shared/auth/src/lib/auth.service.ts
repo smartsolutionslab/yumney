@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { authConfig } from './auth-config';
+import { AppConfig, createAuthConfig } from './auth-config';
 import { REMEMBER_ME_KEY } from './auth-storage.factory';
 
 export interface AuthUser {
@@ -9,6 +10,12 @@ export interface AuthUser {
   preferredUsername: string;
   roles: string[];
 }
+
+const DEFAULT_CONFIG: AppConfig = {
+  keycloakUrl: 'http://localhost:8080',
+  keycloakRealm: 'yumney',
+  keycloakClientId: 'yumney-web',
+};
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -19,13 +26,22 @@ export class AuthService {
     () => this.currentUser()?.preferredUsername ?? this.currentUser()?.email ?? null,
   );
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(private oauthService: OAuthService) {}
 
   async initialize(): Promise<void> {
+    const appConfig = await this.loadAppConfig();
+    const authConfig = createAuthConfig(
+      appConfig.keycloakUrl,
+      appConfig.keycloakRealm,
+      appConfig.keycloakClientId,
+    );
+
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
 
-    this.oauthService.events.subscribe(() => {
+    this.oauthService.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.updateAuthState();
     });
 
@@ -59,6 +75,18 @@ export class AuthService {
     this.oauthService.initCodeFlow('', { kc_action: 'UPDATE_PASSWORD' });
   }
 
+  private async loadAppConfig(): Promise<AppConfig> {
+    try {
+      const response = await fetch('/assets/config/app-config.json');
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch {
+      // Config file unavailable — use defaults
+    }
+    return DEFAULT_CONFIG;
+  }
+
   private updateAuthState(): void {
     const hasValidToken = this.oauthService.hasValidAccessToken();
     this.isAuthenticated.set(hasValidToken);
@@ -66,11 +94,12 @@ export class AuthService {
     if (hasValidToken) {
       const claims = this.oauthService.getIdentityClaims();
       if (claims) {
+        const { sub, email, preferred_username, realm_access } = claims;
         this.currentUser.set({
-          sub: claims['sub'],
-          email: claims['email'],
-          preferredUsername: claims['preferred_username'],
-          roles: claims['realm_access']?.['roles'] ?? [],
+          sub,
+          email,
+          preferredUsername: preferred_username,
+          roles: realm_access?.['roles'] ?? [],
         });
       }
     } else {

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
@@ -56,7 +57,7 @@ public class GetRecipesQueryHandlerTests
 
         result.Value.Items.Should().HaveCount(1);
         result.Value.Items[0].Title.Should().Be("Pasta Carbonara");
-        result.Value.Items[0].Identifier.Should().Be(recipe.Id);
+        result.Value.Items[0].Identifier.Should().Be(recipe.Id.Value);
     }
 
     [Fact]
@@ -284,7 +285,7 @@ public class GetRecipesQueryHandlerTests
     private static GetRecipesQuery CreateQuery(
         int page, int pageSize, RecipeSortField sortBy, SortDirection sortDirection, SearchTerm? search = null)
     {
-        var paging = PagingOptions.From(new Page(page), new PageSize(pageSize));
+        var paging = PagingOptions.Of(Page.From(page), PageSize.From(pageSize));
         var sorting = new SortingOptions<RecipeSortField>(sortBy, sortDirection);
         return new GetRecipesQuery(paging, sorting, search);
     }
@@ -293,7 +294,7 @@ public class GetRecipesQueryHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle(title),
-            new OwnerIdentifier("user-123"),
+            OwnerIdentifier.From("user-123"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
     }
@@ -302,7 +303,7 @@ public class GetRecipesQueryHandlerTests
     {
         return Recipe.Create(
             new RecipeTitle("Full Recipe"),
-            new OwnerIdentifier("user-123"),
+            OwnerIdentifier.From("user-123"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
             new RecipeDescription("A test recipe"),

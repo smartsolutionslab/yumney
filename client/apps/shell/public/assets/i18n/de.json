@@ -75,7 +75,15 @@
       "logout": "Abmelden",
       "login": "Anmelden",
       "myRecipes": "Meine Rezepte",
-      "shoppingLists": "Einkaufslisten"
+      "shoppingLists": "Einkaufslisten",
+      "navigation": "Hauptnavigation",
+      "switchLanguage": "Sprache wechseln",
+      "languageDe": "DE",
+      "languageEn": "EN"
+    },
+    "offlineIndicator": {
+      "offline": "Du bist offline. Einige Funktionen sind nicht verfügbar.",
+      "backOnline": "Du bist wieder online."
     }
   },
   "recipes": {
@@ -196,6 +204,7 @@
       "title": "Rezept importieren",
       "subtitle": "Füge eine URL von einer beliebigen Rezept-Website ein",
       "placeholder": "https://example.com/rezept/...",
+      "urlLabel": "Rezept-URL",
       "submit": "Rezept importieren",
       "submitting": "Wird importiert...",
       "success": "Rezept \"{{title}}\" erfolgreich extrahiert!",
@@ -208,6 +217,13 @@
         "noRecipe": "Auf dieser Seite wurde kein Rezept gefunden.",
         "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
       }
+    },
+    "photoImport": {
+      "title": "Aus Fotos importieren",
+      "subtitle": "Lade Fotos eines Rezepts aus einem Kochbuch oder handgeschriebene Notizen hoch",
+      "submit": "Fotos hochladen",
+      "extracting": "Rezept wird extrahiert...",
+      "hint": "JPG, PNG oder WebP. Bis zu 10 Bilder, max. 10 MB pro Bild."
     },
     "create": {
       "title": "Rezept erstellen",

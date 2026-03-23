@@ -1,0 +1,5 @@
+{
+  "recipes": "http://localhost:4201/remoteEntry.json",
+  "shopping": "http://localhost:4202/remoteEntry.json",
+  "account": "http://localhost:4203/remoteEntry.json"
+}

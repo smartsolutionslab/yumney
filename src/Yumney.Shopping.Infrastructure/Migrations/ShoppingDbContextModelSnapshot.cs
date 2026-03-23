@@ -17,7 +17,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.4")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -25,7 +25,6 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
             modelBuilder.Entity("SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.ShoppingList", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -36,8 +35,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<Guid?>("RecipeIdentifier")
-                        .HasColumnType("uuid");
+                    b.Property<Guid?>("RecipeReference")
+                        .HasColumnType("uuid")
+                        .HasColumnName("RecipeIdentifier");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -45,6 +45,8 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Owner");
 
                     b.ToTable("ShoppingLists", (string)null);
                 });
@@ -59,6 +61,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
 
                             b1.Property<decimal?>("Amount")
                                 .HasColumnType("numeric");
+
+                            b1.Property<bool>("IsChecked")
+                                .HasColumnType("boolean");
 
                             b1.Property<string>("Name")
                                 .IsRequired()

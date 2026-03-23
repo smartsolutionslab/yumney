@@ -1,0 +1,9 @@
+<div class="confirm-overlay" (click)="onOverlayClick($event)">
+  <div class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-msg">
+    <p id="confirm-msg" class="confirm-message">{{ message() }}</p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" (click)="onCancel()">{{ cancelLabel() }}</button>
+      <button class="btn btn-danger" (click)="onConfirm()">{{ confirmLabel() }}</button>
+    </div>
+  </div>
+</div>

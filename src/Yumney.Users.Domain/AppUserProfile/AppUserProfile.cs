@@ -2,7 +2,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-public sealed class AppUserProfile : AggregateRoot<Guid>
+public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
 {
     public KeycloakUserId KeycloakUserId { get; private set; } = default!;
 
@@ -20,7 +20,7 @@ public sealed class AppUserProfile : AggregateRoot<Guid>
     {
         return new AppUserProfile
         {
-            Id = Guid.NewGuid(),
+            Id = AppUserProfileIdentifier.New(),
             KeycloakUserId = keycloakUserId,
             DisplayName = displayName,
         };

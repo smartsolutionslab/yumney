@@ -13,7 +13,7 @@ public class RecipeTests
     {
         var recipe = CreateValidRecipe();
 
-        recipe.Id.Should().NotBeEmpty();
+        recipe.Id.Should().NotBeNull();
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class RecipeTests
     [Fact]
     public void Create_ValidInput_SetsOwner()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
 
         var recipe = CreateValidRecipe(owner: owner);
 
@@ -177,7 +177,7 @@ public class RecipeTests
         var domainEvent = recipe.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<RecipeSavedEvent>().Subject;
 
-        domainEvent.RecipeIdentifier.Value.Should().Be(recipe.Id);
+        domainEvent.RecipeIdentifier.Should().Be(recipe.Id);
     }
 
     [Fact]
@@ -286,7 +286,7 @@ public class RecipeTests
         var domainEvent = recipe.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<RecipeUpdatedEvent>().Subject;
 
-        domainEvent.RecipeIdentifier.Value.Should().Be(recipe.Id);
+        domainEvent.RecipeIdentifier.Should().Be(recipe.Id);
     }
 
     [Fact]
@@ -318,7 +318,7 @@ public class RecipeTests
     [Fact]
     public void Update_DoesNotChangeOwner()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
         var recipe = CreateValidRecipe(owner: owner);
 
         recipe.Update(
@@ -404,7 +404,7 @@ public class RecipeTests
         var domainEvent = recipe.DomainEvents.Should().ContainSingle()
             .Which.Should().BeOfType<RecipeDeletedEvent>().Subject;
 
-        domainEvent.RecipeIdentifier.Value.Should().Be(recipe.Id);
+        domainEvent.RecipeIdentifier.Should().Be(recipe.Id);
     }
 
     [Fact]
@@ -425,7 +425,7 @@ public class RecipeTests
     [Fact]
     public void MarkAsDeleted_EventContainsOwner()
     {
-        var owner = new OwnerIdentifier("user-123");
+        var owner = OwnerIdentifier.From("user-123");
         var recipe = CreateValidRecipe(owner: owner);
         recipe.ClearDomainEvents();
 
@@ -435,6 +435,53 @@ public class RecipeTests
             .Which.Should().BeOfType<RecipeDeletedEvent>().Subject;
 
         domainEvent.Owner.Should().Be(owner);
+    }
+
+    [Fact]
+    public void Create_WithTags_SetsTags()
+    {
+        var tags = new List<RecipeTag> { new("italian"), new("pasta") };
+
+        var recipe = CreateValidRecipe(tags: tags);
+
+        recipe.Tags.Should().HaveCount(2);
+        recipe.Tags[0].Value.Should().Be("italian");
+        recipe.Tags[1].Value.Should().Be("pasta");
+    }
+
+    [Fact]
+    public void Create_WithoutTags_TagsEmpty()
+    {
+        var recipe = CreateValidRecipe();
+
+        recipe.Tags.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Update_WithTags_ReplacesTags()
+    {
+        var recipe = CreateValidRecipe(tags: [new RecipeTag("old-tag")]);
+
+        recipe.Update(
+            new RecipeTitle("Updated"),
+            [Ingredient.Create(new IngredientName("Flour"), null, null)],
+            [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
+            tags: [new RecipeTag("new-tag")]);
+
+        recipe.Tags.Should().ContainSingle().Which.Value.Should().Be("new-tag");
+    }
+
+    [Fact]
+    public void Update_WithNullTags_ClearsTags()
+    {
+        var recipe = CreateValidRecipe(tags: [new RecipeTag("old-tag")]);
+
+        recipe.Update(
+            new RecipeTitle("Updated"),
+            [Ingredient.Create(new IngredientName("Flour"), null, null)],
+            [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
+
+        recipe.Tags.Should().BeEmpty();
     }
 
     private static Domain.Recipe.Recipe CreateValidRecipe(
@@ -448,11 +495,12 @@ public class RecipeTests
         PreparationTime? preparationTime = null,
         CookingTime? cookingTime = null,
         Difficulty? difficulty = null,
-        ImageUrl? imageUrl = null)
+        ImageUrl? imageUrl = null,
+        IReadOnlyList<RecipeTag>? tags = null)
     {
         return Domain.Recipe.Recipe.Create(
             title ?? new RecipeTitle("Test Recipe"),
-            owner ?? new OwnerIdentifier("user-123"),
+            owner ?? OwnerIdentifier.From("user-123"),
             ingredients ?? [Ingredient.Create(new IngredientName("Flour"), new Amount(500), new Unit("g"))],
             steps ?? [Step.Create(new StepNumber(1), new StepDescription("Mix ingredients"))],
             description,
@@ -461,6 +509,7 @@ public class RecipeTests
             cookingTime,
             difficulty,
             imageUrl,
-            sourceUrl);
+            sourceUrl: sourceUrl,
+            tags: tags);
     }
 }

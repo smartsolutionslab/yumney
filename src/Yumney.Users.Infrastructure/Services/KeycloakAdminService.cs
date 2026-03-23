@@ -117,6 +117,23 @@ public sealed class KeycloakAdminService(
         }
     }
 
+    private static object BuildUserPayload(Email email, Password password, DisplayName displayName)
+    {
+        return new
+        {
+            username = email.Value,
+            email = email.Value,
+            enabled = true,
+            emailVerified = false,
+            firstName = displayName.Value,
+            requiredActions = new[] { "VERIFY_EMAIL" },
+            credentials = new[]
+            {
+                new { type = "password", value = password.Value, temporary = false },
+            },
+        };
+    }
+
     private async Task<Result<string>> GetServiceAccountTokenAsync(CancellationToken cancellationToken)
     {
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -155,62 +172,60 @@ public sealed class KeycloakAdminService(
         string accessToken,
         CancellationToken cancellationToken)
     {
-        var userPayload = new
-        {
-            username = email.Value,
-            email = email.Value,
-            enabled = true,
-            emailVerified = false,
-            firstName = displayName.Value,
-            requiredActions = new[] { "VERIFY_EMAIL" },
-            credentials = new[]
-            {
-                new
-                {
-                    type = "password",
-                    value = password.Value,
-                    temporary = false,
-                },
-            },
-        };
-
         var url = $"/admin/realms/{options.Value.Realm}/users";
 
         using var request = new HttpRequestMessage(HttpMethod.Post, url);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        request.Content = JsonContent.Create(userPayload, options: jsonOptions);
+        request.Content = JsonContent.Create(BuildUserPayload(email, password, displayName), options: jsonOptions);
 
         try
         {
             var response = await httpClient.SendAsync(request, cancellationToken);
-
-            if (response.StatusCode == HttpStatusCode.Conflict)
-            {
-                return Result<KeycloakUserId>.Failure(RegistrationErrors.EmailAlreadyExists);
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var body = await response.Content.ReadAsStringAsync(cancellationToken);
-                logger.LogError("Failed to create Keycloak user. Status: {StatusCode}, Body: {Body}", response.StatusCode, body);
-                return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
-            }
-
-            var locationHeader = response.Headers.Location?.ToString();
-            if (string.IsNullOrEmpty(locationHeader))
-            {
-                logger.LogError("Keycloak did not return a Location header after user creation");
-                return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
-            }
-
-            var keycloakUserIdString = locationHeader.Split('/').Last();
-            return Result<KeycloakUserId>.Success(new KeycloakUserId(keycloakUserIdString));
+            return await HandleUserCreationResponseAsync(response, cancellationToken);
         }
         catch (HttpRequestException ex)
         {
             logger.LogError(ex, "HTTP error while creating Keycloak user");
             return Result<KeycloakUserId>.Failure(RegistrationErrors.IdentityProviderUnavailable);
         }
+    }
+
+    private async Task<Result<KeycloakUserId>> HandleUserCreationResponseAsync(
+        HttpResponseMessage response,
+        CancellationToken cancellationToken)
+    {
+        if (response.StatusCode == HttpStatusCode.Conflict)
+        {
+            return Result<KeycloakUserId>.Failure(RegistrationErrors.EmailAlreadyExists);
+        }
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogError("Failed to create Keycloak user. Status: {StatusCode}, Body: {Body}", response.StatusCode, body);
+            return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
+        }
+
+        return ExtractKeycloakUserId(response);
+    }
+
+    private Result<KeycloakUserId> ExtractKeycloakUserId(HttpResponseMessage response)
+    {
+        var locationHeader = response.Headers.Location?.ToString();
+        if (string.IsNullOrEmpty(locationHeader))
+        {
+            logger.LogError("Keycloak did not return a Location header after user creation");
+            return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
+        }
+
+        var keycloakUserIdString = locationHeader.Split('/').LastOrDefault();
+        if (string.IsNullOrEmpty(keycloakUserIdString))
+        {
+            logger.LogError("Malformed Location header: {LocationHeader}", locationHeader);
+            return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
+        }
+
+        return Result<KeycloakUserId>.Success(new KeycloakUserId(keycloakUserIdString));
     }
 
     private sealed record TokenResponse(

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
+using SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
 
@@ -28,7 +29,7 @@ public class GetShoppingListByIdQueryHandlerTests
         shoppingLists.GetByIdAsync(Arg.Any<ShoppingListIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(shoppingList);
 
-        var query = new GetShoppingListByIdQuery(new ShoppingListIdentifier(shoppingList.Id));
+        var query = new GetShoppingListByIdQuery(shoppingList.Id);
 
         var result = await handler.HandleAsync(query);
 
@@ -58,7 +59,7 @@ public class GetShoppingListByIdQueryHandlerTests
         shoppingLists.GetByIdAsync(Arg.Any<ShoppingListIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(shoppingList);
 
-        var query = new GetShoppingListByIdQuery(new ShoppingListIdentifier(shoppingList.Id));
+        var query = new GetShoppingListByIdQuery(shoppingList.Id);
 
         var result = await handler.HandleAsync(query);
 
@@ -70,7 +71,7 @@ public class GetShoppingListByIdQueryHandlerTests
     {
         return ShoppingList.Create(
             new ShoppingListTitle("Test List"),
-            new OwnerIdentifier("user-123"),
+            OwnerIdentifier.From("user-123"),
             [ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"))]);
     }
 }

@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-public sealed class ShoppingList : AggregateRoot<Guid>
+public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
 {
     private readonly List<ShoppingListItem> items = [];
 
@@ -12,7 +12,7 @@ public sealed class ShoppingList : AggregateRoot<Guid>
 
     public OwnerIdentifier Owner { get; private set; } = default!;
 
-    public Guid? RecipeIdentifier { get; private set; }
+    public RecipeReference? RecipeReference { get; private set; }
 
     public DateTime CreatedAt { get; private set; }
 
@@ -26,24 +26,53 @@ public sealed class ShoppingList : AggregateRoot<Guid>
         ShoppingListTitle title,
         OwnerIdentifier owner,
         IReadOnlyList<ShoppingListItem> items,
-        Guid? recipeIdentifier = null)
+        RecipeReference? recipeReference = null)
     {
-        Ensure.That((IReadOnlyCollection<ShoppingListItem>)items).IsNotEmpty();
+        Ensure.That(items).IsNotEmpty();
 
         var shoppingList = new ShoppingList
         {
-            Id = Guid.NewGuid(),
+            Id = ShoppingListIdentifier.New(),
             Title = title,
             Owner = owner,
-            RecipeIdentifier = recipeIdentifier,
+            RecipeReference = recipeReference,
             CreatedAt = DateTime.UtcNow,
         };
 
         shoppingList.items.AddRange(items);
 
-        shoppingList.AddDomainEvent(
-            new ShoppingListCreatedEvent(new ShoppingListIdentifier(shoppingList.Id), title));
+        shoppingList.AddDomainEvent(new ShoppingListCreatedEvent(shoppingList.Id, title));
 
         return shoppingList;
+    }
+
+    public void CheckOffItem(Guid itemId)
+    {
+        var item = items.FirstOrDefault(i => i.Id == itemId)
+            ?? throw new GuardException(nameof(itemId), $"Item {itemId} not found in shopping list.");
+        item.Check();
+    }
+
+    public void UncheckItem(Guid itemId)
+    {
+        var item = items.FirstOrDefault(i => i.Id == itemId)
+            ?? throw new GuardException(nameof(itemId), $"Item {itemId} not found in shopping list.");
+        item.Uncheck();
+    }
+
+    public void CheckAllItems()
+    {
+        foreach (var item in items)
+        {
+            item.Check();
+        }
+    }
+
+    public void UncheckAllItems()
+    {
+        foreach (var item in items)
+        {
+            item.Uncheck();
+        }
     }
 }

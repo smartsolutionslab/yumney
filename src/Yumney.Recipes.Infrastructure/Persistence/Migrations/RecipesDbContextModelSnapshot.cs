@@ -17,7 +17,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.4")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -25,7 +25,6 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Recipe", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<int?>("CookingTime")
@@ -46,6 +45,10 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Migrations
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<string>("Owner")
                         .IsRequired()
@@ -69,6 +72,8 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Owner");
 
                     b.HasIndex("SourceUrl", "Owner")
                         .IsUnique()
@@ -110,6 +115,31 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("RecipeId");
                         });
 
+                    b.OwnsMany("SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.RecipeTag", "Tags", b1 =>
+                        {
+                            b1.Property<Guid>("RecipeId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("Tag");
+
+                            b1.HasKey("RecipeId", "Id");
+
+                            b1.ToTable("RecipeTags", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("RecipeId");
+                        });
+
                     b.OwnsMany("SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Step", "Steps", b1 =>
                         {
                             b1.Property<Guid>("Id")
@@ -140,6 +170,8 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Migrations
                     b.Navigation("Ingredients");
 
                     b.Navigation("Steps");
+
+                    b.Navigation("Tags");
                 });
 #pragma warning restore 612, 618
         }
