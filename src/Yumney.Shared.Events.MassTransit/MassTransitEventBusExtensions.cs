@@ -14,6 +14,7 @@ public static class MassTransitEventBusExtensions
     /// Registers MassTransit with RabbitMQ as the integration event bus.
     /// Domain events remain in-process via InProcessDomainEventDispatcher.
     /// </summary>
+    /// <returns></returns>
     public static IServiceCollection AddMassTransitEventBus(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddMassTransit(x =>
