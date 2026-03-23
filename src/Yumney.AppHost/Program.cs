@@ -27,6 +27,11 @@ var usersDb = postgres.AddDatabase("usersdb");
 var redis = builder.AddRedis("redis")
     .WithDataVolume();
 
+// RabbitMQ
+var messaging = builder.AddRabbitMQ("messaging")
+    .WithDataVolume()
+    .WithManagementPlugin();
+
 // Keycloak
 var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword)
     .WithDataVolume();
@@ -82,9 +87,11 @@ var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
     .WithReference(keycloak)
     .WithReference(recipesDb)
     .WithReference(redis)
+    .WithReference(messaging)
     .WaitFor(keycloak)
     .WaitFor(migrationRunner)
     .WaitFor(redis)
+    .WaitFor(messaging)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar";
@@ -113,9 +120,11 @@ var shoppingApi = builder.AddProject<Projects.Yumney_Shopping_Api>("shopping-api
     .WithReference(keycloak)
     .WithReference(shoppingDb)
     .WithReference(redis)
+    .WithReference(messaging)
     .WaitFor(keycloak)
     .WaitFor(migrationRunner)
     .WaitFor(redis)
+    .WaitFor(messaging)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar";
@@ -128,9 +137,11 @@ var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
     .WithReference(keycloak)
     .WithReference(usersDb)
     .WithReference(redis)
+    .WithReference(messaging)
     .WaitFor(keycloak)
     .WaitFor(migrationRunner)
     .WaitFor(redis)
+    .WaitFor(messaging)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar";

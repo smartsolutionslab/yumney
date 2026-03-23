@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -15,6 +16,7 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Tests.Services;
 
 public class KeycloakAdminServiceTests
 {
+    private readonly IDistributedCache cache = Substitute.For<IDistributedCache>();
     private readonly ILogger<KeycloakAdminService> logger = Substitute.For<ILogger<KeycloakAdminService>>();
 
     private readonly IOptions<KeycloakOptions> options = Options.Create(new KeycloakOptions
@@ -151,7 +153,7 @@ public class KeycloakAdminServiceTests
     private KeycloakAdminService CreateService(HttpMessageHandler handler)
     {
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://keycloak.test") };
-        return new KeycloakAdminService(httpClient, options, logger);
+        return new KeycloakAdminService(httpClient, options, cache, logger);
     }
 
     private sealed class FakeHttpHandler : HttpMessageHandler

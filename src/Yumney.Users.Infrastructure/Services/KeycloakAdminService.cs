@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SmartSolutionsLab.Yumney.Shared.Common;
@@ -17,15 +18,19 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
 public sealed class KeycloakAdminService(
     HttpClient httpClient,
     IOptions<KeycloakOptions> options,
+    IDistributedCache cache,
     ILogger<KeycloakAdminService> logger)
     : IKeycloakAdminService
 {
+    private const string TokenCacheKey = "keycloak:admin:token";
+
     private static readonly JsonSerializerOptions jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
+    private static readonly TimeSpan tokenExpiryBuffer = TimeSpan.FromSeconds(30);
     private static readonly string[] verifyEmailActions = ["VERIFY_EMAIL"];
 
     public async Task<Result<KeycloakUserId>> CreateUserAsync(
@@ -136,6 +141,12 @@ public sealed class KeycloakAdminService(
 
     private async Task<Result<string>> GetServiceAccountTokenAsync(CancellationToken cancellationToken)
     {
+        var cachedToken = await cache.GetStringAsync(TokenCacheKey, cancellationToken);
+        if (!string.IsNullOrEmpty(cachedToken))
+        {
+            return Result<string>.Success(cachedToken);
+        }
+
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             ["grant_type"] = "client_credentials",
@@ -156,7 +167,16 @@ public sealed class KeycloakAdminService(
 
             var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
 
-            return Result<string>.Success(tokenResponse!.AccessToken);
+            await cache.SetStringAsync(
+                TokenCacheKey,
+                tokenResponse!.AccessToken,
+                new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(tokenResponse.ExpiresIn) - tokenExpiryBuffer,
+                },
+                cancellationToken);
+
+            return Result<string>.Success(tokenResponse.AccessToken);
         }
         catch (HttpRequestException ex)
         {
@@ -229,7 +249,8 @@ public sealed class KeycloakAdminService(
     }
 
     private sealed record TokenResponse(
-        [property: JsonPropertyName("access_token")] string AccessToken);
+        [property: JsonPropertyName("access_token")] string AccessToken,
+        [property: JsonPropertyName("expires_in")] int ExpiresIn);
 
     private sealed record KeycloakUserRepresentation(
         [property: JsonPropertyName("id")] string Id,
