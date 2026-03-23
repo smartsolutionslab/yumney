@@ -113,8 +113,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         chatHistory.AddSystemMessage(systemPrompt);
         chatHistory.AddUserMessage($"<webpage_content>{sanitized}</webpage_content>");
 
-        await foreach (var chunk in chatCompletion.GetStreamingChatMessageContentsAsync(
-            chatHistory, cancellationToken: cancellationToken))
+        await foreach (var chunk in chatCompletion.GetStreamingChatMessageContentsAsync(chatHistory, cancellationToken: cancellationToken))
         {
             if (chunk.Content is not null)
             {

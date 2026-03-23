@@ -527,8 +527,7 @@ public class SemanticKernelRecipeExtractionServiceTests
                 throw exception;
             }
 
-            IReadOnlyList<ChatMessageContent> result =
-                [new ChatMessageContent(AuthorRole.Assistant, response)];
+            IReadOnlyList<ChatMessageContent> result = [new (AuthorRole.Assistant, response)];
             return Task.FromResult(result);
         }
 
