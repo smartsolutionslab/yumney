@@ -223,9 +223,7 @@ describe('DashboardComponent', () => {
     component.onImport();
     tick();
 
-    expect(recipeApiMock.importRecipeStream).toHaveBeenCalledWith(
-      'https://example.com/recipe',
-    );
+    expect(recipeApiMock.importRecipeStream).toHaveBeenCalledWith('https://example.com/recipe');
   }));
 
   it('should show loading indicator during import', () => {
@@ -360,9 +358,7 @@ describe('DashboardComponent', () => {
   }));
 
   it('should show generic error on 502 response (streaming)', fakeAsync(() => {
-    recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new Error('HTTP 502')),
-    );
+    recipeApiMock.importRecipeStream.mockReturnValue(throwError(() => new Error('HTTP 502')));
 
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
@@ -372,9 +368,7 @@ describe('DashboardComponent', () => {
   }));
 
   it('should show generic error on 504 response (streaming)', fakeAsync(() => {
-    recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new Error('HTTP 504')),
-    );
+    recipeApiMock.importRecipeStream.mockReturnValue(throwError(() => new Error('HTTP 504')));
 
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
@@ -384,9 +378,7 @@ describe('DashboardComponent', () => {
   }));
 
   it('should show generic error on 404 response (streaming)', fakeAsync(() => {
-    recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new Error('HTTP 404')),
-    );
+    recipeApiMock.importRecipeStream.mockReturnValue(throwError(() => new Error('HTTP 404')));
 
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
@@ -433,9 +425,7 @@ describe('DashboardComponent', () => {
   }));
 
   it('should show generic error on 400 response (streaming)', fakeAsync(() => {
-    recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new Error('HTTP 400')),
-    );
+    recipeApiMock.importRecipeStream.mockReturnValue(throwError(() => new Error('HTTP 400')));
 
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
@@ -445,9 +435,7 @@ describe('DashboardComponent', () => {
   }));
 
   it('should show generic error on 422 response (streaming)', fakeAsync(() => {
-    recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new Error('HTTP 422')),
-    );
+    recipeApiMock.importRecipeStream.mockReturnValue(throwError(() => new Error('HTTP 422')));
 
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onImport();
