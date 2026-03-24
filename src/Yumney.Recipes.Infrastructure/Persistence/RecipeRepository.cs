@@ -50,10 +50,20 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         if (search is not null)
         {
             var pattern = $"%{search.Value}%";
-            query = query.Where(r =>
-                EF.Functions.ILike(EF.Property<string>(r, "Title"), pattern) ||
-                (r.Description != null && EF.Functions.ILike(EF.Property<string>(r, "Description"), pattern)) ||
-                r.Ingredients.Any(i => EF.Functions.ILike(EF.Property<string>(i, "Name"), pattern)));
+            var matchingRecipeIds = context.Set<Recipe>()
+                .FromSqlRaw(
+                    """
+                    SELECT DISTINCT r."Id"
+                    FROM "Recipes" r
+                    LEFT JOIN "RecipeIngredients" ri ON ri."RecipeId" = r."Id"
+                    WHERE r."Title" ILIKE {0}
+                       OR r."Description" ILIKE {0}
+                       OR ri."Name" ILIKE {0}
+                    """,
+                    pattern)
+                .Select(r => r.Id);
+
+            query = query.Where(r => matchingRecipeIds.Contains(r.Id));
         }
 
         query = (sorting.SortBy, sorting.Direction) switch
