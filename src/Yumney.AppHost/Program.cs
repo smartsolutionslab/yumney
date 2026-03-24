@@ -24,6 +24,24 @@ var recipesDb = postgres.AddDatabase("recipesdb");
 var shoppingDb = postgres.AddDatabase("shoppingdb");
 var usersDb = postgres.AddDatabase("usersdb");
 
+// Database-only mode for integration tests — only starts PostgreSQL + migration runner
+var databaseOnly = builder.Configuration.GetValue<bool>("DatabaseOnly");
+
+// Migration Runner — single instance, runs once then exits
+var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
+    .WithReference(recipesDb)
+    .WithReference(shoppingDb)
+    .WithReference(usersDb)
+    .WaitFor(recipesDb)
+    .WaitFor(shoppingDb)
+    .WaitFor(usersDb);
+
+if (databaseOnly)
+{
+    builder.Build().Run();
+    return;
+}
+
 // Redis
 var redis = builder.AddRedis("redis").WithDataVolume();
 
@@ -68,21 +86,6 @@ else
 {
     openAiApiKey = builder.AddParameter("OpenAiApiKey", secret: true);
 }
-
-// Migration Runner — single instance, runs once then exits
-var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
-    .WithReference(recipesDb)
-    .WithReference(shoppingDb)
-    .WithReference(usersDb)
-    .WaitFor(recipesDb)
-    .WaitFor(shoppingDb)
-    .WaitFor(usersDb);
-
-migrationRunner.PublishAsAzureContainerApp((infra, app) =>
-{
-    app.Template.Scale.MinReplicas = 0;
-    app.Template.Scale.MaxReplicas = 1;
-});
 
 // Recipes API (needs keycloak, recipesdb, redis, LLM provider)
 var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
@@ -151,6 +154,12 @@ var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
         url.Url = "/scalar/v1";
     });
 
+migrationRunner.PublishAsAzureContainerApp((infra, app) =>
+{
+    app.Template.Scale.MinReplicas = 0;
+    app.Template.Scale.MaxReplicas = 1;
+});
+
 // Container images — use pre-built GHCR images when ImagePrefix is configured (CI/CD),
 // otherwise aspire deploy builds images and pushes to the auto-provisioned ACR.
 var imagePrefix = builder.Configuration.GetValue<string>("ImagePrefix") ?? string.Empty;
@@ -218,7 +227,8 @@ usersApi.PublishAsAzureContainerApp((infra, app) =>
 });
 
 // Frontend Micro-Frontends + Gateway
-if (builder.ExecutionContext.IsRunMode)
+var skipFrontend = builder.Configuration.GetValue<bool>("SkipFrontend");
+if (!skipFrontend && builder.ExecutionContext.IsRunMode)
 {
     var shell = builder.AddJavaScriptApp("shell", "../../client", "serve:shell")
         .WithYarn()
@@ -259,7 +269,7 @@ if (builder.ExecutionContext.IsRunMode)
         .WaitFor(shoppingMfe)
         .WaitFor(accountMfe);
 }
-else
+else if (!skipFrontend)
 {
     builder.AddYarp("yumney-gateway")
         .WithStaticFiles("../../client/dist/apps/shell/browser")
