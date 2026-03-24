@@ -55,7 +55,7 @@ public class CreateShoppingListRequestValidatorTests
     {
         var request = CreateValidRequest() with
         {
-            Items = [new CreateShoppingListItemRequest(string.Empty, null, null)],
+            Items = [new ShoppingListItem(string.Empty, null, null)],
         };
 
         var result = validator.Validate(request);
@@ -68,7 +68,7 @@ public class CreateShoppingListRequestValidatorTests
     {
         var request = CreateValidRequest() with
         {
-            Items = [new CreateShoppingListItemRequest(new string('a', 201), null, null)],
+            Items = [new ShoppingListItem(new string('a', 201), null, null)],
         };
 
         var result = validator.Validate(request);
@@ -81,7 +81,7 @@ public class CreateShoppingListRequestValidatorTests
     {
         var request = CreateValidRequest() with
         {
-            Items = [new CreateShoppingListItemRequest("Flour", -1, "g")],
+            Items = [new ShoppingListItem("Flour", -1, "g")],
         };
 
         var result = validator.Validate(request);
@@ -94,7 +94,7 @@ public class CreateShoppingListRequestValidatorTests
     {
         var request = CreateValidRequest() with
         {
-            Items = [new CreateShoppingListItemRequest("Flour", 500, new string('a', 51))],
+            Items = [new ShoppingListItem("Flour", 500, new string('a', 51))],
         };
 
         var result = validator.Validate(request);
@@ -106,6 +106,6 @@ public class CreateShoppingListRequestValidatorTests
     {
         return new CreateShoppingListRequest(
             "Weekly Groceries",
-            [new CreateShoppingListItemRequest("Flour", 500, "g")]);
+            [new ShoppingListItem("Flour", 500, "g")]);
     }
 }

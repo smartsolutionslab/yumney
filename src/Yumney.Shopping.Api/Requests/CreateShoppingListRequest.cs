@@ -2,5 +2,5 @@ namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
 public sealed record CreateShoppingListRequest(
     string Title,
-    List<CreateShoppingListItemRequest> Items,
+    List<ShoppingListItem> Items,
     Guid? RecipeReference = null);

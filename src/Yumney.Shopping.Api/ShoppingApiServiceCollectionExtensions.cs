@@ -1,5 +1,4 @@
 using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
