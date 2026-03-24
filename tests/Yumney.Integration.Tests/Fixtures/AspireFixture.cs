@@ -1,4 +1,5 @@
 using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +36,7 @@ public sealed class AspireFixture : IAsyncLifetime
         await app.StartAsync(cts.Token);
 
         await app.ResourceNotifications.WaitForResourceHealthyAsync("recipesdb", cts.Token);
+        await app.ResourceNotifications.WaitForResourceAsync("yumney-migrations", KnownResourceStates.Finished, cts.Token);
     }
 
     public async Task DisposeAsync()
