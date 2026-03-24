@@ -9,18 +9,12 @@ using Xunit;
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes;
 
 [Collection(AspireCollection.Name)]
-public class RecipeSearchTests : IAsyncLifetime
+public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
 {
     private static readonly PagingOptions DefaultPaging = PagingOptions.Of(Page.From(1), PageSize.From(20));
     private static readonly SortingOptions<RecipeSortField> DefaultSorting = new(RecipeSortField.Date, SortDirection.Descending);
 
-    private readonly AspireFixture fixture;
     private readonly OwnerIdentifier owner = OwnerIdentifier.From($"search-test-{Guid.NewGuid():N}");
-
-    public RecipeSearchTests(AspireFixture fixture)
-    {
-        this.fixture = fixture;
-    }
 
     public async Task InitializeAsync()
     {
@@ -136,7 +130,9 @@ public class RecipeSearchTests : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, totalCount) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting);
+            owner,
+            DefaultPaging,
+            DefaultSorting);
 
         totalCount.Should().Be(3);
         items.Should().HaveCount(3);
