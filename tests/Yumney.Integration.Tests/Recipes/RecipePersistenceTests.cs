@@ -38,7 +38,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var saved = await readContext.Recipes
             .Include(r => r.Ingredients)
-            .Include(r => r.Steps).Include(recipe => recipe.Title)
+            .Include(r => r.Steps)
             .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
         saved.Should().NotBeNull();
@@ -58,7 +58,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var saved = await readContext.Recipes
-            .Include(r => r.Ingredients).ThenInclude(ingredient => ingredient.Name)
+            .Include(r => r.Ingredients)
             .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
         saved!.Ingredients.Should().HaveCount(10);
@@ -79,8 +79,6 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var saved = await readContext.Recipes
             .Include(r => r.Steps)
-            .ThenInclude(step => step.Description).Include(recipe => recipe.Steps)
-            .ThenInclude(step => step.Number)
             .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
         saved!.Steps.Should().HaveCount(5);
@@ -101,8 +99,6 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var saved = await readContext.Recipes
-            .Include(recipe => recipe.Description!)
-            .Include(recipe => recipe.Servings!)
             .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
         saved!.Description!.Value.Should().Contain("Bolognese");
@@ -168,10 +164,6 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var updated = await readContext.Recipes
             .Include(r => r.Ingredients)
-            .ThenInclude(ingredient => ingredient.Name)
-            .Include(recipe => recipe.Title)
-            .Include(recipe => recipe.Description!)
-            .Include(recipe => recipe.Servings!)
             .Include(r => r.Steps)
             .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
