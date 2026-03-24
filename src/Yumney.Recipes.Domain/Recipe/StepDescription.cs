@@ -17,5 +17,7 @@ public sealed record StepDescription
         Value = validated.Trim();
     }
 
+    public static StepDescription From(string value) => new(value);
+
     public override string ToString() => Value;
 }

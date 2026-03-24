@@ -17,5 +17,7 @@ public sealed record RecipeTitle
         Value = validated.Trim();
     }
 
+    public static RecipeTitle From(string value) => new(value);
+
     public override string ToString() => Value;
 }

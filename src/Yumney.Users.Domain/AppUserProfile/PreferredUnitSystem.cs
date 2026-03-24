@@ -16,5 +16,7 @@ public sealed record PreferredUnitSystem
             .AndReturn();
     }
 
+    public static PreferredUnitSystem From(string value) => new(value);
+
     public override string ToString() => Value;
 }

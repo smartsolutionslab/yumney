@@ -17,5 +17,7 @@ public sealed record RecipeTag
         Value = validated.Trim().ToLowerInvariant();
     }
 
+    public static RecipeTag From(string value) => new(value);
+
     public override string ToString() => Value;
 }

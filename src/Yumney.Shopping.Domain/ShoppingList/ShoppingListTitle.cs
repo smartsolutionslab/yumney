@@ -17,5 +17,7 @@ public sealed record ShoppingListTitle
         Value = validated.Trim();
     }
 
+    public static ShoppingListTitle From(string value) => new(value);
+
     public override string ToString() => Value;
 }

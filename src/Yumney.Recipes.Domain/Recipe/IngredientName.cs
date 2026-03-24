@@ -17,5 +17,7 @@ public sealed record IngredientName
         Value = validated.Trim();
     }
 
+    public static IngredientName From(string value) => new(value);
+
     public override string ToString() => Value;
 }
