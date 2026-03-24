@@ -19,22 +19,22 @@ public sealed class AspireFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         var builder = await DistributedApplicationTestingBuilder
-            .CreateAsync<Projects.Yumney_AppHost>();
+            .CreateAsync<Projects.Yumney_AppHost>(
+            [
+                "Parameters:PostgresUser=testuser",
+                "Parameters:PostgresPassword=testpassword",
+                "Parameters:KeycloakPassword=testkeycloak",
+                "DatabaseOnly=true",
+            ]);
 
-        builder.Configuration["Parameters:PostgresUser"] = "testuser";
-        builder.Configuration["Parameters:PostgresPassword"] = "testpassword";
-        builder.Configuration["Parameters:KeycloakPassword"] = "testkeycloak";
+        builder.Services.ConfigureHttpClientDefaults(http => http.AddStandardResilienceHandler());
 
-        builder.Services.ConfigureHttpClientDefaults(http =>
-            http.AddStandardResilienceHandler());
+        app = await builder.BuildAsync();
 
         using var cts = new CancellationTokenSource(StartupTimeout);
-
-        app = await builder.BuildAsync(cts.Token);
         await app.StartAsync(cts.Token);
 
-        await app.ResourceNotifications
-            .WaitForResourceHealthyAsync("recipesdb", cts.Token);
+        await app.ResourceNotifications.WaitForResourceHealthyAsync("recipesdb", cts.Token);
     }
 
     public async Task DisposeAsync()
