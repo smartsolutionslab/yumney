@@ -51,21 +51,27 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         {
             var term = search.Value.ToLowerInvariant();
 
-            // Ingredient search runs as a separate query because EF Core cannot translate
-            // value object .Value access inside OwnsMany subqueries.
-            var ingredientMatchIds = (await context.Database
+            // EF Core 10 cannot translate List<T>.Contains(valueObjectProperty) so we
+            // collect matching IDs as raw Guids and filter via EF.Property to bypass
+            // value conversions. Title/description use LINQ, ingredients use SQL
+            // (EF can't translate value object access inside OwnsMany subqueries).
+#pragma warning disable CA1862 // EF Core translates ToLowerInvariant().Contains() to SQL LOWER() LIKE — StringComparison overload is not translatable
+            var titleDescGuids = await query
+                .Where(r =>
+                    r.Title.Value.ToLowerInvariant().Contains(term) ||
+                    (r.Description != null && r.Description.Value.ToLowerInvariant().Contains(term)))
+                .Select(r => EF.Property<Guid>(r, "Id"))
+                .ToListAsync(cancellationToken);
+#pragma warning restore CA1862
+
+            var ingredientGuids = await context.Database
                 .SqlQuery<Guid>(
                     $"""SELECT DISTINCT "RecipeId" AS "Value" FROM "RecipeIngredients" WHERE LOWER("Name") LIKE {'%' + term + '%'}""")
-                .ToListAsync(cancellationToken))
-                .Select(RecipeIdentifier.From)
-                .ToList();
+                .ToListAsync(cancellationToken);
 
-#pragma warning disable CA1862 // EF Core translates ToLowerInvariant().Contains() to SQL LOWER() LIKE — StringComparison overload is not translatable
-            query = query.Where(r =>
-                r.Title.Value.ToLowerInvariant().Contains(term) ||
-                (r.Description != null && r.Description.Value.ToLowerInvariant().Contains(term)) ||
-                ingredientMatchIds.Contains(r.Id));
-#pragma warning restore CA1862
+            var matchingGuids = titleDescGuids.Union(ingredientGuids).ToList();
+
+            query = query.Where(r => matchingGuids.Contains(EF.Property<Guid>(r, "Id")));
         }
 
         query = (sorting.SortBy, sorting.Direction) switch
