@@ -17,5 +17,7 @@ public sealed record DisplayName
         Value = validated.Trim();
     }
 
+    public static DisplayName From(string value) => new(value);
+
     public override string ToString() => Value;
 }

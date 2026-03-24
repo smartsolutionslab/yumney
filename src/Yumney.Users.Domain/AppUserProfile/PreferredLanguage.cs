@@ -16,5 +16,7 @@ public sealed record PreferredLanguage
             .AndReturn();
     }
 
+    public static PreferredLanguage From(string value) => new(value);
+
     public override string ToString() => Value;
 }

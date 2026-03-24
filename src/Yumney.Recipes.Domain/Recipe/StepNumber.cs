@@ -12,5 +12,7 @@ public sealed record StepNumber
         Value = Ensure.That(value).IsPositive().AndReturn();
     }
 
+    public static StepNumber From(int value) => new(value);
+
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

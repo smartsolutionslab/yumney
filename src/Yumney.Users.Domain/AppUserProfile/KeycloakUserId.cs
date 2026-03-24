@@ -16,5 +16,7 @@ public sealed record KeycloakUserId
             .AndReturn();
     }
 
+    public static KeycloakUserId From(string value) => new(value);
+
     public override string ToString() => Value;
 }
