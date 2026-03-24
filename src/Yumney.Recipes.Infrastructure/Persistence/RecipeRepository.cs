@@ -56,8 +56,8 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             // to bypass value object .Value access (which EF Core 10 cannot translate).
             var titleDescIds = await query
                 .Where(r =>
-                    EF.Functions.ILike(EF.Property<string>(r, "Title"), pattern) ||
-                    EF.Functions.ILike(EF.Property<string>(r, "Description"), pattern))
+                    EF.Functions.ILike(EF.Property<string>(r, "Title.Value"), pattern) ||
+                    EF.Functions.ILike(EF.Property<string>(r, "Description.Value"), pattern))
                 .Select(r => r.Id)
                 .ToListAsync(cancellationToken);
 
