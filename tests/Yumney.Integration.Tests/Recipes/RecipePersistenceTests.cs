@@ -8,15 +8,9 @@ using Xunit;
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes;
 
 [Collection(AspireCollection.Name)]
-public class RecipePersistenceTests : IAsyncLifetime
+public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 {
-    private readonly AspireFixture fixture;
     private readonly OwnerIdentifier owner = OwnerIdentifier.From($"persist-test-{Guid.NewGuid():N}");
-
-    public RecipePersistenceTests(AspireFixture fixture)
-    {
-        this.fixture = fixture;
-    }
 
     public Task InitializeAsync() => Task.CompletedTask;
 
@@ -44,7 +38,7 @@ public class RecipePersistenceTests : IAsyncLifetime
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var saved = await readContext.Recipes
             .Include(r => r.Ingredients)
-            .Include(r => r.Steps)
+            .Include(r => r.Steps).Include(recipe => recipe.Title)
             .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
         saved.Should().NotBeNull();
@@ -64,7 +58,7 @@ public class RecipePersistenceTests : IAsyncLifetime
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var saved = await readContext.Recipes
-            .Include(r => r.Ingredients)
+            .Include(r => r.Ingredients).ThenInclude(ingredient => ingredient.Name)
             .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
         saved!.Ingredients.Should().HaveCount(10);
@@ -85,6 +79,8 @@ public class RecipePersistenceTests : IAsyncLifetime
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var saved = await readContext.Recipes
             .Include(r => r.Steps)
+            .ThenInclude(step => step.Description).Include(recipe => recipe.Steps)
+            .ThenInclude(step => step.Number)
             .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
         saved!.Steps.Should().HaveCount(5);
@@ -104,7 +100,10 @@ public class RecipePersistenceTests : IAsyncLifetime
         }
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
-        var saved = await readContext.Recipes.FirstOrDefaultAsync(r => r.Id == recipe.Id);
+        var saved = await readContext.Recipes
+            .Include(recipe => recipe.Description!)
+            .Include(recipe => recipe.Servings!)
+            .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
         saved!.Description!.Value.Should().Contain("Bolognese");
         saved.Servings!.Value.Should().Be(6);
@@ -169,6 +168,10 @@ public class RecipePersistenceTests : IAsyncLifetime
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
         var updated = await readContext.Recipes
             .Include(r => r.Ingredients)
+            .ThenInclude(ingredient => ingredient.Name)
+            .Include(recipe => recipe.Title)
+            .Include(recipe => recipe.Description!)
+            .Include(recipe => recipe.Servings!)
             .Include(r => r.Steps)
             .FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
