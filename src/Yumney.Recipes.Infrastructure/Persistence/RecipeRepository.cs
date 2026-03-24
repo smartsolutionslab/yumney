@@ -50,25 +50,15 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
         if (search is not null)
         {
-            var pattern = $"%{search.Value.ToLowerInvariant()}%";
-
-            // EF Core 10 cannot translate value object .Value access on properties
-            // with conversions. Use raw SQL to find matching IDs across title,
-            // description, and ingredient names, then feed back into LINQ for
-            // owner filtering, sorting, and pagination.
-            var matchingIds = await context.Database
-                .SqlQuery<Guid>(
-                    $"""
-                    SELECT DISTINCT r."Id" AS "Value"
-                    FROM "Recipes" r
-                    LEFT JOIN "RecipeIngredients" ri ON ri."RecipeId" = r."Id"
-                    WHERE LOWER(r."Title") LIKE {pattern}
-                       OR LOWER(r."Description") LIKE {pattern}
-                       OR LOWER(ri."Name") LIKE {pattern}
-                    """)
-                .ToListAsync(cancellationToken);
-
-            query = query.Where(r => matchingIds.Contains(EF.Property<Guid>(r, "Id")));
+            var searchTerm = search.Value.ToLowerInvariant();
+            query = query.Where(r => r.Title.Value.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase)
+                                     || (r.Description != null && r.Description.Value.Contains(
+                                         searchTerm,
+                                         StringComparison.InvariantCultureIgnoreCase))
+                                     || r.Ingredients.Any(i =>
+                                         i.Name.Value.Contains(
+                                             searchTerm,
+                                             StringComparison.InvariantCultureIgnoreCase)));
         }
 
         query = ApplySorting(query, sorting);
