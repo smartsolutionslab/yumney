@@ -50,27 +50,46 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
         if (search is not null)
         {
-            var searchTerm = search.Value.ToLowerInvariant();
-            query = query.Where(r => r.Title.Value.Contains(searchTerm, StringComparison.InvariantCultureIgnoreCase)
-                                     || (r.Description != null && r.Description.Value.Contains(
-                                         searchTerm,
-                                         StringComparison.InvariantCultureIgnoreCase))
-                                     || r.Ingredients.Any(i =>
-                                         i.Name.Value.Contains(
-                                             searchTerm,
-                                             StringComparison.InvariantCultureIgnoreCase)));
+            var pattern = $"%{search.Value.ToLowerInvariant()}%";
+
+            // EF Core 10 + Npgsql cannot translate value object .Value access,
+            // StringComparison overloads, or Contains on converted ID properties.
+            // Use raw SQL for search, then filter the LINQ query by matching IDs.
+            // Client-side ID filtering is acceptable because the owner filter
+            // already limits the result set to the current user's recipes.
+            var matchingIds = (await context.Database
+                .SqlQuery<Guid>(
+                    $"""
+                    SELECT DISTINCT r."Id" AS "Value"
+                    FROM "Recipes" r
+                    LEFT JOIN "RecipeIngredients" ri ON ri."RecipeId" = r."Id"
+                    WHERE LOWER(r."Title") LIKE {pattern}
+                       OR LOWER(r."Description") LIKE {pattern}
+                       OR LOWER(ri."Name") LIKE {pattern}
+                    """)
+                .ToListAsync(cancellationToken))
+                .ToHashSet();
+
+            // Load owner's recipes and filter client-side by search matches
+            var ownerRecipes = await query.ToListAsync(cancellationToken);
+            var filtered = ownerRecipes.Where(r => matchingIds.Contains(r.Id.Value)).ToList();
+
+            var sorted = ApplySortingInMemory(filtered, sorting);
+            var totalCount = sorted.Count;
+            var items = sorted.Skip(paging.Skip).Take(paging.PageSize.Value).ToList();
+            return (items, totalCount);
         }
 
         query = ApplySorting(query, sorting);
 
-        var totalCount = await query.CountAsync(cancellationToken);
+        var totalCountAll = await query.CountAsync(cancellationToken);
 
-        var items = await query
+        var pagedItems = await query
             .Skip(paging.Skip)
             .Take(paging.PageSize.Value)
             .ToListAsync(cancellationToken);
 
-        return (items, totalCount);
+        return (pagedItems, totalCountAll);
     }
 
     private static IQueryable<Recipe> ApplySorting(
@@ -85,6 +104,20 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             (RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
             _ => throw new InvalidOperationException(
                 $"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
+        };
+    }
+
+    private static List<Recipe> ApplySortingInMemory(
+        List<Recipe> recipes,
+        SortingOptions<RecipeSortField> sorting)
+    {
+        return (sorting.SortBy, sorting.Direction) switch
+        {
+            (RecipeSortField.Name, SortDirection.Ascending) => [.. recipes.OrderBy(r => r.Title.Value)],
+            (RecipeSortField.Name, SortDirection.Descending) => [.. recipes.OrderByDescending(r => r.Title.Value)],
+            (RecipeSortField.Date, SortDirection.Ascending) => [.. recipes.OrderBy(r => r.CreatedAt)],
+            (RecipeSortField.Date, SortDirection.Descending) => [.. recipes.OrderByDescending(r => r.CreatedAt)],
+            _ => recipes,
         };
     }
 }
