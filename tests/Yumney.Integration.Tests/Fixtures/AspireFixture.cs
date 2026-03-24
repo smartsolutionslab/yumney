@@ -10,6 +10,8 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 
 public sealed class AspireFixture : IAsyncLifetime
 {
+    private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(3);
+
     private DistributedApplication? app;
 
     public DistributedApplication App => app ?? throw new InvalidOperationException("Aspire app not started");
@@ -19,14 +21,20 @@ public sealed class AspireFixture : IAsyncLifetime
         var builder = await DistributedApplicationTestingBuilder
             .CreateAsync<Projects.Yumney_AppHost>();
 
+        builder.Configuration["Parameters:PostgresUser"] = "testuser";
+        builder.Configuration["Parameters:PostgresPassword"] = "testpassword";
+        builder.Configuration["Parameters:KeycloakPassword"] = "testkeycloak";
+
         builder.Services.ConfigureHttpClientDefaults(http =>
             http.AddStandardResilienceHandler());
 
-        app = await builder.BuildAsync();
-        await app.StartAsync();
+        using var cts = new CancellationTokenSource(StartupTimeout);
 
-        // Allow time for migration runner to complete and APIs to become ready
-        await Task.Delay(TimeSpan.FromSeconds(15));
+        app = await builder.BuildAsync(cts.Token);
+        await app.StartAsync(cts.Token);
+
+        await app.ResourceNotifications
+            .WaitForResourceHealthyAsync("recipesdb", cts.Token);
     }
 
     public async Task DisposeAsync()
