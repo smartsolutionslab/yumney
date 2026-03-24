@@ -58,13 +58,13 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
                 .Where(r =>
                     EF.Functions.ILike(EF.Property<string>(r, "Title"), pattern) ||
                     EF.Functions.ILike(EF.Property<string>(r, "Description"), pattern))
-                .Select(r => EF.Property<Guid>(r, "Id"))
+                .Select(r => r.Id)
                 .ToListAsync(cancellationToken);
 
             // Ingredient search via raw SQL (EF cannot translate value object access
             // inside OwnsMany subqueries even with EF.Property).
             var ingredientIds = await context.Database
-                .SqlQuery<Guid>(
+                .SqlQuery<RecipeIdentifier>(
                     $"""
                     SELECT DISTINCT "RecipeId" AS "Value"
                     FROM "RecipeIngredients"
@@ -77,7 +77,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             // Client-side ID filter — acceptable because the owner filter already
             // limits the result set to the current user's recipes.
             var ownerRecipes = await query.ToListAsync(cancellationToken);
-            var filtered = ownerRecipes.Where(r => matchingIds.Contains(r.Id.Value)).ToList();
+            var filtered = ownerRecipes.Where(r => matchingIds.Contains(r.Id)).ToList();
 
             var sorted = ApplySortingInMemory(filtered, sorting);
             return (sorted.Skip(paging.Skip).Take(paging.PageSize.Value).ToList(), sorted.Count);
