@@ -94,9 +94,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         return (items, totalCount);
     }
 
-    private static IQueryable<Recipe> ApplySorting(
-        IQueryable<Recipe> query,
-        SortingOptions<RecipeSortField> sorting)
+    private static IQueryable<Recipe> ApplySorting(IQueryable<Recipe> query, SortingOptions<RecipeSortField> sorting)
     {
         return (sorting.SortBy, sorting.Direction) switch
         {
@@ -104,14 +102,11 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             (RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(r => r.Title),
             (RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
             (RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
-            _ => throw new InvalidOperationException(
-                $"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
+            _ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
         };
     }
 
-    private static List<Recipe> ApplySortingInMemory(
-        List<Recipe> recipes,
-        SortingOptions<RecipeSortField> sorting)
+    private static List<Recipe> ApplySortingInMemory(List<Recipe> recipes, SortingOptions<RecipeSortField> sorting)
     {
         return (sorting.SortBy, sorting.Direction) switch
         {
