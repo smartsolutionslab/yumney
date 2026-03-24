@@ -51,8 +51,8 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         {
             var pattern = $"%{search.Value}%";
             query = query.Where(r =>
-                EF.Functions.ILike(r.Title.Value, pattern) ||
-                (r.Description != null && EF.Functions.ILike(r.Description.Value, pattern)) ||
+                EF.Functions.ILike(EF.Property<string>(r, "Title"), pattern) ||
+                (r.Description != null && EF.Functions.ILike(EF.Property<string>(r, "Description"), pattern)) ||
                 r.Ingredients.Any(i => EF.Functions.ILike(EF.Property<string>(i, "Name"), pattern)));
         }
 
