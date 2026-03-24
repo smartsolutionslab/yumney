@@ -222,7 +222,9 @@ public static class RecipesEndpoints
         return result.ToOk();
     }
 
-    private const int MaxStreamBufferLength = 100_000;
+#pragma warning disable SA1303
+    private const int maxStreamBufferLength = 100_000;
+#pragma warning restore SA1303
 
     private static async Task ImportStreamAsync(
         HttpContext httpContext,
@@ -271,7 +273,7 @@ public static class RecipesEndpoints
             {
                 buffer.Append(chunk);
 
-                if (buffer.Length > MaxStreamBufferLength)
+                if (buffer.Length > maxStreamBufferLength)
                 {
                     await WriteSseEventAsync("fail", "Response too large");
                     return;
