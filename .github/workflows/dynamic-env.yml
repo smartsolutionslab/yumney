@@ -86,10 +86,10 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Install Aspire workload & CLI
+      - name: Install Aspire CLI
         run: |
-          dotnet workload install aspire
-          dotnet tool install -g aspire
+          curl -sSL https://aspire.dev/install.sh | bash
+          echo "$HOME/.aspire/bin" >> $GITHUB_PATH
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -212,10 +212,10 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Install Aspire workload & CLI
+      - name: Install Aspire CLI
         run: |
-          dotnet workload install aspire
-          dotnet tool install -g aspire
+          curl -sSL https://aspire.dev/install.sh | bash
+          echo "$HOME/.aspire/bin" >> $GITHUB_PATH
 
       - name: Setup Node.js
         uses: actions/setup-node@v6

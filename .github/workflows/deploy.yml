@@ -172,6 +172,7 @@ jobs:
   deploy:
     name: Deploy to ${{ needs.version.outputs.environment }}
     needs: [build-and-push, version]
+    if: vars.AZURE_CLIENT_ID != ''
     runs-on: ubuntu-latest
     environment: ${{ needs.version.outputs.environment }}
     env:
@@ -209,10 +210,10 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
-      - name: Install Aspire workload & CLI
+      - name: Install Aspire CLI
         run: |
-          dotnet workload install aspire
-          dotnet tool install -g aspire
+          curl -sSL https://aspire.dev/install.sh | bash
+          echo "$HOME/.aspire/bin" >> $GITHUB_PATH
 
       - name: Azure login
         uses: azure/login@v2
