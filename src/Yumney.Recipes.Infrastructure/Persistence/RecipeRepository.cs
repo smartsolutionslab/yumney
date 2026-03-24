@@ -19,6 +19,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         return await recipes
             .Include(r => r.Ingredients)
             .Include(r => r.Steps)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
     }
 
@@ -49,39 +50,28 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
         if (search is not null)
         {
-            var term = search.Value.ToLowerInvariant();
+            var pattern = $"%{search.Value.ToLowerInvariant()}%";
 
-            // EF Core 10 cannot translate List<T>.Contains(valueObjectProperty) so we
-            // collect matching IDs as raw Guids and filter via EF.Property to bypass
-            // value conversions. Title/description use LINQ, ingredients use SQL
-            // (EF can't translate value object access inside OwnsMany subqueries).
-#pragma warning disable CA1862 // EF Core translates ToLowerInvariant().Contains() to SQL LOWER() LIKE — StringComparison overload is not translatable
-            var titleDescGuids = await query
-                .Where(r =>
-                    r.Title.Value.ToLowerInvariant().Contains(term) ||
-                    (r.Description != null && r.Description.Value.ToLowerInvariant().Contains(term)))
-                .Select(r => EF.Property<Guid>(r, "Id"))
-                .ToListAsync(cancellationToken);
-#pragma warning restore CA1862
-
-            var ingredientGuids = await context.Database
+            // EF Core 10 cannot translate value object .Value access on properties
+            // with conversions. Use raw SQL to find matching IDs across title,
+            // description, and ingredient names, then feed back into LINQ for
+            // owner filtering, sorting, and pagination.
+            var matchingIds = await context.Database
                 .SqlQuery<Guid>(
-                    $"""SELECT DISTINCT "RecipeId" AS "Value" FROM "RecipeIngredients" WHERE LOWER("Name") LIKE {'%' + term + '%'}""")
+                    $"""
+                    SELECT DISTINCT r."Id" AS "Value"
+                    FROM "Recipes" r
+                    LEFT JOIN "RecipeIngredients" ri ON ri."RecipeId" = r."Id"
+                    WHERE LOWER(r."Title") LIKE {pattern}
+                       OR LOWER(r."Description") LIKE {pattern}
+                       OR LOWER(ri."Name") LIKE {pattern}
+                    """)
                 .ToListAsync(cancellationToken);
 
-            var matchingGuids = titleDescGuids.Union(ingredientGuids).ToList();
-
-            query = query.Where(r => matchingGuids.Contains(EF.Property<Guid>(r, "Id")));
+            query = query.Where(r => matchingIds.Contains(EF.Property<Guid>(r, "Id")));
         }
 
-        query = (sorting.SortBy, sorting.Direction) switch
-        {
-            (RecipeSortField.Name, SortDirection.Ascending) => query.OrderBy(r => r.Title),
-            (RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(r => r.Title),
-            (RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
-            (RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
-            _ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
-        };
+        query = ApplySorting(query, sorting);
 
         var totalCount = await query.CountAsync(cancellationToken);
 
@@ -91,5 +81,20 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);
+    }
+
+    private static IQueryable<Recipe> ApplySorting(
+        IQueryable<Recipe> query,
+        SortingOptions<RecipeSortField> sorting)
+    {
+        return (sorting.SortBy, sorting.Direction) switch
+        {
+            (RecipeSortField.Name, SortDirection.Ascending) => query.OrderBy(r => r.Title),
+            (RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(r => r.Title),
+            (RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
+            (RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
+            _ => throw new InvalidOperationException(
+                $"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
+        };
     }
 }
