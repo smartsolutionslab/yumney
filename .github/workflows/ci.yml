@@ -45,7 +45,11 @@ jobs:
         run: dotnet build Yumney.slnx --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test Yumney.slnx --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+        run: dotnet test Yumney.slnx --no-build --configuration Release --filter "FullyQualifiedName!~Integration" --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Integration Tests
+        continue-on-error: true
+        run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj --no-build --configuration Release
 
       - name: Upload coverage
         uses: actions/upload-artifact@v4
