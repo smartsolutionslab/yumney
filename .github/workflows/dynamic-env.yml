@@ -1,11 +1,6 @@
 name: Dynamic Environment
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches: [develop]
-  schedule:
-    - cron: '0 3 * * *'  # Daily at 3 AM UTC — cleanup stale environments
   workflow_dispatch:
     inputs:
       action:
@@ -24,7 +19,6 @@ on:
 permissions:
   id-token: write
   contents: read
-  pull-requests: write
 
 jobs:
   prepare:
@@ -38,26 +32,12 @@ jobs:
     steps:
       - name: Resolve action
         id: resolve
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            PR_ACTION="${{ github.event.action }}"
-            if [[ "${PR_ACTION}" == "closed" ]]; then
-              echo "action=destroy" >> "$GITHUB_OUTPUT"
-            elif [[ "${PR_ACTION}" == "opened" || "${PR_ACTION}" == "reopened" ]]; then
-              echo "action=create" >> "$GITHUB_OUTPUT"
-            else
-              echo "action=update" >> "$GITHUB_OUTPUT"
-            fi
-          else
-            echo "action=${{ inputs.action }}" >> "$GITHUB_OUTPUT"
-          fi
+        run: echo "action=${{ inputs.action }}" >> "$GITHUB_OUTPUT"
 
       - name: Sanitize environment name
         id: sanitize
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            RAW_NAME="pr-${{ github.event.pull_request.number }}"
-          elif [[ -n "${{ inputs.env_name }}" ]]; then
+          if [[ -n "${{ inputs.env_name }}" ]]; then
             RAW_NAME="${{ inputs.env_name }}"
           else
             RAW_NAME="${GITHUB_REF_NAME}"
@@ -212,45 +192,6 @@ jobs:
           echo "- **Key Vault:** ${{ needs.prepare.outputs.keyvault_name }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- **URL:** ${{ steps.env_url.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Branch:** ${GITHUB_REF_NAME}" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Comment on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = [
-              '### 🚀 Dynamic environment deployed',
-              '',
-              `**URL:** ${{ steps.env_url.outputs.url }}`,
-              `**Resource Group:** \`${{ needs.prepare.outputs.resource_group }}\``,
-              '',
-              '_This environment will be automatically destroyed when the PR is closed._',
-            ].join('\n');
-
-            // Update existing comment or create new one
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-            const marker = '### 🚀 Dynamic environment deployed';
-            const existing = comments.find(c => c.body.startsWith(marker));
-
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body,
-              });
-            }
 
   update:
     name: Update Environment
@@ -411,94 +352,3 @@ jobs:
             echo "- Resource group ${{ needs.prepare.outputs.resource_group }} did not exist." >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Comment on PR
-        if: github.event_name == 'pull_request' && steps.check.outputs.exists == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: '### 🗑️ Dynamic environment destroyed\n\nResource group `${{ needs.prepare.outputs.resource_group }}` is being deleted.',
-            });
-
-  cleanup:
-    name: Cleanup Stale Environments
-    if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    environment: dynamic
-    env:
-      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
-    steps:
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Find and destroy stale environments
-        uses: actions/github-script@v7
-        env:
-          MAX_AGE_HOURS: '72'
-        with:
-          script: |
-            const { execSync } = require('child_process');
-            const maxAgeMs = parseInt(process.env.MAX_AGE_HOURS) * 60 * 60 * 1000;
-            const now = Date.now();
-
-            // List all dynamic environment resource groups
-            const groups = JSON.parse(
-              execSync('az group list --tag environment=dynamic --query "[].{name:name, tags:tags}" -o json').toString()
-            );
-
-            for (const group of groups) {
-              const createdAt = group.tags?.['created-at'] || group.tags?.['created-by'] ? null : null;
-              const groupName = group.name;
-
-              // Extract PR number from resource group name (rg-yumney-pr-123)
-              const prMatch = groupName.match(/rg-yumney-pr-(\d+)/);
-              if (prMatch) {
-                const prNumber = parseInt(prMatch[1]);
-                try {
-                  const { data: pr } = await github.rest.pulls.get({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: prNumber,
-                  });
-                  if (pr.state === 'closed') {
-                    core.info(`PR #${prNumber} is closed — destroying ${groupName}`);
-                    execSync(`az keyvault delete --name kv-yumney-pr-${prNumber} --resource-group ${groupName} -o none 2>/dev/null || true`);
-                    execSync(`az keyvault purge --name kv-yumney-pr-${prNumber} -o none 2>/dev/null || true`);
-                    execSync(`az group delete --name ${groupName} --yes --no-wait`);
-                    continue;
-                  }
-                } catch (e) {
-                  core.info(`Could not check PR #${prNumber}: ${e.message}`);
-                }
-              }
-
-              // Fallback: check resource group age via creation timestamp
-              try {
-                const created = execSync(
-                  `az group show --name ${groupName} --query "tags.\\"created-at\\"" -o tsv 2>/dev/null || echo ""`
-                ).toString().trim();
-
-                if (created && (now - new Date(created).getTime()) > maxAgeMs) {
-                  core.info(`${groupName} is older than ${process.env.MAX_AGE_HOURS}h — destroying`);
-                  const kvName = groupName.replace('rg-yumney-', 'kv-yumney-');
-                  execSync(`az keyvault delete --name ${kvName} --resource-group ${groupName} -o none 2>/dev/null || true`);
-                  execSync(`az keyvault purge --name ${kvName} -o none 2>/dev/null || true`);
-                  execSync(`az group delete --name ${groupName} --yes --no-wait`);
-                }
-              } catch (e) {
-                core.warning(`Failed to process ${groupName}: ${e.message}`);
-              }
-            }
-
-      - name: Print summary
-        run: echo "### Stale environment cleanup completed" >> "$GITHUB_STEP_SUMMARY"
