@@ -49,21 +49,13 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
         if (search is not null)
         {
-            var pattern = $"%{search.Value}%";
-            var matchingRecipeIds = context.Set<Recipe>()
-                .FromSqlRaw(
-                    """
-                    SELECT DISTINCT r."Id"
-                    FROM "Recipes" r
-                    LEFT JOIN "RecipeIngredients" ri ON ri."RecipeId" = r."Id"
-                    WHERE r."Title" ILIKE {0}
-                       OR r."Description" ILIKE {0}
-                       OR ri."Name" ILIKE {0}
-                    """,
-                    pattern)
-                .Select(r => r.Id);
-
-            query = query.Where(r => matchingRecipeIds.Contains(r.Id));
+            var term = search.Value.ToLowerInvariant();
+#pragma warning disable CA1862 // EF Core translates ToLowerInvariant().Contains() to SQL LOWER() LIKE — StringComparison overload is not translatable
+            query = query.Where(r =>
+                r.Title.Value.ToLowerInvariant().Contains(term) ||
+                (r.Description != null && r.Description.Value.ToLowerInvariant().Contains(term)) ||
+                r.Ingredients.Any(i => i.Name.Value.ToLowerInvariant().Contains(term)));
+#pragma warning restore CA1862
         }
 
         query = (sorting.SortBy, sorting.Direction) switch
