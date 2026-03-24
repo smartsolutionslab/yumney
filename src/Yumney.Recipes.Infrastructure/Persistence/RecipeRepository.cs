@@ -53,7 +53,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             query = query.Where(r =>
                 EF.Functions.ILike(r.Title.Value, pattern) ||
                 (r.Description != null && EF.Functions.ILike(r.Description.Value, pattern)) ||
-                r.Ingredients.Any(i => EF.Functions.ILike(i.Name.Value, pattern)));
+                r.Ingredients.Any(i => EF.Functions.ILike(EF.Property<string>(i, "Name"), pattern)));
         }
 
         query = (sorting.SortBy, sorting.Direction) switch
