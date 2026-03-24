@@ -53,16 +53,18 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
             // Ingredient search runs as a separate query because EF Core cannot translate
             // value object .Value access inside OwnsMany subqueries.
-            var ingredientMatchIds = await context.Database
+            var ingredientMatchIds = (await context.Database
                 .SqlQuery<Guid>(
                     $"""SELECT DISTINCT "RecipeId" AS "Value" FROM "RecipeIngredients" WHERE LOWER("Name") LIKE {'%' + term + '%'}""")
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken))
+                .Select(RecipeIdentifier.From)
+                .ToList();
 
 #pragma warning disable CA1862 // EF Core translates ToLowerInvariant().Contains() to SQL LOWER() LIKE — StringComparison overload is not translatable
             query = query.Where(r =>
                 r.Title.Value.ToLowerInvariant().Contains(term) ||
                 (r.Description != null && r.Description.Value.ToLowerInvariant().Contains(term)) ||
-                ingredientMatchIds.Contains(r.Id.Value));
+                ingredientMatchIds.Contains(r.Id));
 #pragma warning restore CA1862
         }
 
