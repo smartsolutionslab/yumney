@@ -9,7 +9,7 @@
   "editUsernameAllowed": false,
   "bruteForceProtected": true,
   "failureFactor": 5,
-  "verifyEmail": true,
+  "verifyEmail": false,
   "passwordPolicy": "length(8) and upperCase(1) and lowerCase(1) and digits(1)",
   "actionTokenGeneratedByUserLifespan": 3600,
   "smtpServer": {

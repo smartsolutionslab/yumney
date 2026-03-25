@@ -54,13 +54,15 @@ var messaging = builder.AddRabbitMQ("messaging")
 var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword)
     .WithDataVolume();
 
+keycloak.WithRealmImport("Realms");
+
 if (builder.ExecutionContext.IsRunMode)
 {
     var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "latest")
         .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
         .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp");
 
-    keycloak.WithRealmImport("Realms").WaitFor(mailpit);
+    keycloak.WaitFor(mailpit);
 }
 else
 {
