@@ -223,15 +223,19 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure
-        run: aspire deploy
+        run: |
+          aspire deploy \
+            -- \
+            ImagePrefix="${IMAGE_PREFIX}" \
+            ImageTag="${IMAGE_TAG}"
         working-directory: src/Yumney.AppHost
         env:
           ASPNETCORE_ENVIRONMENT: ${{ needs.version.outputs.environment == 'production' && 'Production' || 'Staging' }}
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           Azure__Location: ${{ vars.AZURE_LOCATION }}
           Azure__ResourceGroup: ${{ vars.AZURE_RESOURCE_GROUP }}
-          ImagePrefix: ${{ env.IMAGE_PREFIX }}
-          ImageTag: ${{ needs.version.outputs.image_tag }}
+          IMAGE_PREFIX: ${{ env.IMAGE_PREFIX }}
+          IMAGE_TAG: ${{ needs.version.outputs.image_tag }}
           Parameters__PostgresUser: ${{ vars.POSTGRES_USER }}
           Parameters__PostgresPassword: ${{ secrets.POSTGRES_PASSWORD }}
           Parameters__KeycloakPassword: ${{ secrets.KEYCLOAK_PASSWORD }}
