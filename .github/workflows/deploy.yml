@@ -143,7 +143,7 @@ jobs:
       - name: Deploy to Azure
         working-directory: src/Yumney.AppHost
         run: |
-          aspire deploy \
+          aspire deploy --no-build \
             -- \
             RegistryEndpoint=ghcr.io \
             RegistryRepository=${{ github.repository }} \
