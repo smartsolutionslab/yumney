@@ -66,10 +66,16 @@ jobs:
           echo "### Image Tag: \`${IMAGE_TAG}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "### Environment: \`${ENVIRONMENT}\`" >> "$GITHUB_STEP_SUMMARY"
 
-  build-and-push:
-    name: Build & Push Images
+  deploy:
+    name: Deploy to ${{ needs.version.outputs.environment }}
     needs: [test, version]
+    if: vars.AZURE_CLIENT_ID != ''
     runs-on: ubuntu-latest
+    environment: ${{ needs.version.outputs.environment }}
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
     steps:
       - uses: actions/checkout@v6
@@ -91,11 +97,6 @@ jobs:
         run: |
           curl -sSL https://aspire.dev/install.sh | bash
           echo "$HOME/.aspire/bin" >> $GITHUB_PATH
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
       - name: Download frontend artifact
         uses: actions/download-artifact@v4
@@ -118,65 +119,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push images to GHCR
-        working-directory: src/Yumney.AppHost
-        run: aspire do push
-        env:
-          RegistryEndpoint: ghcr.io
-          RegistryRepository: ${{ github.repository }}
-
-  deploy:
-    name: Deploy to ${{ needs.version.outputs.environment }}
-    needs: [build-and-push, version]
-    if: vars.AZURE_CLIENT_ID != ''
-    runs-on: ubuntu-latest
-    environment: ${{ needs.version.outputs.environment }}
-    env:
-      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Download frontend build
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: client/dist/
-
-      - name: Write environment-specific frontend config
-        run: |
-          echo '{
-            "keycloakUrl": "${{ vars.KEYCLOAK_URL }}",
-            "keycloakRealm": "yumney",
-            "keycloakClientId": "yumney-web"
-          }' > client/dist/apps/shell/browser/assets/config/app-config.json
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
-
-      - name: Install Aspire CLI
-        run: |
-          curl -sSL https://aspire.dev/install.sh | bash
-          echo "$HOME/.aspire/bin" >> $GITHUB_PATH
-
       - name: Azure login
         uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push images to GHCR
+        working-directory: src/Yumney.AppHost
+        run: aspire do push
+        env:
+          RegistryEndpoint: ghcr.io
+          RegistryRepository: ${{ github.repository }}
 
       - name: Deploy to Azure
         working-directory: src/Yumney.AppHost
