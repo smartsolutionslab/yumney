@@ -43,8 +43,12 @@ if (databaseOnly)
     return;
 }
 
-// Redis
-var redis = builder.AddRedis("redis").WithDataVolume();
+// Redis — data volume only in dev (ACA volume mounts may break permissions)
+var redis = builder.AddRedis("redis");
+if (builder.ExecutionContext.IsRunMode)
+{
+    redis.WithDataVolume();
+}
 
 // RabbitMQ — data volume only in dev (ACA volume mounts break Erlang cookie permissions)
 var messaging = builder.AddRabbitMQ("messaging")
@@ -55,9 +59,12 @@ if (builder.ExecutionContext.IsRunMode)
     messaging.WithDataVolume();
 }
 
-// Keycloak
-var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword)
-    .WithDataVolume();
+// Keycloak — data volume only in dev (ACA volume mounts may break permissions)
+var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
+if (builder.ExecutionContext.IsRunMode)
+{
+    keycloak.WithDataVolume();
+}
 
 keycloak.WithRealmImport("Realms");
 
@@ -251,11 +258,12 @@ usersApi.PublishAsAzureContainerApp((infra, app) =>
 migrationRunner.PublishAsAzureContainerApp((infra, app) =>
 {
     ConfigureGhcrRegistry(infra, app);
+    app.Template.Scale.MinReplicas = 0;
+    app.Template.Scale.MaxReplicas = 1;
 });
 
 // Frontend Micro-Frontends + Gateway
-var skipFrontend = builder.Configuration.GetValue<bool>("SkipFrontend");
-if (!skipFrontend && builder.ExecutionContext.IsRunMode)
+if (builder.ExecutionContext.IsRunMode)
 {
     var shell = builder.AddJavaScriptApp("shell", "../../client", "serve:shell")
         .WithYarn()
@@ -296,7 +304,7 @@ if (!skipFrontend && builder.ExecutionContext.IsRunMode)
         .WaitFor(shoppingMfe)
         .WaitFor(accountMfe);
 }
-else if (!skipFrontend)
+else
 {
     builder.AddYarp("yumney-gateway")
         .WithStaticFiles("../../client/dist/apps/shell/browser")
