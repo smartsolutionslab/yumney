@@ -3,16 +3,18 @@ using Azure.Provisioning.AppContainers;
 using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
+var isRunMode = builder.ExecutionContext.IsRunMode;
+var config = builder.Configuration;
 
-// Azure Container Apps environment
+// ── Azure Container Apps environment ──
 builder.AddAzureContainerAppEnvironment("cae");
 
-// Parameters for Azure deployment
+// ── Parameters ──
 var postgresUser = builder.AddParameter("PostgresUser");
 var postgresPassword = builder.AddParameter("PostgresPassword", secret: true);
 var keycloakPassword = builder.AddParameter("KeycloakPassword", secret: true);
 
-// PostgreSQL — Azure Flexible Server in prod, container in dev
+// ── PostgreSQL ── Azure Flexible Server in prod, container in dev
 var postgres = builder.AddAzurePostgresFlexibleServer("postgres")
     .WithPasswordAuthentication(userName: postgresUser, password: postgresPassword)
     .RunAsContainer(pg =>
@@ -25,55 +27,38 @@ var recipesDb = postgres.AddDatabase("recipesdb");
 var shoppingDb = postgres.AddDatabase("shoppingdb");
 var usersDb = postgres.AddDatabase("usersdb");
 
-// Database-only mode for integration tests — only starts PostgreSQL + migration runner
-var databaseOnly = builder.Configuration.GetValue<bool>("DatabaseOnly");
-
-// Migration Runner — single instance, runs once then exits
+// ── Migration Runner ──
 var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
-    .WithReference(recipesDb)
-    .WithReference(shoppingDb)
-    .WithReference(usersDb)
-    .WaitFor(recipesDb)
-    .WaitFor(shoppingDb)
-    .WaitFor(usersDb);
+    .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
+    .WaitFor(recipesDb).WaitFor(shoppingDb).WaitFor(usersDb);
 
-if (databaseOnly)
+// Database-only mode for integration tests — early exit
+if (config.GetValue<bool>("DatabaseOnly"))
 {
     builder.Build().Run();
     return;
 }
 
-// Redis — data volume only in dev (ACA volume mounts may break permissions)
+// ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
 var redis = builder.AddRedis("redis");
-if (builder.ExecutionContext.IsRunMode)
+var messaging = builder.AddRabbitMQ("messaging").WithManagementPlugin();
+var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
+
+if (isRunMode)
 {
     redis.WithDataVolume();
-}
-
-// RabbitMQ — data volume only in dev (ACA volume mounts break Erlang cookie permissions)
-var messaging = builder.AddRabbitMQ("messaging")
-    .WithManagementPlugin();
-
-if (builder.ExecutionContext.IsRunMode)
-{
     messaging.WithDataVolume();
-}
-
-// Keycloak — data volume only in dev (ACA volume mounts may break permissions)
-var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
-if (builder.ExecutionContext.IsRunMode)
-{
     keycloak.WithDataVolume();
 }
 
+// ── Keycloak ──
 keycloak.WithRealmImport("Realms");
 
-if (builder.ExecutionContext.IsRunMode)
+if (isRunMode)
 {
     var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "latest")
         .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
         .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp");
-
     keycloak.WaitFor(mailpit);
 }
 else
@@ -85,9 +70,9 @@ else
         .WithEndpoint("http", e => e.IsExternal = true);
 }
 
-// LLM Provider — configurable via appsettings.json ("Ollama" or "OpenAI")
-var llmProvider = builder.Configuration.GetValue<string>("LlmProvider") ?? "Ollama";
-var useOllama = llmProvider.Equals("Ollama", StringComparison.OrdinalIgnoreCase);
+// ── LLM Provider ──
+var useOllama = (config.GetValue<string>("LlmProvider") ?? "Ollama")
+    .Equals("Ollama", StringComparison.OrdinalIgnoreCase);
 
 IResourceBuilder<OllamaResource>? ollama = null;
 IResourceBuilder<ParameterResource>? openAiApiKey = null;
@@ -101,17 +86,11 @@ else
     openAiApiKey = builder.AddParameter("OpenAiApiKey", secret: true);
 }
 
-// Recipes API (needs keycloak, recipesdb, redis, LLM provider)
+// ── APIs ──
 var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
     .WithHttpEndpoint()
-    .WithReference(keycloak)
-    .WithReference(recipesDb)
-    .WithReference(redis)
-    .WithReference(messaging)
-    .WaitFor(keycloak)
-    .WaitFor(migrationRunner)
-    .WaitFor(redis)
-    .WaitFor(messaging)
+    .WithReference(keycloak).WithReference(recipesDb).WithReference(redis).WithReference(messaging)
+    .WaitFor(keycloak).WaitFor(migrationRunner).WaitFor(redis).WaitFor(messaging)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar";
@@ -120,63 +99,42 @@ var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
 
 if (useOllama)
 {
-    recipesApi
-        .WithReference(ollama!)
-        .WaitFor(ollama!);
+    recipesApi.WithReference(ollama!).WaitFor(ollama!);
 }
 else
 {
-    var openAiModel = builder.Configuration.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini";
-
     recipesApi
         .WithEnvironment("SemanticKernel__Provider", "OpenAI")
-        .WithEnvironment("SemanticKernel__ModelId", openAiModel)
+        .WithEnvironment("SemanticKernel__ModelId", config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini")
         .WithEnvironment("SemanticKernel__ApiKey", openAiApiKey!);
 }
 
-// Shopping API (needs keycloak, shoppingdb, redis)
 var shoppingApi = builder.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
     .WithHttpEndpoint()
-    .WithReference(keycloak)
-    .WithReference(shoppingDb)
-    .WithReference(redis)
-    .WithReference(messaging)
-    .WaitFor(keycloak)
-    .WaitFor(migrationRunner)
-    .WaitFor(redis)
-    .WaitFor(messaging)
+    .WithReference(keycloak).WithReference(shoppingDb).WithReference(redis).WithReference(messaging)
+    .WaitFor(keycloak).WaitFor(migrationRunner).WaitFor(redis).WaitFor(messaging)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar";
         url.Url = "/scalar/v1";
     });
 
-// Users API (needs keycloak, usersdb, redis)
 var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
     .WithHttpEndpoint()
-    .WithReference(keycloak)
-    .WithReference(usersDb)
-    .WithReference(redis)
-    .WithReference(messaging)
-    .WaitFor(keycloak)
-    .WaitFor(migrationRunner)
-    .WaitFor(redis)
-    .WaitFor(messaging)
+    .WithReference(keycloak).WithReference(usersDb).WithReference(redis).WithReference(messaging)
+    .WaitFor(keycloak).WaitFor(migrationRunner).WaitFor(redis).WaitFor(messaging)
     .WithUrlForEndpoint("http", url =>
     {
         url.DisplayText = "Scalar";
         url.Url = "/scalar/v1";
     });
 
-// Container registry — GHCR when configured (CI/CD), otherwise auto-provisioned ACR.
-var registryEndpoint = builder.Configuration.GetValue<string>("RegistryEndpoint");
-var registryRepository = builder.Configuration.GetValue<string>("RegistryRepository");
-
+// ── Container Registry (GHCR for CI/CD) ──
+var registryEndpoint = config.GetValue<string>("RegistryEndpoint");
 if (!string.IsNullOrWhiteSpace(registryEndpoint))
 {
 #pragma warning disable ASPIRECOMPUTE003
-    var registry = builder.AddContainerRegistry("ghcr", registryEndpoint, registryRepository!);
-
+    var registry = builder.AddContainerRegistry("ghcr", registryEndpoint, config["RegistryRepository"]!);
     migrationRunner.WithContainerRegistry(registry);
     recipesApi.WithContainerRegistry(registry);
     shoppingApi.WithContainerRegistry(registry);
@@ -184,125 +142,66 @@ if (!string.IsNullOrWhiteSpace(registryEndpoint))
 #pragma warning restore ASPIRECOMPUTE003
 }
 
-// GHCR pull credentials for ACA — needed because GHCR packages are private.
-var ghcrUser = builder.Configuration.GetValue<string>("GhcrUser") ?? string.Empty;
-var ghcrToken = builder.Configuration.GetValue<string>("GhcrToken") ?? string.Empty;
-var useGhcr = !string.IsNullOrWhiteSpace(ghcrUser);
+// ── ACA Scaling + GHCR pull credentials ──
+var ghcrUser = config.GetValue<string>("GhcrUser") ?? string.Empty;
+var ghcrToken = config.GetValue<string>("GhcrToken") ?? string.Empty;
 
-void ConfigureGhcrRegistry(AzureResourceInfrastructure infra, ContainerApp app)
+void ConfigureContainerApp(AzureResourceInfrastructure infra, ContainerApp app, int minReplicas, int maxReplicas, int? concurrentRequests = null)
 {
-    if (!useGhcr)
+    if (!string.IsNullOrWhiteSpace(ghcrUser))
     {
-        return;
+        app.Configuration.Registries.Add(new ContainerAppRegistryCredentials
+        {
+            Server = "ghcr.io", Username = ghcrUser, PasswordSecretRef = "ghcr-token",
+        });
+        app.Configuration.Secrets.Add(new ContainerAppWritableSecret
+        {
+            Name = "ghcr-token", Value = ghcrToken,
+        });
     }
 
-    app.Configuration.Registries.Add(new ContainerAppRegistryCredentials
+    app.Template.Scale.MinReplicas = minReplicas;
+    app.Template.Scale.MaxReplicas = maxReplicas;
+
+    if (concurrentRequests.HasValue)
     {
-        Server = "ghcr.io",
-        Username = ghcrUser,
-        PasswordSecretRef = "ghcr-token",
-    });
-    app.Configuration.Secrets.Add(new ContainerAppWritableSecret
-    {
-        Name = "ghcr-token",
-        Value = ghcrToken,
-    });
+        app.Template.Scale.Rules.Add(new ContainerAppScaleRule
+        {
+            Name = "http-scaling",
+            Http = new ContainerAppHttpScaleRule
+            {
+                Metadata = { { "concurrentRequests", concurrentRequests.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) }, },
+            },
+        });
+    }
 }
 
-// Azure Container Apps — scaling + GHCR registry configuration
-recipesApi.PublishAsAzureContainerApp((infra, app) =>
+recipesApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 10, 20));
+shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 5, 50));
+usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
+migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
+
+// ── Frontend ──
+if (isRunMode)
 {
-    ConfigureGhcrRegistry(infra, app);
-    app.Template.Scale.MinReplicas = 1;
-    app.Template.Scale.MaxReplicas = 10;
-    app.Template.Scale.Rules.Add(new ContainerAppScaleRule
-    {
-        Name = "http-scaling",
-        Http = new ContainerAppHttpScaleRule
-        {
-            Metadata = { { "concurrentRequests", "20" }, },
-        },
-    });
-});
+    var addMfe = (string name, string script, int port) =>
+        builder.AddJavaScriptApp(name, "../../client", script)
+            .WithYarn()
+            .WithEnvironment("NX_DAEMON", "false")
+            .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
+            .WithHttpEndpoint(targetPort: port);
 
-shoppingApi.PublishAsAzureContainerApp((infra, app) =>
-{
-    ConfigureGhcrRegistry(infra, app);
-    app.Template.Scale.MinReplicas = 0;
-    app.Template.Scale.MaxReplicas = 5;
-    app.Template.Scale.Rules.Add(new ContainerAppScaleRule
-    {
-        Name = "http-scaling",
-        Http = new ContainerAppHttpScaleRule
-        {
-            Metadata = { { "concurrentRequests", "50" }, },
-        },
-    });
-});
-
-usersApi.PublishAsAzureContainerApp((infra, app) =>
-{
-    ConfigureGhcrRegistry(infra, app);
-    app.Template.Scale.MinReplicas = 0;
-    app.Template.Scale.MaxReplicas = 3;
-    app.Template.Scale.Rules.Add(new ContainerAppScaleRule
-    {
-        Name = "http-scaling",
-        Http = new ContainerAppHttpScaleRule
-        {
-            Metadata = { { "concurrentRequests", "50" }, },
-        },
-    });
-});
-
-migrationRunner.PublishAsAzureContainerApp((infra, app) =>
-{
-    ConfigureGhcrRegistry(infra, app);
-    app.Template.Scale.MinReplicas = 0;
-    app.Template.Scale.MaxReplicas = 1;
-});
-
-// Frontend Micro-Frontends + Gateway
-if (builder.ExecutionContext.IsRunMode)
-{
-    var shell = builder.AddJavaScriptApp("shell", "../../client", "serve:shell")
-        .WithYarn()
-        .WithEnvironment("NX_DAEMON", "false")
-        .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
-        .WithHttpEndpoint(targetPort: 4200);
-
-    var recipesMfe = builder.AddJavaScriptApp("recipes-mfe", "../../client", "serve:recipes")
-        .WithYarn()
-        .WithEnvironment("NX_DAEMON", "false")
-        .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
-        .WithHttpEndpoint(targetPort: 4201);
-
-    var shoppingMfe = builder.AddJavaScriptApp("shopping-mfe", "../../client", "serve:shopping")
-        .WithYarn()
-        .WithEnvironment("NX_DAEMON", "false")
-        .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
-        .WithHttpEndpoint(targetPort: 4202);
-
-    var accountMfe = builder.AddJavaScriptApp("account-mfe", "../../client", "serve:account")
-        .WithYarn()
-        .WithEnvironment("NX_DAEMON", "false")
-        .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
-        .WithHttpEndpoint(targetPort: 4203);
+    var shell = addMfe("shell", "serve:shell", 4200);
+    var recipesMfe = addMfe("recipes-mfe", "serve:recipes", 4201);
+    var shoppingMfe = addMfe("shopping-mfe", "serve:shopping", 4202);
+    var accountMfe = addMfe("account-mfe", "serve:account", 4203);
 
     builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
         .WithHttpEndpoint(port: 5100)
-        .WithReference(recipesApi)
-        .WithReference(shoppingApi)
-        .WithReference(usersApi)
-        .WithReference(shell)
-        .WithReference(keycloak)
-        .WaitFor(recipesApi)
-        .WaitFor(shoppingApi)
-        .WaitFor(usersApi)
-        .WaitFor(shell)
-        .WaitFor(recipesMfe)
-        .WaitFor(shoppingMfe)
-        .WaitFor(accountMfe);
+        .WithReference(recipesApi).WithReference(shoppingApi).WithReference(usersApi)
+        .WithReference(shell).WithReference(keycloak)
+        .WaitFor(recipesApi).WaitFor(shoppingApi).WaitFor(usersApi)
+        .WaitFor(shell).WaitFor(recipesMfe).WaitFor(shoppingMfe).WaitFor(accountMfe);
 }
 else
 {
