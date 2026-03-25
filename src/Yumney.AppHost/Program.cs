@@ -70,64 +70,16 @@ else
         .WithEndpoint("http", e => e.IsExternal = true);
 }
 
-// ── LLM Provider ──
-var useOllama = (config.GetValue<string>("LlmProvider") ?? "Ollama")
-    .Equals("Ollama", StringComparison.OrdinalIgnoreCase);
-
-IResourceBuilder<OllamaResource>? ollama = null;
-IResourceBuilder<ParameterResource>? openAiApiKey = null;
-
-if (useOllama)
-{
-    ollama = builder.AddOllama("ollama").WithDataVolume();
-}
-else
-{
-    openAiApiKey = builder.AddParameter("OpenAiApiKey", secret: true);
-}
-
 // ── APIs ──
 var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
-    .WithHttpEndpoint()
-    .WithReference(keycloak).WithReference(recipesDb).WithReference(redis).WithReference(messaging)
-    .WaitFor(keycloak).WaitFor(migrationRunner).WaitFor(redis).WaitFor(messaging)
-    .WithUrlForEndpoint("http", url =>
-    {
-        url.DisplayText = "Scalar";
-        url.Url = "/scalar/v1";
-    });
-
-if (useOllama)
-{
-    recipesApi.WithReference(ollama!).WaitFor(ollama!);
-}
-else
-{
-    recipesApi
-        .WithEnvironment("SemanticKernel__Provider", "OpenAI")
-        .WithEnvironment("SemanticKernel__ModelId", config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini")
-        .WithEnvironment("SemanticKernel__ApiKey", openAiApiKey!);
-}
+    .AsYumneyApi(recipesDb, keycloak, redis, messaging, migrationRunner)
+    .WithLlmProvider(builder, config);
 
 var shoppingApi = builder.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
-    .WithHttpEndpoint()
-    .WithReference(keycloak).WithReference(shoppingDb).WithReference(redis).WithReference(messaging)
-    .WaitFor(keycloak).WaitFor(migrationRunner).WaitFor(redis).WaitFor(messaging)
-    .WithUrlForEndpoint("http", url =>
-    {
-        url.DisplayText = "Scalar";
-        url.Url = "/scalar/v1";
-    });
+    .AsYumneyApi(shoppingDb, keycloak, redis, messaging, migrationRunner);
 
 var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
-    .WithHttpEndpoint()
-    .WithReference(keycloak).WithReference(usersDb).WithReference(redis).WithReference(messaging)
-    .WaitFor(keycloak).WaitFor(migrationRunner).WaitFor(redis).WaitFor(messaging)
-    .WithUrlForEndpoint("http", url =>
-    {
-        url.DisplayText = "Scalar";
-        url.Url = "/scalar/v1";
-    });
+    .AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
 
 // ── Container Registry (GHCR for CI/CD) ──
 var registryEndpoint = config.GetValue<string>("RegistryEndpoint");
