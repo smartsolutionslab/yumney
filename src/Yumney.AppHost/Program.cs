@@ -46,10 +46,14 @@ if (databaseOnly)
 // Redis
 var redis = builder.AddRedis("redis").WithDataVolume();
 
-// RabbitMQ
+// RabbitMQ — data volume only in dev (ACA volume mounts break Erlang cookie permissions)
 var messaging = builder.AddRabbitMQ("messaging")
-    .WithDataVolume()
     .WithManagementPlugin();
+
+if (builder.ExecutionContext.IsRunMode)
+{
+    messaging.WithDataVolume();
+}
 
 // Keycloak
 var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword)
