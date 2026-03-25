@@ -146,7 +146,9 @@ jobs:
           aspire deploy \
             -- \
             RegistryEndpoint=ghcr.io \
-            RegistryRepository=${{ github.repository }}
+            RegistryRepository=${{ github.repository }} \
+            GhcrUser=${{ github.actor }} \
+            GhcrToken=${{ secrets.GITHUB_TOKEN }}
         env:
           ASPNETCORE_ENVIRONMENT: ${{ needs.version.outputs.environment == 'production' && 'Production' || 'Staging' }}
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}

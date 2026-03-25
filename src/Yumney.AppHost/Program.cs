@@ -1,3 +1,4 @@
+using Aspire.Hosting.Azure;
 using Azure.Provisioning.AppContainers;
 using Microsoft.Extensions.Configuration;
 
@@ -156,12 +157,6 @@ var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
         url.Url = "/scalar/v1";
     });
 
-migrationRunner.PublishAsAzureContainerApp((infra, app) =>
-{
-    app.Template.Scale.MinReplicas = 0;
-    app.Template.Scale.MaxReplicas = 1;
-});
-
 // Container registry — GHCR when configured (CI/CD), otherwise auto-provisioned ACR.
 var registryEndpoint = builder.Configuration.GetValue<string>("RegistryEndpoint");
 var registryRepository = builder.Configuration.GetValue<string>("RegistryRepository");
@@ -178,9 +173,35 @@ if (!string.IsNullOrWhiteSpace(registryEndpoint))
 #pragma warning restore ASPIRECOMPUTE003
 }
 
-// Azure Container Apps — scaling configuration
+// GHCR pull credentials for ACA — needed because GHCR packages are private.
+var ghcrUser = builder.Configuration.GetValue<string>("GhcrUser") ?? string.Empty;
+var ghcrToken = builder.Configuration.GetValue<string>("GhcrToken") ?? string.Empty;
+var useGhcr = !string.IsNullOrWhiteSpace(ghcrUser);
+
+void ConfigureGhcrRegistry(AzureResourceInfrastructure infra, ContainerApp app)
+{
+    if (!useGhcr)
+    {
+        return;
+    }
+
+    app.Configuration.Registries.Add(new ContainerAppRegistryCredentials
+    {
+        Server = "ghcr.io",
+        Username = ghcrUser,
+        PasswordSecretRef = "ghcr-token",
+    });
+    app.Configuration.Secrets.Add(new ContainerAppWritableSecret
+    {
+        Name = "ghcr-token",
+        Value = ghcrToken,
+    });
+}
+
+// Azure Container Apps — scaling + GHCR registry configuration
 recipesApi.PublishAsAzureContainerApp((infra, app) =>
 {
+    ConfigureGhcrRegistry(infra, app);
     app.Template.Scale.MinReplicas = 1;
     app.Template.Scale.MaxReplicas = 10;
     app.Template.Scale.Rules.Add(new ContainerAppScaleRule
@@ -195,6 +216,7 @@ recipesApi.PublishAsAzureContainerApp((infra, app) =>
 
 shoppingApi.PublishAsAzureContainerApp((infra, app) =>
 {
+    ConfigureGhcrRegistry(infra, app);
     app.Template.Scale.MinReplicas = 0;
     app.Template.Scale.MaxReplicas = 5;
     app.Template.Scale.Rules.Add(new ContainerAppScaleRule
@@ -209,6 +231,7 @@ shoppingApi.PublishAsAzureContainerApp((infra, app) =>
 
 usersApi.PublishAsAzureContainerApp((infra, app) =>
 {
+    ConfigureGhcrRegistry(infra, app);
     app.Template.Scale.MinReplicas = 0;
     app.Template.Scale.MaxReplicas = 3;
     app.Template.Scale.Rules.Add(new ContainerAppScaleRule
@@ -219,6 +242,11 @@ usersApi.PublishAsAzureContainerApp((infra, app) =>
             Metadata = { { "concurrentRequests", "50" }, },
         },
     });
+});
+
+migrationRunner.PublishAsAzureContainerApp((infra, app) =>
+{
+    ConfigureGhcrRegistry(infra, app);
 });
 
 // Frontend Micro-Frontends + Gateway
