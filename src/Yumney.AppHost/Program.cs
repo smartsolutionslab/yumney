@@ -43,8 +43,8 @@ if (databaseOnly)
     return;
 }
 
-// Redis
-var redis = builder.AddRedis("redis").WithDataVolume();
+// Redis — Azure Managed Redis in prod, container in dev
+var redis = builder.AddAzureManagedRedis("redis").RunAsContainer(r => r.WithDataVolume());
 
 // RabbitMQ
 var messaging = builder.AddRabbitMQ("messaging")
