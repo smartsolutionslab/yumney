@@ -12,8 +12,8 @@ permissions:
 
 env:
   DOTNET_VERSION: '10.0.x'
+  NODE_VERSION: '22'
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/yumney
 
 jobs:
   test:
@@ -74,7 +74,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      # --- Backend: versioned build + publish (no tests, already passed in CI) ---
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
@@ -88,30 +87,16 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
-      - name: Install Aspire workload
-        run: dotnet workload install aspire
-
-      - name: Restore .NET
-        run: dotnet restore Yumney.slnx
-
-      - name: Build .NET with version
-        run: dotnet build Yumney.slnx --no-restore --configuration Release /p:Version=${{ needs.version.outputs.version }}
-
-      - name: Publish services
+      - name: Install Aspire CLI
         run: |
-          declare -A SERVICES=(
-            ["recipes-api"]="Yumney.Recipes.Api"
-            ["shopping-api"]="Yumney.Shopping.Api"
-            ["users-api"]="Yumney.Users.Api"
-            ["migration-runner"]="Yumney.MigrationRunner"
-          )
-          for SLUG in "${!SERVICES[@]}"; do
-            PROJECT="${SERVICES[$SLUG]}"
-            dotnet publish "src/${PROJECT}/${PROJECT}.csproj" \
-              --no-build --configuration Release --output "./publish/${SLUG}"
-          done
+          curl -sSL https://aspire.dev/install.sh | bash
+          echo "$HOME/.aspire/bin" >> $GITHUB_PATH
 
-      # --- Frontend: reuse CI artifact, inject environment config ---
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
       - name: Download frontend artifact
         uses: actions/download-artifact@v4
         with:
@@ -126,7 +111,6 @@ jobs:
             "keycloakClientId": "yumney-web"
           }' > client/dist/apps/shell/browser/assets/config/app-config.json
 
-      # --- Docker: build and push all images in parallel ---
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -134,40 +118,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker images
-        run: |
-          TAG="${{ needs.version.outputs.image_tag }}"
-
-          declare -A SERVICES=(
-            ["recipes-api"]="Yumney.Recipes.Api"
-            ["shopping-api"]="Yumney.Shopping.Api"
-            ["users-api"]="Yumney.Users.Api"
-            ["migration-runner"]="Yumney.MigrationRunner"
-          )
-
-          pids=()
-          for SLUG in "${!SERVICES[@]}"; do
-            IMAGE="${{ env.IMAGE_PREFIX }}/${SLUG}"
-            (
-              echo "::group::${SLUG}"
-              docker build \
-                --tag "${IMAGE}:${TAG}" \
-                --tag "${IMAGE}:latest" \
-                --label "org.opencontainers.image.version=${TAG}" \
-                --label "org.opencontainers.image.revision=${{ github.sha }}" \
-                --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" \
-                --file docker/Dockerfile.service \
-                "./publish/${SLUG}" &&
-              docker push "${IMAGE}:${TAG}" &&
-              docker push "${IMAGE}:latest"
-              echo "::endgroup::"
-            ) &
-            pids+=($!)
-          done
-
-          for pid in "${pids[@]}"; do
-            wait "$pid" || exit 1
-          done
+      - name: Build and push images to GHCR
+        working-directory: src/Yumney.AppHost
+        run: aspire do push
+        env:
+          RegistryEndpoint: ghcr.io
+          RegistryRepository: ${{ github.repository }}
 
   deploy:
     name: Deploy to ${{ needs.version.outputs.environment }}
@@ -215,13 +171,6 @@ jobs:
           curl -sSL https://aspire.dev/install.sh | bash
           echo "$HOME/.aspire/bin" >> $GITHUB_PATH
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Azure login
         uses: azure/login@v2
         with:
@@ -230,12 +179,12 @@ jobs:
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure
+        working-directory: src/Yumney.AppHost
         run: |
           aspire deploy \
             -- \
-            ImagePrefix="${{ env.IMAGE_PREFIX }}" \
-            ImageTag="${{ needs.version.outputs.image_tag }}"
-        working-directory: src/Yumney.AppHost
+            RegistryEndpoint=ghcr.io \
+            RegistryRepository=${{ github.repository }}
         env:
           ASPNETCORE_ENVIRONMENT: ${{ needs.version.outputs.environment == 'production' && 'Production' || 'Staging' }}
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}

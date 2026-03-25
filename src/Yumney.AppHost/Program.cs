@@ -162,27 +162,20 @@ migrationRunner.PublishAsAzureContainerApp((infra, app) =>
     app.Template.Scale.MaxReplicas = 1;
 });
 
-// Container images — use pre-built GHCR images when ImagePrefix is configured (CI/CD),
-// otherwise aspire deploy builds images and pushes to the auto-provisioned ACR.
-var imagePrefix = builder.Configuration.GetValue<string>("ImagePrefix") ?? string.Empty;
-var imageTag = builder.Configuration.GetValue<string>("ImageTag") ?? "latest";
+// Container registry — GHCR when configured (CI/CD), otherwise auto-provisioned ACR.
+var registryEndpoint = builder.Configuration.GetValue<string>("RegistryEndpoint");
+var registryRepository = builder.Configuration.GetValue<string>("RegistryRepository");
 
-if (!string.IsNullOrWhiteSpace(imagePrefix))
+if (!string.IsNullOrWhiteSpace(registryEndpoint))
 {
-#pragma warning disable ASPIREPIPELINES003
-    migrationRunner
-        .WithRemoteImageName($"{imagePrefix}/migration-runner")
-        .WithRemoteImageTag(imageTag);
-    recipesApi
-        .WithRemoteImageName($"{imagePrefix}/recipes-api")
-        .WithRemoteImageTag(imageTag);
-    shoppingApi
-        .WithRemoteImageName($"{imagePrefix}/shopping-api")
-        .WithRemoteImageTag(imageTag);
-    usersApi
-        .WithRemoteImageName($"{imagePrefix}/users-api")
-        .WithRemoteImageTag(imageTag);
-#pragma warning restore ASPIREPIPELINES003
+#pragma warning disable ASPIRECOMPUTE003
+    var registry = builder.AddContainerRegistry("ghcr", registryEndpoint, registryRepository!);
+
+    migrationRunner.WithContainerRegistry(registry);
+    recipesApi.WithContainerRegistry(registry);
+    shoppingApi.WithContainerRegistry(registry);
+    usersApi.WithContainerRegistry(registry);
+#pragma warning restore ASPIRECOMPUTE003
 }
 
 // Azure Container Apps — scaling configuration
