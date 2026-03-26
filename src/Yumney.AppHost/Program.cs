@@ -1,6 +1,7 @@
 using Aspire.Hosting.Azure;
 using Azure.Provisioning.AppContainers;
-using Yumney.AppHost;
+using SmartSolutionsLab.Yumney.AppHost;
+using SmartSolutionsLab.Yumney.AppHost.Options;
 
 var builder = DistributedApplication.CreateBuilder(args);
 var isRunMode = builder.ExecutionContext.IsRunMode;
@@ -8,7 +9,6 @@ var options = AppHostOptions.FromConfiguration(builder.Configuration);
 
 builder.AddAzureContainerAppEnvironment("cae");
 
-// ── PostgreSQL ──
 var postgresUser = builder.AddParameter("PostgresUser");
 var postgresPassword = builder.AddParameter("PostgresPassword", secret: true);
 var keycloakPassword = builder.AddParameter("KeycloakPassword", secret: true);
@@ -25,7 +25,7 @@ var recipesDb = postgres.AddDatabase("recipesdb");
 var shoppingDb = postgres.AddDatabase("shoppingdb");
 var usersDb = postgres.AddDatabase("usersdb");
 
-// ── Migration Runner ──
+
 var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
     .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
     .WaitFor(recipesDb).WaitFor(shoppingDb).WaitFor(usersDb);
@@ -48,7 +48,6 @@ if (isRunMode)
     keycloak.WithDataVolume();
 }
 
-// ── Keycloak ──
 keycloak.WithRealmImport("Realms");
 
 if (isRunMode)
@@ -67,15 +66,15 @@ else
         .WithEndpoint("http", e => e.IsExternal = true);
 }
 
-// ── APIs ──
-var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
+var recipesApi = builder
+    .AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
     .AsYumneyApi(recipesDb, keycloak, redis, messaging, migrationRunner)
     .WithLlmProvider(builder, options);
-
-var shoppingApi = builder.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
+var shoppingApi = builder
+    .AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
     .AsYumneyApi(shoppingDb, keycloak, redis, messaging, migrationRunner);
-
-var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
+var usersApi = builder
+    .AddProject<Projects.Yumney_Users_Api>("users-api")
     .AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
 
 // ── Container Registry (GHCR for CI/CD) ──
@@ -135,7 +134,6 @@ shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 
 usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
 migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
-// ── Frontend ──
 if (isRunMode)
 {
     var addMfe = (string name, string script, int port) =>
