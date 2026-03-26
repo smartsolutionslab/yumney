@@ -1,14 +1,9 @@
-using Aspire.Hosting.ApplicationModel;
-using Yumney.AppHost;
+using SmartSolutionsLab.Yumney.AppHost.Options;
 
-namespace Aspire.Hosting;
+namespace SmartSolutionsLab.Yumney.AppHost;
 
 internal static class AppHostExtensions
 {
-    /// <summary>
-    /// Configures standard Yumney API dependencies: HTTP endpoint, Keycloak auth,
-    /// database, Redis cache, RabbitMQ messaging, migration runner wait, and Scalar docs.
-    /// </summary>
     public static IResourceBuilder<ProjectResource> AsYumneyApi(
         this IResourceBuilder<ProjectResource> api,
         IResourceBuilder<IResourceWithConnectionString> database,
@@ -34,9 +29,6 @@ internal static class AppHostExtensions
             });
     }
 
-    /// <summary>
-    /// Configures the LLM provider — Ollama (local dev) or OpenAI (staging/prod).
-    /// </summary>
     public static IResourceBuilder<ProjectResource> WithLlmProvider(
         this IResourceBuilder<ProjectResource> api,
         IDistributedApplicationBuilder builder,
