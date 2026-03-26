@@ -105,7 +105,7 @@ public static class HostBuilderExtensions
 
         app.UseRateLimiter();
 
-        if (app.Environment.IsDevelopment())
+        if (!app.Environment.IsProduction())
         {
             app.MapOpenApi();
             app.MapScalarApiReference();
