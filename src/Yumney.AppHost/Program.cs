@@ -1,20 +1,18 @@
 using Aspire.Hosting.Azure;
 using Azure.Provisioning.AppContainers;
-using Microsoft.Extensions.Configuration;
+using Yumney.AppHost;
 
 var builder = DistributedApplication.CreateBuilder(args);
 var isRunMode = builder.ExecutionContext.IsRunMode;
-var config = builder.Configuration;
+var options = AppHostOptions.FromConfiguration(builder.Configuration);
 
-// ── Azure Container Apps environment ──
 builder.AddAzureContainerAppEnvironment("cae");
 
-// ── Parameters ──
+// ── PostgreSQL ──
 var postgresUser = builder.AddParameter("PostgresUser");
 var postgresPassword = builder.AddParameter("PostgresPassword", secret: true);
 var keycloakPassword = builder.AddParameter("KeycloakPassword", secret: true);
 
-// ── PostgreSQL ── Azure Flexible Server in prod, container in dev
 var postgres = builder.AddAzurePostgresFlexibleServer("postgres")
     .WithPasswordAuthentication(userName: postgresUser, password: postgresPassword)
     .RunAsContainer(pg =>
@@ -32,8 +30,7 @@ var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumne
     .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
     .WaitFor(recipesDb).WaitFor(shoppingDb).WaitFor(usersDb);
 
-// Database-only mode for integration tests — early exit
-if (config.GetValue<bool>("DatabaseOnly"))
+if (options.DatabaseOnly)
 {
     builder.Build().Run();
     return;
@@ -73,7 +70,7 @@ else
 // ── APIs ──
 var recipesApi = builder.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
     .AsYumneyApi(recipesDb, keycloak, redis, messaging, migrationRunner)
-    .WithLlmProvider(builder, config);
+    .WithLlmProvider(builder, options);
 
 var shoppingApi = builder.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
     .AsYumneyApi(shoppingDb, keycloak, redis, messaging, migrationRunner);
@@ -82,11 +79,10 @@ var usersApi = builder.AddProject<Projects.Yumney_Users_Api>("users-api")
     .AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
 
 // ── Container Registry (GHCR for CI/CD) ──
-var registryEndpoint = config.GetValue<string>("RegistryEndpoint");
-if (!string.IsNullOrWhiteSpace(registryEndpoint))
+if (options.UseGhcr)
 {
 #pragma warning disable ASPIRECOMPUTE003
-    var registry = builder.AddContainerRegistry("ghcr", registryEndpoint, config["RegistryRepository"]!);
+    var registry = builder.AddContainerRegistry("ghcr", options.RegistryEndpoint!, options.RegistryRepository!);
     migrationRunner.WithContainerRegistry(registry);
     recipesApi.WithContainerRegistry(registry);
     shoppingApi.WithContainerRegistry(registry);
@@ -95,20 +91,20 @@ if (!string.IsNullOrWhiteSpace(registryEndpoint))
 }
 
 // ── ACA Scaling + GHCR pull credentials ──
-var ghcrUser = config.GetValue<string>("GhcrUser") ?? string.Empty;
-var ghcrToken = config.GetValue<string>("GhcrToken") ?? string.Empty;
-
 void ConfigureContainerApp(AzureResourceInfrastructure infra, ContainerApp app, int minReplicas, int maxReplicas, int? concurrentRequests = null)
 {
-    if (!string.IsNullOrWhiteSpace(ghcrUser))
+    if (options.UseGhcrPullCredentials)
     {
         app.Configuration.Registries.Add(new ContainerAppRegistryCredentials
         {
-            Server = "ghcr.io", Username = ghcrUser, PasswordSecretRef = "ghcr-token",
+            Server = "ghcr.io",
+            Username = options.GhcrUser,
+            PasswordSecretRef = "ghcr-token",
         });
         app.Configuration.Secrets.Add(new ContainerAppWritableSecret
         {
-            Name = "ghcr-token", Value = ghcrToken,
+            Name = "ghcr-token",
+            Value = options.GhcrToken,
         });
     }
 
@@ -122,7 +118,13 @@ void ConfigureContainerApp(AzureResourceInfrastructure infra, ContainerApp app, 
             Name = "http-scaling",
             Http = new ContainerAppHttpScaleRule
             {
-                Metadata = { { "concurrentRequests", concurrentRequests.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) }, },
+                Metadata =
+                {
+                    {
+                        "concurrentRequests",
+                        concurrentRequests.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    },
+                },
             },
         });
     }

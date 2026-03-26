@@ -1,5 +1,5 @@
 using Aspire.Hosting.ApplicationModel;
-using Microsoft.Extensions.Configuration;
+using Yumney.AppHost;
 
 namespace Aspire.Hosting;
 
@@ -36,16 +36,13 @@ internal static class AppHostExtensions
 
     /// <summary>
     /// Configures the LLM provider — Ollama (local dev) or OpenAI (staging/prod).
-    /// Reads LlmProvider, OpenAi:ModelId, and OpenAiApiKey from configuration.
     /// </summary>
     public static IResourceBuilder<ProjectResource> WithLlmProvider(
         this IResourceBuilder<ProjectResource> api,
         IDistributedApplicationBuilder builder,
-        IConfiguration config)
+        AppHostOptions options)
     {
-        var provider = config.GetValue<string>("LlmProvider") ?? "Ollama";
-
-        if (provider.Equals("Ollama", StringComparison.OrdinalIgnoreCase))
+        if (options.UseOllama)
         {
             var ollama = builder.AddOllama("ollama").WithDataVolume();
             api.WithReference(ollama).WaitFor(ollama);
@@ -55,7 +52,7 @@ internal static class AppHostExtensions
             var apiKey = builder.AddParameter("OpenAiApiKey", secret: true);
             api
                 .WithEnvironment("SemanticKernel__Provider", "OpenAI")
-                .WithEnvironment("SemanticKernel__ModelId", config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini")
+                .WithEnvironment("SemanticKernel__ModelId", options.OpenAiModelId)
                 .WithEnvironment("SemanticKernel__ApiKey", apiKey);
         }
 
