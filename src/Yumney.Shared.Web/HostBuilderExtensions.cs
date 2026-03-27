@@ -105,9 +105,12 @@ public static class HostBuilderExtensions
 
         app.UseRateLimiter();
 
+        // OpenAPI spec always available (used by Scalar.Aspire proxy)
+        app.MapOpenApi();
+
+        // Per-service Scalar UI only in non-production (Scalar.Aspire handles docs in dev)
         if (!app.Environment.IsProduction())
         {
-            app.MapOpenApi();
             app.MapScalarApiReference();
         }
 
@@ -116,7 +119,7 @@ public static class HostBuilderExtensions
         app.MapGet("/version", () => new
         {
             Version = typeof(HostBuilderExtensions).Assembly
-                .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown",
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown",
             Environment = app.Environment.EnvironmentName,
         }).AllowAnonymous();
 
