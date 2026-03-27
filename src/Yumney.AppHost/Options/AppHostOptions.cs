@@ -12,7 +12,9 @@ internal sealed record AppHostOptions(
     string? GhcrToken)
 {
     public bool UseOllama => LlmProvider == LlmProvider.Ollama;
+
     public bool UseGhcr => !string.IsNullOrWhiteSpace(RegistryEndpoint);
+
     public bool UseGhcrPullCredentials => !string.IsNullOrWhiteSpace(GhcrUser);
 
     public static AppHostOptions FromConfiguration(IConfiguration config)
