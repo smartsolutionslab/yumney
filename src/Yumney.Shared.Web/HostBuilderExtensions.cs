@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi;
 using RedisRateLimiting;
 using Scalar.AspNetCore;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
@@ -57,7 +58,44 @@ public static class HostBuilderExtensions
         builder.Services.AddMassTransitEventBus(builder.Configuration);
 
         builder.Services.AddScoped<DomainEventDispatchInterceptor>();
-        builder.Services.AddOpenApi();
+
+        var authorizationUrl = $"{keycloakUrl}/realms/{realm}/protocol/openid-connect/auth";
+        var tokenUrl = $"{keycloakUrl}/realms/{realm}/protocol/openid-connect/token";
+
+        builder.Services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, _, _) =>
+            {
+                var components = document.Components ?? new OpenApiComponents();
+                document.Components = components;
+                components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                components.SecuritySchemes["keycloak"] = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        AuthorizationCode = new OpenApiOAuthFlow
+                        {
+                            AuthorizationUrl = new Uri(authorizationUrl),
+                            TokenUrl = new Uri(tokenUrl),
+                            Scopes = new Dictionary<string, string>
+                            {
+                                ["openid"] = "OpenID Connect",
+                                ["profile"] = "User profile",
+                            },
+                        },
+                    },
+                };
+
+                document.Security ??= [];
+                document.Security.Add(new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("keycloak", document)] = ["openid", "profile"],
+                });
+
+                return Task.CompletedTask;
+            });
+        });
 
         builder.Services.AddRateLimiter(options =>
         {
