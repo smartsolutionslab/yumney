@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RedisRateLimiting;
+using Scalar.AspNetCore;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
@@ -105,6 +106,27 @@ public static class HostBuilderExtensions
         app.UseRateLimiter();
 
         app.MapOpenApi();
+
+        if (!app.Environment.IsProduction())
+        {
+            var keycloakUrl = app.Configuration.GetConnectionString(KeycloakDefaults.ConnectionStringName)
+                ?? KeycloakDefaults.DefaultUrl;
+            var realm = app.Configuration.GetValue<string>(KeycloakDefaults.RealmConfigKey)
+                ?? KeycloakDefaults.DefaultRealm;
+
+            app.MapScalarApiReference(options =>
+            {
+                options
+                    .WithTitle("Yumney API")
+                    .WithTheme(ScalarTheme.Saturn)
+                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                    .AddAuthorizationCodeFlow("keycloak", flow => flow
+                        .WithClientId(KeycloakDefaults.Audience)
+                        .WithAuthorizationUrl($"{keycloakUrl}/realms/{realm}/protocol/openid-connect/auth")
+                        .WithTokenUrl($"{keycloakUrl}/realms/{realm}/protocol/openid-connect/token")
+                        .WithSelectedScopes(["openid", "profile"]));
+            });
+        }
 
         app.MapDefaultEndpoints();
 
