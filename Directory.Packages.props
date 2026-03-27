@@ -41,6 +41,7 @@
     <!-- Reverse Proxy -->
     <PackageVersion Include="RedisRateLimiting" Version="1.2.1" />
     <PackageVersion Include="MassTransit.RabbitMQ" Version="8.4.0" />
+    <PackageVersion Include="Scalar.Aspire" Version="0.9.15" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
     <!-- API -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
