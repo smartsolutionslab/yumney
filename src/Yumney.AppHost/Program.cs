@@ -25,7 +25,6 @@ var recipesDb = postgres.AddDatabase("recipesdb");
 var shoppingDb = postgres.AddDatabase("shoppingdb");
 var usersDb = postgres.AddDatabase("usersdb");
 
-
 var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
     .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
     .WaitFor(recipesDb).WaitFor(shoppingDb).WaitFor(usersDb);
@@ -97,13 +96,13 @@ void ConfigureContainerApp(AzureResourceInfrastructure infra, ContainerApp app, 
         app.Configuration.Registries.Add(new ContainerAppRegistryCredentials
         {
             Server = "ghcr.io",
-            Username = options.GhcrUser,
+            Username = options.GhcrUser!,
             PasswordSecretRef = "ghcr-token",
         });
         app.Configuration.Secrets.Add(new ContainerAppWritableSecret
         {
             Name = "ghcr-token",
-            Value = options.GhcrToken,
+            Value = options.GhcrToken!,
         });
     }
 
