@@ -18,7 +18,6 @@
     <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="RedisRateLimiting" />
-    <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
   </ItemGroup>
 
