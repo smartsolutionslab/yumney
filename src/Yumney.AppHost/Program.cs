@@ -1,6 +1,5 @@
 using Aspire.Hosting.Azure;
 using Azure.Provisioning.AppContainers;
-using Scalar.Aspire;
 using SmartSolutionsLab.Yumney.AppHost;
 using SmartSolutionsLab.Yumney.AppHost.Options;
 
@@ -76,15 +75,6 @@ var shoppingApi = builder
 var usersApi = builder
     .AddProject<Projects.Yumney_Users_Api>("users-api")
     .AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
-
-// ── Scalar API Reference (unified docs with built-in proxy) ──
-if (isRunMode)
-{
-    builder.AddScalarApiReference(opts => opts.WithTheme(ScalarTheme.Saturn))
-        .WithApiReference(recipesApi)
-        .WithApiReference(shoppingApi)
-        .WithApiReference(usersApi);
-}
 
 // ── Container Registry (GHCR for CI/CD) ──
 if (options.UseGhcr)

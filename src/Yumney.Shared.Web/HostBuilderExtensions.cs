@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RedisRateLimiting;
-using Scalar.AspNetCore;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
@@ -105,14 +104,7 @@ public static class HostBuilderExtensions
 
         app.UseRateLimiter();
 
-        // OpenAPI spec always available (used by Scalar.Aspire proxy)
         app.MapOpenApi();
-
-        // Per-service Scalar UI only in non-production (Scalar.Aspire handles docs in dev)
-        if (!app.Environment.IsProduction())
-        {
-            app.MapScalarApiReference();
-        }
 
         app.MapDefaultEndpoints();
 
