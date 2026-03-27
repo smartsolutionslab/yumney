@@ -1,5 +1,6 @@
 using Aspire.Hosting.Azure;
 using Azure.Provisioning.AppContainers;
+using Scalar.Aspire;
 using SmartSolutionsLab.Yumney.AppHost;
 using SmartSolutionsLab.Yumney.AppHost.Options;
 
@@ -135,6 +136,11 @@ migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a,
 
 if (isRunMode)
 {
+    var scalar = builder.AddScalarApiReference("scalar");
+    scalar.WithApiReference(recipesApi);
+    scalar.WithApiReference(shoppingApi);
+    scalar.WithApiReference(usersApi);
+
     var addMfe = (string name, string script, int port) =>
         builder.AddJavaScriptApp(name, "../../client", script)
             .WithYarn()
