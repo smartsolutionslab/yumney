@@ -30,7 +30,7 @@ public static class UsersInfrastructureServiceCollectionExtensions
 
         services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client =>
         {
-            client.BaseAddress = new Uri("https+http://keycloak");
+            client.BaseAddress = new Uri("https+http://_http.keycloak");
         }).AddStandardResilienceHandler();
 
         services.AddHealthChecks().AddDbContextCheck<UsersDbContext>("usersdb");
