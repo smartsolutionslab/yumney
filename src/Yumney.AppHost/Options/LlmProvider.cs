@@ -1,11 +1,8 @@
 namespace SmartSolutionsLab.Yumney.AppHost.Options;
 
-/// <summary>Supported LLM providers for recipe extraction.</summary>
+#pragma warning disable SA1602
 internal enum LlmProvider
 {
-    /// <summary>Local Ollama instance.</summary>
     Ollama,
-
-    /// <summary>OpenAI API.</summary>
     OpenAI,
 }
