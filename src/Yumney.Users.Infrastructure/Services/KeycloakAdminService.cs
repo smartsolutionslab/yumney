@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -40,20 +41,30 @@ public sealed class KeycloakAdminService(
         DisplayName displayName,
         CancellationToken cancellationToken = default)
     {
+        using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.create_user");
+        activity?.SetTag("keycloak.email", email.Value);
+
         var token = await GetServiceAccountTokenAsync(cancellationToken);
         if (token.IsFailure)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
             return Result<KeycloakUserId>.Failure(token.Error!);
         }
 
-        return await CreateKeycloakUserAsync(email, password, displayName, token.Value, cancellationToken);
+        var result = await CreateKeycloakUserAsync(email, password, displayName, token.Value, cancellationToken);
+        activity?.SetStatus(result.IsSuccess ? ActivityStatusCode.Ok : ActivityStatusCode.Error, result.Error?.Message);
+        return result;
     }
 
     public async Task<Result<KeycloakUserId>> FindUserByEmailAsync(Email email, CancellationToken cancellationToken = default)
     {
+        using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.find_user");
+        activity?.SetTag("keycloak.email", email.Value);
+
         var token = await GetServiceAccountTokenAsync(cancellationToken);
         if (token.IsFailure)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
             return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
 
@@ -77,13 +88,16 @@ public sealed class KeycloakAdminService(
 
             if (users is null || users.Length == 0)
             {
+                activity?.SetStatus(ActivityStatusCode.Error, "User not found");
                 return Result<KeycloakUserId>.Failure(VerificationErrors.UserNotFound);
             }
 
+            activity?.SetStatus(ActivityStatusCode.Ok);
             return Result<KeycloakUserId>.Success(new KeycloakUserId(users[0].Id));
         }
         catch (HttpRequestException ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             logger.LogError(ex, "HTTP error while searching Keycloak users");
             return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
@@ -91,9 +105,12 @@ public sealed class KeycloakAdminService(
 
     public async Task<Result> SendVerificationEmailAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default)
     {
+        using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.send_verification_email");
+
         var token = await GetServiceAccountTokenAsync(cancellationToken);
         if (token.IsFailure)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
             return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
 
@@ -110,14 +127,17 @@ public sealed class KeycloakAdminService(
             if (!response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                activity?.SetStatus(ActivityStatusCode.Error, $"HTTP {response.StatusCode}");
                 logger.LogError("Failed to send verification email. Status: {StatusCode}, Body: {Body}", response.StatusCode, body);
                 return Result.Failure(VerificationErrors.SendFailed);
             }
 
+            activity?.SetStatus(ActivityStatusCode.Ok);
             return Result.Success();
         }
         catch (HttpRequestException ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             logger.LogError(ex, "HTTP error while sending verification email");
             return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
