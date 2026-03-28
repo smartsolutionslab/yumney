@@ -34,15 +34,10 @@ public static class HostBuilderExtensions
             options.ShutdownTimeout = TimeSpan.FromSeconds(30);
         });
 
-        var realm = builder.Configuration.GetValue<string>(KeycloakDefaults.RealmConfigKey) ?? KeycloakDefaults.DefaultRealm;
-
-        var keycloakUrl = builder.Configuration.GetConnectionString(KeycloakDefaults.ConnectionStringName)
-            ?? KeycloakDefaults.DefaultUrl;
-
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.Authority = $"{keycloakUrl}/realms/{realm}";
+                options.Authority = KeycloakDefaults.RealmUrl(builder.Configuration);
                 options.Audience = KeycloakDefaults.Audience;
                 options.RequireHttpsMetadata = false;
             });
@@ -59,8 +54,7 @@ public static class HostBuilderExtensions
 
         builder.Services.AddScoped<DomainEventDispatchInterceptor>();
 
-        var authorizationUrl = $"{keycloakUrl}/realms/{realm}/protocol/openid-connect/auth";
-        var tokenUrl = $"{keycloakUrl}/realms/{realm}/protocol/openid-connect/token";
+        var configuration = builder.Configuration;
 
         builder.Services.AddOpenApi(options =>
         {
@@ -76,8 +70,8 @@ public static class HostBuilderExtensions
                     {
                         AuthorizationCode = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri(authorizationUrl),
-                            TokenUrl = new Uri(tokenUrl),
+                            AuthorizationUrl = new Uri(KeycloakDefaults.AuthorizationUrl(configuration)),
+                            TokenUrl = new Uri(KeycloakDefaults.TokenUrl(configuration)),
                             Scopes = new Dictionary<string, string>
                             {
                                 ["openid"] = "OpenID Connect",
@@ -147,11 +141,6 @@ public static class HostBuilderExtensions
 
         if (!app.Environment.IsProduction())
         {
-            var keycloakUrl = app.Configuration.GetConnectionString(KeycloakDefaults.ConnectionStringName)
-                ?? KeycloakDefaults.DefaultUrl;
-            var realm = app.Configuration.GetValue<string>(KeycloakDefaults.RealmConfigKey)
-                ?? KeycloakDefaults.DefaultRealm;
-
             app.MapScalarApiReference(options =>
             {
                 options
@@ -159,9 +148,9 @@ public static class HostBuilderExtensions
                     .WithTheme(ScalarTheme.Saturn)
                     .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
                     .AddAuthorizationCodeFlow("keycloak", flow => flow
-                        .WithClientId(KeycloakDefaults.Audience)
-                        .WithAuthorizationUrl($"{keycloakUrl}/realms/{realm}/protocol/openid-connect/auth")
-                        .WithTokenUrl($"{keycloakUrl}/realms/{realm}/protocol/openid-connect/token")
+                        .WithClientId(KeycloakDefaults.WebClientId)
+                        .WithAuthorizationUrl(KeycloakDefaults.AuthorizationUrl(app.Configuration))
+                        .WithTokenUrl(KeycloakDefaults.TokenUrl(app.Configuration))
                         .WithSelectedScopes(["openid", "profile"]));
             });
         }
