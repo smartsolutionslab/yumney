@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
   RecipeApiService,
@@ -25,7 +25,7 @@ import { RecipePreviewComponent } from '@yumney/ui';
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   private static readonly importErrorMap: HttpErrorMap = {
     502: 'dashboard.import.errors.unreachable',
     504: 'dashboard.import.errors.timeout',
@@ -39,6 +39,7 @@ export class DashboardComponent {
   };
 
   private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private recipeApi = inject(RecipeApiService);
   private importState = createAsyncState(inject(DestroyRef));
@@ -59,6 +60,16 @@ export class DashboardComponent {
   form = this.fb.nonNullable.group({
     url: ['', [Validators.required, Validators.maxLength(VALIDATION.URL_MAX_LENGTH), urlValidator]],
   });
+
+  ngOnInit(): void {
+    const params = this.route.snapshot.queryParams;
+    const sharedUrl = params['url'] || this.extractUrl(params['text']);
+
+    if (sharedUrl) {
+      this.form.controls.url.setValue(sharedUrl);
+      this.onImport();
+    }
+  }
 
   onImport(): void {
     if (this.form.invalid) {
@@ -182,6 +193,15 @@ export class DashboardComponent {
 
   hasError(field: string, error: string): boolean {
     return hasControlError(this.form, field, error);
+  }
+
+  private extractUrl(text: string | undefined): string | null {
+    if (!text) {
+      return null;
+    }
+
+    const match = text.match(/https?:\/\/\S+/i);
+    return match ? match[0] : null;
   }
 
   private resetImportState(): void {
