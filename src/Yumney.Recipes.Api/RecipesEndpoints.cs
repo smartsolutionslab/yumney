@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
@@ -83,6 +84,33 @@ public static class RecipesEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         return app;
+    }
+
+    internal static string ExtractJsonFromLlmResponse(string response)
+    {
+        var trimmed = response.Trim();
+
+        if (trimmed.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
+        {
+            trimmed = trimmed[7..];
+        }
+        else if (trimmed.StartsWith("```", StringComparison.Ordinal))
+        {
+            trimmed = trimmed[3..];
+        }
+
+        if (trimmed.EndsWith("```", StringComparison.Ordinal))
+        {
+            trimmed = trimmed[..^3];
+        }
+
+        return trimmed.Trim();
+    }
+
+    internal static string CompactJson(string json)
+    {
+        using var document = JsonDocument.Parse(json);
+        return JsonSerializer.Serialize(document.RootElement);
     }
 
     private static async Task<IResult> GetAllAsync(
@@ -292,6 +320,7 @@ public static class RecipesEndpoints
             return;
         }
 
-        await WriteSseEventAsync("done", buffer.ToString());
+        var json = CompactJson(ExtractJsonFromLlmResponse(buffer.ToString()));
+        await WriteSseEventAsync("done", json);
     }
 }
