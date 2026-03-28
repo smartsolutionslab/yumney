@@ -55,8 +55,8 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["http://localhost:5100/*"],
-      "webOrigins": ["http://localhost:5100"],
+      "redirectUris": ["http://localhost:5100/*", "http://localhost:*"],
+      "webOrigins": ["http://localhost:5100", "http://localhost:*"],
       "protocol": "openid-connect",
       "attributes": {
         "pkce.code.challenge.method": "S256",
