@@ -1,0 +1,4 @@
+# Exclude everything except dist/ and docker/
+*
+!dist/
+!docker/
