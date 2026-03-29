@@ -148,7 +148,7 @@ jobs:
             RegistryEndpoint=ghcr.io \
             RegistryRepository=${{ github.repository }} \
             GhcrUser=${{ github.actor }} \
-            GhcrToken=${{ secrets.GITHUB_TOKEN }}
+            GhcrToken=${{ secrets.GHCR_PAT }}
         env:
           ASPNETCORE_ENVIRONMENT: ${{ needs.version.outputs.environment == 'production' && 'Production' || 'Staging' }}
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}

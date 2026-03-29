@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
 import {
@@ -114,6 +114,7 @@ describe('DashboardComponent', () => {
     saveRecipe: ReturnType<typeof vi.fn>;
   };
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
+  let activatedRouteMock: { snapshot: { queryParams: Record<string, string> } };
 
   beforeEach(async () => {
     recipeApiMock = {
@@ -122,6 +123,7 @@ describe('DashboardComponent', () => {
       saveRecipe: vi.fn(),
     };
     routerMock = { navigate: vi.fn() };
+    activatedRouteMock = { snapshot: { queryParams: {} } };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -137,6 +139,7 @@ describe('DashboardComponent', () => {
       providers: [
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: Router, useValue: routerMock },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
 
