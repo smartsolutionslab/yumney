@@ -78,16 +78,19 @@ var usersApi = builder
     .AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
 
 // ── Container Registry (GHCR for CI/CD) ──
-if (options.UseGhcr)
-{
 #pragma warning disable ASPIRECOMPUTE003
-    var registry = builder.AddContainerRegistry("ghcr", options.RegistryEndpoint!, options.RegistryRepository!);
+var registry = options.UseGhcr
+    ? builder.AddContainerRegistry("ghcr", options.RegistryEndpoint!, options.RegistryRepository!)
+    : null;
+
+if (registry is not null)
+{
     migrationRunner.WithContainerRegistry(registry);
     recipesApi.WithContainerRegistry(registry);
     shoppingApi.WithContainerRegistry(registry);
     usersApi.WithContainerRegistry(registry);
-#pragma warning restore ASPIRECOMPUTE003
 }
+#pragma warning restore ASPIRECOMPUTE003
 
 // ── ACA Scaling + GHCR pull credentials ──
 void ConfigureContainerApp(AzureResourceInfrastructure infra, ContainerApp app, int minReplicas, int maxReplicas, int? concurrentRequests = null)
@@ -162,15 +165,27 @@ if (isRunMode)
 }
 else
 {
+    var frontend = builder.AddDockerfile("yumney-frontend", "../../client", "docker/Dockerfile")
+        .WithHttpEndpoint(targetPort: 80);
+
+#pragma warning disable ASPIRECOMPUTE003
+    if (registry is not null)
+    {
+        frontend.WithContainerRegistry(registry);
+    }
+#pragma warning restore ASPIRECOMPUTE003
+
     builder.AddYarp("yumney-gateway")
-        .WithStaticFiles("../../client/dist/apps/shell/browser")
         .WithConfiguration(yarp =>
         {
             yarp.AddRoute("/api/v1/recipes/{**catch-all}", recipesApi);
             yarp.AddRoute("/api/v1/shopping-lists/{**catch-all}", shoppingApi);
             yarp.AddRoute("/api/v1/auth/{**catch-all}", usersApi);
+            yarp.AddRoute("/{**catch-all}", frontend.GetEndpoint("http"));
         })
         .WithExternalHttpEndpoints();
+
+    frontend.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 5, 100));
 }
 
 builder.Build().Run();
