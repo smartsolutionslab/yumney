@@ -14,6 +14,7 @@ var postgresUser = builder.AddParameter("PostgresUser");
 var postgresPassword = builder.AddParameter("PostgresPassword", secret: true);
 var keycloakPassword = builder.AddParameter("KeycloakPassword", secret: true);
 var messagingPassword = builder.AddParameter("MessagingPassword", secret: true);
+var redisPassword = builder.AddParameter("RedisPassword", secret: true);
 
 var postgres = builder.AddAzurePostgresFlexibleServer("postgres")
     .WithPasswordAuthentication(userName: postgresUser, password: postgresPassword)
@@ -38,7 +39,7 @@ if (options.DatabaseOnly)
 }
 
 // ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
-var redis = builder.AddRedis("redis");
+var redis = builder.AddRedis("redis", password: redisPassword);
 var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithManagementPlugin();
 var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
 
