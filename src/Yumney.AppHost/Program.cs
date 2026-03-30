@@ -27,6 +27,7 @@ var postgres = builder.AddAzurePostgresFlexibleServer("postgres")
 var recipesDb = postgres.AddDatabase("recipesdb");
 var shoppingDb = postgres.AddDatabase("shoppingdb");
 var usersDb = postgres.AddDatabase("usersdb");
+var keycloakDb = postgres.AddDatabase("keycloakdb");
 
 var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
     .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
@@ -63,6 +64,16 @@ else
 {
     keycloak
         .WithDockerfile(".", "Keycloak/Dockerfile")
+        .WithReference(keycloakDb)
+        .WaitFor(keycloakDb)
+        .WithEnvironment("KC_DB", "postgres")
+        .WithEnvironment(context =>
+        {
+            context.EnvironmentVariables["KC_DB_URL_HOST"] = keycloakDb.Resource.Parent.GetEndpoint("tcp");
+            context.EnvironmentVariables["KC_DB_URL_DATABASE"] = "keycloakdb";
+            context.EnvironmentVariables["KC_DB_USERNAME"] = postgresUser.Resource;
+            context.EnvironmentVariables["KC_DB_PASSWORD"] = postgresPassword.Resource;
+        })
         .WithEnvironment("KC_HTTP_ENABLED", "true")
         .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
         .WithEnvironment("KC_HOSTNAME_STRICT", "false")
