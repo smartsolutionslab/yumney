@@ -55,16 +55,12 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": [
-        "http://localhost:5100/*",
-        "http://localhost:*",
-        "https://*.azurecontainerapps.io/*"
-      ],
+      "redirectUris": ["*"],
       "webOrigins": ["+"],
       "protocol": "openid-connect",
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:5100/* https://*.azurecontainerapps.io/*"
+        "post.logout.redirect.uris": "+"
       },
       "protocolMappers": [
         {
