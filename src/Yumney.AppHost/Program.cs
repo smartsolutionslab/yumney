@@ -62,18 +62,14 @@ if (isRunMode)
 }
 else
 {
+    var keycloakDbHost = builder.AddParameter("KeycloakDbHost");
     keycloak
         .WithDockerfile(".", "Keycloak/Dockerfile")
-        .WithReference(keycloakDb)
-        .WaitFor(keycloakDb)
         .WithEnvironment("KC_DB", "postgres")
-        .WithEnvironment(context =>
-        {
-            context.EnvironmentVariables["KC_DB_URL_HOST"] = keycloakDb.Resource.Parent.GetEndpoint("tcp");
-            context.EnvironmentVariables["KC_DB_URL_DATABASE"] = "keycloakdb";
-            context.EnvironmentVariables["KC_DB_USERNAME"] = postgresUser.Resource;
-            context.EnvironmentVariables["KC_DB_PASSWORD"] = postgresPassword.Resource;
-        })
+        .WithEnvironment("KC_DB_URL_HOST", keycloakDbHost)
+        .WithEnvironment("KC_DB_URL_DATABASE", "keycloakdb")
+        .WithEnvironment("KC_DB_USERNAME", postgresUser)
+        .WithEnvironment("KC_DB_PASSWORD", postgresPassword)
         .WithEnvironment("KC_HTTP_ENABLED", "true")
         .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
         .WithEnvironment("KC_HOSTNAME_STRICT", "false")

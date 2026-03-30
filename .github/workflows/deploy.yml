@@ -145,6 +145,7 @@ jobs:
           Parameters__OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}
           Parameters__MessagingPassword: ${{ secrets.MESSAGING_PASSWORD }}
           Parameters__RedisPassword: ${{ secrets.REDIS_PASSWORD }}
+          Parameters__KeycloakDbHost: ${{ vars.POSTGRES_HOST }}
 
       - name: Deploy to Azure
         working-directory: src/Yumney.AppHost
@@ -166,3 +167,4 @@ jobs:
           Parameters__OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}
           Parameters__MessagingPassword: ${{ secrets.MESSAGING_PASSWORD }}
           Parameters__RedisPassword: ${{ secrets.REDIS_PASSWORD }}
+          Parameters__KeycloakDbHost: ${{ vars.POSTGRES_HOST }}
