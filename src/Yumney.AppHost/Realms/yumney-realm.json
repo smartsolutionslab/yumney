@@ -60,11 +60,7 @@
         "http://localhost:*",
         "https://*.azurecontainerapps.io/*"
       ],
-      "webOrigins": [
-        "http://localhost:5100",
-        "http://localhost:*",
-        "https://*.azurecontainerapps.io"
-      ],
+      "webOrigins": ["+"],
       "protocol": "openid-connect",
       "attributes": {
         "pkce.code.challenge.method": "S256",
