@@ -140,7 +140,6 @@ jobs:
           Parameters__KeycloakPassword: ${{ secrets.KEYCLOAK_PASSWORD }}
           Parameters__OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}
           Parameters__MessagingPassword: ${{ secrets.MESSAGING_PASSWORD }}
-          Parameters__MessagingPassword: ${{ secrets.MESSAGING_PASSWORD }}
 
       - name: Deploy to Azure
         working-directory: src/Yumney.AppHost
