@@ -40,6 +40,7 @@ public static class HostBuilderExtensions
                 options.Authority = KeycloakDefaults.RealmUrl(builder.Configuration);
                 options.Audience = KeycloakDefaults.Audience;
                 options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters.ValidateIssuer = false;
             });
 
         builder.Services.AddAuthorization();
