@@ -55,12 +55,16 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["*"],
+      "redirectUris": [
+        "http://localhost:5100/*",
+        "http://localhost:*",
+        "__GATEWAY_URL__/*"
+      ],
       "webOrigins": ["+"],
       "protocol": "openid-connect",
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "+"
+        "post.logout.redirect.uris": "http://localhost:5100/* __GATEWAY_URL__/*"
       },
       "protocolMappers": [
         {

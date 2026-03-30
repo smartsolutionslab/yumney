@@ -112,6 +112,10 @@ jobs:
             "keycloakClientId": "yumney-web"
           }' > client/dist/apps/shell/browser/assets/config/app-config.json
 
+      - name: Inject gateway URL into Keycloak realm config
+        run: |
+          sed -i "s|__GATEWAY_URL__|${{ vars.GATEWAY_URL }}|g" src/Yumney.AppHost/Realms/yumney-realm.json
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
