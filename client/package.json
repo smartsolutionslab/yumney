@@ -10,8 +10,7 @@
     "serve:shopping": "nx serve shopping",
     "serve:account": "nx serve account",
     "serve:all": "nx run-many --target=serve --projects=shell,recipes,shopping,account --parallel=4",
-    "build:all": "nx run-many --target=build --projects=shell,recipes,shopping,account --parallel=4",
-    "postbuild:all": "node scripts/copy-remotes.mjs"
+    "build:all": "nx run-many --target=build --projects=shell,recipes,shopping,account --parallel=4 && node scripts/copy-remotes.mjs"
   },
   "dependencies": {
     "@angular-devkit/build-angular": "21.2.1",
