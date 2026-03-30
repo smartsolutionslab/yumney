@@ -42,7 +42,10 @@ if (options.DatabaseOnly)
 // ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
 var redis = builder.AddRedis("redis", password: redisPassword);
 var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithManagementPlugin();
-var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
+var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword)
+    .WithImageRegistry("docker.io")
+    .WithImage("keycloak/keycloak")
+    .WithImageTag("26.2");
 
 if (isRunMode)
 {
