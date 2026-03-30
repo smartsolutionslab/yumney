@@ -63,7 +63,6 @@ else
 {
     keycloak
         .WithDockerfile(".", "Keycloak/Dockerfile")
-        .WithArgs("--import-realm")
         .WithEnvironment("KC_HTTP_ENABLED", "true")
         .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
         .WithEnvironment("KC_HOSTNAME_STRICT", "false")
