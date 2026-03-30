@@ -130,14 +130,13 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Debug Keycloak Docker build
+      - name: Pre-pull Keycloak base image
         run: |
-          echo "=== Dockerfile ==="
-          cat src/Yumney.AppHost/Keycloak/Dockerfile
-          echo "=== Context ==="
-          ls -la src/Yumney.AppHost/Realms/
-          echo "=== Docker build test ==="
-          docker build -f src/Yumney.AppHost/Keycloak/Dockerfile src/Yumney.AppHost/ 2>&1 || true
+          for i in 1 2 3 4 5; do
+            docker pull quay.io/keycloak/keycloak:26.5 && break
+            echo "Retry $i: quay.io pull failed, waiting 10s..."
+            sleep 10
+          done
 
       - name: Build and push images to GHCR
         working-directory: src/Yumney.AppHost
