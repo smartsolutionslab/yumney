@@ -130,14 +130,6 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Pre-pull Keycloak base image
-        run: |
-          for i in 1 2 3 4 5; do
-            docker pull quay.io/keycloak/keycloak:26.5 && break
-            echo "Retry $i: quay.io pull failed, waiting 10s..."
-            sleep 10
-          done
-
       - name: Build and push images to GHCR
         working-directory: src/Yumney.AppHost
         run: aspire do push

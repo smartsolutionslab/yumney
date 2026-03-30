@@ -51,10 +51,10 @@ if (isRunMode)
     keycloak.WithDataVolume();
 }
 
+keycloak.WithRealmImport("Realms");
+
 if (isRunMode)
 {
-    keycloak.WithRealmImport("Realms");
-
     var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "latest")
         .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
         .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp");
@@ -64,7 +64,6 @@ else
 {
     var keycloakDbHost = builder.AddParameter("KeycloakDbHost");
     keycloak
-        .WithDockerfile(".", "Keycloak/Dockerfile")
         .WithEnvironment("KC_DB", "postgres")
         .WithEnvironment("KC_DB_URL_HOST", keycloakDbHost)
         .WithEnvironment("KC_DB_URL_DATABASE", "keycloakdb")
