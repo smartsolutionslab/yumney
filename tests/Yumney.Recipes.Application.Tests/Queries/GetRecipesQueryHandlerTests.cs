@@ -188,7 +188,7 @@ public class GetRecipesQueryHandlerTests
     {
         SetupEmptyRepository();
 
-        var search = new SearchTerm("pasta");
+        var search = SearchTerm.From("pasta");
         var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending, search);
         await handler.HandleAsync(query);
 
@@ -293,7 +293,7 @@ public class GetRecipesQueryHandlerTests
     private static Recipe CreateTestRecipe(string title)
     {
         return Recipe.Create(
-            new RecipeTitle(title),
+            RecipeTitle.From(title),
             OwnerIdentifier.From("user-123"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
@@ -302,12 +302,12 @@ public class GetRecipesQueryHandlerTests
     private static Recipe CreateTestRecipeWithOptionals()
     {
         return Recipe.Create(
-            new RecipeTitle("Full Recipe"),
+            RecipeTitle.From("Full Recipe"),
             OwnerIdentifier.From("user-123"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
             new RecipeDescription("A test recipe"),
-            new Servings(4),
+            Servings.From(4),
             new PreparationTime(10),
             new CookingTime(20),
             new Difficulty("easy"),

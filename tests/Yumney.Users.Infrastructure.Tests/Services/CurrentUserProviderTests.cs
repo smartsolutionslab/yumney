@@ -93,7 +93,7 @@ public class CurrentUserProviderTests
 
     private void SetupAuthenticatedUser(string userId, params string[] roles)
     {
-        var claims = new List<Claim> { new("sub", userId) };
+        List<Claim> claims = [new("sub", userId)];
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
         var identity = new ClaimsIdentity(claims, "TestAuth");
         var principal = new ClaimsPrincipal(identity);

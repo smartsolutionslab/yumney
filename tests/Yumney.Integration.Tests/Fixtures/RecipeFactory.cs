@@ -26,7 +26,7 @@ public static class RecipeFactory
             .ToList();
 
         return Recipe.Create(
-            new RecipeTitle(title),
+            RecipeTitle.From(title),
             OwnerIdentifier.From(owner ?? DefaultOwner),
             recipeIngredients,
             recipeSteps,

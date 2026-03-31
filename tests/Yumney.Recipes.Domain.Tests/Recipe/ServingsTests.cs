@@ -10,7 +10,7 @@ public class ServingsTests
     [Fact]
     public void Constructor_PositiveValue_CreatesInstance()
     {
-        var servings = new Servings(4);
+        var servings = Servings.From(4);
 
         servings.Value.Should().Be(4);
     }
@@ -18,7 +18,7 @@ public class ServingsTests
     [Fact]
     public void Constructor_MinimumValue_CreatesInstance()
     {
-        var servings = new Servings(1);
+        var servings = Servings.From(1);
 
         servings.Value.Should().Be(1);
     }
@@ -26,7 +26,7 @@ public class ServingsTests
     [Fact]
     public void Constructor_Zero_ThrowsGuardException()
     {
-        var act = () => new Servings(0);
+        var act = () => Servings.From(0);
 
         act.Should().Throw<GuardException>();
     }
@@ -34,7 +34,7 @@ public class ServingsTests
     [Fact]
     public void Constructor_NegativeValue_ThrowsGuardException()
     {
-        var act = () => new Servings(-1);
+        var act = () => Servings.From(-1);
 
         act.Should().Throw<GuardException>();
     }
@@ -42,7 +42,7 @@ public class ServingsTests
     [Fact]
     public void ToString_ReturnsStringValue()
     {
-        var servings = new Servings(4);
+        var servings = Servings.From(4);
 
         servings.ToString().Should().Be("4");
     }

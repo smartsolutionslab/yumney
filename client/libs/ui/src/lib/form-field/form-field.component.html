@@ -1,19 +1,19 @@
-<div class="form-field" *transloco="let t">
+<div class="form-field">
   @if (label()) {
-    <label [attr.for]="for()">{{ t(label()) }}</label>
+    <label [attr.for]="for()">{{ label() | transloco }}</label>
   }
 
   <ng-content />
 
   @for (entry of errors() | keyvalue; track entry.key) {
     @if (hasControlError(entry.key)) {
-      <span class="field-error">{{ t(entry.value) }}</span>
+      <span class="field-error">{{ entry.value | transloco }}</span>
     }
   }
 
   @for (entry of groupErrors() | keyvalue; track entry.key) {
     @if (hasGroupError(entry.key)) {
-      <span class="field-error">{{ t(entry.value) }}</span>
+      <span class="field-error">{{ entry.value | transloco }}</span>
     }
   }
 </div>

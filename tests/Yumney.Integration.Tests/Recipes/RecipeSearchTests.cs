@@ -41,7 +41,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, totalCount) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, new SearchTerm("lasagne"));
+            owner, DefaultPaging, DefaultSorting, SearchTerm.From("lasagne"));
 
         totalCount.Should().Be(1);
         items.Should().ContainSingle(r => r.Title.Value == "Classic Lasagne");
@@ -54,7 +54,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, _) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, new SearchTerm("LASAGNE"));
+            owner, DefaultPaging, DefaultSorting, SearchTerm.From("LASAGNE"));
 
         items.Should().ContainSingle(r => r.Title.Value == "Classic Lasagne");
     }
@@ -66,7 +66,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, _) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, new SearchTerm("choco"));
+            owner, DefaultPaging, DefaultSorting, SearchTerm.From("choco"));
 
         items.Should().ContainSingle(r => r.Title.Value == "Chocolate Fudge Cake");
     }
@@ -78,7 +78,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, _) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, new SearchTerm("bolognese"));
+            owner, DefaultPaging, DefaultSorting, SearchTerm.From("bolognese"));
 
         items.Should().ContainSingle(r => r.Title.Value == "Classic Lasagne");
     }
@@ -90,7 +90,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, _) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, new SearchTerm("mozzarella"));
+            owner, DefaultPaging, DefaultSorting, SearchTerm.From("mozzarella"));
 
         items.Should().ContainSingle(r => r.Title.Value == "Classic Lasagne");
     }
@@ -102,7 +102,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, totalCount) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, new SearchTerm("butter"));
+            owner, DefaultPaging, DefaultSorting, SearchTerm.From("butter"));
 
         totalCount.Should().Be(2);
         items.Select(r => r.Title.Value).Should()
@@ -117,7 +117,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, totalCount) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, new SearchTerm("sushi"));
+            owner, DefaultPaging, DefaultSorting, SearchTerm.From("sushi"));
 
         totalCount.Should().Be(0);
         items.Should().BeEmpty();
@@ -146,7 +146,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var otherOwner = OwnerIdentifier.From("nonexistent-user");
 
         var (items, totalCount) = await repository.GetByOwnerAsync(
-            otherOwner, DefaultPaging, DefaultSorting, new SearchTerm("lasagne"));
+            otherOwner, DefaultPaging, DefaultSorting, SearchTerm.From("lasagne"));
 
         totalCount.Should().Be(0);
         items.Should().BeEmpty();
@@ -187,7 +187,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, totalCount) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, new SearchTerm("tomato"));
+            owner, DefaultPaging, DefaultSorting, SearchTerm.From("tomato"));
 
         totalCount.Should().BeGreaterThanOrEqualTo(2);
         items.Select(r => r.Title.Value).Should()

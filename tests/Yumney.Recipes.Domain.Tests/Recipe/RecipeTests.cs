@@ -19,7 +19,7 @@ public class RecipeTests
     [Fact]
     public void Create_ValidInput_SetsTitle()
     {
-        var title = new RecipeTitle("Pasta Carbonara");
+        var title = RecipeTitle.From("Pasta Carbonara");
 
         var recipe = CreateValidRecipe(title: title);
 
@@ -29,7 +29,7 @@ public class RecipeTests
     [Fact]
     public void Create_WithSourceUrl_SetsSourceUrl()
     {
-        var sourceUrl = new RecipeUrl("https://example.com/recipe");
+        var sourceUrl = RecipeUrl.From("https://example.com/recipe");
 
         var recipe = CreateValidRecipe(sourceUrl: sourceUrl);
 
@@ -68,11 +68,11 @@ public class RecipeTests
     [Fact]
     public void Create_ValidInput_SetsIngredients()
     {
-        var ingredients = new List<Ingredient>
-        {
+        List<Ingredient> ingredients =
+        [
             Ingredient.Create(new IngredientName("Spaghetti"), new Amount(400), new Unit("g")),
             Ingredient.Create(new IngredientName("Pancetta"), new Amount(200), new Unit("g")),
-        };
+        ];
 
         var recipe = CreateValidRecipe(ingredients: ingredients);
 
@@ -82,11 +82,11 @@ public class RecipeTests
     [Fact]
     public void Create_ValidInput_SetsSteps()
     {
-        var steps = new List<Step>
-        {
+        List<Step> steps =
+        [
             Step.Create(new StepNumber(1), new StepDescription("Cook pasta")),
             Step.Create(new StepNumber(2), new StepDescription("Fry pancetta")),
-        };
+        ];
 
         var recipe = CreateValidRecipe(steps: steps);
 
@@ -97,7 +97,7 @@ public class RecipeTests
     public void Create_WithOptionalFields_SetsAllFields()
     {
         var description = new RecipeDescription("A classic dish");
-        var servings = new Servings(4);
+        var servings = Servings.From(4);
         var preparationTime = new PreparationTime(10);
         var cookingTime = new CookingTime(20);
         var difficulty = new Difficulty("medium");
@@ -135,7 +135,7 @@ public class RecipeTests
     [Fact]
     public void Create_RaisesRecipeSavedEvent()
     {
-        var title = new RecipeTitle("Pasta Carbonara");
+        var title = RecipeTitle.From("Pasta Carbonara");
 
         var recipe = CreateValidRecipe(title: title);
 
@@ -185,23 +185,23 @@ public class RecipeTests
     {
         var recipe = CreateValidRecipe(
             description: new RecipeDescription("Old description"),
-            servings: new Servings(2));
+            servings: Servings.From(2));
 
-        var newTitle = new RecipeTitle("Updated Recipe");
+        var newTitle = RecipeTitle.From("Updated Recipe");
         var newDescription = new RecipeDescription("Updated description");
-        var newServings = new Servings(6);
+        var newServings = Servings.From(6);
         var newPrepTime = new PreparationTime(15);
         var newCookTime = new CookingTime(30);
         var newDifficulty = new Difficulty("hard");
         var newImageUrl = new ImageUrl("https://example.com/new.jpg");
-        var newIngredients = new List<Ingredient>
-        {
+        List<Ingredient> newIngredients =
+        [
             Ingredient.Create(new IngredientName("Butter"), new Amount(100), new Unit("g")),
-        };
-        var newSteps = new List<Step>
-        {
+        ];
+        List<Step> newSteps =
+        [
             Step.Create(new StepNumber(1), new StepDescription("Melt butter")),
-        };
+        ];
 
         recipe.Update(newTitle, newIngredients, newSteps, newDescription, newServings, newPrepTime, newCookTime, newDifficulty, newImageUrl);
 
@@ -223,12 +223,12 @@ public class RecipeTests
             Ingredient.Create(new IngredientName("Sugar"), new Amount(200), new Unit("g")),
         ]);
 
-        var newIngredients = new List<Ingredient>
-        {
+        List<Ingredient> newIngredients =
+        [
             Ingredient.Create(new IngredientName("Butter"), new Amount(100), new Unit("g")),
-        };
+        ];
 
-        recipe.Update(new RecipeTitle("Updated"), newIngredients, [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
+        recipe.Update(RecipeTitle.From("Updated"), newIngredients, [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
 
         recipe.Ingredients.Should().HaveCount(1);
         recipe.Ingredients[0].Name.Value.Should().Be("Butter");
@@ -243,12 +243,12 @@ public class RecipeTests
             Step.Create(new StepNumber(2), new StepDescription("Step two")),
         ]);
 
-        var newSteps = new List<Step>
-        {
+        List<Step> newSteps =
+        [
             Step.Create(new StepNumber(1), new StepDescription("New only step")),
-        };
+        ];
 
-        recipe.Update(new RecipeTitle("Updated"), [Ingredient.Create(new IngredientName("Flour"), null, null)], newSteps);
+        recipe.Update(RecipeTitle.From("Updated"), [Ingredient.Create(new IngredientName("Flour"), null, null)], newSteps);
 
         recipe.Steps.Should().HaveCount(1);
         recipe.Steps[0].Description.Value.Should().Be("New only step");
@@ -260,7 +260,7 @@ public class RecipeTests
         var recipe = CreateValidRecipe();
         recipe.ClearDomainEvents();
 
-        var newTitle = new RecipeTitle("Updated Recipe");
+        var newTitle = RecipeTitle.From("Updated Recipe");
 
         recipe.Update(
             newTitle,
@@ -279,7 +279,7 @@ public class RecipeTests
         recipe.ClearDomainEvents();
 
         recipe.Update(
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -295,7 +295,7 @@ public class RecipeTests
         var recipe = CreateValidRecipe();
 
         var act = () => recipe.Update(
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -308,7 +308,7 @@ public class RecipeTests
         var recipe = CreateValidRecipe();
 
         var act = () => recipe.Update(
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             []);
 
@@ -322,7 +322,7 @@ public class RecipeTests
         var recipe = CreateValidRecipe(owner: owner);
 
         recipe.Update(
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -332,11 +332,11 @@ public class RecipeTests
     [Fact]
     public void Update_DoesNotChangeSourceUrl()
     {
-        var sourceUrl = new RecipeUrl("https://example.com/recipe");
+        var sourceUrl = RecipeUrl.From("https://example.com/recipe");
         var recipe = CreateValidRecipe(sourceUrl: sourceUrl);
 
         recipe.Update(
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -350,7 +350,7 @@ public class RecipeTests
         var originalCreatedAt = recipe.CreatedAt;
 
         recipe.Update(
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -362,14 +362,14 @@ public class RecipeTests
     {
         var recipe = CreateValidRecipe(
             description: new RecipeDescription("Old"),
-            servings: new Servings(4),
+            servings: Servings.From(4),
             preparationTime: new PreparationTime(10),
             cookingTime: new CookingTime(20),
             difficulty: new Difficulty("easy"),
             imageUrl: new ImageUrl("https://example.com/old.jpg"));
 
         recipe.Update(
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -410,7 +410,7 @@ public class RecipeTests
     [Fact]
     public void MarkAsDeleted_EventContainsTitle()
     {
-        var title = new RecipeTitle("Pasta Carbonara");
+        var title = RecipeTitle.From("Pasta Carbonara");
         var recipe = CreateValidRecipe(title: title);
         recipe.ClearDomainEvents();
 
@@ -440,7 +440,7 @@ public class RecipeTests
     [Fact]
     public void Create_WithTags_SetsTags()
     {
-        var tags = new List<RecipeTag> { new("italian"), new("pasta") };
+        List<RecipeTag> tags = [RecipeTag.From("italian"), RecipeTag.From("pasta")];
 
         var recipe = CreateValidRecipe(tags: tags);
 
@@ -460,13 +460,13 @@ public class RecipeTests
     [Fact]
     public void Update_WithTags_ReplacesTags()
     {
-        var recipe = CreateValidRecipe(tags: [new RecipeTag("old-tag")]);
+        var recipe = CreateValidRecipe(tags: [RecipeTag.From("old-tag")]);
 
         recipe.Update(
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
-            tags: [new RecipeTag("new-tag")]);
+            tags: [RecipeTag.From("new-tag")]);
 
         recipe.Tags.Should().ContainSingle().Which.Value.Should().Be("new-tag");
     }
@@ -474,10 +474,10 @@ public class RecipeTests
     [Fact]
     public void Update_WithNullTags_ClearsTags()
     {
-        var recipe = CreateValidRecipe(tags: [new RecipeTag("old-tag")]);
+        var recipe = CreateValidRecipe(tags: [RecipeTag.From("old-tag")]);
 
         recipe.Update(
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -499,7 +499,7 @@ public class RecipeTests
         IReadOnlyList<RecipeTag>? tags = null)
     {
         return Domain.Recipe.Recipe.Create(
-            title ?? new RecipeTitle("Test Recipe"),
+            title ?? RecipeTitle.From("Test Recipe"),
             owner ?? OwnerIdentifier.From("user-123"),
             ingredients ?? [Ingredient.Create(new IngredientName("Flour"), new Amount(500), new Unit("g"))],
             steps ?? [Step.Create(new StepNumber(1), new StepDescription("Mix ingredients"))],

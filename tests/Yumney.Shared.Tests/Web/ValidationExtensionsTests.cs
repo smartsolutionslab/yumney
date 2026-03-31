@@ -26,10 +26,10 @@ public class ValidationExtensionsTests
     public async Task ValidateAndProblemAsync_InvalidRequest_ReturnsValidationProblem()
     {
         var validator = Substitute.For<IValidator<FakeRequest>>();
-        var failures = new List<ValidationFailure>
-        {
+        List<ValidationFailure> failures =
+        [
             new("Name", "Name is required"),
-        };
+        ];
         validator.ValidateAsync(Arg.Any<FakeRequest>(), Arg.Any<CancellationToken>())
             .Returns(new ValidationResult(failures));
 

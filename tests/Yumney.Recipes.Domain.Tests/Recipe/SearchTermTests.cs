@@ -10,7 +10,7 @@ public class SearchTermTests
     [Fact]
     public void Constructor_ValidInput_CreatesInstance()
     {
-        var searchTerm = new SearchTerm("pasta");
+        var searchTerm = SearchTerm.From("pasta");
 
         searchTerm.Value.Should().Be("pasta");
     }
@@ -18,7 +18,7 @@ public class SearchTermTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var searchTerm = new SearchTerm("  pasta  ");
+        var searchTerm = SearchTerm.From("  pasta  ");
 
         searchTerm.Value.Should().Be("pasta");
     }
@@ -28,7 +28,7 @@ public class SearchTermTests
     {
         var value = new string('a', 200);
 
-        var searchTerm = new SearchTerm(value);
+        var searchTerm = SearchTerm.From(value);
 
         searchTerm.Value.Should().HaveLength(200);
     }
@@ -39,7 +39,7 @@ public class SearchTermTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new SearchTerm(value!);
+        var act = () => SearchTerm.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -49,7 +49,7 @@ public class SearchTermTests
     {
         var value = new string('a', 201);
 
-        var act = () => new SearchTerm(value);
+        var act = () => SearchTerm.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -77,7 +77,7 @@ public class SearchTermTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var searchTerm = new SearchTerm("pasta");
+        var searchTerm = SearchTerm.From("pasta");
 
         searchTerm.ToString().Should().Be("pasta");
     }
@@ -85,8 +85,8 @@ public class SearchTermTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var searchTerm1 = new SearchTerm("pasta");
-        var searchTerm2 = new SearchTerm("pasta");
+        var searchTerm1 = SearchTerm.From("pasta");
+        var searchTerm2 = SearchTerm.From("pasta");
 
         searchTerm1.Should().Be(searchTerm2);
     }

@@ -8,7 +8,7 @@ public sealed record RecipeTitle
 
     public string Value { get; }
 
-    public RecipeTitle(string value)
+    private RecipeTitle(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()

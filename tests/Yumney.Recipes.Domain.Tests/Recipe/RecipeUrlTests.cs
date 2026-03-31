@@ -12,7 +12,7 @@ public class RecipeUrlTests
     [InlineData("http://www.example.com/recipe/123")]
     public void Constructor_ValidHttpUrl_CreatesInstance(string value)
     {
-        var url = new RecipeUrl(value);
+        var url = RecipeUrl.From(value);
 
         url.Value.Should().Be(value);
     }
@@ -22,7 +22,7 @@ public class RecipeUrlTests
     [InlineData("https://www.example.com/recipe/123")]
     public void Constructor_ValidHttpsUrl_CreatesInstance(string value)
     {
-        var url = new RecipeUrl(value);
+        var url = RecipeUrl.From(value);
 
         url.Value.Should().Be(value);
     }
@@ -32,7 +32,7 @@ public class RecipeUrlTests
     {
         var value = "https://example.com/recipe?id=123&lang=en";
 
-        var url = new RecipeUrl(value);
+        var url = RecipeUrl.From(value);
 
         url.Value.Should().Be(value);
     }
@@ -42,7 +42,7 @@ public class RecipeUrlTests
     {
         var value = "https://example.com/recipe#ingredients";
 
-        var url = new RecipeUrl(value);
+        var url = RecipeUrl.From(value);
 
         url.Value.Should().Be(value);
     }
@@ -53,7 +53,7 @@ public class RecipeUrlTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new RecipeUrl(value!);
+        var act = () => RecipeUrl.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -65,7 +65,7 @@ public class RecipeUrlTests
     [InlineData("javascript:alert(1)")]
     public void Constructor_InvalidFormat_ThrowsGuardException(string value)
     {
-        var act = () => new RecipeUrl(value);
+        var act = () => RecipeUrl.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -76,7 +76,7 @@ public class RecipeUrlTests
         var path = new string('a', 2040);
         var url = $"https://x.com/{path}";
 
-        var act = () => new RecipeUrl(url);
+        var act = () => RecipeUrl.From(url);
 
         act.Should().Throw<GuardException>();
     }
@@ -88,7 +88,7 @@ public class RecipeUrlTests
         var path = new string('a', 2048 - prefix.Length);
         var url = $"{prefix}{path}";
 
-        var result = new RecipeUrl(url);
+        var result = RecipeUrl.From(url);
 
         result.Value.Should().HaveLength(2048);
     }
@@ -96,7 +96,7 @@ public class RecipeUrlTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var url = new RecipeUrl("  https://example.com/recipe  ");
+        var url = RecipeUrl.From("  https://example.com/recipe  ");
 
         url.Value.Should().Be("https://example.com/recipe");
     }
@@ -104,8 +104,8 @@ public class RecipeUrlTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var url1 = new RecipeUrl("https://example.com/recipe");
-        var url2 = new RecipeUrl("https://example.com/recipe");
+        var url1 = RecipeUrl.From("https://example.com/recipe");
+        var url2 = RecipeUrl.From("https://example.com/recipe");
 
         url1.Should().Be(url2);
     }
@@ -113,8 +113,8 @@ public class RecipeUrlTests
     [Fact]
     public void Equality_DifferentValue_AreNotEqual()
     {
-        var url1 = new RecipeUrl("https://example.com/recipe1");
-        var url2 = new RecipeUrl("https://example.com/recipe2");
+        var url1 = RecipeUrl.From("https://example.com/recipe1");
+        var url2 = RecipeUrl.From("https://example.com/recipe2");
 
         url1.Should().NotBe(url2);
     }
@@ -122,7 +122,7 @@ public class RecipeUrlTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var url = new RecipeUrl("https://example.com/recipe");
+        var url = RecipeUrl.From("https://example.com/recipe");
 
         url.ToString().Should().Be("https://example.com/recipe");
     }

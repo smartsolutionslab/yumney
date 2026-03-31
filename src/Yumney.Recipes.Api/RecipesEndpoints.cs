@@ -146,7 +146,7 @@ public static class RecipesEndpoints
         }
 
         var command = new SaveRecipeCommand(
-            new RecipeTitle(request.Title),
+            RecipeTitle.From(request.Title),
             request.Ingredients.Select(i => i.ToCommandItem()).ToList(),
             request.Steps.Select(s => s.ToCommandItem()).ToList(),
             RecipeDescription.FromNullable(request.Description),
@@ -157,7 +157,7 @@ public static class RecipesEndpoints
             ImageUrl.FromNullable(request.ImageUrl),
             RecipeLanguage.FromNullable(request.Language),
             RecipeUrl.FromNullable(request.SourceUrl),
-            request.Tags?.Select(t => new RecipeTag(t)).ToList());
+            request.Tags?.Select(t => RecipeTag.From(t)).ToList());
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToCreated($"/api/v1/recipes/{result.Value?.Identifier}");
     }
@@ -190,7 +190,7 @@ public static class RecipesEndpoints
 
         var command = new UpdateRecipeCommand(
             RecipeIdentifier.From(identifier),
-            new RecipeTitle(title),
+            RecipeTitle.From(title),
             ingredients.Select(i => i.ToCommandItem()).ToList(),
             steps.Select(s => s.ToCommandItem()).ToList(),
             RecipeDescription.FromNullable(description),
@@ -199,7 +199,7 @@ public static class RecipesEndpoints
             CookingTime.FromNullable(cookTimeMinutes),
             Difficulty.FromNullable(difficulty),
             ImageUrl.FromNullable(imageUrl),
-            tags?.Select(t => new RecipeTag(t)).ToList());
+            tags?.Select(t => RecipeTag.From(t)).ToList());
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
@@ -226,7 +226,7 @@ public static class RecipesEndpoints
             return problem;
         }
 
-        var command = new ImportRecipeCommand(new RecipeUrl(request.Url));
+        var command = new ImportRecipeCommand(RecipeUrl.From(request.Url));
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
@@ -236,7 +236,7 @@ public static class RecipesEndpoints
         ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        var photoDataList = new List<PhotoData>();
+        List<PhotoData> photoDataList = [];
 
         foreach (var file in photos)
         {
@@ -275,7 +275,7 @@ public static class RecipesEndpoints
         RecipeUrl recipeUrl;
         try
         {
-            recipeUrl = new RecipeUrl(url);
+            recipeUrl = RecipeUrl.From(url);
         }
         catch (GuardException)
         {

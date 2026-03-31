@@ -63,8 +63,8 @@ public class GetRecipeByIdQueryHandlerTests
     public async Task HandleAsync_RecipeNotFound_ReturnsFailure()
     {
         var id = Guid.NewGuid();
-        var recipeId = new RecipeIdentifier(id);
-        recipes.GetByIdAsync(new RecipeIdentifier(id), Arg.Any<CancellationToken>()).Returns((Recipe?)null);
+        var recipeId = RecipeIdentifier.From(id);
+        recipes.GetByIdAsync(RecipeIdentifier.From(id), Arg.Any<CancellationToken>()).Returns((Recipe?)null);
 
         var result = await handler.HandleAsync(new(recipeId));
 
@@ -185,7 +185,7 @@ public class GetRecipeByIdQueryHandlerTests
     public async Task HandleAsync_WithCancellationToken_ForwardsToRepository()
     {
         var id = Guid.NewGuid();
-        var recipeId = new RecipeIdentifier(id);
+        var recipeId = RecipeIdentifier.From(id);
         var cts = new CancellationTokenSource();
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
 
@@ -197,7 +197,7 @@ public class GetRecipeByIdQueryHandlerTests
     private static Recipe CreateTestRecipe(string ownerId, string title = "Test Recipe")
     {
         return Recipe.Create(
-            new RecipeTitle(title),
+            RecipeTitle.From(title),
             OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
@@ -206,23 +206,23 @@ public class GetRecipeByIdQueryHandlerTests
     private static Recipe CreateTestRecipeWithOptionals(string ownerId)
     {
         return Recipe.Create(
-            new RecipeTitle("Full Recipe"),
+            RecipeTitle.From("Full Recipe"),
             OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
             new RecipeDescription("A test recipe"),
-            new Servings(4),
+            Servings.From(4),
             new PreparationTime(10),
             new CookingTime(20),
             new Difficulty("easy"),
             new ImageUrl("https://example.com/image.jpg"),
-            sourceUrl: new RecipeUrl("https://example.com/recipe"));
+            sourceUrl: RecipeUrl.From("https://example.com/recipe"));
     }
 
     private static Recipe CreateTestRecipeWithIngredients(string ownerId)
     {
         return Recipe.Create(
-            new RecipeTitle("Recipe With Ingredients"),
+            RecipeTitle.From("Recipe With Ingredients"),
             OwnerIdentifier.From(ownerId),
             [
                 Ingredient.Create(new IngredientName("Flour"), new Amount(500m), new Unit("g")),
@@ -234,7 +234,7 @@ public class GetRecipeByIdQueryHandlerTests
     private static Recipe CreateTestRecipeWithSteps(string ownerId)
     {
         return Recipe.Create(
-            new RecipeTitle("Recipe With Steps"),
+            RecipeTitle.From("Recipe With Steps"),
             OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [

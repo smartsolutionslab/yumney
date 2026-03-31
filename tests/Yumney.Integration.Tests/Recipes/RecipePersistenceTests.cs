@@ -153,11 +153,11 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
             var repository = new RecipeRepository(updateContext);
             var loaded = await repository.GetByIdAsync(recipe.Id);
             loaded!.Update(
-                new RecipeTitle("Updated Tomato Soup"),
+                RecipeTitle.From("Updated Tomato Soup"),
                 [Ingredient.Create(new IngredientName("Cherry tomatoes"), new Amount(800), new Unit("g"))],
                 [Step.Create(new StepNumber(1), new StepDescription("Roast cherry tomatoes"))],
                 new RecipeDescription("Updated description"),
-                new Servings(2));
+                Servings.From(2));
             await repository.UpdateAsync(loaded);
         }
 
@@ -202,9 +202,9 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     [Fact]
     public async Task ExistsBySourceUrlAsync_ExistingUrl_ReturnsTrue()
     {
-        var sourceUrl = new RecipeUrl("https://example.com/lasagne-test");
+        var sourceUrl = RecipeUrl.From("https://example.com/lasagne-test");
         var recipe = Recipe.Create(
-            new RecipeTitle("URL Test Recipe"),
+            RecipeTitle.From("URL Test Recipe"),
             owner,
             [Ingredient.Create(new IngredientName("Test"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Test"))],
@@ -226,9 +226,9 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     [Fact]
     public async Task ExistsBySourceUrlAsync_DifferentOwner_ReturnsFalse()
     {
-        var sourceUrl = new RecipeUrl("https://example.com/owner-test");
+        var sourceUrl = RecipeUrl.From("https://example.com/owner-test");
         var recipe = Recipe.Create(
-            new RecipeTitle("Owner Test Recipe"),
+            RecipeTitle.From("Owner Test Recipe"),
             owner,
             [Ingredient.Create(new IngredientName("Test"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Test"))],
@@ -254,7 +254,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var exists = await repository.ExistsBySourceUrlAsync(
-            new RecipeUrl("https://example.com/nonexistent"),
+            RecipeUrl.From("https://example.com/nonexistent"),
             owner);
 
         exists.Should().BeFalse();

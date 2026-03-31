@@ -12,7 +12,7 @@ public class ShoppingListIdentifierTests
     {
         var guid = Guid.NewGuid();
 
-        var identifier = new ShoppingListIdentifier(guid);
+        var identifier = ShoppingListIdentifier.From(guid);
 
         identifier.Value.Should().Be(guid);
     }
@@ -20,7 +20,7 @@ public class ShoppingListIdentifierTests
     [Fact]
     public void Constructor_EmptyGuid_ThrowsGuardException()
     {
-        var act = () => new ShoppingListIdentifier(Guid.Empty);
+        var act = () => ShoppingListIdentifier.From(Guid.Empty);
 
         act.Should().Throw<GuardException>();
     }
@@ -30,7 +30,7 @@ public class ShoppingListIdentifierTests
     {
         var guid = Guid.NewGuid();
 
-        var identifier = new ShoppingListIdentifier(guid);
+        var identifier = ShoppingListIdentifier.From(guid);
 
         identifier.ToString().Should().Be(guid.ToString());
     }

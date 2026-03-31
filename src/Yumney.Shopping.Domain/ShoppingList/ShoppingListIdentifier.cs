@@ -1,14 +1,12 @@
-using SmartSolutionsLab.Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-public sealed record ShoppingListIdentifier
+public sealed record ShoppingListIdentifier : GuidIdentifier
 {
-    public Guid Value { get; }
-
-    public ShoppingListIdentifier(Guid value)
+    private ShoppingListIdentifier(Guid value)
+        : base(value)
     {
-        Value = Ensure.That(value).IsNotEmpty().AndReturn();
     }
 
     public static ShoppingListIdentifier New() => new(Guid.NewGuid());
@@ -17,6 +15,4 @@ public sealed record ShoppingListIdentifier
 
     public static ShoppingListIdentifier? FromNullable(Guid? value) =>
         value.HasValue ? new ShoppingListIdentifier(value.Value) : null;
-
-    public override string ToString() => Value.ToString();
 }

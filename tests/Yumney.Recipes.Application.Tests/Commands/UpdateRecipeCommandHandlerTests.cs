@@ -54,7 +54,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeNotFound_ReturnsFailure()
     {
-        var recipeId = new RecipeIdentifier(Guid.NewGuid());
+        var recipeId = RecipeIdentifier.New();
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
 
         var command = CreateValidCommand(recipeId);
@@ -82,7 +82,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeNotFound_DoesNotCallUpdateAsync()
     {
-        var recipeId = new RecipeIdentifier(Guid.NewGuid());
+        var recipeId = RecipeIdentifier.New();
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
 
         var command = CreateValidCommand(recipeId);
@@ -128,11 +128,11 @@ public class UpdateRecipeCommandHandlerTests
 
         var command = new UpdateRecipeCommand(
             recipeId,
-            new RecipeTitle("New Title"),
+            RecipeTitle.From("New Title"),
             [new SaveRecipeIngredientItem(new IngredientName("Butter"), new Amount(200), new Unit("g"))],
             [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Melt butter"))],
             new RecipeDescription("New description"),
-            new Servings(6),
+            Servings.From(6),
             new PreparationTime(15),
             new CookingTime(30),
             new Difficulty("hard"),
@@ -187,12 +187,12 @@ public class UpdateRecipeCommandHandlerTests
     public async Task HandleAsync_NullOptionalFields_ClearsExistingValues()
     {
         var recipe = Recipe.Create(
-            new RecipeTitle("Original"),
+            RecipeTitle.From("Original"),
             OwnerIdentifier.From("user-123"),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
             new RecipeDescription("Old description"),
-            new Servings(4),
+            Servings.From(4),
             new PreparationTime(10),
             new CookingTime(20),
             new Difficulty("easy"),
@@ -203,7 +203,7 @@ public class UpdateRecipeCommandHandlerTests
 
         var command = new UpdateRecipeCommand(
             recipeId,
-            new RecipeTitle("Updated"),
+            RecipeTitle.From("Updated"),
             [new SaveRecipeIngredientItem(new IngredientName("Butter"), null, null)],
             [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Melt"))]);
 
@@ -236,7 +236,7 @@ public class UpdateRecipeCommandHandlerTests
     {
         return new UpdateRecipeCommand(
             identifier,
-            new RecipeTitle("Updated Pasta"),
+            RecipeTitle.From("Updated Pasta"),
             [new SaveRecipeIngredientItem(new IngredientName("Spaghetti"), new Amount(400), new Unit("g"))],
             [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Cook pasta"))]);
     }
@@ -244,7 +244,7 @@ public class UpdateRecipeCommandHandlerTests
     private static Recipe CreateTestRecipe(string ownerId)
     {
         return Recipe.Create(
-            new RecipeTitle("Test Recipe"),
+            RecipeTitle.From("Test Recipe"),
             OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
@@ -253,10 +253,10 @@ public class UpdateRecipeCommandHandlerTests
     private static Recipe CreateTestRecipeWithSourceUrl(string ownerId)
     {
         return Recipe.Create(
-            new RecipeTitle("Test Recipe"),
+            RecipeTitle.From("Test Recipe"),
             OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
-            sourceUrl: new RecipeUrl("https://example.com/recipe"));
+            sourceUrl: RecipeUrl.From("https://example.com/recipe"));
     }
 }

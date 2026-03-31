@@ -9,7 +9,7 @@ public sealed record RecipeUrl
 
     public string Value { get; }
 
-    public RecipeUrl(string value)
+    private RecipeUrl(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -18,6 +18,8 @@ public sealed record RecipeUrl
             .AndReturn();
         Value = validated.Trim();
     }
+
+    public static RecipeUrl From(string value) => new(value);
 
     public static RecipeUrl? FromNullable(string? value) =>
         value.HasValue() ? new RecipeUrl(value!) : null;
