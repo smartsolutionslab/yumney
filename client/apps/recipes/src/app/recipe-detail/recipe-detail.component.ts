@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
-import { createAsyncState, scaleIngredients, HttpErrorMap, ROUTES } from '@yumney/shared/models';
+import { createAsyncState, scaleIngredients, HttpErrorMap, ROUTES, VALIDATION } from '@yumney/shared/models';
 import { BackLinkComponent, ConfirmDialogComponent } from '@yumney/ui';
 
 @Component({
@@ -99,7 +99,7 @@ export class RecipeDetailComponent implements OnInit {
 
   onDecreaseServings(): void {
     const current = this.desiredServings();
-    if (current !== null && current > 1) {
+    if (current !== null && current > VALIDATION.MIN_SERVINGS) {
       this.desiredServings.set(current - 1);
     }
   }
