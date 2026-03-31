@@ -4,11 +4,11 @@ import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
 import { createAsyncState, VALIDATION, HttpErrorMap } from '@yumney/shared/models';
-import { FormFieldComponent } from '@yumney/ui';
+import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-resend-verification',
-  imports: [ReactiveFormsModule, TranslocoModule, RouterLink, FormFieldComponent],
+  imports: [ReactiveFormsModule, TranslocoModule, RouterLink, FormFieldComponent, SubmitButtonComponent],
   templateUrl: './resend-verification.component.html',
   styleUrl: './resend-verification.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

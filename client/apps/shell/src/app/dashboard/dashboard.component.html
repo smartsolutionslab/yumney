@@ -20,14 +20,10 @@
             [attr.aria-label]="t('dashboard.import.urlLabel')" />
         </yn-form-field>
 
-        <button type="submit" [disabled]="isLoading() || isSaving()">
-          @if (isLoading()) {
-            <span class="btn-spinner"></span>
-            <span>{{ t('dashboard.import.submitting') }}</span>
-          } @else {
-            <span>{{ t('dashboard.import.submit') }}</span>
-          }
-        </button>
+        <yn-submit-button [loading]="isLoading()" [disabled]="isSaving()"
+          label="dashboard.import.submit"
+          loadingLabel="dashboard.import.submitting"
+          [showSpinner]="true" />
       </div>
     </form>
 

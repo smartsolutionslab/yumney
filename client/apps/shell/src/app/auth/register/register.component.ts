@@ -9,11 +9,11 @@ import {
   VALIDATION,
   HttpErrorMap,
 } from '@yumney/shared/models';
-import { FormFieldComponent } from '@yumney/ui';
+import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-register',
-  imports: [ReactiveFormsModule, TranslocoModule, RouterLink, FormFieldComponent],
+  imports: [ReactiveFormsModule, TranslocoModule, RouterLink, FormFieldComponent, SubmitButtonComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

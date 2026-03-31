@@ -16,6 +16,7 @@ import {
 import { VALIDATION } from '@yumney/shared/models';
 import { EditableListItemComponent } from '../editable-list-item/editable-list-item.component';
 import { FormFieldComponent } from '../form-field/form-field.component';
+import { SubmitButtonComponent } from '../submit-button/submit-button.component';
 
 interface IngredientFormGroup {
   name: FormControl<string>;
@@ -29,7 +30,7 @@ interface StepFormGroup {
 
 @Component({
   selector: 'yn-recipe-preview',
-  imports: [ReactiveFormsModule, TranslocoModule, EditableListItemComponent, FormFieldComponent],
+  imports: [ReactiveFormsModule, TranslocoModule, EditableListItemComponent, FormFieldComponent, SubmitButtonComponent],
   templateUrl: './recipe-preview.component.html',
   styleUrl: './recipe-preview.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
