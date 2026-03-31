@@ -13,8 +13,9 @@ import {
   ExtractedIngredient,
   ExtractedStep,
 } from '@yumney/shared/api-client';
-import { hasControlError, hasArrayItemError, VALIDATION } from '@yumney/shared/models';
+import { VALIDATION } from '@yumney/shared/models';
 import { EditableListItemComponent } from '../editable-list-item/editable-list-item.component';
+import { FormFieldComponent } from '../form-field/form-field.component';
 
 interface IngredientFormGroup {
   name: FormControl<string>;
@@ -28,7 +29,7 @@ interface StepFormGroup {
 
 @Component({
   selector: 'yn-recipe-preview',
-  imports: [ReactiveFormsModule, TranslocoModule, EditableListItemComponent],
+  imports: [ReactiveFormsModule, TranslocoModule, EditableListItemComponent, FormFieldComponent],
   templateUrl: './recipe-preview.component.html',
   styleUrl: './recipe-preview.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -147,18 +148,6 @@ export class RecipePreviewComponent implements OnInit {
 
   onDiscard(): void {
     this.discard.emit();
-  }
-
-  hasFieldError(field: string, error: string): boolean {
-    return hasControlError(this.form, field, error);
-  }
-
-  hasIngredientError(index: number, field: string, error: string): boolean {
-    return hasArrayItemError(this.ingredients, index, field, error);
-  }
-
-  hasStepError(index: number, field: string, error: string): boolean {
-    return hasArrayItemError(this.steps, index, field, error);
   }
 
   private createIngredientGroup(ingredient: ExtractedIngredient): FormGroup<IngredientFormGroup> {

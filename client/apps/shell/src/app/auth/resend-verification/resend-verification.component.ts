@@ -3,11 +3,12 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
-import { hasControlError, createAsyncState, VALIDATION, HttpErrorMap } from '@yumney/shared/models';
+import { createAsyncState, VALIDATION, HttpErrorMap } from '@yumney/shared/models';
+import { FormFieldComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-resend-verification',
-  imports: [ReactiveFormsModule, TranslocoModule, RouterLink],
+  imports: [ReactiveFormsModule, TranslocoModule, RouterLink, FormFieldComponent],
   templateUrl: './resend-verification.component.html',
   styleUrl: './resend-verification.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,7 +49,4 @@ export class ResendVerificationComponent {
     );
   }
 
-  hasError(field: string, error: string): boolean {
-    return hasControlError(this.form, field, error);
-  }
 }

@@ -9,39 +9,34 @@
 
   <form [formGroup]="form" (ngSubmit)="onSave()">
     <div class="metadata-section">
-      <div class="form-field">
-        <label for="preview-title">{{ t('dashboard.preview.recipeTitle') }}</label>
+      <yn-form-field label="dashboard.preview.recipeTitle" for="preview-title"
+        [control]="form.controls.title"
+        [errors]="{ required: 'dashboard.preview.errors.titleRequired', maxlength: 'dashboard.preview.errors.titleMaxLength' }">
         <input id="preview-title" type="text" formControlName="title" />
-        @if (hasFieldError('title', 'required')) {
-          <span class="field-error">{{ t('dashboard.preview.errors.titleRequired') }}</span>
-        }
-        @if (hasFieldError('title', 'maxlength')) {
-          <span class="field-error">{{ t('dashboard.preview.errors.titleMaxLength') }}</span>
-        }
-      </div>
+      </yn-form-field>
 
-      <div class="form-field">
-        <label for="preview-description">{{ t('dashboard.preview.description') }}</label>
+      <yn-form-field label="dashboard.preview.description" for="preview-description"
+        [control]="form.controls.description">
         <textarea id="preview-description" formControlName="description" rows="3"></textarea>
-      </div>
+      </yn-form-field>
 
       <div class="form-row">
-        <div class="form-field">
-          <label for="preview-servings">{{ t('dashboard.preview.servings') }}</label>
+        <yn-form-field label="dashboard.preview.servings" for="preview-servings"
+          [control]="form.controls.servings">
           <input id="preview-servings" type="number" formControlName="servings" />
-        </div>
-        <div class="form-field">
-          <label for="preview-prepTime">{{ t('dashboard.preview.prepTime') }}</label>
+        </yn-form-field>
+        <yn-form-field label="dashboard.preview.prepTime" for="preview-prepTime"
+          [control]="form.controls.prepTimeMinutes">
           <input id="preview-prepTime" type="number" formControlName="prepTimeMinutes" />
-        </div>
-        <div class="form-field">
-          <label for="preview-cookTime">{{ t('dashboard.preview.cookTime') }}</label>
+        </yn-form-field>
+        <yn-form-field label="dashboard.preview.cookTime" for="preview-cookTime"
+          [control]="form.controls.cookTimeMinutes">
           <input id="preview-cookTime" type="number" formControlName="cookTimeMinutes" />
-        </div>
-        <div class="form-field">
-          <label for="preview-difficulty">{{ t('dashboard.preview.difficulty') }}</label>
+        </yn-form-field>
+        <yn-form-field label="dashboard.preview.difficulty" for="preview-difficulty"
+          [control]="form.controls.difficulty">
           <input id="preview-difficulty" type="text" formControlName="difficulty" />
-        </div>
+        </yn-form-field>
       </div>
     </div>
 
@@ -58,32 +53,22 @@
             (remove)="removeIngredient(i)"
           >
             <div class="ingredient-fields" [formGroupName]="i">
-              <div class="form-field ingredient-name">
-                <input
-                  type="text"
-                  formControlName="name"
-                  [placeholder]="t('dashboard.preview.ingredientName')"
-                />
-                @if (hasIngredientError(i, 'name', 'required')) {
-                  <span class="field-error">{{
-                    t('dashboard.preview.errors.ingredientNameRequired')
-                  }}</span>
-                }
-              </div>
-              <div class="form-field ingredient-amount">
-                <input
-                  type="number"
-                  formControlName="amount"
-                  [placeholder]="t('dashboard.preview.amount')"
-                />
-              </div>
-              <div class="form-field ingredient-unit">
-                <input
-                  type="text"
-                  formControlName="unit"
-                  [placeholder]="t('dashboard.preview.unit')"
-                />
-              </div>
+              <yn-form-field class="ingredient-name"
+                [control]="ingredients.at(i).get('name')!"
+                [errors]="{ required: 'dashboard.preview.errors.ingredientNameRequired' }">
+                <input type="text" formControlName="name"
+                  [placeholder]="t('dashboard.preview.ingredientName')" />
+              </yn-form-field>
+              <yn-form-field class="ingredient-amount"
+                [control]="ingredients.at(i).get('amount')!">
+                <input type="number" formControlName="amount"
+                  [placeholder]="t('dashboard.preview.amount')" />
+              </yn-form-field>
+              <yn-form-field class="ingredient-unit"
+                [control]="ingredients.at(i).get('unit')!">
+                <input type="text" formControlName="unit"
+                  [placeholder]="t('dashboard.preview.unit')" />
+              </yn-form-field>
             </div>
           </yn-editable-list-item>
         }
@@ -108,18 +93,12 @@
           >
             <div class="step-fields" [formGroupName]="i">
               <span class="step-number">{{ i + 1 }}.</span>
-              <div class="form-field step-description">
-                <textarea
-                  formControlName="description"
-                  [placeholder]="t('dashboard.preview.stepDescription')"
-                  rows="2"
-                ></textarea>
-                @if (hasStepError(i, 'description', 'required')) {
-                  <span class="field-error">{{
-                    t('dashboard.preview.errors.stepDescriptionRequired')
-                  }}</span>
-                }
-              </div>
+              <yn-form-field class="step-description"
+                [control]="steps.at(i).get('description')!"
+                [errors]="{ required: 'dashboard.preview.errors.stepDescriptionRequired' }">
+                <textarea formControlName="description"
+                  [placeholder]="t('dashboard.preview.stepDescription')" rows="2"></textarea>
+              </yn-form-field>
             </div>
           </yn-editable-list-item>
         }
