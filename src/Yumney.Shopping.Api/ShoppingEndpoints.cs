@@ -8,6 +8,7 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using Page = SmartSolutionsLab.Yumney.Shared.Common.Page;
 using ShoppingListItem = SmartSolutionsLab.Yumney.Shopping.Application.Commands.ShoppingListItem;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
@@ -27,7 +28,7 @@ public static class ShoppingEndpoints
         group.MapGet("/", GetAllAsync)
             .WithName("GetShoppingLists")
             .WithTags("Shopping")
-            .Produces<IReadOnlyList<ShoppingListSummaryDto>>();
+            .Produces<PagedResult<ShoppingListSummaryDto>>();
 
         group.MapGet("/{identifier:guid}", GetByIdAsync)
             .WithName("GetShoppingListById")
@@ -63,9 +64,9 @@ public static class ShoppingEndpoints
         }
 
         var command = new CreateShoppingListCommand(
-            new ShoppingListTitle(request.Title),
+            ShoppingListTitle.From(request.Title),
             request.Items.Select(i => new ShoppingListItem(
-                new ItemName(i.Name),
+                ItemName.From(i.Name),
                 Amount.FromNullable(i.Amount),
                 Unit.FromNullable(i.Unit))).ToList(),
             RecipeReference.FromNullable(request.RecipeReference));
@@ -75,10 +76,18 @@ public static class ShoppingEndpoints
     }
 
     private static async Task<IResult> GetAllAsync(
-        IQueryHandler<GetShoppingListsQuery, Result<IReadOnlyList<ShoppingListSummaryDto>>> handler,
-        CancellationToken cancellationToken)
+        IQueryHandler<GetShoppingListsQuery, Result<PagedResult<ShoppingListSummaryDto>>> handler,
+        int page = PagingOptions.DefaultPage,
+        int pageSize = PagingOptions.DefaultPageSize,
+        string sortBy = "Date",
+        SortDirection sortDirection = SortDirection.Descending,
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetShoppingListsQuery();
+        var sortField = default(ShoppingListSortField).ParseNullable(sortBy) ?? ShoppingListSortField.Date;
+
+        var query = new GetShoppingListsQuery(
+            PagingOptions.Of(Page.From(page), PageSize.From(pageSize)),
+            new SortingOptions<ShoppingListSortField>(sortField, sortDirection));
         var result = await handler.HandleAsync(query, cancellationToken);
 
         return result.ToOk();
@@ -104,7 +113,7 @@ public static class ShoppingEndpoints
     {
         var command = new CheckOffItemCommand(
             ShoppingListIdentifier.From(identifier),
-            itemId,
+            ShoppingListItemIdentifier.From(itemId),
             request.IsChecked);
         var result = await handler.HandleAsync(command, cancellationToken);
 

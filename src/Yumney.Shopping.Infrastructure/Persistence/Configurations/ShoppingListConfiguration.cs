@@ -29,6 +29,8 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
             .HasColumnName("RecipeIdentifier");
 
         entity.HasIndex(e => e.Owner);
+        entity.HasIndex(e => new { e.Owner, e.CreatedAt });
+        entity.HasIndex(e => new { e.Owner, e.Title });
         entity.Property(e => e.CreatedAt).IsRequired();
 
         entity.OwnsMany(e => e.Items, item =>
@@ -36,6 +38,8 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
             item.ToTable("ShoppingListItems");
             item.WithOwner().HasForeignKey("ShoppingListId");
             item.HasKey(nameof(ShoppingListItem.Id));
+            item.Property(i => i.Id)
+                .HasConversion(v => v.Value, v => ShoppingListItemIdentifier.From(v));
 
             item.Property(i => i.Name)
                 .ConfigureRequiredStringValueObject(

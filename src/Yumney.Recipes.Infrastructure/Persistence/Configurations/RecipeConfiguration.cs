@@ -53,6 +53,8 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
             ingredient.ToTable("RecipeIngredients");
             ingredient.WithOwner().HasForeignKey("RecipeId");
             ingredient.HasKey(nameof(Ingredient.Id));
+            ingredient.Property(i => i.Id)
+                .HasConversion(v => v.Value, v => IngredientIdentifier.From(v));
 
             ingredient.Property(i => i.Name)
                 .ConfigureRequiredStringValueObject(v => v.Value, IngredientName.From, IngredientName.MaxLength);
@@ -69,6 +71,8 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
             step.ToTable("RecipeSteps");
             step.WithOwner().HasForeignKey("RecipeId");
             step.HasKey(nameof(Step.Id));
+            step.Property(s => s.Id)
+                .HasConversion(v => v.Value, v => StepIdentifier.From(v));
 
             step.Property(s => s.Number)
                 .ConfigureRequiredIntValueObject(v => v.Value, StepNumber.From);
@@ -87,6 +91,8 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
         });
 
         entity.HasIndex(e => e.Owner);
+        entity.HasIndex(e => new { e.Owner, e.CreatedAt });
+        entity.HasIndex(e => new { e.Owner, e.Title });
         entity.HasIndex(e => new { e.SourceUrl, e.Owner })
             .IsUnique()
             .HasFilter("\"SourceUrl\" IS NOT NULL");
