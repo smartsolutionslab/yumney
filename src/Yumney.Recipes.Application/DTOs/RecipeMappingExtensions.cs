@@ -21,7 +21,7 @@ public static class RecipeMappingExtensions
                 recipe.SourceUrl?.Value,
                 recipe.CreatedAt,
                 recipe.Ingredients.Select(i => i.ToDto()).ToList(),
-                recipe.Steps.Select(s => s.ToDto()).ToList(),
+                recipe.Steps.OrderBy(s => s.Number.Value).Select(s => s.ToDto()).ToList(),
                 recipe.Tags.Select(t => t.Value).ToList());
         }
 
