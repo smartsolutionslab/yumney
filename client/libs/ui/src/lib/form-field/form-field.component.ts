@@ -1,14 +1,14 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { KeyValuePipe } from '@angular/common';
 
 @Component({
   selector: 'yn-form-field',
-  imports: [TranslocoModule, KeyValuePipe],
+  imports: [TranslocoPipe, KeyValuePipe],
   templateUrl: './form-field.component.html',
   styleUrl: './form-field.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class FormFieldComponent {
   label = input('');

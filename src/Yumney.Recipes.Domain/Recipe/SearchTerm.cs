@@ -9,7 +9,7 @@ public sealed record SearchTerm
 
     public string Value { get; }
 
-    public SearchTerm(string value)
+    private SearchTerm(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -17,6 +17,8 @@ public sealed record SearchTerm
             .AndReturn();
         Value = validated.Trim();
     }
+
+    public static SearchTerm From(string value) => new(value);
 
     public static SearchTerm? FromNullable(string? value)
     {

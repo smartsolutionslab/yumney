@@ -180,7 +180,7 @@ public class ImportStreamSseTests
         var scraper = Substitute.For<IWebScraper>();
         scraper.ScrapeAsync(Arg.Any<RecipeUrl>(), Arg.Any<CancellationToken>())
             .Returns(Result<ScrapedContent>.Success(
-                new ScrapedContent("content", new RecipeUrl("https://example.com/recipe"))));
+                new ScrapedContent("content", RecipeUrl.From("https://example.com/recipe"))));
 
         var extraction = Substitute.For<IRecipeExtractionService>();
         extraction.StreamExtractAsync(Arg.Any<ScrapedContent>(), Arg.Any<CancellationToken>())
@@ -202,7 +202,7 @@ public class ImportStreamSseTests
         var scraper = Substitute.For<IWebScraper>();
         scraper.ScrapeAsync(Arg.Any<RecipeUrl>(), Arg.Any<CancellationToken>())
             .Returns(Result<ScrapedContent>.Success(
-                new ScrapedContent("scraped content", new RecipeUrl("https://example.com/recipe"))));
+                new ScrapedContent("scraped content", RecipeUrl.From("https://example.com/recipe"))));
 
         var extraction = Substitute.For<IRecipeExtractionService>();
         extraction.StreamExtractAsync(Arg.Any<ScrapedContent>(), Arg.Any<CancellationToken>())
@@ -232,7 +232,7 @@ public class ImportStreamSseTests
 
     private static List<SseEvent> ParseSseEvents(string raw)
     {
-        var events = new List<SseEvent>();
+        List<SseEvent> events = [];
         string? currentType = null;
 
         foreach (var line in raw.Split('\n'))

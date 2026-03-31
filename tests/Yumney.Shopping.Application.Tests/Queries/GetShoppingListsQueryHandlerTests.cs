@@ -26,7 +26,7 @@ public class GetShoppingListsQueryHandlerTests
     public async Task HandleAsync_EmptyList_ReturnsEmptyResult()
     {
         shoppingLists.GetByOwnerAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
-            .Returns(new List<ShoppingList>());
+            .Returns((List<ShoppingList>)[]);
 
         var result = await handler.HandleAsync(new GetShoppingListsQuery());
 
@@ -37,8 +37,8 @@ public class GetShoppingListsQueryHandlerTests
     [Fact]
     public async Task HandleAsync_WithLists_ReturnsUserLists()
     {
-        var lists = new List<ShoppingList>
-        {
+        List<ShoppingList> lists =
+        [
             ShoppingList.Create(
                 new ShoppingListTitle("List 1"),
                 OwnerIdentifier.From("user-123"),
@@ -50,7 +50,7 @@ public class GetShoppingListsQueryHandlerTests
                     ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
                     ShoppingListItem.Create(new ItemName("Butter"), new Amount(100), new Unit("g")),
                 ]),
-        };
+        ];
 
         shoppingLists.GetByOwnerAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(lists);

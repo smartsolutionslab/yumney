@@ -40,7 +40,7 @@ public class DeleteRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeNotFound_ReturnsFailure()
     {
-        var recipeId = new RecipeIdentifier(Guid.NewGuid());
+        var recipeId = RecipeIdentifier.New();
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
 
         var command = new DeleteRecipeCommand(recipeId);
@@ -97,7 +97,7 @@ public class DeleteRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeNotFound_DoesNotCallDeleteAsync()
     {
-        var recipeId = new RecipeIdentifier(Guid.NewGuid());
+        var recipeId = RecipeIdentifier.New();
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
 
         var command = new DeleteRecipeCommand(recipeId);
@@ -140,7 +140,7 @@ public class DeleteRecipeCommandHandlerTests
     private static Recipe CreateTestRecipe(string ownerId)
     {
         return Recipe.Create(
-            new RecipeTitle("Test Recipe"),
+            RecipeTitle.From("Test Recipe"),
             OwnerIdentifier.From(ownerId),
             [Ingredient.Create(new IngredientName("Flour"), null, null)],
             [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);

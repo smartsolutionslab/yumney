@@ -8,7 +8,7 @@ public sealed record RecipeTag
 
     public string Value { get; }
 
-    public RecipeTag(string value)
+    private RecipeTag(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()

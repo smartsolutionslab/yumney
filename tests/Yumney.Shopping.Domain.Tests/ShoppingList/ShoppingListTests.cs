@@ -50,11 +50,11 @@ public class ShoppingListTests
     [Fact]
     public void Create_ValidInput_SetsItems()
     {
-        var items = new List<ShoppingListItem>
-        {
+        List<ShoppingListItem> items =
+        [
             ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
             ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
-        };
+        ];
 
         var shoppingList = CreateValidShoppingList(items: items);
 
@@ -122,10 +122,10 @@ public class ShoppingListTests
     [Fact]
     public void CheckOffItem_ChecksTheItem()
     {
-        var items = new List<ShoppingListItem>
-        {
+        List<ShoppingListItem> items =
+        [
             ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
-        };
+        ];
         var shoppingList = CreateValidShoppingList(items: items);
 
         shoppingList.CheckOffItem(items[0].Id);
@@ -136,10 +136,10 @@ public class ShoppingListTests
     [Fact]
     public void UncheckItem_UnchecksTheItem()
     {
-        var items = new List<ShoppingListItem>
-        {
+        List<ShoppingListItem> items =
+        [
             ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
-        };
+        ];
         var shoppingList = CreateValidShoppingList(items: items);
         shoppingList.CheckOffItem(items[0].Id);
 
@@ -151,11 +151,11 @@ public class ShoppingListTests
     [Fact]
     public void CheckAllItems_ChecksAllItems()
     {
-        var items = new List<ShoppingListItem>
-        {
+        List<ShoppingListItem> items =
+        [
             ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
             ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
-        };
+        ];
         var shoppingList = CreateValidShoppingList(items: items);
 
         shoppingList.CheckAllItems();
@@ -166,11 +166,11 @@ public class ShoppingListTests
     [Fact]
     public void UncheckAllItems_UnchecksAllItems()
     {
-        var items = new List<ShoppingListItem>
-        {
+        List<ShoppingListItem> items =
+        [
             ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
             ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
-        };
+        ];
         var shoppingList = CreateValidShoppingList(items: items);
         shoppingList.CheckAllItems();
 

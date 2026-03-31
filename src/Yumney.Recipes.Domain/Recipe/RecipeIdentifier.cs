@@ -1,14 +1,12 @@
-using SmartSolutionsLab.Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record RecipeIdentifier
+public sealed record RecipeIdentifier : GuidIdentifier
 {
-    public Guid Value { get; }
-
-    public RecipeIdentifier(Guid value)
+    private RecipeIdentifier(Guid value)
+        : base(value)
     {
-        Value = Ensure.That(value).IsNotEmpty().AndReturn();
     }
 
     public static RecipeIdentifier New() => new(Guid.NewGuid());
@@ -17,6 +15,4 @@ public sealed record RecipeIdentifier
 
     public static RecipeIdentifier? FromNullable(Guid? value) =>
         value.HasValue ? new RecipeIdentifier(value.Value) : null;
-
-    public override string ToString() => Value.ToString();
 }

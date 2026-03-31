@@ -1,14 +1,12 @@
-using SmartSolutionsLab.Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-public sealed record AppUserProfileIdentifier
+public sealed record AppUserProfileIdentifier : GuidIdentifier
 {
-    public Guid Value { get; }
-
-    public AppUserProfileIdentifier(Guid value)
+    private AppUserProfileIdentifier(Guid value)
+        : base(value)
     {
-        Value = Ensure.That(value).IsNotEmpty().AndReturn();
     }
 
     public static AppUserProfileIdentifier New() => new(Guid.NewGuid());
@@ -17,6 +15,4 @@ public sealed record AppUserProfileIdentifier
 
     public static AppUserProfileIdentifier? FromNullable(Guid? value) =>
         value.HasValue ? new AppUserProfileIdentifier(value.Value) : null;
-
-    public override string ToString() => Value.ToString();
 }

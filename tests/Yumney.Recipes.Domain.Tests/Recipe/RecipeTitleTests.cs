@@ -10,7 +10,7 @@ public class RecipeTitleTests
     [Fact]
     public void Constructor_ValidTitle_CreatesInstance()
     {
-        var title = new RecipeTitle("Pasta Carbonara");
+        var title = RecipeTitle.From("Pasta Carbonara");
 
         title.Value.Should().Be("Pasta Carbonara");
     }
@@ -18,7 +18,7 @@ public class RecipeTitleTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var title = new RecipeTitle("  Pasta Carbonara  ");
+        var title = RecipeTitle.From("  Pasta Carbonara  ");
 
         title.Value.Should().Be("Pasta Carbonara");
     }
@@ -29,7 +29,7 @@ public class RecipeTitleTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new RecipeTitle(value!);
+        var act = () => RecipeTitle.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -39,7 +39,7 @@ public class RecipeTitleTests
     {
         var value = new string('a', 201);
 
-        var act = () => new RecipeTitle(value);
+        var act = () => RecipeTitle.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -49,7 +49,7 @@ public class RecipeTitleTests
     {
         var value = new string('a', 200);
 
-        var title = new RecipeTitle(value);
+        var title = RecipeTitle.From(value);
 
         title.Value.Should().HaveLength(200);
     }
@@ -57,8 +57,8 @@ public class RecipeTitleTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var title1 = new RecipeTitle("Pasta");
-        var title2 = new RecipeTitle("Pasta");
+        var title1 = RecipeTitle.From("Pasta");
+        var title2 = RecipeTitle.From("Pasta");
 
         title1.Should().Be(title2);
     }
@@ -66,7 +66,7 @@ public class RecipeTitleTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var title = new RecipeTitle("Pasta");
+        var title = RecipeTitle.From("Pasta");
 
         title.ToString().Should().Be("Pasta");
     }

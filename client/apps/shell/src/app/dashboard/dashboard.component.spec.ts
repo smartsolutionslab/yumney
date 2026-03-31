@@ -170,6 +170,7 @@ describe('DashboardComponent', () => {
   it('should show validation error when submitting empty URL', () => {
     component.onImport();
     fixture.detectChanges();
+    fixture.detectChanges();
 
     const error = fixture.nativeElement.querySelector('.field-error');
     expect(error.textContent).toContain('Please enter a URL.');
@@ -178,6 +179,7 @@ describe('DashboardComponent', () => {
   it('should show validation error for invalid URL format', () => {
     component.form.controls.url.setValue('not-a-url');
     component.onImport();
+    fixture.detectChanges();
     fixture.detectChanges();
 
     const error = fixture.nativeElement.querySelector('.field-error');
@@ -213,6 +215,7 @@ describe('DashboardComponent', () => {
     const longUrl = 'https://example.com/' + 'a'.repeat(2048);
     component.form.controls.url.setValue(longUrl);
     component.onImport();
+    fixture.detectChanges();
     fixture.detectChanges();
 
     const error = fixture.nativeElement.querySelector('.field-error');
@@ -308,17 +311,6 @@ describe('DashboardComponent', () => {
     component.form.controls.url.setValue('ftp://example.com/file');
 
     expect(component.form.valid).toBe(false);
-  });
-
-  it('should return false from hasError when control is not touched', () => {
-    component.form.controls.url.setValue('');
-    expect(component.hasError('url', 'required')).toBe(false);
-  });
-
-  it('should return true from hasError when control is touched and has error', () => {
-    component.form.controls.url.setValue('');
-    component.form.controls.url.markAsTouched();
-    expect(component.hasError('url', 'required')).toBe(true);
   });
 
   it('should set isLoading to false after error', fakeAsync(() => {

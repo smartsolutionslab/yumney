@@ -12,7 +12,7 @@ public class AppUserProfileIdentifierTests
     {
         var guid = Guid.NewGuid();
 
-        var identifier = new AppUserProfileIdentifier(guid);
+        var identifier = AppUserProfileIdentifier.From(guid);
 
         identifier.Value.Should().Be(guid);
     }
@@ -20,7 +20,7 @@ public class AppUserProfileIdentifierTests
     [Fact]
     public void Constructor_EmptyGuid_ThrowsGuardException()
     {
-        var act = () => new AppUserProfileIdentifier(Guid.Empty);
+        var act = () => AppUserProfileIdentifier.From(Guid.Empty);
 
         act.Should().Throw<GuardException>();
     }
@@ -30,7 +30,7 @@ public class AppUserProfileIdentifierTests
     {
         var guid = Guid.NewGuid();
 
-        var identifier = new AppUserProfileIdentifier(guid);
+        var identifier = AppUserProfileIdentifier.From(guid);
 
         identifier.ToString().Should().Be(guid.ToString());
     }
@@ -40,8 +40,8 @@ public class AppUserProfileIdentifierTests
     {
         var guid = Guid.NewGuid();
 
-        var a = new AppUserProfileIdentifier(guid);
-        var b = new AppUserProfileIdentifier(guid);
+        var a = AppUserProfileIdentifier.From(guid);
+        var b = AppUserProfileIdentifier.From(guid);
 
         a.Should().Be(b);
     }
@@ -49,8 +49,8 @@ public class AppUserProfileIdentifierTests
     [Fact]
     public void Equality_DifferentValues_AreNotEqual()
     {
-        var a = new AppUserProfileIdentifier(Guid.NewGuid());
-        var b = new AppUserProfileIdentifier(Guid.NewGuid());
+        var a = AppUserProfileIdentifier.New();
+        var b = AppUserProfileIdentifier.New();
 
         a.Should().NotBe(b);
     }

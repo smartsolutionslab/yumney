@@ -104,13 +104,13 @@ public class SaveRecipeCommandHandlerTests
         await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
 
         var command = new SaveRecipeCommand(
-            new RecipeTitle("Test"),
+            RecipeTitle.From("Test"),
             [
                 new SaveRecipeIngredientItem(new IngredientName("Flour"), new Amount(500), new Unit("g")),
                 new SaveRecipeIngredientItem(new IngredientName("Sugar"), new Amount(100), null),
             ],
             [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))],
-            SourceUrl: new RecipeUrl("https://example.com/recipe"));
+            SourceUrl: RecipeUrl.From("https://example.com/recipe"));
 
         await handler.HandleAsync(command);
 
@@ -128,13 +128,13 @@ public class SaveRecipeCommandHandlerTests
         await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
 
         var command = new SaveRecipeCommand(
-            new RecipeTitle("Test"),
+            RecipeTitle.From("Test"),
             [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
             [
                 new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Preheat oven")),
                 new SaveRecipeStepItem(new StepNumber(2), new StepDescription("Mix ingredients")),
             ],
-            SourceUrl: new RecipeUrl("https://example.com/recipe"));
+            SourceUrl: RecipeUrl.From("https://example.com/recipe"));
 
         await handler.HandleAsync(command);
 
@@ -151,16 +151,16 @@ public class SaveRecipeCommandHandlerTests
         await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
 
         var command = new SaveRecipeCommand(
-            new RecipeTitle("Test"),
+            RecipeTitle.From("Test"),
             [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
             [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))],
             new RecipeDescription("A test recipe"),
-            new Servings(4),
+            Servings.From(4),
             new PreparationTime(10),
             new CookingTime(20),
             new Difficulty("easy"),
             new ImageUrl("https://example.com/image.jpg"),
-            SourceUrl: new RecipeUrl("https://example.com/recipe"));
+            SourceUrl: RecipeUrl.From("https://example.com/recipe"));
 
         await handler.HandleAsync(command);
 
@@ -209,7 +209,7 @@ public class SaveRecipeCommandHandlerTests
     public async Task HandleAsync_NullSourceUrl_SkipsDuplicateCheck()
     {
         var command = new SaveRecipeCommand(
-            new RecipeTitle("Manual Recipe"),
+            RecipeTitle.From("Manual Recipe"),
             [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
             [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -225,7 +225,7 @@ public class SaveRecipeCommandHandlerTests
     public async Task HandleAsync_NullSourceUrl_SavesSuccessfully()
     {
         var command = new SaveRecipeCommand(
-            new RecipeTitle("Manual Recipe"),
+            RecipeTitle.From("Manual Recipe"),
             [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
             [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -243,7 +243,7 @@ public class SaveRecipeCommandHandlerTests
         await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
 
         var command = new SaveRecipeCommand(
-            new RecipeTitle("Manual Recipe"),
+            RecipeTitle.From("Manual Recipe"),
             [new SaveRecipeIngredientItem(new IngredientName("Flour"), null, null)],
             [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Mix"))]);
 
@@ -256,9 +256,9 @@ public class SaveRecipeCommandHandlerTests
     private static SaveRecipeCommand CreateValidCommand()
     {
         return new SaveRecipeCommand(
-            new RecipeTitle("Pasta Carbonara"),
+            RecipeTitle.From("Pasta Carbonara"),
             [new SaveRecipeIngredientItem(new IngredientName("Spaghetti"), new Amount(400), new Unit("g"))],
             [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Cook pasta"))],
-            SourceUrl: new RecipeUrl("https://example.com/recipe"));
+            SourceUrl: RecipeUrl.From("https://example.com/recipe"));
     }
 }

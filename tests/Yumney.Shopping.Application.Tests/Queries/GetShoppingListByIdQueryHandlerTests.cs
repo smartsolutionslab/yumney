@@ -43,7 +43,7 @@ public class GetShoppingListByIdQueryHandlerTests
         shoppingLists.GetByIdAsync(Arg.Any<ShoppingListIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((ShoppingList?)null);
 
-        var query = new GetShoppingListByIdQuery(new ShoppingListIdentifier(Guid.NewGuid()));
+        var query = new GetShoppingListByIdQuery(ShoppingListIdentifier.New());
 
         var result = await handler.HandleAsync(query);
 
