@@ -88,19 +88,6 @@ describe('ResendVerificationComponent', () => {
     });
   });
 
-  describe('hasError helper', () => {
-    it('should return false when control is not touched', () => {
-      component.form.controls.email.setValue('');
-      expect(component.hasError('email', 'required')).toBe(false);
-    });
-
-    it('should return true when control is touched and has error', () => {
-      component.form.controls.email.setValue('');
-      component.form.controls.email.markAsTouched();
-      expect(component.hasError('email', 'required')).toBe(true);
-    });
-  });
-
   describe('submission flow', () => {
     it('should not submit when form is invalid', () => {
       component.onSubmit();

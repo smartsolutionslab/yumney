@@ -14,27 +14,12 @@
           <div class="error-banner" role="alert">{{ t(error) }}</div>
         }
 
-        <div class="form-field">
-          <label for="email">{{ t('auth.resendVerification.email') }}</label>
-          <input
-            id="email"
-            type="email"
-            formControlName="email"
-            autocomplete="email"
-            [placeholder]="t('auth.resendVerification.emailPlaceholder')"
-          />
-          @if (hasError('email', 'required')) {
-            <span class="field-error">{{ t('auth.resendVerification.errors.emailRequired') }}</span>
-          }
-          @if (hasError('email', 'email')) {
-            <span class="field-error">{{ t('auth.resendVerification.errors.emailInvalid') }}</span>
-          }
-          @if (hasError('email', 'maxlength')) {
-            <span class="field-error">{{
-              t('auth.resendVerification.errors.emailMaxLength')
-            }}</span>
-          }
-        </div>
+        <yn-form-field label="auth.resendVerification.email" for="email"
+          [control]="form.controls.email"
+          [errors]="{ required: 'auth.resendVerification.errors.emailRequired', email: 'auth.resendVerification.errors.emailInvalid', maxlength: 'auth.resendVerification.errors.emailMaxLength' }">
+          <input id="email" type="email" formControlName="email" autocomplete="email"
+            [placeholder]="t('auth.resendVerification.emailPlaceholder')" />
+        </yn-form-field>
 
         <button type="submit" [disabled]="isLoading()">
           @if (isLoading()) {
