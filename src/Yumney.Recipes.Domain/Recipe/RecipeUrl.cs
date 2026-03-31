@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record RecipeUrl
+public sealed record RecipeUrl : IValueObject<string>
 {
     public const int MaxLength = 2048;
 
@@ -23,6 +23,8 @@ public sealed record RecipeUrl
 
     public static RecipeUrl? FromNullable(string? value) =>
         value.HasValue() ? new RecipeUrl(value!) : null;
+
+    public static implicit operator string(RecipeUrl obj) => obj.Value;
 
     public override string ToString() => Value;
 }

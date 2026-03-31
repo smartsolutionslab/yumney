@@ -2,7 +2,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed class Step : Entity<Guid>
+public sealed class Step : Entity<StepIdentifier>
 {
     public StepNumber Number { get; private set; } = default!;
 
@@ -16,7 +16,7 @@ public sealed class Step : Entity<Guid>
     {
         return new Step
         {
-            Id = Guid.NewGuid(),
+            Id = StepIdentifier.New(),
             Number = number,
             Description = description,
         };

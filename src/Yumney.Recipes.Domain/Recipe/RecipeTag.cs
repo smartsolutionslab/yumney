@@ -1,8 +1,9 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record RecipeTag
+public sealed record RecipeTag : IValueObject<string>
 {
     public const int MaxLength = 50;
 
@@ -18,6 +19,8 @@ public sealed record RecipeTag
     }
 
     public static RecipeTag From(string value) => new(value);
+
+    public static implicit operator string(RecipeTag obj) => obj.Value;
 
     public override string ToString() => Value;
 }

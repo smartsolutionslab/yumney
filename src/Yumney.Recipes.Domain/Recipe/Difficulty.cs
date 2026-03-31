@@ -3,13 +3,13 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record Difficulty
+public sealed record Difficulty : IValueObject<string>
 {
     public const int MaxLength = 50;
 
     public string Value { get; }
 
-    public Difficulty(string value)
+    private Difficulty(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -18,8 +18,12 @@ public sealed record Difficulty
         Value = validated.Trim();
     }
 
+    public static Difficulty From(string value) => new(value);
+
     public static Difficulty? FromNullable(string? value) =>
         value.HasValue() ? new Difficulty(value!) : null;
+
+    public static implicit operator string(Difficulty obj) => obj.Value;
 
     public override string ToString() => Value;
 }

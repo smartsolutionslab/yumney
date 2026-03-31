@@ -1,14 +1,15 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record IngredientName
+public sealed record IngredientName : IValueObject<string>
 {
     public const int MaxLength = 200;
 
     public string Value { get; }
 
-    public IngredientName(string value)
+    private IngredientName(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -18,6 +19,8 @@ public sealed record IngredientName
     }
 
     public static IngredientName From(string value) => new(value);
+
+    public static implicit operator string(IngredientName name) => name.Value;
 
     public override string ToString() => Value;
 }

@@ -1,14 +1,15 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record StepDescription
+public sealed record StepDescription : IValueObject<string>
 {
     public const int MaxLength = 2000;
 
     public string Value { get; }
 
-    public StepDescription(string value)
+    private StepDescription(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -18,6 +19,8 @@ public sealed record StepDescription
     }
 
     public static StepDescription From(string value) => new(value);
+
+    public static implicit operator string(StepDescription obj) => obj.Value;
 
     public override string ToString() => Value;
 }

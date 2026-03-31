@@ -1,8 +1,9 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record RecipeTitle
+public sealed record RecipeTitle : IValueObject<string>
 {
     public const int MaxLength = 200;
 
@@ -18,6 +19,8 @@ public sealed record RecipeTitle
     }
 
     public static RecipeTitle From(string value) => new(value);
+
+    public static implicit operator string(RecipeTitle title) => title.Value;
 
     public override string ToString() => Value;
 }

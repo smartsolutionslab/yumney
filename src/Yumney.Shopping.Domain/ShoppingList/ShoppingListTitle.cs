@@ -1,14 +1,15 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-public sealed record ShoppingListTitle
+public sealed record ShoppingListTitle : IValueObject<string>
 {
     public const int MaxLength = 200;
 
     public string Value { get; }
 
-    public ShoppingListTitle(string value)
+    private ShoppingListTitle(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -18,6 +19,8 @@ public sealed record ShoppingListTitle
     }
 
     public static ShoppingListTitle From(string value) => new(value);
+
+    public static implicit operator string(ShoppingListTitle obj) => obj.Value;
 
     public override string ToString() => Value;
 }
