@@ -17,17 +17,16 @@ import {
 } from '@yumney/shared/api-client';
 import {
   urlValidator,
-  hasControlError,
   createAsyncState,
   mapToSaveRecipeRequest,
   VALIDATION,
   HttpErrorMap,
 } from '@yumney/shared/models';
-import { RecipePreviewComponent } from '@yumney/ui';
+import { RecipePreviewComponent, FormFieldComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-dashboard',
-  imports: [ReactiveFormsModule, TranslocoModule, RecipePreviewComponent],
+  imports: [ReactiveFormsModule, TranslocoModule, RecipePreviewComponent, FormFieldComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -196,10 +195,6 @@ export class DashboardComponent implements OnInit {
     this.sourceUrl.set(null);
     this.isManualEntry.set(false);
     this.serverError.set(null);
-  }
-
-  hasError(field: string, error: string): boolean {
-    return hasControlError(this.form, field, error);
   }
 
   private extractUrl(text: string | undefined): string | null {

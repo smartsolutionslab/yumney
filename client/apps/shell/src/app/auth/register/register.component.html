@@ -17,79 +17,33 @@
           <div class="error-banner" role="alert">{{ t(error) }}</div>
         }
 
-        <div class="form-field">
-          <label for="email">{{ t('auth.register.email') }}</label>
-          <input
-            id="email"
-            type="email"
-            formControlName="email"
-            autocomplete="email"
-            [placeholder]="t('auth.register.emailPlaceholder')"
-          />
-          @if (hasError('email', 'required')) {
-            <span class="field-error">{{ t('auth.register.errors.emailRequired') }}</span>
-          }
-          @if (hasError('email', 'email')) {
-            <span class="field-error">{{ t('auth.register.errors.emailInvalid') }}</span>
-          }
-          @if (hasError('email', 'maxlength')) {
-            <span class="field-error">{{ t('auth.register.errors.emailMaxLength') }}</span>
-          }
-        </div>
+        <yn-form-field label="auth.register.email" for="email"
+          [control]="form.controls.email"
+          [errors]="{ required: 'auth.register.errors.emailRequired', email: 'auth.register.errors.emailInvalid', maxlength: 'auth.register.errors.emailMaxLength' }">
+          <input id="email" type="email" formControlName="email" autocomplete="email"
+            [placeholder]="t('auth.register.emailPlaceholder')" />
+        </yn-form-field>
 
-        <div class="form-field">
-          <label for="displayName">{{ t('auth.register.displayName') }}</label>
-          <input
-            id="displayName"
-            type="text"
-            formControlName="displayName"
-            autocomplete="name"
-            [placeholder]="t('auth.register.displayNamePlaceholder')"
-          />
-          @if (hasError('displayName', 'required')) {
-            <span class="field-error">{{ t('auth.register.errors.displayNameRequired') }}</span>
-          }
-          @if (hasError('displayName', 'maxlength')) {
-            <span class="field-error">{{ t('auth.register.errors.displayNameMaxLength') }}</span>
-          }
-        </div>
+        <yn-form-field label="auth.register.displayName" for="displayName"
+          [control]="form.controls.displayName"
+          [errors]="{ required: 'auth.register.errors.displayNameRequired', maxlength: 'auth.register.errors.displayNameMaxLength' }">
+          <input id="displayName" type="text" formControlName="displayName" autocomplete="name"
+            [placeholder]="t('auth.register.displayNamePlaceholder')" />
+        </yn-form-field>
 
-        <div class="form-field">
-          <label for="password">{{ t('auth.register.password') }}</label>
-          <input
-            id="password"
-            type="password"
-            formControlName="password"
-            autocomplete="new-password"
-          />
-          @if (hasError('password', 'required')) {
-            <span class="field-error">{{ t('auth.register.errors.passwordRequired') }}</span>
-          }
-          @if (hasError('password', 'minlength')) {
-            <span class="field-error">{{ t('auth.register.errors.passwordMinLength') }}</span>
-          }
-          @if (hasError('password', 'pattern')) {
-            <span class="field-error">{{ t('auth.register.errors.passwordPattern') }}</span>
-          }
-        </div>
+        <yn-form-field label="auth.register.password" for="password"
+          [control]="form.controls.password"
+          [errors]="{ required: 'auth.register.errors.passwordRequired', minlength: 'auth.register.errors.passwordMinLength', pattern: 'auth.register.errors.passwordPattern' }">
+          <input id="password" type="password" formControlName="password" autocomplete="new-password" />
+        </yn-form-field>
 
-        <div class="form-field">
-          <label for="confirmPassword">{{ t('auth.register.confirmPassword') }}</label>
-          <input
-            id="confirmPassword"
-            type="password"
-            formControlName="confirmPassword"
-            autocomplete="new-password"
-          />
-          @if (hasError('confirmPassword', 'required')) {
-            <span class="field-error">
-              {{ t('auth.register.errors.confirmPasswordRequired') }}
-            </span>
-          }
-          @if (form.hasError('passwordsMismatch') && form.get('confirmPassword')?.touched) {
-            <span class="field-error">{{ t('auth.register.errors.passwordsMismatch') }}</span>
-          }
-        </div>
+        <yn-form-field label="auth.register.confirmPassword" for="confirmPassword"
+          [control]="form.controls.confirmPassword"
+          [errors]="{ required: 'auth.register.errors.confirmPasswordRequired' }"
+          [group]="form"
+          [groupErrors]="{ passwordsMismatch: 'auth.register.errors.passwordsMismatch' }">
+          <input id="confirmPassword" type="password" formControlName="confirmPassword" autocomplete="new-password" />
+        </yn-form-field>
 
         <button type="submit" [disabled]="isLoading()">
           @if (isLoading()) {
