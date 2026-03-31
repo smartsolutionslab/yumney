@@ -1,3 +1,4 @@
+export { BackLinkComponent } from './lib/back-link/back-link.component';
 export { FormFieldComponent } from './lib/form-field/form-field.component';
 export { SubmitButtonComponent } from './lib/submit-button/submit-button.component';
 export { RecipePreviewComponent } from './lib/recipe-preview/recipe-preview.component';

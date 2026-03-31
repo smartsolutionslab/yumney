@@ -11,11 +11,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { createAsyncState, scaleIngredients, HttpErrorMap, ROUTES } from '@yumney/shared/models';
-import { ConfirmDialogComponent } from '@yumney/ui';
+import { BackLinkComponent, ConfirmDialogComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-detail',
-  imports: [TranslocoModule, RouterLink, ConfirmDialogComponent],
+  imports: [TranslocoModule, RouterLink, ConfirmDialogComponent, BackLinkComponent],
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,16 +80,15 @@ export class RecipeDetailComponent implements OnInit {
     );
   }
 
-  totalTime(): number | null {
+  totalTime = computed(() => {
     const recipe = this.recipe();
     if (!recipe) {
       return null;
     }
-    const { prepTimeMinutes, cookTimeMinutes } = recipe;
-    const prep = prepTimeMinutes ?? 0;
-    const cook = cookTimeMinutes ?? 0;
+    const prep = recipe.prepTimeMinutes ?? 0;
+    const cook = recipe.cookTimeMinutes ?? 0;
     return prep === 0 && cook === 0 ? null : prep + cook;
-  }
+  });
 
   onIncreaseServings(): void {
     const current = this.desiredServings();

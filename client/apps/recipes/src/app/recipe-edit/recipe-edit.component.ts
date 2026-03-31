@@ -16,11 +16,11 @@ import {
   HttpErrorMap,
   ROUTES,
 } from '@yumney/shared/models';
-import { RecipePreviewComponent } from '@yumney/ui';
+import { BackLinkComponent, RecipePreviewComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-edit',
-  imports: [TranslocoModule, RouterLink, RecipePreviewComponent],
+  imports: [TranslocoModule, RouterLink, BackLinkComponent, RecipePreviewComponent],
   templateUrl: './recipe-edit.component.html',
   styleUrl: './recipe-edit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

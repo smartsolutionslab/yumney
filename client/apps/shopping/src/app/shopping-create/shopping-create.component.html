@@ -1,5 +1,5 @@
 <div class="shopping-create-container" *transloco="let t">
-  <a routerLink="/recipes" class="back-link"> &larr; {{ t('shopping.create.back') }} </a>
+  <yn-back-link route="/recipes" label="shopping.create.back" />
 
   @if (isLoading()) {
     <div class="loading">
@@ -22,7 +22,7 @@
         type="text"
         [value]="title()"
         (input)="onTitleChange($event)"
-        maxlength="200"
+        [maxlength]="VALIDATION.TITLE_MAX_LENGTH"
       />
     </div>
 

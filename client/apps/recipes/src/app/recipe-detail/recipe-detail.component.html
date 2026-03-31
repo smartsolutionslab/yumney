@@ -1,5 +1,5 @@
 <div class="recipe-detail-container" *transloco="let t">
-  <a routerLink="/recipes" class="back-link"> &larr; {{ t('recipes.detail.back') }} </a>
+  <yn-back-link route="/recipes" label="recipes.detail.back" />
 
   @if (isLoading()) {
     <div class="loading">
