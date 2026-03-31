@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
+
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 public interface IShoppingListRepository
@@ -8,7 +10,11 @@ public interface IShoppingListRepository
 
     Task<ShoppingList?> GetByIdForUpdateAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<ShoppingList>> GetByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
+    Task<(IReadOnlyList<ShoppingList> Items, int TotalCount)> GetByOwnerAsync(
+        OwnerIdentifier owner,
+        PagingOptions paging,
+        SortingOptions<ShoppingListSortField> sorting,
+        CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

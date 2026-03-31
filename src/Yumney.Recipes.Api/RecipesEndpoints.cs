@@ -231,6 +231,8 @@ public static class RecipesEndpoints
         return result.ToOk();
     }
 
+    private const long MaxPhotoSizeBytes = 10 * 1024 * 1024;
+
     private static async Task<IResult> ImportFromPhotosAsync(
         IFormFileCollection photos,
         ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>> handler,
@@ -240,7 +242,14 @@ public static class RecipesEndpoints
 
         foreach (var file in photos)
         {
-            using var memoryStream = new MemoryStream();
+            if (file.Length > MaxPhotoSizeBytes)
+            {
+                return Results.Problem(
+                    statusCode: StatusCodes.Status413PayloadTooLarge,
+                    detail: $"Photo '{file.FileName}' exceeds the maximum size of 10 MB.");
+            }
+
+            using var memoryStream = new MemoryStream((int)file.Length);
             await file.CopyToAsync(memoryStream, cancellationToken);
             photoDataList.Add(new PhotoData(memoryStream.ToArray(), file.ContentType, file.FileName));
         }

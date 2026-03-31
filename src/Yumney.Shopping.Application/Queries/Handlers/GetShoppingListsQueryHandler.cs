@@ -11,23 +11,25 @@ public sealed partial class GetShoppingListsQueryHandler(
     IShoppingListRepository shoppingLists,
     ICurrentUser currentUser,
     ILogger<GetShoppingListsQueryHandler> logger)
-    : IQueryHandler<GetShoppingListsQuery, Result<IReadOnlyList<ShoppingListSummaryDto>>>
+    : IQueryHandler<GetShoppingListsQuery, Result<PagedResult<ShoppingListSummaryDto>>>
 {
-    public async Task<Result<IReadOnlyList<ShoppingListSummaryDto>>> HandleAsync(
+    public async Task<Result<PagedResult<ShoppingListSummaryDto>>> HandleAsync(
         GetShoppingListsQuery query,
         CancellationToken cancellationToken = default)
     {
+        var (paging, sorting) = query;
         var owner = OwnerIdentifier.From(currentUser.UserId);
 
-        LogGetShoppingLists(owner.Value);
+        LogGetShoppingLists(owner.Value, paging.Page.Value, paging.PageSize.Value);
 
-        var lists = await shoppingLists.GetByOwnerAsync(owner, cancellationToken);
+        var (items, totalCount) = await shoppingLists.GetByOwnerAsync(owner, paging, sorting, cancellationToken);
 
-        var dtos = lists.Select(l => l.ToSummaryDto()).ToList();
+        var dtos = items.Select(l => l.ToSummaryDto()).ToList();
 
-        return Result<IReadOnlyList<ShoppingListSummaryDto>>.Success(dtos);
+        return Result<PagedResult<ShoppingListSummaryDto>>.Success(
+            new PagedResult<ShoppingListSummaryDto>(dtos, totalCount, paging.Page.Value, paging.PageSize.Value));
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping lists for owner {OwnerId}")]
-    private partial void LogGetShoppingLists(string ownerId);
+    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping lists for owner {OwnerId}, page {Page}, pageSize {PageSize}")]
+    private partial void LogGetShoppingLists(string ownerId, int page, int pageSize);
 }

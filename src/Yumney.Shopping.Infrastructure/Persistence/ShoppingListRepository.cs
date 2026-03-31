@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
@@ -37,15 +38,39 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<ShoppingList>> GetByOwnerAsync(
+    public async Task<(IReadOnlyList<ShoppingList> Items, int TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
+        PagingOptions paging,
+        SortingOptions<ShoppingListSortField> sorting,
         CancellationToken cancellationToken = default)
     {
-        return await shoppingLists
+        var query = shoppingLists
             .AsNoTracking()
             .Include(l => l.Items)
-            .Where(l => l.Owner == owner)
-            .OrderByDescending(l => l.CreatedAt)
+            .Where(l => l.Owner == owner);
+
+        query = ApplySorting(query, sorting);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip(paging.Skip)
+            .Take(paging.PageSize.Value)
             .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
+
+    private static IQueryable<ShoppingList> ApplySorting(
+        IQueryable<ShoppingList> query,
+        SortingOptions<ShoppingListSortField> sorting)
+    {
+        return (sorting.SortBy, sorting.Direction) switch
+        {
+            (ShoppingListSortField.Title, SortDirection.Ascending) => query.OrderBy(l => l.Title),
+            (ShoppingListSortField.Title, SortDirection.Descending) => query.OrderByDescending(l => l.Title),
+            (ShoppingListSortField.Date, SortDirection.Ascending) => query.OrderBy(l => l.CreatedAt),
+            (ShoppingListSortField.Date, SortDirection.Descending) => query.OrderByDescending(l => l.CreatedAt),
+            _ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
+        };
     }
 }
