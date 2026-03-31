@@ -25,6 +25,11 @@ export class LanguageService {
     return this.transloco.getActiveLang() as LanguageCode;
   }
 
+  get nextLanguage(): LanguageCode {
+    const currentIndex = SUPPORTED_LANGUAGES.indexOf(this.activeLang);
+    return SUPPORTED_LANGUAGES[(currentIndex + 1) % SUPPORTED_LANGUAGES.length];
+  }
+
   switchTo(lang: LanguageCode): void {
     if (!isSupportedLanguage(lang)) {
       return;
