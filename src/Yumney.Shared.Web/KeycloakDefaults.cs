@@ -13,7 +13,9 @@ public static class KeycloakDefaults
 
     public static string GetBaseUrl(IConfiguration configuration)
     {
-        return configuration.GetConnectionString(ConnectionStringName) ?? DefaultUrl;
+        return configuration.GetConnectionString(ConnectionStringName)
+            ?? configuration[$"services:{ConnectionStringName}:http:0"]
+            ?? DefaultUrl;
     }
 
     public static string GetRealm(IConfiguration configuration)
