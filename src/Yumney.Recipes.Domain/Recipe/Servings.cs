@@ -5,6 +5,8 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 public sealed record Servings
 {
+    public const int MinValue = 1;
+
     public int Value { get; }
 
     private Servings(int value)

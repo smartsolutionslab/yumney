@@ -46,7 +46,7 @@ export class RecipePreviewComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   form = this.fb.nonNullable.group({
-    title: ['', [Validators.required, Validators.maxLength(VALIDATION.TITLE_MAX_LENGTH)]],
+    title: ['', [Validators.required, Validators.maxLength(VALIDATION.RECIPES.RECIPE_TITLE.MAX_LENGTH)]],
     description: [''],
     servings: [null as number | null],
     prepTimeMinutes: [null as number | null],

@@ -30,7 +30,7 @@ export class ResendVerificationComponent {
   form = this.fb.nonNullable.group({
     email: [
       '',
-      [Validators.required, Validators.email, Validators.maxLength(VALIDATION.EMAIL_MAX_LENGTH)],
+      [Validators.required, Validators.email, Validators.maxLength(VALIDATION.USERS.EMAIL.MAX_LENGTH)],
     ],
   });
 

@@ -99,7 +99,7 @@ export class RecipeDetailComponent implements OnInit {
 
   onDecreaseServings(): void {
     const current = this.desiredServings();
-    if (current !== null && current > VALIDATION.MIN_SERVINGS) {
+    if (current !== null && current > VALIDATION.RECIPES.SERVINGS.MIN_VALUE) {
       this.desiredServings.set(current - 1);
     }
   }
