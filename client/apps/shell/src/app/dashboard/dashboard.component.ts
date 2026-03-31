@@ -21,6 +21,7 @@ import {
   mapToSaveRecipeRequest,
   VALIDATION,
   HttpErrorMap,
+  ROUTES,
 } from '@yumney/shared/models';
 import { RecipePreviewComponent, FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
@@ -184,7 +185,7 @@ export class DashboardComponent implements OnInit {
       this.recipeApi.saveRecipe(request),
       DashboardComponent.saveErrorMap,
       (saved) => {
-        this.router.navigate(['/recipes', saved.identifier]);
+        this.router.navigate([ROUTES.recipes.detail(saved.identifier)]);
       },
       (error) => this.serverError.set(error),
     );

@@ -58,63 +58,54 @@ export class ShoppingDetailComponent implements OnInit {
   }
 
   onToggleItem(item: ShoppingListItemResponse): void {
-    const list = this.shoppingList();
-    if (!list) {
-      return;
-    }
-
     const previousState = item.isChecked;
-    item.isChecked = !previousState;
-    this.shoppingList.set({ ...list });
-
-    this.shoppingApi
-      .checkOffItem(list.identifier, item.identifier, !previousState)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: () => {
-          item.isChecked = previousState;
-          this.shoppingList.set({ ...list });
-        },
-      });
+    this.optimisticUpdate(
+      () => (item.isChecked = !previousState),
+      () => (item.isChecked = previousState),
+      (list) => this.shoppingApi.checkOffItem(list.identifier, item.identifier, !previousState),
+    );
   }
 
   onCheckAll(): void {
-    const list = this.shoppingList();
-    if (!list) {
-      return;
-    }
-
-    const previousStates = list.items.map((i) => i.isChecked);
-    list.items.forEach((item) => (item.isChecked = true));
-    this.shoppingList.set({ ...list });
-
-    this.shoppingApi
-      .checkOffAllItems(list.identifier, true)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: () => {
-          list.items.forEach((item, i) => (item.isChecked = previousStates[i]));
-          this.shoppingList.set({ ...list });
-        },
-      });
+    this.optimisticBatchUpdate(true);
   }
 
   onReset(): void {
+    this.optimisticBatchUpdate(false);
+  }
+
+  private optimisticBatchUpdate(checked: boolean): void {
     const list = this.shoppingList();
     if (!list) {
       return;
     }
 
     const previousStates = list.items.map((i) => i.isChecked);
-    list.items.forEach((item) => (item.isChecked = false));
+    this.optimisticUpdate(
+      () => list.items.forEach((item) => (item.isChecked = checked)),
+      () => list.items.forEach((item, i) => (item.isChecked = previousStates[i])),
+      (l) => this.shoppingApi.checkOffAllItems(l.identifier, checked),
+    );
+  }
+
+  private optimisticUpdate(
+    apply: () => void,
+    rollback: () => void,
+    apiCall: (list: ShoppingListDetail) => import('rxjs').Observable<unknown>,
+  ): void {
+    const list = this.shoppingList();
+    if (!list) {
+      return;
+    }
+
+    apply();
     this.shoppingList.set({ ...list });
 
-    this.shoppingApi
-      .checkOffAllItems(list.identifier, false)
+    apiCall(list)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         error: () => {
-          list.items.forEach((item, i) => (item.isChecked = previousStates[i]));
+          rollback();
           this.shoppingList.set({ ...list });
         },
       });

@@ -503,7 +503,7 @@ describe('DashboardComponent', () => {
     component.onSaveRecipe(mockRecipe);
     tick();
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes', '123']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes/123']);
   }));
 
   it('should show duplicate error on 409 response', fakeAsync(() => {
@@ -766,7 +766,7 @@ describe('DashboardComponent', () => {
     component.onSaveRecipe(mockRecipe);
     tick();
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes', '123']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes/123']);
   }));
 
   it('should render create recipe button', () => {
@@ -816,7 +816,7 @@ describe('DashboardComponent', () => {
     expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
       expect.not.objectContaining({ sourceUrl: expect.anything() }),
     );
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes', '456']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes/456']);
   }));
 
   it('should navigate after successful save of manual entry', fakeAsync(() => {
@@ -831,7 +831,7 @@ describe('DashboardComponent', () => {
     component.onSaveRecipe(component.extractedRecipe()!);
     tick();
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes', '456']);
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes/456']);
   }));
 
   it('should reset isManualEntry on discard', () => {

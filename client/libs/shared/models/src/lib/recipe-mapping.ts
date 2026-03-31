@@ -5,60 +5,29 @@ import type {
   UpdateRecipeRequest,
 } from '@yumney/shared/api-client';
 
+function extractRecipeFields(recipe: ImportRecipeResponse) {
+  return {
+    title: recipe.title,
+    description: recipe.description,
+    ingredients: recipe.ingredients.map(({ name, amount, unit }) => ({ name, amount, unit })),
+    steps: recipe.steps.map(({ number, description }) => ({ number, description })),
+    servings: recipe.servings,
+    prepTimeMinutes: recipe.prepTimeMinutes,
+    cookTimeMinutes: recipe.cookTimeMinutes,
+    difficulty: recipe.difficulty,
+    imageUrl: recipe.imageUrl,
+  };
+}
+
 export function mapToSaveRecipeRequest(
   recipe: ImportRecipeResponse,
   sourceUrl?: string,
 ): SaveRecipeRequest {
-  const {
-    title,
-    description,
-    ingredients,
-    steps,
-    servings,
-    prepTimeMinutes,
-    cookTimeMinutes,
-    difficulty,
-    imageUrl,
-  } = recipe;
-
-  return {
-    title,
-    description,
-    ingredients: ingredients.map(({ name, amount, unit }) => ({ name, amount, unit })),
-    steps: steps.map(({ number, description }) => ({ number, description })),
-    servings,
-    prepTimeMinutes,
-    cookTimeMinutes,
-    difficulty,
-    imageUrl,
-    ...(sourceUrl != null && { sourceUrl }),
-  };
+  return { ...extractRecipeFields(recipe), ...(sourceUrl != null && { sourceUrl }) };
 }
 
 export function mapToUpdateRecipeRequest(recipe: ImportRecipeResponse): UpdateRecipeRequest {
-  const {
-    title,
-    description,
-    ingredients,
-    steps,
-    servings,
-    prepTimeMinutes,
-    cookTimeMinutes,
-    difficulty,
-    imageUrl,
-  } = recipe;
-
-  return {
-    title,
-    description,
-    ingredients: ingredients.map(({ name, amount, unit }) => ({ name, amount, unit })),
-    steps: steps.map(({ number, description }) => ({ number, description })),
-    servings,
-    prepTimeMinutes,
-    cookTimeMinutes,
-    difficulty,
-    imageUrl,
-  };
+  return extractRecipeFields(recipe);
 }
 
 export function mapDetailToImportResponse(detail: RecipeDetail): ImportRecipeResponse {
