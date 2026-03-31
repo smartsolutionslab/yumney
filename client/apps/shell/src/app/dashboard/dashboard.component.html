@@ -12,24 +12,13 @@
       }
 
       <div class="import-row">
-        <div class="form-field">
-          <input
-            id="url"
-            type="url"
-            formControlName="url"
+        <yn-form-field for="url"
+          [control]="form.controls.url"
+          [errors]="{ required: 'dashboard.import.errors.urlRequired', maxlength: 'dashboard.import.errors.urlTooLong', invalidUrl: 'dashboard.import.errors.urlInvalid' }">
+          <input id="url" type="url" formControlName="url"
             [placeholder]="t('dashboard.import.placeholder')"
-            [attr.aria-label]="t('dashboard.import.urlLabel')"
-          />
-          @if (hasError('url', 'required')) {
-            <span class="field-error">{{ t('dashboard.import.errors.urlRequired') }}</span>
-          }
-          @if (hasError('url', 'maxlength')) {
-            <span class="field-error">{{ t('dashboard.import.errors.urlTooLong') }}</span>
-          }
-          @if (hasError('url', 'invalidUrl')) {
-            <span class="field-error">{{ t('dashboard.import.errors.urlInvalid') }}</span>
-          }
-        </div>
+            [attr.aria-label]="t('dashboard.import.urlLabel')" />
+        </yn-form-field>
 
         <button type="submit" [disabled]="isLoading() || isSaving()">
           @if (isLoading()) {

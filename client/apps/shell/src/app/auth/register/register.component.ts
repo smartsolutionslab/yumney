@@ -5,15 +5,15 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
 import {
   passwordsMatchValidator,
-  hasControlError,
   createAsyncState,
   VALIDATION,
   HttpErrorMap,
 } from '@yumney/shared/models';
+import { FormFieldComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-register',
-  imports: [ReactiveFormsModule, TranslocoModule, RouterLink],
+  imports: [ReactiveFormsModule, TranslocoModule, RouterLink, FormFieldComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,7 +76,4 @@ export class RegisterComponent {
     );
   }
 
-  hasError(field: string, error: string): boolean {
-    return hasControlError(this.form, field, error);
-  }
 }
