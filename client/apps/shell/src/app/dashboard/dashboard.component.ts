@@ -22,11 +22,11 @@ import {
   VALIDATION,
   HttpErrorMap,
 } from '@yumney/shared/models';
-import { RecipePreviewComponent, FormFieldComponent } from '@yumney/ui';
+import { RecipePreviewComponent, FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-dashboard',
-  imports: [ReactiveFormsModule, TranslocoModule, RecipePreviewComponent, FormFieldComponent],
+  imports: [ReactiveFormsModule, TranslocoModule, RecipePreviewComponent, FormFieldComponent, SubmitButtonComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

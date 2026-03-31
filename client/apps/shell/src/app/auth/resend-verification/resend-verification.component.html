@@ -21,13 +21,9 @@
             [placeholder]="t('auth.resendVerification.emailPlaceholder')" />
         </yn-form-field>
 
-        <button type="submit" [disabled]="isLoading()">
-          @if (isLoading()) {
-            <span>{{ t('auth.resendVerification.submitting') }}</span>
-          } @else {
-            <span>{{ t('auth.resendVerification.submit') }}</span>
-          }
-        </button>
+        <yn-submit-button [loading]="isLoading()"
+          label="auth.resendVerification.submit"
+          loadingLabel="auth.resendVerification.submitting" />
       </form>
     }
 

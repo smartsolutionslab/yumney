@@ -1,0 +1,10 @@
+<button [type]="type()" [disabled]="loading() || disabled()" [class]="cssClass()">
+  @if (loading()) {
+    @if (showSpinner()) {
+      <span class="btn-spinner"></span>
+    }
+    <span>{{ loadingLabel() | transloco }}</span>
+  } @else {
+    <span>{{ label() | transloco }}</span>
+  }
+</button>
