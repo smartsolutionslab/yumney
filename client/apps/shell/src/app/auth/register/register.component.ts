@@ -37,13 +37,13 @@ export class RegisterComponent {
     {
       email: [
         '',
-        [Validators.required, Validators.email, Validators.maxLength(VALIDATION.EMAIL_MAX_LENGTH)],
+        [Validators.required, Validators.email, Validators.maxLength(VALIDATION.USERS.EMAIL.MAX_LENGTH)],
       ],
       password: [
         '',
         [
           Validators.required,
-          Validators.minLength(VALIDATION.PASSWORD_MIN_LENGTH),
+          Validators.minLength(VALIDATION.USERS.PASSWORD.MIN_LENGTH),
           Validators.pattern(/[A-Z]/),
           Validators.pattern(/[a-z]/),
           Validators.pattern(/[0-9]/),
@@ -52,7 +52,7 @@ export class RegisterComponent {
       confirmPassword: ['', [Validators.required]],
       displayName: [
         '',
-        [Validators.required, Validators.maxLength(VALIDATION.DISPLAY_NAME_MAX_LENGTH)],
+        [Validators.required, Validators.maxLength(VALIDATION.USERS.DISPLAY_NAME.MAX_LENGTH)],
       ],
     },
     { validators: [passwordsMatchValidator] },

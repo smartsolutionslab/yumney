@@ -64,7 +64,7 @@ export class DashboardComponent implements OnInit {
   streamingChunks = signal('');
 
   form = this.fb.nonNullable.group({
-    url: ['', [Validators.required, Validators.maxLength(VALIDATION.URL_MAX_LENGTH), urlValidator]],
+    url: ['', [Validators.required, Validators.maxLength(VALIDATION.RECIPES.RECIPE_URL.MAX_LENGTH), urlValidator]],
   });
 
   ngOnInit(): void {
