@@ -28,7 +28,7 @@ describe('HeaderComponent', () => {
     displayName: ReturnType<typeof signal<string | null>>;
     logout: ReturnType<typeof vi.fn>;
   };
-  let languageServiceMock: { activeLang: string; switchTo: ReturnType<typeof vi.fn> };
+  let languageServiceMock: { activeLang: string; nextLanguage: string; switchTo: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     authServiceMock = {
@@ -36,7 +36,7 @@ describe('HeaderComponent', () => {
       displayName: signal<string | null>(null),
       logout: vi.fn(),
     };
-    languageServiceMock = { activeLang: 'en', switchTo: vi.fn() };
+    languageServiceMock = { activeLang: 'en', nextLanguage: 'de', switchTo: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
