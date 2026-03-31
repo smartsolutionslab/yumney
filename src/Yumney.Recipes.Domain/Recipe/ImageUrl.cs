@@ -3,13 +3,13 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record ImageUrl
+public sealed record ImageUrl : IValueObject<string>
 {
     public const int MaxLength = 2048;
 
     public string Value { get; }
 
-    public ImageUrl(string value)
+    private ImageUrl(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -19,8 +19,12 @@ public sealed record ImageUrl
         Value = validated.Trim();
     }
 
+    public static ImageUrl From(string value) => new(value);
+
     public static ImageUrl? FromNullable(string? value) =>
         value.HasValue() ? new ImageUrl(value!) : null;
+
+    public static implicit operator string(ImageUrl obj) => obj.Value;
 
     public override string ToString() => Value;
 }

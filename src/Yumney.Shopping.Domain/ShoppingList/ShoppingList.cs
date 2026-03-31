@@ -46,14 +46,14 @@ public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
         return shoppingList;
     }
 
-    public void CheckOffItem(Guid itemId)
+    public void CheckOffItem(ShoppingListItemIdentifier itemId)
     {
         var item = items.FirstOrDefault(i => i.Id == itemId)
             ?? throw new GuardException(nameof(itemId), $"Item {itemId} not found in shopping list.");
         item.Check();
     }
 
-    public void UncheckItem(Guid itemId)
+    public void UncheckItem(ShoppingListItemIdentifier itemId)
     {
         var item = items.FirstOrDefault(i => i.Id == itemId)
             ?? throw new GuardException(nameof(itemId), $"Item {itemId} not found in shopping list.");

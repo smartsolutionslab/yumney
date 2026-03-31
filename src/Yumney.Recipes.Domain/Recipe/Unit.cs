@@ -3,13 +3,13 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record Unit
+public sealed record Unit : IValueObject<string>
 {
     public const int MaxLength = 50;
 
     public string Value { get; }
 
-    public Unit(string value)
+    private Unit(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -18,8 +18,12 @@ public sealed record Unit
         Value = validated.Trim();
     }
 
+    public static Unit From(string value) => new(value);
+
     public static Unit? FromNullable(string? value) =>
         value.HasValue() ? new Unit(value!) : null;
+
+    public static implicit operator string(Unit obj) => obj.Value;
 
     public override string ToString() => Value;
 }

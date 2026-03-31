@@ -1,8 +1,9 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-public sealed record Password
+public sealed record Password : IValueObject<string>
 {
     public const int MinLength = 8;
     public const string UppercasePattern = "[A-Z]";
@@ -14,7 +15,7 @@ public sealed record Password
 
     public string Value { get; }
 
-    public Password(string value)
+    private Password(string value)
     {
         Value = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -24,6 +25,10 @@ public sealed record Password
             .Matches(DigitPattern, DigitMessage)
             .AndReturn();
     }
+
+    public static Password From(string value) => new(value);
+
+    public static implicit operator string(Password obj) => obj.Value;
 
     public override string ToString() => "***";
 }

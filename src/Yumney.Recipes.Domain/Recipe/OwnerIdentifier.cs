@@ -1,8 +1,9 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record OwnerIdentifier
+public sealed record OwnerIdentifier : IValueObject<string>
 {
     public const int MaxLength = 255;
 
@@ -18,6 +19,8 @@ public sealed record OwnerIdentifier
     }
 
     public static OwnerIdentifier From(string value) => new(value);
+
+    public static implicit operator string(OwnerIdentifier obj) => obj.Value;
 
     public override string ToString() => Value;
 }

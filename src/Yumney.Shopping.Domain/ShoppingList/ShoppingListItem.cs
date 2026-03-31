@@ -2,7 +2,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-public sealed class ShoppingListItem : Entity<Guid>
+public sealed class ShoppingListItem : Entity<ShoppingListItemIdentifier>
 {
     public ItemName Name { get; private set; } = default!;
 
@@ -20,7 +20,7 @@ public sealed class ShoppingListItem : Entity<Guid>
     {
         return new ShoppingListItem
         {
-            Id = Guid.NewGuid(),
+            Id = ShoppingListItemIdentifier.New(),
             Name = name,
             Amount = amount,
             Unit = unit,

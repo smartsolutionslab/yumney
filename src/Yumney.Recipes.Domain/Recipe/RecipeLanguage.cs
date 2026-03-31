@@ -3,13 +3,13 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record RecipeLanguage
+public sealed record RecipeLanguage : IValueObject<string>
 {
     public const int MaxLength = 10;
 
     public string Value { get; }
 
-    public RecipeLanguage(string value)
+    private RecipeLanguage(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -18,8 +18,12 @@ public sealed record RecipeLanguage
         Value = validated.Trim().ToLowerInvariant();
     }
 
+    public static RecipeLanguage From(string value) => new(value);
+
     public static RecipeLanguage? FromNullable(string? value) =>
         value.HasValue() ? new RecipeLanguage(value!) : null;
+
+    public static implicit operator string(RecipeLanguage obj) => obj.Value;
 
     public override string ToString() => Value;
 }

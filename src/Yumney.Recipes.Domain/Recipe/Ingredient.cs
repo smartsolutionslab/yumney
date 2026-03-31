@@ -2,7 +2,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed class Ingredient : Entity<Guid>
+public sealed class Ingredient : Entity<IngredientIdentifier>
 {
     public IngredientName Name { get; private set; } = default!;
 
@@ -18,7 +18,7 @@ public sealed class Ingredient : Entity<Guid>
     {
         return new Ingredient
         {
-            Id = Guid.NewGuid(),
+            Id = IngredientIdentifier.New(),
             Name = name,
             Amount = amount,
             Unit = unit,

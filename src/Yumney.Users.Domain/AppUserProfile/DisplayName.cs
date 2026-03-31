@@ -1,14 +1,15 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-public sealed record DisplayName
+public sealed record DisplayName : IValueObject<string>
 {
     public const int MaxLength = 200;
 
     public string Value { get; }
 
-    public DisplayName(string value)
+    private DisplayName(string value)
     {
         string validated = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
@@ -18,6 +19,8 @@ public sealed record DisplayName
     }
 
     public static DisplayName From(string value) => new(value);
+
+    public static implicit operator string(DisplayName obj) => obj.Value;
 
     public override string ToString() => Value;
 }

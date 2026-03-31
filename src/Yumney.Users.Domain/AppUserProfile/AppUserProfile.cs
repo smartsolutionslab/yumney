@@ -8,9 +8,9 @@ public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
 
     public DisplayName DisplayName { get; private set; } = default!;
 
-    public PreferredLanguage PreferredLanguage { get; private set; } = new("en");
+    public PreferredLanguage PreferredLanguage { get; private set; } = PreferredLanguage.From("en");
 
-    public PreferredUnitSystem PreferredUnitSystem { get; private set; } = new("metric");
+    public PreferredUnitSystem PreferredUnitSystem { get; private set; } = PreferredUnitSystem.From("metric");
 
     private AppUserProfile()
     {

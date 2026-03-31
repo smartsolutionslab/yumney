@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record SearchTerm
+public sealed record SearchTerm : IValueObject<string>
 {
     public const int MaxLength = 200;
 
@@ -24,6 +24,8 @@ public sealed record SearchTerm
     {
         return value.HasValue() ? new SearchTerm(value!) : null;
     }
+
+    public static implicit operator string(SearchTerm obj) => obj.Value;
 
     public override string ToString() => Value;
 }
