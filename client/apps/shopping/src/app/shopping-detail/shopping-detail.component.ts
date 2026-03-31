@@ -16,10 +16,11 @@ import {
   ShoppingListItemResponse,
 } from '@yumney/shared/api-client';
 import { createAsyncState, HttpErrorMap } from '@yumney/shared/models';
+import { BackLinkComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-shopping-detail',
-  imports: [TranslocoModule, RouterLink],
+  imports: [TranslocoModule, RouterLink, BackLinkComponent],
   templateUrl: './shopping-detail.component.html',
   styleUrl: './shopping-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

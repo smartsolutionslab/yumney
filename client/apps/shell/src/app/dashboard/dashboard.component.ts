@@ -49,10 +49,9 @@ export class DashboardComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private recipeApi = inject(RecipeApiService);
-  private importState = createAsyncState(inject(DestroyRef));
-  private saveState = createAsyncState(inject(DestroyRef));
-
   private destroyRef = inject(DestroyRef);
+  private importState = createAsyncState(this.destroyRef);
+  private saveState = createAsyncState(this.destroyRef);
 
   isLoading = this.importState.isLoading;
   isSaving = this.saveState.isLoading;

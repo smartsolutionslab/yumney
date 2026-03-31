@@ -11,16 +11,19 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { ShoppingApiService, CreateShoppingListItem } from '@yumney/shared/api-client';
-import { createAsyncState, HttpErrorMap, ROUTES } from '@yumney/shared/models';
+import { createAsyncState, HttpErrorMap, ROUTES, VALIDATION } from '@yumney/shared/models';
+import { BackLinkComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-shopping-create',
-  imports: [TranslocoModule, RouterLink],
+  imports: [TranslocoModule, RouterLink, BackLinkComponent],
   templateUrl: './shopping-create.component.html',
   styleUrl: './shopping-create.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShoppingCreateComponent implements OnInit {
+  protected readonly VALIDATION = VALIDATION;
+
   private static readonly loadErrorMap: HttpErrorMap = {
     404: 'shopping.create.errors.recipeNotFound',
     default: 'shopping.create.errors.generic',
