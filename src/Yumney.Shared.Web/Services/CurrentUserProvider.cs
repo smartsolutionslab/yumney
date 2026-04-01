@@ -7,14 +7,14 @@ namespace SmartSolutionsLab.Yumney.Shared.Web.Services;
 public sealed class CurrentUserProvider(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
     public string UserId => User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                            ?? User?.FindFirst("sub")?.Value
+                            ?? User?.FindFirst(KeycloakClaimTypes.Subject)?.Value
                             ?? string.Empty;
 
     public string Email => User?.FindFirst(ClaimTypes.Email)?.Value
-        ?? User?.FindFirst("email")?.Value
+        ?? User?.FindFirst(KeycloakClaimTypes.Email)?.Value
         ?? string.Empty;
 
-    public string DisplayName => User?.FindFirst("preferred_username")?.Value
+    public string DisplayName => User?.FindFirst(KeycloakClaimTypes.PreferredUsername)?.Value
         ?? User?.FindFirst(ClaimTypes.Name)?.Value
         ?? string.Empty;
 

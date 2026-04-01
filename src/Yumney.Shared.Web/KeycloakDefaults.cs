@@ -11,6 +11,9 @@ public static class KeycloakDefaults
     public const string Audience = "yumney-api";
     public const string WebClientId = "yumney-web";
 
+    public const string ScopeOpenId = "openid";
+    public const string ScopeProfile = "profile";
+
     public static string GetBaseUrl(IConfiguration configuration)
     {
         return configuration.GetConnectionString(ConnectionStringName)
