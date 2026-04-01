@@ -46,167 +46,167 @@ else
 
 if (!options.DatabaseOnly)
 {
-var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
-    .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
-    .WaitFor(recipesDb).WaitFor(shoppingDb).WaitFor(usersDb);
+    var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
+        .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
+        .WaitFor(recipesDb).WaitFor(shoppingDb).WaitFor(usersDb);
 
-// ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
-var redis = builder.AddRedis("redis", password: redisPassword);
-var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithManagementPlugin();
-var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
+    // ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
+    var redis = builder.AddRedis("redis", password: redisPassword);
+    var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithManagementPlugin();
+    var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
 
-if (isRunMode)
-{
-    redis.WithDataVolume();
-    messaging.WithDataVolume();
-    keycloak.WithDataVolume();
-}
-
-keycloak.WithRealmImport("Realms");
-
-if (isRunMode)
-{
-    var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "latest")
-        .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
-        .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp");
-    keycloak.WaitFor(mailpit);
-}
-else
-{
-    var keycloakDbHost = builder.AddParameter("KeycloakDbHost");
-    keycloak
-        .WithEnvironment("KC_DB", "postgres")
-        .WithEnvironment("KC_DB_URL_HOST", keycloakDbHost)
-        .WithEnvironment("KC_DB_URL_DATABASE", "keycloakdb")
-        .WithEnvironment("KC_DB_USERNAME", postgresUser)
-        .WithEnvironment("KC_DB_PASSWORD", postgresPassword)
-        .WithEnvironment("KC_HTTP_ENABLED", "true")
-        .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
-        .WithEnvironment("KC_HOSTNAME_STRICT", "false")
-        .WithEndpoint("http", e => e.IsExternal = true);
-}
-
-var recipesApi = builder
-    .AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
-    .AsYumneyApi(recipesDb, keycloak, redis, messaging, migrationRunner)
-    .WithLlmProvider(builder, options);
-var shoppingApi = builder
-    .AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
-    .AsYumneyApi(shoppingDb, keycloak, redis, messaging, migrationRunner);
-var usersApi = builder
-    .AddProject<Projects.Yumney_Users_Api>("users-api")
-    .AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
-
-// ── Container Registry (GHCR for CI/CD) ──
-#pragma warning disable ASPIRECOMPUTE003
-var registry = options.UseGhcr
-    ? builder.AddContainerRegistry("ghcr", options.RegistryEndpoint!, options.RegistryRepository!)
-    : null;
-
-if (registry is not null)
-{
-    migrationRunner.WithContainerRegistry(registry);
-    recipesApi.WithContainerRegistry(registry);
-    shoppingApi.WithContainerRegistry(registry);
-    usersApi.WithContainerRegistry(registry);
-}
-#pragma warning restore ASPIRECOMPUTE003
-
-// ── ACA Scaling + GHCR pull credentials ──
-void ConfigureContainerApp(AzureResourceInfrastructure infra, ContainerApp app, int minReplicas, int maxReplicas, int? concurrentRequests = null)
-{
-    if (options.UseGhcrPullCredentials)
+    if (isRunMode)
     {
-        app.Configuration.Registries.Add(new ContainerAppRegistryCredentials
-        {
-            Server = "ghcr.io",
-            Username = options.GhcrUser!,
-            PasswordSecretRef = "ghcr-token",
-        });
-        app.Configuration.Secrets.Add(new ContainerAppWritableSecret
-        {
-            Name = "ghcr-token",
-            Value = options.GhcrToken!,
-        });
+        redis.WithDataVolume();
+        messaging.WithDataVolume();
+        keycloak.WithDataVolume();
     }
 
-    app.Template.Scale.MinReplicas = minReplicas;
-    app.Template.Scale.MaxReplicas = maxReplicas;
+    keycloak.WithRealmImport("Realms");
 
-    if (concurrentRequests.HasValue)
+    if (isRunMode)
     {
-        app.Template.Scale.Rules.Add(new ContainerAppScaleRule
+        var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "latest")
+            .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
+            .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp");
+        keycloak.WaitFor(mailpit);
+    }
+    else
+    {
+        var keycloakDbHost = builder.AddParameter("KeycloakDbHost");
+        keycloak
+            .WithEnvironment("KC_DB", "postgres")
+            .WithEnvironment("KC_DB_URL_HOST", keycloakDbHost)
+            .WithEnvironment("KC_DB_URL_DATABASE", "keycloakdb")
+            .WithEnvironment("KC_DB_USERNAME", postgresUser)
+            .WithEnvironment("KC_DB_PASSWORD", postgresPassword)
+            .WithEnvironment("KC_HTTP_ENABLED", "true")
+            .WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
+            .WithEnvironment("KC_HOSTNAME_STRICT", "false")
+            .WithEndpoint("http", e => e.IsExternal = true);
+    }
+
+    var recipesApi = builder
+        .AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
+        .AsYumneyApi(recipesDb, keycloak, redis, messaging, migrationRunner)
+        .WithLlmProvider(builder, options);
+    var shoppingApi = builder
+        .AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
+        .AsYumneyApi(shoppingDb, keycloak, redis, messaging, migrationRunner);
+    var usersApi = builder
+        .AddProject<Projects.Yumney_Users_Api>("users-api")
+        .AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
+
+    // ── Container Registry (GHCR for CI/CD) ──
+#pragma warning disable ASPIRECOMPUTE003
+    var registry = options.UseGhcr
+        ? builder.AddContainerRegistry("ghcr", options.RegistryEndpoint!, options.RegistryRepository!)
+        : null;
+
+    if (registry is not null)
+    {
+        migrationRunner.WithContainerRegistry(registry);
+        recipesApi.WithContainerRegistry(registry);
+        shoppingApi.WithContainerRegistry(registry);
+        usersApi.WithContainerRegistry(registry);
+    }
+#pragma warning restore ASPIRECOMPUTE003
+
+    // ── ACA Scaling + GHCR pull credentials ──
+    void ConfigureContainerApp(AzureResourceInfrastructure infra, ContainerApp app, int minReplicas, int maxReplicas, int? concurrentRequests = null)
+    {
+        if (options.UseGhcrPullCredentials)
         {
-            Name = "http-scaling",
-            Http = new ContainerAppHttpScaleRule
+            app.Configuration.Registries.Add(new ContainerAppRegistryCredentials
             {
-                Metadata =
+                Server = "ghcr.io",
+                Username = options.GhcrUser!,
+                PasswordSecretRef = "ghcr-token",
+            });
+            app.Configuration.Secrets.Add(new ContainerAppWritableSecret
+            {
+                Name = "ghcr-token",
+                Value = options.GhcrToken!,
+            });
+        }
+
+        app.Template.Scale.MinReplicas = minReplicas;
+        app.Template.Scale.MaxReplicas = maxReplicas;
+
+        if (concurrentRequests.HasValue)
+        {
+            app.Template.Scale.Rules.Add(new ContainerAppScaleRule
+            {
+                Name = "http-scaling",
+                Http = new ContainerAppHttpScaleRule
+                {
+                    Metadata =
                 {
                     {
                         "concurrentRequests",
                         concurrentRequests.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)
                     },
                 },
-            },
-        });
+                },
+            });
+        }
     }
-}
 
-recipesApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 10, 20));
-shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 5, 50));
-usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
-migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
+    recipesApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 10, 20));
+    shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 5, 50));
+    usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
+    migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
-if (isRunMode)
-{
-    var scalar = builder.AddScalarApiReference("scalar");
-    scalar.WithApiReference(recipesApi);
-    scalar.WithApiReference(shoppingApi);
-    scalar.WithApiReference(usersApi);
+    if (isRunMode)
+    {
+        var scalar = builder.AddScalarApiReference("scalar");
+        scalar.WithApiReference(recipesApi);
+        scalar.WithApiReference(shoppingApi);
+        scalar.WithApiReference(usersApi);
 
-    var addMfe = (string name, string script, int port) =>
-        builder.AddJavaScriptApp(name, "../../client", script)
-            .WithYarn()
-            .WithEnvironment("NX_DAEMON", "false")
-            .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
-            .WithHttpEndpoint(targetPort: port);
+        var addMfe = (string name, string script, int port) =>
+            builder.AddJavaScriptApp(name, "../../client", script)
+                .WithYarn()
+                .WithEnvironment("NX_DAEMON", "false")
+                .WithEnvironment("NX_ISOLATE_PLUGINS", "false")
+                .WithHttpEndpoint(targetPort: port);
 
-    var shell = addMfe("shell", "serve:shell", 4200);
-    var recipesMfe = addMfe("recipes-mfe", "serve:recipes", 4201);
-    var shoppingMfe = addMfe("shopping-mfe", "serve:shopping", 4202);
-    var accountMfe = addMfe("account-mfe", "serve:account", 4203);
+        var shell = addMfe("shell", "serve:shell", 4200);
+        var recipesMfe = addMfe("recipes-mfe", "serve:recipes", 4201);
+        var shoppingMfe = addMfe("shopping-mfe", "serve:shopping", 4202);
+        var accountMfe = addMfe("account-mfe", "serve:account", 4203);
 
-    builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
-        .WithHttpEndpoint(port: 5100)
-        .WithReference(recipesApi).WithReference(shoppingApi).WithReference(usersApi)
-        .WithReference(shell).WithReference(keycloak)
-        .WaitFor(recipesApi).WaitFor(shoppingApi).WaitFor(usersApi)
-        .WaitFor(shell).WaitFor(recipesMfe).WaitFor(shoppingMfe).WaitFor(accountMfe);
-}
-else
-{
-    var frontend = builder.AddDockerfile("yumney-frontend", "../../client", "docker/Dockerfile")
-        .WithHttpEndpoint(targetPort: 80);
+        builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
+            .WithHttpEndpoint(port: 5100)
+            .WithReference(recipesApi).WithReference(shoppingApi).WithReference(usersApi)
+            .WithReference(shell).WithReference(keycloak)
+            .WaitFor(recipesApi).WaitFor(shoppingApi).WaitFor(usersApi)
+            .WaitFor(shell).WaitFor(recipesMfe).WaitFor(shoppingMfe).WaitFor(accountMfe);
+    }
+    else
+    {
+        var frontend = builder.AddDockerfile("yumney-frontend", "../../client", "docker/Dockerfile")
+            .WithHttpEndpoint(targetPort: 80);
 
 #pragma warning disable ASPIRECOMPUTE003
-    if (registry is not null)
-    {
-        frontend.WithContainerRegistry(registry);
-    }
+        if (registry is not null)
+        {
+            frontend.WithContainerRegistry(registry);
+        }
 #pragma warning restore ASPIRECOMPUTE003
 
-    builder.AddYarp("yumney-gateway")
-        .WithConfiguration(yarp =>
-        {
-            yarp.AddRoute("/api/v1/recipes/{**catch-all}", recipesApi);
-            yarp.AddRoute("/api/v1/shopping-lists/{**catch-all}", shoppingApi);
-            yarp.AddRoute("/api/v1/auth/{**catch-all}", usersApi);
-            yarp.AddRoute("/{**catch-all}", frontend.GetEndpoint("http"));
-        })
-        .WithExternalHttpEndpoints();
+        builder.AddYarp("yumney-gateway")
+            .WithConfiguration(yarp =>
+            {
+                yarp.AddRoute("/api/v1/recipes/{**catch-all}", recipesApi);
+                yarp.AddRoute("/api/v1/shopping-lists/{**catch-all}", shoppingApi);
+                yarp.AddRoute("/api/v1/auth/{**catch-all}", usersApi);
+                yarp.AddRoute("/{**catch-all}", frontend.GetEndpoint("http"));
+            })
+            .WithExternalHttpEndpoints();
 
-    frontend.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 5, 100));
-}
+        frontend.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 5, 100));
+    }
 }
 
 builder.Build().Run();

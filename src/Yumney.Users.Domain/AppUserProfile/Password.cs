@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-public sealed record Password : IValueObject<string>
+public sealed record Password : IValueObject
 {
     public const int MinLength = 8;
     public const string UppercasePattern = "[A-Z]";

@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-public sealed record DisplayName : IValueObject<string>
+public sealed record DisplayName : IValueObject
 {
     public const int MaxLength = 200;
 
