@@ -15,7 +15,7 @@ public sealed record StepNumber : IValueObject
 
     public static StepNumber From(int value) => new(value);
 
-    public static explicit operator int(StepNumber obj) => obj.Value;
+    public static implicit operator int(StepNumber obj) => obj.Value;
 
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

@@ -20,7 +20,7 @@ public sealed record Servings : IValueObject
     public static Servings? FromNullable(int? value) =>
         value.HasValue ? new Servings(value.Value) : null;
 
-    public static explicit operator int(Servings obj) => obj.Value;
+    public static implicit operator int(Servings obj) => obj.Value;
 
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

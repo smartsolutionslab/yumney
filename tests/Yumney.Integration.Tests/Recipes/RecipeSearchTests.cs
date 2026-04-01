@@ -66,7 +66,10 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, _) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, SearchTerm.From("choco"));
+            owner,
+            DefaultPaging,
+            DefaultSorting,
+            SearchTerm.From("choco"));
 
         items.Should().ContainSingle(r => r.Title.Value == "Chocolate Fudge Cake");
     }
@@ -78,7 +81,10 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, _) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, SearchTerm.From("bolognese"));
+            owner,
+            DefaultPaging,
+            DefaultSorting,
+            SearchTerm.From("bolognese"));
 
         items.Should().ContainSingle(r => r.Title.Value == "Classic Lasagne");
     }
@@ -90,7 +96,10 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
         var repository = new RecipeRepository(context);
 
         var (items, _) = await repository.GetByOwnerAsync(
-            owner, DefaultPaging, DefaultSorting, SearchTerm.From("mozzarella"));
+            owner,
+            DefaultPaging,
+            DefaultSorting,
+            SearchTerm.From("mozzarella"));
 
         items.Should().ContainSingle(r => r.Title.Value == "Classic Lasagne");
     }

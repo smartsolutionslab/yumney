@@ -19,9 +19,9 @@ public sealed partial class ImportRecipeFromPhotosCommandHandler(
 
     private static readonly HashSet<string> allowedContentTypes =
     [
-        "image/jpeg",
-        "image/png",
-        "image/webp",
+        MediaTypes.ImageJpeg,
+        MediaTypes.ImagePng,
+        MediaTypes.ImageWebp,
     ];
 
     public async Task<Result<ExtractedRecipeDto>> HandleAsync(
@@ -30,20 +30,20 @@ public sealed partial class ImportRecipeFromPhotosCommandHandler(
     {
         var photos = command.Photos;
 
-        if (photos.Count == 0 || photos.Count > maxPhotos) return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.TooManyPhotos);
+        if (photos.Count == 0 || photos.Count > maxPhotos) return ImportRecipeErrors.TooManyPhotos;
 
         foreach (var photo in photos)
         {
             if (photo.Content.Length > maxPhotoSizeBytes)
             {
                 LogPhotoTooLarge(photo.FileName, photo.Content.Length);
-                return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.PhotoTooLarge);
+                return ImportRecipeErrors.PhotoTooLarge;
             }
 
             if (!allowedContentTypes.Contains(photo.ContentType.ToLowerInvariant()))
             {
                 LogInvalidFormat(photo.FileName, photo.ContentType);
-                return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.InvalidPhotoFormat);
+                return ImportRecipeErrors.InvalidPhotoFormat;
             }
         }
 

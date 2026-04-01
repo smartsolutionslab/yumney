@@ -23,7 +23,7 @@ public sealed partial class SaveRecipeCommandHandler(
         if (sourceUrl is not null && await recipes.ExistsBySourceUrlAsync(sourceUrl, owner, cancellationToken))
         {
             LogDuplicateImport(sourceUrl.Value, owner.Value);
-            return Result<SavedRecipeDto>.Failure(SaveRecipeErrors.AlreadyImported);
+            return SaveRecipeErrors.AlreadyImported;
         }
 
         var ingredients = ingredientCommands.Select(i => i.ToDomain()).ToList();

@@ -22,13 +22,13 @@ public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes,
         if (recipe is null)
         {
             LogRecipeNotFound(identifier);
-            return Result<RecipeDetailDto>.Failure(GetRecipeByIdErrors.NotFound);
+            return GetRecipeByIdErrors.NotFound;
         }
 
         if (recipe.Owner != owner)
         {
             LogRecipeAccessDenied(identifier, owner.Value);
-            return Result<RecipeDetailDto>.Failure(GetRecipeByIdErrors.AccessDenied);
+            return GetRecipeByIdErrors.AccessDenied;
         }
 
         return recipe.ToDetailDto();

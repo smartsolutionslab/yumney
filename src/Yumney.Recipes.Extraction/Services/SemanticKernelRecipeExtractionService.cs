@@ -122,7 +122,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         {
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             LogLlmCallFailed(source, ex.Message);
-            return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
+            return ImportRecipeErrors.ExtractionFailed;
         }
 
         return ParseResponse(response, source);
@@ -137,14 +137,14 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
             if (json.Contains(ExtractionPrompts.LlmNoRecipeErrorCode, StringComparison.Ordinal))
             {
                 LogNoRecipeFound(sourceUrl);
-                return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.NoRecipeFound);
+                return ImportRecipeErrors.NoRecipeFound;
             }
 
             var recipe = JsonSerializer.Deserialize<ExtractedRecipeDto>(json, jsonOptions);
             if (recipe is null)
             {
                 LogParsingFailed(sourceUrl, "Deserialization returned null");
-                return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
+                return ImportRecipeErrors.ExtractionFailed;
             }
 
             return recipe;
@@ -152,7 +152,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         catch (JsonException ex)
         {
             LogParsingFailed(sourceUrl, ex.Message);
-            return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
+            return ImportRecipeErrors.ExtractionFailed;
         }
     }
 

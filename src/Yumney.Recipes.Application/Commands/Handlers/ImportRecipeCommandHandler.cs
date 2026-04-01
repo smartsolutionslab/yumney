@@ -19,14 +19,14 @@ public sealed partial class ImportRecipeCommandHandler(IWebScraper scraper, IRec
         if (scrapeResult.IsFailure)
         {
             LogScrapeFailed(url.Value, scrapeResult.Error!.Code);
-            return Result<ExtractedRecipeDto>.Failure(scrapeResult.Error!);
+            return scrapeResult.Error!;
         }
 
         var extractResult = await extraction.ExtractAsync(scrapeResult.Value, cancellationToken);
         if (extractResult.IsFailure)
         {
             LogExtractionFailed(url.Value, extractResult.Error!.Code);
-            return Result<ExtractedRecipeDto>.Failure(extractResult.Error!);
+            return extractResult.Error!;
         }
 
         LogImportSuccess(url.Value, extractResult.Value.Title);

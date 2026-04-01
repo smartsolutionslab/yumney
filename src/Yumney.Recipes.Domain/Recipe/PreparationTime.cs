@@ -18,7 +18,7 @@ public sealed record PreparationTime : IValueObject
     public static PreparationTime? FromNullable(int? value) =>
         value.HasValue ? new PreparationTime(value.Value) : null;
 
-    public static explicit operator int(PreparationTime obj) => obj.Value;
+    public static implicit operator int(PreparationTime obj) => obj.Value;
 
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

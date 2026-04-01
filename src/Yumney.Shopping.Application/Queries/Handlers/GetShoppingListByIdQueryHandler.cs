@@ -24,11 +24,11 @@ public sealed partial class GetShoppingListByIdQueryHandler(
 
         var shoppingList = await shoppingLists.GetByIdAsync(identifier, cancellationToken);
 
-        if (shoppingList is null) return Result<ShoppingListDetailDto>.Failure(GetShoppingListByIdErrors.NotFound);
+        if (shoppingList is null) return GetShoppingListByIdErrors.NotFound;
 
         var owner = OwnerIdentifier.From(currentUser.UserId);
 
-        if (shoppingList.Owner != owner) return Result<ShoppingListDetailDto>.Failure(GetShoppingListByIdErrors.AccessDenied);
+        if (shoppingList.Owner != owner) return GetShoppingListByIdErrors.AccessDenied;
 
         return shoppingList.ToDetailDto();
     }

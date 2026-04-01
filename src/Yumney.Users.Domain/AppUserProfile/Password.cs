@@ -28,7 +28,7 @@ public sealed record Password : IValueObject
 
     public static Password From(string value) => new(value);
 
-    public static explicit operator string(Password obj) => obj.Value;
+    public static implicit operator string(Password obj) => obj.Value;
 
     public override string ToString() => "***";
 }

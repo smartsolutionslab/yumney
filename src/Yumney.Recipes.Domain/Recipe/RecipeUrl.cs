@@ -24,7 +24,7 @@ public sealed record RecipeUrl : IValueObject
     public static RecipeUrl? FromNullable(string? value) =>
         value.HasValue() ? new RecipeUrl(value!) : null;
 
-    public static explicit operator string(RecipeUrl obj) => obj.Value;
+    public static implicit operator string(RecipeUrl obj) => obj.Value;
 
     public override string ToString() => Value;
 }

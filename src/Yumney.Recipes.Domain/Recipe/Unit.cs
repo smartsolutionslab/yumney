@@ -23,7 +23,7 @@ public sealed record Unit : IValueObject
     public static Unit? FromNullable(string? value) =>
         value.HasValue() ? new Unit(value!) : null;
 
-    public static explicit operator string(Unit obj) => obj.Value;
+    public static implicit operator string(Unit obj) => obj.Value;
 
     public override string ToString() => Value;
 }

@@ -34,7 +34,7 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
             {
                 activity?.SetStatus(ActivityStatusCode.Error, "Content too large");
                 LogContentTooLarge(url.Value, (int)contentLength.Value, options.MaxRawHtmlLength);
-                return Result<ScrapedContent>.Failure(ImportRecipeErrors.ContentTooLarge);
+                return ImportRecipeErrors.ContentTooLarge;
             }
 
             html = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -43,13 +43,13 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Timeout");
             LogScrapeTimeout(url.Value);
-            return Result<ScrapedContent>.Failure(ImportRecipeErrors.ScrapeTimeout);
+            return ImportRecipeErrors.ScrapeTimeout;
         }
         catch (HttpRequestException ex)
         {
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             LogPageUnreachable(url.Value, ex.Message);
-            return Result<ScrapedContent>.Failure(ImportRecipeErrors.PageUnreachable);
+            return ImportRecipeErrors.PageUnreachable;
         }
 
         activity?.SetTag("scrape.html_length", html.Length);
@@ -58,7 +58,7 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Content too large");
             LogContentTooLarge(url.Value, html.Length, options.MaxRawHtmlLength);
-            return Result<ScrapedContent>.Failure(ImportRecipeErrors.ContentTooLarge);
+            return ImportRecipeErrors.ContentTooLarge;
         }
 
         var cleanedText = await CleanHtmlAsync(html, cancellationToken);
@@ -67,7 +67,7 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Empty content");
             LogEmptyContent(url.Value);
-            return Result<ScrapedContent>.Failure(ImportRecipeErrors.NoRecipeFound);
+            return ImportRecipeErrors.NoRecipeFound;
         }
 
         if (cleanedText.Length > options.MaxContentLength)
