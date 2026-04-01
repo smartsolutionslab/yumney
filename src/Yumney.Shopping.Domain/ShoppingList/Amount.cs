@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-public sealed record Amount : IValueObject<decimal>
+public sealed record Amount : IValueObject
 {
     public decimal Value { get; }
 

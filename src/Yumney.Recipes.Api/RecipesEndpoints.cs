@@ -8,6 +8,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Extraction;
+using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Guards;
@@ -211,7 +212,9 @@ public static class RecipesEndpoints
         return result.ToOk();
     }
 
-    private const long MaxPhotoSizeBytes = 10 * 1024 * 1024;
+#pragma warning disable SA1303
+    private const long maxPhotoSizeBytes = 10 * 1024 * 1024;
+#pragma warning restore SA1303
 
     private static async Task<IResult> ImportFromPhotosAsync(
         IFormFileCollection photos,
@@ -222,7 +225,7 @@ public static class RecipesEndpoints
 
         foreach (var file in photos)
         {
-            if (file.Length > MaxPhotoSizeBytes)
+            if (file.Length > maxPhotoSizeBytes)
             {
                 return Results.Problem(
                     statusCode: StatusCodes.Status413PayloadTooLarge,

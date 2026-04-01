@@ -10,7 +10,7 @@ public interface IShoppingListRepository
 
     Task<ShoppingList?> GetByIdForUpdateAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default);
 
-    Task<(IReadOnlyList<ShoppingListSummary> Items, int TotalCount)> GetByOwnerAsync(
+    Task<(IReadOnlyList<ShoppingListSummary> Items, ItemCount TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
         PagingOptions paging,
         SortingOptions<ShoppingListSortField> sorting,

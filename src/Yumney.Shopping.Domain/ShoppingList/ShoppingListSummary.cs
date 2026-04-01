@@ -1,7 +1,9 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
+
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 public sealed record ShoppingListSummary(
     ShoppingListIdentifier Identifier,
     ShoppingListTitle Title,
-    int ItemCount,
+    ItemCount ItemCount,
     DateTime CreatedAt);
