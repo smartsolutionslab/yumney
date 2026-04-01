@@ -20,7 +20,7 @@ public sealed partial class GetRecipesQueryHandler(IRecipeRepository recipes, IC
         var (items, totalCount) = await recipes.GetByOwnerAsync(owner, paging, sorting, search, cancellationToken);
         var dtoItems = items.Select(r => r.ToListItemDto()).ToList();
 
-        return PagedResult.From(dtoItems, totalCount, paging);
+        return PagedResult.With(dtoItems, totalCount, paging);
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipes for owner {OwnerId}, page {Page}, pageSize {PageSize}, search {Search}")]

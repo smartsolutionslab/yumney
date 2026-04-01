@@ -17,7 +17,8 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
 
 #pragma warning disable SA1303 // Const field names should begin with upper-case letter (editorconfig requires camelCase for private fields)
 #pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase for private fields)
-public sealed class KeycloakAdminService(
+#pragma warning disable SA1601
+public sealed partial class KeycloakAdminService(
     HttpClient httpClient,
     IOptions<KeycloakOptions> options,
     IDistributedCache cache,
@@ -80,7 +81,7 @@ public sealed class KeycloakAdminService(
 
             if (!response.IsSuccessStatusCode)
             {
-                logger.LogError("Failed to search Keycloak users. Status: {StatusCode}", response.StatusCode);
+                LogSearchUsersFailed(response.StatusCode);
                 return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
             }
 
@@ -93,12 +94,12 @@ public sealed class KeycloakAdminService(
             }
 
             activity?.SetStatus(ActivityStatusCode.Ok);
-            return Result<KeycloakUserId>.Success(KeycloakUserId.From(users[0].Id));
+            return KeycloakUserId.From(users[0].Id);
         }
         catch (HttpRequestException ex)
         {
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-            logger.LogError(ex, "HTTP error while searching Keycloak users");
+            LogSearchUsersHttpError(ex);
             return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
     }
@@ -128,7 +129,7 @@ public sealed class KeycloakAdminService(
             {
                 var body = await response.Content.ReadAsStringAsync(cancellationToken);
                 activity?.SetStatus(ActivityStatusCode.Error, $"HTTP {response.StatusCode}");
-                logger.LogError("Failed to send verification email. Status: {StatusCode}, Body: {Body}", response.StatusCode, body);
+                LogSendVerificationFailed(response.StatusCode, body);
                 return Result.Failure(VerificationErrors.SendFailed);
             }
 
@@ -138,7 +139,7 @@ public sealed class KeycloakAdminService(
         catch (HttpRequestException ex)
         {
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-            logger.LogError(ex, "HTTP error while sending verification email");
+            LogSendVerificationHttpError(ex);
             return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
         }
     }
@@ -163,7 +164,7 @@ public sealed class KeycloakAdminService(
     private async Task<Result<string>> GetServiceAccountTokenAsync(CancellationToken cancellationToken)
     {
         var cachedToken = await cache.GetStringAsync(tokenCacheKey, cancellationToken);
-        if (cachedToken.HasValue()) return Result<string>.Success(cachedToken!);
+        if (cachedToken.HasValue()) return cachedToken!;
 
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
@@ -179,7 +180,7 @@ public sealed class KeycloakAdminService(
 
             if (!response.IsSuccessStatusCode)
             {
-                logger.LogError("Failed to obtain service account token. Status: {StatusCode}", response.StatusCode);
+                LogTokenAcquisitionFailed(response.StatusCode);
                 return Result<string>.Failure(RegistrationErrors.IdentityProviderUnavailable);
             }
 
@@ -194,11 +195,11 @@ public sealed class KeycloakAdminService(
                 },
                 cancellationToken);
 
-            return Result<string>.Success(tokenResponse.AccessToken);
+            return tokenResponse.AccessToken;
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError(ex, "HTTP error while obtaining service account token");
+            LogTokenAcquisitionHttpError(ex);
             return Result<string>.Failure(RegistrationErrors.IdentityProviderUnavailable);
         }
     }
@@ -223,7 +224,7 @@ public sealed class KeycloakAdminService(
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError(ex, "HTTP error while creating Keycloak user");
+            LogCreateUserHttpError(ex);
             return Result<KeycloakUserId>.Failure(RegistrationErrors.IdentityProviderUnavailable);
         }
     }
@@ -240,7 +241,7 @@ public sealed class KeycloakAdminService(
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogError("Failed to create Keycloak user. Status: {StatusCode}, Body: {Body}", response.StatusCode, body);
+            LogCreateUserFailed(response.StatusCode, body);
             return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
         }
 
@@ -252,18 +253,18 @@ public sealed class KeycloakAdminService(
         var locationHeader = response.Headers.Location?.ToString();
         if (!locationHeader.HasValue())
         {
-            logger.LogError("Keycloak did not return a Location header after user creation");
+            LogMissingLocationHeader();
             return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
         }
 
         var keycloakUserIdString = locationHeader!.Split('/').LastOrDefault();
         if (!keycloakUserIdString.HasValue())
         {
-            logger.LogError("Malformed Location header: {LocationHeader}", locationHeader);
+            LogMalformedLocationHeader(locationHeader);
             return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
         }
 
-        return Result<KeycloakUserId>.Success(KeycloakUserId.From(keycloakUserIdString!));
+        return KeycloakUserId.From(keycloakUserIdString!);
     }
 
     private sealed record TokenResponse(
@@ -273,4 +274,34 @@ public sealed class KeycloakAdminService(
     private sealed record KeycloakUserRepresentation(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("email")] string Email);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to search Keycloak users. Status: {StatusCode}")]
+    private partial void LogSearchUsersFailed(HttpStatusCode statusCode);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while searching Keycloak users")]
+    private partial void LogSearchUsersHttpError(Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to send verification email. Status: {StatusCode}, Body: {Body}")]
+    private partial void LogSendVerificationFailed(HttpStatusCode statusCode, string body);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while sending verification email")]
+    private partial void LogSendVerificationHttpError(Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to obtain service account token. Status: {StatusCode}")]
+    private partial void LogTokenAcquisitionFailed(HttpStatusCode statusCode);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while obtaining service account token")]
+    private partial void LogTokenAcquisitionHttpError(Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while creating Keycloak user")]
+    private partial void LogCreateUserHttpError(Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to create Keycloak user. Status: {StatusCode}, Body: {Body}")]
+    private partial void LogCreateUserFailed(HttpStatusCode statusCode, string body);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Keycloak did not return a Location header after user creation")]
+    private partial void LogMissingLocationHeader();
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Malformed Location header: {LocationHeader}")]
+    private partial void LogMalformedLocationHeader(string locationHeader);
 }

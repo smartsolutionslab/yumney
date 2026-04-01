@@ -6,7 +6,8 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events;
 
-public sealed class InProcessDomainEventDispatcher(IServiceProvider serviceProvider, ILogger<InProcessDomainEventDispatcher> logger)
+#pragma warning disable SA1601
+public sealed partial class InProcessDomainEventDispatcher(IServiceProvider serviceProvider, ILogger<InProcessDomainEventDispatcher> logger)
     : IDomainEventDispatcher
 {
 #pragma warning disable SA1311
@@ -29,16 +30,13 @@ public sealed class InProcessDomainEventDispatcher(IServiceProvider serviceProvi
 
             foreach (var handler in handlers)
             {
-                if (logger.IsEnabled(LogLevel.Debug))
-                {
-                    logger.LogDebug(
-                        "Dispatching domain event {EventType} to {HandlerType}",
-                        eventType.Name,
-                        handler!.GetType().Name);
-                }
+                LogDispatchingEvent(eventType.Name, handler!.GetType().Name);
 
                 await (Task)method.Invoke(handler!, [domainEvent, cancellationToken])!;
             }
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Dispatching domain event {EventType} to {HandlerType}")]
+    private partial void LogDispatchingEvent(string eventType, string handlerType);
 }
