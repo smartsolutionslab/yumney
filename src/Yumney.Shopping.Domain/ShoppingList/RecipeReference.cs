@@ -19,7 +19,7 @@ public sealed record RecipeReference : IValueObject
     public static RecipeReference? FromNullable(Guid? value) =>
         value.HasValue ? new RecipeReference(value.Value) : null;
 
-    public static explicit operator Guid(RecipeReference obj) => obj.Value;
+    public static implicit operator Guid(RecipeReference obj) => obj.Value;
 
     public override string ToString() => Value.ToString();
 }

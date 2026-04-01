@@ -27,13 +27,13 @@ public sealed partial class UpdateRecipeCommandHandler(
         if (recipe is null)
         {
             LogRecipeNotFound(identifier);
-            return Result<RecipeDetailDto>.Failure(UpdateRecipeErrors.NotFound);
+            return UpdateRecipeErrors.NotFound;
         }
 
         if (recipe.Owner != owner)
         {
             LogRecipeAccessDenied(identifier, owner.Value);
-            return Result<RecipeDetailDto>.Failure(UpdateRecipeErrors.AccessDenied);
+            return UpdateRecipeErrors.AccessDenied;
         }
 
         var ingredients = ingredientCommands.Select(i => i.ToDomain()).ToList();

@@ -21,7 +21,7 @@ public sealed record Email : IValueObject
 
     public static Email From(string value) => new(value);
 
-    public static explicit operator string(Email obj) => obj.Value;
+    public static implicit operator string(Email obj) => obj.Value;
 
     public override string ToString() => Value;
 }

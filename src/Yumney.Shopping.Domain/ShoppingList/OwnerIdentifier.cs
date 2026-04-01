@@ -20,7 +20,7 @@ public sealed record OwnerIdentifier : IValueObject
 
     public static OwnerIdentifier From(string value) => new(value);
 
-    public static explicit operator string(OwnerIdentifier obj) => obj.Value;
+    public static implicit operator string(OwnerIdentifier obj) => obj.Value;
 
     public override string ToString() => Value;
 }

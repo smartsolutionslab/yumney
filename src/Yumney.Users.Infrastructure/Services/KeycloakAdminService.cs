@@ -49,7 +49,7 @@ public sealed partial class KeycloakAdminService(
         if (token.IsFailure)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
-            return Result<KeycloakUserId>.Failure(token.Error!);
+            return token.Error!;
         }
 
         var result = await CreateKeycloakUserAsync(email, password, displayName, token.Value, cancellationToken);
@@ -66,7 +66,7 @@ public sealed partial class KeycloakAdminService(
         if (token.IsFailure)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
-            return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
+            return VerificationErrors.IdentityProviderUnavailable;
         }
 
         var encodedEmail = Uri.EscapeDataString(email.Value);
@@ -82,7 +82,7 @@ public sealed partial class KeycloakAdminService(
             if (!response.IsSuccessStatusCode)
             {
                 LogSearchUsersFailed(response.StatusCode);
-                return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
+                return VerificationErrors.IdentityProviderUnavailable;
             }
 
             var users = await response.Content.ReadFromJsonAsync<KeycloakUserRepresentation[]>(jsonOptions, cancellationToken);
@@ -90,7 +90,7 @@ public sealed partial class KeycloakAdminService(
             if (users is null || users.Length == 0)
             {
                 activity?.SetStatus(ActivityStatusCode.Error, "User not found");
-                return Result<KeycloakUserId>.Failure(VerificationErrors.UserNotFound);
+                return VerificationErrors.UserNotFound;
             }
 
             activity?.SetStatus(ActivityStatusCode.Ok);
@@ -100,7 +100,7 @@ public sealed partial class KeycloakAdminService(
         {
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             LogSearchUsersHttpError(ex);
-            return Result<KeycloakUserId>.Failure(VerificationErrors.IdentityProviderUnavailable);
+            return VerificationErrors.IdentityProviderUnavailable;
         }
     }
 
@@ -181,7 +181,7 @@ public sealed partial class KeycloakAdminService(
             if (!response.IsSuccessStatusCode)
             {
                 LogTokenAcquisitionFailed(response.StatusCode);
-                return Result<string>.Failure(RegistrationErrors.IdentityProviderUnavailable);
+                return RegistrationErrors.IdentityProviderUnavailable;
             }
 
             var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
@@ -200,7 +200,7 @@ public sealed partial class KeycloakAdminService(
         catch (HttpRequestException ex)
         {
             LogTokenAcquisitionHttpError(ex);
-            return Result<string>.Failure(RegistrationErrors.IdentityProviderUnavailable);
+            return RegistrationErrors.IdentityProviderUnavailable;
         }
     }
 
@@ -225,7 +225,7 @@ public sealed partial class KeycloakAdminService(
         catch (HttpRequestException ex)
         {
             LogCreateUserHttpError(ex);
-            return Result<KeycloakUserId>.Failure(RegistrationErrors.IdentityProviderUnavailable);
+            return RegistrationErrors.IdentityProviderUnavailable;
         }
     }
 
@@ -235,14 +235,14 @@ public sealed partial class KeycloakAdminService(
     {
         if (response.StatusCode == HttpStatusCode.Conflict)
         {
-            return Result<KeycloakUserId>.Failure(RegistrationErrors.EmailAlreadyExists);
+            return RegistrationErrors.EmailAlreadyExists;
         }
 
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
             LogCreateUserFailed(response.StatusCode, body);
-            return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
+            return RegistrationErrors.UserCreationFailed;
         }
 
         return ExtractKeycloakUserId(response);
@@ -254,14 +254,14 @@ public sealed partial class KeycloakAdminService(
         if (!locationHeader.HasValue())
         {
             LogMissingLocationHeader();
-            return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
+            return RegistrationErrors.UserCreationFailed;
         }
 
         var keycloakUserIdString = locationHeader!.Split('/').LastOrDefault();
         if (!keycloakUserIdString.HasValue())
         {
             LogMalformedLocationHeader(locationHeader);
-            return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
+            return RegistrationErrors.UserCreationFailed;
         }
 
         return KeycloakUserId.From(keycloakUserIdString!);

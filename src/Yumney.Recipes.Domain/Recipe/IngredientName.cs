@@ -20,7 +20,7 @@ public sealed record IngredientName : IValueObject
 
     public static IngredientName From(string value) => new(value);
 
-    public static explicit operator string(IngredientName name) => name.Value;
+    public static implicit operator string(IngredientName name) => name.Value;
 
     public override string ToString() => Value;
 }

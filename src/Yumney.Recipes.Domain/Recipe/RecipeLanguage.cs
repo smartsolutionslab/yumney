@@ -23,7 +23,7 @@ public sealed record RecipeLanguage : IValueObject
     public static RecipeLanguage? FromNullable(string? value) =>
         value.HasValue() ? new RecipeLanguage(value!) : null;
 
-    public static explicit operator string(RecipeLanguage obj) => obj.Value;
+    public static implicit operator string(RecipeLanguage obj) => obj.Value;
 
     public override string ToString() => Value;
 }
