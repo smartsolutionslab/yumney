@@ -26,7 +26,7 @@ public sealed partial class GetShoppingListsQueryHandler(
 
         var shoppingListSummaryDtos = items.Select(l => l.ToSummaryDto()).ToList();
 
-        return PagedResult.With(shoppingListSummaryDtos, totalCount, paging);
+        return PagedResultExtensions.With(shoppingListSummaryDtos, totalCount, paging);
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping lists for owner {OwnerId}, page {Page}, pageSize {PageSize}")]

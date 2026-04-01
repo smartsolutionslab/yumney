@@ -77,8 +77,8 @@ public static class HostBuilderExtensions
                             TokenUrl = new Uri(KeycloakDefaults.TokenUrl(configuration)),
                             Scopes = new Dictionary<string, string>
                             {
-                                ["openid"] = "OpenID Connect",
-                                ["profile"] = "User profile",
+                                [KeycloakDefaults.ScopeOpenId] = "OpenID Connect",
+                                [KeycloakDefaults.ScopeProfile] = "User profile",
                             },
                         },
                     },
@@ -87,7 +87,7 @@ public static class HostBuilderExtensions
                 document.Security ??= [];
                 document.Security.Add(new OpenApiSecurityRequirement
                 {
-                    [new OpenApiSecuritySchemeReference("keycloak", document)] = ["openid", "profile"],
+                    [new OpenApiSecuritySchemeReference("keycloak", document)] = [KeycloakDefaults.ScopeOpenId, KeycloakDefaults.ScopeProfile],
                 });
 
                 return Task.CompletedTask;
@@ -109,7 +109,7 @@ public static class HostBuilderExtensions
 
             options.AddPolicy(RateLimitPolicies.RecipeImport, context =>
             {
-                var userId = context.User?.FindFirstValue("sub") ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+                var userId = context.User?.FindFirstValue(KeycloakClaimTypes.Subject) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
                 return RedisRateLimitPartition.GetSlidingWindowRateLimiter(userId, _ => new RedisSlidingWindowRateLimiterOptions
                 {
                     PermitLimit = 10,
@@ -120,7 +120,7 @@ public static class HostBuilderExtensions
 
             options.AddPolicy(RateLimitPolicies.GeneralApi, context =>
             {
-                var userId = context.User?.FindFirstValue("sub") ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+                var userId = context.User?.FindFirstValue(KeycloakClaimTypes.Subject) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
                 return RedisRateLimitPartition.GetFixedWindowRateLimiter(userId, _ => new RedisFixedWindowRateLimiterOptions
                 {
                     PermitLimit = 60,
@@ -164,7 +164,7 @@ public static class HostBuilderExtensions
                         .WithClientId(KeycloakDefaults.WebClientId)
                         .WithAuthorizationUrl(KeycloakDefaults.AuthorizationUrl(app.Configuration))
                         .WithTokenUrl(KeycloakDefaults.TokenUrl(app.Configuration))
-                        .WithSelectedScopes(["openid", "profile"]));
+                        .WithSelectedScopes([KeycloakDefaults.ScopeOpenId, KeycloakDefaults.ScopeProfile]));
             });
         }
 

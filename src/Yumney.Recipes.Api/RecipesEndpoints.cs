@@ -61,7 +61,7 @@ public static class RecipesEndpoints
         group.MapGet("/import/stream", ImportStreamAsync)
             .WithName("ImportRecipeStream")
             .WithTags("Recipes")
-            .Produces(StatusCodes.Status200OK, contentType: "text/event-stream")
+            .Produces(StatusCodes.Status200OK, contentType: MediaTypes.TextEventStream)
             .ProducesProblem(StatusCodes.Status502BadGateway)
             .RequireRateLimiting("RecipeImport");
 
@@ -244,7 +244,7 @@ public static class RecipesEndpoints
         IRecipeExtractionService extraction,
         CancellationToken cancellationToken)
     {
-        httpContext.Response.ContentType = "text/event-stream";
+        httpContext.Response.ContentType = MediaTypes.TextEventStream;
         httpContext.Response.Headers.CacheControl = "no-cache";
         httpContext.Response.Headers.Connection = "keep-alive";
 
