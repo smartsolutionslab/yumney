@@ -25,6 +25,16 @@ export class AuthService {
   displayName = computed(
     () => this.currentUser()?.preferredUsername ?? this.currentUser()?.email ?? null,
   );
+  shortName = computed(() => {
+    const name = this.displayName();
+    if (!name) return null;
+    const atIndex = name.indexOf('@');
+    return atIndex > 0 ? name.substring(0, atIndex) : name.split(' ')[0];
+  });
+  userInitial = computed(() => {
+    const name = this.shortName();
+    return name ? name[0].toUpperCase() : null;
+  });
 
   private destroyRef = inject(DestroyRef);
 

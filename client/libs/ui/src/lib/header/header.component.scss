@@ -28,9 +28,35 @@ nav {
   gap: 1rem;
 }
 
-.greeting {
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: var(--yn-link);
+  color: #fff;
   font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  user-select: none;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 500;
   color: var(--yn-text);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .logout-button {

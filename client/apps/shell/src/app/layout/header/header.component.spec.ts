@@ -26,14 +26,22 @@ describe('HeaderComponent', () => {
   let authServiceMock: {
     isAuthenticated: ReturnType<typeof signal<boolean>>;
     displayName: ReturnType<typeof signal<string | null>>;
+    shortName: ReturnType<typeof signal<string | null>>;
+    userInitial: ReturnType<typeof signal<string | null>>;
     logout: ReturnType<typeof vi.fn>;
   };
-  let languageServiceMock: { activeLang: string; nextLanguage: string; switchTo: ReturnType<typeof vi.fn> };
+  let languageServiceMock: {
+    activeLang: string;
+    nextLanguage: string;
+    switchTo: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
     authServiceMock = {
       isAuthenticated: signal(false),
       displayName: signal<string | null>(null),
+      shortName: signal<string | null>(null),
+      userInitial: signal<string | null>(null),
       logout: vi.fn(),
     };
     languageServiceMock = { activeLang: 'en', nextLanguage: 'de', switchTo: vi.fn() };
@@ -73,7 +81,8 @@ describe('HeaderComponent', () => {
 
   it('should show logout button when authenticated', () => {
     authServiceMock.isAuthenticated.set(true);
-    authServiceMock.displayName.set('testuser');
+    authServiceMock.shortName.set('testuser');
+    authServiceMock.userInitial.set('T');
     fixture.detectChanges();
 
     const logoutButton = fixture.nativeElement.querySelector('.logout-button');
@@ -81,18 +90,32 @@ describe('HeaderComponent', () => {
     expect(logoutButton.textContent).toContain('Sign out');
   });
 
-  it('should show greeting with display name when authenticated', () => {
+  it('should show user avatar with initial when authenticated', () => {
     authServiceMock.isAuthenticated.set(true);
+    authServiceMock.shortName.set('testuser');
+    authServiceMock.userInitial.set('T');
     authServiceMock.displayName.set('testuser');
     fixture.detectChanges();
 
-    const greeting = fixture.nativeElement.querySelector('.greeting');
-    expect(greeting.textContent).toContain('Hi, testuser');
+    const avatar = fixture.nativeElement.querySelector('.user-avatar');
+    expect(avatar).toBeTruthy();
+    expect(avatar.textContent.trim()).toBe('T');
+  });
+
+  it('should show short name when authenticated', () => {
+    authServiceMock.isAuthenticated.set(true);
+    authServiceMock.shortName.set('testuser');
+    authServiceMock.userInitial.set('T');
+    fixture.detectChanges();
+
+    const userName = fixture.nativeElement.querySelector('.user-name');
+    expect(userName.textContent.trim()).toBe('testuser');
   });
 
   it('should call logout on logout button click', () => {
     authServiceMock.isAuthenticated.set(true);
-    authServiceMock.displayName.set('testuser');
+    authServiceMock.shortName.set('testuser');
+    authServiceMock.userInitial.set('T');
     fixture.detectChanges();
 
     const logoutButton = fixture.nativeElement.querySelector('.logout-button');
@@ -113,7 +136,8 @@ describe('HeaderComponent', () => {
 
   it('should not show login link when authenticated', () => {
     authServiceMock.isAuthenticated.set(true);
-    authServiceMock.displayName.set('testuser');
+    authServiceMock.shortName.set('testuser');
+    authServiceMock.userInitial.set('T');
     fixture.detectChanges();
 
     const loginLink = fixture.nativeElement.querySelector('.login-link');
@@ -125,21 +149,23 @@ describe('HeaderComponent', () => {
     expect(brand.getAttribute('href')).toBe('/');
   });
 
-  it('should update greeting reactively when displayName changes', () => {
+  it('should update user name reactively when shortName changes', () => {
     authServiceMock.isAuthenticated.set(true);
-    authServiceMock.displayName.set('Alice');
+    authServiceMock.shortName.set('Alice');
+    authServiceMock.userInitial.set('A');
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.greeting').textContent).toContain('Hi, Alice');
+    expect(fixture.nativeElement.querySelector('.user-name').textContent.trim()).toBe('Alice');
 
-    authServiceMock.displayName.set('Bob');
+    authServiceMock.shortName.set('Bob');
+    authServiceMock.userInitial.set('B');
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.greeting').textContent).toContain('Hi, Bob');
+    expect(fixture.nativeElement.querySelector('.user-name').textContent.trim()).toBe('Bob');
   });
 
-  it('should not show greeting when not authenticated', () => {
-    const greeting = fixture.nativeElement.querySelector('.greeting');
-    expect(greeting).toBeNull();
+  it('should not show user menu when not authenticated', () => {
+    const userMenu = fixture.nativeElement.querySelector('.user-menu');
+    expect(userMenu).toBeNull();
   });
 });
