@@ -24,9 +24,9 @@ public sealed partial class GetShoppingListsQueryHandler(
 
         var (items, totalCount) = await shoppingLists.GetByOwnerAsync(owner, paging, sorting, cancellationToken);
 
-        var dtos = items.Select(l => l.ToSummaryDto()).ToList();
+        var shoppingListSummaryDtos = items.Select(l => l.ToSummaryDto()).ToList();
 
-        return PagedResult.From(dtos, totalCount, paging);
+        return PagedResult.With(shoppingListSummaryDtos, totalCount, paging);
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping lists for owner {OwnerId}, page {Page}, pageSize {PageSize}")]

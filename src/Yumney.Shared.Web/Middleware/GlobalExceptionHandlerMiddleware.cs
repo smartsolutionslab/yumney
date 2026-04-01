@@ -7,7 +7,8 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Shared.Web.Middleware;
 
-public sealed class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlerMiddleware> logger)
+#pragma warning disable SA1601
+public sealed partial class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlerMiddleware> logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -17,12 +18,12 @@ public sealed class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogg
         }
         catch (GuardException ex)
         {
-            logger.LogWarning(ex, "Validation failed for {Parameter}", ex.ParameterName);
+            LogValidationFailed(ex, ex.ParameterName);
             await WriteProblemDetailsAsync(context, HttpStatusCode.BadRequest, "Validation Error", ex.Message);
         }
         catch (BusinessRuleValidationException ex)
         {
-            logger.LogWarning(ex, "Business rule violated: {Rule}", ex.BrokenRule.GetType().Name);
+            LogBusinessRuleViolated(ex, ex.BrokenRule.GetType().Name);
             await WriteProblemDetailsAsync(
                 context,
                 HttpStatusCode.UnprocessableEntity,
@@ -31,7 +32,7 @@ public sealed class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogg
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception occurred");
+            LogUnhandledException(ex);
             await WriteProblemDetailsAsync(
                 context,
                 HttpStatusCode.InternalServerError,
@@ -54,4 +55,13 @@ public sealed class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogg
 
         await context.Response.WriteAsJsonAsync(problemDetails);
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Validation failed for {Parameter}")]
+    private partial void LogValidationFailed(Exception ex, string parameter);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Business rule violated: {Rule}")]
+    private partial void LogBusinessRuleViolated(Exception ex, string rule);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception occurred")]
+    private partial void LogUnhandledException(Exception ex);
 }

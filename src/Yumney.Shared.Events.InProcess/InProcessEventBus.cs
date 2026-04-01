@@ -3,7 +3,8 @@ using Microsoft.Extensions.Logging;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events;
 
-public sealed class InProcessEventBus(IServiceProvider serviceProvider, ILogger<InProcessEventBus> logger) : IEventBus
+#pragma warning disable SA1601
+public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, ILogger<InProcessEventBus> logger) : IEventBus
 {
     public async Task PublishAsync<TEvent>(TEvent integrationEvent, CancellationToken cancellationToken = default)
         where TEvent : IIntegrationEvent
@@ -12,15 +13,12 @@ public sealed class InProcessEventBus(IServiceProvider serviceProvider, ILogger<
 
         foreach (var handler in handlers)
         {
-            if (logger.IsEnabled(LogLevel.Debug))
-            {
-                logger.LogDebug(
-                    "Publishing integration event {EventType} to {HandlerType}",
-                    typeof(TEvent).Name,
-                    handler.GetType().Name);
-            }
+            LogPublishingEvent(typeof(TEvent).Name, handler.GetType().Name);
 
             await handler.HandleAsync(integrationEvent, cancellationToken);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Publishing integration event {EventType} to {HandlerType}")]
+    private partial void LogPublishingEvent(string eventType, string handlerType);
 }
