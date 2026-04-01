@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
-public sealed record Email : IValueObject<string>
+public sealed record Email : IValueObject
 {
     public const int MaxLength = 254;
 
