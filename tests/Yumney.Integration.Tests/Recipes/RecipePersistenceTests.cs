@@ -154,9 +154,9 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
             var loaded = await repository.GetByIdAsync(recipe.Id);
             loaded!.Update(
                 RecipeTitle.From("Updated Tomato Soup"),
-                [Ingredient.Create(new IngredientName("Cherry tomatoes"), new Amount(800), new Unit("g"))],
-                [Step.Create(new StepNumber(1), new StepDescription("Roast cherry tomatoes"))],
-                new RecipeDescription("Updated description"),
+                [Ingredient.Create(IngredientName.From("Cherry tomatoes"), Amount.From(800), Unit.From("g"))],
+                [Step.Create(StepNumber.From(1), StepDescription.From("Roast cherry tomatoes"))],
+                RecipeDescription.From("Updated description"),
                 Servings.From(2));
             await repository.UpdateAsync(loaded);
         }
@@ -206,8 +206,8 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         var recipe = Recipe.Create(
             RecipeTitle.From("URL Test Recipe"),
             owner,
-            [Ingredient.Create(new IngredientName("Test"), null, null)],
-            [Step.Create(new StepNumber(1), new StepDescription("Test"))],
+            [Ingredient.Create(IngredientName.From("Test"), null, null)],
+            [Step.Create(StepNumber.From(1), StepDescription.From("Test"))],
             sourceUrl: sourceUrl);
 
         await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
@@ -230,8 +230,8 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         var recipe = Recipe.Create(
             RecipeTitle.From("Owner Test Recipe"),
             owner,
-            [Ingredient.Create(new IngredientName("Test"), null, null)],
-            [Step.Create(new StepNumber(1), new StepDescription("Test"))],
+            [Ingredient.Create(IngredientName.From("Test"), null, null)],
+            [Step.Create(StepNumber.From(1), StepDescription.From("Test"))],
             sourceUrl: sourceUrl);
 
         await using (var writeContext = await fixture.CreateRecipesDbContextAsync())

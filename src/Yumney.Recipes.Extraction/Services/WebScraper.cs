@@ -12,10 +12,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1303
-public sealed partial class WebScraper(
-    HttpClient httpClient,
-    IOptions<ScrapingOptions> scrapingOptions,
-    ILogger<WebScraper> logger) : IWebScraper
+public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingOptions> scrapingOptions, ILogger<WebScraper> logger) : IWebScraper
 {
     private const string removeSelector = "script, style, nav, footer, header, aside, iframe, noscript";
 
@@ -29,7 +26,18 @@ public sealed partial class WebScraper(
         string html;
         try
         {
-            html = await httpClient.GetStringAsync(url.Value, cancellationToken);
+            using var response = await httpClient.GetAsync(url.Value, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var contentLength = response.Content.Headers.ContentLength;
+            if (contentLength > options.MaxRawHtmlLength)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, "Content too large");
+                LogContentTooLarge(url.Value, (int)contentLength.Value, options.MaxRawHtmlLength);
+                return Result<ScrapedContent>.Failure(ImportRecipeErrors.ContentTooLarge);
+            }
+
+            html = await response.Content.ReadAsStringAsync(cancellationToken);
         }
         catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
         {

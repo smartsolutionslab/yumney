@@ -129,14 +129,14 @@ public class UpdateRecipeCommandHandlerTests
         var command = new UpdateRecipeCommand(
             recipeId,
             RecipeTitle.From("New Title"),
-            [new SaveRecipeIngredientItem(new IngredientName("Butter"), new Amount(200), new Unit("g"))],
-            [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Melt butter"))],
-            new RecipeDescription("New description"),
+            [new SaveRecipeIngredientItem(IngredientName.From("Butter"), Amount.From(200), Unit.From("g"))],
+            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Melt butter"))],
+            RecipeDescription.From("New description"),
             Servings.From(6),
-            new PreparationTime(15),
-            new CookingTime(30),
-            new Difficulty("hard"),
-            new ImageUrl("https://example.com/new.jpg"));
+            PreparationTime.From(15),
+            CookingTime.From(30),
+            Difficulty.From("hard"),
+            ImageUrl.From("https://example.com/new.jpg"));
 
         var result = await handler.HandleAsync(command);
 
@@ -189,14 +189,14 @@ public class UpdateRecipeCommandHandlerTests
         var recipe = Recipe.Create(
             RecipeTitle.From("Original"),
             OwnerIdentifier.From("user-123"),
-            [Ingredient.Create(new IngredientName("Flour"), null, null)],
-            [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
-            new RecipeDescription("Old description"),
+            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
+            RecipeDescription.From("Old description"),
             Servings.From(4),
-            new PreparationTime(10),
-            new CookingTime(20),
-            new Difficulty("easy"),
-            new ImageUrl("https://example.com/old.jpg"));
+            PreparationTime.From(10),
+            CookingTime.From(20),
+            Difficulty.From("easy"),
+            ImageUrl.From("https://example.com/old.jpg"));
 
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
@@ -204,8 +204,8 @@ public class UpdateRecipeCommandHandlerTests
         var command = new UpdateRecipeCommand(
             recipeId,
             RecipeTitle.From("Updated"),
-            [new SaveRecipeIngredientItem(new IngredientName("Butter"), null, null)],
-            [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Melt"))]);
+            [new SaveRecipeIngredientItem(IngredientName.From("Butter"), null, null)],
+            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Melt"))]);
 
         var result = await handler.HandleAsync(command);
 
@@ -237,8 +237,8 @@ public class UpdateRecipeCommandHandlerTests
         return new UpdateRecipeCommand(
             identifier,
             RecipeTitle.From("Updated Pasta"),
-            [new SaveRecipeIngredientItem(new IngredientName("Spaghetti"), new Amount(400), new Unit("g"))],
-            [new SaveRecipeStepItem(new StepNumber(1), new StepDescription("Cook pasta"))]);
+            [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Amount.From(400), Unit.From("g"))],
+            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Cook pasta"))]);
     }
 
     private static Recipe CreateTestRecipe(string ownerId)
@@ -246,8 +246,8 @@ public class UpdateRecipeCommandHandlerTests
         return Recipe.Create(
             RecipeTitle.From("Test Recipe"),
             OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(new IngredientName("Flour"), null, null)],
-            [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
+            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
     }
 
     private static Recipe CreateTestRecipeWithSourceUrl(string ownerId)
@@ -255,8 +255,8 @@ public class UpdateRecipeCommandHandlerTests
         return Recipe.Create(
             RecipeTitle.From("Test Recipe"),
             OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(new IngredientName("Flour"), null, null)],
-            [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
+            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
             sourceUrl: RecipeUrl.From("https://example.com/recipe"));
     }
 }

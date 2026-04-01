@@ -44,9 +44,9 @@ public class KeycloakAdminServiceTests
         var service = CreateService(handler);
 
         var result = await service.CreateUserAsync(
-            new Email("user@test.com"),
-            new Password("Password1!"),
-            new DisplayName("Test User"));
+            Email.From("user@test.com"),
+            Password.From("Password1!"),
+            DisplayName.From("Test User"));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Value.Should().Be(keycloakUserId);
@@ -62,9 +62,9 @@ public class KeycloakAdminServiceTests
         var service = CreateService(handler);
 
         var result = await service.CreateUserAsync(
-            new Email("existing@test.com"),
-            new Password("Password1!"),
-            new DisplayName("Existing User"));
+            Email.From("existing@test.com"),
+            Password.From("Password1!"),
+            DisplayName.From("Existing User"));
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(RegistrationErrors.EmailAlreadyExists);
@@ -79,9 +79,9 @@ public class KeycloakAdminServiceTests
         var service = CreateService(handler);
 
         var result = await service.CreateUserAsync(
-            new Email("user@test.com"),
-            new Password("Password1!"),
-            new DisplayName("Test User"));
+            Email.From("user@test.com"),
+            Password.From("Password1!"),
+            DisplayName.From("Test User"));
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(RegistrationErrors.IdentityProviderUnavailable);
@@ -100,7 +100,7 @@ public class KeycloakAdminServiceTests
 
         var service = CreateService(handler);
 
-        var result = await service.FindUserByEmailAsync(new Email("user@test.com"));
+        var result = await service.FindUserByEmailAsync(Email.From("user@test.com"));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Value.Should().Be(keycloakUserId);
@@ -115,7 +115,7 @@ public class KeycloakAdminServiceTests
 
         var service = CreateService(handler);
 
-        var result = await service.FindUserByEmailAsync(new Email("unknown@test.com"));
+        var result = await service.FindUserByEmailAsync(Email.From("unknown@test.com"));
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(VerificationErrors.UserNotFound);
@@ -130,7 +130,7 @@ public class KeycloakAdminServiceTests
 
         var service = CreateService(handler);
 
-        var result = await service.SendVerificationEmailAsync(new KeycloakUserId("user-123"));
+        var result = await service.SendVerificationEmailAsync(KeycloakUserId.From("user-123"));
 
         result.IsSuccess.Should().BeTrue();
     }
@@ -144,7 +144,7 @@ public class KeycloakAdminServiceTests
 
         var service = CreateService(handler);
 
-        var result = await service.SendVerificationEmailAsync(new KeycloakUserId("user-123"));
+        var result = await service.SendVerificationEmailAsync(KeycloakUserId.From("user-123"));
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(VerificationErrors.SendFailed);
@@ -170,9 +170,9 @@ public class KeycloakAdminServiceTests
         var service = CreateService(handler);
 
         await service.CreateUserAsync(
-            new Email("first@test.com"), new Password("Test123!"), new DisplayName("First"));
+            Email.From("first@test.com"), Password.From("Test123!"), DisplayName.From("First"));
         await service.CreateUserAsync(
-            new Email("second@test.com"), new Password("Test123!"), new DisplayName("Second"));
+            Email.From("second@test.com"), Password.From("Test123!"), DisplayName.From("Second"));
 
         handler.TokenRequestCount.Should().Be(1, "second call should use cached token");
     }
@@ -191,7 +191,7 @@ public class KeycloakAdminServiceTests
         var service = CreateService(handler);
 
         await service.CreateUserAsync(
-            new Email("test@test.com"), new Password("Test123!"), new DisplayName("Test"));
+            Email.From("test@test.com"), Password.From("Test123!"), DisplayName.From("Test"));
 
         await cache.Received(1).SetAsync(
             "keycloak:admin:token",

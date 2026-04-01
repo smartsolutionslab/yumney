@@ -9,13 +9,13 @@ public class IngredientTests
     [Fact]
     public void Create_WithAllFields_SetsProperties()
     {
-        var name = new IngredientName("Flour");
-        var amount = new Amount(500);
-        var unit = new Unit("g");
+        var name = IngredientName.From("Flour");
+        var amount = Amount.From(500);
+        var unit = Unit.From("g");
 
         var ingredient = Ingredient.Create(name, amount, unit);
 
-        ingredient.Id.Should().NotBeEmpty();
+        ingredient.Id.Should().NotBeNull();
         ingredient.Name.Should().Be(name);
         ingredient.Amount.Should().Be(amount);
         ingredient.Unit.Should().Be(unit);
@@ -24,9 +24,9 @@ public class IngredientTests
     [Fact]
     public void Create_WithNullAmount_SetsAmountToNull()
     {
-        var name = new IngredientName("Salt");
+        var name = IngredientName.From("Salt");
 
-        var ingredient = Ingredient.Create(name, null, new Unit("pinch"));
+        var ingredient = Ingredient.Create(name, null, Unit.From("pinch"));
 
         ingredient.Amount.Should().BeNull();
     }
@@ -34,8 +34,8 @@ public class IngredientTests
     [Fact]
     public void Create_WithNullUnit_SetsUnitToNull()
     {
-        var name = new IngredientName("Eggs");
-        var amount = new Amount(3);
+        var name = IngredientName.From("Eggs");
+        var amount = Amount.From(3);
 
         var ingredient = Ingredient.Create(name, amount, null);
 
@@ -45,7 +45,7 @@ public class IngredientTests
     [Fact]
     public void Create_WithNullAmountAndUnit_SetsToNull()
     {
-        var name = new IngredientName("Salt to taste");
+        var name = IngredientName.From("Salt to taste");
 
         var ingredient = Ingredient.Create(name, null, null);
 
@@ -56,7 +56,7 @@ public class IngredientTests
     [Fact]
     public void Create_GeneratesUniqueIds()
     {
-        var name = new IngredientName("Flour");
+        var name = IngredientName.From("Flour");
 
         var ingredient1 = Ingredient.Create(name, null, null);
         var ingredient2 = Ingredient.Create(name, null, null);

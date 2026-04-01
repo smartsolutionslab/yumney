@@ -13,7 +13,7 @@ public class EmailTests
     [InlineData("user.name@example.co.uk")]
     public void Constructor_ValidEmail_CreatesInstance(string value)
     {
-        var email = new Email(value);
+        var email = Email.From(value);
 
         email.Value.Should().Be(value.Trim().ToLowerInvariant());
     }
@@ -21,7 +21,7 @@ public class EmailTests
     [Fact]
     public void Constructor_TrimsAndLowerCases()
     {
-        var email = new Email("  Test@Example.COM  ");
+        var email = Email.From("  Test@Example.COM  ");
 
         email.Value.Should().Be("test@example.com");
     }
@@ -32,7 +32,7 @@ public class EmailTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new Email(value!);
+        var act = () => Email.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -43,7 +43,7 @@ public class EmailTests
     [InlineData("missing-domain@")]
     public void Constructor_InvalidFormat_ThrowsGuardException(string value)
     {
-        var act = () => new Email(value);
+        var act = () => Email.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -54,7 +54,7 @@ public class EmailTests
         var localPart = new string('a', 242);
         var email = $"{localPart}@example.com";
 
-        var result = new Email(email);
+        var result = Email.From(email);
 
         result.Value.Should().HaveLength(254);
     }
@@ -65,7 +65,7 @@ public class EmailTests
         var localPart = new string('a', 243);
         var email = $"{localPart}@example.com";
 
-        var act = () => new Email(email);
+        var act = () => Email.From(email);
 
         act.Should().Throw<GuardException>();
     }
@@ -73,8 +73,8 @@ public class EmailTests
     [Fact]
     public void Constructor_DifferentCasing_NormalizesToSameValue()
     {
-        var email1 = new Email("User@Example.COM");
-        var email2 = new Email("user@example.com");
+        var email1 = Email.From("User@Example.COM");
+        var email2 = Email.From("user@example.com");
 
         email1.Should().Be(email2);
     }
@@ -82,7 +82,7 @@ public class EmailTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var email = new Email("test@example.com");
+        var email = Email.From("test@example.com");
 
         email.ToString().Should().Be("test@example.com");
     }
@@ -90,8 +90,8 @@ public class EmailTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var email1 = new Email("test@example.com");
-        var email2 = new Email("test@example.com");
+        var email1 = Email.From("test@example.com");
+        var email2 = Email.From("test@example.com");
 
         email1.Should().Be(email2);
     }
@@ -99,8 +99,8 @@ public class EmailTests
     [Fact]
     public void Equality_DifferentValue_AreNotEqual()
     {
-        var email1 = new Email("one@example.com");
-        var email2 = new Email("two@example.com");
+        var email1 = Email.From("one@example.com");
+        var email2 = Email.From("two@example.com");
 
         email1.Should().NotBe(email2);
     }

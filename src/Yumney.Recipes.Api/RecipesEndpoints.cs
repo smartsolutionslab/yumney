@@ -7,6 +7,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Extraction;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Guards;
@@ -84,27 +85,6 @@ public static class RecipesEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         return app;
-    }
-
-    internal static string ExtractJsonFromLlmResponse(string response)
-    {
-        var trimmed = response.Trim();
-
-        if (trimmed.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
-        {
-            trimmed = trimmed[7..];
-        }
-        else if (trimmed.StartsWith("```", StringComparison.Ordinal))
-        {
-            trimmed = trimmed[3..];
-        }
-
-        if (trimmed.EndsWith("```", StringComparison.Ordinal))
-        {
-            trimmed = trimmed[..^3];
-        }
-
-        return trimmed.Trim();
     }
 
     internal static string CompactJson(string json)
@@ -308,14 +288,13 @@ public static class RecipesEndpoints
         {
             await foreach (var chunk in extraction.StreamExtractAsync(scrapeResult.Value, cancellationToken))
             {
-                buffer.Append(chunk);
-
-                if (buffer.Length > maxStreamBufferLength)
+                if (buffer.Length + chunk.Length > maxStreamBufferLength)
                 {
                     await WriteSseEventAsync("fail", "Response too large");
                     return;
                 }
 
+                buffer.Append(chunk);
                 await WriteSseEventAsync("chunk", chunk);
             }
         }
@@ -329,7 +308,7 @@ public static class RecipesEndpoints
             return;
         }
 
-        var json = CompactJson(ExtractJsonFromLlmResponse(buffer.ToString()));
+        var json = CompactJson(LlmResponseParser.ExtractJson(buffer.ToString()));
         await WriteSseEventAsync("done", json);
     }
 }

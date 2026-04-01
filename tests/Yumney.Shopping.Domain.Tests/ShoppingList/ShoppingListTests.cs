@@ -19,7 +19,7 @@ public class ShoppingListTests
     [Fact]
     public void Create_ValidInput_SetsTitle()
     {
-        var title = new ShoppingListTitle("Weekly Groceries");
+        var title = ShoppingListTitle.From("Weekly Groceries");
 
         var shoppingList = CreateValidShoppingList(title: title);
 
@@ -52,8 +52,8 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
-            ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
+            ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g")),
+            ShoppingListItem.Create(ItemName.From("Sugar"), Amount.From(200), Unit.From("g")),
         ];
 
         var shoppingList = CreateValidShoppingList(items: items);
@@ -64,7 +64,7 @@ public class ShoppingListTests
     [Fact]
     public void Create_WithRecipeReference_SetsRecipeReference()
     {
-        var recipeReference = RecipeReference.From(Guid.NewGuid());
+        var recipeReference = RecipeReference.New();
 
         var shoppingList = CreateValidShoppingList(recipeReference: recipeReference);
 
@@ -90,7 +90,7 @@ public class ShoppingListTests
     [Fact]
     public void Create_RaisesShoppingListCreatedEvent()
     {
-        var title = new ShoppingListTitle("Groceries");
+        var title = ShoppingListTitle.From("Groceries");
 
         var shoppingList = CreateValidShoppingList(title: title);
 
@@ -124,7 +124,7 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+            ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g")),
         ];
         var shoppingList = CreateValidShoppingList(items: items);
 
@@ -138,7 +138,7 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
+            ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g")),
         ];
         var shoppingList = CreateValidShoppingList(items: items);
         shoppingList.CheckOffItem(items[0].Id);
@@ -153,8 +153,8 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
-            ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
+            ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g")),
+            ShoppingListItem.Create(ItemName.From("Sugar"), Amount.From(200), Unit.From("g")),
         ];
         var shoppingList = CreateValidShoppingList(items: items);
 
@@ -168,8 +168,8 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g")),
-            ShoppingListItem.Create(new ItemName("Sugar"), new Amount(200), new Unit("g")),
+            ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g")),
+            ShoppingListItem.Create(ItemName.From("Sugar"), Amount.From(200), Unit.From("g")),
         ];
         var shoppingList = CreateValidShoppingList(items: items);
         shoppingList.CheckAllItems();
@@ -184,7 +184,7 @@ public class ShoppingListTests
     {
         var shoppingList = CreateValidShoppingList();
 
-        var act = () => shoppingList.CheckOffItem(Guid.NewGuid());
+        var act = () => shoppingList.CheckOffItem(ShoppingListItemIdentifier.New());
 
         act.Should().Throw<GuardException>();
     }
@@ -196,9 +196,9 @@ public class ShoppingListTests
         RecipeReference? recipeReference = null)
     {
         return Domain.ShoppingList.ShoppingList.Create(
-            title ?? new ShoppingListTitle("Test Shopping List"),
+            title ?? ShoppingListTitle.From("Test Shopping List"),
             owner ?? OwnerIdentifier.From("user-123"),
-            items ?? [ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"))],
+            items ?? [ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g"))],
             recipeReference);
     }
 }

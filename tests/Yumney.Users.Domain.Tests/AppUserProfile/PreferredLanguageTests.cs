@@ -13,7 +13,7 @@ public class PreferredLanguageTests
     [InlineData("fr")]
     public void Constructor_ValidValue_CreatesInstance(string value)
     {
-        var language = new PreferredLanguage(value);
+        var language = PreferredLanguage.From(value);
 
         language.Value.Should().Be(value);
     }
@@ -24,7 +24,7 @@ public class PreferredLanguageTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new PreferredLanguage(value!);
+        var act = () => PreferredLanguage.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -32,7 +32,7 @@ public class PreferredLanguageTests
     [Fact]
     public void Constructor_AtMaxLength_CreatesInstance()
     {
-        var language = new PreferredLanguage(new string('a', 10));
+        var language = PreferredLanguage.From(new string('a', 10));
 
         language.Value.Should().HaveLength(10);
     }
@@ -40,7 +40,7 @@ public class PreferredLanguageTests
     [Fact]
     public void Constructor_ExceedsMaxLength_ThrowsGuardException()
     {
-        var act = () => new PreferredLanguage(new string('a', 11));
+        var act = () => PreferredLanguage.From(new string('a', 11));
 
         act.Should().Throw<GuardException>();
     }
@@ -48,7 +48,7 @@ public class PreferredLanguageTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var language = new PreferredLanguage("en");
+        var language = PreferredLanguage.From("en");
 
         language.ToString().Should().Be("en");
     }
@@ -56,8 +56,8 @@ public class PreferredLanguageTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var lang1 = new PreferredLanguage("en");
-        var lang2 = new PreferredLanguage("en");
+        var lang1 = PreferredLanguage.From("en");
+        var lang2 = PreferredLanguage.From("en");
 
         lang1.Should().Be(lang2);
     }

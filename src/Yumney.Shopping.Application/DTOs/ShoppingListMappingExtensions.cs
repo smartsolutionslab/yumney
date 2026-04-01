@@ -15,21 +15,21 @@ public static class ShoppingListMappingExtensions
                 shoppingList.CreatedAt,
                 shoppingList.Items.Select(i => i.ToDto()).ToList());
         }
+    }
 
-        public ShoppingListSummaryDto ToSummaryDto()
-        {
-            return new ShoppingListSummaryDto(
-                shoppingList.Id.Value,
-                shoppingList.Title.Value,
-                shoppingList.Items.Count,
-                shoppingList.CreatedAt);
-        }
+    public static ShoppingListSummaryDto ToSummaryDto(this ShoppingListSummary summary)
+    {
+        return new ShoppingListSummaryDto(
+            summary.Identifier.Value,
+            summary.Title.Value,
+            summary.ItemCount,
+            summary.CreatedAt);
     }
 
     public static ShoppingListItemDto ToDto(this ShoppingListItem item)
     {
         return new ShoppingListItemDto(
-            item.Id,
+            item.Id.Value,
             item.Name.Value,
             item.Amount?.Value,
             item.Unit?.Value,

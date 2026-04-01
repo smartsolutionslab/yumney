@@ -10,7 +10,7 @@ public class DisplayNameTests
     [Fact]
     public void Constructor_ValidName_CreatesInstance()
     {
-        var name = new DisplayName("Test User");
+        var name = DisplayName.From("Test User");
 
         name.Value.Should().Be("Test User");
     }
@@ -18,7 +18,7 @@ public class DisplayNameTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var name = new DisplayName("  Test User  ");
+        var name = DisplayName.From("  Test User  ");
 
         name.Value.Should().Be("Test User");
     }
@@ -29,7 +29,7 @@ public class DisplayNameTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new DisplayName(value!);
+        var act = () => DisplayName.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -37,7 +37,7 @@ public class DisplayNameTests
     [Fact]
     public void Constructor_ExceedsMaxLength_ThrowsGuardException()
     {
-        var act = () => new DisplayName(new string('A', 201));
+        var act = () => DisplayName.From(new string('A', 201));
 
         act.Should().Throw<GuardException>();
     }
@@ -45,7 +45,7 @@ public class DisplayNameTests
     [Fact]
     public void Constructor_AtMaxLength_CreatesInstance()
     {
-        var name = new DisplayName(new string('A', 200));
+        var name = DisplayName.From(new string('A', 200));
 
         name.Value.Should().HaveLength(200);
     }
@@ -53,7 +53,7 @@ public class DisplayNameTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var name = new DisplayName("Test User");
+        var name = DisplayName.From("Test User");
 
         name.ToString().Should().Be("Test User");
     }
@@ -61,8 +61,8 @@ public class DisplayNameTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var name1 = new DisplayName("Test User");
-        var name2 = new DisplayName("Test User");
+        var name1 = DisplayName.From("Test User");
+        var name2 = DisplayName.From("Test User");
 
         name1.Should().Be(name2);
     }

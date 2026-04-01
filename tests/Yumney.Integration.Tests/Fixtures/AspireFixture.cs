@@ -25,6 +25,8 @@ public sealed class AspireFixture : IAsyncLifetime
                 "Parameters:PostgresUser=testuser",
                 "Parameters:PostgresPassword=testpassword",
                 "Parameters:KeycloakPassword=testkeycloak",
+                "Parameters:MessagingPassword=testmessaging",
+                "Parameters:RedisPassword=testredis",
                 "DatabaseOnly=true",
             ]);
 
@@ -35,8 +37,21 @@ public sealed class AspireFixture : IAsyncLifetime
         using var cts = new CancellationTokenSource(StartupTimeout);
         await app.StartAsync(cts.Token);
 
-        await app.ResourceNotifications.WaitForResourceHealthyAsync("recipesdb", cts.Token);
-        await app.ResourceNotifications.WaitForResourceAsync("yumney-migrations", KnownResourceStates.Finished, cts.Token);
+        await app.ResourceNotifications.WaitForResourceAsync("postgres", KnownResourceStates.Running, cts.Token);
+
+        await using var context = await CreateRecipesDbContextAsync();
+        for (var attempt = 1; attempt <= 10; attempt++)
+        {
+            try
+            {
+                await context.Database.EnsureCreatedAsync(cts.Token);
+                break;
+            }
+            catch when (attempt < 10)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2), cts.Token);
+            }
+        }
     }
 
     public async Task DisposeAsync()

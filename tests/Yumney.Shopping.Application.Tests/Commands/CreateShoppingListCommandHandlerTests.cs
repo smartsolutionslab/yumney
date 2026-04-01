@@ -61,16 +61,16 @@ public class CreateShoppingListCommandHandlerTests
     public async Task HandleAsync_EightItems_AllTransferred()
     {
         var command = new CreateShoppingListCommand(
-            new ShoppingListTitle("Big List"),
+            ShoppingListTitle.From("Big List"),
             [
-                new ShoppingListItem(new ItemName("Flour"), new Amount(500), new Unit("g")),
-                new ShoppingListItem(new ItemName("Sugar"), new Amount(200), new Unit("g")),
-                new ShoppingListItem(new ItemName("Butter"), new Amount(250), new Unit("g")),
-                new ShoppingListItem(new ItemName("Eggs"), new Amount(6), null),
-                new ShoppingListItem(new ItemName("Milk"), new Amount(1), new Unit("l")),
-                new ShoppingListItem(new ItemName("Salt"), null, null),
-                new ShoppingListItem(new ItemName("Pepper"), null, null),
-                new ShoppingListItem(new ItemName("Vanilla"), new Amount(1), new Unit("tsp")),
+                new ShoppingListItem(ItemName.From("Flour"), Amount.From(500), Unit.From("g")),
+                new ShoppingListItem(ItemName.From("Sugar"), Amount.From(200), Unit.From("g")),
+                new ShoppingListItem(ItemName.From("Butter"), Amount.From(250), Unit.From("g")),
+                new ShoppingListItem(ItemName.From("Eggs"), Amount.From(6), null),
+                new ShoppingListItem(ItemName.From("Milk"), Amount.From(1), Unit.From("l")),
+                new ShoppingListItem(ItemName.From("Salt"), null, null),
+                new ShoppingListItem(ItemName.From("Pepper"), null, null),
+                new ShoppingListItem(ItemName.From("Vanilla"), Amount.From(1), Unit.From("tsp")),
             ]);
 
         var result = await handler.HandleAsync(command);
@@ -113,8 +113,8 @@ public class CreateShoppingListCommandHandlerTests
     {
         var recipeId = Guid.NewGuid();
         var command = new CreateShoppingListCommand(
-            new ShoppingListTitle("From Recipe"),
-            [new ShoppingListItem(new ItemName("Flour"), new Amount(500), new Unit("g"))],
+            ShoppingListTitle.From("From Recipe"),
+            [new ShoppingListItem(ItemName.From("Flour"), Amount.From(500), Unit.From("g"))],
             RecipeReference.From(recipeId));
 
         var result = await handler.HandleAsync(command);
@@ -126,10 +126,10 @@ public class CreateShoppingListCommandHandlerTests
     public async Task HandleAsync_ItemsPreserveAmountAndUnit()
     {
         var command = new CreateShoppingListCommand(
-            new ShoppingListTitle("Test"),
+            ShoppingListTitle.From("Test"),
             [
-                new ShoppingListItem(new ItemName("Flour"), new Amount(500), new Unit("g")),
-                new ShoppingListItem(new ItemName("Salt"), null, null),
+                new ShoppingListItem(ItemName.From("Flour"), Amount.From(500), Unit.From("g")),
+                new ShoppingListItem(ItemName.From("Salt"), null, null),
             ]);
 
         var result = await handler.HandleAsync(command);
@@ -145,7 +145,7 @@ public class CreateShoppingListCommandHandlerTests
     private static CreateShoppingListCommand CreateValidCommand()
     {
         return new CreateShoppingListCommand(
-            new ShoppingListTitle("Weekly Groceries"),
-            [new ShoppingListItem(new ItemName("Spaghetti"), new Amount(400), new Unit("g"))]);
+            ShoppingListTitle.From("Weekly Groceries"),
+            [new ShoppingListItem(ItemName.From("Spaghetti"), Amount.From(400), Unit.From("g"))]);
     }
 }

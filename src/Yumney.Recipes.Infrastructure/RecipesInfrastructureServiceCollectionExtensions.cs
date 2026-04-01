@@ -15,7 +15,8 @@ public static class RecipesInfrastructureServiceCollectionExtensions
             options
                 .UseNpgsql(
                     configuration.GetConnectionString("recipesdb"),
-                    x => x.MigrationsHistoryTable("__RecipesMigrationsHistory"))
+                    x => x.MigrationsHistoryTable("__RecipesMigrationsHistory")
+                        .EnableRetryOnFailure())
                 .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>()));
 
         services.AddScoped<IRecipeRepository, RecipeRepository>();

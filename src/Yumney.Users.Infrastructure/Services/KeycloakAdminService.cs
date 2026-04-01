@@ -93,7 +93,7 @@ public sealed class KeycloakAdminService(
             }
 
             activity?.SetStatus(ActivityStatusCode.Ok);
-            return Result<KeycloakUserId>.Success(new KeycloakUserId(users[0].Id));
+            return Result<KeycloakUserId>.Success(KeycloakUserId.From(users[0].Id));
         }
         catch (HttpRequestException ex)
         {
@@ -266,7 +266,7 @@ public sealed class KeycloakAdminService(
             return Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed);
         }
 
-        return Result<KeycloakUserId>.Success(new KeycloakUserId(keycloakUserIdString!));
+        return Result<KeycloakUserId>.Success(KeycloakUserId.From(keycloakUserIdString!));
     }
 
     private sealed record TokenResponse(

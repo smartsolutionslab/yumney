@@ -8,7 +8,10 @@ var builder = DistributedApplication.CreateBuilder(args);
 var isRunMode = builder.ExecutionContext.IsRunMode;
 var options = AppHostOptions.FromConfiguration(builder.Configuration);
 
-builder.AddAzureContainerAppEnvironment("cae");
+if (builder.ExecutionContext.IsPublishMode)
+{
+    builder.AddAzureContainerAppEnvironment("cae");
+}
 
 var postgresUser = builder.AddParameter("PostgresUser");
 var postgresPassword = builder.AddParameter("PostgresPassword", secret: true);
@@ -16,28 +19,36 @@ var keycloakPassword = builder.AddParameter("KeycloakPassword", secret: true);
 var messagingPassword = builder.AddParameter("MessagingPassword", secret: true);
 var redisPassword = builder.AddParameter("RedisPassword", secret: true);
 
-var postgres = builder.AddAzurePostgresFlexibleServer("postgres")
-    .WithPasswordAuthentication(userName: postgresUser, password: postgresPassword)
-    .RunAsContainer(pg =>
-    {
-        pg.WithDataVolume();
-        pg.WithPgAdmin();
-    });
-
-var recipesDb = postgres.AddDatabase("recipesdb");
-var shoppingDb = postgres.AddDatabase("shoppingdb");
-var usersDb = postgres.AddDatabase("usersdb");
-var keycloakDb = postgres.AddDatabase("keycloakdb");
-
-var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
-    .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
-    .WaitFor(recipesDb).WaitFor(shoppingDb).WaitFor(usersDb);
+IResourceBuilder<IResourceWithConnectionString> recipesDb, shoppingDb, usersDb, keycloakDb;
 
 if (options.DatabaseOnly)
 {
-    builder.Build().Run();
-    return;
+    var postgres = builder.AddPostgres("postgres");
+    recipesDb = postgres.AddDatabase("recipesdb");
+    shoppingDb = postgres.AddDatabase("shoppingdb");
+    usersDb = postgres.AddDatabase("usersdb");
+    keycloakDb = postgres.AddDatabase("keycloakdb");
 }
+else
+{
+    var postgres = builder.AddAzurePostgresFlexibleServer("postgres")
+        .WithPasswordAuthentication(userName: postgresUser, password: postgresPassword)
+        .RunAsContainer(pg =>
+        {
+            pg.WithDataVolume();
+            pg.WithPgAdmin();
+        });
+    recipesDb = postgres.AddDatabase("recipesdb");
+    shoppingDb = postgres.AddDatabase("shoppingdb");
+    usersDb = postgres.AddDatabase("usersdb");
+    keycloakDb = postgres.AddDatabase("keycloakdb");
+}
+
+if (!options.DatabaseOnly)
+{
+var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
+    .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
+    .WaitFor(recipesDb).WaitFor(shoppingDb).WaitFor(usersDb);
 
 // ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
 var redis = builder.AddRedis("redis", password: redisPassword);
@@ -195,6 +206,7 @@ else
         .WithExternalHttpEndpoints();
 
     frontend.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 5, 100));
+}
 }
 
 builder.Build().Run();

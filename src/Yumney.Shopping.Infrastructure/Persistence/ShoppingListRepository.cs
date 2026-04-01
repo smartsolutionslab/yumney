@@ -38,7 +38,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<(IReadOnlyList<ShoppingList> Items, int TotalCount)> GetByOwnerAsync(
+    public async Task<(IReadOnlyList<ShoppingListSummary> Items, int TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
         PagingOptions paging,
         SortingOptions<ShoppingListSortField> sorting,
@@ -46,7 +46,6 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
     {
         var query = shoppingLists
             .AsNoTracking()
-            .Include(l => l.Items)
             .Where(l => l.Owner == owner);
 
         query = ApplySorting(query, sorting);
@@ -55,6 +54,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         var items = await query
             .Skip(paging.Skip)
             .Take(paging.PageSize.Value)
+            .Select(l => new ShoppingListSummary(l.Id, l.Title, l.Items.Count, l.CreatedAt))
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);

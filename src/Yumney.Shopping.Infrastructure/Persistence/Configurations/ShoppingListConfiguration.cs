@@ -54,6 +54,9 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
                     v => v.Value, Unit.FromNullable, Unit.MaxLength);
         });
 
+        entity.Property<uint>("xmin")
+            .HasColumnType("xid")
+            .IsRowVersion();
         entity.Ignore(e => e.DomainEvents);
     }
 }

@@ -10,7 +10,7 @@ public class IngredientNameTests
     [Fact]
     public void Constructor_ValidName_CreatesInstance()
     {
-        var name = new IngredientName("Spaghetti");
+        var name = IngredientName.From("Spaghetti");
 
         name.Value.Should().Be("Spaghetti");
     }
@@ -18,7 +18,7 @@ public class IngredientNameTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var name = new IngredientName("  Flour  ");
+        var name = IngredientName.From("  Flour  ");
 
         name.Value.Should().Be("Flour");
     }
@@ -29,7 +29,7 @@ public class IngredientNameTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new IngredientName(value!);
+        var act = () => IngredientName.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -39,7 +39,7 @@ public class IngredientNameTests
     {
         var value = new string('a', 201);
 
-        var act = () => new IngredientName(value);
+        var act = () => IngredientName.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -49,7 +49,7 @@ public class IngredientNameTests
     {
         var value = new string('a', 200);
 
-        var name = new IngredientName(value);
+        var name = IngredientName.From(value);
 
         name.Value.Should().HaveLength(200);
     }
@@ -57,7 +57,7 @@ public class IngredientNameTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var name = new IngredientName("Sugar");
+        var name = IngredientName.From("Sugar");
 
         name.ToString().Should().Be("Sugar");
     }

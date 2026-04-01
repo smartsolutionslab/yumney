@@ -96,6 +96,9 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
         entity.HasIndex(e => new { e.SourceUrl, e.Owner })
             .IsUnique()
             .HasFilter("\"SourceUrl\" IS NOT NULL");
+        entity.Property<uint>("xmin")
+            .HasColumnType("xid")
+            .IsRowVersion();
         entity.Ignore(e => e.DomainEvents);
     }
 }

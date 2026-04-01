@@ -6,8 +6,8 @@ namespace SmartSolutionsLab.Yumney.Users.Domain.Tests.AppUserProfile;
 
 public class AppUserProfileTests
 {
-    private static readonly KeycloakUserId TestKeycloakUserId = new("kc-user-123");
-    private static readonly DisplayName TestDisplayName = new("Test User");
+    private static readonly KeycloakUserId TestKeycloakUserId = KeycloakUserId.From("kc-user-123");
+    private static readonly DisplayName TestDisplayName = DisplayName.From("Test User");
 
     [Fact]
     public void Create_ValidParameters_ReturnsProfileWithCorrectValues()
@@ -31,7 +31,7 @@ public class AppUserProfileTests
     {
         var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
 
-        profile.PreferredLanguage.Should().Be(new PreferredLanguage("en"));
+        profile.PreferredLanguage.Should().Be(PreferredLanguage.From("en"));
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class AppUserProfileTests
     {
         var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
 
-        profile.PreferredUnitSystem.Should().Be(new PreferredUnitSystem("metric"));
+        profile.PreferredUnitSystem.Should().Be(PreferredUnitSystem.From("metric"));
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class AppUserProfileTests
     public void RenameAs_NewDisplayName_UpdatesDisplayName()
     {
         var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
-        var newName = new DisplayName("New Name");
+        var newName = DisplayName.From("New Name");
 
         profile.RenameAs(newName);
 
@@ -66,7 +66,7 @@ public class AppUserProfileTests
     public void SwitchLanguageTo_NewLanguage_UpdatesLanguage()
     {
         var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
-        var german = new PreferredLanguage("de");
+        var german = PreferredLanguage.From("de");
 
         profile.SwitchLanguageTo(german);
 
@@ -77,7 +77,7 @@ public class AppUserProfileTests
     public void SwitchUnitSystemTo_NewUnitSystem_UpdatesUnitSystem()
     {
         var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
-        var imperial = new PreferredUnitSystem("imperial");
+        var imperial = PreferredUnitSystem.From("imperial");
 
         profile.SwitchUnitSystemTo(imperial);
 

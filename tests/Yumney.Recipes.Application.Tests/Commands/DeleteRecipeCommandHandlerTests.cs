@@ -142,7 +142,7 @@ public class DeleteRecipeCommandHandlerTests
         return Recipe.Create(
             RecipeTitle.From("Test Recipe"),
             OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(new IngredientName("Flour"), null, null)],
-            [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
+            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
     }
 }

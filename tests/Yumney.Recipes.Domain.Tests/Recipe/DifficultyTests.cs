@@ -10,7 +10,7 @@ public class DifficultyTests
     [Fact]
     public void Constructor_ValidValue_CreatesInstance()
     {
-        var difficulty = new Difficulty("medium");
+        var difficulty = Difficulty.From("medium");
 
         difficulty.Value.Should().Be("medium");
     }
@@ -18,7 +18,7 @@ public class DifficultyTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var difficulty = new Difficulty("  easy  ");
+        var difficulty = Difficulty.From("  easy  ");
 
         difficulty.Value.Should().Be("easy");
     }
@@ -29,7 +29,7 @@ public class DifficultyTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new Difficulty(value!);
+        var act = () => Difficulty.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -39,7 +39,7 @@ public class DifficultyTests
     {
         var value = new string('a', 51);
 
-        var act = () => new Difficulty(value);
+        var act = () => Difficulty.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -49,7 +49,7 @@ public class DifficultyTests
     {
         var value = new string('a', 50);
 
-        var difficulty = new Difficulty(value);
+        var difficulty = Difficulty.From(value);
 
         difficulty.Value.Should().HaveLength(50);
     }
@@ -57,7 +57,7 @@ public class DifficultyTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var difficulty = new Difficulty("hard");
+        var difficulty = Difficulty.From("hard");
 
         difficulty.ToString().Should().Be("hard");
     }

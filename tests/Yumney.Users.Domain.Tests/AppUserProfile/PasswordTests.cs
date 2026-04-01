@@ -13,7 +13,7 @@ public class PasswordTests
     [InlineData("C0mpl3xP@ss")]
     public void Constructor_ValidPassword_CreatesInstance(string value)
     {
-        var password = new Password(value);
+        var password = Password.From(value);
 
         password.Value.Should().Be(value);
     }
@@ -24,7 +24,7 @@ public class PasswordTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new Password(value!);
+        var act = () => Password.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -32,7 +32,7 @@ public class PasswordTests
     [Fact]
     public void Constructor_TooShort_ThrowsGuardException()
     {
-        var act = () => new Password("Short1A");
+        var act = () => Password.From("Short1A");
 
         act.Should().Throw<GuardException>();
     }
@@ -40,7 +40,7 @@ public class PasswordTests
     [Fact]
     public void Constructor_NoUppercase_ThrowsGuardException()
     {
-        var act = () => new Password("nouppercase1");
+        var act = () => Password.From("nouppercase1");
 
         act.Should().Throw<GuardException>();
     }
@@ -48,7 +48,7 @@ public class PasswordTests
     [Fact]
     public void Constructor_NoLowercase_ThrowsGuardException()
     {
-        var act = () => new Password("NOLOWERCASE1");
+        var act = () => Password.From("NOLOWERCASE1");
 
         act.Should().Throw<GuardException>();
     }
@@ -56,7 +56,7 @@ public class PasswordTests
     [Fact]
     public void Constructor_NoDigit_ThrowsGuardException()
     {
-        var act = () => new Password("NoDigitsHere");
+        var act = () => Password.From("NoDigitsHere");
 
         act.Should().Throw<GuardException>();
     }
@@ -64,7 +64,7 @@ public class PasswordTests
     [Fact]
     public void ToString_ReturnsMaskedValue()
     {
-        var password = new Password("Password1");
+        var password = Password.From("Password1");
 
         password.ToString().Should().Be("***");
     }
@@ -72,8 +72,8 @@ public class PasswordTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var password1 = new Password("Password1");
-        var password2 = new Password("Password1");
+        var password1 = Password.From("Password1");
+        var password2 = Password.From("Password1");
 
         password1.Should().Be(password2);
     }

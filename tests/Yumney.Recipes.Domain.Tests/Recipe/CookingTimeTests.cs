@@ -10,7 +10,7 @@ public class CookingTimeTests
     [Fact]
     public void Constructor_PositiveValue_CreatesInstance()
     {
-        var cookTime = new CookingTime(45);
+        var cookTime = CookingTime.From(45);
 
         cookTime.Value.Should().Be(45);
     }
@@ -18,7 +18,7 @@ public class CookingTimeTests
     [Fact]
     public void Constructor_Zero_CreatesInstance()
     {
-        var cookTime = new CookingTime(0);
+        var cookTime = CookingTime.From(0);
 
         cookTime.Value.Should().Be(0);
     }
@@ -26,7 +26,7 @@ public class CookingTimeTests
     [Fact]
     public void Constructor_NegativeValue_ThrowsGuardException()
     {
-        var act = () => new CookingTime(-1);
+        var act = () => CookingTime.From(-1);
 
         act.Should().Throw<GuardException>();
     }
@@ -34,7 +34,7 @@ public class CookingTimeTests
     [Fact]
     public void ToString_ReturnsStringValue()
     {
-        var cookTime = new CookingTime(20);
+        var cookTime = CookingTime.From(20);
 
         cookTime.ToString().Should().Be("20");
     }

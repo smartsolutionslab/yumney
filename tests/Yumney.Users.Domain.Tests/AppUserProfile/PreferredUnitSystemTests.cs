@@ -12,7 +12,7 @@ public class PreferredUnitSystemTests
     [InlineData("imperial")]
     public void Constructor_ValidValue_CreatesInstance(string value)
     {
-        var unitSystem = new PreferredUnitSystem(value);
+        var unitSystem = PreferredUnitSystem.From(value);
 
         unitSystem.Value.Should().Be(value);
     }
@@ -23,7 +23,7 @@ public class PreferredUnitSystemTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new PreferredUnitSystem(value!);
+        var act = () => PreferredUnitSystem.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -31,7 +31,7 @@ public class PreferredUnitSystemTests
     [Fact]
     public void Constructor_AtMaxLength_CreatesInstance()
     {
-        var unitSystem = new PreferredUnitSystem(new string('a', 20));
+        var unitSystem = PreferredUnitSystem.From(new string('a', 20));
 
         unitSystem.Value.Should().HaveLength(20);
     }
@@ -39,7 +39,7 @@ public class PreferredUnitSystemTests
     [Fact]
     public void Constructor_ExceedsMaxLength_ThrowsGuardException()
     {
-        var act = () => new PreferredUnitSystem(new string('a', 21));
+        var act = () => PreferredUnitSystem.From(new string('a', 21));
 
         act.Should().Throw<GuardException>();
     }
@@ -47,7 +47,7 @@ public class PreferredUnitSystemTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var unitSystem = new PreferredUnitSystem("metric");
+        var unitSystem = PreferredUnitSystem.From("metric");
 
         unitSystem.ToString().Should().Be("metric");
     }
@@ -55,8 +55,8 @@ public class PreferredUnitSystemTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var us1 = new PreferredUnitSystem("metric");
-        var us2 = new PreferredUnitSystem("metric");
+        var us1 = PreferredUnitSystem.From("metric");
+        var us2 = PreferredUnitSystem.From("metric");
 
         us1.Should().Be(us2);
     }

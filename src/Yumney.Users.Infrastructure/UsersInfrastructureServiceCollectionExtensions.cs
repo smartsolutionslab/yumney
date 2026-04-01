@@ -23,7 +23,8 @@ public static class UsersInfrastructureServiceCollectionExtensions
             options
                 .UseNpgsql(
                     configuration.GetConnectionString("usersdb"),
-                    x => x.MigrationsHistoryTable("__UsersMigrationsHistory"))
+                    x => x.MigrationsHistoryTable("__UsersMigrationsHistory")
+                        .EnableRetryOnFailure())
                 .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>()));
 
         services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();

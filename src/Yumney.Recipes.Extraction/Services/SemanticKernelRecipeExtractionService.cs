@@ -20,8 +20,6 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 {
     private const string llmNoRecipeErrorCode = "NO_RECIPE_FOUND";
     private const string errorPropertyName = "error";
-    private const string jsonFencePrefix = "```json";
-    private const string fenceMarker = "```";
 
     private const string jsonSchema = """
         {
@@ -154,27 +152,6 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
         }
     }
 
-    private static string ExtractJson(string response)
-    {
-        var trimmed = response.Trim();
-
-        if (trimmed.StartsWith(jsonFencePrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            trimmed = trimmed[jsonFencePrefix.Length..];
-        }
-        else if (trimmed.StartsWith(fenceMarker, StringComparison.Ordinal))
-        {
-            trimmed = trimmed[fenceMarker.Length..];
-        }
-
-        if (trimmed.EndsWith(fenceMarker, StringComparison.Ordinal))
-        {
-            trimmed = trimmed[..^fenceMarker.Length];
-        }
-
-        return trimmed.Trim();
-    }
-
     private static string SanitizeContent(string text)
     {
         var sanitized = injectionPatterns.Replace(text, string.Empty);
@@ -218,19 +195,15 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
     {
         try
         {
-            var json = ExtractJson(response);
+            var json = LlmResponseParser.ExtractJson(response);
 
-            using var document = JsonDocument.Parse(json);
-            var root = document.RootElement;
-
-            if (root.TryGetProperty(errorPropertyName, out var errorElement)
-                && errorElement.GetString() == llmNoRecipeErrorCode)
+            if (json.Contains(llmNoRecipeErrorCode, StringComparison.Ordinal))
             {
                 LogNoRecipeFound(sourceUrl);
                 return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.NoRecipeFound);
             }
 
-            var recipe = root.Deserialize<ExtractedRecipeDto>(jsonOptions);
+            var recipe = JsonSerializer.Deserialize<ExtractedRecipeDto>(json, jsonOptions);
             if (recipe is null)
             {
                 LogParsingFailed(sourceUrl, "Deserialization returned null");

@@ -9,13 +9,13 @@ public class ShoppingListItemTests
     [Fact]
     public void Create_WithAllFields_SetsProperties()
     {
-        var name = new ItemName("Flour");
-        var amount = new Amount(500);
-        var unit = new Unit("g");
+        var name = ItemName.From("Flour");
+        var amount = Amount.From(500);
+        var unit = Unit.From("g");
 
         var item = ShoppingListItem.Create(name, amount, unit);
 
-        item.Id.Should().NotBeEmpty();
+        item.Id.Should().NotBeNull();
         item.Name.Should().Be(name);
         item.Amount.Should().Be(amount);
         item.Unit.Should().Be(unit);
@@ -24,7 +24,7 @@ public class ShoppingListItemTests
     [Fact]
     public void Create_WithoutAmount_AmountIsNull()
     {
-        var item = ShoppingListItem.Create(new ItemName("Salt"), null, null);
+        var item = ShoppingListItem.Create(ItemName.From("Salt"), null, null);
 
         item.Amount.Should().BeNull();
     }
@@ -32,7 +32,7 @@ public class ShoppingListItemTests
     [Fact]
     public void Create_WithoutUnit_UnitIsNull()
     {
-        var item = ShoppingListItem.Create(new ItemName("Eggs"), new Amount(3), null);
+        var item = ShoppingListItem.Create(ItemName.From("Eggs"), Amount.From(3), null);
 
         item.Unit.Should().BeNull();
         item.Amount!.Value.Should().Be(3);
@@ -41,7 +41,7 @@ public class ShoppingListItemTests
     [Fact]
     public void Create_SetsIsCheckedToFalse()
     {
-        var item = ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"));
+        var item = ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g"));
 
         item.IsChecked.Should().BeFalse();
     }
@@ -49,7 +49,7 @@ public class ShoppingListItemTests
     [Fact]
     public void Check_SetsIsCheckedToTrue()
     {
-        var item = ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"));
+        var item = ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g"));
 
         item.Check();
 
@@ -59,7 +59,7 @@ public class ShoppingListItemTests
     [Fact]
     public void Uncheck_SetsIsCheckedToFalse()
     {
-        var item = ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"));
+        var item = ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g"));
         item.Check();
 
         item.Uncheck();

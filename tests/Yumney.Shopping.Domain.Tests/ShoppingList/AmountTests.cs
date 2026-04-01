@@ -10,7 +10,7 @@ public class AmountTests
     [Fact]
     public void Constructor_PositiveValue_CreatesInstance()
     {
-        var amount = new Amount(500);
+        var amount = Amount.From(500);
 
         amount.Value.Should().Be(500);
     }
@@ -18,7 +18,7 @@ public class AmountTests
     [Fact]
     public void Constructor_Zero_CreatesInstance()
     {
-        var amount = new Amount(0);
+        var amount = Amount.From(0);
 
         amount.Value.Should().Be(0);
     }
@@ -26,7 +26,7 @@ public class AmountTests
     [Fact]
     public void Constructor_NegativeValue_ThrowsGuardException()
     {
-        var act = () => new Amount(-1);
+        var act = () => Amount.From(-1);
 
         act.Should().Throw<GuardException>();
     }
@@ -51,7 +51,7 @@ public class AmountTests
     [Fact]
     public void ToString_ReturnsFormattedValue()
     {
-        var amount = new Amount(1.5m);
+        var amount = Amount.From(1.5m);
 
         amount.ToString().Should().Be("1.5");
     }

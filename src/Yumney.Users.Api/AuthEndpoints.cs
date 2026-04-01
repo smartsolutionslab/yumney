@@ -50,7 +50,7 @@ public static class AuthEndpoints
         }
 
         var (email, password, displayName) = request;
-        var command = new RegisterUserCommand(new Email(email), new Password(password), new DisplayName(displayName));
+        var command = new RegisterUserCommand(Email.From(email), Password.From(password), DisplayName.From(displayName));
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToCreated("/api/v1/users/me");
     }
@@ -67,7 +67,7 @@ public static class AuthEndpoints
             return problem;
         }
 
-        var command = new ResendVerificationEmailCommand(new Email(request.Email));
+        var command = new ResendVerificationEmailCommand(Email.From(request.Email));
         var result = await handler.HandleAsync(command, cancellationToken);
 
         // Always return 200 to prevent email enumeration

@@ -18,7 +18,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
     {
         return await recipes
             .Include(r => r.Ingredients)
-            .Include(r => r.Steps)
+            .Include(r => r.Steps.OrderBy(s => s.Number))
             .AsSplitQuery()
             .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
     }
@@ -50,37 +50,12 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
         if (search is not null)
         {
-            var pattern = $"%{search.Value.ToLowerInvariant()}%";
+            var pattern = $"%{search.Value}%";
 
-            // Title/description search via EF.Functions.ILike + EF.Property<string>
-            // to bypass value object .Value access (which EF Core 10 cannot translate).
-            var titleDescIds = await query
-                .Where(r =>
-                    EF.Functions.ILike(EF.Property<string>(r, "Title.Value"), pattern) ||
-                    EF.Functions.ILike(EF.Property<string>(r, "Description.Value"), pattern))
-                .Select(r => r.Id)
-                .ToListAsync(cancellationToken);
-
-            // Ingredient search via raw SQL (EF cannot translate value object access
-            // inside OwnsMany subqueries even with EF.Property).
-            var ingredientIds = await context.Database
-                .SqlQuery<RecipeIdentifier>(
-                    $"""
-                    SELECT DISTINCT "RecipeId" AS "Value"
-                    FROM "RecipeIngredients"
-                    WHERE LOWER("Name") LIKE {pattern}
-                    """)
-                .ToListAsync(cancellationToken);
-
-            var matchingIds = titleDescIds.Union(ingredientIds).ToHashSet();
-
-            // Client-side ID filter — acceptable because the owner filter already
-            // limits the result set to the current user's recipes.
-            var ownerRecipes = await query.ToListAsync(cancellationToken);
-            var filtered = ownerRecipes.Where(r => matchingIds.Contains(r.Id)).ToList();
-
-            var sorted = ApplySortingInMemory(filtered, sorting);
-            return (sorted.Skip(paging.Skip).Take(paging.PageSize.Value).ToList(), sorted.Count);
+            query = query.Where(r =>
+                EF.Functions.ILike(r.Title, pattern) ||
+                (r.Description != null && EF.Functions.ILike(r.Description, pattern)) ||
+                r.Ingredients.Any(i => EF.Functions.ILike(i.Name, pattern)));
         }
 
         query = ApplySorting(query, sorting);
@@ -103,18 +78,6 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             (RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
             (RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
             _ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
-        };
-    }
-
-    private static List<Recipe> ApplySortingInMemory(List<Recipe> recipes, SortingOptions<RecipeSortField> sorting)
-    {
-        return (sorting.SortBy, sorting.Direction) switch
-        {
-            (RecipeSortField.Name, SortDirection.Ascending) => [.. recipes.OrderBy(r => r.Title.Value)],
-            (RecipeSortField.Name, SortDirection.Descending) => [.. recipes.OrderByDescending(r => r.Title.Value)],
-            (RecipeSortField.Date, SortDirection.Ascending) => [.. recipes.OrderBy(r => r.CreatedAt)],
-            (RecipeSortField.Date, SortDirection.Descending) => [.. recipes.OrderByDescending(r => r.CreatedAt)],
-            _ => recipes,
         };
     }
 }

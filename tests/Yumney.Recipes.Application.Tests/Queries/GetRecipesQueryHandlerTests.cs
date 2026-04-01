@@ -295,8 +295,8 @@ public class GetRecipesQueryHandlerTests
         return Recipe.Create(
             RecipeTitle.From(title),
             OwnerIdentifier.From("user-123"),
-            [Ingredient.Create(new IngredientName("Flour"), null, null)],
-            [Step.Create(new StepNumber(1), new StepDescription("Mix"))]);
+            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
     }
 
     private static Recipe CreateTestRecipeWithOptionals()
@@ -304,14 +304,14 @@ public class GetRecipesQueryHandlerTests
         return Recipe.Create(
             RecipeTitle.From("Full Recipe"),
             OwnerIdentifier.From("user-123"),
-            [Ingredient.Create(new IngredientName("Flour"), null, null)],
-            [Step.Create(new StepNumber(1), new StepDescription("Mix"))],
-            new RecipeDescription("A test recipe"),
+            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
+            RecipeDescription.From("A test recipe"),
             Servings.From(4),
-            new PreparationTime(10),
-            new CookingTime(20),
-            new Difficulty("easy"),
-            new ImageUrl("https://example.com/image.jpg"));
+            PreparationTime.From(10),
+            CookingTime.From(20),
+            Difficulty.From("easy"),
+            ImageUrl.From("https://example.com/image.jpg"));
     }
 
     private void SetupEmptyRepository()

@@ -70,8 +70,8 @@ public class GetShoppingListByIdQueryHandlerTests
     private static ShoppingList CreateShoppingList()
     {
         return ShoppingList.Create(
-            new ShoppingListTitle("Test List"),
+            ShoppingListTitle.From("Test List"),
             OwnerIdentifier.From("user-123"),
-            [ShoppingListItem.Create(new ItemName("Flour"), new Amount(500), new Unit("g"))]);
+            [ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g"))]);
     }
 }

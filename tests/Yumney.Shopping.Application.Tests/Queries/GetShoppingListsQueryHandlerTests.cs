@@ -38,22 +38,13 @@ public class GetShoppingListsQueryHandlerTests
     [Fact]
     public async Task HandleAsync_WithLists_ReturnsUserLists()
     {
-        List<ShoppingList> lists =
+        List<ShoppingListSummary> summaries =
         [
-            ShoppingList.Create(
-                ShoppingListTitle.From("List 1"),
-                OwnerIdentifier.From("user-123"),
-                [ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g"))]),
-            ShoppingList.Create(
-                ShoppingListTitle.From("List 2"),
-                OwnerIdentifier.From("user-123"),
-                [
-                    ShoppingListItem.Create(ItemName.From("Sugar"), Amount.From(200), Unit.From("g")),
-                    ShoppingListItem.Create(ItemName.From("Butter"), Amount.From(100), Unit.From("g")),
-                ]),
+            new(ShoppingListIdentifier.New(), ShoppingListTitle.From("List 1"), 1, DateTime.UtcNow),
+            new(ShoppingListIdentifier.New(), ShoppingListTitle.From("List 2"), 2, DateTime.UtcNow),
         ];
 
-        SetupRepository(lists, 2);
+        SetupRepository(summaries, 2);
 
         var query = CreateQuery(1, 20, ShoppingListSortField.Date, SortDirection.Descending);
         var result = await handler.HandleAsync(query);
@@ -119,7 +110,7 @@ public class GetShoppingListsQueryHandlerTests
         return new GetShoppingListsQuery(paging, sorting);
     }
 
-    private void SetupRepository(IReadOnlyList<ShoppingList> items, int totalCount)
+    private void SetupRepository(IReadOnlyList<ShoppingListSummary> items, int totalCount)
     {
         shoppingLists.GetByOwnerAsync(
             Arg.Any<OwnerIdentifier>(),
