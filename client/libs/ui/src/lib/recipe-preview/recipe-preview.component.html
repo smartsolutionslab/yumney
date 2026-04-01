@@ -93,11 +93,12 @@
                 />
               </yn-form-field>
               <yn-form-field class="ingredient-unit" [control]="ingredients.at(i).get('unit')!">
-                <input
-                  type="text"
-                  formControlName="unit"
-                  [placeholder]="t('dashboard.preview.unit')"
-                />
+                <select formControlName="unit">
+                  <option [ngValue]="null">{{ t('dashboard.preview.unit') }}</option>
+                  @for (unit of knownUnits; track unit.value) {
+                    <option [ngValue]="unit.value">{{ t(unit.labelKey) }}</option>
+                  }
+                </select>
               </yn-form-field>
             </div>
           </yn-editable-list-item>

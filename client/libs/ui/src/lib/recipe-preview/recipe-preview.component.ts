@@ -13,7 +13,7 @@ import {
   ExtractedIngredient,
   ExtractedStep,
 } from '@yumney/shared/api-client';
-import { VALIDATION } from '@yumney/shared/models';
+import { VALIDATION, KNOWN_UNITS } from '@yumney/shared/models';
 import { EditableListItemComponent } from '../editable-list-item/editable-list-item.component';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { SubmitButtonComponent } from '../submit-button/submit-button.component';
@@ -50,6 +50,8 @@ export class RecipePreviewComponent implements OnInit {
   discard = output<void>();
 
   private fb = inject(FormBuilder);
+
+  readonly knownUnits = KNOWN_UNITS;
 
   form = this.fb.nonNullable.group({
     title: [
