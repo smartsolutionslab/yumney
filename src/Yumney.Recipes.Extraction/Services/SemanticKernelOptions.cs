@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Recipes.Extraction;
+namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 public sealed class SemanticKernelOptions
 {
@@ -17,4 +17,12 @@ public sealed class SemanticKernelOptions
     public string ApiKey { get; init; } = string.Empty;
 
     public string Endpoint { get; init; } = string.Empty;
+
+    public void Deconstruct(out string provider, out string modelId, out string endpoint, out string apiKey)
+    {
+        provider = this.Provider;
+        modelId = this.ModelId;
+        endpoint = this.Endpoint;
+        apiKey = this.ApiKey;
+    }
 }
