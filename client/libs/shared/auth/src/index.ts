@@ -1,5 +1,5 @@
 export { AuthService } from './lib/auth.service';
-export type { AuthUser } from './lib/auth.service';
+export type { AuthUser } from './lib/auth-user';
 export { authGuard } from './lib/auth.guard';
 export { guestGuard } from './lib/guest.guard';
 export { authInterceptor } from './lib/auth.interceptor';
