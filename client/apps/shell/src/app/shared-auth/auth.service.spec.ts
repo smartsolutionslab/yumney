@@ -260,6 +260,60 @@ describe('AuthService', () => {
     });
   });
 
+  describe('shortName', () => {
+    it('should extract name before @ from email', async () => {
+      oauthMock.hasValidAccessToken.mockReturnValue(true);
+      oauthMock.getIdentityClaims.mockReturnValue({
+        sub: '123',
+        email: 'john.doe@example.com',
+        preferred_username: undefined,
+        realm_access: { roles: [] },
+      });
+
+      await service.initialize();
+
+      expect(service.shortName()).toBe('john.doe');
+    });
+
+    it('should return first word of username when no @', async () => {
+      oauthMock.hasValidAccessToken.mockReturnValue(true);
+      oauthMock.getIdentityClaims.mockReturnValue({
+        sub: '123',
+        email: 'test@example.com',
+        preferred_username: 'John Doe',
+        realm_access: { roles: [] },
+      });
+
+      await service.initialize();
+
+      expect(service.shortName()).toBe('John');
+    });
+
+    it('should return null when no user is authenticated', () => {
+      expect(service.shortName()).toBeNull();
+    });
+  });
+
+  describe('userInitial', () => {
+    it('should return uppercase first letter of shortName', async () => {
+      oauthMock.hasValidAccessToken.mockReturnValue(true);
+      oauthMock.getIdentityClaims.mockReturnValue({
+        sub: '123',
+        email: 'test@example.com',
+        preferred_username: 'testuser',
+        realm_access: { roles: [] },
+      });
+
+      await service.initialize();
+
+      expect(service.userInitial()).toBe('T');
+    });
+
+    it('should return null when no user is authenticated', () => {
+      expect(service.userInitial()).toBeNull();
+    });
+  });
+
   describe('forgotPassword', () => {
     it('should initiate code flow with UPDATE_PASSWORD action', () => {
       service.forgotPassword();

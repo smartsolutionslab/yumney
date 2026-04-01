@@ -9,12 +9,15 @@
         <a routerLink="/shopping" class="nav-link">
           {{ t('layout.header.shoppingLists') }}
         </a>
-        <span class="greeting">{{
-          t('layout.header.greeting', { name: authService.displayName() })
-        }}</span>
-        <button class="logout-button" (click)="onLogout()">
-          {{ t('layout.header.logout') }}
-        </button>
+        <div class="user-menu">
+          <span class="user-avatar" [attr.aria-label]="authService.displayName()">
+            {{ authService.userInitial() }}
+          </span>
+          <span class="user-name">{{ authService.shortName() }}</span>
+          <button class="logout-button" (click)="onLogout()">
+            {{ t('layout.header.logout') }}
+          </button>
+        </div>
       } @else {
         <a routerLink="/auth/login" class="login-link">
           {{ t('layout.header.login') }}
