@@ -125,5 +125,32 @@
     "save": {
       "saving": "Wird gespeichert..."
     }
+  },
+  "units": {
+    "ml": "ml",
+    "cl": "cl",
+    "dl": "dl",
+    "l": "l",
+    "tsp": "TL",
+    "tbsp": "EL",
+    "cup": "Tasse",
+    "flOz": "fl oz",
+    "g": "g",
+    "kg": "kg",
+    "oz": "oz",
+    "lb": "lb",
+    "piece": "Stück",
+    "slice": "Scheibe",
+    "pinch": "Prise",
+    "bunch": "Bund",
+    "clove": "Zehe",
+    "can": "Dose",
+    "pack": "Packung",
+    "handful": "Handvoll",
+    "dash": "Schuss",
+    "drop": "Tropfen",
+    "sprig": "Zweig",
+    "stalk": "Stange",
+    "sheet": "Blatt"
   }
 }

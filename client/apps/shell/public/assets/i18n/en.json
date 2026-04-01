@@ -264,5 +264,32 @@
         "stepDescriptionRequired": "Step description is required."
       }
     }
+  },
+  "units": {
+    "ml": "ml",
+    "cl": "cl",
+    "dl": "dl",
+    "l": "l",
+    "tsp": "tsp",
+    "tbsp": "tbsp",
+    "cup": "cup",
+    "flOz": "fl oz",
+    "g": "g",
+    "kg": "kg",
+    "oz": "oz",
+    "lb": "lb",
+    "piece": "piece",
+    "slice": "slice",
+    "pinch": "pinch",
+    "bunch": "bunch",
+    "clove": "clove",
+    "can": "can",
+    "pack": "pack",
+    "handful": "handful",
+    "dash": "dash",
+    "drop": "drop",
+    "sprig": "sprig",
+    "stalk": "stalk",
+    "sheet": "sheet"
   }
 }
