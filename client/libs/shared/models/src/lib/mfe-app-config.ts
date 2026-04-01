@@ -9,7 +9,7 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideTransloco } from '@jsverse/transloco';
 import { authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { TranslocoHttpLoader } from './transloco-loader';
-import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from './language.service';
+import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from './language-code';
 
 export function createMfeAppConfig(routes: Routes): ApplicationConfig {
   return {
