@@ -19,7 +19,7 @@ public sealed record PreferredLanguage : IValueObject
 
     public static PreferredLanguage From(string value) => new(value);
 
-    public static implicit operator string(PreferredLanguage obj) => obj.Value;
+    public static explicit operator string(PreferredLanguage obj) => obj.Value;
 
     public override string ToString() => Value;
 }

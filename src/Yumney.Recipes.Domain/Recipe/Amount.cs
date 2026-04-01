@@ -18,7 +18,7 @@ public sealed record Amount : IValueObject
     public static Amount? FromNullable(decimal? value) =>
         value.HasValue ? new Amount(value.Value) : null;
 
-    public static implicit operator decimal(Amount obj) => obj.Value;
+    public static explicit operator decimal(Amount obj) => obj.Value;
 
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

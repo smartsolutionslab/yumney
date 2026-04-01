@@ -101,7 +101,7 @@ public class RecipeLanguageTests
     {
         var language = RecipeLanguage.From("en");
 
-        string result = language;
+        string result = (string)language;
 
         result.Should().Be("en");
     }

@@ -78,7 +78,7 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
 
         activity?.SetTag("scrape.cleaned_length", cleanedText.Length);
         activity?.SetStatus(ActivityStatusCode.Ok);
-        return Result<ScrapedContent>.Success(new ScrapedContent(cleanedText, url));
+        return new ScrapedContent(cleanedText, url);
     }
 
     private static async Task<string> CleanHtmlAsync(string html, CancellationToken cancellationToken)

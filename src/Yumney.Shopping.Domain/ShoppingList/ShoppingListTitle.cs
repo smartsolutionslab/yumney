@@ -20,7 +20,7 @@ public sealed record ShoppingListTitle : IValueObject
 
     public static ShoppingListTitle From(string value) => new(value);
 
-    public static implicit operator string(ShoppingListTitle obj) => obj.Value;
+    public static explicit operator string(ShoppingListTitle obj) => obj.Value;
 
     public override string ToString() => Value;
 }

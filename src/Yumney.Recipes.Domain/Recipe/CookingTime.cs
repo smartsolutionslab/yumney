@@ -18,7 +18,7 @@ public sealed record CookingTime : IValueObject
     public static CookingTime? FromNullable(int? value) =>
         value.HasValue ? new CookingTime(value.Value) : null;
 
-    public static implicit operator int(CookingTime obj) => obj.Value;
+    public static explicit operator int(CookingTime obj) => obj.Value;
 
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

@@ -31,7 +31,7 @@ public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes,
             return Result<RecipeDetailDto>.Failure(GetRecipeByIdErrors.AccessDenied);
         }
 
-        return Result<RecipeDetailDto>.Success(recipe.ToDetailDto());
+        return recipe.ToDetailDto();
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipe {RecipeIdentifier} for owner {OwnerId}")]

@@ -30,7 +30,7 @@ public sealed partial class GetShoppingListByIdQueryHandler(
 
         if (shoppingList.Owner != owner) return Result<ShoppingListDetailDto>.Failure(GetShoppingListByIdErrors.AccessDenied);
 
-        return Result<ShoppingListDetailDto>.Success(shoppingList.ToDetailDto());
+        return shoppingList.ToDetailDto();
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping list {ShoppingListId}")]
