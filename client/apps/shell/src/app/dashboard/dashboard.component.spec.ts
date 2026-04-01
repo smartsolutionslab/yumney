@@ -1,9 +1,11 @@
+import { ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
+import { FormFieldComponent } from '@yumney/ui';
 import {
   RecipeApiService,
   ImportRecipeResponse,
@@ -141,7 +143,11 @@ describe('DashboardComponent', () => {
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(FormFieldComponent, {
+        set: { changeDetection: ChangeDetectionStrategy.Default },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
@@ -170,7 +176,6 @@ describe('DashboardComponent', () => {
   it('should show validation error when submitting empty URL', () => {
     component.onImport();
     fixture.detectChanges();
-    fixture.detectChanges();
 
     const error = fixture.nativeElement.querySelector('.field-error');
     expect(error.textContent).toContain('Please enter a URL.');
@@ -179,7 +184,6 @@ describe('DashboardComponent', () => {
   it('should show validation error for invalid URL format', () => {
     component.form.controls.url.setValue('not-a-url');
     component.onImport();
-    fixture.detectChanges();
     fixture.detectChanges();
 
     const error = fixture.nativeElement.querySelector('.field-error');
@@ -215,7 +219,6 @@ describe('DashboardComponent', () => {
     const longUrl = 'https://example.com/' + 'a'.repeat(2048);
     component.form.controls.url.setValue(longUrl);
     component.onImport();
-    fixture.detectChanges();
     fixture.detectChanges();
 
     const error = fixture.nativeElement.querySelector('.field-error');
@@ -962,4 +965,138 @@ describe('DashboardComponent', () => {
 
     expect(component.streamingStatus()).toBeNull();
   }));
+});
+
+describe('DashboardComponent – Share Intent', () => {
+  let recipeApiMock: {
+    importRecipe: ReturnType<typeof vi.fn>;
+    importRecipeStream: ReturnType<typeof vi.fn>;
+    saveRecipe: ReturnType<typeof vi.fn>;
+  };
+  let routerMock: { navigate: ReturnType<typeof vi.fn> };
+
+  beforeEach(() => {
+    recipeApiMock = {
+      importRecipe: vi.fn(),
+      importRecipeStream: vi.fn().mockReturnValue(successStream()),
+      saveRecipe: vi.fn(),
+    };
+    routerMock = { navigate: vi.fn() };
+  });
+
+  function createComponentWithQueryParams(queryParams: Record<string, string>) {
+    TestBed.configureTestingModule({
+      imports: [
+        DashboardComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { en },
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+        }),
+      ],
+      providers: [
+        { provide: RecipeApiService, useValue: recipeApiMock },
+        { provide: Router, useValue: routerMock },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParams } } },
+      ],
+    });
+
+    const fixture = TestBed.createComponent(DashboardComponent);
+    return { fixture, component: fixture.componentInstance };
+  }
+
+  it('should populate URL field from ?url query param on init', fakeAsync(() => {
+    const { fixture, component } = createComponentWithQueryParams({
+      url: 'https://example.com/recipe',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(recipeApiMock.importRecipeStream).toHaveBeenCalledWith('https://example.com/recipe');
+  }));
+
+  it('should auto-start import when ?url is provided', fakeAsync(() => {
+    const { fixture, component } = createComponentWithQueryParams({
+      url: 'https://example.com/recipe',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(component.extractedRecipe()).toEqual(mockRecipe);
+  }));
+
+  it('should extract URL from ?text query param', fakeAsync(() => {
+    const { fixture, component } = createComponentWithQueryParams({
+      text: 'Check this out https://example.com/recipe',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(recipeApiMock.importRecipeStream).toHaveBeenCalledWith('https://example.com/recipe');
+  }));
+
+  it('should prefer ?url over ?text when both are present', fakeAsync(() => {
+    const { fixture } = createComponentWithQueryParams({
+      url: 'https://example.com/from-url',
+      text: 'Check this https://example.com/from-text',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(recipeApiMock.importRecipeStream).toHaveBeenCalledWith('https://example.com/from-url');
+  }));
+
+  it('should not auto-import when no query params are present', () => {
+    const { fixture } = createComponentWithQueryParams({});
+
+    fixture.detectChanges();
+
+    expect(recipeApiMock.importRecipeStream).not.toHaveBeenCalled();
+  });
+
+  it('should not auto-import when ?text has no URL', () => {
+    const { fixture } = createComponentWithQueryParams({
+      text: 'Just some text without a link',
+    });
+
+    fixture.detectChanges();
+
+    expect(recipeApiMock.importRecipeStream).not.toHaveBeenCalled();
+  });
+
+  it('should extract http URL from ?text', fakeAsync(() => {
+    const { fixture } = createComponentWithQueryParams({
+      text: 'Try this http://example.com/recipe',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(recipeApiMock.importRecipeStream).toHaveBeenCalledWith('http://example.com/recipe');
+  }));
+
+  it('should extract first URL when ?text contains multiple URLs', fakeAsync(() => {
+    const { fixture } = createComponentWithQueryParams({
+      text: 'See https://first.com/recipe and https://second.com/recipe',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(recipeApiMock.importRecipeStream).toHaveBeenCalledWith('https://first.com/recipe');
+  }));
+
+  it('should not auto-import when ?text is empty string', () => {
+    const { fixture } = createComponentWithQueryParams({ text: '' });
+
+    fixture.detectChanges();
+
+    expect(recipeApiMock.importRecipeStream).not.toHaveBeenCalled();
+  });
 });
