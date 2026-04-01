@@ -30,7 +30,7 @@ public sealed partial class RegisterUserCommandHandler(
 
         LogUserRegistered(email.Value, keycloakUserId.Value);
 
-        return Result<RegisterUserResultDto>.Success(new RegisterUserResultDto("Registration successful. Please check your email to verify your account."));
+        return new RegisterUserResultDto("Registration successful. Please check your email to verify your account.");
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "User {Email} registered with Keycloak ID {KeycloakUserId}")]

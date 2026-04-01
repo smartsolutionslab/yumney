@@ -19,7 +19,7 @@ public sealed record KeycloakUserId : IValueObject
 
     public static KeycloakUserId From(string value) => new(value);
 
-    public static implicit operator string(KeycloakUserId obj) => obj.Value;
+    public static explicit operator string(KeycloakUserId obj) => obj.Value;
 
     public override string ToString() => Value;
 }

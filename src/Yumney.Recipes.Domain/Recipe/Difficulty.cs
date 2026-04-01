@@ -23,7 +23,7 @@ public sealed record Difficulty : IValueObject
     public static Difficulty? FromNullable(string? value) =>
         value.HasValue() ? new Difficulty(value!) : null;
 
-    public static implicit operator string(Difficulty obj) => obj.Value;
+    public static explicit operator string(Difficulty obj) => obj.Value;
 
     public override string ToString() => Value;
 }

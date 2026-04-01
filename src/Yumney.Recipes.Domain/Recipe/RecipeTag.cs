@@ -20,7 +20,7 @@ public sealed record RecipeTag : IValueObject
 
     public static RecipeTag From(string value) => new(value);
 
-    public static implicit operator string(RecipeTag obj) => obj.Value;
+    public static explicit operator string(RecipeTag obj) => obj.Value;
 
     public override string ToString() => Value;
 }

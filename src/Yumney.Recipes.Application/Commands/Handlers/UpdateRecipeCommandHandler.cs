@@ -55,7 +55,7 @@ public sealed partial class UpdateRecipeCommandHandler(
 
         LogRecipeUpdated(recipe.Id.Value, title.Value);
 
-        return Result<RecipeDetailDto>.Success(recipe.ToDetailDto());
+        return recipe.ToDetailDto();
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Updating recipe {RecipeIdentifier} for owner {OwnerId}")]

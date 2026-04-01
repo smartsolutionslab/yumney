@@ -22,7 +22,7 @@ public sealed record RecipeDescription : IValueObject
 
     public static RecipeDescription? FromNullable(string? value) => value.HasValue() ? new RecipeDescription(value!) : null;
 
-    public static implicit operator string(RecipeDescription description) => description.Value;
+    public static explicit operator string(RecipeDescription description) => description.Value;
 
     public override string ToString() => Value;
 }

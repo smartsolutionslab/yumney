@@ -13,7 +13,7 @@ public sealed record ItemCount : IValueObject
 
     public static ItemCount From(int value) => new(value);
 
-    public static implicit operator int(ItemCount obj) => obj.Value;
+    public static explicit operator int(ItemCount obj) => obj.Value;
 
     public override string ToString() => Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }

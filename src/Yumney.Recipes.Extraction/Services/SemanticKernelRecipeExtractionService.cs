@@ -147,7 +147,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
                 return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed);
             }
 
-            return Result<ExtractedRecipeDto>.Success(recipe);
+            return recipe;
         }
         catch (JsonException ex)
         {

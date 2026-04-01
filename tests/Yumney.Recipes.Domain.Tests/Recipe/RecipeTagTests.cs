@@ -76,7 +76,7 @@ public class RecipeTagTests
     {
         var tag = RecipeTag.From("vegetarian");
 
-        string result = tag;
+        string result = (string)tag;
 
         result.Should().Be("vegetarian");
     }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using Aspire.Hosting.Azure;
 using Azure.Provisioning.AppContainers;
 using Scalar.Aspire;
@@ -144,7 +145,7 @@ if (!options.DatabaseOnly)
                 {
                     {
                         "concurrentRequests",
-                        concurrentRequests.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                        concurrentRequests.Value.ToString(CultureInfo.InvariantCulture)
                     },
                 },
                 },
