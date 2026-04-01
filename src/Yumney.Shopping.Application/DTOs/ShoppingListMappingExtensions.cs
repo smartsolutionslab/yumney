@@ -22,7 +22,7 @@ public static class ShoppingListMappingExtensions
         return new ShoppingListSummaryDto(
             summary.Identifier.Value,
             summary.Title.Value,
-            summary.ItemCount,
+            summary.ItemCount.Value,
             summary.CreatedAt);
     }
 
@@ -31,8 +31,8 @@ public static class ShoppingListMappingExtensions
         return new ShoppingListItemDto(
             item.Id.Value,
             item.Name.Value,
-            item.Amount?.Value,
-            item.Unit?.Value,
+            item.Quantity?.Amount.Value,
+            item.Quantity?.Unit?.Value,
             item.IsChecked);
     }
 }

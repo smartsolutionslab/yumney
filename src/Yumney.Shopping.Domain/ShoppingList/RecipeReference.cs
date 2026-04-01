@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-public sealed record RecipeReference : IValueObject<Guid>
+public sealed record RecipeReference : IValueObject
 {
     public Guid Value { get; }
 

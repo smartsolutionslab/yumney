@@ -39,7 +39,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<(IReadOnlyList<Recipe> Items, int TotalCount)> GetByOwnerAsync(
+    public async Task<(IReadOnlyList<Recipe> Items, ItemCount TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
         PagingOptions paging,
         SortingOptions<RecipeSortField> sorting,
@@ -66,7 +66,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             .Take(paging.PageSize.Value)
             .ToListAsync(cancellationToken);
 
-        return (items, totalCount);
+        return (items, ItemCount.From(totalCount));
     }
 
     private static IQueryable<Recipe> ApplySorting(IQueryable<Recipe> query, SortingOptions<RecipeSortField> sorting)

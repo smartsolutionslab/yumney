@@ -45,8 +45,8 @@ public static class RecipeMappingExtensions
     {
         return new RecipeIngredientDto(
             ingredient.Name.Value,
-            ingredient.Amount?.Value,
-            ingredient.Unit?.Value);
+            ingredient.Quantity?.Amount.Value,
+            ingredient.Quantity?.Unit?.Value);
     }
 
     public static RecipeStepDto ToDto(this Step step) => new(step.Number.Value, step.Description.Value);

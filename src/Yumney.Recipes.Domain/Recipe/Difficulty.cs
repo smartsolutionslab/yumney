@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record Difficulty : IValueObject<string>
+public sealed record Difficulty : IValueObject
 {
     public const int MaxLength = 50;
 

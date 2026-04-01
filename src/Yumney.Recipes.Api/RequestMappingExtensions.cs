@@ -10,8 +10,7 @@ public static class RequestMappingExtensions
     {
         return new SaveRecipeIngredientItem(
             IngredientName.From(request.Name),
-            Amount.FromNullable(request.Amount),
-            Unit.FromNullable(request.Unit));
+            Quantity.FromNullable(Amount.FromNullable(request.Amount), Unit.FromNullable(request.Unit)));
     }
 
     public static SaveRecipeStepItem ToCommandItem(this SaveRecipeStepRequest request)

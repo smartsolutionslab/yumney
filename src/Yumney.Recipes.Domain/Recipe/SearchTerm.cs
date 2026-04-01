@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record SearchTerm : IValueObject<string>
+public sealed record SearchTerm : IValueObject
 {
     public const int MaxLength = 200;
 

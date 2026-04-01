@@ -6,9 +6,7 @@ public sealed class ShoppingListItem : Entity<ShoppingListItemIdentifier>
 {
     public ItemName Name { get; private set; } = default!;
 
-    public Amount? Amount { get; private set; }
-
-    public Unit? Unit { get; private set; }
+    public Quantity? Quantity { get; private set; }
 
     public bool IsChecked { get; private set; }
 
@@ -16,14 +14,13 @@ public sealed class ShoppingListItem : Entity<ShoppingListItemIdentifier>
     {
     }
 
-    public static ShoppingListItem Create(ItemName name, Amount? amount, Unit? unit)
+    public static ShoppingListItem Create(ItemName name, Quantity? quantity)
     {
         return new ShoppingListItem
         {
             Id = ShoppingListItemIdentifier.New(),
             Name = name,
-            Amount = amount,
-            Unit = unit,
+            Quantity = quantity,
             IsChecked = false,
         };
     }

@@ -38,7 +38,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<(IReadOnlyList<ShoppingListSummary> Items, int TotalCount)> GetByOwnerAsync(
+    public async Task<(IReadOnlyList<ShoppingListSummary> Items, ItemCount TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
         PagingOptions paging,
         SortingOptions<ShoppingListSortField> sorting,
@@ -54,10 +54,10 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         var items = await query
             .Skip(paging.Skip)
             .Take(paging.PageSize.Value)
-            .Select(l => new ShoppingListSummary(l.Id, l.Title, l.Items.Count, l.CreatedAt))
+            .Select(l => new ShoppingListSummary(l.Id, l.Title, ItemCount.From(l.Items.Count), l.CreatedAt))
             .ToListAsync(cancellationToken);
 
-        return (items, totalCount);
+        return (items, ItemCount.From(totalCount));
     }
 
     private static IQueryable<ShoppingList> ApplySorting(

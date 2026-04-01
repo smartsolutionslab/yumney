@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record PreparationTime : IValueObject<int>
+public sealed record PreparationTime : IValueObject
 {
     public int Value { get; }
 

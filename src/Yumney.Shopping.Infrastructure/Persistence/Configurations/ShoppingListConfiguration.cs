@@ -45,13 +45,19 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
                 .ConfigureRequiredStringValueObject(
                     v => v.Value, ItemName.From, ItemName.MaxLength);
 
-            item.Property(i => i.Amount)
-                .ConfigureNullableDecimalValueObject(
-                    v => v.Value, Amount.FromNullable);
+            item.OwnsOne(i => i.Quantity, q =>
+            {
+                q.Property(x => x.Amount)
+                    .HasConversion(v => v.Value, v => Amount.From(v))
+                    .HasColumnName("Amount");
 
-            item.Property(i => i.Unit)
-                .ConfigureNullableStringValueObject(
-                    v => v.Value, Unit.FromNullable, Unit.MaxLength);
+                q.Property(x => x.Unit)
+                    .HasConversion(
+                        v => v != null ? v.Value : null,
+                        v => Unit.FromNullable(v))
+                    .HasMaxLength(Unit.MaxLength)
+                    .HasColumnName("Unit");
+            });
         });
 
         entity.Property<uint>("xmin")

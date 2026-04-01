@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record IngredientName : IValueObject<string>
+public sealed record IngredientName : IValueObject
 {
     public const int MaxLength = 200;
 

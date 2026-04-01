@@ -59,11 +59,19 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
             ingredient.Property(i => i.Name)
                 .ConfigureRequiredStringValueObject(v => v.Value, IngredientName.From, IngredientName.MaxLength);
 
-            ingredient.Property(i => i.Amount)
-                .ConfigureNullableDecimalValueObject(v => v.Value, Amount.FromNullable);
+            ingredient.OwnsOne(i => i.Quantity, q =>
+            {
+                q.Property(x => x.Amount)
+                    .HasConversion(v => v.Value, v => Amount.From(v))
+                    .HasColumnName("Amount");
 
-            ingredient.Property(i => i.Unit)
-                .ConfigureNullableStringValueObject(v => v.Value, Unit.FromNullable, Unit.MaxLength);
+                q.Property(x => x.Unit)
+                    .HasConversion(
+                        v => v != null ? v.Value : null,
+                        v => Unit.FromNullable(v))
+                    .HasMaxLength(Unit.MaxLength)
+                    .HasColumnName("Unit");
+            });
         });
 
         entity.OwnsMany(e => e.Steps, step =>

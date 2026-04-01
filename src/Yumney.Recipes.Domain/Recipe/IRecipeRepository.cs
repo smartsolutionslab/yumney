@@ -10,7 +10,7 @@ public interface IRecipeRepository
 
     Task<Recipe?> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default);
 
-    Task<(IReadOnlyList<Recipe> Items, int TotalCount)> GetByOwnerAsync(
+    Task<(IReadOnlyList<Recipe> Items, ItemCount TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,
         PagingOptions paging,
         SortingOptions<RecipeSortField> sorting,

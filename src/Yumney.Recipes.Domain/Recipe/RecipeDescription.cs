@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record RecipeDescription : IValueObject<string>
+public sealed record RecipeDescription : IValueObject
 {
     public const int MaxLength = 2000;
 
@@ -20,8 +20,7 @@ public sealed record RecipeDescription : IValueObject<string>
 
     public static RecipeDescription From(string value) => new(value);
 
-    public static RecipeDescription? FromNullable(string? value) =>
-        value.HasValue() ? new RecipeDescription(value!) : null;
+    public static RecipeDescription? FromNullable(string? value) => value.HasValue() ? new RecipeDescription(value!) : null;
 
     public static implicit operator string(RecipeDescription description) => description.Value;
 

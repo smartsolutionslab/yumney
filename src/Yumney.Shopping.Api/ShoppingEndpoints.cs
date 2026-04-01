@@ -67,8 +67,7 @@ public static class ShoppingEndpoints
             ShoppingListTitle.From(request.Title),
             request.Items.Select(i => new ShoppingListItem(
                 ItemName.From(i.Name),
-                Amount.FromNullable(i.Amount),
-                Unit.FromNullable(i.Unit))).ToList(),
+                Quantity.FromNullable(Amount.FromNullable(i.Amount), Unit.FromNullable(i.Unit)))).ToList(),
             RecipeReference.FromNullable(request.RecipeReference));
         var result = await handler.HandleAsync(command, cancellationToken);
 
