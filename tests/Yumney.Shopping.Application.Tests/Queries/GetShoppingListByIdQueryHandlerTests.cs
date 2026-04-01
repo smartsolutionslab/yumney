@@ -72,6 +72,6 @@ public class GetShoppingListByIdQueryHandlerTests
         return ShoppingList.Create(
             ShoppingListTitle.From("Test List"),
             OwnerIdentifier.From("user-123"),
-            [ShoppingListItem.Create(ItemName.From("Flour"), Amount.From(500), Unit.From("g"))]);
+            [ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g")))]);
     }
 }

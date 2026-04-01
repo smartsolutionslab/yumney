@@ -9,10 +9,12 @@
     <ProjectReference Include="..\..\src\Yumney.Shared\Yumney.Shared.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.CQRS\Yumney.Shared.CQRS.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.Persistence\Yumney.Shared.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="coverlet.collector" />

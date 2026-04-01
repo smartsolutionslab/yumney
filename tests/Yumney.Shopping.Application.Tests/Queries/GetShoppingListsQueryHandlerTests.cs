@@ -40,8 +40,8 @@ public class GetShoppingListsQueryHandlerTests
     {
         List<ShoppingListSummary> summaries =
         [
-            new(ShoppingListIdentifier.New(), ShoppingListTitle.From("List 1"), 1, DateTime.UtcNow),
-            new(ShoppingListIdentifier.New(), ShoppingListTitle.From("List 2"), 2, DateTime.UtcNow),
+            new(ShoppingListIdentifier.New(), ShoppingListTitle.From("List 1"), ItemCount.From(1), DateTime.UtcNow),
+            new(ShoppingListIdentifier.New(), ShoppingListTitle.From("List 2"), ItemCount.From(2), DateTime.UtcNow),
         ];
 
         SetupRepository(summaries, 2);
@@ -117,6 +117,6 @@ public class GetShoppingListsQueryHandlerTests
             Arg.Any<PagingOptions>(),
             Arg.Any<SortingOptions<ShoppingListSortField>>(),
             Arg.Any<CancellationToken>())
-            .Returns((items, totalCount));
+            .Returns((items, ItemCount.From(totalCount)));
     }
 }

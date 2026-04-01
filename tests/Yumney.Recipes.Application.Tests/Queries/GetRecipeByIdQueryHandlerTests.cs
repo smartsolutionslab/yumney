@@ -199,7 +199,7 @@ public class GetRecipeByIdQueryHandlerTests
         return Recipe.Create(
             RecipeTitle.From(title),
             OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Ingredient.Create(IngredientName.From("Flour"), null)],
             [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
     }
 
@@ -208,7 +208,7 @@ public class GetRecipeByIdQueryHandlerTests
         return Recipe.Create(
             RecipeTitle.From("Full Recipe"),
             OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Ingredient.Create(IngredientName.From("Flour"), null)],
             [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
             RecipeDescription.From("A test recipe"),
             Servings.From(4),
@@ -225,8 +225,8 @@ public class GetRecipeByIdQueryHandlerTests
             RecipeTitle.From("Recipe With Ingredients"),
             OwnerIdentifier.From(ownerId),
             [
-                Ingredient.Create(IngredientName.From("Flour"), Amount.From(500m), Unit.From("g")),
-                Ingredient.Create(IngredientName.From("Eggs"), null, null),
+                Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500m), Unit.From("g"))),
+                Ingredient.Create(IngredientName.From("Eggs"), null),
             ],
             [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
     }
@@ -236,7 +236,7 @@ public class GetRecipeByIdQueryHandlerTests
         return Recipe.Create(
             RecipeTitle.From("Recipe With Steps"),
             OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Ingredient.Create(IngredientName.From("Flour"), null)],
             [
                 Step.Create(StepNumber.From(1), StepDescription.From("Mix flour")),
                 Step.Create(StepNumber.From(2), StepDescription.From("Add eggs")),

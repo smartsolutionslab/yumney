@@ -17,8 +17,7 @@ public static class RecipeFactory
         var recipeIngredients = (ingredients ?? [("Default Ingredient", null, null)])
             .Select(i => Ingredient.Create(
                 IngredientName.From(i.Name),
-                Amount.FromNullable(i.Amount),
-                Unit.FromNullable(i.Unit)))
+                Quantity.FromNullable(Amount.FromNullable(i.Amount), Unit.FromNullable(i.Unit))))
             .ToList();
 
         var recipeSteps = (steps ?? ["Default step"])
