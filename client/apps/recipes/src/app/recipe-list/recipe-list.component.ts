@@ -65,9 +65,10 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   private searchSubject = new Subject<string>();
 
   @HostListener('document:click', ['$event.target'])
-  onDocumentClick(target: HTMLElement): void {
+  onDocumentClick(target: EventTarget | null): void {
     if (
       this.sortMenuOpen() &&
+      target instanceof Node &&
       !this.elementRef.nativeElement.querySelector('.sort-dropdown')?.contains(target)
     ) {
       this.sortMenuOpen.set(false);
