@@ -58,10 +58,7 @@ public static class ShoppingEndpoints
         CancellationToken cancellationToken)
     {
         var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null)
-        {
-            return problem;
-        }
+        if (problem is not null) return problem;
 
         var command = new CreateShoppingListCommand(
             ShoppingListTitle.From(request.Title),

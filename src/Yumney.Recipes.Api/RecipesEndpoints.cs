@@ -121,10 +121,7 @@ public static class RecipesEndpoints
         CancellationToken cancellationToken)
     {
         var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null)
-        {
-            return problem;
-        }
+        if (problem is not null) return problem;
 
         var command = new SaveRecipeCommand(
             RecipeTitle.From(request.Title),
@@ -161,10 +158,7 @@ public static class RecipesEndpoints
         CancellationToken cancellationToken)
     {
         var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null)
-        {
-            return problem;
-        }
+        if (problem is not null) return problem;
 
         var (title, description, ingredients, steps, servings, prepTimeMinutes, cookTimeMinutes, difficulty, imageUrl,
             tags) = request;
@@ -202,10 +196,7 @@ public static class RecipesEndpoints
         CancellationToken cancellationToken)
     {
         var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null)
-        {
-            return problem;
-        }
+        if (problem is not null) return problem;
 
         var command = new ImportRecipeCommand(RecipeUrl.From(request.Url));
         var result = await handler.HandleAsync(command, cancellationToken);

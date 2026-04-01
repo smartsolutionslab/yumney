@@ -163,10 +163,7 @@ public sealed class KeycloakAdminService(
     private async Task<Result<string>> GetServiceAccountTokenAsync(CancellationToken cancellationToken)
     {
         var cachedToken = await cache.GetStringAsync(tokenCacheKey, cancellationToken);
-        if (cachedToken.HasValue())
-        {
-            return Result<string>.Success(cachedToken!);
-        }
+        if (cachedToken.HasValue()) return Result<string>.Success(cachedToken!);
 
         var content = new FormUrlEncodedContent(new Dictionary<string, string>
         {

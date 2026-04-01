@@ -83,21 +83,13 @@ public static class GuardExtensions
     {
         public GuardClause<int> IsPositive()
         {
-            if (guard.Value <= 0)
-            {
-                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
-            }
-
+            if (guard.Value <= 0) throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
             return guard;
         }
 
         public GuardClause<int> IsNotNegative()
         {
-            if (guard.Value < 0)
-            {
-                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
-            }
-
+            if (guard.Value < 0) throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
             return guard;
         }
 
@@ -118,21 +110,13 @@ public static class GuardExtensions
     {
         public GuardClause<decimal> IsPositive()
         {
-            if (guard.Value <= 0)
-            {
-                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
-            }
-
+            if (guard.Value <= 0) throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
             return guard;
         }
 
         public GuardClause<decimal> IsNotNegative()
         {
-            if (guard.Value < 0)
-            {
-                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
-            }
-
+            if (guard.Value < 0) throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
             return guard;
         }
 
@@ -167,11 +151,7 @@ public static class GuardExtensions
     {
         public GuardClause<T> IsNotNull()
         {
-            if (guard.Value is null)
-            {
-                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be null.");
-            }
-
+            if (guard.Value is null) throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be null.");
             return guard;
         }
     }

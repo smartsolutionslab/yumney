@@ -12,10 +12,7 @@ public sealed class DomainEventDispatchInterceptor(IDomainEventDispatcher dispat
         int result,
         CancellationToken cancellationToken = default)
     {
-        if (eventData.Context is not null)
-        {
-            await DispatchDomainEventsAsync(eventData.Context, cancellationToken);
-        }
+        if (eventData.Context is not null) await DispatchDomainEventsAsync(eventData.Context, cancellationToken);
 
         return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }
@@ -37,9 +34,6 @@ public sealed class DomainEventDispatchInterceptor(IDomainEventDispatcher dispat
             entity.ClearDomainEvents();
         }
 
-        if (domainEvents.Count > 0)
-        {
-            await dispatcher.DispatchAsync(domainEvents, cancellationToken);
-        }
+        if (domainEvents.Count > 0) await dispatcher.DispatchAsync(domainEvents, cancellationToken);
     }
 }

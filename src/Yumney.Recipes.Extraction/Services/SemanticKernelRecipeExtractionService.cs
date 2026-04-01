@@ -78,10 +78,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
         await foreach (var chunk in chatCompletion.GetStreamingChatMessageContentsAsync(chatHistory, cancellationToken: cancellationToken))
         {
-            if (chunk.Content is not null)
-            {
-                yield return chunk.Content;
-            }
+            if (chunk.Content is not null) yield return chunk.Content;
         }
     }
 

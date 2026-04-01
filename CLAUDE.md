@@ -308,7 +308,7 @@ public RecipeTitle(string value)
 - `.editorconfig` + `dotnet format` + StyleCop.Analyzers
 - File-scoped namespaces
 - `var` when type is apparent, explicit type otherwise
-- Braces always required
+- Braces required for multi-line blocks; single-line `if` with `return` may omit braces
 - Max 120 chars per line
 
 ### Frontend

@@ -38,10 +38,7 @@ public static class MassTransitEventBusExtensions
             x.UsingRabbitMq((context, cfg) =>
             {
                 var connectionString = configuration.GetConnectionString("messaging");
-                if (connectionString.HasValue())
-                {
-                    cfg.Host(connectionString);
-                }
+                if (connectionString.HasValue()) cfg.Host(connectionString);
 
                 cfg.ConfigureEndpoints(context);
             });

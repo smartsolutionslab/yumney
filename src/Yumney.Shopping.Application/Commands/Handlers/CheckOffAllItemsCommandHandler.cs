@@ -18,17 +18,11 @@ public sealed partial class CheckOffAllItemsCommandHandler(
 
         var shoppingList = await shoppingLists.GetByIdForUpdateAsync(listIdentifier, cancellationToken);
 
-        if (shoppingList is null)
-        {
-            return Result.Failure(CheckOffItemErrors.ListNotFound);
-        }
+        if (shoppingList is null) return Result.Failure(CheckOffItemErrors.ListNotFound);
 
         var owner = OwnerIdentifier.From(currentUser.UserId);
 
-        if (shoppingList.Owner != owner)
-        {
-            return Result.Failure(CheckOffItemErrors.AccessDenied);
-        }
+        if (shoppingList.Owner != owner) return Result.Failure(CheckOffItemErrors.AccessDenied);
 
         if (isChecked)
         {

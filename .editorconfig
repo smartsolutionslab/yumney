@@ -20,6 +20,8 @@ dotnet_diagnostic.SA1309.severity = none
 dotnet_diagnostic.SA1402.severity = none
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.SA1633.severity = none
+dotnet_diagnostic.SA1501.severity = none
+dotnet_diagnostic.SA1503.severity = none
 
 # CA suppressions
 dotnet_diagnostic.CA1000.severity = suggestion
@@ -28,7 +30,7 @@ dotnet_diagnostic.CA1848.severity = suggestion
 dotnet_sort_system_directives_first = true
 csharp_using_directive_placement = outside_namespace
 csharp_new_line_before_open_brace = all
-csharp_prefer_braces = true:warning
+csharp_prefer_braces = when_multiline:warning
 csharp_style_var_for_built_in_types = false:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = false:suggestion

@@ -44,10 +44,7 @@ public static class AuthEndpoints
         CancellationToken cancellationToken)
     {
         var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null)
-        {
-            return problem;
-        }
+        if (problem is not null) return problem;
 
         var (email, password, displayName) = request;
         var command = new RegisterUserCommand(Email.From(email), Password.From(password), DisplayName.From(displayName));
@@ -62,10 +59,7 @@ public static class AuthEndpoints
         CancellationToken cancellationToken)
     {
         var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null)
-        {
-            return problem;
-        }
+        if (problem is not null) return problem;
 
         var command = new ResendVerificationEmailCommand(Email.From(request.Email));
         var result = await handler.HandleAsync(command, cancellationToken);
