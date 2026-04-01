@@ -1,17 +1,32 @@
 <div class="recipe-list-container" *transloco="let t">
   <div class="list-header">
     <h1>{{ t('recipes.list.title') }}</h1>
-    <select
-      class="sort-select"
-      [value]="currentSort()"
-      (change)="onSortChange($event)"
-      [attr.aria-label]="t('recipes.list.sortLabel')"
-    >
-      <option value="date-desc">{{ t('recipes.list.sort.dateDesc') }}</option>
-      <option value="date-asc">{{ t('recipes.list.sort.dateAsc') }}</option>
-      <option value="name-asc">{{ t('recipes.list.sort.nameAsc') }}</option>
-      <option value="name-desc">{{ t('recipes.list.sort.nameDesc') }}</option>
-    </select>
+    <div class="sort-dropdown">
+      <button
+        type="button"
+        class="sort-toggle"
+        (click)="toggleSortMenu()"
+        [attr.aria-label]="t('recipes.list.sortLabel')"
+        [attr.aria-expanded]="sortMenuOpen()"
+      >
+        {{ t(currentSortLabel()) }}
+        <span class="sort-chevron" [class.open]="sortMenuOpen()">&#9662;</span>
+      </button>
+      @if (sortMenuOpen()) {
+        <ul class="sort-menu" role="listbox">
+          @for (option of sortOptions; track option.value) {
+            <li
+              role="option"
+              class="sort-menu-item"
+              [class.active]="currentSort() === option.value"
+              (click)="onSortSelect(option.value)"
+            >
+              {{ t(option.labelKey) }}
+            </li>
+          }
+        </ul>
+      }
+    </div>
   </div>
 
   <div class="search-bar">
