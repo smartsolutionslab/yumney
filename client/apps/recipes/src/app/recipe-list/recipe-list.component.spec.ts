@@ -139,10 +139,6 @@ describe('RecipeListComponent', () => {
     component = fixture.componentInstance;
   }
 
-  function mockSortEvent(value: string): Event {
-    return { target: { value } } as unknown as Event;
-  }
-
   function triggerIntersection(isIntersecting: boolean): void {
     intersectionCallback(
       [{ isIntersecting } as IntersectionObserverEntry],
@@ -254,7 +250,7 @@ describe('RecipeListComponent', () => {
     tick();
 
     recipeApiMock.getRecipes.mockReturnValue(of(mockResponse));
-    component.onSortChange(mockSortEvent('name-asc'));
+    component.onSortSelect('name-asc');
     tick();
 
     expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
@@ -269,7 +265,7 @@ describe('RecipeListComponent', () => {
 
     component.currentPage.set(3);
     recipeApiMock.getRecipes.mockReturnValue(of(mockResponse));
-    component.onSortChange(mockSortEvent('date-asc'));
+    component.onSortSelect('date-asc');
     tick();
 
     expect(component.currentPage()).toBe(1);
@@ -406,7 +402,7 @@ describe('RecipeListComponent', () => {
 
     const subject = new Subject<RecipeListResponse>();
     recipeApiMock.getRecipes.mockReturnValue(subject);
-    component.onSortChange(mockSortEvent('name-asc'));
+    component.onSortSelect('name-asc');
 
     expect(component.totalCount()).toBe(0);
 
@@ -422,7 +418,7 @@ describe('RecipeListComponent', () => {
     expect(component.serverError()).toBe('recipes.list.errors.generic');
 
     recipeApiMock.getRecipes.mockReturnValue(of(mockResponse));
-    component.onSortChange(mockSortEvent('date-desc'));
+    component.onSortSelect('date-desc');
     tick();
 
     expect(component.serverError()).toBeNull();
@@ -447,9 +443,17 @@ describe('RecipeListComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const select = fixture.nativeElement.querySelector('.sort-select');
-    expect(select).toBeTruthy();
-    expect(select.options.length).toBe(4);
+    const dropdown = fixture.nativeElement.querySelector('.sort-dropdown');
+    expect(dropdown).toBeTruthy();
+
+    const toggle = dropdown.querySelector('.sort-toggle');
+    expect(toggle).toBeTruthy();
+
+    component.sortMenuOpen.set(true);
+    fixture.detectChanges();
+
+    const items = fixture.nativeElement.querySelectorAll('.sort-menu-item');
+    expect(items.length).toBe(4);
   }));
 
   it('should display recipe description when present', fakeAsync(() => {
