@@ -7,7 +7,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { ShoppingApiService, CreateShoppingListItem } from '@yumney/shared/api-client';
@@ -16,7 +16,7 @@ import { BackLinkComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-shopping-create',
-  imports: [TranslocoModule, RouterLink, BackLinkComponent],
+  imports: [TranslocoModule, BackLinkComponent],
   templateUrl: './shopping-create.component.html',
   styleUrl: './shopping-create.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
