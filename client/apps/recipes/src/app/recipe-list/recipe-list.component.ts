@@ -31,10 +31,30 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   };
 
   private static readonly sortOptionList = [
-    { value: 'date-desc', by: 'Date' as const, dir: 'Descending' as const, labelKey: 'recipes.list.sort.dateDesc' },
-    { value: 'date-asc', by: 'Date' as const, dir: 'Ascending' as const, labelKey: 'recipes.list.sort.dateAsc' },
-    { value: 'name-asc', by: 'Name' as const, dir: 'Ascending' as const, labelKey: 'recipes.list.sort.nameAsc' },
-    { value: 'name-desc', by: 'Name' as const, dir: 'Descending' as const, labelKey: 'recipes.list.sort.nameDesc' },
+    {
+      value: 'date-desc',
+      by: 'Date' as const,
+      dir: 'Descending' as const,
+      labelKey: 'recipes.list.sort.dateDesc',
+    },
+    {
+      value: 'date-asc',
+      by: 'Date' as const,
+      dir: 'Ascending' as const,
+      labelKey: 'recipes.list.sort.dateAsc',
+    },
+    {
+      value: 'name-asc',
+      by: 'Name' as const,
+      dir: 'Ascending' as const,
+      labelKey: 'recipes.list.sort.nameAsc',
+    },
+    {
+      value: 'name-desc',
+      by: 'Name' as const,
+      dir: 'Descending' as const,
+      labelKey: 'recipes.list.sort.nameDesc',
+    },
   ];
 
   private recipeApi = inject(RecipeApiService);
@@ -46,7 +66,10 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
 
   @HostListener('document:click', ['$event.target'])
   onDocumentClick(target: HTMLElement): void {
-    if (this.sortMenuOpen() && !this.elementRef.nativeElement.querySelector('.sort-dropdown')?.contains(target)) {
+    if (
+      this.sortMenuOpen() &&
+      !this.elementRef.nativeElement.querySelector('.sort-dropdown')?.contains(target)
+    ) {
       this.sortMenuOpen.set(false);
     }
   }
