@@ -10,7 +10,13 @@ import {
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
-import { createAsyncState, scaleIngredients, HttpErrorMap, ROUTES, VALIDATION } from '@yumney/shared/models';
+import {
+  createAsyncState,
+  scaleIngredients,
+  HttpErrorMap,
+  ROUTES,
+  VALIDATION,
+} from '@yumney/shared/models';
 import { BackLinkComponent, ConfirmDialogComponent } from '@yumney/ui';
 
 @Component({

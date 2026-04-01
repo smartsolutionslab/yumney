@@ -8,7 +8,13 @@ import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-resend-verification',
-  imports: [ReactiveFormsModule, TranslocoModule, RouterLink, FormFieldComponent, SubmitButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoModule,
+    RouterLink,
+    FormFieldComponent,
+    SubmitButtonComponent,
+  ],
   templateUrl: './resend-verification.component.html',
   styleUrl: './resend-verification.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,7 +36,11 @@ export class ResendVerificationComponent {
   form = this.fb.nonNullable.group({
     email: [
       '',
-      [Validators.required, Validators.email, Validators.maxLength(VALIDATION.USERS.EMAIL.MAX_LENGTH)],
+      [
+        Validators.required,
+        Validators.email,
+        Validators.maxLength(VALIDATION.USERS.EMAIL.MAX_LENGTH),
+      ],
     ],
   });
 
@@ -48,5 +58,4 @@ export class ResendVerificationComponent {
       () => this.isSuccess.set(true),
     );
   }
-
 }

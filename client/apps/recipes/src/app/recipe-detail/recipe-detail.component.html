@@ -15,7 +15,13 @@
   @if (recipe(); as recipe) {
     <div class="recipe-hero">
       @if (recipe.imageUrl) {
-        <img [src]="recipe.imageUrl" [alt]="recipe.title" class="hero-image" loading="eager" fetchpriority="high" />
+        <img
+          [src]="recipe.imageUrl"
+          [alt]="recipe.title"
+          class="hero-image"
+          loading="eager"
+          fetchpriority="high"
+        />
       } @else {
         <div class="hero-placeholder"></div>
       }

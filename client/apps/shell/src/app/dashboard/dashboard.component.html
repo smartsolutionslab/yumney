@@ -12,18 +12,31 @@
       }
 
       <div class="import-row">
-        <yn-form-field for="url"
+        <yn-form-field
+          for="url"
           [control]="form.controls.url"
-          [errors]="{ required: 'dashboard.import.errors.urlRequired', maxlength: 'dashboard.import.errors.urlTooLong', invalidUrl: 'dashboard.import.errors.urlInvalid' }">
-          <input id="url" type="url" formControlName="url"
+          [errors]="{
+            required: 'dashboard.import.errors.urlRequired',
+            maxlength: 'dashboard.import.errors.urlTooLong',
+            invalidUrl: 'dashboard.import.errors.urlInvalid',
+          }"
+        >
+          <input
+            id="url"
+            type="url"
+            formControlName="url"
             [placeholder]="t('dashboard.import.placeholder')"
-            [attr.aria-label]="t('dashboard.import.urlLabel')" />
+            [attr.aria-label]="t('dashboard.import.urlLabel')"
+          />
         </yn-form-field>
 
-        <yn-submit-button [loading]="isLoading()" [disabled]="isSaving()"
+        <yn-submit-button
+          [loading]="isLoading()"
+          [disabled]="isSaving()"
           label="dashboard.import.submit"
           loadingLabel="dashboard.import.submitting"
-          [showSpinner]="true" />
+          [showSpinner]="true"
+        />
       </div>
     </form>
 

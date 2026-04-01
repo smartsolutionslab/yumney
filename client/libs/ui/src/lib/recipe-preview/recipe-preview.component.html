@@ -9,32 +9,53 @@
 
   <form [formGroup]="form" (ngSubmit)="onSave()">
     <div class="metadata-section">
-      <yn-form-field label="dashboard.preview.recipeTitle" for="preview-title"
+      <yn-form-field
+        label="dashboard.preview.recipeTitle"
+        for="preview-title"
         [control]="form.controls.title"
-        [errors]="{ required: 'dashboard.preview.errors.titleRequired', maxlength: 'dashboard.preview.errors.titleMaxLength' }">
+        [errors]="{
+          required: 'dashboard.preview.errors.titleRequired',
+          maxlength: 'dashboard.preview.errors.titleMaxLength',
+        }"
+      >
         <input id="preview-title" type="text" formControlName="title" />
       </yn-form-field>
 
-      <yn-form-field label="dashboard.preview.description" for="preview-description"
-        [control]="form.controls.description">
+      <yn-form-field
+        label="dashboard.preview.description"
+        for="preview-description"
+        [control]="form.controls.description"
+      >
         <textarea id="preview-description" formControlName="description" rows="3"></textarea>
       </yn-form-field>
 
       <div class="form-row">
-        <yn-form-field label="dashboard.preview.servings" for="preview-servings"
-          [control]="form.controls.servings">
+        <yn-form-field
+          label="dashboard.preview.servings"
+          for="preview-servings"
+          [control]="form.controls.servings"
+        >
           <input id="preview-servings" type="number" formControlName="servings" />
         </yn-form-field>
-        <yn-form-field label="dashboard.preview.prepTime" for="preview-prepTime"
-          [control]="form.controls.prepTimeMinutes">
+        <yn-form-field
+          label="dashboard.preview.prepTime"
+          for="preview-prepTime"
+          [control]="form.controls.prepTimeMinutes"
+        >
           <input id="preview-prepTime" type="number" formControlName="prepTimeMinutes" />
         </yn-form-field>
-        <yn-form-field label="dashboard.preview.cookTime" for="preview-cookTime"
-          [control]="form.controls.cookTimeMinutes">
+        <yn-form-field
+          label="dashboard.preview.cookTime"
+          for="preview-cookTime"
+          [control]="form.controls.cookTimeMinutes"
+        >
           <input id="preview-cookTime" type="number" formControlName="cookTimeMinutes" />
         </yn-form-field>
-        <yn-form-field label="dashboard.preview.difficulty" for="preview-difficulty"
-          [control]="form.controls.difficulty">
+        <yn-form-field
+          label="dashboard.preview.difficulty"
+          for="preview-difficulty"
+          [control]="form.controls.difficulty"
+        >
           <input id="preview-difficulty" type="text" formControlName="difficulty" />
         </yn-form-field>
       </div>
@@ -53,21 +74,30 @@
             (remove)="removeIngredient(i)"
           >
             <div class="ingredient-fields" [formGroupName]="i">
-              <yn-form-field class="ingredient-name"
+              <yn-form-field
+                class="ingredient-name"
                 [control]="ingredients.at(i).get('name')!"
-                [errors]="{ required: 'dashboard.preview.errors.ingredientNameRequired' }">
-                <input type="text" formControlName="name"
-                  [placeholder]="t('dashboard.preview.ingredientName')" />
+                [errors]="{ required: 'dashboard.preview.errors.ingredientNameRequired' }"
+              >
+                <input
+                  type="text"
+                  formControlName="name"
+                  [placeholder]="t('dashboard.preview.ingredientName')"
+                />
               </yn-form-field>
-              <yn-form-field class="ingredient-amount"
-                [control]="ingredients.at(i).get('amount')!">
-                <input type="number" formControlName="amount"
-                  [placeholder]="t('dashboard.preview.amount')" />
+              <yn-form-field class="ingredient-amount" [control]="ingredients.at(i).get('amount')!">
+                <input
+                  type="number"
+                  formControlName="amount"
+                  [placeholder]="t('dashboard.preview.amount')"
+                />
               </yn-form-field>
-              <yn-form-field class="ingredient-unit"
-                [control]="ingredients.at(i).get('unit')!">
-                <input type="text" formControlName="unit"
-                  [placeholder]="t('dashboard.preview.unit')" />
+              <yn-form-field class="ingredient-unit" [control]="ingredients.at(i).get('unit')!">
+                <input
+                  type="text"
+                  formControlName="unit"
+                  [placeholder]="t('dashboard.preview.unit')"
+                />
               </yn-form-field>
             </div>
           </yn-editable-list-item>
@@ -93,11 +123,16 @@
           >
             <div class="step-fields" [formGroupName]="i">
               <span class="step-number">{{ i + 1 }}.</span>
-              <yn-form-field class="step-description"
+              <yn-form-field
+                class="step-description"
                 [control]="steps.at(i).get('description')!"
-                [errors]="{ required: 'dashboard.preview.errors.stepDescriptionRequired' }">
-                <textarea formControlName="description"
-                  [placeholder]="t('dashboard.preview.stepDescription')" rows="2"></textarea>
+                [errors]="{ required: 'dashboard.preview.errors.stepDescriptionRequired' }"
+              >
+                <textarea
+                  formControlName="description"
+                  [placeholder]="t('dashboard.preview.stepDescription')"
+                  rows="2"
+                ></textarea>
               </yn-form-field>
             </div>
           </yn-editable-list-item>
@@ -113,11 +148,13 @@
       <button type="button" class="discard-btn" [disabled]="isSaving()" (click)="onDiscard()">
         {{ t('dashboard.preview.discard') }}
       </button>
-      <yn-submit-button [loading]="isSaving()"
+      <yn-submit-button
+        [loading]="isSaving()"
         label="dashboard.preview.save"
         loadingLabel="dashboard.save.saving"
         [showSpinner]="true"
-        cssClass="save-btn" />
+        cssClass="save-btn"
+      />
     </div>
   </form>
 </section>
