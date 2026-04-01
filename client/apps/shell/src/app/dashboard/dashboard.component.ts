@@ -27,7 +27,13 @@ import { RecipePreviewComponent, FormFieldComponent, SubmitButtonComponent } fro
 
 @Component({
   selector: 'yn-dashboard',
-  imports: [ReactiveFormsModule, TranslocoModule, RecipePreviewComponent, FormFieldComponent, SubmitButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoModule,
+    RecipePreviewComponent,
+    FormFieldComponent,
+    SubmitButtonComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,7 +70,14 @@ export class DashboardComponent implements OnInit {
   streamingChunks = signal('');
 
   form = this.fb.nonNullable.group({
-    url: ['', [Validators.required, Validators.maxLength(VALIDATION.RECIPES.RECIPE_URL.MAX_LENGTH), urlValidator]],
+    url: [
+      '',
+      [
+        Validators.required,
+        Validators.maxLength(VALIDATION.RECIPES.RECIPE_URL.MAX_LENGTH),
+        urlValidator,
+      ],
+    ],
   });
 
   ngOnInit(): void {

@@ -30,7 +30,13 @@ interface StepFormGroup {
 
 @Component({
   selector: 'yn-recipe-preview',
-  imports: [ReactiveFormsModule, TranslocoModule, EditableListItemComponent, FormFieldComponent, SubmitButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoModule,
+    EditableListItemComponent,
+    FormFieldComponent,
+    SubmitButtonComponent,
+  ],
   templateUrl: './recipe-preview.component.html',
   styleUrl: './recipe-preview.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,7 +52,10 @@ export class RecipePreviewComponent implements OnInit {
   private fb = inject(FormBuilder);
 
   form = this.fb.nonNullable.group({
-    title: ['', [Validators.required, Validators.maxLength(VALIDATION.RECIPES.RECIPE_TITLE.MAX_LENGTH)]],
+    title: [
+      '',
+      [Validators.required, Validators.maxLength(VALIDATION.RECIPES.RECIPE_TITLE.MAX_LENGTH)],
+    ],
     description: [''],
     servings: [null as number | null],
     prepTimeMinutes: [null as number | null],

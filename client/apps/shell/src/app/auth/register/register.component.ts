@@ -13,7 +13,13 @@ import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-register',
-  imports: [ReactiveFormsModule, TranslocoModule, RouterLink, FormFieldComponent, SubmitButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoModule,
+    RouterLink,
+    FormFieldComponent,
+    SubmitButtonComponent,
+  ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,7 +43,11 @@ export class RegisterComponent {
     {
       email: [
         '',
-        [Validators.required, Validators.email, Validators.maxLength(VALIDATION.USERS.EMAIL.MAX_LENGTH)],
+        [
+          Validators.required,
+          Validators.email,
+          Validators.maxLength(VALIDATION.USERS.EMAIL.MAX_LENGTH),
+        ],
       ],
       password: [
         '',
@@ -75,5 +85,4 @@ export class RegisterComponent {
       },
     );
   }
-
 }
