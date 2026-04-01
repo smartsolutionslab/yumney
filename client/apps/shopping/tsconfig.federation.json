@@ -2,14 +2,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "include": [
-    "src/**/*.ts",
-    "..\\..\\libs\\shared\\models\\src\\index.ts",
-    "..\\..\\libs\\shared\\api-client\\src\\index.ts",
-    "..\\..\\libs\\ui\\src\\index.ts",
-    "..\\..\\libs\\shared\\auth\\src\\index.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "jest.config.ts",
