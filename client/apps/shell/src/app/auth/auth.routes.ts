@@ -17,9 +17,6 @@ export const authRoutes: Route[] = [
   {
     path: 'resend-verification',
     title: 'Resend Verification — Yumney',
-    loadComponent: () =>
-      import('./resend-verification/resend-verification.component').then(
-        (m) => m.ResendVerificationComponent,
-      ),
+    loadComponent: () => import('./resend-verification/resend-verification.component').then((m) => m.ResendVerificationComponent),
   },
 ];

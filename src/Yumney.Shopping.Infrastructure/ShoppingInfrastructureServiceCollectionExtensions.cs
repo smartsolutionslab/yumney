@@ -15,7 +15,9 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
         services.AddDbContext<ShoppingDbContext>((sp, options) =>
         {
             var connectionString = configuration.GetConnectionString("shoppingdb");
-            Action<NpgsqlDbContextOptionsBuilder> contextOptions = builder => builder.MigrationsHistoryTable("__ShoppingMigrationsHistory");
+            Action<NpgsqlDbContextOptionsBuilder> contextOptions = builder => builder
+                .MigrationsHistoryTable("__ShoppingMigrationsHistory")
+                .EnableRetryOnFailure();
 
             options
                 .UseNpgsql(connectionString, contextOptions)

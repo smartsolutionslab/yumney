@@ -6,5 +6,5 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 
 public sealed record CheckOffItemCommand(
     ShoppingListIdentifier ListIdentifier,
-    Guid ItemId,
+    ShoppingListItemIdentifier ItemId,
     bool IsChecked) : ICommand<Result>;

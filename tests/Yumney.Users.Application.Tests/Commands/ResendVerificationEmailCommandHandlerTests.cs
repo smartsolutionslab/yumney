@@ -12,8 +12,8 @@ namespace SmartSolutionsLab.Yumney.Users.Application.Tests.Commands;
 
 public class ResendVerificationEmailCommandHandlerTests
 {
-    private static readonly Email TestEmail = new("test@example.com");
-    private static readonly Email UnknownEmail = new("unknown@example.com");
+    private static readonly Email TestEmail = Email.From("test@example.com");
+    private static readonly Email UnknownEmail = Email.From("unknown@example.com");
 
     private readonly IKeycloakAdminService keycloakAdmin = Substitute.For<IKeycloakAdminService>();
     private readonly ILogger<ResendVerificationEmailCommandHandler> logger =
@@ -30,7 +30,7 @@ public class ResendVerificationEmailCommandHandlerTests
     public async Task HandleAsync_ValidEmail_ReturnsSuccessAndSendsEmail()
     {
         var command = new ResendVerificationEmailCommand(TestEmail);
-        var keycloakUserId = new KeycloakUserId(Guid.NewGuid().ToString());
+        var keycloakUserId = KeycloakUserId.From(Guid.NewGuid().ToString());
 
         keycloakAdmin
             .FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
@@ -114,7 +114,7 @@ public class ResendVerificationEmailCommandHandlerTests
     public async Task HandleAsync_SendFailed_ReturnsFailure()
     {
         var command = new ResendVerificationEmailCommand(TestEmail);
-        var keycloakUserId = new KeycloakUserId(Guid.NewGuid().ToString());
+        var keycloakUserId = KeycloakUserId.From(Guid.NewGuid().ToString());
 
         keycloakAdmin
             .FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())

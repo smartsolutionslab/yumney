@@ -12,14 +12,13 @@ namespace SmartSolutionsLab.Yumney.Users.Application.Tests.Commands;
 
 public class RegisterUserCommandHandlerTests
 {
-    private static readonly Email TestEmail = new("test@example.com");
-    private static readonly Password TestPassword = new("Password1");
-    private static readonly DisplayName TestDisplayName = new("Test User");
+    private static readonly Email TestEmail = Email.From("test@example.com");
+    private static readonly Password TestPassword = Password.From("Password1");
+    private static readonly DisplayName TestDisplayName = DisplayName.From("Test User");
 
     private readonly IKeycloakAdminService keycloakAdmin = Substitute.For<IKeycloakAdminService>();
     private readonly IAppUserProfileRepository users = Substitute.For<IAppUserProfileRepository>();
-    private readonly ILogger<RegisterUserCommandHandler> logger =
-        Substitute.For<ILogger<RegisterUserCommandHandler>>();
+    private readonly ILogger<RegisterUserCommandHandler> logger = Substitute.For<ILogger<RegisterUserCommandHandler>>();
 
     private readonly RegisterUserCommandHandler sut;
 
@@ -32,7 +31,7 @@ public class RegisterUserCommandHandlerTests
     public async Task HandleAsync_ValidCommand_ReturnsSuccessAndCreatesProfile()
     {
         var command = new RegisterUserCommand(TestEmail, TestPassword, TestDisplayName);
-        var keycloakUserId = new KeycloakUserId(Guid.NewGuid().ToString());
+        var keycloakUserId = KeycloakUserId.From(Guid.NewGuid().ToString());
 
         keycloakAdmin
             .CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())

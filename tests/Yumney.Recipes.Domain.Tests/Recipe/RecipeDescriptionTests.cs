@@ -10,7 +10,7 @@ public class RecipeDescriptionTests
     [Fact]
     public void Constructor_ValidDescription_CreatesInstance()
     {
-        var description = new RecipeDescription("A classic Italian pasta dish");
+        var description = RecipeDescription.From("A classic Italian pasta dish");
 
         description.Value.Should().Be("A classic Italian pasta dish");
     }
@@ -18,7 +18,7 @@ public class RecipeDescriptionTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var description = new RecipeDescription("  Some description  ");
+        var description = RecipeDescription.From("  Some description  ");
 
         description.Value.Should().Be("Some description");
     }
@@ -29,7 +29,7 @@ public class RecipeDescriptionTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new RecipeDescription(value!);
+        var act = () => RecipeDescription.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -39,7 +39,7 @@ public class RecipeDescriptionTests
     {
         var value = new string('a', 2001);
 
-        var act = () => new RecipeDescription(value);
+        var act = () => RecipeDescription.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -49,7 +49,7 @@ public class RecipeDescriptionTests
     {
         var value = new string('a', 2000);
 
-        var description = new RecipeDescription(value);
+        var description = RecipeDescription.From(value);
 
         description.Value.Should().HaveLength(2000);
     }
@@ -57,7 +57,7 @@ public class RecipeDescriptionTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var description = new RecipeDescription("Test");
+        var description = RecipeDescription.From("Test");
 
         description.ToString().Should().Be("Test");
     }

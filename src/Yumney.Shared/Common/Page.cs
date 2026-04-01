@@ -6,7 +6,7 @@ public sealed record Page
 {
     public int Value { get; }
 
-    public Page(int value)
+    private Page(int value)
     {
         Value = Ensure.That(value).IsPositive().AndReturn();
     }

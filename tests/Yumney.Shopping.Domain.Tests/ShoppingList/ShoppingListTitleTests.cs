@@ -10,7 +10,7 @@ public class ShoppingListTitleTests
     [Fact]
     public void Constructor_ValidTitle_CreatesInstance()
     {
-        var title = new ShoppingListTitle("Weekly Groceries");
+        var title = ShoppingListTitle.From("Weekly Groceries");
 
         title.Value.Should().Be("Weekly Groceries");
     }
@@ -18,7 +18,7 @@ public class ShoppingListTitleTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var title = new ShoppingListTitle("  Weekly Groceries  ");
+        var title = ShoppingListTitle.From("  Weekly Groceries  ");
 
         title.Value.Should().Be("Weekly Groceries");
     }
@@ -29,7 +29,7 @@ public class ShoppingListTitleTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new ShoppingListTitle(value!);
+        var act = () => ShoppingListTitle.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -39,7 +39,7 @@ public class ShoppingListTitleTests
     {
         var value = new string('a', 201);
 
-        var act = () => new ShoppingListTitle(value);
+        var act = () => ShoppingListTitle.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -49,7 +49,7 @@ public class ShoppingListTitleTests
     {
         var value = new string('a', 200);
 
-        var title = new ShoppingListTitle(value);
+        var title = ShoppingListTitle.From(value);
 
         title.Value.Should().HaveLength(200);
     }
@@ -57,8 +57,8 @@ public class ShoppingListTitleTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var title1 = new ShoppingListTitle("Groceries");
-        var title2 = new ShoppingListTitle("Groceries");
+        var title1 = ShoppingListTitle.From("Groceries");
+        var title2 = ShoppingListTitle.From("Groceries");
 
         title1.Should().Be(title2);
     }
@@ -66,7 +66,7 @@ public class ShoppingListTitleTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var title = new ShoppingListTitle("Groceries");
+        var title = ShoppingListTitle.From("Groceries");
 
         title.ToString().Should().Be("Groceries");
     }

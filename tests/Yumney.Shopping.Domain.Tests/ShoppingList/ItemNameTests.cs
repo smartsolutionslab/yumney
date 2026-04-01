@@ -10,7 +10,7 @@ public class ItemNameTests
     [Fact]
     public void Constructor_ValidName_CreatesInstance()
     {
-        var name = new ItemName("Flour");
+        var name = ItemName.From("Flour");
 
         name.Value.Should().Be("Flour");
     }
@@ -18,7 +18,7 @@ public class ItemNameTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var name = new ItemName("  Flour  ");
+        var name = ItemName.From("  Flour  ");
 
         name.Value.Should().Be("Flour");
     }
@@ -29,7 +29,7 @@ public class ItemNameTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new ItemName(value!);
+        var act = () => ItemName.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -39,7 +39,7 @@ public class ItemNameTests
     {
         var value = new string('a', 201);
 
-        var act = () => new ItemName(value);
+        var act = () => ItemName.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -49,7 +49,7 @@ public class ItemNameTests
     {
         var value = new string('a', 200);
 
-        var name = new ItemName(value);
+        var name = ItemName.From(value);
 
         name.Value.Should().HaveLength(200);
     }
@@ -57,8 +57,8 @@ public class ItemNameTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var name1 = new ItemName("Flour");
-        var name2 = new ItemName("Flour");
+        var name1 = ItemName.From("Flour");
+        var name2 = ItemName.From("Flour");
 
         name1.Should().Be(name2);
     }
@@ -66,7 +66,7 @@ public class ItemNameTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var name = new ItemName("Flour");
+        var name = ItemName.From("Flour");
 
         name.ToString().Should().Be("Flour");
     }

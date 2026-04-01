@@ -60,7 +60,7 @@
       @for (recipe of recipes(); track recipe.identifier) {
         <a class="recipe-card" [routerLink]="['/recipes', recipe.identifier]">
           @if (recipe.imageUrl) {
-            <img [src]="recipe.imageUrl" [alt]="recipe.title" class="recipe-image" />
+            <img [src]="recipe.imageUrl" [alt]="recipe.title" class="recipe-image" loading="lazy" />
           } @else {
             <div class="recipe-image-placeholder"></div>
           }

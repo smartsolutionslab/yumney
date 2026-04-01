@@ -10,7 +10,7 @@ public class UnitTests
     [Fact]
     public void Constructor_ValidUnit_CreatesInstance()
     {
-        var unit = new Unit("kg");
+        var unit = Unit.From("kg");
 
         unit.Value.Should().Be("kg");
     }
@@ -20,7 +20,7 @@ public class UnitTests
     {
         var value = new string('a', 51);
 
-        var act = () => new Unit(value);
+        var act = () => Unit.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -30,7 +30,7 @@ public class UnitTests
     {
         var value = new string('a', 50);
 
-        var unit = new Unit(value);
+        var unit = Unit.From(value);
 
         unit.Value.Should().HaveLength(50);
     }
@@ -63,7 +63,7 @@ public class UnitTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var unit = new Unit("g");
+        var unit = Unit.From("g");
 
         unit.ToString().Should().Be("g");
     }

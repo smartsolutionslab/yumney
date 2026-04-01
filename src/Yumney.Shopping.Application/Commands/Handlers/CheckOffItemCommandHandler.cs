@@ -47,5 +47,5 @@ public sealed partial class CheckOffItemCommandHandler(
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Item {ItemId} in shopping list {ShoppingListId} set to checked={IsChecked}")]
-    private partial void LogItemCheckedOff(Guid shoppingListId, Guid itemId, bool isChecked);
+    private partial void LogItemCheckedOff(Guid shoppingListId, ShoppingListItemIdentifier itemId, bool isChecked);
 }

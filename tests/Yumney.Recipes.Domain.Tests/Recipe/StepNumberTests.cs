@@ -10,7 +10,7 @@ public class StepNumberTests
     [Fact]
     public void Constructor_PositiveValue_CreatesInstance()
     {
-        var stepNumber = new StepNumber(1);
+        var stepNumber = StepNumber.From(1);
 
         stepNumber.Value.Should().Be(1);
     }
@@ -18,7 +18,7 @@ public class StepNumberTests
     [Fact]
     public void Constructor_Zero_ThrowsGuardException()
     {
-        var act = () => new StepNumber(0);
+        var act = () => StepNumber.From(0);
 
         act.Should().Throw<GuardException>();
     }
@@ -26,7 +26,7 @@ public class StepNumberTests
     [Fact]
     public void Constructor_NegativeValue_ThrowsGuardException()
     {
-        var act = () => new StepNumber(-1);
+        var act = () => StepNumber.From(-1);
 
         act.Should().Throw<GuardException>();
     }
@@ -34,7 +34,7 @@ public class StepNumberTests
     [Fact]
     public void ToString_ReturnsStringValue()
     {
-        var stepNumber = new StepNumber(3);
+        var stepNumber = StepNumber.From(3);
 
         stepNumber.ToString().Should().Be("3");
     }

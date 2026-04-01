@@ -10,7 +10,7 @@ public class StepDescriptionTests
     [Fact]
     public void Constructor_ValidDescription_CreatesInstance()
     {
-        var description = new StepDescription("Cook pasta until al dente");
+        var description = StepDescription.From("Cook pasta until al dente");
 
         description.Value.Should().Be("Cook pasta until al dente");
     }
@@ -18,7 +18,7 @@ public class StepDescriptionTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var description = new StepDescription("  Mix ingredients  ");
+        var description = StepDescription.From("  Mix ingredients  ");
 
         description.Value.Should().Be("Mix ingredients");
     }
@@ -29,7 +29,7 @@ public class StepDescriptionTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new StepDescription(value!);
+        var act = () => StepDescription.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -39,7 +39,7 @@ public class StepDescriptionTests
     {
         var value = new string('a', 2001);
 
-        var act = () => new StepDescription(value);
+        var act = () => StepDescription.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -49,7 +49,7 @@ public class StepDescriptionTests
     {
         var value = new string('a', 2000);
 
-        var description = new StepDescription(value);
+        var description = StepDescription.From(value);
 
         description.Value.Should().HaveLength(2000);
     }
@@ -57,7 +57,7 @@ public class StepDescriptionTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var description = new StepDescription("Boil water");
+        var description = StepDescription.From("Boil water");
 
         description.ToString().Should().Be("Boil water");
     }

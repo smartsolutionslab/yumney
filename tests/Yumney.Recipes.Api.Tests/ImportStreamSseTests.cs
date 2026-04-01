@@ -7,6 +7,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Extraction;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
 
@@ -31,49 +32,49 @@ public class ImportStreamSseTests
         """;
 
     [Fact]
-    public void ExtractJsonFromLlmResponse_PlainJson_ReturnsUnchanged()
+    public void ExtractJson_PlainJson_ReturnsUnchanged()
     {
-        var result = RecipesEndpoints.ExtractJsonFromLlmResponse(compactJson);
+        var result = LlmResponseParser.ExtractJson(compactJson);
 
         result.Should().Be(compactJson);
     }
 
     [Fact]
-    public void ExtractJsonFromLlmResponse_JsonWrappedInMarkdownFence_StripsFence()
+    public void ExtractJson_JsonWrappedInMarkdownFence_StripsFence()
     {
         var wrapped = $"```json\n{compactJson}\n```";
 
-        var result = RecipesEndpoints.ExtractJsonFromLlmResponse(wrapped);
+        var result = LlmResponseParser.ExtractJson(wrapped);
 
         result.Should().Be(compactJson);
     }
 
     [Fact]
-    public void ExtractJsonFromLlmResponse_JsonWrappedInPlainFence_StripsFence()
+    public void ExtractJson_JsonWrappedInPlainFence_StripsFence()
     {
         var wrapped = $"```\n{compactJson}\n```";
 
-        var result = RecipesEndpoints.ExtractJsonFromLlmResponse(wrapped);
+        var result = LlmResponseParser.ExtractJson(wrapped);
 
         result.Should().Be(compactJson);
     }
 
     [Fact]
-    public void ExtractJsonFromLlmResponse_FenceWithLeadingWhitespace_StripsFenceAndTrims()
+    public void ExtractJson_FenceWithLeadingWhitespace_StripsFenceAndTrims()
     {
         var wrapped = $"  ```json\n{compactJson}\n```  ";
 
-        var result = RecipesEndpoints.ExtractJsonFromLlmResponse(wrapped);
+        var result = LlmResponseParser.ExtractJson(wrapped);
 
         result.Should().Be(compactJson);
     }
 
     [Fact]
-    public void ExtractJsonFromLlmResponse_CaseInsensitiveJsonFence_StripsFence()
+    public void ExtractJson_CaseInsensitiveJsonFence_StripsFence()
     {
         var wrapped = $"```JSON\n{compactJson}\n```";
 
-        var result = RecipesEndpoints.ExtractJsonFromLlmResponse(wrapped);
+        var result = LlmResponseParser.ExtractJson(wrapped);
 
         result.Should().Be(compactJson);
     }

@@ -3,7 +3,7 @@
 
   @if (recipe().imageUrl) {
     <div class="preview-image">
-      <img [src]="recipe().imageUrl!" [alt]="form.controls.title.value" />
+      <img [src]="recipe().imageUrl!" [alt]="form.controls.title.value" loading="lazy" />
     </div>
   }
 

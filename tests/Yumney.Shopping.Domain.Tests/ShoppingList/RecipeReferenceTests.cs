@@ -68,8 +68,8 @@ public class RecipeReferenceTests
     [Fact]
     public void Equality_DifferentValues_AreNotEqual()
     {
-        var a = RecipeReference.From(Guid.NewGuid());
-        var b = RecipeReference.From(Guid.NewGuid());
+        var a = RecipeReference.New();
+        var b = RecipeReference.New();
 
         a.Should().NotBe(b);
     }

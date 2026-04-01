@@ -16,13 +16,13 @@ public static class RecipeFactory
     {
         var recipeIngredients = (ingredients ?? [("Default Ingredient", null, null)])
             .Select(i => Ingredient.Create(
-                new IngredientName(i.Name),
+                IngredientName.From(i.Name),
                 Amount.FromNullable(i.Amount),
                 Unit.FromNullable(i.Unit)))
             .ToList();
 
         var recipeSteps = (steps ?? ["Default step"])
-            .Select((s, i) => Step.Create(new StepNumber(i + 1), new StepDescription(s)))
+            .Select((s, i) => Step.Create(StepNumber.From(i + 1), StepDescription.From(s)))
             .ToList();
 
         return Recipe.Create(

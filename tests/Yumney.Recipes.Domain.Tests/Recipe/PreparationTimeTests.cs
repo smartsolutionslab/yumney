@@ -10,7 +10,7 @@ public class PreparationTimeTests
     [Fact]
     public void Constructor_PositiveValue_CreatesInstance()
     {
-        var prepTime = new PreparationTime(30);
+        var prepTime = PreparationTime.From(30);
 
         prepTime.Value.Should().Be(30);
     }
@@ -18,7 +18,7 @@ public class PreparationTimeTests
     [Fact]
     public void Constructor_Zero_CreatesInstance()
     {
-        var prepTime = new PreparationTime(0);
+        var prepTime = PreparationTime.From(0);
 
         prepTime.Value.Should().Be(0);
     }
@@ -26,7 +26,7 @@ public class PreparationTimeTests
     [Fact]
     public void Constructor_NegativeValue_ThrowsGuardException()
     {
-        var act = () => new PreparationTime(-1);
+        var act = () => PreparationTime.From(-1);
 
         act.Should().Throw<GuardException>();
     }
@@ -34,7 +34,7 @@ public class PreparationTimeTests
     [Fact]
     public void ToString_ReturnsStringValue()
     {
-        var prepTime = new PreparationTime(15);
+        var prepTime = PreparationTime.From(15);
 
         prepTime.ToString().Should().Be("15");
     }

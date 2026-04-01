@@ -10,7 +10,7 @@ public class UnitTests
     [Fact]
     public void Constructor_ValidUnit_CreatesInstance()
     {
-        var unit = new Unit("g");
+        var unit = Unit.From("g");
 
         unit.Value.Should().Be("g");
     }
@@ -21,7 +21,7 @@ public class UnitTests
     [InlineData("   ")]
     public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
     {
-        var act = () => new Unit(value!);
+        var act = () => Unit.From(value!);
 
         act.Should().Throw<GuardException>();
     }
@@ -29,7 +29,7 @@ public class UnitTests
     [Fact]
     public void Constructor_TrimsWhitespace()
     {
-        var unit = new Unit("  ml  ");
+        var unit = Unit.From("  ml  ");
 
         unit.Value.Should().Be("ml");
     }
@@ -39,7 +39,7 @@ public class UnitTests
     {
         var value = new string('a', 51);
 
-        var act = () => new Unit(value);
+        var act = () => Unit.From(value);
 
         act.Should().Throw<GuardException>();
     }
@@ -49,7 +49,7 @@ public class UnitTests
     {
         var value = new string('a', 50);
 
-        var unit = new Unit(value);
+        var unit = Unit.From(value);
 
         unit.Value.Should().HaveLength(50);
     }
@@ -57,8 +57,8 @@ public class UnitTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var unit1 = new Unit("ml");
-        var unit2 = new Unit("ml");
+        var unit1 = Unit.From("ml");
+        var unit2 = Unit.From("ml");
 
         unit1.Should().Be(unit2);
     }
@@ -66,8 +66,8 @@ public class UnitTests
     [Fact]
     public void Equality_DifferentValue_AreNotEqual()
     {
-        var unit1 = new Unit("ml");
-        var unit2 = new Unit("g");
+        var unit1 = Unit.From("ml");
+        var unit2 = Unit.From("g");
 
         unit1.Should().NotBe(unit2);
     }
@@ -75,7 +75,7 @@ public class UnitTests
     [Fact]
     public void ToString_ReturnsValue()
     {
-        var unit = new Unit("cups");
+        var unit = Unit.From("cups");
 
         unit.ToString().Should().Be("cups");
     }

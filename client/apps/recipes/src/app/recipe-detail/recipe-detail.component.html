@@ -15,7 +15,7 @@
   @if (recipe(); as recipe) {
     <div class="recipe-hero">
       @if (recipe.imageUrl) {
-        <img [src]="recipe.imageUrl" [alt]="recipe.title" class="hero-image" />
+        <img [src]="recipe.imageUrl" [alt]="recipe.title" class="hero-image" loading="eager" fetchpriority="high" />
       } @else {
         <div class="hero-placeholder"></div>
       }
@@ -122,7 +122,7 @@
     <section class="ingredients-section">
       <h2>{{ t('recipes.detail.ingredients') }}</h2>
       <ul class="ingredients-list">
-        @for (ingredient of scaledIngredients(); track ingredient.name) {
+        @for (ingredient of scaledIngredients(); track $index) {
           <li>
             @if (ingredient.amount) {
               <span class="ingredient-amount">{{ ingredient.amount }}</span>
