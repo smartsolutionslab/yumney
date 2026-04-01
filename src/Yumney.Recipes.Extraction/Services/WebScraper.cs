@@ -101,10 +101,7 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
 
     private static string TruncateAtWordBoundary(string text, int maxLength)
     {
-        if (text.Length <= maxLength)
-        {
-            return text;
-        }
+        if (text.Length <= maxLength) return text;
 
         var lastSpace = text.LastIndexOf(' ', maxLength);
         return lastSpace > 0 ? text[..lastSpace] : text[..maxLength];

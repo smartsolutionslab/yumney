@@ -30,10 +30,7 @@ public sealed partial class ImportRecipeFromPhotosCommandHandler(
     {
         var photos = command.Photos;
 
-        if (photos.Count == 0 || photos.Count > maxPhotos)
-        {
-            return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.TooManyPhotos);
-        }
+        if (photos.Count == 0 || photos.Count > maxPhotos) return Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.TooManyPhotos);
 
         foreach (var photo in photos)
         {

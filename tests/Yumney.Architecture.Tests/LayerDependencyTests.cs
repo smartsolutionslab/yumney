@@ -18,10 +18,7 @@ public class LayerDependencyTests
         {
             foreach (var target in Modules)
             {
-                if (source != target)
-                {
-                    data.Add(source, target);
-                }
+                if (source != target) { data.Add(source, target); }
             }
         }
 

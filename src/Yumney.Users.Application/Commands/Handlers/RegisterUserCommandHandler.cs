@@ -21,10 +21,7 @@ public sealed partial class RegisterUserCommandHandler(
 
         var keycloakResult = await keycloakAdmin.CreateUserAsync(email, password, displayName, cancellationToken);
 
-        if (keycloakResult.IsFailure)
-        {
-            return Result<RegisterUserResultDto>.Failure(keycloakResult.Error!);
-        }
+        if (keycloakResult.IsFailure) return Result<RegisterUserResultDto>.Failure(keycloakResult.Error!);
 
         var keycloakUserId = keycloakResult.Value;
 

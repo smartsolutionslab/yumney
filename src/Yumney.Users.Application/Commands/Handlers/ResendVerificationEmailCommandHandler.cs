@@ -30,10 +30,7 @@ public sealed partial class ResendVerificationEmailCommandHandler(IKeycloakAdmin
 
         var sendResult = await keycloakAdmin.SendVerificationEmailAsync(keycloakUserId, cancellationToken);
 
-        if (sendResult.IsFailure)
-        {
-            return Result.Failure(sendResult.Error!);
-        }
+        if (sendResult.IsFailure) return Result.Failure(sendResult.Error!);
 
         LogVerificationEmailSent(email.Value);
 

@@ -244,10 +244,7 @@ public class KeycloakAdminServiceTests
                 r.Method == request.Method &&
                 request.RequestUri!.PathAndQuery.StartsWith(r.PathPrefix, StringComparison.OrdinalIgnoreCase));
 
-            if (match == default)
-            {
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
-            }
+            if (match == default) { return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)); }
 
             var response = new HttpResponseMessage(match.Status);
 
