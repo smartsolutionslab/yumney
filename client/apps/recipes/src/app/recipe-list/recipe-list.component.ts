@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   computed,
   ElementRef,
+  HostListener,
   inject,
   OnInit,
   DestroyRef,
@@ -29,11 +30,26 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
     default: 'recipes.list.errors.generic',
   };
 
+  private static readonly sortOptionList = [
+    { value: 'date-desc', by: 'Date' as const, dir: 'Descending' as const, labelKey: 'recipes.list.sort.dateDesc' },
+    { value: 'date-asc', by: 'Date' as const, dir: 'Ascending' as const, labelKey: 'recipes.list.sort.dateAsc' },
+    { value: 'name-asc', by: 'Name' as const, dir: 'Ascending' as const, labelKey: 'recipes.list.sort.nameAsc' },
+    { value: 'name-desc', by: 'Name' as const, dir: 'Descending' as const, labelKey: 'recipes.list.sort.nameDesc' },
+  ];
+
   private recipeApi = inject(RecipeApiService);
   private destroyRef = inject(DestroyRef);
+  private elementRef = inject(ElementRef);
   private asyncState = createAsyncState(this.destroyRef);
   private observer: IntersectionObserver | null = null;
   private searchSubject = new Subject<string>();
+
+  @HostListener('document:click', ['$event.target'])
+  onDocumentClick(target: HTMLElement): void {
+    if (this.sortMenuOpen() && !this.elementRef.nativeElement.querySelector('.sort-dropdown')?.contains(target)) {
+      this.sortMenuOpen.set(false);
+    }
+  }
 
   scrollSentinel = viewChild<ElementRef>('scrollSentinel');
 
@@ -49,11 +65,21 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   activeSearch = signal('');
 
   hasMore = computed(() => this.recipes().length < this.totalCount());
+  sortMenuOpen = signal(false);
+
   currentSort = computed(() => {
     const by = this.sortBy().toLowerCase();
     const dir = this.sortDirection() === 'Ascending' ? 'asc' : 'desc';
     return `${by}-${dir}`;
   });
+
+  currentSortLabel = computed(
+    () =>
+      RecipeListComponent.sortOptionList.find((o) => o.value === this.currentSort())?.labelKey ??
+      'recipes.list.sort.dateDesc',
+  );
+
+  readonly sortOptions = RecipeListComponent.sortOptionList;
 
   ngOnInit(): void {
     this.loadRecipes(false);
@@ -84,24 +110,22 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
     this.loadRecipes(false);
   }
 
-  private static readonly sortOptions: Record<
-    string,
-    { by: 'Name' | 'Date'; dir: 'Ascending' | 'Descending' }
-  > = {
-    'date-desc': { by: 'Date', dir: 'Descending' },
-    'date-asc': { by: 'Date', dir: 'Ascending' },
-    'name-asc': { by: 'Name', dir: 'Ascending' },
-    'name-desc': { by: 'Name', dir: 'Descending' },
-  };
+  toggleSortMenu(): void {
+    this.sortMenuOpen.update((open) => !open);
+  }
 
-  onSortChange(event: Event): void {
-    const option = RecipeListComponent.sortOptions[(event.target as HTMLSelectElement).value];
+  closeSortMenu(): void {
+    this.sortMenuOpen.set(false);
+  }
+
+  onSortSelect(value: string): void {
+    const option = RecipeListComponent.sortOptionList.find((o) => o.value === value);
     if (!option) {
       return;
     }
-    const { by, dir } = option;
-    this.sortBy.set(by);
-    this.sortDirection.set(dir);
+    this.sortMenuOpen.set(false);
+    this.sortBy.set(option.by);
+    this.sortDirection.set(option.dir);
     this.currentPage.set(1);
     this.recipes.set([]);
     this.totalCount.set(0);
