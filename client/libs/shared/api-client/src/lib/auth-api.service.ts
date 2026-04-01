@@ -2,24 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from './api-endpoints';
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  displayName: string;
-}
-
-export interface RegisterResponse {
-  message: string;
-}
-
-export interface ResendVerificationRequest {
-  email: string;
-}
-
-export interface ResendVerificationResponse {
-  message: string;
-}
+import type { RegisterRequest } from './register-request';
+import type { RegisterResponse } from './register-response';
+import type { ResendVerificationRequest } from './resend-verification-request';
+import type { ResendVerificationResponse } from './resend-verification-response';
 
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {

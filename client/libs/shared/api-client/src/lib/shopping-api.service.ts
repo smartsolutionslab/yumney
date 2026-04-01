@@ -2,41 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from './api-endpoints';
-
-export interface CreateShoppingListItem {
-  name: string;
-  amount: number | null;
-  unit: string | null;
-}
-
-export interface CreateShoppingListRequest {
-  title: string;
-  items: CreateShoppingListItem[];
-  recipeIdentifier?: string;
-}
-
-export interface ShoppingListItemResponse {
-  identifier: string;
-  name: string;
-  amount: number | null;
-  unit: string | null;
-  isChecked: boolean;
-}
-
-export interface ShoppingListDetail {
-  identifier: string;
-  title: string;
-  recipeIdentifier: string | null;
-  createdAt: string;
-  items: ShoppingListItemResponse[];
-}
-
-export interface ShoppingListSummary {
-  identifier: string;
-  title: string;
-  itemCount: number;
-  createdAt: string;
-}
+import type { CreateShoppingListRequest } from './create-shopping-list-request';
+import type { ShoppingListDetail } from './shopping-list-detail';
+import type { ShoppingListSummary } from './shopping-list-summary';
 
 @Injectable({ providedIn: 'root' })
 export class ShoppingApiService {

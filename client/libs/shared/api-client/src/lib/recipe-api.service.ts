@@ -2,120 +2,16 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '@yumney/shared/auth';
-import { PagedResponse, PaginationParams } from '@yumney/shared/models';
 import { API_ENDPOINTS } from './api-endpoints';
-
-export interface ImportRecipeRequest {
-  url: string;
-}
-
-export interface ImportStreamEvent {
-  type: 'status' | 'chunk' | 'done' | 'fail';
-  data: string;
-}
-
-export interface ExtractedIngredient {
-  name: string;
-  amount: number | null;
-  unit: string | null;
-}
-
-export interface ExtractedStep {
-  number: number;
-  description: string;
-}
-
-export interface ImportRecipeResponse {
-  title: string;
-  description: string | null;
-  ingredients: ExtractedIngredient[];
-  steps: ExtractedStep[];
-  servings: number | null;
-  prepTimeMinutes: number | null;
-  cookTimeMinutes: number | null;
-  difficulty: string | null;
-  imageUrl: string | null;
-}
-
-export interface SaveRecipeRequest {
-  title: string;
-  description: string | null;
-  ingredients: { name: string; amount: number | null; unit: string | null }[];
-  steps: { number: number; description: string }[];
-  servings: number | null;
-  prepTimeMinutes: number | null;
-  cookTimeMinutes: number | null;
-  difficulty: string | null;
-  imageUrl: string | null;
-  sourceUrl?: string;
-  tags?: string[];
-}
-
-export interface UpdateRecipeRequest {
-  title: string;
-  description: string | null;
-  ingredients: { name: string; amount: number | null; unit: string | null }[];
-  steps: { number: number; description: string }[];
-  servings: number | null;
-  prepTimeMinutes: number | null;
-  cookTimeMinutes: number | null;
-  difficulty: string | null;
-  imageUrl: string | null;
-  tags?: string[];
-}
-
-export interface SavedRecipeResponse {
-  identifier: string;
-  title: string;
-  createdAt: string;
-}
-
-export interface RecipeListItem {
-  identifier: string;
-  title: string;
-  description: string | null;
-  servings: number | null;
-  prepTimeMinutes: number | null;
-  cookTimeMinutes: number | null;
-  difficulty: string | null;
-  imageUrl: string | null;
-  createdAt: string;
-  tags: string[];
-}
-
-export type RecipeListResponse = PagedResponse<RecipeListItem>;
-
-export interface GetRecipesParams extends PaginationParams {
-  sortBy?: 'Name' | 'Date';
-  search?: string;
-}
-
-export interface RecipeIngredient {
-  name: string;
-  amount: number | null;
-  unit: string | null;
-}
-
-export interface RecipeStep {
-  number: number;
-  description: string;
-}
-
-export interface RecipeDetail {
-  identifier: string;
-  title: string;
-  description: string | null;
-  servings: number | null;
-  prepTimeMinutes: number | null;
-  cookTimeMinutes: number | null;
-  difficulty: string | null;
-  imageUrl: string | null;
-  sourceUrl: string | null;
-  createdAt: string;
-  ingredients: RecipeIngredient[];
-  steps: RecipeStep[];
-  tags: string[];
-}
+import type { ImportRecipeRequest } from './import-recipe-request';
+import type { ImportRecipeResponse } from './import-recipe-response';
+import type { ImportStreamEvent } from './import-stream-event';
+import type { SaveRecipeRequest } from './save-recipe-request';
+import type { UpdateRecipeRequest } from './update-recipe-request';
+import type { SavedRecipeResponse } from './saved-recipe-response';
+import type { RecipeDetail } from './recipe-detail';
+import type { RecipeListResponse } from './recipe-list-response';
+import type { GetRecipesParams } from './get-recipes-params';
 
 @Injectable({ providedIn: 'root' })
 export class RecipeApiService {

@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-
-export type LanguageCode = 'en' | 'de';
-
-export const SUPPORTED_LANGUAGES: readonly LanguageCode[] = ['en', 'de'] as const;
-export const DEFAULT_LANGUAGE: LanguageCode = 'en';
+import { type LanguageCode, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from './language-code';
 
 const LANGUAGE_KEY = 'yn-language';
 

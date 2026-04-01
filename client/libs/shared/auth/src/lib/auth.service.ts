@@ -3,13 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { AppConfig, createAuthConfig } from './auth-config';
 import { REMEMBER_ME_KEY } from './auth-storage.factory';
-
-export interface AuthUser {
-  sub: string;
-  email: string;
-  preferredUsername: string;
-  roles: string[];
-}
+import type { AuthUser } from './auth-user';
 
 const DEFAULT_CONFIG: AppConfig = {
   keycloakUrl: 'http://localhost:8080',
