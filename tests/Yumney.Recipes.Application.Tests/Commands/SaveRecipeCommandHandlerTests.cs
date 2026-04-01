@@ -106,8 +106,8 @@ public class SaveRecipeCommandHandlerTests
         var command = new SaveRecipeCommand(
             RecipeTitle.From("Test"),
             [
-                new SaveRecipeIngredientItem(IngredientName.From("Flour"), Amount.From(500), Unit.From("g")),
-                new SaveRecipeIngredientItem(IngredientName.From("Sugar"), Amount.From(100), null),
+                new SaveRecipeIngredientItem(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
+                new SaveRecipeIngredientItem(IngredientName.From("Sugar"), Quantity.Of(Amount.From(100), null)),
             ],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))],
             SourceUrl: RecipeUrl.From("https://example.com/recipe"));
@@ -118,7 +118,7 @@ public class SaveRecipeCommandHandlerTests
         capturedRecipe!.Ingredients.Should().HaveCount(2);
         capturedRecipe.Ingredients[0].Name.Value.Should().Be("Flour");
         capturedRecipe.Ingredients[1].Name.Value.Should().Be("Sugar");
-        capturedRecipe.Ingredients[1].Unit.Should().BeNull();
+        capturedRecipe.Ingredients[1].Quantity!.Unit.Should().BeNull();
     }
 
     [Fact]
@@ -129,7 +129,7 @@ public class SaveRecipeCommandHandlerTests
 
         var command = new SaveRecipeCommand(
             RecipeTitle.From("Test"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null, null)],
+            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
             [
                 new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Preheat oven")),
                 new SaveRecipeStepItem(StepNumber.From(2), StepDescription.From("Mix ingredients")),
@@ -152,7 +152,7 @@ public class SaveRecipeCommandHandlerTests
 
         var command = new SaveRecipeCommand(
             RecipeTitle.From("Test"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null, null)],
+            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))],
             RecipeDescription.From("A test recipe"),
             Servings.From(4),
@@ -210,7 +210,7 @@ public class SaveRecipeCommandHandlerTests
     {
         var command = new SaveRecipeCommand(
             RecipeTitle.From("Manual Recipe"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null, null)],
+            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))]);
 
         await handler.HandleAsync(command);
@@ -226,7 +226,7 @@ public class SaveRecipeCommandHandlerTests
     {
         var command = new SaveRecipeCommand(
             RecipeTitle.From("Manual Recipe"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null, null)],
+            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))]);
 
         var result = await handler.HandleAsync(command);
@@ -244,7 +244,7 @@ public class SaveRecipeCommandHandlerTests
 
         var command = new SaveRecipeCommand(
             RecipeTitle.From("Manual Recipe"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null, null)],
+            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))]);
 
         await handler.HandleAsync(command);
@@ -257,7 +257,7 @@ public class SaveRecipeCommandHandlerTests
     {
         return new SaveRecipeCommand(
             RecipeTitle.From("Pasta Carbonara"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Amount.From(400), Unit.From("g"))],
+            [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.From("g")))],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Cook pasta"))],
             SourceUrl: RecipeUrl.From("https://example.com/recipe"));
     }

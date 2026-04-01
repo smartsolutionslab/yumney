@@ -295,7 +295,7 @@ public class GetRecipesQueryHandlerTests
         return Recipe.Create(
             RecipeTitle.From(title),
             OwnerIdentifier.From("user-123"),
-            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Ingredient.Create(IngredientName.From("Flour"), null)],
             [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
     }
 
@@ -304,7 +304,7 @@ public class GetRecipesQueryHandlerTests
         return Recipe.Create(
             RecipeTitle.From("Full Recipe"),
             OwnerIdentifier.From("user-123"),
-            [Ingredient.Create(IngredientName.From("Flour"), null, null)],
+            [Ingredient.Create(IngredientName.From("Flour"), null)],
             [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
             RecipeDescription.From("A test recipe"),
             Servings.From(4),
@@ -327,6 +327,6 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<SearchTerm?>(),
             Arg.Any<CancellationToken>())
-            .Returns((items, totalCount));
+            .Returns((items, ItemCount.From(totalCount)));
     }
 }

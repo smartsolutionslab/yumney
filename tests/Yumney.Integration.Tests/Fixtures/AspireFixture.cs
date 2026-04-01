@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
@@ -52,6 +56,34 @@ public sealed class AspireFixture : IAsyncLifetime
                 await Task.Delay(TimeSpan.FromSeconds(2), cts.Token);
             }
         }
+
+        await using var shoppingContext = await CreateShoppingDbContextAsync();
+        for (var attempt = 1; attempt <= 10; attempt++)
+        {
+            try
+            {
+                await shoppingContext.Database.EnsureCreatedAsync(cts.Token);
+                break;
+            }
+            catch when (attempt < 10)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2), cts.Token);
+            }
+        }
+
+        await using var usersContext = await CreateUsersDbContextAsync();
+        for (var attempt = 1; attempt <= 10; attempt++)
+        {
+            try
+            {
+                await usersContext.Database.EnsureCreatedAsync(cts.Token);
+                break;
+            }
+            catch when (attempt < 10)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2), cts.Token);
+            }
+        }
     }
 
     public async Task DisposeAsync()
@@ -75,6 +107,36 @@ public sealed class AspireFixture : IAsyncLifetime
     {
         await using var context = await CreateRecipesDbContextAsync();
         context.Recipes.AddRange(recipes);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<ShoppingDbContext> CreateShoppingDbContextAsync()
+    {
+        var connectionString = await App.GetConnectionStringAsync("shoppingdb");
+        var optionsBuilder = new DbContextOptionsBuilder<ShoppingDbContext>();
+        optionsBuilder.UseNpgsql(connectionString, x => x.EnableRetryOnFailure());
+        return new ShoppingDbContext(optionsBuilder.Options);
+    }
+
+    public async Task SeedShoppingListsAsync(params ShoppingList[] shoppingLists)
+    {
+        await using var context = await CreateShoppingDbContextAsync();
+        context.ShoppingLists.AddRange(shoppingLists);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<UsersDbContext> CreateUsersDbContextAsync()
+    {
+        var connectionString = await App.GetConnectionStringAsync("usersdb");
+        var optionsBuilder = new DbContextOptionsBuilder<UsersDbContext>();
+        optionsBuilder.UseNpgsql(connectionString, x => x.EnableRetryOnFailure());
+        return new UsersDbContext(optionsBuilder.Options);
+    }
+
+    public async Task SeedUserProfilesAsync(params AppUserProfile[] profiles)
+    {
+        await using var context = await CreateUsersDbContextAsync();
+        context.AppUserProfiles.AddRange(profiles);
         await context.SaveChangesAsync();
     }
 }

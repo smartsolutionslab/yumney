@@ -13,12 +13,13 @@ public class IngredientTests
         var amount = Amount.From(500);
         var unit = Unit.From("g");
 
-        var ingredient = Ingredient.Create(name, amount, unit);
+        var ingredient = Ingredient.Create(name, Quantity.Of(amount, unit));
 
         ingredient.Id.Should().NotBeNull();
         ingredient.Name.Should().Be(name);
-        ingredient.Amount.Should().Be(amount);
-        ingredient.Unit.Should().Be(unit);
+        ingredient.Quantity.Should().NotBeNull();
+        ingredient.Quantity!.Amount.Should().Be(amount);
+        ingredient.Quantity.Unit.Should().Be(unit);
     }
 
     [Fact]
@@ -26,9 +27,9 @@ public class IngredientTests
     {
         var name = IngredientName.From("Salt");
 
-        var ingredient = Ingredient.Create(name, null, Unit.From("pinch"));
+        var ingredient = Ingredient.Create(name, null);
 
-        ingredient.Amount.Should().BeNull();
+        ingredient.Quantity.Should().BeNull();
     }
 
     [Fact]
@@ -37,9 +38,10 @@ public class IngredientTests
         var name = IngredientName.From("Eggs");
         var amount = Amount.From(3);
 
-        var ingredient = Ingredient.Create(name, amount, null);
+        var ingredient = Ingredient.Create(name, Quantity.Of(amount, null));
 
-        ingredient.Unit.Should().BeNull();
+        ingredient.Quantity.Should().NotBeNull();
+        ingredient.Quantity!.Unit.Should().BeNull();
     }
 
     [Fact]
@@ -47,10 +49,9 @@ public class IngredientTests
     {
         var name = IngredientName.From("Salt to taste");
 
-        var ingredient = Ingredient.Create(name, null, null);
+        var ingredient = Ingredient.Create(name, null);
 
-        ingredient.Amount.Should().BeNull();
-        ingredient.Unit.Should().BeNull();
+        ingredient.Quantity.Should().BeNull();
     }
 
     [Fact]
@@ -58,8 +59,8 @@ public class IngredientTests
     {
         var name = IngredientName.From("Flour");
 
-        var ingredient1 = Ingredient.Create(name, null, null);
-        var ingredient2 = Ingredient.Create(name, null, null);
+        var ingredient1 = Ingredient.Create(name, null);
+        var ingredient2 = Ingredient.Create(name, null);
 
         ingredient1.Id.Should().NotBe(ingredient2.Id);
     }
