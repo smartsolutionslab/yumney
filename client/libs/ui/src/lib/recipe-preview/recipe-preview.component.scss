@@ -63,12 +63,6 @@
     font-size: 0.8125rem;
   }
 
-  // Ensure all controls have equal visual height
-  input,
-  select {
-    min-height: 2.75rem;
-  }
-
   // Description textarea — enough room to see content
   textarea {
     min-height: 7rem;
