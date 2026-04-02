@@ -230,8 +230,8 @@ test.describe('Servings Scaling (US-050)', () => {
     await page.waitForURL('**/dashboard', { timeout: 15_000 });
 
     await page.goto(`/recipes/${recipeIdentifier}`);
-    await page.locator('.action-button--danger').click();
     await page.locator('.btn-danger').click();
+    await page.locator('.btn-danger-filled').click();
     await page.waitForURL(/\/recipes$/, { timeout: 10_000 });
     await page.close();
   });

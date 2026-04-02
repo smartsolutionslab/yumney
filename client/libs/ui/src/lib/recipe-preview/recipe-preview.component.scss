@@ -1,9 +1,14 @@
+@use 'buttons';
+@use 'forms';
+
 .recipe-preview {
   margin-top: 1.5rem;
   padding: 1.25rem;
   border-radius: 16px;
   background: var(--yn-surface);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 6%), 0 4px 16px rgb(0 0 0 / 4%);
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 6%),
+    0 4px 16px rgb(0 0 0 / 4%);
 
   h2 {
     margin: 0 0 1.25rem;
@@ -55,10 +60,6 @@
     color: var(--yn-text-body);
   }
 
-  textarea {
-    resize: vertical;
-  }
-
   .field-error {
     font-size: 0.8125rem;
   }
@@ -72,6 +73,7 @@
 
   .form-field {
     min-width: 0;
+    margin-bottom: 0;
   }
 }
 
@@ -123,26 +125,7 @@
 }
 
 .add-btn {
-  padding: 0.75rem 1rem;
-  border: 2px dashed var(--yn-border);
-  border-radius: 10px;
-  background: transparent;
-  color: var(--yn-primary);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
   margin-top: 0.75rem;
-  transition: border-color 0.2s, background 0.2s;
-
-  &:hover {
-    border-color: var(--yn-primary);
-    background: var(--yn-primary-light);
-  }
-
-  &:active {
-    background: var(--yn-primary-light-end);
-  }
 }
 
 .action-buttons {
@@ -154,54 +137,16 @@
 }
 
 .discard-btn {
-  padding: 0.875rem 1.5rem;
-  border: 1.5px solid var(--yn-border);
-  border-radius: 12px;
-  background: transparent;
-  color: var(--yn-text-muted);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
   width: 100%;
-  text-align: center;
-  transition: border-color 0.2s, color 0.2s;
   order: 2;
-
-  &:hover {
-    border-color: var(--yn-primary);
-    color: var(--yn-primary);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 }
 
 ::ng-deep .save-btn {
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: 12px;
-  background: var(--yn-primary);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
   width: 100%;
-  text-align: center;
   order: 1;
-  transition: background 0.2s;
-
-  &:hover {
-    background: var(--yn-primary-hover);
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
 }
 
-// ── Tablet (≥ 480px) ──
+// ── Tablet (>= 480px) ──
 @media (min-width: 480px) {
   .ingredient-fields {
     grid-template-columns: 1fr auto auto;
@@ -216,7 +161,7 @@
   }
 }
 
-// ── Desktop (≥ 768px) ──
+// ── Desktop (>= 768px) ──
 @media (min-width: 768px) {
   .recipe-preview {
     padding: 2rem;

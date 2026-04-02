@@ -55,7 +55,7 @@
   <section class="photo-import">
     <h2>{{ t('dashboard.photoImport.title') }}</h2>
     <p class="subtitle">{{ t('dashboard.photoImport.subtitle') }}</p>
-    <label class="photo-upload-btn" [class.disabled]="isLoading() || isSaving()">
+    <label class="btn-dashed" [class.disabled]="isLoading() || isSaving()">
       <input
         type="file"
         accept="image/jpeg,image/png,image/webp"
@@ -80,7 +80,7 @@
     <p class="subtitle">{{ t('dashboard.create.subtitle') }}</p>
     <button
       type="button"
-      class="create-btn"
+      class="btn-dashed create-btn"
       [disabled]="isLoading() || isSaving() || extractedRecipe()"
       (click)="onCreateManually()"
     >

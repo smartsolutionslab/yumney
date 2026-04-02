@@ -105,11 +105,11 @@
     }
 
     <div class="actions-bar">
-      <a class="action-button" [routerLink]="['/recipes', recipe.identifier, 'edit']">
+      <a class="btn-primary" [routerLink]="['/recipes', recipe.identifier, 'edit']">
         {{ t('recipes.detail.actions.edit') }}
       </a>
       <button
-        class="action-button action-button--danger"
+        class="btn-danger"
         [disabled]="isDeleting()"
         (click)="onDelete()"
       >
@@ -118,7 +118,7 @@
         }}
       </button>
       <a
-        class="action-button action-button--secondary"
+        class="btn-secondary"
         [routerLink]="['/shopping', 'create', recipe.identifier]"
       >
         {{ t('recipes.detail.actions.shoppingList') }}
