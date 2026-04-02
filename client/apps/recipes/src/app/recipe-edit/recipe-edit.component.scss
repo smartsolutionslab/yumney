@@ -1,14 +1,17 @@
 @use 'banners';
-@use 'buttons';
 
 .recipe-edit-container {
-  max-width: 900px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1.25rem 1rem;
 }
-
-// .back-link provided by @use 'buttons'
 
 .loading {
   padding: 4rem 0;
+}
+
+@media (min-width: 768px) {
+  .recipe-edit-container {
+    padding: 2rem 1.5rem;
+  }
 }

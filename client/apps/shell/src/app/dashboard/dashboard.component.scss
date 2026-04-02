@@ -1,6 +1,4 @@
 @use 'banners';
-@use 'buttons';
-@use 'forms';
 
 .streaming-status {
   display: flex;
@@ -14,7 +12,7 @@
 .streaming-preview {
   margin-top: 0.75rem;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--yn-background-subtle);
   border: 1px solid var(--yn-border-light);
   font-size: 0.75rem;
@@ -26,171 +24,161 @@
 }
 
 .dashboard-container {
-  max-width: 1200px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1.25rem 1rem;
 
-  h1 {
-    margin: 0 0 0.5rem;
+  > h1 {
+    margin: 0 0 0.25rem;
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--yn-text);
   }
 
   > p {
+    margin: 0 0 1.25rem;
     color: var(--yn-text-muted);
-    font-size: 1rem;
+    font-size: 0.9375rem;
+  }
+}
+
+// ── Shared section card styles ──
+%section-card {
+  padding: 1.25rem;
+  border-radius: 16px;
+  background: var(--yn-surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 6%), 0 4px 16px rgb(0 0 0 / 4%);
+
+  h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--yn-text);
+  }
+
+  .subtitle {
+    margin: 0 0 1.25rem;
+    color: var(--yn-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.4;
   }
 }
 
 .url-import {
-  margin-top: 2rem;
-  padding: 2rem;
-  border-radius: 12px;
-  background: var(--yn-surface);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
-
-  h2 {
-    margin: 0 0 0.25rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  .subtitle {
-    margin: 0 0 1.5rem;
-    color: var(--yn-text-muted);
-    font-size: 0.875rem;
-  }
+  @extend %section-card;
+  margin-bottom: 0.75rem;
 }
 
 .photo-import {
-  margin-top: 1.5rem;
-  padding: 2rem;
-  border-radius: 12px;
-  background: var(--yn-surface);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
-
-  h2 {
-    margin: 0 0 0.25rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  .subtitle {
-    margin: 0 0 1.5rem;
-    color: var(--yn-text-muted);
-    font-size: 0.875rem;
-  }
+  @extend %section-card;
+  margin-bottom: 0.75rem;
 
   .hint {
-    margin: 0.5rem 0 0;
-    font-size: 0.75rem;
+    margin: 0.75rem 0 0;
+    font-size: 0.8125rem;
     color: var(--yn-text-light);
   }
 }
 
+.manual-create {
+  @extend %section-card;
+  margin-bottom: 0.75rem;
+}
+
+// ── Photo upload button ──
 .photo-upload-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 2px dashed var(--yn-primary);
-  border-radius: 8px;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  border: 2px dashed var(--yn-border);
+  border-radius: 12px;
   background: transparent;
   color: var(--yn-primary);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
 
   &:hover:not(.disabled) {
-    background-color: var(--yn-primary-light);
-  }
-
-  &.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.manual-create {
-  margin-top: 1.5rem;
-  padding: 2rem;
-  border-radius: 12px;
-  background: var(--yn-surface);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
-
-  h2 {
-    margin: 0 0 0.25rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  .subtitle {
-    margin: 0 0 1.5rem;
-    color: var(--yn-text-muted);
-    font-size: 0.875rem;
-  }
-}
-
-.create-btn {
-  padding: 0.75rem 1.5rem;
-  border: 2px dashed var(--yn-primary);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--yn-primary);
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  &:hover:not(:disabled) {
+    border-color: var(--yn-primary);
     background: var(--yn-primary-light);
   }
 
-  &:disabled {
-    opacity: 0.6;
+  &:active:not(.disabled) {
+    background: var(--yn-primary-light-end);
+  }
+
+  &.disabled {
+    opacity: 0.4;
     cursor: not-allowed;
   }
 }
 
+// ── Create recipe button ──
+.create-btn {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  border: 2px dashed var(--yn-border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--yn-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:hover:not(:disabled) {
+    border-color: var(--yn-primary);
+    background: var(--yn-primary-light);
+  }
+
+  &:active:not(:disabled) {
+    background: var(--yn-primary-light-end);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ── URL import row ──
 .import-row {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
-  align-items: flex-start;
 }
 
 .form-field {
   flex: 1;
-
-  input {
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    font-size: 1rem;
-  }
 
   .field-error {
     font-size: 0.8125rem;
   }
 }
 
-button[type='submit'] {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  background: var(--yn-primary);
-  color: var(--yn-surface);
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  &:hover:not(:disabled) {
-    background: var(--yn-primary-hover);
+// ── Desktop (≥ 768px) ──
+@media (min-width: 768px) {
+  .dashboard-container {
+    max-width: 720px;
+    padding: 2rem 1.5rem;
   }
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  %section-card {
+    padding: 2rem;
+  }
+
+  .import-row {
+    flex-direction: row;
+    align-items: flex-start;
+
+    yn-submit-button {
+      flex-shrink: 0;
+      width: auto;
+      min-width: 10rem;
+    }
   }
 }
