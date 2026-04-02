@@ -3,21 +3,26 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   background: var(--yn-primary);
-  color: var(--yn-surface);
-  font-size: 0.875rem;
-  font-weight: 500;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
 
   &:hover:not(:disabled) {
     background: var(--yn-primary-hover);
   }
 
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 }
@@ -51,22 +56,23 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  border: 1px solid var(--yn-primary);
-  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  border: 1.5px solid var(--yn-primary);
+  border-radius: 10px;
   background: transparent;
   color: var(--yn-primary);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 
   &:hover:not(:disabled) {
     background: var(--yn-primary);
-    color: var(--yn-surface);
+    color: #fff;
   }
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 }

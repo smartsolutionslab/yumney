@@ -3,36 +3,64 @@
 
   label {
     display: block;
-    margin-bottom: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
+    margin-bottom: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--yn-text-muted);
+    letter-spacing: 0.01em;
   }
 
   input,
   textarea,
   select {
     width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--yn-border);
-    border-radius: 6px;
-    font-size: 0.875rem;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--yn-border);
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--yn-text);
+    background: var(--yn-surface);
     outline: none;
     box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+
+    &::placeholder {
+      color: var(--yn-text-placeholder);
+    }
 
     &:focus {
       border-color: var(--yn-primary);
-      box-shadow: 0 0 0 3px rgb(249 115 22 / 15%);
+      box-shadow: 0 0 0 3px rgb(249 115 22 / 12%);
+      background: #fff;
     }
 
     &.ng-invalid.ng-touched {
       border-color: var(--yn-danger);
+      box-shadow: 0 0 0 3px rgb(220 38 38 / 8%);
     }
+  }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a6b4a' d='M6 8.825a.5.5 0 0 1-.354-.146l-4-4a.5.5 0 0 1 .708-.708L6 7.617l3.646-3.646a.5.5 0 0 1 .708.708l-4 4A.5.5 0 0 1 6 8.825z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    padding-right: 2.25rem;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 5rem;
   }
 }
 
 .field-error {
   display: block;
-  margin-top: 0.25rem;
+  margin-top: 0.375rem;
   color: var(--yn-danger);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
