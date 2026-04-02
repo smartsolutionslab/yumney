@@ -136,7 +136,9 @@ public static class RecipesEndpoints
             RecipeLanguage.FromNullable(request.Language),
             RecipeUrl.FromNullable(request.SourceUrl),
             request.Tags?.Select(t => RecipeTag.From(t)).ToList());
+
         var result = await handler.HandleAsync(command, cancellationToken);
+
         return result.ToCreated($"/api/v1/recipes/{result.Value?.Identifier}");
     }
 
@@ -146,7 +148,9 @@ public static class RecipesEndpoints
         CancellationToken cancellationToken)
     {
         var query = new GetRecipeByIdQuery(RecipeIdentifier.From(identifier));
+
         var result = await handler.HandleAsync(query, cancellationToken);
+
         return result.ToOk();
     }
 
@@ -175,7 +179,9 @@ public static class RecipesEndpoints
             Difficulty.FromNullable(difficulty),
             ImageUrl.FromNullable(imageUrl),
             tags?.Select(t => RecipeTag.From(t)).ToList());
+
         var result = await handler.HandleAsync(command, cancellationToken);
+
         return result.ToOk();
     }
 
@@ -229,7 +235,9 @@ public static class RecipesEndpoints
         }
 
         var command = new ImportRecipeFromPhotosCommand(photoDataList);
+
         var result = await handler.HandleAsync(command, cancellationToken);
+
         return result.ToOk();
     }
 

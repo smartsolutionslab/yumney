@@ -8,15 +8,17 @@ public static class RequestMappingExtensions
 {
     public static SaveRecipeIngredientItem ToCommandItem(this SaveRecipeIngredientRequest request)
     {
+        var (name, amount, unit) = request;
+
         return new SaveRecipeIngredientItem(
-            IngredientName.From(request.Name),
-            Quantity.FromNullable(Amount.FromNullable(request.Amount), Unit.FromNullable(request.Unit)));
+            IngredientName.From(name),
+            Quantity.FromNullable(Amount.FromNullable(amount), Unit.FromNullable(unit)));
     }
 
     public static SaveRecipeStepItem ToCommandItem(this SaveRecipeStepRequest request)
     {
-        return new SaveRecipeStepItem(
-            StepNumber.From(request.Number),
-            StepDescription.From(request.Description));
+        var (number, description) = request;
+
+        return new SaveRecipeStepItem(StepNumber.From(number), StepDescription.From(description));
     }
 }
