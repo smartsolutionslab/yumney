@@ -157,8 +157,8 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && this.hasMore() && !this.isLoading()) {
+    this.observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && this.hasMore() && !this.isLoading()) {
         this.loadMore();
       }
     });

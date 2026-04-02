@@ -108,7 +108,9 @@ export class RecipeApiService {
 
   importFromPhotos(photos: File[]): Observable<ImportRecipeResponse> {
     const formData = new FormData();
-    photos.forEach((photo) => formData.append('photos', photo));
+    for (const photo of photos) {
+      formData.append('photos', photo);
+    }
     return this.http.post<ImportRecipeResponse>(API_ENDPOINTS.recipes.importFromPhotos, formData);
   }
 
