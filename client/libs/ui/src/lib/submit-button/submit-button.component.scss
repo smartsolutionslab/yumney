@@ -1,10 +1,11 @@
 @use 'buttons';
 
 :host {
-  display: inline-block;
+  display: block;
 }
 
 :host button {
   @extend .btn-primary;
   width: 100%;
+  min-height: 2.75rem;
 }
