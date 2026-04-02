@@ -6,7 +6,6 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
-using DomainShoppingListItem = SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.ShoppingListItem;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
 
@@ -26,7 +25,7 @@ public class CheckOffItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ValidCheckCommand_ReturnsSuccess()
     {
-        var list = CreateListWithItem("user-123", out var itemId);
+        var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
         shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
         var command = new CheckOffItemCommand(list.Id, itemId, true);
 
@@ -38,7 +37,7 @@ public class CheckOffItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ValidUncheckCommand_ReturnsSuccess()
     {
-        var list = CreateListWithItem("user-123", out var itemId);
+        var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
         shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
         var command = new CheckOffItemCommand(list.Id, itemId, false);
 
@@ -63,7 +62,7 @@ public class CheckOffItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_DifferentOwner_ReturnsAccessDenied()
     {
-        var list = CreateListWithItem("other-user", out var itemId);
+        var list = ShoppingListTestData.CreateListWithItem("other-user", out var itemId);
         shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
         var command = new CheckOffItemCommand(list.Id, itemId, true);
 
@@ -76,7 +75,7 @@ public class CheckOffItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ValidCommand_CallsSaveChanges()
     {
-        var list = CreateListWithItem("user-123", out var itemId);
+        var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
         shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
         var command = new CheckOffItemCommand(list.Id, itemId, true);
 
@@ -88,7 +87,7 @@ public class CheckOffItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_CheckTrue_CallsCheckOffItem()
     {
-        var list = CreateListWithItem("user-123", out var itemId);
+        var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
         shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
         var command = new CheckOffItemCommand(list.Id, itemId, true);
 
@@ -100,7 +99,7 @@ public class CheckOffItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_CheckFalse_CallsUncheckItem()
     {
-        var list = CreateListWithItem("user-123", out var itemId);
+        var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
         list.CheckOffItem(itemId);
         shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
         var command = new CheckOffItemCommand(list.Id, itemId, false);
@@ -114,7 +113,7 @@ public class CheckOffItemCommandHandlerTests
     public async Task HandleAsync_ForwardsCancellationToken()
     {
         var cts = new CancellationTokenSource();
-        var list = CreateListWithItem("user-123", out var itemId);
+        var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
         shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
         var command = new CheckOffItemCommand(list.Id, itemId, true);
 
@@ -122,16 +121,5 @@ public class CheckOffItemCommandHandlerTests
 
         await shoppingLists.Received(1).GetByIdForUpdateAsync(list.Id, cts.Token);
         await shoppingLists.Received(1).SaveChangesAsync(cts.Token);
-    }
-
-    private static ShoppingList CreateListWithItem(string ownerId, out ShoppingListItemIdentifier itemId)
-    {
-        var item = DomainShoppingListItem.Create(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")));
-        var list = ShoppingList.Create(
-            ShoppingListTitle.From("Test List"),
-            OwnerIdentifier.From(ownerId),
-            [item]);
-        itemId = item.Id;
-        return list;
     }
 }

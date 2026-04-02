@@ -9,7 +9,7 @@ using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
+namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ShoppingDbContext))]
     [Migration("20260314003757_InitialCreate")]

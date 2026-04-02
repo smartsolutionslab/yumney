@@ -14,25 +14,19 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
     public Task InitializeAsync() => Task.CompletedTask;
 
-    public async Task DisposeAsync()
-    {
-        await using var context = await fixture.CreateRecipesDbContextAsync();
-        var recipes = await context.Recipes
-            .Where(r => r.Owner == owner)
-            .ToListAsync();
-        context.Recipes.RemoveRange(recipes);
-        await context.SaveChangesAsync();
-    }
+    public Task DisposeAsync() => AspireFixture.CleanupAsync(
+        fixture.CreateRecipesDbContextAsync,
+        ctx => ctx.Recipes.Where(r => r.Owner == owner));
 
     [Fact]
-    public async Task AddAsync_NewRecipe_PersistsToDatabase()
+    public async Task AddAsync_NewRecipe_PersistsWithAllRelationsAndOptionalFields()
     {
         var recipe = RecipeFactory.Lasagne(owner.Value);
 
         await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
         {
-            var repository = new RecipeRepository(writeContext);
-            await repository.AddAsync(recipe);
+            var recipes = new RecipeRepository(writeContext);
+            await recipes.AddAsync(recipe);
         }
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
@@ -43,82 +37,24 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
         saved.Should().NotBeNull();
         saved!.Title.Value.Should().Be("Classic Lasagne");
-    }
-
-    [Fact]
-    public async Task AddAsync_NewRecipe_PersistsIngredients()
-    {
-        var recipe = RecipeFactory.Lasagne(owner.Value);
-
-        await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
-        {
-            var repository = new RecipeRepository(writeContext);
-            await repository.AddAsync(recipe);
-        }
-
-        await using var readContext = await fixture.CreateRecipesDbContextAsync();
-        var saved = await readContext.Recipes
-            .Include(r => r.Ingredients)
-            .FirstOrDefaultAsync(r => r.Id == recipe.Id);
-
-        saved!.Ingredients.Should().HaveCount(10);
+        saved.Description!.Value.Should().Contain("Bolognese");
+        saved.Servings!.Value.Should().Be(6);
+        saved.Ingredients.Should().HaveCount(10);
         saved.Ingredients.Select(i => i.Name.Value).Should().Contain("Mozzarella");
-    }
-
-    [Fact]
-    public async Task AddAsync_NewRecipe_PersistsSteps()
-    {
-        var recipe = RecipeFactory.Lasagne(owner.Value);
-
-        await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
-        {
-            var repository = new RecipeRepository(writeContext);
-            await repository.AddAsync(recipe);
-        }
-
-        await using var readContext = await fixture.CreateRecipesDbContextAsync();
-        var saved = await readContext.Recipes
-            .Include(r => r.Steps)
-            .FirstOrDefaultAsync(r => r.Id == recipe.Id);
-
-        saved!.Steps.Should().HaveCount(5);
+        saved.Steps.Should().HaveCount(5);
         saved.Steps.First(s => s.Number.Value == 1).Description.Value
             .Should().Contain("Brown the ground beef");
-    }
-
-    [Fact]
-    public async Task AddAsync_NewRecipe_PersistsOptionalFields()
-    {
-        var recipe = RecipeFactory.Lasagne(owner.Value);
-
-        await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
-        {
-            var repository = new RecipeRepository(writeContext);
-            await repository.AddAsync(recipe);
-        }
-
-        await using var readContext = await fixture.CreateRecipesDbContextAsync();
-        var saved = await readContext.Recipes
-            .FirstOrDefaultAsync(r => r.Id == recipe.Id);
-
-        saved!.Description!.Value.Should().Contain("Bolognese");
-        saved.Servings!.Value.Should().Be(6);
     }
 
     [Fact]
     public async Task GetByIdAsync_ExistingRecipe_ReturnsWithRelations()
     {
         var recipe = RecipeFactory.TomatoSoup(owner.Value);
-
-        await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
-        {
-            var repository = new RecipeRepository(writeContext);
-            await repository.AddAsync(recipe);
-        }
+        await fixture.SeedRecipesAsync(recipe);
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
-        var repository2 = new RecipeRepository(readContext);
-        var loaded = await repository2.GetByIdAsync(recipe.Id);
+        var recipes = new RecipeRepository(readContext);
+        var loaded = await recipes.GetByIdAsync(recipe.Id);
 
         loaded.Should().NotBeNull();
         loaded!.Title.Value.Should().Be("Roasted Tomato Soup");
@@ -130,9 +66,9 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     public async Task GetByIdAsync_NonExistent_ReturnsNull()
     {
         await using var context = await fixture.CreateRecipesDbContextAsync();
-        var repository = new RecipeRepository(context);
+        var recipes = new RecipeRepository(context);
 
-        var loaded = await repository.GetByIdAsync(RecipeIdentifier.New());
+        var loaded = await recipes.GetByIdAsync(RecipeIdentifier.New());
 
         loaded.Should().BeNull();
     }
@@ -141,24 +77,19 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     public async Task UpdateAsync_ExistingRecipe_PersistsChanges()
     {
         var recipe = RecipeFactory.TomatoSoup(owner.Value);
-
-        await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
-        {
-            var repository = new RecipeRepository(writeContext);
-            await repository.AddAsync(recipe);
-        }
+        await fixture.SeedRecipesAsync(recipe);
 
         await using (var updateContext = await fixture.CreateRecipesDbContextAsync())
         {
-            var repository = new RecipeRepository(updateContext);
-            var loaded = await repository.GetByIdAsync(recipe.Id);
+            var recipes = new RecipeRepository(updateContext);
+            var loaded = await recipes.GetByIdAsync(recipe.Id);
             loaded!.Update(
                 RecipeTitle.From("Updated Tomato Soup"),
                 [Ingredient.Create(IngredientName.From("Cherry tomatoes"), Quantity.Of(Amount.From(800), Unit.From("g")))],
                 [Step.Create(StepNumber.From(1), StepDescription.From("Roast cherry tomatoes"))],
                 RecipeDescription.From("Updated description"),
                 Servings.From(2));
-            await repository.UpdateAsync(loaded);
+            await recipes.UpdateAsync(loaded);
         }
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
@@ -179,18 +110,13 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     public async Task DeleteAsync_ExistingRecipe_RemovesFromDatabase()
     {
         var recipe = RecipeFactory.ChocolateCake(owner.Value);
-
-        await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
-        {
-            var repository = new RecipeRepository(writeContext);
-            await repository.AddAsync(recipe);
-        }
+        await fixture.SeedRecipesAsync(recipe);
 
         await using (var deleteContext = await fixture.CreateRecipesDbContextAsync())
         {
-            var repository = new RecipeRepository(deleteContext);
-            var loaded = await repository.GetByIdAsync(recipe.Id);
-            await repository.DeleteAsync(loaded!);
+            var recipes = new RecipeRepository(deleteContext);
+            var loaded = await recipes.GetByIdAsync(recipe.Id);
+            await recipes.DeleteAsync(loaded!);
         }
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
@@ -209,16 +135,11 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
             [Ingredient.Create(IngredientName.From("Test"), null)],
             [Step.Create(StepNumber.From(1), StepDescription.From("Test"))],
             sourceUrl: sourceUrl);
-
-        await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
-        {
-            var repository = new RecipeRepository(writeContext);
-            await repository.AddAsync(recipe);
-        }
+        await fixture.SeedRecipesAsync(recipe);
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
-        var repository2 = new RecipeRepository(readContext);
-        var exists = await repository2.ExistsBySourceUrlAsync(sourceUrl, owner);
+        var recipes = new RecipeRepository(readContext);
+        var exists = await recipes.ExistsBySourceUrlAsync(sourceUrl, owner);
 
         exists.Should().BeTrue();
     }
@@ -233,16 +154,11 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
             [Ingredient.Create(IngredientName.From("Test"), null)],
             [Step.Create(StepNumber.From(1), StepDescription.From("Test"))],
             sourceUrl: sourceUrl);
-
-        await using (var writeContext = await fixture.CreateRecipesDbContextAsync())
-        {
-            var repository = new RecipeRepository(writeContext);
-            await repository.AddAsync(recipe);
-        }
+        await fixture.SeedRecipesAsync(recipe);
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
-        var repository2 = new RecipeRepository(readContext);
-        var exists = await repository2.ExistsBySourceUrlAsync(sourceUrl, OwnerIdentifier.From("other-user"));
+        var recipes = new RecipeRepository(readContext);
+        var exists = await recipes.ExistsBySourceUrlAsync(sourceUrl, OwnerIdentifier.From("other-user"));
 
         exists.Should().BeFalse();
     }
@@ -251,9 +167,9 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     public async Task ExistsBySourceUrlAsync_NonExistentUrl_ReturnsFalse()
     {
         await using var context = await fixture.CreateRecipesDbContextAsync();
-        var repository = new RecipeRepository(context);
+        var recipes = new RecipeRepository(context);
 
-        var exists = await repository.ExistsBySourceUrlAsync(
+        var exists = await recipes.ExistsBySourceUrlAsync(
             RecipeUrl.From("https://example.com/nonexistent"),
             owner);
 

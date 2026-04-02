@@ -25,7 +25,7 @@ public class GetShoppingListByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_ExistingList_ReturnsSuccess()
     {
-        var shoppingList = CreateShoppingList();
+        var shoppingList = ShoppingListTestData.CreateList();
         shoppingLists.GetByIdAsync(Arg.Any<ShoppingListIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(shoppingList);
 
@@ -55,7 +55,7 @@ public class GetShoppingListByIdQueryHandlerTests
     public async Task HandleAsync_DifferentOwner_ReturnsAccessDenied()
     {
         currentUser.UserId.Returns("different-user");
-        var shoppingList = CreateShoppingList();
+        var shoppingList = ShoppingListTestData.CreateList();
         shoppingLists.GetByIdAsync(Arg.Any<ShoppingListIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(shoppingList);
 
@@ -65,13 +65,5 @@ public class GetShoppingListByIdQueryHandlerTests
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(GetShoppingListByIdErrors.AccessDenied);
-    }
-
-    private static ShoppingList CreateShoppingList()
-    {
-        return ShoppingList.Create(
-            ShoppingListTitle.From("Test List"),
-            OwnerIdentifier.From("user-123"),
-            [ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g")))]);
     }
 }

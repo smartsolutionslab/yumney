@@ -26,7 +26,7 @@ public class DeleteRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ExistingRecipe_ReturnsSuccess()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -54,7 +54,7 @@ public class DeleteRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_WrongOwner_ReturnsAccessDenied()
     {
-        var recipe = CreateTestRecipe("other-user");
+        var recipe = RecipeTestData.CreateRecipe("other-user");
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -69,7 +69,7 @@ public class DeleteRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ExistingRecipe_CallsMarkAsDeleted()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -83,7 +83,7 @@ public class DeleteRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ExistingRecipe_CallsDeleteAsync()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -110,7 +110,7 @@ public class DeleteRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_WrongOwner_DoesNotCallDeleteAsync()
     {
-        var recipe = CreateTestRecipe("other-user");
+        var recipe = RecipeTestData.CreateRecipe("other-user");
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -124,7 +124,7 @@ public class DeleteRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ForwardsCancellationToken()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
         var cts = new CancellationTokenSource();
@@ -135,14 +135,5 @@ public class DeleteRecipeCommandHandlerTests
 
         await recipes.Received(1).GetByIdAsync(recipeId, cts.Token);
         await recipes.Received(1).DeleteAsync(recipe, cts.Token);
-    }
-
-    private static Recipe CreateTestRecipe(string ownerId)
-    {
-        return Recipe.Create(
-            RecipeTitle.From("Test Recipe"),
-            OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(IngredientName.From("Flour"), null)],
-            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
     }
 }

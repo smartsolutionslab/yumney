@@ -19,6 +19,17 @@ public sealed class AspireFixture : IAsyncLifetime
 
     private DistributedApplication? app;
 
+    public static async Task CleanupAsync<TContext>(
+        Func<Task<TContext>> contextFactory,
+        Func<TContext, IQueryable<object>> query)
+        where TContext : DbContext
+    {
+        await using var context = await contextFactory();
+        var entities = await query(context).ToListAsync();
+        context.RemoveRange(entities);
+        await context.SaveChangesAsync();
+    }
+
     public DistributedApplication App => app ?? throw new InvalidOperationException("Aspire app not started");
 
     public async Task InitializeAsync()
@@ -43,47 +54,9 @@ public sealed class AspireFixture : IAsyncLifetime
 
         await app.ResourceNotifications.WaitForResourceAsync("postgres", KnownResourceStates.Running, cts.Token);
 
-        await using var context = await CreateRecipesDbContextAsync();
-        for (var attempt = 1; attempt <= 10; attempt++)
-        {
-            try
-            {
-                await context.Database.EnsureCreatedAsync(cts.Token);
-                break;
-            }
-            catch when (attempt < 10)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(2), cts.Token);
-            }
-        }
-
-        await using var shoppingContext = await CreateShoppingDbContextAsync();
-        for (var attempt = 1; attempt <= 10; attempt++)
-        {
-            try
-            {
-                await shoppingContext.Database.EnsureCreatedAsync(cts.Token);
-                break;
-            }
-            catch when (attempt < 10)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(2), cts.Token);
-            }
-        }
-
-        await using var usersContext = await CreateUsersDbContextAsync();
-        for (var attempt = 1; attempt <= 10; attempt++)
-        {
-            try
-            {
-                await usersContext.Database.EnsureCreatedAsync(cts.Token);
-                break;
-            }
-            catch when (attempt < 10)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(2), cts.Token);
-            }
-        }
+        await EnsureDbCreatedAsync<RecipesDbContext>(CreateRecipesDbContextAsync, cts.Token);
+        await EnsureDbCreatedAsync<ShoppingDbContext>(CreateShoppingDbContextAsync, cts.Token);
+        await EnsureDbCreatedAsync<UsersDbContext>(CreateUsersDbContextAsync, cts.Token);
     }
 
     public async Task DisposeAsync()
@@ -138,6 +111,26 @@ public sealed class AspireFixture : IAsyncLifetime
         await using var context = await CreateUsersDbContextAsync();
         context.AppUserProfiles.AddRange(profiles);
         await context.SaveChangesAsync();
+    }
+
+    private static async Task EnsureDbCreatedAsync<TContext>(
+        Func<Task<TContext>> contextFactory,
+        CancellationToken cancellationToken)
+        where TContext : DbContext
+    {
+        await using var context = await contextFactory();
+        for (var attempt = 1; attempt <= 10; attempt++)
+        {
+            try
+            {
+                await context.Database.EnsureCreatedAsync(cancellationToken);
+                return;
+            }
+            catch when (attempt < 10)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+            }
+        }
     }
 }
 

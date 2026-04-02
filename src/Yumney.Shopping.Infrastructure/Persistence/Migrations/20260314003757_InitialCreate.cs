@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
+namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
