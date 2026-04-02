@@ -25,7 +25,8 @@
 }
 
 .dashboard-container {
-  max-width: 720px;
+  max-width: 860px;
+  min-width: 320px;
   margin: 0 auto;
   padding: 1.25rem 1rem;
 
@@ -112,7 +113,7 @@
 // ── Desktop (≥ 768px) ──
 @media (min-width: 768px) {
   .dashboard-container {
-    max-width: 720px;
+    max-width: 860px;
     padding: 2rem 1.5rem;
   }
 
