@@ -185,14 +185,11 @@ public sealed partial class KeycloakAdminService(
             }
 
             var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
-
+            var absoluteExpirationRelativeToNow = TimeSpan.FromSeconds(tokenResponse!.ExpiresIn) - tokenExpiryBuffer;
             await cache.SetStringAsync(
                 tokenCacheKey,
                 tokenResponse!.AccessToken,
-                new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(tokenResponse.ExpiresIn) - tokenExpiryBuffer,
-                },
+                new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow },
                 cancellationToken);
 
             return tokenResponse.AccessToken;
@@ -233,10 +230,7 @@ public sealed partial class KeycloakAdminService(
         HttpResponseMessage response,
         CancellationToken cancellationToken)
     {
-        if (response.StatusCode == HttpStatusCode.Conflict)
-        {
-            return RegistrationErrors.EmailAlreadyExists;
-        }
+        if (response.StatusCode == HttpStatusCode.Conflict) return RegistrationErrors.EmailAlreadyExists;
 
         if (!response.IsSuccessStatusCode)
         {
