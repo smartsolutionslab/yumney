@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
+namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ShoppingDbContext))]
-    partial class ShoppingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260321164323_UpdateModel")]
+    partial class UpdateModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,19 +47,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<uint>("xmin")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Owner");
-
-                    b.HasIndex("Owner", "CreatedAt");
-
-                    b.HasIndex("Owner", "Title");
 
                     b.ToTable("ShoppingLists", (string)null);
                 });
@@ -66,10 +59,11 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
                     b.OwnsMany("SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.ShoppingListItem", "Items", b1 =>
                         {
                             b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uuid");
 
-                            b1.Property<bool>("IsChecked")
-                                .HasColumnType("boolean");
+                            b1.Property<decimal?>("Amount")
+                                .HasColumnType("numeric");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
@@ -79,6 +73,10 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
                             b1.Property<Guid>("ShoppingListId")
                                 .HasColumnType("uuid");
 
+                            b1.Property<string>("Unit")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)");
+
                             b1.HasKey("Id");
 
                             b1.HasIndex("ShoppingListId");
@@ -87,30 +85,6 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("ShoppingListId");
-
-                            b1.OwnsOne("SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Quantity", "Quantity", b2 =>
-                                {
-                                    b2.Property<Guid>("ShoppingListItemId")
-                                        .HasColumnType("uuid");
-
-                                    b2.Property<decimal>("Amount")
-                                        .HasColumnType("numeric")
-                                        .HasColumnName("Amount");
-
-                                    b2.Property<string>("Unit")
-                                        .HasMaxLength(50)
-                                        .HasColumnType("character varying(50)")
-                                        .HasColumnName("Unit");
-
-                                    b2.HasKey("ShoppingListItemId");
-
-                                    b2.ToTable("ShoppingListItems");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("ShoppingListItemId");
-                                });
-
-                            b1.Navigation("Quantity");
                         });
 
                     b.Navigation("Items");

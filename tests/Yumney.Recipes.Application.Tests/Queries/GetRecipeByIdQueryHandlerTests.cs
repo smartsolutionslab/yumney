@@ -26,7 +26,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeExists_ReturnsSuccessResult()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -38,7 +38,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeExists_ReturnsMappedTitle()
     {
-        var recipe = CreateTestRecipe("user-123", "Pasta Carbonara");
+        var recipe = RecipeTestData.CreateRecipe(title: "Pasta Carbonara");
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -50,7 +50,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeExists_ReturnsMappedIdentifier()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -75,7 +75,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_WrongOwner_ReturnsAccessDeniedFailure()
     {
-        var recipe = CreateTestRecipe("other-user");
+        var recipe = RecipeTestData.CreateRecipe("other-user");
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -88,7 +88,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeWithAllFields_MapsOptionalFieldsCorrectly()
     {
-        var recipe = CreateTestRecipeWithOptionals("user-123");
+        var recipe = RecipeTestData.CreateRecipeWithOptionals();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -107,7 +107,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeWithoutOptionals_MapsNullFields()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -126,7 +126,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeWithIngredients_MapsIngredientsCorrectly()
     {
-        var recipe = CreateTestRecipeWithIngredients("user-123");
+        var recipe = RecipeTestData.CreateRecipeWithIngredients();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -144,7 +144,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeWithSteps_MapsStepsCorrectly()
     {
-        var recipe = CreateTestRecipeWithSteps("user-123");
+        var recipe = RecipeTestData.CreateRecipeWithSteps();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -160,7 +160,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_Always_CallsRepositoryWithCorrectIdentifier()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -172,7 +172,7 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeExists_MapsCreatedAt()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -192,54 +192,5 @@ public class GetRecipeByIdQueryHandlerTests
         await handler.HandleAsync(new(recipeId), cts.Token);
 
         await recipes.Received(1).GetByIdAsync(recipeId, cts.Token);
-    }
-
-    private static Recipe CreateTestRecipe(string ownerId, string title = "Test Recipe")
-    {
-        return Recipe.Create(
-            RecipeTitle.From(title),
-            OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(IngredientName.From("Flour"), null)],
-            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
-    }
-
-    private static Recipe CreateTestRecipeWithOptionals(string ownerId)
-    {
-        return Recipe.Create(
-            RecipeTitle.From("Full Recipe"),
-            OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(IngredientName.From("Flour"), null)],
-            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
-            RecipeDescription.From("A test recipe"),
-            Servings.From(4),
-            PreparationTime.From(10),
-            CookingTime.From(20),
-            Difficulty.From("easy"),
-            ImageUrl.From("https://example.com/image.jpg"),
-            sourceUrl: RecipeUrl.From("https://example.com/recipe"));
-    }
-
-    private static Recipe CreateTestRecipeWithIngredients(string ownerId)
-    {
-        return Recipe.Create(
-            RecipeTitle.From("Recipe With Ingredients"),
-            OwnerIdentifier.From(ownerId),
-            [
-                Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500m), Unit.From("g"))),
-                Ingredient.Create(IngredientName.From("Eggs"), null),
-            ],
-            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
-    }
-
-    private static Recipe CreateTestRecipeWithSteps(string ownerId)
-    {
-        return Recipe.Create(
-            RecipeTitle.From("Recipe With Steps"),
-            OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(IngredientName.From("Flour"), null)],
-            [
-                Step.Create(StepNumber.From(1), StepDescription.From("Mix flour")),
-                Step.Create(StepNumber.From(2), StepDescription.From("Add eggs")),
-            ]);
     }
 }
