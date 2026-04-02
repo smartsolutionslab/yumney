@@ -13,7 +13,7 @@ import {
   ExtractedIngredient,
   ExtractedStep,
 } from '@yumney/shared/api-client';
-import { VALIDATION, KNOWN_UNITS } from '@yumney/shared/models';
+import { VALIDATION, getGroupedUnits, type UnitGroupInfo } from '@yumney/shared/models';
 import { EditableListItemComponent } from '../editable-list-item/editable-list-item.component';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { SubmitButtonComponent } from '../submit-button/submit-button.component';
@@ -51,7 +51,7 @@ export class RecipePreviewComponent implements OnInit {
 
   private fb = inject(FormBuilder);
 
-  readonly knownUnits = KNOWN_UNITS;
+  readonly unitGroups: UnitGroupInfo[] = getGroupedUnits();
 
   form = this.fb.nonNullable.group({
     title: [

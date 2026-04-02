@@ -16,5 +16,12 @@ export {
   mapDetailToImportResponse,
 } from './lib/recipe-mapping';
 export { createMfeAppConfig } from './lib/mfe-app-config';
-export { KNOWN_UNITS, type KnownUnit } from './lib/known-units';
+export {
+  KNOWN_UNITS,
+  UNIT_GROUPS,
+  getGroupedUnits,
+  type KnownUnit,
+  type UnitGroup,
+  type UnitGroupInfo,
+} from './lib/known-units';
 export { ROUTES } from './lib/route-paths';
