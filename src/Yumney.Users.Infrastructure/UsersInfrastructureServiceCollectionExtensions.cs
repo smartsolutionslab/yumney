@@ -20,12 +20,12 @@ public static class UsersInfrastructureServiceCollectionExtensions
             .ValidateOnStart();
 
         services.AddDbContext<UsersDbContext>((sp, options) =>
+        {
+            var connectionString = configuration.GetConnectionString("usersdb");
             options
-                .UseNpgsql(
-                    configuration.GetConnectionString("usersdb"),
-                    x => x.MigrationsHistoryTable("__UsersMigrationsHistory")
-                        .EnableRetryOnFailure())
-                .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>()));
+                .UseNpgsql(connectionString, x => x.MigrationsHistoryTable("__UsersMigrationsHistory").EnableRetryOnFailure())
+                .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
+        });
 
         services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
 
