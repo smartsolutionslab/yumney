@@ -55,11 +55,12 @@ export class RecipeDetailComponent implements OnInit {
     if (!recipe) {
       return [];
     }
+    const { ingredients, servings } = recipe;
     const desired = this.desiredServings();
-    if (!desired || !recipe.servings) {
-      return recipe.ingredients;
+    if (!desired || !servings) {
+      return ingredients;
     }
-    return scaleIngredients(recipe.ingredients, recipe.servings, desired);
+    return scaleIngredients(ingredients, servings, desired);
   });
 
   isScaled = computed(() => {
@@ -91,8 +92,9 @@ export class RecipeDetailComponent implements OnInit {
     if (!recipe) {
       return null;
     }
-    const prep = recipe.prepTimeMinutes ?? 0;
-    const cook = recipe.cookTimeMinutes ?? 0;
+    const { prepTimeMinutes, cookTimeMinutes } = recipe;
+    const prep = prepTimeMinutes ?? 0;
+    const cook = cookTimeMinutes ?? 0;
     return prep === 0 && cook === 0 ? null : prep + cook;
   });
 
