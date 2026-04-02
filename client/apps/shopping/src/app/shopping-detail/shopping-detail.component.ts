@@ -83,8 +83,12 @@ export class ShoppingDetailComponent implements OnInit {
 
     const previousStates = list.items.map((i) => i.isChecked);
     this.optimisticUpdate(
-      () => list.items.forEach((item) => (item.isChecked = checked)),
-      () => list.items.forEach((item, i) => (item.isChecked = previousStates[i])),
+      () => {
+        for (const item of list.items) item.isChecked = checked;
+      },
+      () => {
+        list.items.forEach((item, i) => (item.isChecked = previousStates[i]));
+      },
       (l) => this.shoppingApi.checkOffAllItems(l.identifier, checked),
     );
   }

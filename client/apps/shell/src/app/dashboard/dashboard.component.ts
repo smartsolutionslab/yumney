@@ -215,8 +215,8 @@ export class DashboardComponent implements OnInit {
       return null;
     }
 
-    const match = text.match(/https?:\/\/\S+/i);
-    return match ? match[0] : null;
+    const [url] = text.match(/https?:\/\/\S+/i) ?? [];
+    return url ?? null;
   }
 
   private resetImportState(): void {

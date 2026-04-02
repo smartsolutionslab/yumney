@@ -23,7 +23,8 @@ export class AuthService {
     const name = this.displayName();
     if (!name) return null;
     const atIndex = name.indexOf('@');
-    return atIndex > 0 ? name.substring(0, atIndex) : name.split(' ')[0];
+    const [first] = name.split(' ');
+    return atIndex > 0 ? name.substring(0, atIndex) : first;
   });
   userInitial = computed(() => {
     const name = this.shortName();
@@ -35,12 +36,8 @@ export class AuthService {
   constructor(private oauthService: OAuthService) {}
 
   async initialize(): Promise<void> {
-    const appConfig = await this.loadAppConfig();
-    const authConfig = createAuthConfig(
-      appConfig.keycloakUrl,
-      appConfig.keycloakRealm,
-      appConfig.keycloakClientId,
-    );
+    const { keycloakUrl, keycloakRealm, keycloakClientId } = await this.loadAppConfig();
+    const authConfig = createAuthConfig(keycloakUrl, keycloakRealm, keycloakClientId);
 
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
