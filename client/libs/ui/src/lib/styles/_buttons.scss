@@ -1,107 +1,184 @@
-.btn-primary {
+// ── Base button reset ──
+%btn-base {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 10px;
-  background: var(--yn-primary);
-  color: #fff;
-  font-size: 1rem;
+  font-family: inherit;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  border: none;
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.1s;
 
-  &:hover:not(:disabled) {
-    background: var(--yn-primary-hover);
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   &:active:not(:disabled) {
     transform: scale(0.98);
   }
+}
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+// ── Primary ──
+.btn-primary {
+  @extend %btn-base;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  background: var(--yn-primary);
+  color: #fff;
+  font-size: 1rem;
+
+  &:hover:not(:disabled) {
+    background: var(--yn-primary-hover);
+    box-shadow: 0 2px 8px rgb(249 115 22 / 25%);
   }
 }
 
-.btn-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
+// ── Secondary (outline) ──
+.btn-secondary {
+  @extend %btn-base;
+  padding: 0.75rem 1.5rem;
+  border: 1.5px solid var(--yn-border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--yn-text-muted);
+  font-size: 1rem;
+
+  &:hover:not(:disabled) {
+    border-color: var(--yn-primary);
+    color: var(--yn-primary);
+    background: var(--yn-primary-light);
+  }
+}
+
+// ── Ghost (text-only, no border) ──
+.btn-ghost {
+  @extend %btn-base;
+  padding: 0.75rem 1.25rem;
   border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--yn-text-muted);
+  font-size: 0.9375rem;
+
+  &:hover:not(:disabled) {
+    background: var(--yn-background-subtle);
+    color: var(--yn-text);
+  }
+}
+
+// ── Danger ──
+.btn-danger {
+  @extend %btn-base;
+  padding: 0.625rem 1.25rem;
+  border: 1.5px solid var(--yn-danger);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--yn-danger);
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &:hover:not(:disabled) {
+    background: var(--yn-danger);
+    color: #fff;
+  }
+}
+
+// ── Danger filled ──
+.btn-danger-filled {
+  @extend %btn-base;
+  padding: 0.625rem 1.25rem;
+  border-radius: 10px;
+  background: var(--yn-danger);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &:hover:not(:disabled) {
+    background: #b91c1c;
+    box-shadow: 0 2px 8px rgb(220 38 38 / 25%);
+  }
+}
+
+// ── Link-style button ──
+.btn-link {
+  @extend %btn-base;
+  padding: 0.625rem 1.25rem;
   border-radius: 6px;
   background: var(--yn-link);
   color: var(--yn-surface);
   font-size: 0.875rem;
   font-weight: 500;
-  cursor: pointer;
 
   &:hover:not(:disabled) {
     background: var(--yn-link-hover);
   }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 }
 
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 1.5px solid var(--yn-primary);
+// ── Dashed add button ──
+.btn-dashed {
+  @extend %btn-base;
+  padding: 0.75rem 1rem;
+  border: 2px dashed var(--yn-border);
   border-radius: 10px;
   background: transparent;
   color: var(--yn-primary);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  font-size: 0.9375rem;
+  width: 100%;
 
   &:hover:not(:disabled) {
-    background: var(--yn-primary);
-    color: #fff;
+    border-color: var(--yn-primary);
+    background: var(--yn-primary-light);
   }
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  &:active:not(:disabled) {
+    background: var(--yn-primary-light-end);
   }
 }
 
-.btn-danger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  border: 1px solid var(--yn-danger);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--yn-danger);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
+// ── Icon button (small square) ──
+.btn-icon {
+  @extend %btn-base;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1.5px solid var(--yn-border);
+  border-radius: 8px;
+  background: var(--yn-surface);
+  color: var(--yn-text-muted);
+  font-size: 0.75rem;
 
   &:hover:not(:disabled) {
-    background: var(--yn-danger);
-    color: var(--yn-surface);
+    border-color: var(--yn-primary);
+    background: var(--yn-primary-light);
+    color: var(--yn-primary);
+  }
+
+  &:active:not(:disabled) {
+    background: var(--yn-primary-light-end);
   }
 
   &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    opacity: 0.25;
+  }
+
+  &.btn-icon--danger {
+    &:hover:not(:disabled) {
+      border-color: var(--yn-danger);
+      background: var(--yn-danger-light);
+      color: var(--yn-danger);
+    }
   }
 }
 
+// ── Back link ──
 .back-link {
   display: inline-block;
   margin-bottom: 1.5rem;
@@ -115,6 +192,7 @@
   }
 }
 
+// ── Spinner (for use inside buttons) ──
 .btn-spinner {
   display: inline-block;
   width: 1rem;

@@ -14,16 +14,19 @@
   textarea,
   select {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 0.875rem;
     border: 1.5px solid var(--yn-border);
-    border-radius: 10px;
-    font-size: 1rem;
+    border-radius: 8px;
+    font-size: 0.9375rem;
     font-family: inherit;
     color: var(--yn-text);
-    background: var(--yn-surface);
+    background: #fff;
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      background 0.2s;
     -webkit-appearance: none;
 
     &::placeholder {
@@ -32,7 +35,9 @@
 
     &:focus {
       border-color: var(--yn-primary);
-      box-shadow: 0 0 0 3px rgb(249 115 22 / 12%);
+      box-shadow:
+        0 0 0 3px rgb(249 115 22 / 10%),
+        inset 0 1px 2px rgb(0 0 0 / 4%);
       background: #fff;
     }
 
@@ -53,7 +58,24 @@
 
   textarea {
     resize: vertical;
-    min-height: 5rem;
+    min-height: 6rem;
+    line-height: 1.6;
+  }
+
+  // Compact variant for inline/grid forms
+  &.form-field--compact {
+    margin-bottom: 0;
+  }
+}
+
+// Number inputs — tighter width, centered text
+input[type='number'] {
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    opacity: 1;
+    height: 1.5rem;
   }
 }
 

@@ -160,33 +160,7 @@
   margin-bottom: 2rem;
 }
 
-.action-button {
-  padding: 0.5rem 1.25rem;
-  border: 2px solid var(--yn-primary);
-  border-radius: 8px;
-  background: var(--yn-primary);
-  color: var(--yn-surface);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &--danger {
-    background: transparent;
-    border-color: var(--yn-danger);
-    color: var(--yn-danger);
-  }
-
-  &--secondary {
-    background: transparent;
-    border-color: var(--yn-primary);
-    color: var(--yn-primary);
-  }
-}
+// Action buttons use shared .btn-primary, .btn-secondary, .btn-danger from @use 'buttons'
 
 .ingredients-section,
 .steps-section {

@@ -6,7 +6,7 @@
   <div class="item-actions">
     <button
       type="button"
-      class="action-btn"
+      class="btn-icon"
       [disabled]="isFirst()"
       (click)="moveUp.emit()"
       [attr.aria-label]="t('shared.editableList.moveUp')"
@@ -15,7 +15,7 @@
     </button>
     <button
       type="button"
-      class="action-btn"
+      class="btn-icon"
       [disabled]="isLast()"
       (click)="moveDown.emit()"
       [attr.aria-label]="t('shared.editableList.moveDown')"
@@ -24,7 +24,7 @@
     </button>
     <button
       type="button"
-      class="action-btn remove-btn"
+      class="btn-icon btn-icon--danger"
       (click)="remove.emit()"
       [attr.aria-label]="t('shared.editableList.remove')"
     >
