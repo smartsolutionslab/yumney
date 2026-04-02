@@ -15,19 +15,15 @@
   select {
     width: 100%;
     padding: 0.75rem 1rem;
-    min-height: 2.75rem;
     border: 1.5px solid var(--yn-border);
     border-radius: 10px;
     font-size: 1rem;
     font-family: inherit;
     color: var(--yn-text);
-    background: #fff;
+    background: var(--yn-surface);
     outline: none;
     box-sizing: border-box;
-    transition:
-      border-color 0.2s,
-      box-shadow 0.2s,
-      background 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
     -webkit-appearance: none;
 
     &::placeholder {
@@ -36,9 +32,7 @@
 
     &:focus {
       border-color: var(--yn-primary);
-      box-shadow:
-        0 0 0 3px rgb(249 115 22 / 10%),
-        inset 0 1px 2px rgb(0 0 0 / 4%);
+      box-shadow: 0 0 0 3px rgb(249 115 22 / 12%);
       background: #fff;
     }
 
@@ -59,19 +53,7 @@
 
   textarea {
     resize: vertical;
-    min-height: 7rem;
-    line-height: 1.6;
-  }
-}
-
-// Number inputs — keep spinner visible
-input[type='number'] {
-  -moz-appearance: textfield;
-
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    opacity: 1;
-    height: 1.5rem;
+    min-height: 5rem;
   }
 }
 

@@ -64,7 +64,19 @@
     font-size: 0.8125rem;
   }
 
-  // Inline textareas inside list items are shorter
+  // Ensure all controls have equal visual height
+  input,
+  select {
+    min-height: 2.75rem;
+  }
+
+  // Description textarea — enough room to see content
+  textarea {
+    min-height: 7rem;
+    line-height: 1.6;
+  }
+
+  // Step textareas inside list items — shorter
   &.step-description textarea {
     min-height: 4.5rem;
   }
