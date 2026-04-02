@@ -290,6 +290,11 @@
     "drop": "drop",
     "sprig": "sprig",
     "stalk": "stalk",
-    "sheet": "sheet"
+    "sheet": "sheet",
+    "group": {
+      "volume": "Volume",
+      "weight": "Weight",
+      "count": "Count / Other"
+    }
   }
 }

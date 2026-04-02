@@ -290,6 +290,11 @@
     "drop": "Tropfen",
     "sprig": "Zweig",
     "stalk": "Stange",
-    "sheet": "Blatt"
+    "sheet": "Blatt",
+    "group": {
+      "volume": "Volumen",
+      "weight": "Gewicht",
+      "count": "Anzahl / Sonstiges"
+    }
   }
 }

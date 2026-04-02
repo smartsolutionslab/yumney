@@ -1,7 +1,10 @@
+@use 'buttons';
+
 :host {
   display: inline-block;
 }
 
 :host button {
+  @extend .btn-primary;
   width: 100%;
 }

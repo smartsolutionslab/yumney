@@ -55,13 +55,12 @@
 }
 
 .form-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-  flex-wrap: wrap;
 
   .form-field {
-    flex: 1;
-    min-width: 120px;
+    min-width: 0;
   }
 }
 
@@ -116,18 +115,16 @@
 
 .add-btn {
   padding: 0.5rem 1rem;
-  border: 1px dashed var(--yn-border);
+  border: 1px dashed var(--yn-primary);
   border-radius: 6px;
   background: transparent;
-  color: var(--yn-text-muted);
+  color: var(--yn-primary);
   font-size: 0.875rem;
   cursor: pointer;
   width: 100%;
   margin-top: 0.5rem;
 
   &:hover {
-    border-color: var(--yn-primary);
-    color: var(--yn-primary);
     background: var(--yn-primary-light);
   }
 }
@@ -142,16 +139,22 @@
 
 .discard-btn {
   padding: 0.75rem 1.5rem;
-  border: 1px solid var(--yn-border);
+  border: 1px solid var(--yn-primary);
   border-radius: 8px;
-  background: var(--yn-surface);
-  color: var(--yn-text-body);
+  background: transparent;
+  color: var(--yn-primary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
 
   &:hover {
-    background: var(--yn-background-hover);
+    background: var(--yn-primary);
+    color: var(--yn-surface);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 }
 
@@ -167,5 +170,39 @@
 
   &:hover {
     background: var(--yn-primary-hover);
+  }
+}
+
+@media (max-width: 640px) {
+  .recipe-preview {
+    padding: 1rem;
+  }
+
+  .form-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ingredient-fields {
+    flex-wrap: wrap;
+
+    .ingredient-name {
+      flex-basis: 100%;
+    }
+
+    .ingredient-amount,
+    .ingredient-unit {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+
+    .discard-btn,
+    ::ng-deep .save-btn {
+      width: 100%;
+      text-align: center;
+    }
   }
 }

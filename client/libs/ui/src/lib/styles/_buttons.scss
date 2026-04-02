@@ -46,6 +46,31 @@
   }
 }
 
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid var(--yn-primary);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--yn-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--yn-primary);
+    color: var(--yn-surface);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
 .btn-danger {
   display: inline-flex;
   align-items: center;
