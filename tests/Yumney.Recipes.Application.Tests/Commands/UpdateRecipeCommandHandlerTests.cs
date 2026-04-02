@@ -25,7 +25,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ValidCommand_ReturnsSuccess()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = CreateValidCommand(recipe.Id);
@@ -38,7 +38,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ValidCommand_ReturnsRecipeDetailDto()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = CreateValidCommand(recipe.Id);
@@ -68,7 +68,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_WrongOwner_ReturnsAccessDenied()
     {
-        var recipe = CreateTestRecipe("other-user");
+        var recipe = RecipeTestData.CreateRecipe("other-user");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = CreateValidCommand(recipe.Id);
@@ -95,7 +95,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_WrongOwner_DoesNotCallUpdateAsync()
     {
-        var recipe = CreateTestRecipe("other-user");
+        var recipe = RecipeTestData.CreateRecipe("other-user");
         recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
 
         var command = CreateValidCommand(recipe.Id);
@@ -108,7 +108,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ValidCommand_CallsUpdateAsync()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -122,7 +122,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ValidCommand_UpdatesRecipeFields()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -156,7 +156,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ForwardsCancellationToken()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
         var cts = new CancellationTokenSource();
@@ -172,7 +172,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_PreservesSourceUrl()
     {
-        var recipe = CreateTestRecipeWithSourceUrl("user-123");
+        var recipe = RecipeTestData.CreateRecipeWithSourceUrl();
         var recipeId = recipe.Id;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
@@ -220,7 +220,7 @@ public class UpdateRecipeCommandHandlerTests
     [Fact]
     public async Task HandleAsync_PreservesCreatedAt()
     {
-        var recipe = CreateTestRecipe("user-123");
+        var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         var originalCreatedAt = recipe.CreatedAt;
         recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
@@ -239,24 +239,5 @@ public class UpdateRecipeCommandHandlerTests
             RecipeTitle.From("Updated Pasta"),
             [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.From("g")))],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Cook pasta"))]);
-    }
-
-    private static Recipe CreateTestRecipe(string ownerId)
-    {
-        return Recipe.Create(
-            RecipeTitle.From("Test Recipe"),
-            OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(IngredientName.From("Flour"), null)],
-            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
-    }
-
-    private static Recipe CreateTestRecipeWithSourceUrl(string ownerId)
-    {
-        return Recipe.Create(
-            RecipeTitle.From("Test Recipe"),
-            OwnerIdentifier.From(ownerId),
-            [Ingredient.Create(IngredientName.From("Flour"), null)],
-            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
-            sourceUrl: RecipeUrl.From("https://example.com/recipe"));
     }
 }

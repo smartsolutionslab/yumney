@@ -49,7 +49,7 @@ public class GetRecipesQueryHandlerTests
     [Fact]
     public async Task HandleAsync_WithRecipes_ReturnsMappedDtos()
     {
-        var recipe = CreateTestRecipe("Pasta Carbonara");
+        var recipe = RecipeTestData.CreateRecipe(title: "Pasta Carbonara");
         SetupRepository([recipe], 1);
 
         var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
@@ -63,7 +63,7 @@ public class GetRecipesQueryHandlerTests
     [Fact]
     public async Task HandleAsync_WithRecipes_ReturnsMappedCreatedAt()
     {
-        var recipe = CreateTestRecipe("Pasta Carbonara");
+        var recipe = RecipeTestData.CreateRecipe(title: "Pasta Carbonara");
         SetupRepository([recipe], 1);
 
         var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
@@ -219,7 +219,7 @@ public class GetRecipesQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeWithAllFields_MapsOptionalFieldsCorrectly()
     {
-        var recipe = CreateTestRecipeWithOptionals();
+        var recipe = RecipeTestData.CreateRecipeWithOptionals();
         SetupRepository([recipe], 1);
 
         var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
@@ -237,7 +237,7 @@ public class GetRecipesQueryHandlerTests
     [Fact]
     public async Task HandleAsync_RecipeWithoutOptionals_MapsNullFields()
     {
-        var recipe = CreateTestRecipe("Simple Recipe");
+        var recipe = RecipeTestData.CreateRecipe(title: "Simple Recipe");
         SetupRepository([recipe], 1);
 
         var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
@@ -255,9 +255,9 @@ public class GetRecipesQueryHandlerTests
     [Fact]
     public async Task HandleAsync_MultipleRecipes_MapsAllItems()
     {
-        var recipe1 = CreateTestRecipe("Recipe One");
-        var recipe2 = CreateTestRecipe("Recipe Two");
-        var recipe3 = CreateTestRecipe("Recipe Three");
+        var recipe1 = RecipeTestData.CreateRecipe(title: "Recipe One");
+        var recipe2 = RecipeTestData.CreateRecipe(title: "Recipe Two");
+        var recipe3 = RecipeTestData.CreateRecipe(title: "Recipe Three");
         SetupRepository([recipe1, recipe2, recipe3], 3);
 
         var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
@@ -272,7 +272,7 @@ public class GetRecipesQueryHandlerTests
     [Fact]
     public async Task HandleAsync_PartialPage_ReturnsTotalCountLargerThanItems()
     {
-        var recipe = CreateTestRecipe("Only Recipe On Page");
+        var recipe = RecipeTestData.CreateRecipe(title: "Only Recipe On Page");
         SetupRepository([recipe], 25);
 
         var query = CreateQuery(2, 20, RecipeSortField.Date, SortDirection.Descending);
@@ -288,30 +288,6 @@ public class GetRecipesQueryHandlerTests
         var paging = PagingOptions.Of(Page.From(page), PageSize.From(pageSize));
         var sorting = new SortingOptions<RecipeSortField>(sortBy, sortDirection);
         return new GetRecipesQuery(paging, sorting, search);
-    }
-
-    private static Recipe CreateTestRecipe(string title)
-    {
-        return Recipe.Create(
-            RecipeTitle.From(title),
-            OwnerIdentifier.From("user-123"),
-            [Ingredient.Create(IngredientName.From("Flour"), null)],
-            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
-    }
-
-    private static Recipe CreateTestRecipeWithOptionals()
-    {
-        return Recipe.Create(
-            RecipeTitle.From("Full Recipe"),
-            OwnerIdentifier.From("user-123"),
-            [Ingredient.Create(IngredientName.From("Flour"), null)],
-            [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
-            RecipeDescription.From("A test recipe"),
-            Servings.From(4),
-            PreparationTime.From(10),
-            CookingTime.From(20),
-            Difficulty.From("easy"),
-            ImageUrl.From("https://example.com/image.jpg"));
     }
 
     private void SetupEmptyRepository()

@@ -14,26 +14,15 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
     public Task InitializeAsync() => Task.CompletedTask;
 
-    public async Task DisposeAsync()
-    {
-        await using var context = await fixture.CreateUsersDbContextAsync();
-        var profiles = await context.AppUserProfiles
-            .Where(p => p.KeycloakUserId == keycloakId)
-            .ToListAsync();
-        context.AppUserProfiles.RemoveRange(profiles);
-        await context.SaveChangesAsync();
-    }
+    public Task DisposeAsync() => AspireFixture.CleanupAsync(
+        fixture.CreateUsersDbContextAsync,
+        ctx => ctx.AppUserProfiles.Where(p => p.KeycloakUserId == keycloakId));
 
     [Fact]
-    public async Task AddAsync_NewProfile_PersistsToDatabase()
+    public async Task AddAsync_NewProfile_PersistsWithDefaultPreferences()
     {
         var profile = CreateProfile();
-
-        await using (var writeContext = await fixture.CreateUsersDbContextAsync())
-        {
-            var repository = new AppUserProfileRepository(writeContext);
-            await repository.AddAsync(profile);
-        }
+        await fixture.SeedUserProfilesAsync(profile);
 
         await using var readContext = await fixture.CreateUsersDbContextAsync();
         var saved = await readContext.AppUserProfiles
@@ -41,24 +30,7 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
         saved.Should().NotBeNull();
         saved!.KeycloakUserId.Value.Should().Be(keycloakId.Value);
-    }
-
-    [Fact]
-    public async Task AddAsync_NewProfile_PersistsDefaultPreferences()
-    {
-        var profile = CreateProfile();
-
-        await using (var writeContext = await fixture.CreateUsersDbContextAsync())
-        {
-            var repository = new AppUserProfileRepository(writeContext);
-            await repository.AddAsync(profile);
-        }
-
-        await using var readContext = await fixture.CreateUsersDbContextAsync();
-        var saved = await readContext.AppUserProfiles
-            .FirstOrDefaultAsync(p => p.Id == profile.Id);
-
-        saved!.PreferredLanguage.Value.Should().Be("en");
+        saved.PreferredLanguage.Value.Should().Be("en");
         saved.PreferredUnitSystem.Value.Should().Be("metric");
     }
 
@@ -66,16 +38,11 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     public async Task FindByKeycloakUserIdAsync_ExistingProfile_ReturnsProfile()
     {
         var profile = CreateProfile();
-
-        await using (var writeContext = await fixture.CreateUsersDbContextAsync())
-        {
-            var repository = new AppUserProfileRepository(writeContext);
-            await repository.AddAsync(profile);
-        }
+        await fixture.SeedUserProfilesAsync(profile);
 
         await using var readContext = await fixture.CreateUsersDbContextAsync();
-        var repository2 = new AppUserProfileRepository(readContext);
-        var loaded = await repository2.FindByKeycloakUserIdAsync(keycloakId);
+        var users = new AppUserProfileRepository(readContext);
+        var loaded = await users.FindByKeycloakUserIdAsync(keycloakId);
 
         loaded.Should().NotBeNull();
         loaded!.DisplayName.Value.Should().Be("Test User");
@@ -85,9 +52,9 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     public async Task FindByKeycloakUserIdAsync_NonExistent_ReturnsNull()
     {
         await using var context = await fixture.CreateUsersDbContextAsync();
-        var repository = new AppUserProfileRepository(context);
+        var users = new AppUserProfileRepository(context);
 
-        var loaded = await repository.FindByKeycloakUserIdAsync(KeycloakUserId.From("nonexistent-kc-id"));
+        var loaded = await users.FindByKeycloakUserIdAsync(KeycloakUserId.From("nonexistent-kc-id"));
 
         loaded.Should().BeNull();
     }
@@ -96,18 +63,13 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     public async Task AddAsync_DuplicateKeycloakUserId_ThrowsException()
     {
         var profile1 = CreateProfile("User One");
+        await fixture.SeedUserProfilesAsync(profile1);
+
+        await using var writeContext = await fixture.CreateUsersDbContextAsync();
+        var users = new AppUserProfileRepository(writeContext);
         var profile2 = CreateProfile("User Two");
 
-        await using (var writeContext = await fixture.CreateUsersDbContextAsync())
-        {
-            var repository = new AppUserProfileRepository(writeContext);
-            await repository.AddAsync(profile1);
-        }
-
-        await using var writeContext2 = await fixture.CreateUsersDbContextAsync();
-        var repository2 = new AppUserProfileRepository(writeContext2);
-
-        var act = async () => await repository2.AddAsync(profile2);
+        var act = async () => await users.AddAsync(profile2);
 
         await act.Should().ThrowAsync<DbUpdateException>();
     }
@@ -116,12 +78,7 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     public async Task AddAsync_PreservesDisplayName()
     {
         var profile = CreateProfile("Jane Doe");
-
-        await using (var writeContext = await fixture.CreateUsersDbContextAsync())
-        {
-            var repository = new AppUserProfileRepository(writeContext);
-            await repository.AddAsync(profile);
-        }
+        await fixture.SeedUserProfilesAsync(profile);
 
         await using var readContext = await fixture.CreateUsersDbContextAsync();
         var saved = await readContext.AppUserProfiles
