@@ -1,3 +1,5 @@
+@use 'buttons';
+
 .confirm-overlay {
   position: fixed;
   inset: 0;
@@ -10,7 +12,7 @@
 
 .confirm-dialog {
   background: var(--yn-surface, #fff);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 1.5rem;
   max-width: 400px;
   width: 90%;

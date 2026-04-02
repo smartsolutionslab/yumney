@@ -56,7 +56,7 @@ describe('ConfirmDialogComponent', () => {
   });
 
   it('should emit confirmed on confirm button click', () => {
-    const confirmButton = fixture.nativeElement.querySelector('.btn-danger');
+    const confirmButton = fixture.nativeElement.querySelector('.btn-danger-filled');
     confirmButton.click();
 
     expect(host.confirmedCount).toBe(1);

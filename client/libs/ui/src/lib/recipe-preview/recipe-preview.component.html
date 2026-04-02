@@ -109,7 +109,7 @@
         }
       </div>
 
-      <button type="button" class="add-btn" (click)="addIngredient()">
+      <button type="button" class="btn-dashed add-btn" (click)="addIngredient()">
         + {{ t('dashboard.preview.addIngredient') }}
       </button>
     </div>
@@ -144,13 +144,13 @@
         }
       </div>
 
-      <button type="button" class="add-btn" (click)="addStep()">
+      <button type="button" class="btn-dashed add-btn" (click)="addStep()">
         + {{ t('dashboard.preview.addStep') }}
       </button>
     </div>
 
     <div class="action-buttons">
-      <button type="button" class="discard-btn" [disabled]="isSaving()" (click)="onDiscard()">
+      <button type="button" class="btn-secondary discard-btn" [disabled]="isSaving()" (click)="onDiscard()">
         {{ t('dashboard.preview.discard') }}
       </button>
       <yn-submit-button

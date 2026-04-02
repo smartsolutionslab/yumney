@@ -303,7 +303,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const editLink = fixture.nativeElement.querySelector('.action-button[href]');
+    const editLink = fixture.nativeElement.querySelector('.btn-primary[href]');
     expect(editLink).toBeTruthy();
     expect(editLink.tagName).toBe('A');
     expect(editLink.getAttribute('href')).toBe('/recipes/abc-123/edit');
@@ -316,7 +316,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const shoppingLink = fixture.nativeElement.querySelector('.action-button--secondary');
+    const shoppingLink = fixture.nativeElement.querySelector('.btn-secondary');
     expect(shoppingLink).toBeTruthy();
     expect(shoppingLink.tagName).toBe('A');
     expect(shoppingLink.getAttribute('href')).toBe('/shopping/create/abc-123');
@@ -401,7 +401,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
+    const deleteButton = fixture.nativeElement.querySelector('.btn-danger');
     expect(deleteButton).toBeTruthy();
     expect(deleteButton.disabled).toBe(false);
     expect(deleteButton.textContent.trim()).toBe('Delete');
@@ -413,7 +413,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
+    const deleteButton = fixture.nativeElement.querySelector('.btn-danger');
     deleteButton.click();
     fixture.detectChanges();
 
@@ -463,7 +463,7 @@ describe('RecipeDetailComponent', () => {
     component.onDeleteConfirmed();
     fixture.detectChanges();
 
-    const deleteButton = fixture.nativeElement.querySelector('.action-button--danger');
+    const deleteButton = fixture.nativeElement.querySelector('.btn-danger');
     expect(component.isDeleting()).toBe(true);
     expect(deleteButton.textContent.trim()).toBe('Deleting...');
 
