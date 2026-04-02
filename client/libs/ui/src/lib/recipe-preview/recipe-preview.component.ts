@@ -49,11 +49,11 @@ export class RecipePreviewComponent implements OnInit {
   save = output<ImportRecipeResponse>();
   discard = output<void>();
 
-  private fb = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
 
   readonly unitGroups: UnitGroupInfo[] = getGroupedUnits();
 
-  form = this.fb.nonNullable.group({
+  form = this.formBuilder.nonNullable.group({
     title: [
       '',
       [Validators.required, Validators.maxLength(VALIDATION.RECIPES.RECIPE_TITLE.MAX_LENGTH)],
@@ -63,8 +63,8 @@ export class RecipePreviewComponent implements OnInit {
     prepTimeMinutes: [null as number | null],
     cookTimeMinutes: [null as number | null],
     difficulty: [''],
-    ingredients: this.fb.array<FormGroup<IngredientFormGroup>>([]),
-    steps: this.fb.array<FormGroup<StepFormGroup>>([]),
+    ingredients: this.formBuilder.array<FormGroup<IngredientFormGroup>>([]),
+    steps: this.formBuilder.array<FormGroup<StepFormGroup>>([]),
   });
 
   get ingredients(): FormArray<FormGroup<IngredientFormGroup>> {
@@ -163,16 +163,16 @@ export class RecipePreviewComponent implements OnInit {
   }
 
   private createIngredientGroup(ingredient: ExtractedIngredient): FormGroup<IngredientFormGroup> {
-    return this.fb.group({
-      name: this.fb.nonNullable.control(ingredient.name, [Validators.required]),
-      amount: this.fb.control(ingredient.amount),
-      unit: this.fb.control(ingredient.unit),
+    return this.formBuilder.group({
+      name: this.formBuilder.nonNullable.control(ingredient.name, [Validators.required]),
+      amount: this.formBuilder.control(ingredient.amount),
+      unit: this.formBuilder.control(ingredient.unit),
     }) as FormGroup<IngredientFormGroup>;
   }
 
   private createStepGroup(step: ExtractedStep): FormGroup<StepFormGroup> {
-    return this.fb.group({
-      description: this.fb.nonNullable.control(step.description, [Validators.required]),
+    return this.formBuilder.group({
+      description: this.formBuilder.nonNullable.control(step.description, [Validators.required]),
     }) as FormGroup<StepFormGroup>;
   }
 

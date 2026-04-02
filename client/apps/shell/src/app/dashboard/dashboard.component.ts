@@ -51,7 +51,7 @@ export class DashboardComponent implements OnInit {
     default: 'dashboard.save.errors.generic',
   };
 
-  private fb = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private recipeApi = inject(RecipeApiService);
@@ -69,7 +69,7 @@ export class DashboardComponent implements OnInit {
   streamingStatus = signal<string | null>(null);
   streamingChunks = signal('');
 
-  form = this.fb.nonNullable.group({
+  form = this.formBuilder.nonNullable.group({
     url: [
       '',
       [

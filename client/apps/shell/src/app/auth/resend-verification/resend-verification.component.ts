@@ -25,7 +25,7 @@ export class ResendVerificationComponent {
     default: 'auth.resendVerification.errors.generic',
   };
 
-  private fb = inject(FormBuilder);
+  private formBuilder = inject(FormBuilder);
   private authApi = inject(AuthApiService);
   private asyncState = createAsyncState(inject(DestroyRef));
 
@@ -33,7 +33,7 @@ export class ResendVerificationComponent {
   isSuccess = signal(false);
   serverError = this.asyncState.serverError;
 
-  form = this.fb.nonNullable.group({
+  form = this.formBuilder.nonNullable.group({
     email: [
       '',
       [

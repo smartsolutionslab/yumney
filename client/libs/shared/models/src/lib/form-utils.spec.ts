@@ -2,31 +2,31 @@ import { FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
 import { hasControlError, hasArrayItemError } from './form-utils';
 
 describe('form-utils', () => {
-  const fb = new FormBuilder();
+  const formBuilder = new FormBuilder();
 
   describe('hasControlError', () => {
     it('should return true when field has error and is touched', () => {
-      const form = fb.group({ name: ['', Validators.required] });
+      const form = formBuilder.group({ name: ['', Validators.required] });
       form.get('name')!.markAsTouched();
 
       expect(hasControlError(form, 'name', 'required')).toBe(true);
     });
 
     it('should return false when field has error but is untouched', () => {
-      const form = fb.group({ name: ['', Validators.required] });
+      const form = formBuilder.group({ name: ['', Validators.required] });
 
       expect(hasControlError(form, 'name', 'required')).toBe(false);
     });
 
     it('should return false when field has no error', () => {
-      const form = fb.group({ name: ['valid', Validators.required] });
+      const form = formBuilder.group({ name: ['valid', Validators.required] });
       form.get('name')!.markAsTouched();
 
       expect(hasControlError(form, 'name', 'required')).toBe(false);
     });
 
     it('should return false for non-existent field', () => {
-      const form = fb.group({ name: [''] });
+      const form = formBuilder.group({ name: [''] });
 
       expect(hasControlError(form, 'missing', 'required')).toBe(false);
     });
@@ -36,9 +36,9 @@ describe('form-utils', () => {
     let array: FormArray<FormGroup>;
 
     beforeEach(() => {
-      array = fb.array([
-        fb.group({ name: ['', Validators.required] }),
-        fb.group({ name: ['valid', Validators.required] }),
+      array = formBuilder.array([
+        formBuilder.group({ name: ['', Validators.required] }),
+        formBuilder.group({ name: ['valid', Validators.required] }),
       ]) as FormArray<FormGroup>;
     });
 
