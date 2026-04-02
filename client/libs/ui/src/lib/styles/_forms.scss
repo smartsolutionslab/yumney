@@ -14,10 +14,11 @@
   textarea,
   select {
     width: 100%;
-    padding: 0.625rem 0.875rem;
+    padding: 0.75rem 1rem;
+    min-height: 2.75rem;
     border: 1.5px solid var(--yn-border);
-    border-radius: 8px;
-    font-size: 0.9375rem;
+    border-radius: 10px;
+    font-size: 1rem;
     font-family: inherit;
     color: var(--yn-text);
     background: #fff;
@@ -58,17 +59,12 @@
 
   textarea {
     resize: vertical;
-    min-height: 6rem;
+    min-height: 7rem;
     line-height: 1.6;
-  }
-
-  // Compact variant for inline/grid forms
-  &.form-field--compact {
-    margin-bottom: 0;
   }
 }
 
-// Number inputs — tighter width, centered text
+// Number inputs — keep spinner visible
 input[type='number'] {
   -moz-appearance: textfield;
 
