@@ -41,10 +41,10 @@ describe('validators', () => {
   });
 
   describe('passwordsMatchValidator', () => {
-    const fb = new FormBuilder();
+    const formBuilder = new FormBuilder();
 
     it('should return null when passwords match', () => {
-      const group = fb.group({
+      const group = formBuilder.group({
         password: 'Secret123',
         confirmPassword: 'Secret123',
       });
@@ -53,7 +53,7 @@ describe('validators', () => {
     });
 
     it('should return error when passwords do not match', () => {
-      const group = fb.group({
+      const group = formBuilder.group({
         password: 'Secret123',
         confirmPassword: 'Different',
       });
@@ -62,7 +62,7 @@ describe('validators', () => {
     });
 
     it('should return null when password is empty', () => {
-      const group = fb.group({
+      const group = formBuilder.group({
         password: '',
         confirmPassword: 'Secret123',
       });
@@ -71,7 +71,7 @@ describe('validators', () => {
     });
 
     it('should return null when confirmPassword is empty', () => {
-      const group = fb.group({
+      const group = formBuilder.group({
         password: 'Secret123',
         confirmPassword: '',
       });
