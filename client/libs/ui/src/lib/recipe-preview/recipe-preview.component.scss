@@ -63,6 +63,11 @@
   .field-error {
     font-size: 0.8125rem;
   }
+
+  // Inline textareas inside list items are shorter
+  &.step-description textarea {
+    min-height: 4.5rem;
+  }
 }
 
 // Mobile-first: 2 columns
@@ -149,15 +154,7 @@
 // ── Tablet (>= 480px) ──
 @media (min-width: 480px) {
   .ingredient-fields {
-    grid-template-columns: 1fr auto auto;
-
-    .ingredient-amount {
-      width: 6rem;
-    }
-
-    .ingredient-unit {
-      width: 7rem;
-    }
+    grid-template-columns: 1fr 7rem 8rem;
   }
 }
 
