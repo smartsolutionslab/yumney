@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Converters;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Configurations;
 
@@ -11,46 +12,46 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
         entity.ToTable("Recipes");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id)
-            .HasConversion(v => v.Value, v => RecipeIdentifier.From(v));
+            .HasConversion<RecipeIdentifierConverter>();
 
         entity.Property(e => e.Title)
-            .HasConversion(v => v.Value, v => RecipeTitle.From(v))
+            .HasConversion<RecipeTitleConverter>()
             .HasMaxLength(RecipeTitle.MaxLength)
             .IsRequired();
 
         entity.Property(e => e.Description)
-            .HasConversion(v => v != null ? v.Value : null, v => RecipeDescription.FromNullable(v))
+            .HasConversion<RecipeDescriptionConverter>()
             .HasMaxLength(RecipeDescription.MaxLength);
 
         entity.Property(e => e.Servings)
-            .HasConversion(v => v != null ? v.Value : (int?)null, v => Servings.FromNullable(v));
+            .HasConversion<ServingsConverter>();
 
         entity.Property(e => e.PreparationTime)
-            .HasConversion(v => v != null ? v.Value : (int?)null, v => PreparationTime.FromNullable(v))
+            .HasConversion<PreparationTimeConverter>()
             .HasColumnName("PreparationTimeMinutes");
 
         entity.Property(e => e.CookingTime)
-            .HasConversion(v => v != null ? v.Value : (int?)null, v => CookingTime.FromNullable(v))
+            .HasConversion<CookingTimeConverter>()
             .HasColumnName("CookingTimeMinutes");
 
         entity.Property(e => e.Difficulty)
-            .HasConversion(v => v != null ? v.Value : null, v => Difficulty.FromNullable(v))
+            .HasConversion<DifficultyConverter>()
             .HasMaxLength(Difficulty.MaxLength);
 
         entity.Property(e => e.ImageUrl)
-            .HasConversion(v => v != null ? v.Value : null, v => ImageUrl.FromNullable(v))
+            .HasConversion<ImageUrlConverter>()
             .HasMaxLength(ImageUrl.MaxLength);
 
         entity.Property(e => e.Language)
-            .HasConversion(v => v != null ? v.Value : null, v => RecipeLanguage.FromNullable(v))
+            .HasConversion<RecipeLanguageConverter>()
             .HasMaxLength(RecipeLanguage.MaxLength);
 
         entity.Property(e => e.SourceUrl)
-            .HasConversion(v => v != null ? v.Value : null, v => RecipeUrl.FromNullable(v))
+            .HasConversion<RecipeUrlConverter>()
             .HasMaxLength(RecipeUrl.MaxLength);
 
         entity.Property(e => e.Owner)
-            .HasConversion(v => v.Value, v => OwnerIdentifier.From(v))
+            .HasConversion<RecipeOwnerIdentifierConverter>()
             .HasMaxLength(OwnerIdentifier.MaxLength)
             .IsRequired();
 
@@ -62,21 +63,21 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
             ingredient.WithOwner().HasForeignKey("RecipeId");
             ingredient.HasKey(nameof(Ingredient.Id));
             ingredient.Property(i => i.Id)
-                .HasConversion(v => v.Value, v => IngredientIdentifier.From(v));
+                .HasConversion<IngredientIdentifierConverter>();
 
             ingredient.Property(i => i.Name)
-                .HasConversion(v => v.Value, v => IngredientName.From(v))
+                .HasConversion<IngredientNameConverter>()
                 .HasMaxLength(IngredientName.MaxLength)
                 .IsRequired();
 
             ingredient.OwnsOne(i => i.Quantity, q =>
             {
                 q.Property(x => x.Amount)
-                    .HasConversion(v => v.Value, v => Amount.From(v))
+                    .HasConversion<RecipeAmountConverter>()
                     .HasColumnName("Amount");
 
                 q.Property(x => x.Unit)
-                    .HasConversion(v => v != null ? v.Value : null, v => Unit.FromNullable(v))
+                    .HasConversion<RecipeUnitConverter>()
                     .HasMaxLength(Unit.MaxLength)
                     .HasColumnName("Unit");
             });
@@ -88,14 +89,14 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
             step.WithOwner().HasForeignKey("RecipeId");
             step.HasKey(nameof(Step.Id));
             step.Property(s => s.Id)
-                .HasConversion(v => v.Value, v => StepIdentifier.From(v));
+                .HasConversion<StepIdentifierConverter>();
 
             step.Property(s => s.Number)
-                .HasConversion(v => v.Value, v => StepNumber.From(v))
+                .HasConversion<StepNumberConverter>()
                 .IsRequired();
 
             step.Property(s => s.Description)
-                .HasConversion(v => v.Value, v => StepDescription.From(v))
+                .HasConversion<StepDescriptionConverter>()
                 .HasMaxLength(StepDescription.MaxLength)
                 .IsRequired();
         });
