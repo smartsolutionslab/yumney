@@ -12,7 +12,7 @@ public sealed record RecipeReference : IValueObject
         Value = Ensure.That(value).IsNotEmpty().AndReturn();
     }
 
-    public static RecipeReference New() => new(Guid.NewGuid());
+    public static RecipeReference New() => new(Guid.CreateVersion7());
 
     public static RecipeReference From(Guid value) => new(value);
 
