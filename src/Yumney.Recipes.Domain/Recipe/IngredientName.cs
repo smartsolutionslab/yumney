@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record IngredientName : IValueObject
+public sealed record IngredientName : IValueObject<string>
 {
     public const int MaxLength = 200;
 
@@ -21,6 +21,4 @@ public sealed record IngredientName : IValueObject
     public static IngredientName From(string value) => new(value);
 
     public static implicit operator string(IngredientName name) => name.Value;
-
-    public override string ToString() => Value;
 }
