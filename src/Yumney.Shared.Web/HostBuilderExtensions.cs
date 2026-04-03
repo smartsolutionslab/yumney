@@ -63,6 +63,8 @@ public static class HostBuilderExtensions
         {
             options.AddDocumentTransformer((document, _, _) =>
             {
+                document.Servers = [];
+
                 var components = document.Components ?? new OpenApiComponents();
                 document.Components = components;
                 components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
