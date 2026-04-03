@@ -1,0 +1,124 @@
+.unit-select {
+  position: relative;
+}
+
+.unit-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--yn-border);
+  border-radius: 10px;
+  background: var(--yn-surface);
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--yn-text);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  text-align: left;
+  box-sizing: border-box;
+
+  &:hover:not(:disabled) {
+    border-color: var(--yn-primary);
+  }
+
+  &:focus-visible {
+    border-color: var(--yn-primary);
+    box-shadow: 0 0 0 3px rgb(249 115 22 / 12%);
+  }
+
+  &.open {
+    border-color: var(--yn-primary);
+    box-shadow: 0 0 0 3px rgb(249 115 22 / 12%);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.unit-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.unit-placeholder {
+  color: var(--yn-text-placeholder);
+}
+
+.unit-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--yn-text-muted);
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--yn-background-subtle);
+    color: var(--yn-text);
+  }
+}
+
+.unit-chevron {
+  font-size: 0.625rem;
+  color: var(--yn-text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.unit-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  margin: 0;
+  padding: 0.375rem 0;
+  background: var(--yn-surface);
+  border: 1px solid var(--yn-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
+  z-index: 20;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.unit-group-label {
+  padding: 0.5rem 0.75rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--yn-text-muted);
+}
+
+.unit-menu-item {
+  padding: 0.4375rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s;
+
+  &:hover {
+    background: var(--yn-background-subtle);
+  }
+
+  &.active {
+    color: var(--yn-primary);
+    font-weight: 600;
+  }
+}
