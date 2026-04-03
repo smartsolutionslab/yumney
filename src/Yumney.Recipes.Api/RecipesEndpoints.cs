@@ -7,7 +7,6 @@ using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
-using SmartSolutionsLab.Yumney.Recipes.Extraction;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;

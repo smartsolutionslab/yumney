@@ -7,7 +7,10 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 #pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
-public sealed partial class ImportRecipeCommandHandler(IWebScraper scraper, IRecipeExtractionService extraction, ILogger<ImportRecipeCommandHandler> logger)
+public sealed partial class ImportRecipeCommandHandler(
+    IWebScraper scraper,
+    IRecipeExtractionService extraction,
+    ILogger<ImportRecipeCommandHandler> logger)
     : ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>>
 {
     public async Task<Result<ExtractedRecipeDto>> HandleAsync(ImportRecipeCommand command, CancellationToken cancellationToken = default)
@@ -16,6 +19,7 @@ public sealed partial class ImportRecipeCommandHandler(IWebScraper scraper, IRec
         LogImportAttempt(url.Value);
 
         var scrapeResult = await scraper.ScrapeAsync(url, cancellationToken);
+
         if (scrapeResult.IsFailure)
         {
             LogScrapeFailed(url.Value, scrapeResult.Error!.Code);
