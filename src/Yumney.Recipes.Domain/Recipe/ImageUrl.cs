@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record ImageUrl : IValueObject
+public sealed record ImageUrl : IValueObject<string>
 {
     public const int MaxLength = 2048;
 

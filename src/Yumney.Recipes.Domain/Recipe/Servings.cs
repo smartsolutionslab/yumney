@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-public sealed record Servings : IValueObject
+public sealed record Servings : IValueObject<int>
 {
     public const int MinValue = 1;
 

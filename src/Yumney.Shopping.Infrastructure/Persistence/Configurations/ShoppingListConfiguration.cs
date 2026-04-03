@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configurations;
@@ -15,12 +14,14 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
             .HasConversion(v => v.Value, v => ShoppingListIdentifier.From(v));
 
         entity.Property(e => e.Title)
-            .ConfigureRequiredStringValueObject(
-                v => v.Value, ShoppingListTitle.From, ShoppingListTitle.MaxLength);
+            .HasConversion(v => v.Value, v => ShoppingListTitle.From(v))
+            .HasMaxLength(ShoppingListTitle.MaxLength)
+            .IsRequired();
 
         entity.Property(e => e.Owner)
-            .ConfigureRequiredStringValueObject(
-                v => v.Value, OwnerIdentifier.From, OwnerIdentifier.MaxLength);
+            .HasConversion(v => v.Value, v => OwnerIdentifier.From(v))
+            .HasMaxLength(OwnerIdentifier.MaxLength)
+            .IsRequired();
 
         entity.Property(e => e.RecipeReference)
             .HasConversion(
@@ -42,8 +43,9 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
                 .HasConversion(v => v.Value, v => ShoppingListItemIdentifier.From(v));
 
             item.Property(i => i.Name)
-                .ConfigureRequiredStringValueObject(
-                    v => v.Value, ItemName.From, ItemName.MaxLength);
+                .HasConversion(v => v.Value, v => ItemName.From(v))
+                .HasMaxLength(ItemName.MaxLength)
+                .IsRequired();
 
             item.OwnsOne(i => i.Quantity, q =>
             {
@@ -52,9 +54,7 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
                     .HasColumnName("Amount");
 
                 q.Property(x => x.Unit)
-                    .HasConversion(
-                        v => v != null ? v.Value : null,
-                        v => Unit.FromNullable(v))
+                    .HasConversion(v => v != null ? v.Value : null, v => Unit.FromNullable(v))
                     .HasMaxLength(Unit.MaxLength)
                     .HasColumnName("Unit");
             });
