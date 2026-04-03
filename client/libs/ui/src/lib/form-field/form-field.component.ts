@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, input } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { KeyValuePipe } from '@angular/common';
@@ -8,6 +8,7 @@ import { KeyValuePipe } from '@angular/common';
   imports: [TranslocoPipe, KeyValuePipe],
   templateUrl: './form-field.component.html',
   styleUrl: './form-field.component.scss',
+  encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormFieldComponent {
