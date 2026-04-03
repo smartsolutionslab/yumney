@@ -2,10 +2,7 @@
   <yn-back-link route="/recipes" label="recipes.detail.back" />
 
   @if (isLoading()) {
-    <div class="loading">
-      <span class="spinner"></span>
-      <span>{{ t('recipes.detail.loading') }}</span>
-    </div>
+    <yn-loading-spinner label="recipes.detail.loading" />
   }
 
   @if (serverError(); as error) {

@@ -11,10 +11,11 @@ import { DatePipe } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
 import { ShoppingApiService, ShoppingListSummary } from '@yumney/shared/api-client';
 import { createAsyncState, HttpErrorMap } from '@yumney/shared/models';
+import { LoadingSpinnerComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-shopping-list',
-  imports: [TranslocoModule, RouterLink, DatePipe],
+  imports: [TranslocoModule, RouterLink, DatePipe, LoadingSpinnerComponent],
   templateUrl: './shopping-list.component.html',
   styleUrl: './shopping-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

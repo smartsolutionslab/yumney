@@ -113,9 +113,6 @@
   <div #scrollSentinel class="scroll-sentinel"></div>
 
   @if (isLoading()) {
-    <div class="loading">
-      <span class="spinner"></span>
-      <span>{{ t('recipes.list.loading') }}</span>
-    </div>
+    <yn-loading-spinner label="recipes.list.loading" />
   }
 </div>
