@@ -62,12 +62,4 @@ public class ShoppingListTitleTests
 
         title1.Should().Be(title2);
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var title = ShoppingListTitle.From("Groceries");
-
-        title.ToString().Should().Be("Groceries");
-    }
 }

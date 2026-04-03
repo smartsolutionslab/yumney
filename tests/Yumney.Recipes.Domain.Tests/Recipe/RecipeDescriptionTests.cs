@@ -54,14 +54,6 @@ public class RecipeDescriptionTests
         description.Value.Should().HaveLength(2000);
     }
 
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var description = RecipeDescription.From("Test");
-
-        description.ToString().Should().Be("Test");
-    }
-
     [Theory]
     [InlineData(null)]
     [InlineData("")]

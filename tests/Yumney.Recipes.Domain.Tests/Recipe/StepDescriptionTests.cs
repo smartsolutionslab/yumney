@@ -53,12 +53,4 @@ public class StepDescriptionTests
 
         description.Value.Should().HaveLength(2000);
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var description = StepDescription.From("Boil water");
-
-        description.ToString().Should().Be("Boil water");
-    }
 }

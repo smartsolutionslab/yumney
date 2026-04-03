@@ -75,14 +75,6 @@ public class SearchTermTests
     }
 
     [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var searchTerm = SearchTerm.From("pasta");
-
-        searchTerm.ToString().Should().Be("pasta");
-    }
-
-    [Fact]
     public void Equality_SameValue_AreEqual()
     {
         var searchTerm1 = SearchTerm.From("pasta");

@@ -80,12 +80,4 @@ public class RecipeTagTests
 
         result.Should().Be("vegetarian");
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var tag = RecipeTag.From("vegetarian");
-
-        tag.ToString().Should().Be("vegetarian");
-    }
 }

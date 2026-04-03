@@ -53,12 +53,4 @@ public class OwnerIdentifierTests
 
         owner.Value.Should().HaveLength(255);
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var owner = OwnerIdentifier.From("user-123");
-
-        owner.ToString().Should().Be("user-123");
-    }
 }

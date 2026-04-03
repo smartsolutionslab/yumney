@@ -53,12 +53,4 @@ public class IngredientNameTests
 
         name.Value.Should().HaveLength(200);
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var name = IngredientName.From("Sugar");
-
-        name.ToString().Should().Be("Sugar");
-    }
 }

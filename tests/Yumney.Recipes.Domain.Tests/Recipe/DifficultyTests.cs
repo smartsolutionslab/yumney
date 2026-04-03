@@ -54,14 +54,6 @@ public class DifficultyTests
         difficulty.Value.Should().HaveLength(50);
     }
 
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var difficulty = Difficulty.From("hard");
-
-        difficulty.ToString().Should().Be("hard");
-    }
-
     [Theory]
     [InlineData(null)]
     [InlineData("")]

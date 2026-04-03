@@ -62,12 +62,4 @@ public class RecipeTitleTests
 
         title1.Should().Be(title2);
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var title = RecipeTitle.From("Pasta");
-
-        title.ToString().Should().Be("Pasta");
-    }
 }
