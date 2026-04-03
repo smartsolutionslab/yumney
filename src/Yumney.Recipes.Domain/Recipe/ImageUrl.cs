@@ -25,6 +25,4 @@ public sealed record ImageUrl : IValueObject
         value.HasValue() ? new ImageUrl(value!) : null;
 
     public static implicit operator string(ImageUrl obj) => obj.Value;
-
-    public override string ToString() => Value;
 }

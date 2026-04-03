@@ -24,6 +24,4 @@ public sealed record Difficulty : IValueObject
         value.HasValue() ? new Difficulty(value!) : null;
 
     public static implicit operator string(Difficulty obj) => obj.Value;
-
-    public override string ToString() => Value;
 }

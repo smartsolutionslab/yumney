@@ -24,6 +24,4 @@ public sealed record Unit : IValueObject
         value.HasValue() ? new Unit(value!) : null;
 
     public static implicit operator string(Unit obj) => obj.Value;
-
-    public override string ToString() => Value;
 }

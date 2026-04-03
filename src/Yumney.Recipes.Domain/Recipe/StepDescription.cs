@@ -21,6 +21,4 @@ public sealed record StepDescription : IValueObject
     public static StepDescription From(string value) => new(value);
 
     public static implicit operator string(StepDescription obj) => obj.Value;
-
-    public override string ToString() => Value;
 }
