@@ -119,7 +119,9 @@
   border: 1.5px solid var(--yn-border);
   border-radius: 10px;
   background: var(--yn-surface);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 
   &:focus-within {
     border-color: var(--yn-primary);

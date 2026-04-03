@@ -9,7 +9,13 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
-import { createAsyncState, mapToUpdateRecipeRequest, mapDetailToImportResponse, HttpErrorMap, ROUTES } from '@yumney/shared/models';
+import {
+  createAsyncState,
+  mapToUpdateRecipeRequest,
+  mapDetailToImportResponse,
+  HttpErrorMap,
+  ROUTES,
+} from '@yumney/shared/models';
 import { BackLinkComponent, LoadingSpinnerComponent, RecipePreviewComponent } from '@yumney/ui';
 
 @Component({
