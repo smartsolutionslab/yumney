@@ -17,11 +17,11 @@ import {
   ROUTES,
   VALIDATION,
 } from '@yumney/shared/models';
-import { BackLinkComponent, ConfirmDialogComponent } from '@yumney/ui';
+import { BackLinkComponent, ConfirmDialogComponent, LoadingSpinnerComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-detail',
-  imports: [TranslocoModule, RouterLink, ConfirmDialogComponent, BackLinkComponent],
+  imports: [TranslocoModule, RouterLink, ConfirmDialogComponent, BackLinkComponent, LoadingSpinnerComponent],
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

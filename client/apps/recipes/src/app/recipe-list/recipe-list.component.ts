@@ -12,15 +12,16 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 import { Subject, debounceTime } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
 import { createAsyncState, HttpErrorMap, UI } from '@yumney/shared/models';
+import { RouterLink } from '@angular/router';
+import { LoadingSpinnerComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-list',
-  imports: [TranslocoModule, RouterLink],
+  imports: [TranslocoModule, RouterLink, LoadingSpinnerComponent],
   templateUrl: './recipe-list.component.html',
   styleUrl: './recipe-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
