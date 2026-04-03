@@ -93,16 +93,7 @@
                 />
               </yn-form-field>
               <yn-form-field class="ingredient-unit" [control]="ingredients.at(i).get('unit')!">
-                <select formControlName="unit">
-                  <option [ngValue]="null">{{ t('dashboard.preview.unit') }}</option>
-                  @for (group of unitGroups; track group.key) {
-                    <optgroup [label]="t(group.labelKey)">
-                      @for (unit of group.units; track unit.value) {
-                        <option [ngValue]="unit.value">{{ t(unit.labelKey) }}</option>
-                      }
-                    </optgroup>
-                  }
-                </select>
+                <yn-unit-select formControlName="unit" [unitGroups]="unitGroups" />
               </yn-form-field>
             </div>
           </yn-editable-list-item>
