@@ -24,6 +24,4 @@ public sealed record RecipeLanguage : IValueObject
         value.HasValue() ? new RecipeLanguage(value!) : null;
 
     public static implicit operator string(RecipeLanguage obj) => obj.Value;
-
-    public override string ToString() => Value;
 }
