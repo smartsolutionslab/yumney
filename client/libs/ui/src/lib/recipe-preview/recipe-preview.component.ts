@@ -17,6 +17,7 @@ import { VALIDATION, getGroupedUnits, type UnitGroupInfo } from '@yumney/shared/
 import { EditableListItemComponent } from '../editable-list-item/editable-list-item.component';
 import { FormFieldComponent } from '../form-field/form-field.component';
 import { SubmitButtonComponent } from '../submit-button/submit-button.component';
+import { UnitSelectComponent } from '../unit-select/unit-select.component';
 
 interface IngredientFormGroup {
   name: FormControl<string>;
@@ -36,6 +37,7 @@ interface StepFormGroup {
     EditableListItemComponent,
     FormFieldComponent,
     SubmitButtonComponent,
+    UnitSelectComponent,
   ],
   templateUrl: './recipe-preview.component.html',
   styleUrl: './recipe-preview.component.scss',

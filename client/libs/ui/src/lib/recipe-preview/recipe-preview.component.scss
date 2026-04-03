@@ -50,6 +50,12 @@
 
 .metadata-section {
   margin-bottom: 1rem;
+  width: 100%;
+
+  > yn-form-field {
+    display: block;
+    width: 100%;
+  }
 }
 
 .form-field {
