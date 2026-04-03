@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence.Configurations;
@@ -15,16 +14,24 @@ internal sealed class AppUserProfileConfiguration : IEntityTypeConfiguration<App
             .HasConversion(v => v.Value, v => AppUserProfileIdentifier.From(v));
 
         entity.Property(e => e.KeycloakUserId)
-            .ConfigureRequiredStringValueObject(v => v.Value, KeycloakUserId.From, KeycloakUserId.MaxLength);
+            .HasConversion(v => v.Value, v => KeycloakUserId.From(v))
+            .HasMaxLength(KeycloakUserId.MaxLength)
+            .IsRequired();
 
         entity.Property(e => e.DisplayName)
-            .ConfigureRequiredStringValueObject(v => v.Value, DisplayName.From, DisplayName.MaxLength);
+            .HasConversion(v => v.Value, v => DisplayName.From(v))
+            .HasMaxLength(DisplayName.MaxLength)
+            .IsRequired();
 
         entity.Property(e => e.PreferredLanguage)
-            .ConfigureRequiredStringValueObject(v => v.Value, PreferredLanguage.From, PreferredLanguage.MaxLength);
+            .HasConversion(v => v.Value, v => PreferredLanguage.From(v))
+            .HasMaxLength(PreferredLanguage.MaxLength)
+            .IsRequired();
 
         entity.Property(e => e.PreferredUnitSystem)
-            .ConfigureRequiredStringValueObject(v => v.Value, PreferredUnitSystem.From, PreferredUnitSystem.MaxLength);
+            .HasConversion(v => v.Value, v => PreferredUnitSystem.From(v))
+            .HasMaxLength(PreferredUnitSystem.MaxLength)
+            .IsRequired();
 
         entity.HasIndex(e => e.KeycloakUserId).IsUnique();
         entity.Ignore(e => e.DomainEvents);

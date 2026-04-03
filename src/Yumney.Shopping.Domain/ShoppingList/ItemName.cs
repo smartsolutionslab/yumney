@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-public sealed record ItemName : IValueObject
+public sealed record ItemName : IValueObject<string>
 {
     public const int MaxLength = 200;
 
