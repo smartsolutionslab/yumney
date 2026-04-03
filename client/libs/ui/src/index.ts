@@ -6,3 +6,5 @@ export { EditableListItemComponent } from './lib/editable-list-item/editable-lis
 export { ConfirmDialogComponent } from './lib/confirm-dialog/confirm-dialog.component';
 export { HeaderComponent } from './lib/header/header.component';
 export { AppLayoutComponent } from './lib/app-layout/app-layout.component';
+export { UnitSelectComponent } from './lib/unit-select/unit-select.component';
+export { LoadingSpinnerComponent } from './lib/loading-spinner/loading-spinner.component';

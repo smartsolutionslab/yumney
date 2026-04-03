@@ -2,10 +2,7 @@
   <h1>{{ t('shopping.list.title') }}</h1>
 
   @if (isLoading()) {
-    <div class="loading">
-      <span class="spinner"></span>
-      <span>{{ t('shopping.list.loading') }}</span>
-    </div>
+    <yn-loading-spinner label="shopping.list.loading" />
   }
 
   @if (serverError(); as error) {

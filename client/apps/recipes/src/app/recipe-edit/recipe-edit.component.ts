@@ -6,21 +6,15 @@ import {
   DestroyRef,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
-import {
-  createAsyncState,
-  mapToUpdateRecipeRequest,
-  mapDetailToImportResponse,
-  HttpErrorMap,
-  ROUTES,
-} from '@yumney/shared/models';
-import { BackLinkComponent, RecipePreviewComponent } from '@yumney/ui';
+import { createAsyncState, mapToUpdateRecipeRequest, mapDetailToImportResponse, HttpErrorMap, ROUTES } from '@yumney/shared/models';
+import { BackLinkComponent, LoadingSpinnerComponent, RecipePreviewComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-edit',
-  imports: [TranslocoModule, RouterLink, BackLinkComponent, RecipePreviewComponent],
+  imports: [TranslocoModule, BackLinkComponent, LoadingSpinnerComponent, RecipePreviewComponent],
   templateUrl: './recipe-edit.component.html',
   styleUrl: './recipe-edit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
