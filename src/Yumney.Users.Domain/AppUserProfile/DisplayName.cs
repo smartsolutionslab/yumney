@@ -21,6 +21,4 @@ public sealed record DisplayName : IValueObject
     public static DisplayName From(string value) => new(value);
 
     public static implicit operator string(DisplayName obj) => obj.Value;
-
-    public override string ToString() => Value;
 }

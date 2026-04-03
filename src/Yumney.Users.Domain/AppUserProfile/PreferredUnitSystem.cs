@@ -20,6 +20,4 @@ public sealed record PreferredUnitSystem : IValueObject
     public static PreferredUnitSystem From(string value) => new(value);
 
     public static implicit operator string(PreferredUnitSystem obj) => obj.Value;
-
-    public override string ToString() => Value;
 }

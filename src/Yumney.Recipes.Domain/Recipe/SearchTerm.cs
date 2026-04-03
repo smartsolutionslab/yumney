@@ -26,6 +26,4 @@ public sealed record SearchTerm : IValueObject
     }
 
     public static implicit operator string(SearchTerm obj) => obj.Value;
-
-    public override string ToString() => Value;
 }
