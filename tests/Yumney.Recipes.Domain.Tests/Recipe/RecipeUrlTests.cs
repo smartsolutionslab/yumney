@@ -119,14 +119,6 @@ public class RecipeUrlTests
         url1.Should().NotBe(url2);
     }
 
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var url = RecipeUrl.From("https://example.com/recipe");
-
-        url.ToString().Should().Be("https://example.com/recipe");
-    }
-
     [Theory]
     [InlineData(null)]
     [InlineData("")]

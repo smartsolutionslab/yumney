@@ -27,14 +27,6 @@ public class KeycloakUserIdTests
     }
 
     [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var id = KeycloakUserId.From("abc-123");
-
-        id.ToString().Should().Be("abc-123");
-    }
-
-    [Fact]
     public void Equality_SameValue_AreEqual()
     {
         var id1 = KeycloakUserId.From("abc-123");

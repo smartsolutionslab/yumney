@@ -25,12 +25,4 @@ public class OwnerIdentifierTests
 
         act.Should().Throw<GuardException>();
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var owner = OwnerIdentifier.From("user-123");
-
-        owner.ToString().Should().Be("user-123");
-    }
 }

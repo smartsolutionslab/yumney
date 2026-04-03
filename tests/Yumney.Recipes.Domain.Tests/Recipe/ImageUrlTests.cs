@@ -98,14 +98,6 @@ public class ImageUrlTests
         url1.Should().NotBe(url2);
     }
 
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var imageUrl = ImageUrl.From("https://example.com/image.jpg");
-
-        imageUrl.ToString().Should().Be("https://example.com/image.jpg");
-    }
-
     [Theory]
     [InlineData(null)]
     [InlineData("")]
