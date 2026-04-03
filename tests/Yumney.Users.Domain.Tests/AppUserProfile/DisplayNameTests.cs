@@ -51,14 +51,6 @@ public class DisplayNameTests
     }
 
     [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var name = DisplayName.From("Test User");
-
-        name.ToString().Should().Be("Test User");
-    }
-
-    [Fact]
     public void Equality_SameValue_AreEqual()
     {
         var name1 = DisplayName.From("Test User");

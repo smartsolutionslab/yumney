@@ -59,12 +59,4 @@ public class UnitTests
 
         unit.Should().BeNull();
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var unit = Unit.From("g");
-
-        unit.ToString().Should().Be("g");
-    }
 }

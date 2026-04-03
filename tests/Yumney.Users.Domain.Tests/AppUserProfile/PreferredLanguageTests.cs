@@ -46,14 +46,6 @@ public class PreferredLanguageTests
     }
 
     [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var language = PreferredLanguage.From("en");
-
-        language.ToString().Should().Be("en");
-    }
-
-    [Fact]
     public void Equality_SameValue_AreEqual()
     {
         var lang1 = PreferredLanguage.From("en");

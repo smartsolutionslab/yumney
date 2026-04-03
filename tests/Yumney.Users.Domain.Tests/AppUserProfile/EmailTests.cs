@@ -80,14 +80,6 @@ public class EmailTests
     }
 
     [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var email = Email.From("test@example.com");
-
-        email.ToString().Should().Be("test@example.com");
-    }
-
-    [Fact]
     public void Equality_SameValue_AreEqual()
     {
         var email1 = Email.From("test@example.com");

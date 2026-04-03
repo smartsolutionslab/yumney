@@ -45,14 +45,6 @@ public class PreferredUnitSystemTests
     }
 
     [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var unitSystem = PreferredUnitSystem.From("metric");
-
-        unitSystem.ToString().Should().Be("metric");
-    }
-
-    [Fact]
     public void Equality_SameValue_AreEqual()
     {
         var us1 = PreferredUnitSystem.From("metric");

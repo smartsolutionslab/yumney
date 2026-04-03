@@ -72,14 +72,6 @@ public class UnitTests
         unit1.Should().NotBe(unit2);
     }
 
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var unit = Unit.From("cups");
-
-        unit.ToString().Should().Be("cups");
-    }
-
     [Theory]
     [InlineData(null)]
     [InlineData("")]

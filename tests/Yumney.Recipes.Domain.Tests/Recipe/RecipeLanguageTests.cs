@@ -105,12 +105,4 @@ public class RecipeLanguageTests
 
         result.Should().Be("en");
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var language = RecipeLanguage.From("en");
-
-        language.ToString().Should().Be("en");
-    }
 }

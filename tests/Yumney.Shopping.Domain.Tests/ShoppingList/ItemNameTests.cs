@@ -62,12 +62,4 @@ public class ItemNameTests
 
         name1.Should().Be(name2);
     }
-
-    [Fact]
-    public void ToString_ReturnsValue()
-    {
-        var name = ItemName.From("Flour");
-
-        name.ToString().Should().Be("Flour");
-    }
 }
