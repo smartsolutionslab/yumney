@@ -86,7 +86,10 @@
                 />
               </yn-form-field>
               <div class="ingredient-quantity">
-                <yn-form-field class="ingredient-amount" [control]="ingredients.at(i).get('amount')!">
+                <yn-form-field
+                  class="ingredient-amount"
+                  [control]="ingredients.at(i).get('amount')!"
+                >
                   <input
                     type="number"
                     formControlName="amount"
@@ -143,7 +146,12 @@
     </div>
 
     <div class="action-buttons">
-      <button type="button" class="btn-secondary discard-btn" [disabled]="isSaving()" (click)="onDiscard()">
+      <button
+        type="button"
+        class="btn-secondary discard-btn"
+        [disabled]="isSaving()"
+        (click)="onDiscard()"
+      >
         {{ t('dashboard.preview.discard') }}
       </button>
       <yn-submit-button

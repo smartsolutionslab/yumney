@@ -21,7 +21,13 @@ import { BackLinkComponent, ConfirmDialogComponent, LoadingSpinnerComponent } fr
 
 @Component({
   selector: 'yn-recipe-detail',
-  imports: [TranslocoModule, RouterLink, ConfirmDialogComponent, BackLinkComponent, LoadingSpinnerComponent],
+  imports: [
+    TranslocoModule,
+    RouterLink,
+    ConfirmDialogComponent,
+    BackLinkComponent,
+    LoadingSpinnerComponent,
+  ],
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
