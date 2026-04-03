@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Converters;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configurations;
 
@@ -11,22 +12,20 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
         entity.ToTable("ShoppingLists");
         entity.HasKey(e => e.Id);
         entity.Property(e => e.Id)
-            .HasConversion(v => v.Value, v => ShoppingListIdentifier.From(v));
+            .HasConversion<ShoppingListIdentifierConverter>();
 
         entity.Property(e => e.Title)
-            .HasConversion(v => v.Value, v => ShoppingListTitle.From(v))
+            .HasConversion<ShoppingListTitleConverter>()
             .HasMaxLength(ShoppingListTitle.MaxLength)
             .IsRequired();
 
         entity.Property(e => e.Owner)
-            .HasConversion(v => v.Value, v => OwnerIdentifier.From(v))
+            .HasConversion<ShoppingOwnerIdentifierConverter>()
             .HasMaxLength(OwnerIdentifier.MaxLength)
             .IsRequired();
 
         entity.Property(e => e.RecipeReference)
-            .HasConversion(
-                v => v != null ? v.Value : (Guid?)null,
-                v => RecipeReference.FromNullable(v))
+            .HasConversion<RecipeReferenceConverter>()
             .HasColumnName("RecipeIdentifier");
 
         entity.HasIndex(e => e.Owner);
@@ -40,21 +39,21 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
             item.WithOwner().HasForeignKey("ShoppingListId");
             item.HasKey(nameof(ShoppingListItem.Id));
             item.Property(i => i.Id)
-                .HasConversion(v => v.Value, v => ShoppingListItemIdentifier.From(v));
+                .HasConversion<ShoppingListItemIdentifierConverter>();
 
             item.Property(i => i.Name)
-                .HasConversion(v => v.Value, v => ItemName.From(v))
+                .HasConversion<ItemNameConverter>()
                 .HasMaxLength(ItemName.MaxLength)
                 .IsRequired();
 
             item.OwnsOne(i => i.Quantity, q =>
             {
                 q.Property(x => x.Amount)
-                    .HasConversion(v => v.Value, v => Amount.From(v))
+                    .HasConversion<ShoppingAmountConverter>()
                     .HasColumnName("Amount");
 
                 q.Property(x => x.Unit)
-                    .HasConversion(v => v != null ? v.Value : null, v => Unit.FromNullable(v))
+                    .HasConversion<ShoppingUnitConverter>()
                     .HasMaxLength(Unit.MaxLength)
                     .HasColumnName("Unit");
             });
