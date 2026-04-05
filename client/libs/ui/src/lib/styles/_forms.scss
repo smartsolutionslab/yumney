@@ -21,7 +21,9 @@
     font-size: var(--yn-text-lg);
     font-family: inherit;
     color: var(--yn-text);
-    background: var(--yn-surface);
+    background: var(--yn-glass-bg);
+    backdrop-filter: blur(var(--yn-glass-blur));
+    -webkit-backdrop-filter: blur(var(--yn-glass-blur));
     outline: none;
     box-sizing: border-box;
     transition:
@@ -36,7 +38,7 @@
     &:focus {
       border-color: var(--yn-primary);
       box-shadow: var(--yn-ring-primary);
-      background: #fff;
+      background: var(--yn-glass-bg-elevated);
     }
 
     &.ng-invalid.ng-touched {

@@ -7,6 +7,8 @@
   color: var(--yn-danger);
   font-size: var(--yn-text-base);
   font-weight: var(--yn-font-medium);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .success-banner {
@@ -18,4 +20,6 @@
   color: var(--yn-success);
   font-size: var(--yn-text-base);
   font-weight: var(--yn-font-medium);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }

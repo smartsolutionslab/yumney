@@ -6,6 +6,10 @@
   padding: var(--yn-space-8);
   color: var(--yn-text-muted);
   font-size: var(--yn-text-base);
+  background: var(--yn-glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--yn-radius-card);
 }
 
 .spinner {
