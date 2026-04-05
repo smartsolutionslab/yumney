@@ -168,9 +168,9 @@ if (!options.DatabaseOnly)
                     .WithAuthorizationUrl($"{keycloakRealmUrl}/protocol/openid-connect/auth")
                     .WithTokenUrl($"{keycloakRealmUrl}/protocol/openid-connect/token")
                     .WithSelectedScopes(["openid", "profile"])))
-            .WithApiReference(recipesApi, "/openapi/v1.json")
-            .WithApiReference(shoppingApi, "/openapi/v1.json")
-            .WithApiReference(usersApi, "/openapi/v1.json");
+            .WithApiReference(recipesApi)
+            .WithApiReference(shoppingApi)
+            .WithApiReference(usersApi);
 
         var addMfe = (string name, string script, int port) =>
             builder.AddJavaScriptApp(name, "../../client", script)
