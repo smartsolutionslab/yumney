@@ -1,9 +1,11 @@
+@use 'glass';
+
 header {
   position: sticky;
   top: 0;
   z-index: var(--yn-z-header);
-  background-color: var(--yn-surface);
-  box-shadow: var(--yn-shadow-sm);
+  @include glass.glass-header;
+  border-bottom-color: var(--yn-glass-border-subtle);
 }
 
 .header-content {

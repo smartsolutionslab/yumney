@@ -1,4 +1,7 @@
+@use 'ambient';
+
 :host {
+  @include ambient.ambient-background;
   display: block;
   min-height: 100vh;
 }

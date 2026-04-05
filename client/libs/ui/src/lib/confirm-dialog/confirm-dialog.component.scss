@@ -1,4 +1,5 @@
 @use 'buttons';
+@use 'glass';
 
 .confirm-overlay {
   position: fixed;
@@ -7,16 +8,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgb(0 0 0 / 50%);
+  background: var(--yn-overlay);
 }
 
 .confirm-dialog {
-  background: var(--yn-surface, #fff);
-  border-radius: var(--yn-radius-dialog);
+  @include glass.glass-dialog;
   padding: var(--yn-space-7);
   max-width: 400px;
   width: 90%;
-  box-shadow: var(--yn-shadow-xl);
 }
 
 .confirm-message {

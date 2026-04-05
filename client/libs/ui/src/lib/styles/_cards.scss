@@ -1,10 +1,11 @@
+@use 'glass';
+
 .auth-card {
+  @include glass.glass-surface(2);
   width: 100%;
   max-width: 420px;
   padding: var(--yn-space-8);
-  background: var(--yn-surface);
-  border-radius: var(--yn-radius-md);
-  box-shadow: var(--yn-shadow-md);
+  border-radius: var(--yn-radius-card);
 
   h1 {
     margin: 0 0 var(--yn-space-1);

@@ -1,12 +1,12 @@
 @use 'buttons';
 @use 'breakpoints' as bp;
+@use 'glass';
 
 .recipe-preview {
+  @include glass.glass-surface(1);
   margin-top: var(--yn-space-7);
   padding: var(--yn-card-padding-sm);
   border-radius: var(--yn-radius-card-lg);
-  background: var(--yn-surface);
-  box-shadow: var(--yn-shadow-card);
 
   h2 {
     margin: 0 0 var(--yn-space-6);
