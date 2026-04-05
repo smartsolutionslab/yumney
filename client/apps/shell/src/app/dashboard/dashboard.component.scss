@@ -1,22 +1,23 @@
 @use 'banners';
 @use 'buttons';
+@use 'breakpoints' as bp;
 
 .streaming-status {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  font-size: 0.875rem;
+  gap: var(--yn-space-3);
+  margin-top: var(--yn-space-5);
+  font-size: var(--yn-text-base);
   color: var(--yn-text-muted);
 }
 
 .streaming-preview {
-  margin-top: 0.75rem;
-  padding: 1rem;
-  border-radius: 10px;
+  margin-top: var(--yn-space-4);
+  padding: var(--yn-space-5);
+  border-radius: var(--yn-radius-button);
   background: var(--yn-background-subtle);
   border: 1px solid var(--yn-border-light);
-  font-size: 0.75rem;
+  font-size: var(--yn-text-sm);
   color: var(--yn-text-muted);
   max-height: 200px;
   overflow-y: auto;
@@ -28,97 +29,92 @@
   max-width: 860px;
   min-width: 320px;
   margin: 0 auto;
-  padding: 1.25rem 1rem;
+  padding: var(--yn-space-6) var(--yn-space-5);
 
   > h1 {
-    margin: 0 0 0.25rem;
-    font-size: 1.5rem;
-    font-weight: 700;
+    margin: 0 0 var(--yn-space-1);
+    font-size: var(--yn-text-4xl);
+    font-weight: var(--yn-font-bold);
     color: var(--yn-text);
   }
 
   > p {
-    margin: 0 0 1.25rem;
+    margin: 0 0 var(--yn-space-6);
     color: var(--yn-text-muted);
-    font-size: 0.9375rem;
+    font-size: var(--yn-text-md);
   }
 }
 
 // ── Shared section card styles ──
 %section-card {
-  padding: 1.25rem;
-  border-radius: 16px;
+  padding: var(--yn-card-padding-sm);
+  border-radius: var(--yn-radius-card-lg);
   background: var(--yn-surface);
-  box-shadow:
-    0 1px 3px rgb(0 0 0 / 6%),
-    0 4px 16px rgb(0 0 0 / 4%);
+  box-shadow: var(--yn-shadow-card);
 
   h2 {
-    margin: 0 0 0.25rem;
-    font-size: 1.125rem;
-    font-weight: 700;
+    margin: 0 0 var(--yn-space-1);
+    font-size: var(--yn-text-xl);
+    font-weight: var(--yn-font-bold);
     color: var(--yn-text);
   }
 
   .subtitle {
-    margin: 0 0 1.25rem;
+    margin: 0 0 var(--yn-space-6);
     color: var(--yn-text-muted);
-    font-size: 0.875rem;
-    line-height: 1.4;
+    font-size: var(--yn-text-base);
+    line-height: var(--yn-leading-snug);
   }
 }
 
 .url-import {
   @extend %section-card;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--yn-space-4);
 }
 
 .photo-import {
   @extend %section-card;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--yn-space-4);
 
   .hint {
-    margin: 0.75rem 0 0;
-    font-size: 0.8125rem;
+    margin: var(--yn-space-4) 0 0;
+    font-size: var(--yn-text-sm);
     color: var(--yn-text-light);
   }
 }
 
 .manual-create {
   @extend %section-card;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--yn-space-4);
 }
 
-// Photo upload label uses .btn-dashed but isn't a real button
 .photo-import label.disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-// ── URL import row ──
 .import-row {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--yn-space-4);
 }
 
 .form-field {
   flex: 1;
 
   .field-error {
-    font-size: 0.8125rem;
+    font-size: var(--yn-text-sm);
   }
 }
 
-// ── Desktop (≥ 768px) ──
-@media (min-width: 768px) {
+@include bp.respond-to('md') {
   .dashboard-container {
     max-width: 860px;
-    padding: 2rem 1.5rem;
+    padding: var(--yn-space-8) var(--yn-space-7);
   }
 
   %section-card {
-    padding: 2rem;
+    padding: var(--yn-space-8);
   }
 
   .import-row {

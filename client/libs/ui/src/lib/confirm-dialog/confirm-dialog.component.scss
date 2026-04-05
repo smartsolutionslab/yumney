@@ -3,7 +3,7 @@
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: var(--yn-z-modal);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,21 +12,21 @@
 
 .confirm-dialog {
   background: var(--yn-surface, #fff);
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-radius: var(--yn-radius-dialog);
+  padding: var(--yn-space-7);
   max-width: 400px;
   width: 90%;
-  box-shadow: 0 4px 24px rgb(0 0 0 / 20%);
+  box-shadow: var(--yn-shadow-xl);
 }
 
 .confirm-message {
-  margin: 0 0 1.5rem;
-  font-size: 1rem;
-  line-height: 1.5;
+  margin: 0 0 var(--yn-space-7);
+  font-size: var(--yn-text-lg);
+  line-height: var(--yn-leading-normal);
 }
 
 .confirm-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: var(--yn-space-4);
 }

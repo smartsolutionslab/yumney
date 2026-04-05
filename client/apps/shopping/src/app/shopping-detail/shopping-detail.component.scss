@@ -4,7 +4,7 @@
 .shopping-detail-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: var(--yn-space-8) var(--yn-space-5);
 }
 
 // .back-link provided by @use 'buttons'
@@ -14,20 +14,20 @@
 }
 
 h1 {
-  margin: 0 0 1.5rem;
-  font-size: 1.75rem;
-  font-weight: 700;
+  margin: 0 0 var(--yn-space-7);
+  font-size: var(--yn-text-5xl);
+  font-weight: var(--yn-font-bold);
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: var(--yn-space-4);
+  margin-bottom: var(--yn-space-5);
 }
 
 .progress {
-  font-size: 0.875rem;
+  font-size: var(--yn-text-base);
   color: var(--yn-text-muted);
   margin-right: auto;
 }
@@ -35,15 +35,15 @@ h1 {
 .items-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 2rem;
+  margin: 0 0 var(--yn-space-8);
 
   li {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
+    gap: var(--yn-space-3);
+    padding: var(--yn-space-3) 0;
     border-bottom: 1px solid var(--yn-border-light);
-    font-size: 0.9375rem;
+    font-size: var(--yn-text-md);
     cursor: pointer;
 
     &:last-child {
@@ -68,7 +68,7 @@ h1 {
 }
 
 .item-amount {
-  font-weight: 600;
+  font-weight: var(--yn-font-semibold);
   color: var(--yn-primary);
   min-width: 2.5rem;
 }
@@ -83,14 +83,14 @@ h1 {
 }
 
 .source-link {
-  margin-top: 1rem;
-  padding-top: 1rem;
+  margin-top: var(--yn-space-5);
+  padding-top: var(--yn-space-5);
   border-top: 1px solid var(--yn-border-medium);
 
   a {
     color: var(--yn-primary);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: var(--yn-text-base);
 
     &:hover {
       text-decoration: underline;

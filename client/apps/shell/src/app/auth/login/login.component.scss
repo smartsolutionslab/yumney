@@ -12,9 +12,9 @@
 .remember-me {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
+  gap: var(--yn-space-3);
+  margin-bottom: var(--yn-space-5);
+  font-size: var(--yn-text-base);
   cursor: pointer;
 
   input[type='checkbox'] {
@@ -31,9 +31,9 @@ button {
 }
 
 .forgot-password {
-  margin-top: 0.75rem;
+  margin-top: var(--yn-space-4);
   text-align: center;
-  font-size: 0.875rem;
+  font-size: var(--yn-text-base);
 
   a {
     color: var(--yn-link);
@@ -47,9 +47,9 @@ button {
 }
 
 .register-link {
-  margin-top: 1rem;
+  margin-top: var(--yn-space-5);
   text-align: center;
-  font-size: 0.875rem;
+  font-size: var(--yn-text-base);
   color: var(--yn-text-muted);
 
   a {

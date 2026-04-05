@@ -1,0 +1,22 @@
+// ==========================================================================
+// Border Radius Tokens
+// ==========================================================================
+
+:root {
+  // Radius Scale
+  --yn-radius-sm: 4px;
+  --yn-radius-md: 8px;
+  --yn-radius-lg: 10px;
+  --yn-radius-xl: 12px;
+  --yn-radius-2xl: 16px;
+  --yn-radius-full: 999px;
+  --yn-radius-circle: 50%;
+
+  // Semantic Radius
+  --yn-radius-button: var(--yn-radius-lg);
+  --yn-radius-input: var(--yn-radius-lg);
+  --yn-radius-card: var(--yn-radius-xl);
+  --yn-radius-card-lg: var(--yn-radius-2xl);
+  --yn-radius-dialog: var(--yn-radius-xl);
+  --yn-radius-badge: var(--yn-radius-full);
+}

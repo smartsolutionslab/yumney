@@ -1,18 +1,18 @@
 .account-placeholder {
   max-width: 900px;
   margin: 0 auto;
-  padding: 4rem 1rem;
+  padding: 4rem var(--yn-space-5);
   text-align: center;
 
   h1 {
-    margin: 0 0 1rem;
-    font-size: 1.75rem;
-    font-weight: 700;
+    margin: 0 0 var(--yn-space-5);
+    font-size: var(--yn-text-5xl);
+    font-weight: var(--yn-font-bold);
   }
 
   p {
     margin: 0;
-    font-size: 1rem;
+    font-size: var(--yn-text-lg);
     color: var(--yn-text-light);
   }
 }

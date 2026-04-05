@@ -1,0 +1,94 @@
+// ==========================================================================
+// Typography Tokens
+// ==========================================================================
+
+:root {
+  // Font Family
+  --yn-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --yn-font-mono: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono',
+    Menlo, monospace;
+
+  // Font Size Scale
+  --yn-text-xs: 0.6875rem; // 11px
+  --yn-text-sm: 0.75rem; // 12px
+  --yn-text-base: 0.875rem; // 14px — default body text
+  --yn-text-md: 0.9375rem; // 15px
+  --yn-text-lg: 1rem; // 16px
+  --yn-text-xl: 1.125rem; // 18px
+  --yn-text-2xl: 1.25rem; // 20px
+  --yn-text-3xl: 1.375rem; // 22px
+  --yn-text-4xl: 1.5rem; // 24px
+  --yn-text-5xl: 1.75rem; // 28px
+
+  // Font Weight
+  --yn-font-normal: 400;
+  --yn-font-medium: 500;
+  --yn-font-semibold: 600;
+  --yn-font-bold: 700;
+
+  // Line Height
+  --yn-leading-none: 1;
+  --yn-leading-tight: 1.3;
+  --yn-leading-snug: 1.4;
+  --yn-leading-normal: 1.5;
+  --yn-leading-relaxed: 1.6;
+}
+
+// Typography Mixins
+
+@mixin text-heading-xl {
+  font-size: var(--yn-text-5xl);
+  font-weight: var(--yn-font-bold);
+  line-height: var(--yn-leading-tight);
+}
+
+@mixin text-heading-lg {
+  font-size: var(--yn-text-4xl);
+  font-weight: var(--yn-font-bold);
+  line-height: var(--yn-leading-tight);
+}
+
+@mixin text-heading-md {
+  font-size: var(--yn-text-2xl);
+  font-weight: var(--yn-font-semibold);
+  line-height: var(--yn-leading-snug);
+}
+
+@mixin text-heading-sm {
+  font-size: var(--yn-text-xl);
+  font-weight: var(--yn-font-semibold);
+  line-height: var(--yn-leading-snug);
+}
+
+@mixin text-body {
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-normal);
+  line-height: var(--yn-leading-relaxed);
+}
+
+@mixin text-body-lg {
+  font-size: var(--yn-text-md);
+  font-weight: var(--yn-font-normal);
+  line-height: var(--yn-leading-relaxed);
+}
+
+@mixin text-caption {
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-normal);
+  line-height: var(--yn-leading-normal);
+}
+
+@mixin text-label {
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-medium);
+  line-height: var(--yn-leading-normal);
+}
+
+@mixin text-overline {
+  font-size: var(--yn-text-xs);
+  font-weight: var(--yn-font-medium);
+  line-height: var(--yn-leading-normal);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

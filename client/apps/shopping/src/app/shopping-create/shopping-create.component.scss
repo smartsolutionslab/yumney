@@ -4,7 +4,7 @@
 .shopping-create-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: var(--yn-space-8) var(--yn-space-5);
 }
 
 // .back-link provided by @use 'buttons'
@@ -14,65 +14,65 @@
 }
 
 h1 {
-  margin: 0 0 1.5rem;
-  font-size: 1.75rem;
-  font-weight: 700;
+  margin: 0 0 var(--yn-space-7);
+  font-size: var(--yn-text-5xl);
+  font-weight: var(--yn-font-bold);
 }
 
 .title-field {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--yn-space-7);
 
   label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
+    margin-bottom: var(--yn-space-3);
+    font-size: var(--yn-text-base);
+    font-weight: var(--yn-font-medium);
     color: var(--yn-text-secondary);
   }
 
   input {
     width: 100%;
-    padding: 0.625rem 0.75rem;
+    padding: var(--yn-space-2) var(--yn-space-4);
     border: 1px solid var(--yn-border);
-    border-radius: 8px;
-    font-size: 0.9375rem;
+    border-radius: var(--yn-radius-md);
+    font-size: var(--yn-text-md);
     box-sizing: border-box;
 
     &:focus {
       outline: none;
       border-color: var(--yn-primary);
-      box-shadow: 0 0 0 2px rgb(249 115 22 / 20%);
+      box-shadow: var(--yn-ring-primary);
     }
   }
 }
 
 .ingredients-section {
-  margin-bottom: 2rem;
+  margin-bottom: var(--yn-space-8);
 }
 
 .ingredients-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: var(--yn-space-5);
 
   h2 {
     margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: var(--yn-text-2xl);
+    font-weight: var(--yn-font-semibold);
   }
 }
 
 .selection-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--yn-space-4);
 }
 
 .link-button {
   background: none;
   border: none;
   color: var(--yn-primary);
-  font-size: 0.8125rem;
+  font-size: var(--yn-text-sm);
   cursor: pointer;
   padding: 0;
   text-decoration: underline;
@@ -88,7 +88,7 @@ h1 {
   margin: 0;
 
   li {
-    padding: 0.5rem 0;
+    padding: var(--yn-space-3) 0;
     border-bottom: 1px solid var(--yn-border-light);
 
     &:last-child {
@@ -100,7 +100,7 @@ h1 {
 .ingredient-check {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--yn-space-4);
   cursor: pointer;
 
   input[type='checkbox'] {
@@ -113,12 +113,12 @@ h1 {
 
 .ingredient-text {
   display: flex;
-  gap: 0.5rem;
-  font-size: 0.9375rem;
+  gap: var(--yn-space-3);
+  font-size: var(--yn-text-md);
 }
 
 .ingredient-amount {
-  font-weight: 600;
+  font-weight: var(--yn-font-semibold);
   color: var(--yn-primary);
   min-width: 2.5rem;
 }
@@ -134,11 +134,11 @@ h1 {
 
 .actions-bar {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--yn-space-4);
 }
 
 .create-button {
   @extend .btn-primary;
 
-  font-size: 0.9375rem;
+  font-size: var(--yn-text-md);
 }

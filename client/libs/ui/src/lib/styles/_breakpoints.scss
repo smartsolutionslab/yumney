@@ -1,0 +1,39 @@
+// ==========================================================================
+// Breakpoint System — Mobile First
+// ==========================================================================
+
+$yn-bp-sm: 480px;
+$yn-bp-md: 768px;
+$yn-bp-lg: 1024px;
+$yn-bp-xl: 1280px;
+
+$yn-breakpoints: (
+  'sm': $yn-bp-sm,
+  'md': $yn-bp-md,
+  'lg': $yn-bp-lg,
+  'xl': $yn-bp-xl,
+);
+
+@mixin respond-to($breakpoint) {
+  $value: map-get($yn-breakpoints, $breakpoint);
+
+  @if $value {
+    @media (min-width: $value) {
+      @content;
+    }
+  } @else {
+    @error 'Unknown breakpoint: #{$breakpoint}. Available: sm, md, lg, xl.';
+  }
+}
+
+@mixin respond-below($breakpoint) {
+  $value: map-get($yn-breakpoints, $breakpoint);
+
+  @if $value {
+    @media (max-width: #{$value - 1px}) {
+      @content;
+    }
+  } @else {
+    @error 'Unknown breakpoint: #{$breakpoint}. Available: sm, md, lg, xl.';
+  }
+}
