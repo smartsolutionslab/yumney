@@ -160,10 +160,10 @@ if (!options.DatabaseOnly)
 
     if (isRunMode)
     {
-        var scalar = builder.AddScalarApiReference("scalar");
-        scalar.WithApiReference(recipesApi);
-        scalar.WithApiReference(shoppingApi);
-        scalar.WithApiReference(usersApi);
+        var scalar = builder.AddScalarApiReference("scalar")
+            .WithApiReference(recipesApi)
+            .WithApiReference(shoppingApi)
+            .WithApiReference(usersApi);
 
         var addMfe = (string name, string script, int port) =>
             builder.AddJavaScriptApp(name, "../../client", script)
