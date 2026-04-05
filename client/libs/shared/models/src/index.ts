@@ -25,3 +25,4 @@ export {
   type UnitGroupInfo,
 } from './lib/known-units';
 export { ROUTES } from './lib/route-paths';
+export { ThemeService, type Theme } from './lib/theme.service';

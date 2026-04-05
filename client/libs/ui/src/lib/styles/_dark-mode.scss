@@ -1,0 +1,134 @@
+// ==========================================================================
+// Dark Mode — Token Overrides
+// ==========================================================================
+// Applied via [data-theme="dark"] on <html>.
+// Falls back to prefers-color-scheme for users without explicit preference.
+
+[data-theme='dark'] {
+  // ---------------------------------------------------------------------------
+  // Brand — slightly brighter for dark backgrounds
+  // ---------------------------------------------------------------------------
+  --yn-primary: #fb923c;
+  --yn-primary-hover: #f97316;
+  --yn-primary-light: rgb(249 115 22 / 12%);
+  --yn-primary-light-end: rgb(249 115 22 / 8%);
+
+  // ---------------------------------------------------------------------------
+  // Status
+  // ---------------------------------------------------------------------------
+  --yn-danger: #f87171;
+  --yn-danger-light: rgb(220 38 38 / 12%);
+  --yn-danger-border: rgb(248 113 113 / 30%);
+
+  --yn-success: #34d399;
+  --yn-success-light: rgb(5 150 105 / 12%);
+
+  --yn-warning: #fbbf24;
+  --yn-warning-light: rgb(217 119 6 / 12%);
+
+  --yn-info: #38bdf8;
+  --yn-info-light: rgb(2 132 199 / 12%);
+
+  // ---------------------------------------------------------------------------
+  // Text — light text on dark surfaces
+  // ---------------------------------------------------------------------------
+  --yn-text: #e8f5e9;
+  --yn-text-secondary: #c8e6c9;
+  --yn-text-muted: #a5d6a7;
+  --yn-text-light: #81c784;
+  --yn-text-placeholder: rgb(165 214 167 / 50%);
+  --yn-text-body: #c8e6c9;
+  --yn-text-inverse: #1a2e1a;
+
+  // ---------------------------------------------------------------------------
+  // Links
+  // ---------------------------------------------------------------------------
+  --yn-link: #fb923c;
+  --yn-link-hover: #fdba74;
+
+  // ---------------------------------------------------------------------------
+  // Accent
+  // ---------------------------------------------------------------------------
+  --yn-accent: #34d399;
+  --yn-accent-light: rgb(52 211 153 / 12%);
+
+  // ---------------------------------------------------------------------------
+  // Surface & Background — deep greens
+  // ---------------------------------------------------------------------------
+  --yn-surface: #1a2e1a;
+  --yn-surface-elevated: #243524;
+  --yn-background: #0f1f0f;
+  --yn-background-subtle: #1e321e;
+  --yn-background-hover: #2d4a2d;
+  --yn-overlay: rgb(0 0 0 / 70%);
+
+  // ---------------------------------------------------------------------------
+  // Border — subtle on dark
+  // ---------------------------------------------------------------------------
+  --yn-border: rgb(165 214 167 / 20%);
+  --yn-border-light: rgb(165 214 167 / 10%);
+  --yn-border-medium: rgb(165 214 167 / 15%);
+  --yn-border-strong: rgb(165 214 167 / 30%);
+
+  // ---------------------------------------------------------------------------
+  // Component-specific
+  // ---------------------------------------------------------------------------
+  --yn-spinner-track: rgb(251 146 60 / 30%);
+
+  // ---------------------------------------------------------------------------
+  // Glass — deeper tints with cooler reflections
+  // ---------------------------------------------------------------------------
+  --yn-glass-bg: rgb(30 30 46 / 30%);
+  --yn-glass-bg-elevated: rgb(30 30 46 / 40%);
+  --yn-glass-bg-strong: rgb(30 30 46 / 50%);
+  --yn-glass-border: rgb(200 200 255 / 15%);
+  --yn-glass-border-subtle: rgb(200 200 255 / 8%);
+
+  // ---------------------------------------------------------------------------
+  // Elevation — stronger shadows on dark
+  // ---------------------------------------------------------------------------
+  --yn-elevation-1: 0 1px 3px rgb(0 0 0 / 20%), 0 2px 8px rgb(0 0 0 / 15%);
+  --yn-elevation-2: 0 2px 8px rgb(0 0 0 / 25%), 0 8px 24px rgb(0 0 0 / 20%);
+  --yn-elevation-3: 0 4px 16px rgb(0 0 0 / 30%), 0 12px 32px rgb(0 0 0 / 25%);
+
+  // ---------------------------------------------------------------------------
+  // Shadows — darker
+  // ---------------------------------------------------------------------------
+  --yn-shadow-xs: 0 1px 2px rgb(0 0 0 / 20%);
+  --yn-shadow-sm: 0 1px 4px rgb(0 0 0 / 25%);
+  --yn-shadow-md: 0 2px 8px rgb(0 0 0 / 30%);
+  --yn-shadow-lg: 0 4px 16px rgb(0 0 0 / 35%);
+  --yn-shadow-xl: 0 4px 24px rgb(0 0 0 / 40%);
+  --yn-shadow-card: 0 1px 3px rgb(0 0 0 / 20%), 0 4px 16px rgb(0 0 0 / 15%);
+  --yn-shadow-card-hover: 0 4px 16px rgb(0 0 0 / 30%);
+  --yn-shadow-dropdown: 0 4px 16px rgb(0 0 0 / 35%);
+  --yn-shadow-dialog: 0 4px 24px rgb(0 0 0 / 40%);
+  --yn-ring-primary: 0 0 0 3px rgb(251 146 60 / 20%);
+  --yn-ring-danger: 0 0 0 3px rgb(248 113 113 / 15%);
+  --yn-shadow-primary-glow: 0 2px 8px rgb(251 146 60 / 30%);
+  --yn-shadow-danger-glow: 0 2px 8px rgb(248 113 113 / 30%);
+
+  // ---------------------------------------------------------------------------
+  // Ambient — deep purple/blue orbs for dark mode
+  // ---------------------------------------------------------------------------
+  --yn-ambient-orb-1: rgb(139 92 246 / 15%);
+  --yn-ambient-orb-2: rgb(6 182 212 / 12%);
+  --yn-ambient-orb-3: rgb(236 72 153 / 8%);
+}
+
+// Fallback for users without explicit preference — use OS setting
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    // Same overrides as above — repeated for the media query fallback.
+    // Only brand + text + surface essentials to keep DRY; full override
+    // happens when ThemeService sets [data-theme="dark"].
+    --yn-text: #e8f5e9;
+    --yn-text-secondary: #c8e6c9;
+    --yn-text-muted: #a5d6a7;
+    --yn-surface: #1a2e1a;
+    --yn-background: #0f1f0f;
+    --yn-background-subtle: #1e321e;
+    --yn-border: rgb(165 214 167 / 20%);
+    --yn-border-light: rgb(165 214 167 / 10%);
+  }
+}

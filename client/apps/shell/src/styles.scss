@@ -12,6 +12,9 @@ body {
   line-height: var(--yn-leading-relaxed);
   color: var(--yn-text);
   background: var(--yn-background);
+  transition:
+    background var(--yn-duration-normal) var(--yn-ease-glass),
+    color var(--yn-duration-normal) var(--yn-ease-glass);
 }
 
 a {

@@ -24,6 +24,13 @@
         </a>
       }
       <button
+        class="theme-toggle"
+        (click)="onToggleTheme()"
+        [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
+        {{ isDark() ? '☀' : '☾' }}
+      </button>
+      <button
         class="lang-toggle"
         (click)="onSwitchLanguage()"
         [attr.aria-label]="t('layout.header.switchLanguage')"
