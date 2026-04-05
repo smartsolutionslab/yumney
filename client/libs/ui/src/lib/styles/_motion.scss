@@ -86,6 +86,34 @@
   }
 }
 
+// ── Skeleton Shimmer ──
+
+@keyframes yn-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@mixin skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--yn-glass-bg) 25%,
+    var(--yn-glass-bg-elevated) 50%,
+    var(--yn-glass-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: yn-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--yn-radius-md);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background: var(--yn-glass-bg);
+  }
+}
+
 /// Apply to :root or body to globally disable motion
 @mixin reduced-motion-global {
   @media (prefers-reduced-motion: reduce) {

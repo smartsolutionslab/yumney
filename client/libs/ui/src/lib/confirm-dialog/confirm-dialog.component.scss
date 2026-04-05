@@ -9,6 +9,7 @@
   align-items: center;
   justify-content: center;
   background: var(--yn-overlay);
+  animation: yn-fade-in var(--yn-duration-fast) var(--yn-ease-glass) both;
 }
 
 .confirm-dialog {
@@ -16,6 +17,14 @@
   padding: var(--yn-space-7);
   max-width: 400px;
   width: 90%;
+  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-overlay,
+  .confirm-dialog {
+    animation: none;
+  }
 }
 
 .confirm-message {

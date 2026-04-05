@@ -176,13 +176,24 @@
   border-radius: var(--yn-radius-card);
   box-shadow: var(--yn-shadow-md);
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
+  transition:
+    box-shadow var(--yn-duration-normal) var(--yn-ease-glass),
+    transform var(--yn-duration-normal) var(--yn-ease-spring);
   text-decoration: none;
   color: inherit;
   cursor: pointer;
 
   &:hover {
     box-shadow: var(--yn-shadow-card-hover);
+    transform: translateY(-2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
   }
 }
 

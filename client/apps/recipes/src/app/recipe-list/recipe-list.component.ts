@@ -3,6 +3,7 @@ import {
   Component,
   ChangeDetectionStrategy,
   computed,
+  effect,
   ElementRef,
   HostListener,
   inject,
@@ -17,7 +18,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
 import { createAsyncState, HttpErrorMap, UI } from '@yumney/shared/models';
 import { RouterLink } from '@angular/router';
-import { LoadingSpinnerComponent } from '@yumney/ui';
+import { LoadingSpinnerComponent, staggerFadeIn, prefersReducedMotion } from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-list',
@@ -77,6 +78,26 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   }
 
   scrollSentinel = viewChild<ElementRef>('scrollSentinel');
+  private hostEl = inject(ElementRef);
+  private previousCardCount = 0;
+
+  constructor() {
+    effect(() => {
+      const count = this.recipes().length;
+      if (count > this.previousCardCount && !prefersReducedMotion()) {
+        requestAnimationFrame(() => {
+          const cards = this.hostEl.nativeElement.querySelectorAll('.recipe-card');
+          const newCards = Array.from(cards).slice(this.previousCardCount);
+          if (newCards.length > 0) {
+            staggerFadeIn(newCards as Element[]);
+          }
+          this.previousCardCount = count;
+        });
+      } else {
+        this.previousCardCount = count;
+      }
+    });
+  }
 
   recipes = signal<RecipeListItem[]>([]);
   totalCount = signal(0);

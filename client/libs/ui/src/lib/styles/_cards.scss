@@ -6,6 +6,13 @@
   max-width: 420px;
   padding: var(--yn-space-8);
   border-radius: var(--yn-radius-card);
+  transition:
+    box-shadow var(--yn-duration-normal) var(--yn-ease-glass),
+    transform var(--yn-duration-normal) var(--yn-ease-spring);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
   h1 {
     margin: 0 0 var(--yn-space-1);
