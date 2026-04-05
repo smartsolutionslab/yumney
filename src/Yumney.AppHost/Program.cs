@@ -160,7 +160,14 @@ if (!options.DatabaseOnly)
 
     if (isRunMode)
     {
-        var scalar = builder.AddScalarApiReference("scalar")
+        var keycloakRealmUrl = "http://localhost:8080/realms/yumney";
+        var scalar = builder.AddScalarApiReference("scalar", options => options
+                .WithTheme(ScalarTheme.Mars)
+                .AddAuthorizationCodeFlow("keycloak", flow => flow
+                    .WithClientId("yumney-web")
+                    .WithAuthorizationUrl($"{keycloakRealmUrl}/protocol/openid-connect/auth")
+                    .WithTokenUrl($"{keycloakRealmUrl}/protocol/openid-connect/token")
+                    .WithSelectedScopes(["openid", "profile"])))
             .WithApiReference(recipesApi)
             .WithApiReference(shoppingApi)
             .WithApiReference(usersApi);
