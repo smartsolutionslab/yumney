@@ -1,0 +1,17 @@
+@use 'tokens';
+@use 'buttons';
+@use 'forms';
+@use 'cards';
+@use 'banners';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--yn-font-family);
+  line-height: var(--yn-leading-relaxed);
+  color: var(--yn-text);
+}

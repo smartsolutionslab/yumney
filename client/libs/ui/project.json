@@ -1,0 +1,34 @@
+{
+  "name": "ui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/ui/src",
+  "targets": {
+    "storybook": {
+      "executor": "@storybook/angular:start-storybook",
+      "options": {
+        "configDir": "libs/ui/.storybook",
+        "browserTarget": "shell:build",
+        "port": 6006,
+        "compodoc": false,
+        "styles": ["libs/ui/.storybook/styles.scss"],
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/src/lib/styles"]
+        }
+      }
+    },
+    "build-storybook": {
+      "executor": "@storybook/angular:build-storybook",
+      "options": {
+        "configDir": "libs/ui/.storybook",
+        "browserTarget": "shell:build",
+        "outputDir": "dist/storybook",
+        "compodoc": false,
+        "styles": ["libs/ui/.storybook/styles.scss"],
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/ui/src/lib/styles"]
+        }
+      }
+    }
+  }
+}
