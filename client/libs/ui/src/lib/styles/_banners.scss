@@ -1,21 +1,21 @@
 .error-banner {
-  padding: 0.875rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 10px;
+  padding: var(--yn-space-4) var(--yn-space-5);
+  margin-bottom: var(--yn-space-5);
+  border-radius: var(--yn-radius-button);
   border-left: 3px solid var(--yn-danger);
   background: var(--yn-danger-light);
   color: var(--yn-danger);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
 }
 
 .success-banner {
-  padding: 0.875rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 10px;
+  padding: var(--yn-space-4) var(--yn-space-5);
+  margin-bottom: var(--yn-space-5);
+  border-radius: var(--yn-radius-button);
   border-left: 3px solid var(--yn-success);
   background: var(--yn-success-light);
   color: var(--yn-success);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
 }

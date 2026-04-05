@@ -3,13 +3,13 @@
 .shopping-list-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: var(--yn-space-8) var(--yn-space-5);
 }
 
 h1 {
-  margin: 0 0 1.5rem;
-  font-size: 1.75rem;
-  font-weight: 700;
+  margin: 0 0 var(--yn-space-7);
+  font-size: var(--yn-text-5xl);
+  font-weight: var(--yn-font-bold);
 }
 
 .loading {
@@ -18,58 +18,58 @@ h1 {
 
 .empty-state {
   text-align: center;
-  padding: 4rem 1rem;
+  padding: 4rem var(--yn-space-5);
   color: var(--yn-text-light);
 
   h2 {
-    margin: 0 0 0.5rem;
-    font-size: 1.25rem;
-    font-weight: 600;
+    margin: 0 0 var(--yn-space-3);
+    font-size: var(--yn-text-2xl);
+    font-weight: var(--yn-font-semibold);
     color: var(--yn-text-secondary);
   }
 
   p {
     margin: 0;
-    font-size: 0.9375rem;
+    font-size: var(--yn-text-md);
   }
 }
 
 .lists-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  gap: var(--yn-space-5);
 }
 
 .list-card {
   display: block;
-  padding: 1.25rem;
+  padding: var(--yn-card-padding-sm);
   background: var(--yn-surface);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+  border-radius: var(--yn-radius-card);
+  box-shadow: var(--yn-shadow-md);
   text-decoration: none;
   color: inherit;
   transition: box-shadow 0.2s;
 
   &:hover {
-    box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
+    box-shadow: var(--yn-shadow-card-hover);
   }
 }
 
 .list-title {
-  margin: 0 0 0.75rem;
-  font-size: 1.0625rem;
-  font-weight: 600;
+  margin: 0 0 var(--yn-space-4);
+  font-size: var(--yn-text-lg);
+  font-weight: var(--yn-font-semibold);
   color: var(--yn-text);
 }
 
 .list-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8125rem;
+  font-size: var(--yn-text-sm);
   color: var(--yn-text-light);
 }
 
 .item-count {
   color: var(--yn-primary);
-  font-weight: 500;
+  font-weight: var(--yn-font-medium);
 }

@@ -1,29 +1,28 @@
 @use 'buttons';
+@use 'breakpoints' as bp;
 
 .recipe-preview {
-  margin-top: 1.5rem;
-  padding: 1.25rem;
-  border-radius: 16px;
+  margin-top: var(--yn-space-7);
+  padding: var(--yn-card-padding-sm);
+  border-radius: var(--yn-radius-card-lg);
   background: var(--yn-surface);
-  box-shadow:
-    0 1px 3px rgb(0 0 0 / 6%),
-    0 4px 16px rgb(0 0 0 / 4%);
+  box-shadow: var(--yn-shadow-card);
 
   h2 {
-    margin: 0 0 1.25rem;
-    font-size: 1.375rem;
-    font-weight: 700;
+    margin: 0 0 var(--yn-space-6);
+    font-size: var(--yn-text-3xl);
+    font-weight: var(--yn-font-bold);
     color: var(--yn-text);
   }
 
   h3 {
-    margin: 0 0 0.75rem;
-    font-size: 1rem;
-    font-weight: 700;
+    margin: 0 0 var(--yn-space-4);
+    font-size: var(--yn-text-lg);
+    font-weight: var(--yn-font-bold);
     color: var(--yn-text-secondary);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--yn-space-3);
 
     &::before {
       content: '';
@@ -36,8 +35,8 @@
 }
 
 .preview-image {
-  margin-bottom: 1.5rem;
-  border-radius: 12px;
+  margin-bottom: var(--yn-space-7);
+  border-radius: var(--yn-radius-card);
   overflow: hidden;
   max-height: 240px;
 
@@ -49,7 +48,7 @@
 }
 
 .metadata-section {
-  margin-bottom: 1rem;
+  margin-bottom: var(--yn-space-5);
   width: 100%;
 
   > yn-form-field {
@@ -59,33 +58,30 @@
 }
 
 .form-field {
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--yn-space-4);
 
   label {
     color: var(--yn-text-body);
   }
 
   .field-error {
-    font-size: 0.8125rem;
+    font-size: var(--yn-text-sm);
   }
 
-  // Description textarea — enough room to see content
   textarea {
     min-height: 7rem;
-    line-height: 1.6;
+    line-height: var(--yn-leading-relaxed);
   }
 
-  // Step textareas inside list items — shorter
   &.step-description textarea {
     min-height: 4.5rem;
   }
 }
 
-// Mobile-first: 2 columns
 .form-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
+  gap: var(--yn-space-4);
 
   .form-field {
     min-width: 0;
@@ -94,16 +90,15 @@
 }
 
 .list-section {
-  margin-bottom: 1.25rem;
-  padding-top: 1.25rem;
+  margin-bottom: var(--yn-space-6);
+  padding-top: var(--yn-space-6);
   border-top: 1px solid var(--yn-border-medium);
 }
 
-// Mobile-first: stack ingredient fields vertically
 .ingredient-fields {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.5rem;
+  gap: var(--yn-space-3);
   flex: 1;
 
   .ingredient-name,
@@ -112,12 +107,11 @@
   }
 }
 
-// ── Joined amount + unit pair ──
 .ingredient-quantity {
   display: flex;
   align-items: stretch;
   border: 1.5px solid var(--yn-border);
-  border-radius: 10px;
+  border-radius: var(--yn-radius-input);
   background: var(--yn-surface);
   transition:
     border-color 0.2s,
@@ -125,7 +119,7 @@
 
   &:focus-within {
     border-color: var(--yn-primary);
-    box-shadow: 0 0 0 3px rgb(249 115 22 / 12%);
+    box-shadow: var(--yn-ring-primary);
   }
 
   .ingredient-amount,
@@ -138,7 +132,7 @@
 
     input {
       border: none;
-      border-radius: 8px 0 0 8px;
+      border-radius: var(--yn-radius-md) 0 0 var(--yn-radius-md);
       background: transparent;
       box-shadow: none;
       min-height: 2.5rem;
@@ -150,13 +144,12 @@
     }
   }
 
-  // Divider between amount and unit
   .ingredient-amount::after {
     content: '';
     position: absolute;
     right: 0;
-    top: 0.375rem;
-    bottom: 0.375rem;
+    top: var(--yn-space-2);
+    bottom: var(--yn-space-2);
     width: 1px;
     background: var(--yn-border-light);
   }
@@ -171,7 +164,7 @@
 
     .unit-toggle {
       border: none;
-      border-radius: 0 8px 8px 0;
+      border-radius: 0 var(--yn-radius-md) var(--yn-radius-md) 0;
       background: transparent;
       box-shadow: none;
       min-height: 2.5rem;
@@ -192,23 +185,23 @@
 
 .step-fields {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--yn-space-3);
   flex: 1;
   align-items: flex-start;
 
   .step-number {
-    font-weight: 700;
+    font-weight: var(--yn-font-bold);
     color: var(--yn-primary);
     background: var(--yn-primary-light);
     width: 1.75rem;
     height: 1.75rem;
-    border-radius: 50%;
+    border-radius: var(--yn-radius-circle);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8125rem;
+    font-size: var(--yn-text-sm);
     flex-shrink: 0;
-    margin-top: 0.5rem;
+    margin-top: var(--yn-space-3);
   }
 
   .step-description {
@@ -218,14 +211,14 @@
 }
 
 .add-btn {
-  margin-top: 0.75rem;
+  margin-top: var(--yn-space-4);
 }
 
 .action-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding-top: 1.5rem;
+  gap: var(--yn-space-4);
+  padding-top: var(--yn-space-7);
   border-top: 1px solid var(--yn-border-medium);
 }
 
@@ -239,8 +232,7 @@
   order: 1;
 }
 
-// ── Tablet (>= 480px) ──
-@media (min-width: 480px) {
+@include bp.respond-to('sm') {
   .ingredient-fields {
     grid-template-columns: 1fr auto;
   }
@@ -250,16 +242,15 @@
   }
 }
 
-// ── Desktop (>= 768px) ──
-@media (min-width: 768px) {
+@include bp.respond-to('md') {
   .recipe-preview {
-    padding: 2rem;
-    margin-top: 2rem;
+    padding: var(--yn-space-8);
+    margin-top: var(--yn-space-8);
   }
 
   .form-row {
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    gap: var(--yn-space-5);
   }
 
   .action-buttons {

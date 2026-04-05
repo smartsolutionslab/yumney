@@ -1,0 +1,24 @@
+// ==========================================================================
+// Shadow Tokens
+// ==========================================================================
+
+:root {
+  // Shadow Scale
+  --yn-shadow-xs: 0 1px 2px rgb(0 0 0 / 5%);
+  --yn-shadow-sm: 0 1px 4px rgb(0 0 0 / 10%);
+  --yn-shadow-md: 0 2px 8px rgb(0 0 0 / 10%);
+  --yn-shadow-lg: 0 4px 16px rgb(0 0 0 / 12%);
+  --yn-shadow-xl: 0 4px 24px rgb(0 0 0 / 20%);
+
+  // Layered Shadows (for cards with subtle depth)
+  --yn-shadow-card: 0 1px 3px rgb(0 0 0 / 6%), 0 4px 16px rgb(0 0 0 / 4%);
+  --yn-shadow-card-hover: 0 4px 16px rgb(0 0 0 / 12%);
+
+  // Focus Rings
+  --yn-ring-primary: 0 0 0 3px rgb(249 115 22 / 12%);
+  --yn-ring-danger: 0 0 0 3px rgb(220 38 38 / 8%);
+
+  // Branded Shadows
+  --yn-shadow-primary-glow: 0 2px 8px rgb(249 115 22 / 25%);
+  --yn-shadow-danger-glow: 0 2px 8px rgb(220 38 38 / 25%);
+}

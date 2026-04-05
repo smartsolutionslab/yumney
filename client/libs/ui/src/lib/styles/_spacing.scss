@@ -1,0 +1,49 @@
+// ==========================================================================
+// Spacing Tokens — 4px base grid
+// ==========================================================================
+
+:root {
+  // Spacing Scale
+  --yn-space-0: 0;
+  --yn-space-1: 0.25rem; // 4px
+  --yn-space-2: 0.375rem; // 6px
+  --yn-space-3: 0.5rem; // 8px
+  --yn-space-4: 0.75rem; // 12px
+  --yn-space-5: 1rem; // 16px
+  --yn-space-6: 1.25rem; // 20px
+  --yn-space-7: 1.5rem; // 24px
+  --yn-space-8: 2rem; // 32px
+  --yn-space-9: 2.5rem; // 40px
+  --yn-space-10: 3rem; // 48px
+
+  // Semantic Spacing
+  --yn-space-xs: var(--yn-space-1); // 4px
+  --yn-space-sm: var(--yn-space-3); // 8px
+  --yn-space-md: var(--yn-space-5); // 16px
+  --yn-space-lg: var(--yn-space-7); // 24px
+  --yn-space-xl: var(--yn-space-8); // 32px
+
+  // Component Spacing
+  --yn-card-padding: var(--yn-space-7); // 24px
+  --yn-card-padding-sm: var(--yn-space-6); // 20px
+  --yn-section-gap: var(--yn-space-7); // 24px
+  --yn-input-padding-x: var(--yn-space-5); // 16px
+  --yn-input-padding-y: var(--yn-space-4); // 12px
+  --yn-button-padding-x: var(--yn-space-7); // 24px
+  --yn-button-padding-y: var(--yn-space-4); // 12px
+}
+
+// Layout Mixins
+
+@mixin stack($space: var(--yn-space-md)) {
+  display: flex;
+  flex-direction: column;
+  gap: $space;
+}
+
+@mixin cluster($space: var(--yn-space-md)) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space;
+  align-items: center;
+}

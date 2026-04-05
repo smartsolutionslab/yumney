@@ -8,26 +8,26 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 1rem;
+  padding: var(--yn-space-5);
 }
 
 .resend-card {
   width: 100%;
   max-width: 420px;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+  padding: var(--yn-space-8);
+  border-radius: var(--yn-radius-md);
+  box-shadow: var(--yn-shadow-md);
   background: var(--yn-surface);
 
   h1 {
-    margin: 0 0 0.25rem;
-    font-size: 1.5rem;
+    margin: 0 0 var(--yn-space-1);
+    font-size: var(--yn-text-4xl);
   }
 
   .subtitle {
-    margin: 0 0 1.5rem;
+    margin: 0 0 var(--yn-space-7);
     color: var(--yn-text-muted);
-    font-size: 0.9rem;
+    font-size: var(--yn-text-md);
   }
 }
 
@@ -36,7 +36,7 @@
   color: var(--yn-success);
 
   h2 {
-    margin: 0 0 0.5rem;
+    margin: 0 0 var(--yn-space-3);
   }
 
   p {
@@ -46,13 +46,13 @@
 
 button[type='submit'] {
   width: 100%;
-  margin-top: 0.5rem;
+  margin-top: var(--yn-space-3);
 }
 
 .back-link {
-  margin-top: 1rem;
+  margin-top: var(--yn-space-5);
   text-align: center;
-  font-size: 0.9rem;
+  font-size: var(--yn-text-md);
 
   a {
     color: var(--yn-link);

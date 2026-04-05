@@ -1,0 +1,12 @@
+// ==========================================================================
+// Design System Tokens — Single entry point
+// ==========================================================================
+// Import this file in each app's styles.scss to load all CSS custom properties.
+// For SCSS-only utilities (breakpoints, mixins), @use the specific partial.
+
+@use 'variables';
+@use 'typography';
+@use 'spacing';
+@use 'radii';
+@use 'shadows';
+@use 'z-index';

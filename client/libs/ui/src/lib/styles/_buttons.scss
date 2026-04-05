@@ -3,9 +3,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--yn-space-3);
   font-family: inherit;
-  font-weight: 600;
+  font-weight: var(--yn-font-semibold);
   cursor: pointer;
   border: none;
   text-decoration: none;
@@ -29,27 +29,27 @@
 // ── Primary ──
 .btn-primary {
   @extend %btn-base;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
+  padding: var(--yn-button-padding-y) var(--yn-button-padding-x);
+  border-radius: var(--yn-radius-button);
   background: var(--yn-primary);
-  color: #fff;
-  font-size: 1rem;
+  color: var(--yn-text-inverse);
+  font-size: var(--yn-text-lg);
 
   &:hover:not(:disabled) {
     background: var(--yn-primary-hover);
-    box-shadow: 0 2px 8px rgb(249 115 22 / 25%);
+    box-shadow: var(--yn-shadow-primary-glow);
   }
 }
 
 // ── Secondary (outline) ──
 .btn-secondary {
   @extend %btn-base;
-  padding: 0.75rem 1.5rem;
+  padding: var(--yn-button-padding-y) var(--yn-button-padding-x);
   border: 1.5px solid var(--yn-border);
-  border-radius: 10px;
+  border-radius: var(--yn-radius-button);
   background: transparent;
   color: var(--yn-text-muted);
-  font-size: 1rem;
+  font-size: var(--yn-text-lg);
 
   &:hover:not(:disabled) {
     border-color: var(--yn-primary);
@@ -61,12 +61,12 @@
 // ── Ghost (text-only, no border) ──
 .btn-ghost {
   @extend %btn-base;
-  padding: 0.75rem 1.25rem;
+  padding: var(--yn-button-padding-y) var(--yn-space-6);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--yn-radius-button);
   background: transparent;
   color: var(--yn-text-muted);
-  font-size: 0.9375rem;
+  font-size: var(--yn-text-md);
 
   &:hover:not(:disabled) {
     background: var(--yn-background-subtle);
@@ -77,45 +77,45 @@
 // ── Danger ──
 .btn-danger {
   @extend %btn-base;
-  padding: 0.625rem 1.25rem;
+  padding: var(--yn-space-2) var(--yn-space-6);
   border: 1.5px solid var(--yn-danger);
-  border-radius: 10px;
+  border-radius: var(--yn-radius-button);
   background: transparent;
   color: var(--yn-danger);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
 
   &:hover:not(:disabled) {
     background: var(--yn-danger);
-    color: #fff;
+    color: var(--yn-text-inverse);
   }
 }
 
 // ── Danger filled ──
 .btn-danger-filled {
   @extend %btn-base;
-  padding: 0.625rem 1.25rem;
-  border-radius: 10px;
+  padding: var(--yn-space-2) var(--yn-space-6);
+  border-radius: var(--yn-radius-button);
   background: var(--yn-danger);
-  color: #fff;
-  font-size: 0.875rem;
-  font-weight: 500;
+  color: var(--yn-text-inverse);
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
 
   &:hover:not(:disabled) {
     background: #b91c1c;
-    box-shadow: 0 2px 8px rgb(220 38 38 / 25%);
+    box-shadow: var(--yn-shadow-danger-glow);
   }
 }
 
 // ── Link-style button ──
 .btn-link {
   @extend %btn-base;
-  padding: 0.625rem 1.25rem;
-  border-radius: 6px;
+  padding: var(--yn-space-2) var(--yn-space-6);
+  border-radius: var(--yn-radius-sm);
   background: var(--yn-link);
   color: var(--yn-surface);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
 
   &:hover:not(:disabled) {
     background: var(--yn-link-hover);
@@ -125,12 +125,12 @@
 // ── Dashed add button ──
 .btn-dashed {
   @extend %btn-base;
-  padding: 0.75rem 1rem;
+  padding: var(--yn-button-padding-y) var(--yn-space-5);
   border: 2px dashed var(--yn-border);
-  border-radius: 10px;
+  border-radius: var(--yn-radius-button);
   background: transparent;
   color: var(--yn-primary);
-  font-size: 0.9375rem;
+  font-size: var(--yn-text-md);
   width: 100%;
 
   &:hover:not(:disabled) {
@@ -150,10 +150,10 @@
   height: 2.25rem;
   padding: 0;
   border: 1.5px solid var(--yn-border);
-  border-radius: 8px;
+  border-radius: var(--yn-radius-md);
   background: var(--yn-surface);
   color: var(--yn-text-muted);
-  font-size: 0.75rem;
+  font-size: var(--yn-text-sm);
 
   &:hover:not(:disabled) {
     border-color: var(--yn-primary);
@@ -181,11 +181,11 @@
 // ── Back link ──
 .back-link {
   display: inline-block;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--yn-space-7);
   color: var(--yn-primary);
   text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
 
   &:hover {
     color: var(--yn-primary-hover);
@@ -199,7 +199,7 @@
   height: 1rem;
   border: 2px solid rgb(255 255 255 / 30%);
   border-top-color: var(--yn-surface);
-  border-radius: 50%;
+  border-radius: var(--yn-radius-circle);
   animation: btn-spin 0.6s linear infinite;
 }
 

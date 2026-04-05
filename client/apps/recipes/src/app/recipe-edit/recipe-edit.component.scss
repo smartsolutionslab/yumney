@@ -1,18 +1,19 @@
 @use 'banners';
+@use 'breakpoints' as bp;
 
 .recipe-edit-container {
   max-width: 860px;
   min-width: 320px;
   margin: 0 auto;
-  padding: 1.25rem 1rem;
+  padding: var(--yn-space-6) var(--yn-space-5);
 }
 
 .loading {
   padding: 4rem 0;
 }
 
-@media (min-width: 768px) {
+@include bp.respond-to('md') {
   .recipe-edit-container {
-    padding: 2rem 1.5rem;
+    padding: var(--yn-space-8) var(--yn-space-7);
   }
 }

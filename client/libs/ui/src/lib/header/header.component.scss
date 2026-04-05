@@ -1,9 +1,9 @@
 header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: var(--yn-z-header);
   background-color: var(--yn-surface);
-  box-shadow: 0 1px 4px rgb(0 0 0 / 10%);
+  box-shadow: var(--yn-shadow-sm);
 }
 
 .header-content {
@@ -12,12 +12,12 @@ header {
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.75rem 1rem;
+  padding: var(--yn-space-4) var(--yn-space-5);
 }
 
 .brand {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: var(--yn-text-2xl);
+  font-weight: var(--yn-font-bold);
   color: var(--yn-link);
   text-decoration: none;
 }
@@ -25,13 +25,13 @@ header {
 nav {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--yn-space-5);
 }
 
 .user-menu {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--yn-space-3);
 }
 
 .user-avatar {
@@ -40,18 +40,18 @@ nav {
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border-radius: 50%;
+  border-radius: var(--yn-radius-circle);
   background-color: var(--yn-link);
-  color: #fff;
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1;
+  color: var(--yn-text-inverse);
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-semibold);
+  line-height: var(--yn-leading-none);
   user-select: none;
 }
 
 .user-name {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
   color: var(--yn-text);
   max-width: 120px;
   overflow: hidden;
@@ -60,11 +60,11 @@ nav {
 }
 
 .logout-button {
-  padding: 0.375rem 0.75rem;
+  padding: var(--yn-space-2) var(--yn-space-4);
   border: 1px solid var(--yn-border);
-  border-radius: 4px;
+  border-radius: var(--yn-radius-sm);
   background: none;
-  font-size: 0.875rem;
+  font-size: var(--yn-text-base);
   color: var(--yn-text-muted);
   cursor: pointer;
 
@@ -75,12 +75,12 @@ nav {
 }
 
 .lang-toggle {
-  padding: 0.25rem 0.5rem;
+  padding: var(--yn-space-1) var(--yn-space-3);
   border: 1px solid var(--yn-border);
-  border-radius: 4px;
+  border-radius: var(--yn-radius-sm);
   background: none;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-semibold);
   color: var(--yn-text-muted);
   cursor: pointer;
   letter-spacing: 0.05em;
@@ -91,7 +91,7 @@ nav {
 }
 
 .login-link {
-  font-size: 0.875rem;
+  font-size: var(--yn-text-base);
   color: var(--yn-link);
   text-decoration: none;
 
