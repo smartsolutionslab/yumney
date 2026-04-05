@@ -14,6 +14,7 @@ import { appRoutes } from './app.routes';
 import {
   TranslocoHttpLoader,
   LanguageService,
+  ThemeService,
   UI,
   SUPPORTED_LANGUAGES,
   DEFAULT_LANGUAGE,
@@ -43,6 +44,12 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (lang: LanguageService) => () => lang.initialize(),
       deps: [LanguageService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (theme: ThemeService) => () => theme.initialize(),
+      deps: [ThemeService],
       multi: true,
     },
   ],

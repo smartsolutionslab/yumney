@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '@yumney/shared/auth';
-import { LanguageService } from '@yumney/shared/models';
+import { LanguageService, ThemeService } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-header',
@@ -14,6 +14,9 @@ import { LanguageService } from '@yumney/shared/models';
 export class HeaderComponent {
   protected authService = inject(AuthService);
   protected languageService = inject(LanguageService);
+  protected themeService = inject(ThemeService);
+
+  protected isDark = computed(() => this.themeService.theme() === 'dark');
 
   protected nextLanguageKey = computed(() => {
     const lang = this.languageService.nextLanguage;
@@ -26,5 +29,9 @@ export class HeaderComponent {
 
   onSwitchLanguage(): void {
     this.languageService.switchTo(this.languageService.nextLanguage);
+  }
+
+  onToggleTheme(): void {
+    this.themeService.toggle();
   }
 }

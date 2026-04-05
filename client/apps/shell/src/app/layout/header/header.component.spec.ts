@@ -4,7 +4,7 @@ import { signal } from '@angular/core';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { HeaderComponent } from '@yumney/ui';
 import { AuthService } from '@yumney/shared/auth';
-import { LanguageService } from '@yumney/shared/models';
+import { LanguageService, ThemeService } from '@yumney/shared/models';
 
 const en = {
   layout: {
@@ -45,6 +45,7 @@ describe('HeaderComponent', () => {
       logout: vi.fn(),
     };
     languageServiceMock = { activeLang: 'en', nextLanguage: 'de', switchTo: vi.fn() };
+    const themeServiceMock = { theme: signal('light'), toggle: vi.fn(), initialize: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -61,6 +62,7 @@ describe('HeaderComponent', () => {
         provideRouter([]),
         { provide: AuthService, useValue: authServiceMock },
         { provide: LanguageService, useValue: languageServiceMock },
+        { provide: ThemeService, useValue: themeServiceMock },
       ],
     }).compileComponents();
 
