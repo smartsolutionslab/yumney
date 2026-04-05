@@ -1,25 +1,28 @@
-.error-banner {
+%banner-base {
   padding: var(--yn-space-4) var(--yn-space-5);
   margin-bottom: var(--yn-space-5);
   border-radius: var(--yn-radius-button);
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: yn-slide-in-down var(--yn-duration-normal) var(--yn-ease-spring) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.error-banner {
+  @extend %banner-base;
   border-left: 3px solid var(--yn-danger);
   background: var(--yn-danger-light);
   color: var(--yn-danger);
-  font-size: var(--yn-text-base);
-  font-weight: var(--yn-font-medium);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .success-banner {
-  padding: var(--yn-space-4) var(--yn-space-5);
-  margin-bottom: var(--yn-space-5);
-  border-radius: var(--yn-radius-button);
+  @extend %banner-base;
   border-left: 3px solid var(--yn-success);
   background: var(--yn-success-light);
   color: var(--yn-success);
-  font-size: var(--yn-text-base);
-  font-weight: var(--yn-font-medium);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }

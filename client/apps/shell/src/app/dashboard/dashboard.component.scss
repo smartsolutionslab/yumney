@@ -70,11 +70,13 @@
 .url-import {
   @extend %section-card;
   margin-bottom: var(--yn-space-4);
+  animation: yn-slide-in-up var(--yn-duration-normal) var(--yn-ease-glass) both;
 }
 
 .photo-import {
   @extend %section-card;
   margin-bottom: var(--yn-space-4);
+  animation: yn-slide-in-up var(--yn-duration-normal) var(--yn-ease-glass) 100ms both;
 
   .hint {
     margin: var(--yn-space-4) 0 0;
@@ -86,6 +88,15 @@
 .manual-create {
   @extend %section-card;
   margin-bottom: var(--yn-space-4);
+  animation: yn-slide-in-up var(--yn-duration-normal) var(--yn-ease-glass) 200ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .url-import,
+  .photo-import,
+  .manual-create {
+    animation: none;
+  }
 }
 
 .photo-import label.disabled {
