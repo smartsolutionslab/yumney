@@ -11,6 +11,7 @@ import {
   ImportRecipeResponse,
   ImportStreamEvent,
   SavedRecipeResponse,
+  DashboardApiService,
 } from '@yumney/shared/api-client';
 
 const mockRecipe: ImportRecipeResponse = {
@@ -127,6 +128,10 @@ describe('DashboardComponent', () => {
     routerMock = { navigate: vi.fn() };
     activatedRouteMock = { snapshot: { queryParams: {} } };
 
+    const dashboardApiMock = {
+      getSuggestions: vi.fn().mockReturnValue(of({ suggestions: [], quickActions: [] })),
+      getRecentActivity: vi.fn().mockReturnValue(of([])),
+    };
     await TestBed.configureTestingModule({
       imports: [
         DashboardComponent,
@@ -140,6 +145,7 @@ describe('DashboardComponent', () => {
       ],
       providers: [
         { provide: RecipeApiService, useValue: recipeApiMock },
+        { provide: DashboardApiService, useValue: dashboardApiMock },
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
@@ -985,6 +991,10 @@ describe('DashboardComponent – Share Intent', () => {
   });
 
   function createComponentWithQueryParams(queryParams: Record<string, string>) {
+    const dashboardMock = {
+      getSuggestions: vi.fn().mockReturnValue(of({ suggestions: [], quickActions: [] })),
+      getRecentActivity: vi.fn().mockReturnValue(of([])),
+    };
     TestBed.configureTestingModule({
       imports: [
         DashboardComponent,
@@ -998,6 +1008,7 @@ describe('DashboardComponent – Share Intent', () => {
       ],
       providers: [
         { provide: RecipeApiService, useValue: recipeApiMock },
+        { provide: DashboardApiService, useValue: dashboardMock },
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParams } } },
       ],

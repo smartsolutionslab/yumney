@@ -139,3 +139,136 @@
     }
   }
 }
+
+// ── Suggestions Section ──
+.suggestions-section {
+  margin-bottom: var(--yn-space-6);
+
+  h2 {
+    margin: 0 0 var(--yn-space-4);
+    font-size: var(--yn-text-xl);
+    font-weight: var(--yn-font-semibold);
+    color: var(--yn-text);
+  }
+}
+
+.suggestions-scroll {
+  display: flex;
+  gap: var(--yn-space-5);
+  overflow-x: auto;
+  padding-bottom: var(--yn-space-3);
+  scroll-snap-type: x mandatory;
+
+  > * {
+    scroll-snap-align: start;
+  }
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--yn-border);
+    border-radius: var(--yn-radius-full);
+  }
+}
+
+// ── Suggestions Skeleton ──
+.suggestions-skeleton {
+  display: flex;
+  gap: var(--yn-space-5);
+  margin-bottom: var(--yn-space-6);
+}
+
+.skeleton-card {
+  min-width: 200px;
+  height: 180px;
+  border-radius: var(--yn-radius-card);
+  background: linear-gradient(
+    90deg,
+    var(--yn-glass-bg) 25%,
+    var(--yn-glass-bg-elevated) 50%,
+    var(--yn-glass-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: yn-shimmer 1.5s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background: var(--yn-glass-bg);
+  }
+}
+
+// ── Collapsible Import Section ──
+.import-section {
+  @include glass.glass-surface(1);
+  border-radius: var(--yn-radius-card-lg);
+  margin-bottom: var(--yn-space-6);
+  overflow: hidden;
+}
+
+.import-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: var(--yn-card-padding-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--yn-text);
+
+  h2 {
+    margin: 0;
+    font-size: var(--yn-text-xl);
+    font-weight: var(--yn-font-bold);
+  }
+}
+
+.toggle-chevron {
+  font-size: var(--yn-text-sm);
+  color: var(--yn-text-muted);
+  transition: transform var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &.open {
+    transform: rotate(180deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.import-content {
+  padding: 0 var(--yn-card-padding-sm) var(--yn-card-padding-sm);
+  animation: yn-fade-in var(--yn-duration-fast) var(--yn-ease-glass) both;
+
+  .url-import,
+  .photo-import,
+  .manual-create {
+    // Reset glass surface — already inside glass parent
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--yn-background-subtle);
+    border: 1px solid var(--yn-border-light);
+    box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@include bp.respond-to('md') {
+  .import-toggle {
+    padding: var(--yn-space-7);
+  }
+
+  .import-content {
+    padding: 0 var(--yn-space-7) var(--yn-space-7);
+  }
+}

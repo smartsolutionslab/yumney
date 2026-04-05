@@ -2,90 +2,128 @@
   <h1>{{ t('dashboard.title') }}</h1>
   <p>{{ t('dashboard.welcome') }}</p>
 
-  <section class="url-import">
-    <h2>{{ t('dashboard.import.title') }}</h2>
-    <p class="subtitle">{{ t('dashboard.import.subtitle') }}</p>
+  @if (quickActions().length > 0) {
+    <yn-quick-actions [actions]="quickActions()" (actionClicked)="onQuickAction($event)" />
+  }
 
-    <form [formGroup]="form" (ngSubmit)="onImport()">
-      @if (serverError(); as error) {
-        <div class="error-banner" role="alert">{{ t(error) }}</div>
-      }
-
-      <div class="import-row">
-        <yn-form-field
-          for="url"
-          [control]="form.controls.url"
-          [errors]="{
-            required: 'dashboard.import.errors.urlRequired',
-            maxlength: 'dashboard.import.errors.urlTooLong',
-            invalidUrl: 'dashboard.import.errors.urlInvalid',
-          }"
-        >
-          <input
-            id="url"
-            type="url"
-            formControlName="url"
-            [placeholder]="t('dashboard.import.placeholder')"
-            [attr.aria-label]="t('dashboard.import.urlLabel')"
+  @if (suggestionsLoading()) {
+    <div class="suggestions-skeleton">
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </div>
+  } @else if (suggestions()?.suggestions?.length) {
+    <section class="suggestions-section">
+      <h2>{{ t('dashboard.suggestions.title') }}</h2>
+      <div class="suggestions-scroll">
+        @for (s of suggestions()!.suggestions; track s.recipeIdentifier) {
+          <yn-suggestion-card
+            [identifier]="s.recipeIdentifier"
+            [title]="s.title"
+            [imageUrl]="s.imageUrl"
+            [prepTimeMinutes]="s.prepTimeMinutes"
+            [reason]="s.reason"
           />
-        </yn-form-field>
-
-        <yn-submit-button
-          [loading]="isLoading()"
-          [disabled]="isSaving()"
-          label="dashboard.import.submit"
-          loadingLabel="dashboard.import.submitting"
-          [showSpinner]="true"
-        />
+        }
       </div>
-    </form>
+    </section>
+  }
 
-    @if (streamingStatus()) {
-      <div class="streaming-status">
-        <span class="btn-spinner"></span>
-        <span>{{ streamingStatus() }}</span>
-      </div>
-    }
-
-    @if (streamingChunks()) {
-      <pre class="streaming-preview">{{ streamingChunks() }}</pre>
-    }
-  </section>
-
-  <section class="photo-import">
-    <h2>{{ t('dashboard.photoImport.title') }}</h2>
-    <p class="subtitle">{{ t('dashboard.photoImport.subtitle') }}</p>
-    <label class="btn-dashed" [class.disabled]="isLoading() || isSaving()">
-      <input
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        multiple
-        capture="environment"
-        [disabled]="isLoading() || isSaving()"
-        (change)="onImportFromPhotos($event)"
-        hidden
-      />
-      @if (isLoading()) {
-        <span class="btn-spinner"></span>
-        <span>{{ t('dashboard.photoImport.extracting') }}</span>
-      } @else {
-        <span>{{ t('dashboard.photoImport.submit') }}</span>
-      }
-    </label>
-    <p class="hint">{{ t('dashboard.photoImport.hint') }}</p>
-  </section>
-
-  <section class="manual-create">
-    <h2>{{ t('dashboard.create.title') }}</h2>
-    <p class="subtitle">{{ t('dashboard.create.subtitle') }}</p>
-    <button
-      type="button"
-      class="btn-dashed create-btn"
-      [disabled]="isLoading() || isSaving() || extractedRecipe()"
-      (click)="onCreateManually()"
-    >
-      {{ t('dashboard.create.submit') }}
+  <section class="import-section" [class.expanded]="importSectionExpanded()">
+    <button class="import-toggle" (click)="toggleImportSection()">
+      <h2>{{ t('dashboard.import.sectionTitle') }}</h2>
+      <span class="toggle-chevron" [class.open]="importSectionExpanded()">&#x25BC;</span>
     </button>
+
+    @if (importSectionExpanded()) {
+      <div class="import-content">
+        <section class="url-import">
+          <h3>{{ t('dashboard.import.title') }}</h3>
+          <p class="subtitle">{{ t('dashboard.import.subtitle') }}</p>
+
+          <form [formGroup]="form" (ngSubmit)="onImport()">
+            @if (serverError(); as error) {
+              <div class="error-banner" role="alert">{{ t(error) }}</div>
+            }
+
+            <div class="import-row">
+              <yn-form-field
+                for="url"
+                [control]="form.controls.url"
+                [errors]="{
+                  required: 'dashboard.import.errors.urlRequired',
+                  maxlength: 'dashboard.import.errors.urlTooLong',
+                  invalidUrl: 'dashboard.import.errors.urlInvalid',
+                }"
+              >
+                <input
+                  id="url"
+                  type="url"
+                  formControlName="url"
+                  [placeholder]="t('dashboard.import.placeholder')"
+                  [attr.aria-label]="t('dashboard.import.urlLabel')"
+                />
+              </yn-form-field>
+
+              <yn-submit-button
+                [loading]="isLoading()"
+                [disabled]="isSaving()"
+                label="dashboard.import.submit"
+                loadingLabel="dashboard.import.submitting"
+                [showSpinner]="true"
+              />
+            </div>
+          </form>
+
+          @if (streamingStatus()) {
+            <div class="streaming-status">
+              <span class="btn-spinner"></span>
+              <span>{{ streamingStatus() }}</span>
+            </div>
+          }
+
+          @if (streamingChunks()) {
+            <pre class="streaming-preview">{{ streamingChunks() }}</pre>
+          }
+        </section>
+
+        <section class="photo-import">
+          <h3>{{ t('dashboard.photoImport.title') }}</h3>
+          <p class="subtitle">{{ t('dashboard.photoImport.subtitle') }}</p>
+          <label class="btn-dashed" [class.disabled]="isLoading() || isSaving()">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              capture="environment"
+              [disabled]="isLoading() || isSaving()"
+              (change)="onImportFromPhotos($event)"
+              hidden
+            />
+            @if (isLoading()) {
+              <span class="btn-spinner"></span>
+              <span>{{ t('dashboard.photoImport.extracting') }}</span>
+            } @else {
+              <span>{{ t('dashboard.photoImport.submit') }}</span>
+            }
+          </label>
+          <p class="hint">{{ t('dashboard.photoImport.hint') }}</p>
+        </section>
+
+        <section class="manual-create">
+          <h3>{{ t('dashboard.create.title') }}</h3>
+          <p class="subtitle">{{ t('dashboard.create.subtitle') }}</p>
+          <button
+            type="button"
+            class="btn-dashed create-btn"
+            [disabled]="isLoading() || isSaving() || extractedRecipe()"
+            (click)="onCreateManually()"
+          >
+            {{ t('dashboard.create.submit') }}
+          </button>
+        </section>
+      </div>
+    }
   </section>
 
   @if (saveSuccess()) {
@@ -101,5 +139,9 @@
       (save)="onSaveRecipe($event)"
       (discard)="onDiscardRecipe()"
     />
+  }
+
+  @if (recentActivity().length > 0) {
+    <yn-recent-activity [activities]="recentActivity()" />
   }
 </div>

@@ -14,6 +14,9 @@ import {
   RecipeApiService,
   ImportRecipeResponse,
   ImportStreamEvent,
+  DashboardApiService,
+  type UserActivityItem,
+  type SuggestionsResponse,
 } from '@yumney/shared/api-client';
 import {
   urlValidator,
@@ -23,7 +26,15 @@ import {
   HttpErrorMap,
   ROUTES,
 } from '@yumney/shared/models';
-import { RecipePreviewComponent, FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
+import {
+  RecipePreviewComponent,
+  FormFieldComponent,
+  SubmitButtonComponent,
+  QuickActionsComponent,
+  type QuickAction,
+  SuggestionCardComponent,
+  RecentActivityComponent,
+} from '@yumney/ui';
 
 @Component({
   selector: 'yn-dashboard',
@@ -33,6 +44,9 @@ import { RecipePreviewComponent, FormFieldComponent, SubmitButtonComponent } fro
     RecipePreviewComponent,
     FormFieldComponent,
     SubmitButtonComponent,
+    QuickActionsComponent,
+    SuggestionCardComponent,
+    RecentActivityComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -55,6 +69,7 @@ export class DashboardComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private recipeApi = inject(RecipeApiService);
+  private dashboardApi = inject(DashboardApiService);
   private destroyRef = inject(DestroyRef);
   private importState = createAsyncState(this.destroyRef);
   private saveState = createAsyncState(this.destroyRef);
@@ -68,6 +83,13 @@ export class DashboardComponent implements OnInit {
   isManualEntry = signal(false);
   streamingStatus = signal<string | null>(null);
   streamingChunks = signal('');
+  importSectionExpanded = signal(false);
+
+  // Smart dashboard state
+  quickActions = signal<QuickAction[]>([]);
+  suggestions = signal<SuggestionsResponse | null>(null);
+  recentActivity = signal<UserActivityItem[]>([]);
+  suggestionsLoading = signal(true);
 
   form = this.formBuilder.nonNullable.group({
     url: [
@@ -86,8 +108,50 @@ export class DashboardComponent implements OnInit {
 
     if (sharedUrl) {
       this.form.controls.url.setValue(sharedUrl);
+      this.importSectionExpanded.set(true);
       this.onImport();
     }
+
+    this.loadDashboardData();
+  }
+
+  toggleImportSection(): void {
+    this.importSectionExpanded.update((v) => !v);
+  }
+
+  onQuickAction(actionKey: string): void {
+    if (actionKey === 'cook_now') {
+      this.router.navigate([ROUTES.recipes.list]);
+    } else {
+      this.importSectionExpanded.set(true);
+    }
+  }
+
+  private loadDashboardData(): void {
+    this.dashboardApi
+      .getSuggestions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((response) => {
+        this.suggestions.set(response);
+        this.quickActions.set(this.mapQuickActions(response.quickActions));
+        this.suggestionsLoading.set(false);
+
+        if (response.quickActions.length === 0 && response.suggestions.length === 0) {
+          this.importSectionExpanded.set(true);
+        }
+      });
+
+    this.dashboardApi
+      .getRecentActivity(5)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((activity) => this.recentActivity.set(activity));
+  }
+
+  private mapQuickActions(keys: string[]): QuickAction[] {
+    return keys.map((key) => ({
+      key,
+      labelKey: 'dashboard.quickActions.' + key,
+    }));
   }
 
   onImport(): void {
