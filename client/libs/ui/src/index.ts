@@ -19,4 +19,5 @@ export {
   staggerFadeIn,
   prefersReducedMotion,
   safeAnimate,
+  observeReveal,
 } from './lib/animation/gsap-utils';

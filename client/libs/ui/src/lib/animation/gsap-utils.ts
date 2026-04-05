@@ -98,3 +98,40 @@ export function safeAnimate(animationFn: () => gsap.core.Tween): gsap.core.Tween
   if (prefersReducedMotion()) return null;
   return animationFn();
 }
+
+/**
+ * Scroll-triggered reveal — fades in elements as they enter the viewport.
+ * Uses Intersection Observer (no GSAP ScrollTrigger plugin needed).
+ */
+export function observeReveal(
+  container: Element,
+  selector: string,
+  options: { threshold?: number; y?: number; duration?: number } = {},
+): IntersectionObserver | null {
+  if (prefersReducedMotion() || typeof IntersectionObserver === 'undefined') return null;
+
+  const { threshold = 0.1, y = 24, duration = 0.5 } = options;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          gsap.fromTo(
+            entry.target,
+            { opacity: 0, y },
+            { opacity: 1, y: 0, duration, ease: 'power3.out' },
+          );
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold },
+  );
+
+  container.querySelectorAll(selector).forEach((el) => {
+    (el as HTMLElement).style.opacity = '0';
+    observer.observe(el);
+  });
+
+  return observer;
+}

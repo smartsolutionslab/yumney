@@ -8,4 +8,9 @@
 
 main {
   flex: 1;
+  animation: yn-fade-in var(--yn-duration-normal) var(--yn-ease-glass) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
