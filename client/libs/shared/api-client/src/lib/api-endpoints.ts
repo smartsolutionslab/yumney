@@ -20,4 +20,8 @@ export const API_ENDPOINTS = {
     register: `${API_BASE}/auth/register`,
     resendVerificationEmail: `${API_BASE}/auth/resend-verification-email`,
   },
+  users: {
+    activity: `${API_BASE}/users/me/activity`,
+    suggestions: `${API_BASE}/users/me/suggestions`,
+  },
 } as const;

@@ -7,6 +7,7 @@ public static class UsersEndpoints
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapAuthEndpoints();
+        app.MapUserActivityEndpoints();
 
         return app;
     }

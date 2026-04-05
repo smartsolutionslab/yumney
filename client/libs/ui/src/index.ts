@@ -21,3 +21,14 @@ export {
   safeAnimate,
   observeReveal,
 } from './lib/animation/gsap-utils';
+
+// Dashboard components
+export {
+  QuickActionsComponent,
+  type QuickAction,
+} from './lib/quick-actions/quick-actions.component';
+export { SuggestionCardComponent } from './lib/suggestion-card/suggestion-card.component';
+export {
+  RecentActivityComponent,
+  type ActivityItem,
+} from './lib/recent-activity/recent-activity.component';

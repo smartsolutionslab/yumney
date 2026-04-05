@@ -24,3 +24,6 @@ export type { CreateShoppingListRequest } from './lib/create-shopping-list-reque
 export type { ShoppingListItemResponse } from './lib/shopping-list-item-response';
 export type { ShoppingListDetail } from './lib/shopping-list-detail';
 export type { ShoppingListSummary } from './lib/shopping-list-summary';
+export { DashboardApiService } from './lib/dashboard-api.service';
+export type { UserActivityItem } from './lib/user-activity';
+export type { SuggestionItem, SuggestionsResponse } from './lib/suggestion';
