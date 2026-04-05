@@ -92,3 +92,14 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+// Responsive heading — scales down on mobile
+@mixin text-heading-responsive {
+  font-size: var(--yn-text-4xl);
+  font-weight: var(--yn-font-bold);
+  line-height: var(--yn-leading-tight);
+
+  @media (max-width: 479px) {
+    font-size: var(--yn-text-2xl);
+  }
+}

@@ -10,9 +10,11 @@
   --yn-shadow-lg: 0 4px 16px rgb(0 0 0 / 12%);
   --yn-shadow-xl: 0 4px 24px rgb(0 0 0 / 20%);
 
-  // Layered Shadows (for cards with subtle depth)
+  // Semantic Shadows
   --yn-shadow-card: 0 1px 3px rgb(0 0 0 / 6%), 0 4px 16px rgb(0 0 0 / 4%);
   --yn-shadow-card-hover: 0 4px 16px rgb(0 0 0 / 12%);
+  --yn-shadow-dropdown: 0 4px 16px rgb(0 0 0 / 12%);
+  --yn-shadow-dialog: 0 4px 24px rgb(0 0 0 / 20%);
 
   // Focus Rings
   --yn-ring-primary: 0 0 0 3px rgb(249 115 22 / 12%);

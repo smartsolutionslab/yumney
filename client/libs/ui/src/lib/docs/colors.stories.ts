@@ -23,6 +23,20 @@ import { Component } from '@angular/core';
         </section>
       }
     </div>
+
+    <section>
+      <h2>Contrast Guide</h2>
+      <p class="contrast-note">Text colors safe on each surface (WCAG AA 4.5:1 minimum):</p>
+      <table class="contrast-table">
+        <tr><th>Surface</th><th>Safe text colors</th></tr>
+        <tr><td>--yn-surface (#f0f8f0)</td><td>--yn-text, --yn-text-secondary, --yn-text-muted</td></tr>
+        <tr><td>--yn-surface-elevated (#fff)</td><td>--yn-text, --yn-text-secondary, --yn-text-muted</td></tr>
+        <tr><td>--yn-background (#dcedc8)</td><td>--yn-text, --yn-text-secondary</td></tr>
+        <tr><td>--yn-primary (#f97316)</td><td>--yn-text-inverse (#fff)</td></tr>
+        <tr><td>--yn-danger (#dc2626)</td><td>--yn-text-inverse (#fff)</td></tr>
+      </table>
+    </section>
+    </div>
   `,
   styles: [
     `
@@ -66,6 +80,31 @@ import { Component } from '@angular/core';
         font-size: 0.6875rem;
         color: var(--yn-text-muted);
       }
+      .contrast-note {
+        font-size: 0.875rem;
+        color: var(--yn-text-muted);
+        margin-bottom: 0.75rem;
+      }
+      .contrast-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8125rem;
+      }
+      .contrast-table th,
+      .contrast-table td {
+        text-align: left;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid var(--yn-border-light);
+      }
+      .contrast-table th {
+        font-weight: 600;
+        color: var(--yn-text);
+      }
+      .contrast-table td {
+        color: var(--yn-text-muted);
+        font-family: var(--yn-font-mono);
+        font-size: 0.75rem;
+      }
     `,
   ],
 })
@@ -92,12 +131,21 @@ class ColorSwatchesComponent {
       ],
     },
     {
+      name: 'Accent',
+      colors: [
+        { token: '--yn-accent', value: '#059669' },
+        { token: '--yn-accent-light', value: '#ecfdf5' },
+      ],
+    },
+    {
       name: 'Surface & Background',
       colors: [
         { token: '--yn-surface', value: '#f0f8f0' },
+        { token: '--yn-surface-elevated', value: '#ffffff' },
         { token: '--yn-background', value: '#dcedc8' },
         { token: '--yn-background-subtle', value: '#e8f5e9' },
         { token: '--yn-background-hover', value: '#c8e6c9' },
+        { token: '--yn-overlay', value: 'rgb(0 0 0 / 50%)' },
       ],
     },
     {
@@ -106,6 +154,7 @@ class ColorSwatchesComponent {
         { token: '--yn-border', value: '#a5d6a7' },
         { token: '--yn-border-light', value: '#e8f5e9' },
         { token: '--yn-border-medium', value: '#c8e6c9' },
+        { token: '--yn-border-strong', value: '#81c784' },
       ],
     },
     {
@@ -116,7 +165,9 @@ class ColorSwatchesComponent {
         { token: '--yn-success', value: '#059669' },
         { token: '--yn-success-light', value: '#ecfdf5' },
         { token: '--yn-warning', value: '#d97706' },
+        { token: '--yn-warning-light', value: '#fffbeb' },
         { token: '--yn-info', value: '#0284c7' },
+        { token: '--yn-info-light', value: '#f0f9ff' },
       ],
     },
     {
