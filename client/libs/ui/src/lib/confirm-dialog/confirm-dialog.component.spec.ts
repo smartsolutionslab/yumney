@@ -111,5 +111,6 @@ describe('ConfirmDialogComponent', () => {
   imports: [ConfirmDialogComponent],
 })
 class DefaultLabelHostComponent {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   noop(): void {}
 }
