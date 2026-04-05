@@ -9,7 +9,7 @@ import { KeyValuePipe } from '@angular/common';
   templateUrl: './form-field.component.html',
   styleUrl: './form-field.component.scss',
   encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class FormFieldComponent {
   label = input('');
