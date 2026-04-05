@@ -1,0 +1,101 @@
+// ==========================================================================
+// Motion System — CSS Keyframes & Reduced Motion
+// ==========================================================================
+
+// ── Keyframes ──
+
+@keyframes yn-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes yn-scale-up {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes yn-slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes yn-slide-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes yn-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// ── Animation Mixins ──
+
+@mixin animate-fade-in($duration: var(--yn-duration-normal)) {
+  animation: yn-fade-in $duration var(--yn-ease-glass) both;
+}
+
+@mixin animate-scale-up($duration: var(--yn-duration-normal)) {
+  animation: yn-scale-up $duration var(--yn-ease-spring) both;
+}
+
+@mixin animate-slide-in-up($duration: var(--yn-duration-normal)) {
+  animation: yn-slide-in-up $duration var(--yn-ease-glass) both;
+}
+
+@mixin animate-slide-in-down($duration: var(--yn-duration-normal)) {
+  animation: yn-slide-in-down $duration var(--yn-ease-glass) both;
+}
+
+// ── Reduced Motion Guard ──
+// Wrap animated elements with this to respect user preferences.
+
+@mixin respect-motion {
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/// Apply to :root or body to globally disable motion
+@mixin reduced-motion-global {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
