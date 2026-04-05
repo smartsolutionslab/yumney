@@ -37,19 +37,58 @@ import { Component } from '@angular/core';
       </section>
     </div>
   `,
-  styles: [`
-    .spacing-docs { max-width: 700px; }
-    section { margin-bottom: 2.5rem; }
-    h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--yn-text); }
-    .spacing-samples { display: flex; flex-direction: column; gap: 0.5rem; }
-    .spacing-row { display: flex; align-items: center; gap: 1rem; }
-    code { font-size: 0.75rem; font-family: var(--yn-font-mono); color: var(--yn-text-muted); min-width: 140px; }
-    .spacing-bar-container { flex: 1; }
-    .spacing-bar { height: 24px; background: var(--yn-primary-light); border: 1px solid var(--yn-primary);
-      border-radius: 4px; min-width: 2px; }
-    .spacing-bar.semantic { background: #e0f2fe; border-color: #0284c7; }
-    .spacing-value { font-size: 0.75rem; color: var(--yn-text-light); min-width: 80px; text-align: right; }
-  `],
+  styles: [
+    `
+      .spacing-docs {
+        max-width: 700px;
+      }
+      section {
+        margin-bottom: 2.5rem;
+      }
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--yn-text);
+      }
+      .spacing-samples {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .spacing-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      code {
+        font-size: 0.75rem;
+        font-family: var(--yn-font-mono);
+        color: var(--yn-text-muted);
+        min-width: 140px;
+      }
+      .spacing-bar-container {
+        flex: 1;
+      }
+      .spacing-bar {
+        height: 24px;
+        background: var(--yn-primary-light);
+        border: 1px solid var(--yn-primary);
+        border-radius: 4px;
+        min-width: 2px;
+      }
+      .spacing-bar.semantic {
+        background: #e0f2fe;
+        border-color: #0284c7;
+      }
+      .spacing-value {
+        font-size: 0.75rem;
+        color: var(--yn-text-light);
+        min-width: 80px;
+        text-align: right;
+      }
+    `,
+  ],
 })
 class SpacingDocsComponent {
   spacingScale = [

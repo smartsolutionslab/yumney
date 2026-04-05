@@ -10,9 +10,16 @@ import { Component } from '@angular/core';
       <div class="success-banner">Recipe saved successfully!</div>
     </div>
   `,
-  styles: [`
-    .banner-docs { max-width: 600px; display: flex; flex-direction: column; gap: 1rem; }
-  `],
+  styles: [
+    `
+      .banner-docs {
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+    `,
+  ],
 })
 class BannerDocsComponent {}
 

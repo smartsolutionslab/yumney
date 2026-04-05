@@ -33,9 +33,13 @@ import { Component } from '@angular/core';
       </div>
     </div>
   `,
-  styles: [`
-    .form-docs { max-width: 400px; }
-  `],
+  styles: [
+    `
+      .form-docs {
+        max-width: 400px;
+      }
+    `,
+  ],
 })
 class FormDocsComponent {}
 

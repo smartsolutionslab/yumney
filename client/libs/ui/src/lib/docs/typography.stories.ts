@@ -43,8 +43,8 @@ import { Component } from '@angular/core';
           @for (lh of lineHeights; track lh.token) {
             <div class="type-row">
               <span class="lh-sample" [style.line-height]="'var(' + lh.token + ')'">
-                {{ lh.label }}: Multi-line text sample that wraps to demonstrate line height
-                spacing between lines of text in a paragraph.
+                {{ lh.label }}: Multi-line text sample that wraps to demonstrate line height spacing
+                between lines of text in a paragraph.
               </span>
               <code>{{ lh.token }}: {{ lh.value }}</code>
             </div>
@@ -53,20 +53,63 @@ import { Component } from '@angular/core';
       </section>
     </div>
   `,
-  styles: [`
-    .type-docs { max-width: 800px; }
-    section { margin-bottom: 2.5rem; }
-    h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--yn-text); }
-    .type-samples { display: flex; flex-direction: column; gap: 1rem; }
-    .type-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
-      padding: 0.75rem 0; border-bottom: 1px solid var(--yn-border-light); }
-    .type-sample { color: var(--yn-text); flex: 1; }
-    .type-meta { text-align: right; flex-shrink: 0; }
-    code { font-size: 0.75rem; color: var(--yn-text-muted); font-family: var(--yn-font-mono); display: block; }
-    .type-meta span { font-size: 0.6875rem; color: var(--yn-text-light); }
-    .weight-sample { font-size: 1.125rem; color: var(--yn-text); flex: 1; }
-    .lh-sample { font-size: 0.875rem; color: var(--yn-text); max-width: 400px; }
-  `],
+  styles: [
+    `
+      .type-docs {
+        max-width: 800px;
+      }
+      section {
+        margin-bottom: 2.5rem;
+      }
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--yn-text);
+      }
+      .type-samples {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .type-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--yn-border-light);
+      }
+      .type-sample {
+        color: var(--yn-text);
+        flex: 1;
+      }
+      .type-meta {
+        text-align: right;
+        flex-shrink: 0;
+      }
+      code {
+        font-size: 0.75rem;
+        color: var(--yn-text-muted);
+        font-family: var(--yn-font-mono);
+        display: block;
+      }
+      .type-meta span {
+        font-size: 0.6875rem;
+        color: var(--yn-text-light);
+      }
+      .weight-sample {
+        font-size: 1.125rem;
+        color: var(--yn-text);
+        flex: 1;
+      }
+      .lh-sample {
+        font-size: 0.875rem;
+        color: var(--yn-text);
+        max-width: 400px;
+      }
+    `,
+  ],
 })
 class TypographyDocsComponent {
   typeScale = [

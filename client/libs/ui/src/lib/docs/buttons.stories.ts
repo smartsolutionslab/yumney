@@ -49,12 +49,28 @@ import { Component } from '@angular/core';
       </section>
     </div>
   `,
-  styles: [`
-    .button-docs { max-width: 800px; }
-    section { margin-bottom: 2rem; }
-    h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--yn-text); }
-    .button-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
-  `],
+  styles: [
+    `
+      .button-docs {
+        max-width: 800px;
+      }
+      section {
+        margin-bottom: 2rem;
+      }
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--yn-text);
+      }
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+      }
+    `,
+  ],
 })
 class ButtonDocsComponent {}
 
