@@ -35,7 +35,9 @@ export class UnitSelectComponent implements ControlValueAccessor {
   isDisabled = signal(false);
 
   private elementRef = inject(ElementRef);
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private onChange: (value: string | null) => void = () => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private onTouched: () => void = () => {};
 
   get selectedLabel(): string | null {
