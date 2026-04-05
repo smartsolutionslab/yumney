@@ -44,30 +44,89 @@ import { Component } from '@angular/core';
       </section>
     </div>
   `,
-  styles: [`
-    .docs { max-width: 800px; }
-    section { margin-bottom: 2.5rem; }
-    h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--yn-text); }
+  styles: [
+    `
+      .docs {
+        max-width: 800px;
+      }
+      section {
+        margin-bottom: 2.5rem;
+      }
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--yn-text);
+      }
 
-    .radius-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; }
-    .radius-card { text-align: center; }
-    .radius-box { width: 80px; height: 80px; background: var(--yn-primary-light); border: 2px solid var(--yn-primary);
-      margin: 0 auto 0.5rem; }
-    .radius-card code { display: block; font-size: 0.6875rem; font-family: var(--yn-font-mono); color: var(--yn-text-muted); }
-    .radius-card span { font-size: 0.6875rem; color: var(--yn-text-light); }
+      .radius-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+      }
+      .radius-card {
+        text-align: center;
+      }
+      .radius-box {
+        width: 80px;
+        height: 80px;
+        background: var(--yn-primary-light);
+        border: 2px solid var(--yn-primary);
+        margin: 0 auto 0.5rem;
+      }
+      .radius-card code {
+        display: block;
+        font-size: 0.6875rem;
+        font-family: var(--yn-font-mono);
+        color: var(--yn-text-muted);
+      }
+      .radius-card span {
+        font-size: 0.6875rem;
+        color: var(--yn-text-light);
+      }
 
-    .shadow-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; }
-    .shadow-card { padding: 1.5rem; border-radius: 12px; background: var(--yn-surface); }
-    .shadow-card code { display: block; font-size: 0.75rem; font-family: var(--yn-font-mono);
-      color: var(--yn-text-muted); margin-bottom: 0.25rem; }
-    .shadow-card span { font-size: 0.75rem; color: var(--yn-text-light); }
+      .shadow-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+      }
+      .shadow-card {
+        padding: 1.5rem;
+        border-radius: 12px;
+        background: var(--yn-surface);
+      }
+      .shadow-card code {
+        display: block;
+        font-size: 0.75rem;
+        font-family: var(--yn-font-mono);
+        color: var(--yn-text-muted);
+        margin-bottom: 0.25rem;
+      }
+      .shadow-card span {
+        font-size: 0.75rem;
+        color: var(--yn-text-light);
+      }
 
-    .ring-grid { display: flex; gap: 2rem; }
-    .ring-sample { padding: 1rem 1.5rem; border-radius: 10px; background: var(--yn-surface);
-      border: 1.5px solid var(--yn-primary); }
-    .ring-sample.danger { border-color: var(--yn-danger); }
-    .ring-sample code { font-size: 0.75rem; font-family: var(--yn-font-mono); color: var(--yn-text-muted); }
-  `],
+      .ring-grid {
+        display: flex;
+        gap: 2rem;
+      }
+      .ring-sample {
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        background: var(--yn-surface);
+        border: 1.5px solid var(--yn-primary);
+      }
+      .ring-sample.danger {
+        border-color: var(--yn-danger);
+      }
+      .ring-sample code {
+        font-size: 0.75rem;
+        font-family: var(--yn-font-mono);
+        color: var(--yn-text-muted);
+      }
+    `,
+  ],
 })
 class RadiiShadowsDocsComponent {
   radii = [

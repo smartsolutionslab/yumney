@@ -4,7 +4,13 @@
     "outDir": "../../dist/out-tsc",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "..\\..\\libs\\shared\\models\\src\\index.ts",
+    "..\\..\\libs\\shared\\api-client\\src\\index.ts",
+    "..\\..\\libs\\ui\\src\\index.ts",
+    "..\\..\\libs\\shared\\auth\\src\\index.ts"
+  ],
   "exclude": [
     "jest.config.ts",
     "src/test-setup.ts",

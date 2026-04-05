@@ -24,17 +24,50 @@ import { Component } from '@angular/core';
       }
     </div>
   `,
-  styles: [`
-    .color-docs { max-width: 960px; }
-    section { margin-bottom: 2rem; }
-    h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--yn-text); }
-    .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-    .swatch-card { border-radius: 8px; overflow: hidden; border: 1px solid var(--yn-border-light); background: #fff; }
-    .swatch { height: 64px; }
-    .swatch-info { padding: 0.5rem 0.75rem; }
-    code { display: block; font-size: 0.75rem; color: var(--yn-text); font-family: var(--yn-font-mono); margin-bottom: 0.25rem; }
-    .swatch-value { font-size: 0.6875rem; color: var(--yn-text-muted); }
-  `],
+  styles: [
+    `
+      .color-docs {
+        max-width: 960px;
+      }
+      section {
+        margin-bottom: 2rem;
+      }
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--yn-text);
+      }
+      .swatch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .swatch-card {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--yn-border-light);
+        background: #fff;
+      }
+      .swatch {
+        height: 64px;
+      }
+      .swatch-info {
+        padding: 0.5rem 0.75rem;
+      }
+      code {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--yn-text);
+        font-family: var(--yn-font-mono);
+        margin-bottom: 0.25rem;
+      }
+      .swatch-value {
+        font-size: 0.6875rem;
+        color: var(--yn-text-muted);
+      }
+    `,
+  ],
 })
 class ColorSwatchesComponent {
   colorGroups = [
