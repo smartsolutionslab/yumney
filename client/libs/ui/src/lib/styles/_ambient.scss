@@ -1,0 +1,39 @@
+// ==========================================================================
+// Ambient Background — Gradient Orbs
+// ==========================================================================
+// Soft, blurred gradient orbs positioned behind content to create
+// depth and vibrancy for glass surfaces. Applied to page-level containers.
+
+/// Full ambient background with 3 gradient orbs
+/// Apply to a page-level wrapper (e.g. app-layout, dashboard)
+@mixin ambient-background {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 600px 600px at 15% 20%, var(--yn-ambient-orb-1), transparent),
+      radial-gradient(ellipse 500px 500px at 80% 60%, var(--yn-ambient-orb-2), transparent),
+      radial-gradient(ellipse 400px 400px at 50% 90%, var(--yn-ambient-orb-3), transparent);
+  }
+}
+
+/// Simplified ambient with 2 orbs (for smaller sections)
+@mixin ambient-background-subtle {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 400px 400px at 20% 30%, var(--yn-ambient-orb-1), transparent),
+      radial-gradient(ellipse 350px 350px at 75% 70%, var(--yn-ambient-orb-2), transparent);
+  }
+}

@@ -1,0 +1,25 @@
+// ==========================================================================
+// Elevation System — Semantic Z-levels
+// ==========================================================================
+// Maps semantic names to elevation tokens defined in _variables.scss.
+// Use these mixins to apply consistent depth across components.
+
+/// Base level — flat, no shadow (backgrounds, containers)
+@mixin elevation-base {
+  box-shadow: var(--yn-elevation-0);
+}
+
+/// Level 1 — subtle lift (cards, sections)
+@mixin elevation-1 {
+  box-shadow: var(--yn-elevation-1);
+}
+
+/// Level 2 — raised (dropdowns, popovers, chat panels)
+@mixin elevation-2 {
+  box-shadow: var(--yn-elevation-2);
+}
+
+/// Level 3 — floating (modals, dialogs, overlays)
+@mixin elevation-3 {
+  box-shadow: var(--yn-elevation-3);
+}
