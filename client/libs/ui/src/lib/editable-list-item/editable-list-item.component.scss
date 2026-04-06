@@ -6,10 +6,26 @@
   align-items: flex-start;
   gap: var(--yn-space-3);
   padding: var(--yn-space-4);
-  border-radius: var(--yn-radius-button);
-  background: var(--yn-background-subtle);
+  border-radius: var(--yn-radius-card);
+  background: var(--yn-glass-bg);
+  border: 1px solid var(--yn-glass-border-subtle);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   margin-bottom: var(--yn-space-3);
-  transition: background 0.15s;
+  transition:
+    background var(--yn-duration-fast) var(--yn-ease-glass),
+    border-color var(--yn-duration-fast) var(--yn-ease-glass);
+  animation: yn-slide-in-up var(--yn-duration-fast) var(--yn-ease-glass) both;
+
+  &:hover {
+    background: var(--yn-glass-bg-elevated);
+    border-color: var(--yn-glass-border);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    animation: none;
+  }
 }
 
 .item-content {
