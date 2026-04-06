@@ -224,9 +224,8 @@ describe('RecipeListComponent', () => {
     setupTestBed(vi.fn().mockReturnValue(subject));
     fixture.detectChanges();
 
-    const loading = fixture.nativeElement.querySelector('.loading');
-    expect(loading).toBeTruthy();
-    expect(loading.textContent).toContain('Loading recipes...');
+    const skeleton = fixture.nativeElement.querySelector('.skeleton-grid');
+    expect(skeleton).toBeTruthy();
 
     subject.next(emptyResponse);
     subject.complete();

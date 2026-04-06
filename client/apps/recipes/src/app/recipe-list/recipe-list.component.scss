@@ -1,4 +1,5 @@
 @use 'banners';
+@use 'glass';
 
 .recipe-list-container {
   max-width: 1200px;
@@ -28,16 +29,22 @@
   align-items: center;
   gap: var(--yn-space-3);
   padding: var(--yn-space-3) var(--yn-space-4);
-  border: 1px solid var(--yn-border);
-  border-radius: var(--yn-radius-md);
-  background: var(--yn-surface);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   font-size: var(--yn-text-base);
   cursor: pointer;
   white-space: nowrap;
   outline: none;
+  transition:
+    border-color var(--yn-duration-fast) var(--yn-ease-glass),
+    background var(--yn-duration-fast) var(--yn-ease-glass);
 
   &:hover {
     border-color: var(--yn-primary);
+    background: var(--yn-glass-bg-elevated);
   }
 
   &:focus-visible {
@@ -48,26 +55,33 @@
 
 .sort-chevron {
   font-size: 0.625rem;
-  transition: transform 0.2s ease;
+  transition: transform var(--yn-duration-fast) var(--yn-ease-glass);
 
   &.open {
     transform: rotate(180deg);
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 }
 
 .sort-menu {
+  @include glass.glass-surface(2);
   position: absolute;
   right: 0;
   top: calc(100% + 4px);
   margin: 0;
   padding: var(--yn-space-1) 0;
   list-style: none;
-  background: var(--yn-surface);
-  border: 1px solid var(--yn-border);
   border-radius: var(--yn-radius-md);
-  box-shadow: var(--yn-shadow-lg);
   min-width: 100%;
   z-index: var(--yn-z-dropdown);
+  animation: yn-scale-up var(--yn-duration-fast) var(--yn-ease-spring) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .sort-menu-item {
@@ -77,7 +91,7 @@
   white-space: nowrap;
 
   &:hover {
-    background: var(--yn-background-subtle);
+    background: var(--yn-glass-bg-elevated);
   }
 
   &.active {
@@ -86,6 +100,7 @@
   }
 }
 
+// ── Search bar with glass ──
 .search-bar {
   position: relative;
   margin-bottom: var(--yn-space-7);
@@ -111,12 +126,19 @@
 
 .search-input {
   width: 100%;
-  padding: var(--yn-space-2) var(--yn-space-4);
-  border: 1px solid var(--yn-border);
-  border-radius: var(--yn-radius-md);
-  font-size: var(--yn-text-base);
+  padding: var(--yn-space-4) var(--yn-space-5);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-card);
+  background: var(--yn-glass-bg);
+  backdrop-filter: blur(var(--yn-glass-blur));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur));
+  font-size: var(--yn-text-md);
+  color: var(--yn-text);
   outline: none;
   box-sizing: border-box;
+  transition:
+    border-color var(--yn-duration-fast) var(--yn-ease-glass),
+    box-shadow var(--yn-duration-fast) var(--yn-ease-glass);
 
   &:focus {
     border-color: var(--yn-primary);
@@ -128,12 +150,12 @@
   }
 }
 
+// ── Empty state ──
 .empty-state {
+  @include glass.glass-card;
   text-align: center;
   padding: 4rem var(--yn-space-8);
-  background: var(--yn-surface);
-  border-radius: var(--yn-radius-card);
-  box-shadow: var(--yn-shadow-md);
+  animation: yn-fade-in var(--yn-duration-normal) var(--yn-ease-glass) both;
 
   h2 {
     margin: 0 0 var(--yn-space-3);
@@ -146,14 +168,18 @@
     color: var(--yn-text-muted);
     font-size: var(--yn-text-base);
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .cta-button {
   display: inline-block;
   padding: var(--yn-button-padding-y) var(--yn-button-padding-x);
-  border-radius: var(--yn-radius-md);
+  border-radius: var(--yn-radius-button);
   background: var(--yn-primary);
-  color: var(--yn-surface);
+  color: var(--yn-text-inverse);
   font-size: var(--yn-text-lg);
   font-weight: var(--yn-font-medium);
   text-decoration: none;
@@ -161,9 +187,11 @@
 
   &:hover {
     background: var(--yn-primary-hover);
+    box-shadow: var(--yn-shadow-primary-glow);
   }
 }
 
+// ── Recipe grid ──
 .recipe-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -171,10 +199,8 @@
 }
 
 .recipe-card {
+  @include glass.glass-card;
   display: block;
-  background: var(--yn-surface);
-  border-radius: var(--yn-radius-card);
-  box-shadow: var(--yn-shadow-md);
   overflow: hidden;
   transition:
     box-shadow var(--yn-duration-normal) var(--yn-ease-glass),
@@ -184,8 +210,8 @@
   cursor: pointer;
 
   &:hover {
-    box-shadow: var(--yn-shadow-card-hover);
-    transform: translateY(-2px);
+    box-shadow: var(--yn-elevation-2);
+    transform: translateY(-4px);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -201,6 +227,7 @@
   width: 100%;
   height: 180px;
   object-fit: cover;
+  border-radius: var(--yn-radius-card) var(--yn-radius-card) 0 0;
 }
 
 .recipe-image-placeholder {
@@ -240,9 +267,37 @@
 .meta-item {
   font-size: var(--yn-text-sm);
   color: var(--yn-text-light);
-  background: var(--yn-background-subtle);
+  background: var(--yn-glass-bg);
+  border: 1px solid var(--yn-glass-border-subtle);
   padding: var(--yn-space-1) var(--yn-space-3);
-  border-radius: var(--yn-radius-sm);
+  border-radius: var(--yn-radius-badge);
+}
+
+// ── Skeleton shimmer for infinite scroll loading ──
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--yn-space-7);
+  margin-top: var(--yn-space-7);
+}
+
+.skeleton-card {
+  height: 280px;
+  border-radius: var(--yn-radius-card);
+  background: linear-gradient(
+    90deg,
+    var(--yn-glass-bg) 25%,
+    var(--yn-glass-bg-elevated) 50%,
+    var(--yn-glass-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: yn-shimmer 1.5s ease-in-out infinite;
+  border: 1px solid var(--yn-glass-border-subtle);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background: var(--yn-glass-bg);
+  }
 }
 
 .scroll-sentinel {

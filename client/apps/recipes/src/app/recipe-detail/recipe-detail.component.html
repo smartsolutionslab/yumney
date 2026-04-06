@@ -19,12 +19,17 @@
           loading="eager"
           fetchpriority="high"
         />
+        <div class="hero-overlay">
+          <h1 class="hero-title">{{ recipe.title }}</h1>
+        </div>
       } @else {
         <div class="hero-placeholder"></div>
       }
     </div>
 
-    <h1 class="recipe-title">{{ recipe.title }}</h1>
+    @if (!recipe.imageUrl) {
+      <h1 class="recipe-title">{{ recipe.title }}</h1>
+    }
 
     @if (recipe.description) {
       <p class="recipe-description">{{ recipe.description }}</p>
@@ -151,6 +156,15 @@
         </a>
       </div>
     }
+
+    <div class="floating-actions">
+      <a class="btn-primary" [routerLink]="['/recipes', recipe.identifier, 'edit']">
+        {{ t('recipes.detail.actions.edit') }}
+      </a>
+      <a class="btn-secondary" [routerLink]="['/shopping', 'create', recipe.identifier]">
+        {{ t('recipes.detail.actions.shoppingList') }}
+      </a>
+    </div>
 
     @if (showDeleteConfirm()) {
       <yn-confirm-dialog
