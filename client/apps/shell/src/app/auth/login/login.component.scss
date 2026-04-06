@@ -21,6 +21,7 @@
     width: 1rem;
     height: 1rem;
     cursor: pointer;
+    accent-color: var(--yn-primary);
   }
 }
 
@@ -36,12 +37,15 @@ button {
   font-size: var(--yn-text-base);
 
   a {
-    color: var(--yn-link);
+    color: var(--yn-text-muted);
     text-decoration: none;
     cursor: pointer;
+    padding: var(--yn-space-1) var(--yn-space-3);
+    border-radius: var(--yn-radius-badge);
+    transition: color var(--yn-duration-fast) var(--yn-ease-glass);
 
     &:hover {
-      text-decoration: underline;
+      color: var(--yn-primary);
     }
   }
 }
