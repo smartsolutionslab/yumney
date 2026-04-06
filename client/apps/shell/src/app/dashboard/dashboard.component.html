@@ -76,14 +76,17 @@
           </form>
 
           @if (streamingStatus()) {
-            <div class="streaming-status">
-              <span class="btn-spinner"></span>
-              <span>{{ streamingStatus() }}</span>
+            <div class="extraction-progress" role="status" aria-live="polite">
+              <div class="progress-indicator">
+                <span class="btn-spinner"></span>
+                <span class="progress-text">{{ streamingStatus() }}</span>
+              </div>
+              @if (streamingChunks()) {
+                <div class="extraction-card">
+                  <div class="extraction-content">{{ streamingChunks() }}</div>
+                </div>
+              }
             </div>
-          }
-
-          @if (streamingChunks()) {
-            <pre class="streaming-preview">{{ streamingChunks() }}</pre>
           }
         </section>
 
@@ -127,8 +130,16 @@
   </section>
 
   @if (saveSuccess()) {
-    <div class="success-banner" role="status">
-      {{ t('dashboard.save.success', { title: saveSuccess() }) }}
+    <div class="save-success" role="status">
+      <div class="success-banner">
+        {{ t('dashboard.save.success', { title: saveSuccess() }) }}
+      </div>
+      <button
+        class="btn-ghost import-another"
+        (click)="onDiscardRecipe(); importSectionExpanded.set(true)"
+      >
+        {{ t('dashboard.save.importAnother') }}
+      </button>
     </div>
   }
   @if (extractedRecipe()) {
