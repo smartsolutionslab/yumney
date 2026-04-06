@@ -272,3 +272,89 @@
     padding: 0 var(--yn-space-7) var(--yn-space-7);
   }
 }
+
+// ── Extraction Progress (US-261) ──
+.extraction-progress {
+  margin-top: var(--yn-space-5);
+  animation: yn-fade-in var(--yn-duration-normal) var(--yn-ease-glass) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.progress-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-3);
+  margin-bottom: var(--yn-space-4);
+}
+
+.progress-text {
+  font-size: var(--yn-text-base);
+  color: var(--yn-primary);
+  font-weight: var(--yn-font-medium);
+}
+
+.extraction-card {
+  @include glass.glass-surface(1);
+  padding: var(--yn-space-5);
+  border-radius: var(--yn-radius-card);
+  max-height: 240px;
+  overflow-y: auto;
+  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.extraction-content {
+  font-size: var(--yn-text-sm);
+  color: var(--yn-text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: var(--yn-leading-relaxed);
+  font-family: var(--yn-font-mono);
+}
+
+// ── Save Success (US-261) ──
+.save-success {
+  text-align: center;
+  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
+
+  .success-banner {
+    margin-bottom: var(--yn-space-4);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.import-another {
+  margin: 0 auto;
+}
+
+// ── Enhanced URL input (US-261) ──
+.import-content .url-import {
+  .form-field input {
+    padding: var(--yn-space-4) var(--yn-space-5);
+    font-size: var(--yn-text-md);
+    border-radius: var(--yn-radius-card);
+    background: var(--yn-glass-bg);
+    backdrop-filter: blur(var(--yn-glass-blur));
+    -webkit-backdrop-filter: blur(var(--yn-glass-blur));
+    border: 1px solid var(--yn-glass-border);
+    transition:
+      border-color var(--yn-duration-fast) var(--yn-ease-glass),
+      box-shadow var(--yn-duration-fast) var(--yn-ease-glass);
+
+    &:focus {
+      border-color: var(--yn-primary);
+      box-shadow:
+        var(--yn-ring-primary),
+        0 0 20px var(--yn-ambient-orb-1);
+    }
+  }
+}

@@ -238,7 +238,8 @@
       "errors": {
         "duplicate": "This recipe has already been imported.",
         "generic": "Failed to save recipe. Please try again."
-      }
+      },
+      "importAnother": "Import another recipe"
     },
     "preview": {
       "title": "Review Extracted Recipe",
