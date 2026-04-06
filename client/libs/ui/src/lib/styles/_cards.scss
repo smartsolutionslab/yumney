@@ -27,11 +27,24 @@
   }
 }
 
+.auth-card {
+  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   padding: var(--yn-space-5);
-  background-color: var(--yn-background);
+  position: relative;
+  background:
+    radial-gradient(ellipse 500px 500px at 15% 25%, var(--yn-ambient-orb-1), transparent),
+    radial-gradient(ellipse 400px 400px at 80% 65%, var(--yn-ambient-orb-2), transparent),
+    radial-gradient(ellipse 350px 350px at 50% 85%, var(--yn-ambient-orb-3), transparent),
+    var(--yn-background);
 }

@@ -2,40 +2,22 @@
 @use 'forms';
 @use 'buttons';
 @use 'cards';
+@use 'glass';
 
 .register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: var(--yn-space-5);
-  background-color: var(--yn-background);
+  @extend .auth-container;
 }
 
 .register-card {
-  width: 100%;
-  max-width: 420px;
-  padding: var(--yn-space-8);
-  background: var(--yn-surface);
-  border-radius: var(--yn-radius-md);
-  box-shadow: var(--yn-shadow-md);
-
-  h1 {
-    margin: 0 0 var(--yn-space-1);
-    font-size: var(--yn-text-4xl);
-    font-weight: var(--yn-font-semibold);
-  }
-
-  .subtitle {
-    margin: 0 0 var(--yn-space-7);
-    color: var(--yn-text-muted);
-    font-size: var(--yn-text-base);
-  }
+  @extend .auth-card;
 }
 
 .success-message {
+  @include glass.glass-surface(1);
   text-align: center;
-  padding: var(--yn-space-5) 0;
+  padding: var(--yn-space-6);
+  border-radius: var(--yn-radius-card);
+  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
 
   h2 {
     margin: 0 0 var(--yn-space-3);
@@ -47,6 +29,10 @@
     color: var(--yn-text-muted);
     font-size: var(--yn-text-base);
     line-height: var(--yn-leading-normal);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }
 
