@@ -90,13 +90,20 @@
   top: calc(100% + 4px);
   margin: 0;
   padding: var(--yn-space-2) 0;
-  background: var(--yn-surface);
-  border: 1px solid var(--yn-border);
+  background: var(--yn-glass-bg-strong);
+  backdrop-filter: blur(var(--yn-glass-blur-strong));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-strong));
+  border: 1px solid var(--yn-glass-border);
   border-radius: var(--yn-radius-input);
-  box-shadow: var(--yn-shadow-lg);
+  box-shadow: var(--yn-elevation-2);
   z-index: var(--yn-z-dropdown);
   max-height: 260px;
   overflow-y: auto;
+  animation: yn-scale-up var(--yn-duration-fast) var(--yn-ease-spring) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .unit-group-label {

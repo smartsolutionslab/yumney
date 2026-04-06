@@ -92,7 +92,12 @@
 .list-section {
   margin-bottom: var(--yn-space-6);
   padding-top: var(--yn-space-6);
-  border-top: 1px solid var(--yn-border-medium);
+  border-top: 1px solid var(--yn-glass-border-subtle);
+  animation: yn-fade-in var(--yn-duration-normal) var(--yn-ease-glass) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .ingredient-fields {
@@ -110,12 +115,14 @@
 .ingredient-quantity {
   display: flex;
   align-items: stretch;
-  border: 1.5px solid var(--yn-border);
+  border: 1.5px solid var(--yn-glass-border);
   border-radius: var(--yn-radius-input);
-  background: var(--yn-surface);
+  background: var(--yn-glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+    border-color var(--yn-duration-fast) var(--yn-ease-glass),
+    box-shadow var(--yn-duration-fast) var(--yn-ease-glass);
 
   &:focus-within {
     border-color: var(--yn-primary);
@@ -219,7 +226,7 @@
   flex-direction: column;
   gap: var(--yn-space-4);
   padding-top: var(--yn-space-7);
-  border-top: 1px solid var(--yn-border-medium);
+  border-top: 1px solid var(--yn-glass-border-subtle);
 }
 
 .discard-btn {
