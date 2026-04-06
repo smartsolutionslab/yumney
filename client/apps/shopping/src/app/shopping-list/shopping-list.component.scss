@@ -1,4 +1,5 @@
 @use 'banners';
+@use 'glass';
 
 .shopping-list-container {
   max-width: 900px;
@@ -17,9 +18,10 @@ h1 {
 }
 
 .empty-state {
+  @include glass.glass-card;
   text-align: center;
   padding: 4rem var(--yn-space-5);
-  color: var(--yn-text-light);
+  animation: yn-fade-in var(--yn-duration-normal) var(--yn-ease-glass) both;
 
   h2 {
     margin: 0 0 var(--yn-space-3);
@@ -31,6 +33,11 @@ h1 {
   p {
     margin: 0;
     font-size: var(--yn-text-md);
+    color: var(--yn-text-light);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }
 
@@ -41,17 +48,26 @@ h1 {
 }
 
 .list-card {
+  @include glass.glass-card;
   display: block;
   padding: var(--yn-card-padding-sm);
-  background: var(--yn-surface);
-  border-radius: var(--yn-radius-card);
-  box-shadow: var(--yn-shadow-md);
   text-decoration: none;
   color: inherit;
-  transition: box-shadow 0.2s;
+  transition:
+    box-shadow var(--yn-duration-normal) var(--yn-ease-glass),
+    transform var(--yn-duration-normal) var(--yn-ease-spring);
 
   &:hover {
-    box-shadow: var(--yn-shadow-card-hover);
+    box-shadow: var(--yn-elevation-2);
+    transform: translateY(-2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
   }
 }
 

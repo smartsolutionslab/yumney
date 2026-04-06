@@ -1,5 +1,6 @@
 @use 'banners';
 @use 'buttons';
+@use 'glass';
 
 .shopping-detail-container {
   max-width: 900px;
@@ -26,41 +27,85 @@ h1 {
   margin-bottom: var(--yn-space-5);
 }
 
-.progress {
-  font-size: var(--yn-text-base);
-  color: var(--yn-text-muted);
-  margin-right: auto;
+// ── Glass progress bar ──
+.progress-bar-container {
+  @include glass.glass-surface(0);
+  padding: var(--yn-space-4) var(--yn-space-5);
+  border-radius: var(--yn-radius-card);
+  margin-bottom: var(--yn-space-6);
 }
 
+.progress-text {
+  font-size: var(--yn-text-base);
+  color: var(--yn-text-muted);
+  margin-bottom: var(--yn-space-3);
+}
+
+.progress-track {
+  height: 6px;
+  border-radius: var(--yn-radius-full);
+  background: var(--yn-glass-bg);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: var(--yn-radius-full);
+  background: var(--yn-primary);
+  transition: width var(--yn-duration-normal) var(--yn-ease-spring);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// ── Items list ──
 .items-list {
+  @include glass.glass-card;
   list-style: none;
-  padding: 0;
+  padding: var(--yn-space-5);
   margin: 0 0 var(--yn-space-8);
 
   li {
     display: flex;
     align-items: center;
     gap: var(--yn-space-3);
-    padding: var(--yn-space-3) 0;
+    padding: var(--yn-space-4) var(--yn-space-3);
     border-bottom: 1px solid var(--yn-border-light);
     font-size: var(--yn-text-md);
     cursor: pointer;
+    border-radius: var(--yn-radius-md);
+    transition:
+      background var(--yn-duration-fast) var(--yn-ease-glass),
+      opacity var(--yn-duration-normal) var(--yn-ease-glass);
 
     &:last-child {
       border-bottom: none;
     }
 
-    &.checked .item-name,
-    &.checked .item-amount,
-    &.checked .item-unit {
-      text-decoration: line-through;
-      color: var(--yn-text-light);
+    &:hover {
+      background: var(--yn-glass-bg);
+    }
+
+    &.checked {
+      opacity: 0.5;
+
+      .item-name,
+      .item-amount,
+      .item-unit {
+        text-decoration: line-through;
+        color: var(--yn-text-light);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
     }
   }
 
   input[type='checkbox'] {
-    width: 1.125rem;
-    height: 1.125rem;
+    width: 1.25rem;
+    height: 1.25rem;
     accent-color: var(--yn-primary);
     cursor: pointer;
     flex-shrink: 0;
@@ -95,5 +140,29 @@ h1 {
     &:hover {
       text-decoration: underline;
     }
+  }
+}
+
+// ── All done celebration ──
+.all-done {
+  @include glass.glass-card;
+  text-align: center;
+  padding: var(--yn-space-8);
+  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
+
+  h2 {
+    margin: 0 0 var(--yn-space-3);
+    font-size: var(--yn-text-2xl);
+    color: var(--yn-success);
+  }
+
+  p {
+    margin: 0;
+    color: var(--yn-text-muted);
+    font-size: var(--yn-text-base);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }

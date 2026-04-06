@@ -48,7 +48,9 @@
       "errors": {
         "notFound": "Shopping list not found.",
         "generic": "Failed to load shopping list. Please try again later."
-      }
+      },
+      "allDone": "All done!",
+      "allDoneMessage": "Everything on your list is checked off."
     }
   }
 }
