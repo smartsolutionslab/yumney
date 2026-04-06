@@ -12,8 +12,17 @@
   @if (shoppingList(); as list) {
     <h1>{{ list.title }}</h1>
 
+    <div class="progress-bar-container">
+      <div class="progress-text">{{ checkedCount() }} / {{ totalItemCount() }}</div>
+      <div class="progress-track">
+        <div
+          class="progress-fill"
+          [style.width.%]="totalItemCount() > 0 ? (checkedCount() / totalItemCount()) * 100 : 0"
+        ></div>
+      </div>
+    </div>
+
     <div class="actions">
-      <span class="progress">{{ checkedCount() }} / {{ totalItemCount() }}</span>
       <button class="btn-secondary" (click)="onCheckAll()">
         {{ t('shopping.detail.checkAll') }}
       </button>
@@ -21,6 +30,13 @@
         {{ t('shopping.detail.reset') }}
       </button>
     </div>
+
+    @if (checkedCount() === totalItemCount() && totalItemCount() > 0) {
+      <div class="all-done">
+        <h2>{{ t('shopping.detail.allDone') }}</h2>
+        <p>{{ t('shopping.detail.allDoneMessage') }}</p>
+      </div>
+    }
 
     <ul class="items-list">
       @for (item of list.items; track item.identifier) {

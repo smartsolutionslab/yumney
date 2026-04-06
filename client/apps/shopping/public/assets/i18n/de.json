@@ -48,7 +48,9 @@
       "errors": {
         "notFound": "Einkaufsliste nicht gefunden.",
         "generic": "Einkaufsliste konnte nicht geladen werden. Bitte versuche es später erneut."
-      }
+      },
+      "allDone": "Alles erledigt!",
+      "allDoneMessage": "Alles auf deiner Liste ist abgehakt."
     }
   }
 }
