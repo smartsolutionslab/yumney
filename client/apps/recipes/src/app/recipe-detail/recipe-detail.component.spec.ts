@@ -134,7 +134,9 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const title = fixture.nativeElement.querySelector('.recipe-title');
+    const title =
+      fixture.nativeElement.querySelector('.hero-title') ??
+      fixture.nativeElement.querySelector('.recipe-title');
     expect(title.textContent).toContain('Pasta Carbonara');
   }));
 

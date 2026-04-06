@@ -113,6 +113,10 @@
   <div #scrollSentinel class="scroll-sentinel"></div>
 
   @if (isLoading()) {
-    <yn-loading-spinner label="recipes.list.loading" />
+    <div class="skeleton-grid">
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </div>
   }
 </div>
