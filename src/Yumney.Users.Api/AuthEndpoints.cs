@@ -1,7 +1,4 @@
 using FluentValidation;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
@@ -47,8 +44,13 @@ public static class AuthEndpoints
         if (problem is not null) return problem;
 
         var (email, password, displayName) = request;
-        var command = new RegisterUserCommand(Email.From(email), Password.From(password), DisplayName.From(displayName));
+        var command = new RegisterUserCommand(
+            Email.From(email),
+            Password.From(password),
+            DisplayName.From(displayName));
+
         var result = await handler.HandleAsync(command, cancellationToken);
+
         return result.ToCreated("/api/v1/users/me");
     }
 
@@ -62,6 +64,7 @@ public static class AuthEndpoints
         if (problem is not null) return problem;
 
         var command = new ResendVerificationEmailCommand(Email.From(request.Email));
+
         var result = await handler.HandleAsync(command, cancellationToken);
 
         // Always return 200 to prevent email enumeration

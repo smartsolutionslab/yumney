@@ -6,15 +6,13 @@ using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Queries.Handlers;
 
+#pragma warning disable SA1601
 public sealed partial class GetSuggestionsQueryHandler(
-    IUserActivityRepository activities,
-    ICurrentUser currentUser,
-    ILogger<GetSuggestionsQueryHandler> logger)
+#pragma warning restore SA1601
+    IUserActivityRepository activities, ICurrentUser currentUser, ILogger<GetSuggestionsQueryHandler> logger)
     : IQueryHandler<GetSuggestionsQuery, Result<SuggestionsResponseDto>>
 {
-    public async Task<Result<SuggestionsResponseDto>> HandleAsync(
-        GetSuggestionsQuery query,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<SuggestionsResponseDto>> HandleAsync(GetSuggestionsQuery query, CancellationToken cancellationToken = default)
     {
         var owner = OwnerIdentifier.From(currentUser.UserId);
 
@@ -24,9 +22,7 @@ public sealed partial class GetSuggestionsQueryHandler(
 
         var quickActions = BuildQuickActions(recentActivities);
 
-        return Result.Success(new SuggestionsResponseDto(
-            Suggestions: [],
-            QuickActions: quickActions));
+        return Result.Success(new SuggestionsResponseDto(Suggestions: [], QuickActions: quickActions));
     }
 
     private static List<string> BuildQuickActions(IReadOnlyList<UserActivity> recentActivities)
