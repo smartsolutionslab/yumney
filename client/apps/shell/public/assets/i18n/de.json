@@ -216,7 +216,8 @@
         "timeout": "Die Extraktion hat zu lange gedauert. Bitte versuche es erneut.",
         "noRecipe": "Auf dieser Seite wurde kein Rezept gefunden.",
         "generic": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut."
-      }
+      },
+      "sectionTitle": "Rezept importieren oder erstellen"
     },
     "photoImport": {
       "title": "Aus Fotos importieren",
@@ -262,6 +263,33 @@
         "titleMaxLength": "Titel darf maximal 200 Zeichen lang sein.",
         "ingredientNameRequired": "Zutatname ist erforderlich.",
         "stepDescriptionRequired": "Schrittbeschreibung ist erforderlich."
+      }
+    },
+    "suggestions": {
+      "title": "Vorschl�ge f�r dich"
+    },
+    "quickActions": {
+      "breakfast_ideas": "Fr�hst�cksideen",
+      "quick_meals": "Schnelle Gerichte",
+      "lunch_recipes": "Mittagsrezepte",
+      "whats_for_dinner": "Was gibt es zum Abendessen?",
+      "30_min_recipes": "30-Min-Rezepte",
+      "snack_ideas": "Snack-Ideen",
+      "meal_prep": "Meal Prep",
+      "try_something_new": "Etwas Neues probieren",
+      "cook_now": "Jetzt kochen",
+      "add_to_shopping_list": "Zur Einkaufsliste"
+    },
+    "recentActivity": {
+      "title": "Letzte Aktivit�t",
+      "empty": "Noch keine Aktivit�t. Importiere dein erstes Rezept!",
+      "unknownRecipe": "Unbekanntes Rezept",
+      "types": {
+        "recipe_imported": "Rezept importiert",
+        "recipe_viewed": "Rezept angesehen",
+        "recipe_edited": "Rezept bearbeitet",
+        "recipe_deleted": "Rezept gel�scht",
+        "shopping_list_created": "Einkaufsliste erstellt"
       }
     }
   },

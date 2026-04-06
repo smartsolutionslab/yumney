@@ -216,7 +216,8 @@
         "timeout": "Extraction timed out. Please try again.",
         "noRecipe": "No recipe found on this page.",
         "generic": "An unexpected error occurred. Please try again later."
-      }
+      },
+      "sectionTitle": "Import or Create a Recipe"
     },
     "photoImport": {
       "title": "Import from Photos",
@@ -262,6 +263,33 @@
         "titleMaxLength": "Title must not exceed 200 characters.",
         "ingredientNameRequired": "Ingredient name is required.",
         "stepDescriptionRequired": "Step description is required."
+      }
+    },
+    "suggestions": {
+      "title": "Suggested for You"
+    },
+    "quickActions": {
+      "breakfast_ideas": "Breakfast ideas",
+      "quick_meals": "Quick meals",
+      "lunch_recipes": "Lunch recipes",
+      "whats_for_dinner": "What's for dinner?",
+      "30_min_recipes": "30-min recipes",
+      "snack_ideas": "Snack ideas",
+      "meal_prep": "Meal prep",
+      "try_something_new": "Try something new",
+      "cook_now": "Cook now",
+      "add_to_shopping_list": "Add to shopping list"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "empty": "No activity yet. Start by importing a recipe!",
+      "unknownRecipe": "Unknown recipe",
+      "types": {
+        "recipe_imported": "Imported a recipe",
+        "recipe_viewed": "Viewed a recipe",
+        "recipe_edited": "Edited a recipe",
+        "recipe_deleted": "Deleted a recipe",
+        "shopping_list_created": "Created a shopping list"
       }
     }
   },
