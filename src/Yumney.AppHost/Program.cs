@@ -48,8 +48,12 @@ else
 if (!options.DatabaseOnly)
 {
     var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
-        .WithReference(recipesDb).WithReference(shoppingDb).WithReference(usersDb)
-        .WaitFor(recipesDb).WaitFor(shoppingDb).WaitFor(usersDb);
+        .WithReference(recipesDb)
+        .WithReference(shoppingDb)
+        .WithReference(usersDb)
+        .WaitFor(recipesDb)
+        .WaitFor(shoppingDb)
+        .WaitFor(usersDb);
 
     // ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
     var redis = builder.AddRedis("redis", password: redisPassword);
@@ -161,7 +165,7 @@ if (!options.DatabaseOnly)
     if (isRunMode)
     {
         var keycloakRealmUrl = "http://localhost:8080/realms/yumney";
-        var scalar = builder.AddScalarApiReference("scalar", options => options
+        var scalar = builder.AddScalarApiReference("scalar", scalarOptions => scalarOptions
                 .WithTheme(ScalarTheme.Mars)
                 .AddAuthorizationCodeFlow("keycloak", flow => flow
                     .WithClientId("yumney-web")
@@ -186,14 +190,23 @@ if (!options.DatabaseOnly)
 
         builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
             .WithHttpEndpoint(port: 5100)
-            .WithReference(recipesApi).WithReference(shoppingApi).WithReference(usersApi)
-            .WithReference(shell).WithReference(keycloak)
-            .WaitFor(recipesApi).WaitFor(shoppingApi).WaitFor(usersApi)
-            .WaitFor(shell).WaitFor(recipesMfe).WaitFor(shoppingMfe).WaitFor(accountMfe);
+            .WithReference(recipesApi)
+            .WithReference(shoppingApi)
+            .WithReference(usersApi)
+            .WithReference(shell)
+            .WithReference(keycloak)
+            .WaitFor(recipesApi)
+            .WaitFor(shoppingApi)
+            .WaitFor(usersApi)
+            .WaitFor(shell)
+            .WaitFor(recipesMfe)
+            .WaitFor(shoppingMfe)
+            .WaitFor(accountMfe);
     }
     else
     {
-        var frontend = builder.AddDockerfile("yumney-frontend", "../../client", "docker/Dockerfile")
+        var frontend = builder
+            .AddDockerfile("yumney-frontend", "../../client", "docker/Dockerfile")
             .WithHttpEndpoint(targetPort: 80);
 
 #pragma warning disable ASPIRECOMPUTE003
@@ -203,7 +216,8 @@ if (!options.DatabaseOnly)
         }
 #pragma warning restore ASPIRECOMPUTE003
 
-        builder.AddYarp("yumney-gateway")
+        builder
+            .AddYarp("yumney-gateway")
             .WithConfiguration(yarp =>
             {
                 yarp.AddRoute("/api/v1/recipes/{**catch-all}", recipesApi);

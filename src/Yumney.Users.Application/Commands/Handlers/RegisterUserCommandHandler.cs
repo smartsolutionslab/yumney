@@ -13,9 +13,7 @@ public sealed partial class RegisterUserCommandHandler(
     IAppUserProfileRepository users,
     ILogger<RegisterUserCommandHandler> logger) : ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>
 {
-    public async Task<Result<RegisterUserResultDto>> HandleAsync(
-        RegisterUserCommand command,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<RegisterUserResultDto>> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken = default)
     {
         var (email, password, displayName) = command;
 
