@@ -11,15 +11,6 @@ public sealed record ActivityType : IValueObject<string>
     public static readonly ActivityType RecipeDeleted = new("recipe_deleted");
     public static readonly ActivityType ShoppingListCreated = new("shopping_list_created");
 
-    private static readonly HashSet<string> KnownTypes =
-    [
-        RecipeImported.Value,
-        RecipeViewed.Value,
-        RecipeEdited.Value,
-        RecipeDeleted.Value,
-        ShoppingListCreated.Value,
-    ];
-
     public string Value { get; }
 
     private ActivityType(string value)
