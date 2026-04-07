@@ -10,8 +10,7 @@ public class PreferredLanguageTests
     [Theory]
     [InlineData("en")]
     [InlineData("de")]
-    [InlineData("fr")]
-    public void Constructor_ValidValue_CreatesInstance(string value)
+    public void Constructor_SupportedValue_CreatesInstance(string value)
     {
         var language = PreferredLanguage.From(value);
 
@@ -29,20 +28,28 @@ public class PreferredLanguageTests
         act.Should().Throw<GuardException>();
     }
 
-    [Fact]
-    public void Constructor_AtMaxLength_CreatesInstance()
+    [Theory]
+    [InlineData("fr")]
+    [InlineData("EN")]
+    [InlineData("english")]
+    [InlineData("xx")]
+    public void Constructor_UnsupportedLanguage_ThrowsGuardException(string value)
     {
-        var language = PreferredLanguage.From(new string('a', 10));
+        var act = () => PreferredLanguage.From(value);
 
-        language.Value.Should().HaveLength(10);
+        act.Should().Throw<GuardException>();
     }
 
     [Fact]
-    public void Constructor_ExceedsMaxLength_ThrowsGuardException()
+    public void English_StaticInstance_HasValueEn()
     {
-        var act = () => PreferredLanguage.From(new string('a', 11));
+        PreferredLanguage.English.Value.Should().Be("en");
+    }
 
-        act.Should().Throw<GuardException>();
+    [Fact]
+    public void German_StaticInstance_HasValueDe()
+    {
+        PreferredLanguage.German.Value.Should().Be("de");
     }
 
     [Fact]

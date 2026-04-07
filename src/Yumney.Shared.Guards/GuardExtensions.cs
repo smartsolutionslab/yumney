@@ -77,6 +77,18 @@ public static class GuardExtensions
 
             return guard;
         }
+
+        public GuardClause<string> IsOneOf(params string[] allowed)
+        {
+            if (guard.Value is null || !allowed.Contains(guard.Value))
+            {
+                throw new GuardException(
+                    guard.ParameterName,
+                    $"{guard.ParameterName} must be one of: {string.Join(", ", allowed)}.");
+            }
+
+            return guard;
+        }
     }
 
     extension(GuardClause<int> guard)

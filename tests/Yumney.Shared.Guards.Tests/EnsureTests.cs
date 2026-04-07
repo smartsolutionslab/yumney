@@ -132,6 +132,35 @@ public class EnsureTests
         act.Should().Throw<GuardException>();
     }
 
+    [Theory]
+    [InlineData("en", new[] { "en", "de" })]
+    [InlineData("metric", new[] { "metric", "imperial" })]
+    public void IsOneOf_AllowedValue_DoesNotThrow(string value, string[] allowed)
+    {
+        var act = () => Ensure.That(value).IsOneOf(allowed);
+
+        act.Should().NotThrow();
+    }
+
+    [Theory]
+    [InlineData("fr", new[] { "en", "de" })]
+    [InlineData("EN", new[] { "en", "de" })]
+    [InlineData("", new[] { "en", "de" })]
+    public void IsOneOf_DisallowedValue_ThrowsGuardException(string value, string[] allowed)
+    {
+        var act = () => Ensure.That(value).IsOneOf(allowed);
+
+        act.Should().Throw<GuardException>();
+    }
+
+    [Fact]
+    public void IsOneOf_NullValue_ThrowsGuardException()
+    {
+        var act = () => Ensure.That((string?)null!).IsOneOf("a", "b");
+
+        act.Should().Throw<GuardException>();
+    }
+
     [Fact]
     public void IsNotNull_ValidReference_DoesNotThrow()
     {
