@@ -16,7 +16,7 @@ public sealed partial class ChatCommandHandler(
     public async Task<Result<ChatResponseDto>> HandleAsync(ChatCommand command, CancellationToken cancellationToken = default)
     {
         var (message, history) = command;
-        var owner = OwnerIdentifier.From(currentUser.UserId);
+        var owner = currentUser.AsOwner();
 
         LogChatRequest(owner.Value, message.Value.Length, history.Count);
 

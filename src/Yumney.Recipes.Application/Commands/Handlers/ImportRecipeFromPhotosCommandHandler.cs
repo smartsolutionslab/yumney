@@ -7,17 +7,14 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 #pragma warning disable SA1601
-#pragma warning disable SA1303
 public sealed partial class ImportRecipeFromPhotosCommandHandler(IRecipeExtractionService extractionService, ILogger<ImportRecipeFromPhotosCommandHandler> logger)
     : ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>>
 {
-    private const int maxPhotos = 10;
-
     public async Task<Result<ExtractedRecipeDto>> HandleAsync(ImportRecipeFromPhotosCommand command, CancellationToken cancellationToken = default)
     {
         var photos = command.Photos;
 
-        var validation = PhotoValidator.ValidateMany(photos, maxPhotos);
+        var validation = PhotoValidator.ValidateMany(photos, PhotoValidator.MaxPhotos);
         if (validation.IsFailure)
         {
             LogValidationFailed(validation.Error!.Code);

@@ -120,11 +120,9 @@ public static class RecipesEndpoints
         string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var sortField = default(RecipeSortField).ParseNullable(sortBy) ?? RecipeSortField.Date;
-
         var query = new GetRecipesQuery(
-            PagingOptions.Of(Page.From(page), PageSize.From(pageSize)),
-            new SortingOptions<RecipeSortField>(sortField, sortDirection),
+            PagingOptions.From(page, pageSize),
+            SortingOptions<RecipeSortField>.Parse(sortBy, sortDirection, RecipeSortField.Date),
             SearchTerm.FromNullable(search));
 
         var result = await handler.HandleAsync(query, cancellationToken);
@@ -226,35 +224,22 @@ public static class RecipesEndpoints
         return result.ToOk();
     }
 
-#pragma warning disable SA1303
-    private const long maxPhotoSizeBytes = 10 * 1024 * 1024;
-#pragma warning restore SA1303
-
     private static async Task<IResult> ImportFromPhotosAsync(
         IFormFileCollection photos,
         ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        List<PhotoData> photoDataList = [];
+        var oversized = photos.FirstOrDefault(p => p.Length > PhotoValidator.MaxPhotoSizeBytes);
+        if (oversized is not null) return PhotoTooLargeProblem(oversized.FileName);
 
+        List<PhotoData> photoDataList = [];
         foreach (var file in photos)
         {
-            if (file.Length > maxPhotoSizeBytes)
-            {
-                return Results.Problem(
-                    statusCode: StatusCodes.Status413PayloadTooLarge,
-                    detail: $"Photo '{file.FileName}' exceeds the maximum size of 10 MB.");
-            }
-
-            using var memoryStream = new MemoryStream((int)file.Length);
-            await file.CopyToAsync(memoryStream, cancellationToken);
-            photoDataList.Add(new PhotoData(memoryStream.ToArray(), file.ContentType, file.FileName));
+            photoDataList.Add(await LoadPhotoDataAsync(file, cancellationToken));
         }
 
         var command = new ImportRecipeFromPhotosCommand(photoDataList);
-
         var result = await handler.HandleAsync(command, cancellationToken);
-
         return result.ToOk();
     }
 
@@ -263,22 +248,27 @@ public static class RecipesEndpoints
         ICommandHandler<RecognizeIngredientsCommand, Result<RecognizedIngredientsResponseDto>> handler,
         CancellationToken cancellationToken)
     {
-        if (photo.Length > maxPhotoSizeBytes)
-        {
-            return Results.Problem(
-                statusCode: StatusCodes.Status413PayloadTooLarge,
-                detail: $"Photo exceeds the maximum size of 10 MB.");
-        }
+        if (photo.Length > PhotoValidator.MaxPhotoSizeBytes) return PhotoTooLargeProblem(photo.FileName);
 
-        using var memoryStream = new MemoryStream((int)photo.Length);
-        await photo.CopyToAsync(memoryStream, cancellationToken);
-        var photoData = new PhotoData(memoryStream.ToArray(), photo.ContentType, photo.FileName);
-
+        var photoData = await LoadPhotoDataAsync(photo, cancellationToken);
         var command = new RecognizeIngredientsCommand(photoData);
         var result = await handler.HandleAsync(command, cancellationToken);
-
         return result.ToOk();
     }
+
+    private static async Task<PhotoData> LoadPhotoDataAsync(IFormFile file, CancellationToken cancellationToken)
+    {
+        using var memoryStream = new MemoryStream((int)file.Length);
+        await file.CopyToAsync(memoryStream, cancellationToken);
+        return new PhotoData(memoryStream.ToArray(), file.ContentType, file.FileName);
+    }
+
+    private static IResult PhotoTooLargeProblem(string fileName) =>
+        Results.Problem(
+            statusCode: StatusCodes.Status413PayloadTooLarge,
+            detail: $"Photo '{fileName}' exceeds the maximum size of 10 MB.");
+
+    private const string EmptyChatMessageError = "Message cannot be empty.";
 
     private static async Task<IResult> ChatAsync(
         ChatRequestDto request,
@@ -289,7 +279,7 @@ public static class RecipesEndpoints
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                detail: "Message cannot be empty.");
+                detail: EmptyChatMessageError);
         }
 
         var historyEntries = request.History
@@ -300,9 +290,28 @@ public static class RecipesEndpoints
         return result.ToOk();
     }
 
-#pragma warning disable SA1303
-    private const int maxStreamBufferLength = 100_000;
-#pragma warning restore SA1303
+    /// <summary>
+    /// Server-Sent Event types emitted by <see cref="ImportStreamAsync"/>.
+    /// Mirrored on the frontend in <c>libs/shared/api-client/import-stream-event.ts</c>.
+    /// </summary>
+    private static class SseEvent
+    {
+        public const string Status = "status";
+        public const string Chunk = "chunk";
+        public const string Done = "done";
+        public const string Fail = "fail";
+    }
+
+    private static class ImportStreaming
+    {
+        /// <summary>Hard cap on bytes buffered from the LLM stream before aborting.</summary>
+        public const int MaxBufferLength = 100_000;
+        public const string InvalidUrlMessage = "Invalid URL";
+        public const string FetchingStatusMessage = "Fetching page...";
+        public const string ExtractingStatusMessage = "Extracting recipe...";
+        public const string ResponseTooLargeMessage = "Response too large";
+        public const string ExtractionFailedMessage = "Extraction failed";
+    }
 
     private static async Task ImportStreamAsync(
         HttpContext httpContext,
@@ -329,34 +338,34 @@ public static class RecipesEndpoints
         }
         catch (GuardException)
         {
-            await WriteSseEventAsync("fail", "Invalid URL");
+            await WriteSseEventAsync(SseEvent.Fail, ImportStreaming.InvalidUrlMessage);
             return;
         }
 
-        await WriteSseEventAsync("status", "Fetching page...");
+        await WriteSseEventAsync(SseEvent.Status, ImportStreaming.FetchingStatusMessage);
 
         var scrapeResult = await scraper.ScrapeAsync(recipeUrl, cancellationToken);
         if (scrapeResult.IsFailure)
         {
-            await WriteSseEventAsync("fail", scrapeResult.Error!.Message);
+            await WriteSseEventAsync(SseEvent.Fail, scrapeResult.Error!.Message);
             return;
         }
 
-        await WriteSseEventAsync("status", "Extracting recipe...");
+        await WriteSseEventAsync(SseEvent.Status, ImportStreaming.ExtractingStatusMessage);
 
         var buffer = new StringBuilder();
         try
         {
             await foreach (var chunk in extraction.StreamExtractAsync(scrapeResult.Value, cancellationToken))
             {
-                if (buffer.Length + chunk.Length > maxStreamBufferLength)
+                if (buffer.Length + chunk.Length > ImportStreaming.MaxBufferLength)
                 {
-                    await WriteSseEventAsync("fail", "Response too large");
+                    await WriteSseEventAsync(SseEvent.Fail, ImportStreaming.ResponseTooLargeMessage);
                     return;
                 }
 
                 buffer.Append(chunk);
-                await WriteSseEventAsync("chunk", chunk);
+                await WriteSseEventAsync(SseEvent.Chunk, chunk);
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -365,11 +374,11 @@ public static class RecipesEndpoints
         }
         catch (Exception)
         {
-            await WriteSseEventAsync("fail", "Extraction failed");
+            await WriteSseEventAsync(SseEvent.Fail, ImportStreaming.ExtractionFailedMessage);
             return;
         }
 
         var json = CompactJson(LlmResponseParser.ExtractJson(buffer.ToString()));
-        await WriteSseEventAsync("done", json);
+        await WriteSseEventAsync(SseEvent.Done, json);
     }
 }
