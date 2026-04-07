@@ -32,3 +32,5 @@ export {
   RecentActivityComponent,
   type ActivityItem,
 } from './lib/recent-activity/recent-activity.component';
+
+export { CameraCaptureComponent } from './lib/camera-capture/camera-capture.component';
