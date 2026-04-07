@@ -1,4 +1,3 @@
-export { mapHttpError, type HttpErrorMap } from './lib/http-error-utils';
 export { ERROR_MAPS } from './lib/error-maps';
 export { type PagedResponse } from './lib/paged-response';
 export { type PaginationParams } from './lib/pagination-params';

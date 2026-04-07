@@ -1,4 +1,3 @@
-export { withFallback } from './lib/with-fallback';
 export { AuthApiService } from './lib/auth-api.service';
 export type { RegisterRequest } from './lib/register-request';
 export type { RegisterResponse } from './lib/register-response';

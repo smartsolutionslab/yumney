@@ -9,8 +9,6 @@ export const TEST_USER = {
   displayName: 'Test User',
 };
 
-export const TEST_RECIPE_URL = 'https://www.chefkoch.de/rezepte/1234/spaghetti-bolognese.html';
-
 export function uniqueTitle(prefix: string): string {
   return `${prefix} ${Date.now()}`;
 }
