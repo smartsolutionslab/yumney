@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { } from '@jsverse/transloco';
 import { ShareToastComponent } from './share-toast.component';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 

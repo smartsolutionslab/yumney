@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { } from '@jsverse/transloco';
 import { of, Subject, throwError } from 'rxjs';
 import { UrlImportComponent } from './url-import.component';
 import { FormFieldComponent } from '@yumney/ui';
