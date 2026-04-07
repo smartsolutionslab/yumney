@@ -15,11 +15,12 @@ public sealed partial class ChatCommandHandler(
 {
     public async Task<Result<ChatResponseDto>> HandleAsync(ChatCommand command, CancellationToken cancellationToken = default)
     {
+        var (message, history) = command;
         var owner = OwnerIdentifier.From(currentUser.UserId);
 
-        LogChatRequest(owner.Value, command.Message.Value.Length, command.History.Count);
+        LogChatRequest(owner.Value, message.Value.Length, history.Count);
 
-        return await chatService.ChatAsync(command.Message, command.History, owner, cancellationToken);
+        return await chatService.ChatAsync(message, history, owner, cancellationToken);
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Chat request from {UserId}, message length {MessageLength}, history {HistoryCount}")]
