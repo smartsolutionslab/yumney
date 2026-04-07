@@ -10,8 +10,8 @@ public static class UserActivityMappingExtensions
         {
             return new UserActivityDto(
                 activity.Type.Value,
-                activity.RecipeIdentifier,
-                activity.RecipeTitle,
+                activity.RecipeIdentifier?.Value,
+                activity.RecipeTitle?.Value,
                 activity.OccurredAt);
         }
     }

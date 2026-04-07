@@ -82,7 +82,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         await using (var updateContext = await fixture.CreateRecipesDbContextAsync())
         {
             var recipes = new RecipeRepository(updateContext);
-            var loaded = await recipes.GetByIdAsync(recipe.Id);
+            var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
             loaded!.Update(
                 RecipeTitle.From("Updated Tomato Soup"),
                 [Ingredient.Create(IngredientName.From("Cherry tomatoes"), Quantity.Of(Amount.From(800), Unit.From("g")))],
@@ -115,7 +115,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         await using (var deleteContext = await fixture.CreateRecipesDbContextAsync())
         {
             var recipes = new RecipeRepository(deleteContext);
-            var loaded = await recipes.GetByIdAsync(recipe.Id);
+            var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
             await recipes.DeleteAsync(loaded!);
         }
 

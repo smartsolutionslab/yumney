@@ -8,9 +8,9 @@ public sealed class UserActivity : Entity<UserActivityIdentifier>
 
     public ActivityType Type { get; private set; } = default!;
 
-    public Guid? RecipeIdentifier { get; private set; }
+    public RecipeIdentifierSnapshot? RecipeIdentifier { get; private set; }
 
-    public string? RecipeTitle { get; private set; }
+    public RecipeTitleSnapshot? RecipeTitle { get; private set; }
 
     public DateTime OccurredAt { get; private set; }
 
@@ -21,8 +21,8 @@ public sealed class UserActivity : Entity<UserActivityIdentifier>
     public static UserActivity Record(
         OwnerIdentifier owner,
         ActivityType type,
-        Guid? recipeIdentifier = null,
-        string? recipeTitle = null)
+        RecipeIdentifierSnapshot? recipeIdentifier = null,
+        RecipeTitleSnapshot? recipeTitle = null)
     {
         return new UserActivity
         {

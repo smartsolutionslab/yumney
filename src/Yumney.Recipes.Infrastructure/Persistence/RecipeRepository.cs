@@ -17,6 +17,16 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
     public async Task<Recipe?> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
     {
         return await recipes
+            .AsNoTracking()
+            .Include(r => r.Ingredients)
+            .Include(r => r.Steps.OrderBy(s => s.Number))
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
+    }
+
+    public async Task<Recipe?> GetByIdForUpdateAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
+    {
+        return await recipes
             .Include(r => r.Ingredients)
             .Include(r => r.Steps.OrderBy(s => s.Number))
             .AsSplitQuery()

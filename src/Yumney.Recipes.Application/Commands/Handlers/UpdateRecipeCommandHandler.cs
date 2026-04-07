@@ -22,7 +22,7 @@ public sealed partial class UpdateRecipeCommandHandler(
 
         LogUpdateRecipe(identifier, owner.Value);
 
-        var recipe = await recipes.GetByIdAsync(identifier, cancellationToken);
+        var recipe = await recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
         if (recipe is null)
         {
