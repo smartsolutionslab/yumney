@@ -33,8 +33,10 @@ public sealed partial class GetSuggestionsQueryHandler(
         public const int DinnerEnd = 21;
     }
 
-    private const int RecentImportLookbackHours = -1;
-    private const int MaxQuickActions = 4;
+#pragma warning disable SA1303 // editorconfig requires camelCase for private const fields
+    private const int recentImportLookbackHours = -1;
+    private const int maxQuickActions = 4;
+#pragma warning restore SA1303
 
     private static List<string> BuildQuickActions(IReadOnlyList<UserActivity> recentActivities)
     {
@@ -50,7 +52,7 @@ public sealed partial class GetSuggestionsQueryHandler(
 
         var hasRecentImport = recentActivities.Any(a =>
             a.Type == ActivityType.RecipeImported &&
-            a.OccurredAt > now.AddHours(RecentImportLookbackHours));
+            a.OccurredAt > now.AddHours(recentImportLookbackHours));
 
         if (hasRecentImport)
         {
@@ -58,7 +60,7 @@ public sealed partial class GetSuggestionsQueryHandler(
             actions.Insert(1, "add_to_shopping_list");
         }
 
-        return actions.Distinct().Take(MaxQuickActions).ToList();
+        return actions.Distinct().Take(maxQuickActions).ToList();
     }
 
     private static IEnumerable<string> BuildTimeOfDayActions(int hour) => hour switch

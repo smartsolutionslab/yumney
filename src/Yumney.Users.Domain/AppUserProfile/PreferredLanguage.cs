@@ -3,12 +3,13 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
+#pragma warning disable SA1311 // editorconfig requires camelCase for private fields
 public sealed record PreferredLanguage : IValueObject<string>
 {
     public const int MaxLength = 10;
 
-#pragma warning disable SA1202 // AllowedValues must initialize before the public static instances
-    private static readonly string[] AllowedValues = ["en", "de"];
+#pragma warning disable SA1202 // allowedValues must initialize before the public static instances
+    private static readonly string[] allowedValues = ["en", "de"];
 
     public static readonly PreferredLanguage English = new("en");
     public static readonly PreferredLanguage German = new("de");
@@ -21,7 +22,7 @@ public sealed record PreferredLanguage : IValueObject<string>
         Value = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
             .HasMaxLength(MaxLength)
-            .IsOneOf(AllowedValues)
+            .IsOneOf(allowedValues)
             .AndReturn();
     }
 
@@ -29,3 +30,4 @@ public sealed record PreferredLanguage : IValueObject<string>
 
     public static implicit operator string(PreferredLanguage obj) => obj.Value;
 }
+#pragma warning restore SA1311
