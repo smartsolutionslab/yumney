@@ -5,6 +5,11 @@ dist
 tmp
 out-tsc
 
+# Native Federation generated tsconfig — derived from tsconfig.app.json
+# on every build (apps/<name>/tsconfig.app.json + discovered entry points).
+# Do NOT hand-edit; the build will overwrite it.
+apps/**/tsconfig.federation.json
+
 # dependencies
 node_modules
 
