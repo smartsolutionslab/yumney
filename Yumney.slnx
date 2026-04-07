@@ -1,63 +1,65 @@
 <Solution>
-    <Folder Name="/src/" />
-    <Folder Name="/src/Host/">
-      <Project Path="src/Yumney.AppHost/Yumney.AppHost.csproj" />
-      <Project Path="src/Yumney.Gateway/Yumney.Gateway.csproj" />
-      <Project Path="src/Yumney.ServiceDefaults/Yumney.ServiceDefaults.csproj" />
-      <Project Path="src/Yumney.MigrationRunner/Yumney.MigrationRunner.csproj" />
-    </Folder>
-    <Folder Name="/src/Shared/">
-      <Project Path="src/Yumney.Shared/Yumney.Shared.csproj" />
-      <Project Path="src/Yumney.Shared.Guards/Yumney.Shared.Guards.csproj" />
-      <Project Path="src/Yumney.Shared.CQRS/Yumney.Shared.CQRS.csproj" />
-        <Project Path="src/Yumney.Shared.Events.MassTransit/Yumney.Shared.Events.MassTransit.csproj" />
-      <Project Path="src/Yumney.Shared.Events/Yumney.Shared.Events.csproj" />
-      <Project Path="src/Yumney.Shared.Events.InProcess/Yumney.Shared.Events.InProcess.csproj" />
-      <Project Path="src/Yumney.Shared.Persistence/Yumney.Shared.Persistence.csproj" />
-      <Project Path="src/Yumney.Shared.Web/Yumney.Shared.Web.csproj" />
-    </Folder>
-    <Folder Name="/src/Recipes/">
-      <Project Path="src/Yumney.Recipes.Domain/Yumney.Recipes.Domain.csproj" />
-      <Project Path="src/Yumney.Recipes.Application/Yumney.Recipes.Application.csproj" />
-      <Project Path="src/Yumney.Recipes.Infrastructure/Yumney.Recipes.Infrastructure.csproj" />
-      <Project Path="src/Yumney.Recipes.Extraction/Yumney.Recipes.Extraction.csproj" />
-      <Project Path="src/Yumney.Recipes.Api/Yumney.Recipes.Api.csproj" />
-    </Folder>
-    <Folder Name="/src/Shopping/">
-      <Project Path="src/Yumney.Shopping.Domain/Yumney.Shopping.Domain.csproj" />
-      <Project Path="src/Yumney.Shopping.Application/Yumney.Shopping.Application.csproj" />
-      <Project Path="src/Yumney.Shopping.Infrastructure/Yumney.Shopping.Infrastructure.csproj" />
-      <Project Path="src/Yumney.Shopping.Api/Yumney.Shopping.Api.csproj" />
-    </Folder>
-    <Folder Name="/src/Users/">
-      <Project Path="src/Yumney.Users.Domain/Yumney.Users.Domain.csproj" />
-      <Project Path="src/Yumney.Users.Application/Yumney.Users.Application.csproj" />
-      <Project Path="src/Yumney.Users.Infrastructure/Yumney.Users.Infrastructure.csproj" />
-      <Project Path="src/Yumney.Users.Api/Yumney.Users.Api.csproj" />
-    </Folder>
-    <Folder Name="/tests/Shared/">
-      <Project Path="tests/Yumney.Shared.Tests/Yumney.Shared.Tests.csproj" />
-      <Project Path="tests/Yumney.Shared.Guards.Tests/Yumney.Shared.Guards.Tests.csproj" />
-      <Project Path="tests/Yumney.Shared.Events.Tests/Yumney.Shared.Events.Tests.csproj" />
-    </Folder>
-    <Folder Name="/tests/" />
-    <Folder Name="/tests/Recipes/">
-      <Project Path="tests/Yumney.Recipes.Api.Tests/Yumney.Recipes.Api.Tests.csproj" />
-      <Project Path="tests/Yumney.Recipes.Domain.Tests/Yumney.Recipes.Domain.Tests.csproj" />
-      <Project Path="tests/Yumney.Recipes.Application.Tests/Yumney.Recipes.Application.Tests.csproj" />
-      <Project Path="tests/Yumney.Recipes.Infrastructure.Tests/Yumney.Recipes.Infrastructure.Tests.csproj" />
-    </Folder>
-    <Folder Name="/tests/Shopping/">
-      <Project Path="tests/Yumney.Shopping.Api.Tests/Yumney.Shopping.Api.Tests.csproj" />
-      <Project Path="tests/Yumney.Shopping.Domain.Tests/Yumney.Shopping.Domain.Tests.csproj" />
-      <Project Path="tests/Yumney.Shopping.Application.Tests/Yumney.Shopping.Application.Tests.csproj" />
-    </Folder>
-    <Folder Name="/tests/Users/">
-      <Project Path="tests/Yumney.Users.Api.Tests/Yumney.Users.Api.Tests.csproj" />
-      <Project Path="tests/Yumney.Users.Domain.Tests/Yumney.Users.Domain.Tests.csproj" />
-      <Project Path="tests/Yumney.Users.Application.Tests/Yumney.Users.Application.Tests.csproj" />
-      <Project Path="tests/Yumney.Users.Infrastructure.Tests/Yumney.Users.Infrastructure.Tests.csproj" />
-    </Folder>
-    <Project Path="tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj" />
+  <Folder Name="/src/" />
+  <Folder Name="/src/Host/">
+    <Project Path="src/Yumney.AppHost/Yumney.AppHost.csproj" />
+    <Project Path="src/Yumney.Gateway/Yumney.Gateway.csproj" />
+    <Project Path="src/Yumney.ServiceDefaults/Yumney.ServiceDefaults.csproj" />
+    <Project Path="src/Yumney.MigrationRunner/Yumney.MigrationRunner.csproj" />
+  </Folder>
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Yumney.Shared/Yumney.Shared.csproj" />
+    <Project Path="src/Yumney.Shared.CQRS/Yumney.Shared.CQRS.csproj" />
+    <Project Path="src/Yumney.Shared.Events/Yumney.Shared.Events.csproj" />
+    <Project Path="src/Yumney.Shared.Events.InProcess/Yumney.Shared.Events.InProcess.csproj" />
+    <Project Path="src/Yumney.Shared.Events.MassTransit/Yumney.Shared.Events.MassTransit.csproj" />
+    <Project Path="src/Yumney.Shared.Guards/Yumney.Shared.Guards.csproj" />
+    <Project Path="src/Yumney.Shared.Persistence/Yumney.Shared.Persistence.csproj" />
+    <Project Path="src/Yumney.Shared.Web/Yumney.Shared.Web.csproj" />
+  </Folder>
+  <Folder Name="/src/Recipes/">
+    <Project Path="src/Yumney.Recipes.Domain/Yumney.Recipes.Domain.csproj" />
+    <Project Path="src/Yumney.Recipes.Application/Yumney.Recipes.Application.csproj" />
+    <Project Path="src/Yumney.Recipes.Infrastructure/Yumney.Recipes.Infrastructure.csproj" />
+    <Project Path="src/Yumney.Recipes.Extraction/Yumney.Recipes.Extraction.csproj" />
+    <Project Path="src/Yumney.Recipes.Api/Yumney.Recipes.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Shopping/">
+    <Project Path="src/Yumney.Shopping.Domain/Yumney.Shopping.Domain.csproj" />
+    <Project Path="src/Yumney.Shopping.Application/Yumney.Shopping.Application.csproj" />
+    <Project Path="src/Yumney.Shopping.Infrastructure/Yumney.Shopping.Infrastructure.csproj" />
+    <Project Path="src/Yumney.Shopping.Api/Yumney.Shopping.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Users/">
+    <Project Path="src/Yumney.Users.Domain/Yumney.Users.Domain.csproj" />
+    <Project Path="src/Yumney.Users.Application/Yumney.Users.Application.csproj" />
+    <Project Path="src/Yumney.Users.Infrastructure/Yumney.Users.Infrastructure.csproj" />
+    <Project Path="src/Yumney.Users.Api/Yumney.Users.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/Shared/">
+    <Project Path="tests/Yumney.Shared.Tests/Yumney.Shared.Tests.csproj" />
+    <Project Path="tests/Yumney.Shared.Guards.Tests/Yumney.Shared.Guards.Tests.csproj" />
+    <Project Path="tests/Yumney.Shared.Events.Tests/Yumney.Shared.Events.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Recipes/">
+    <Project Path="tests/Yumney.Recipes.Domain.Tests/Yumney.Recipes.Domain.Tests.csproj" />
+    <Project Path="tests/Yumney.Recipes.Application.Tests/Yumney.Recipes.Application.Tests.csproj" />
+    <Project Path="tests/Yumney.Recipes.Infrastructure.Tests/Yumney.Recipes.Infrastructure.Tests.csproj" />
+    <Project Path="tests/Yumney.Recipes.Api.Tests/Yumney.Recipes.Api.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Shopping/">
+    <Project Path="tests/Yumney.Shopping.Domain.Tests/Yumney.Shopping.Domain.Tests.csproj" />
+    <Project Path="tests/Yumney.Shopping.Application.Tests/Yumney.Shopping.Application.Tests.csproj" />
+    <Project Path="tests/Yumney.Shopping.Api.Tests/Yumney.Shopping.Api.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Users/">
+    <Project Path="tests/Yumney.Users.Domain.Tests/Yumney.Users.Domain.Tests.csproj" />
+    <Project Path="tests/Yumney.Users.Application.Tests/Yumney.Users.Application.Tests.csproj" />
+    <Project Path="tests/Yumney.Users.Infrastructure.Tests/Yumney.Users.Infrastructure.Tests.csproj" />
+    <Project Path="tests/Yumney.Users.Api.Tests/Yumney.Users.Api.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Cross-Cutting/">
     <Project Path="tests/Yumney.Architecture.Tests/Yumney.Architecture.Tests.csproj" />
+    <Project Path="tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj" />
+  </Folder>
 </Solution>
