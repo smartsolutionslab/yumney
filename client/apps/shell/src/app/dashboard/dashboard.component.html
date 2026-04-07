@@ -41,58 +41,16 @@
 
     @if (importSectionExpanded()) {
       <div class="import-content">
-        <section class="url-import">
-          <h3>{{ t('dashboard.import.title') }}</h3>
-          <p class="subtitle">{{ t('dashboard.import.subtitle') }}</p>
+        @if (serverError(); as error) {
+          <div class="error-banner" role="alert">{{ t(error) }}</div>
+        }
 
-          <form [formGroup]="form" (ngSubmit)="onImport()">
-            @if (serverError(); as error) {
-              <div class="error-banner" role="alert">{{ t(error) }}</div>
-            }
-
-            <div class="import-row">
-              <yn-form-field
-                for="url"
-                [control]="form.controls.url"
-                [errors]="{
-                  required: 'dashboard.import.errors.urlRequired',
-                  maxlength: 'dashboard.import.errors.urlTooLong',
-                  invalidUrl: 'dashboard.import.errors.urlInvalid',
-                }"
-              >
-                <input
-                  id="url"
-                  type="url"
-                  formControlName="url"
-                  [placeholder]="t('dashboard.import.placeholder')"
-                  [attr.aria-label]="t('dashboard.import.urlLabel')"
-                />
-              </yn-form-field>
-
-              <yn-submit-button
-                [loading]="isLoading()"
-                [disabled]="isSaving()"
-                label="dashboard.import.submit"
-                loadingLabel="dashboard.import.submitting"
-                [showSpinner]="true"
-              />
-            </div>
-          </form>
-
-          @if (streamingStatus()) {
-            <div class="extraction-progress" role="status" aria-live="polite">
-              <div class="progress-indicator">
-                <span class="btn-spinner"></span>
-                <span class="progress-text">{{ streamingStatus() }}</span>
-              </div>
-              @if (streamingChunks()) {
-                <div class="extraction-card">
-                  <div class="extraction-content">{{ streamingChunks() }}</div>
-                </div>
-              }
-            </div>
-          }
-        </section>
+        <yn-url-import
+          [isSaving]="isSaving()"
+          (importStarted)="onUrlImportStarted()"
+          (extracted)="onUrlExtracted($event)"
+          (failed)="onUrlImportFailed($event)"
+        />
 
         <section class="photo-import">
           <h3>{{ t('dashboard.photoImport.title') }}</h3>
