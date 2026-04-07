@@ -293,6 +293,11 @@
         "recipe_deleted": "Deleted a recipe",
         "shopping_list_created": "Created a shopping list"
       }
+    },
+    "share": {
+      "toastTitle": "Recipe shared",
+      "dismiss": "Dismiss",
+      "noUrlFound": "No recipe URL found in the shared text."
     }
   },
   "units": {

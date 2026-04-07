@@ -1,4 +1,23 @@
 <div class="dashboard-container" *transloco="let t">
+  @if (shareToast(); as sharedUrl) {
+    <div class="share-toast" role="status" aria-live="polite">
+      <div class="share-toast-content">
+        <span class="share-toast-icon">&#x2192;</span>
+        <div class="share-toast-text">
+          <strong>{{ t('dashboard.share.toastTitle') }}</strong>
+          <span class="share-toast-url">{{ sharedUrl }}</span>
+        </div>
+      </div>
+      <button
+        class="share-toast-dismiss"
+        (click)="dismissShareToast()"
+        [attr.aria-label]="t('dashboard.share.dismiss')"
+      >
+        &times;
+      </button>
+    </div>
+  }
+
   <h1>{{ t('dashboard.title') }}</h1>
   <p>{{ t('dashboard.welcome') }}</p>
 
