@@ -11,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import { ShoppingApiService, CreateShoppingListItem } from '@yumney/shared/api-client';
-import { createAsyncState, HttpErrorMap, ROUTES, VALIDATION } from '@yumney/shared/models';
+import { createAsyncState, ERROR_MAPS, ROUTES, VALIDATION } from '@yumney/shared/models';
 import { BackLinkComponent, LoadingSpinnerComponent } from '@yumney/ui';
 
 @Component({
@@ -23,15 +23,6 @@ import { BackLinkComponent, LoadingSpinnerComponent } from '@yumney/ui';
 })
 export class ShoppingCreateComponent implements OnInit {
   protected readonly VALIDATION = VALIDATION;
-
-  private static readonly loadErrorMap: HttpErrorMap = {
-    404: 'shopping.create.errors.recipeNotFound',
-    default: 'shopping.create.errors.generic',
-  };
-
-  private static readonly createErrorMap: HttpErrorMap = {
-    default: 'shopping.create.errors.createFailed',
-  };
 
   private recipeApi = inject(RecipeApiService);
   private shoppingApi = inject(ShoppingApiService);
@@ -56,7 +47,7 @@ export class ShoppingCreateComponent implements OnInit {
 
     this.loadState.execute(
       this.recipeApi.getRecipeById(recipeIdentifier),
-      ShoppingCreateComponent.loadErrorMap,
+      ERROR_MAPS.shopping.createLoad,
       (recipe) => {
         this.recipe.set(recipe);
         this.title.set(recipe.title);
@@ -109,7 +100,7 @@ export class ShoppingCreateComponent implements OnInit {
         items: selectedItems,
         recipeIdentifier: recipe.identifier,
       }),
-      ShoppingCreateComponent.createErrorMap,
+      ERROR_MAPS.shopping.create,
       (result) => this.router.navigate([ROUTES.shopping.list, result.identifier]),
       (error) => this.serverError.set(error),
     );

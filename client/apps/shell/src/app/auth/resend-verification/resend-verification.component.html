@@ -42,7 +42,9 @@
     }
 
     <p class="back-link">
-      <a routerLink="/auth/register">{{ t('auth.resendVerification.backToRegister') }}</a>
+      <a [routerLink]="ROUTES.auth.register">{{
+        t('auth.resendVerification.backToRegister')
+      }}</a>
     </p>
   </div>
 </div>

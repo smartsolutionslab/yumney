@@ -107,7 +107,7 @@
     }
 
     <div class="actions-bar">
-      <a class="btn-primary" [routerLink]="['/recipes', recipe.identifier, 'edit']">
+      <a class="btn-primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
         {{ t('recipes.detail.actions.edit') }}
       </a>
       <button class="btn-danger" [disabled]="isDeleting()" (click)="onDelete()">
@@ -115,7 +115,7 @@
           isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete')
         }}
       </button>
-      <a class="btn-secondary" [routerLink]="['/shopping', 'create', recipe.identifier]">
+      <a class="btn-secondary" [routerLink]="ROUTES.shopping.create(recipe.identifier)">
         {{ t('recipes.detail.actions.shoppingList') }}
       </a>
     </div>
@@ -158,10 +158,10 @@
     }
 
     <div class="floating-actions">
-      <a class="btn-primary" [routerLink]="['/recipes', recipe.identifier, 'edit']">
+      <a class="btn-primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
         {{ t('recipes.detail.actions.edit') }}
       </a>
-      <a class="btn-secondary" [routerLink]="['/shopping', 'create', recipe.identifier]">
+      <a class="btn-secondary" [routerLink]="ROUTES.shopping.create(recipe.identifier)">
         {{ t('recipes.detail.actions.shoppingList') }}
       </a>
     </div>

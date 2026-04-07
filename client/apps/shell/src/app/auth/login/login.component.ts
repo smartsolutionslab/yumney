@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '@yumney/shared/auth';
+import { ROUTES } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-login',
@@ -11,6 +12,8 @@ import { AuthService } from '@yumney/shared/auth';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginComponent {
+  protected readonly ROUTES = ROUTES;
+
   private authService = inject(AuthService);
 
   rememberMe = signal(false);

@@ -4,8 +4,8 @@
   border-radius: var(--yn-radius-button);
   font-size: var(--yn-text-base);
   font-weight: var(--yn-font-medium);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
   animation: yn-slide-in-down var(--yn-duration-normal) var(--yn-ease-spring) both;
 
   @media (prefers-reduced-motion: reduce) {

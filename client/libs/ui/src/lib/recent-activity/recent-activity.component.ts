@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { ROUTES } from '@yumney/shared/models';
 
 export interface ActivityItem {
   type: string;
@@ -26,7 +27,10 @@ export interface ActivityItem {
               <span class="activity-icon">{{ getIcon(item.type) }}</span>
               <div class="activity-detail">
                 @if (item.recipeIdentifier) {
-                  <a [routerLink]="['/recipes', item.recipeIdentifier]" class="activity-link">
+                  <a
+                    [routerLink]="ROUTES.recipes.detail(item.recipeIdentifier)"
+                    class="activity-link"
+                  >
                     {{ item.recipeTitle ?? t('dashboard.recentActivity.unknownRecipe') }}
                   </a>
                 } @else {
@@ -44,6 +48,8 @@ export interface ActivityItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecentActivityComponent {
+  protected readonly ROUTES = ROUTES;
+
   activities = input.required<ActivityItem[]>();
 
   getIcon(type: string): string {

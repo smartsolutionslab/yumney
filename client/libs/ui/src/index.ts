@@ -38,3 +38,6 @@ export { IngredientScannerComponent } from './lib/ingredient-scanner/ingredient-
 export { ChatPanelComponent } from './lib/chat-panel/chat-panel.component';
 export { ShareToastComponent } from './lib/share-toast/share-toast.component';
 export { IngredientsToastComponent } from './lib/ingredients-toast/ingredients-toast.component';
+
+// Directives
+export { InfiniteScrollDirective } from './lib/directives/infinite-scroll.directive';

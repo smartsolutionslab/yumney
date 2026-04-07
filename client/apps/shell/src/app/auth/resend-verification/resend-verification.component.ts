@@ -3,7 +3,13 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
-import { createAsyncState, VALIDATION, HttpErrorMap } from '@yumney/shared/models';
+import {
+  createAsyncState,
+  ensureFormValid,
+  VALIDATION,
+  ERROR_MAPS,
+  ROUTES,
+} from '@yumney/shared/models';
 import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
@@ -20,10 +26,7 @@ import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResendVerificationComponent {
-  private static readonly resendErrorMap: HttpErrorMap = {
-    503: 'auth.resendVerification.errors.serviceUnavailable',
-    default: 'auth.resendVerification.errors.generic',
-  };
+  protected readonly ROUTES = ROUTES;
 
   private formBuilder = inject(FormBuilder);
   private authApi = inject(AuthApiService);
@@ -45,16 +48,13 @@ export class ResendVerificationComponent {
   });
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (!ensureFormValid(this.form)) return;
 
     const { email } = this.form.getRawValue();
 
     this.asyncState.execute(
       this.authApi.resendVerificationEmail({ email }),
-      ResendVerificationComponent.resendErrorMap,
+      ERROR_MAPS.auth.resendVerification,
       () => this.isSuccess.set(true),
     );
   }

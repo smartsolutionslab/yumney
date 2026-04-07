@@ -1,6 +1,7 @@
 @use 'banners';
 @use 'buttons';
 @use 'glass';
+@use 'ingredient-display' as id;
 
 .shopping-detail-container {
   max-width: 900px;
@@ -112,20 +113,7 @@ h1 {
   }
 }
 
-.item-amount {
-  font-weight: var(--yn-font-semibold);
-  color: var(--yn-primary);
-  min-width: 2.5rem;
-}
-
-.item-unit {
-  color: var(--yn-text-light);
-  min-width: 2rem;
-}
-
-.item-name {
-  color: var(--yn-text);
-}
+@include id.ingredient-display('.item-amount', '.item-unit', '.item-name');
 
 .source-link {
   margin-top: var(--yn-space-5);

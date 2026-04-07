@@ -10,8 +10,8 @@
   border: 1px solid var(--yn-glass-border);
   border-radius: var(--yn-radius-badge);
   background: var(--yn-glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
   color: var(--yn-text);
   font-size: var(--yn-text-base);
   font-weight: var(--yn-font-medium);

@@ -18,7 +18,7 @@
     } @else {
       <div class="lists-grid">
         @for (list of lists(); track list.identifier) {
-          <a class="list-card" [routerLink]="['/shopping', list.identifier]">
+          <a class="list-card" [routerLink]="ROUTES.shopping.detail(list.identifier)">
             <h3 class="list-title">{{ list.title }}</h3>
             <div class="list-meta">
               <span class="item-count">{{

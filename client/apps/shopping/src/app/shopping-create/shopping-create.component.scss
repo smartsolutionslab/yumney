@@ -1,6 +1,7 @@
 @use 'banners';
 @use 'buttons';
 @use 'glass';
+@use 'ingredient-display' as id;
 
 .shopping-create-container {
   max-width: 900px;
@@ -40,8 +41,8 @@ h1 {
     border: 1px solid var(--yn-glass-border);
     border-radius: var(--yn-radius-input);
     background: var(--yn-glass-bg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(var(--yn-glass-blur-soft));
+    -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
     font-size: var(--yn-text-md);
     color: var(--yn-text);
     box-sizing: border-box;
@@ -127,20 +128,7 @@ h1 {
   font-size: var(--yn-text-md);
 }
 
-.ingredient-amount {
-  font-weight: var(--yn-font-semibold);
-  color: var(--yn-primary);
-  min-width: 2.5rem;
-}
-
-.ingredient-unit {
-  color: var(--yn-text-light);
-  min-width: 2rem;
-}
-
-.ingredient-name {
-  color: var(--yn-text);
-}
+@include id.ingredient-display;
 
 .actions-bar {
   display: flex;

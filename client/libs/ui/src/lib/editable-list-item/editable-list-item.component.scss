@@ -9,8 +9,8 @@
   border-radius: var(--yn-radius-card);
   background: var(--yn-glass-bg);
   border: 1px solid var(--yn-glass-border-subtle);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
   margin-bottom: var(--yn-space-3);
   transition:
     background var(--yn-duration-fast) var(--yn-ease-glass),

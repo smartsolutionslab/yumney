@@ -100,8 +100,8 @@
   padding: var(--yn-space-3) var(--yn-space-5);
   border-radius: var(--yn-radius-card);
   background: rgb(0 0 0 / 70%);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
   color: #fff;
   font-size: var(--yn-text-sm);
   text-align: center;

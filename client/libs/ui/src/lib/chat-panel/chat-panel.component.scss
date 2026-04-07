@@ -143,8 +143,8 @@
     .chat-bubble {
       background: var(--yn-glass-bg-elevated);
       border: 1px solid var(--yn-glass-border-subtle);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(var(--yn-glass-blur-soft));
+      -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
       color: var(--yn-text);
       border-bottom-left-radius: var(--yn-radius-sm);
     }
@@ -277,8 +277,8 @@
     border: 1px solid var(--yn-glass-border);
     border-radius: var(--yn-radius-input);
     background: var(--yn-glass-bg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(var(--yn-glass-blur-soft));
+    -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
     font-family: inherit;
     font-size: var(--yn-text-base);
     color: var(--yn-text);

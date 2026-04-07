@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { ChatApiService, type ChatRecipeSuggestion } from '@yumney/shared/api-client';
-import { ChatStateService } from '@yumney/shared/models';
+import { ChatStateService, ROUTES } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-chat-panel',
@@ -23,6 +23,8 @@ import { ChatStateService } from '@yumney/shared/models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatPanelComponent implements AfterViewInit {
+  protected readonly ROUTES = ROUTES;
+
   protected state = inject(ChatStateService);
   private chatApi = inject(ChatApiService);
 
