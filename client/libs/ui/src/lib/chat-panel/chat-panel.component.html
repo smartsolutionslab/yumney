@@ -1,0 +1,88 @@
+@if (state.isOpen()) {
+  <div class="chat-panel" *transloco="let t" role="dialog" [attr.aria-label]="t('chat.title')">
+    <div class="chat-header">
+      <h2>{{ t('chat.title') }}</h2>
+      <div class="chat-header-actions">
+        @if (state.messages().length > 0) {
+          <button class="chat-clear" (click)="onClear()" [attr.aria-label]="t('chat.clearHistory')">
+            {{ t('chat.clear') }}
+          </button>
+        }
+        <button class="chat-close" (click)="onClose()" [attr.aria-label]="t('chat.close')">
+          &times;
+        </button>
+      </div>
+    </div>
+
+    <div #messages class="chat-messages">
+      @if (state.messages().length === 0) {
+        <div class="chat-welcome">
+          <p>{{ t('chat.welcome') }}</p>
+          <ul class="chat-examples">
+            <li>{{ t('chat.examples.1') }}</li>
+            <li>{{ t('chat.examples.2') }}</li>
+            <li>{{ t('chat.examples.3') }}</li>
+          </ul>
+        </div>
+      }
+
+      @for (msg of state.messages(); track $index) {
+        <div class="chat-message" [class]="'role-' + msg.role">
+          <div class="chat-bubble">{{ msg.content }}</div>
+        </div>
+      }
+
+      @if (state.isThinking()) {
+        <div class="chat-message role-assistant">
+          <div class="chat-bubble chat-thinking">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+      }
+
+      @if (lastSuggestions().length > 0) {
+        <div class="chat-suggestions">
+          @for (s of lastSuggestions(); track s.title) {
+            @if (s.recipeIdentifier) {
+              <a
+                class="chat-suggestion-card"
+                [routerLink]="['/recipes', s.recipeIdentifier]"
+                (click)="onSuggestionClick()"
+              >
+                <strong>{{ s.title }}</strong>
+                @if (s.reason) {
+                  <span>{{ s.reason }}</span>
+                }
+              </a>
+            }
+          }
+        </div>
+      }
+
+      @if (error(); as err) {
+        <div class="chat-error" role="alert">{{ t(err) }}</div>
+      }
+    </div>
+
+    <form class="chat-input" (submit)="$event.preventDefault(); onSend()">
+      <textarea
+        [ngModel]="input()"
+        (ngModelChange)="input.set($event)"
+        (keydown)="onKeydown($event)"
+        [placeholder]="t('chat.placeholder')"
+        [attr.aria-label]="t('chat.inputLabel')"
+        rows="2"
+        name="chat-input"
+      ></textarea>
+      <button
+        type="submit"
+        class="chat-send btn-primary"
+        [disabled]="!input().trim() || state.isThinking()"
+      >
+        {{ t('chat.send') }}
+      </button>
+    </form>
+  </div>
+}

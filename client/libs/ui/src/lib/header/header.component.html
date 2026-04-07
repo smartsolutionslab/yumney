@@ -23,6 +23,15 @@
           {{ t('layout.header.login') }}
         </a>
       }
+      @if (authService.isAuthenticated()) {
+        <button
+          class="chat-toggle"
+          (click)="onToggleChat()"
+          [attr.aria-label]="t('layout.header.openChat')"
+        >
+          &#x1F4AC;
+        </button>
+      }
       <button
         class="theme-toggle"
         (click)="onToggleTheme()"
