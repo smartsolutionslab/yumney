@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
-import { of, throwError, Subject } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ShoppingCreateComponent } from './shopping-create.component';
 import {
   RecipeApiService,

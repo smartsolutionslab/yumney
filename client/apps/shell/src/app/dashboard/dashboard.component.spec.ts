@@ -1,6 +1,4 @@
-import { ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
@@ -411,10 +409,10 @@ describe('DashboardComponent', () => {
     component.onCreateManually();
 
     const recipe = component.extractedRecipe();
-    expect(recipe).toBeTruthy();
-    expect(recipe!.title).toBe('');
-    expect(recipe!.ingredients).toHaveLength(1);
-    expect(recipe!.steps).toHaveLength(1);
+    if (!recipe) throw new Error('extractedRecipe should be set after onCreateManually');
+    expect(recipe.title).toBe('');
+    expect(recipe.ingredients).toHaveLength(1);
+    expect(recipe.steps).toHaveLength(1);
   });
 
   it('should set isManualEntry on create manually', () => {
@@ -432,7 +430,9 @@ describe('DashboardComponent', () => {
     recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
 
     component.onCreateManually();
-    component.onSaveRecipe({ ...component.extractedRecipe()!, title: 'My Recipe' });
+    const draft = component.extractedRecipe();
+    if (!draft) throw new Error('extractedRecipe should be set after onCreateManually');
+    component.onSaveRecipe({ ...draft, title: 'My Recipe' });
     tick();
 
     expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
@@ -454,7 +454,9 @@ describe('DashboardComponent', () => {
     recipeApiMock.saveRecipe.mockReturnValue(subject);
 
     component.onCreateManually();
-    component.onSaveRecipe(component.extractedRecipe()!);
+    const draft = component.extractedRecipe();
+    if (!draft) throw new Error('extractedRecipe should be set after onCreateManually');
+    component.onSaveRecipe(draft);
     fixture.detectChanges();
 
     const btn = fixture.nativeElement.querySelector('.create-btn');
