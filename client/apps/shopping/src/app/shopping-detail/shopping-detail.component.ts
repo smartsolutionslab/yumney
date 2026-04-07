@@ -7,7 +7,6 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
@@ -15,7 +14,12 @@ import {
   ShoppingListDetail,
   ShoppingListItemResponse,
 } from '@yumney/shared/api-client';
-import { createAsyncState, HttpErrorMap } from '@yumney/shared/models';
+import {
+  createAsyncState,
+  ERROR_MAPS,
+  optimisticSignalUpdate,
+  ROUTES,
+} from '@yumney/shared/models';
 import { BackLinkComponent, LoadingSpinnerComponent } from '@yumney/ui';
 
 @Component({
@@ -26,10 +30,7 @@ import { BackLinkComponent, LoadingSpinnerComponent } from '@yumney/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShoppingDetailComponent implements OnInit {
-  private static readonly errorMap: HttpErrorMap = {
-    404: 'shopping.detail.errors.notFound',
-    default: 'shopping.detail.errors.generic',
-  };
+  protected readonly ROUTES = ROUTES;
 
   private shoppingApi = inject(ShoppingApiService);
   private route = inject(ActivatedRoute);
@@ -53,14 +54,16 @@ export class ShoppingDetailComponent implements OnInit {
 
     this.asyncState.execute(
       this.shoppingApi.getShoppingListById(identifier),
-      ShoppingDetailComponent.errorMap,
+      ERROR_MAPS.shopping.detail,
       (list) => this.shoppingList.set(list),
     );
   }
 
   onToggleItem(item: ShoppingListItemResponse): void {
     const previousState = item.isChecked;
-    this.optimisticUpdate(
+    optimisticSignalUpdate(
+      this.shoppingList,
+      this.destroyRef,
       () => (item.isChecked = !previousState),
       () => (item.isChecked = previousState),
       (list) => this.shoppingApi.checkOffItem(list.identifier, item.identifier, !previousState),
@@ -77,12 +80,12 @@ export class ShoppingDetailComponent implements OnInit {
 
   private optimisticBatchUpdate(checked: boolean): void {
     const list = this.shoppingList();
-    if (!list) {
-      return;
-    }
+    if (!list) return;
 
     const previousStates = list.items.map((i) => i.isChecked);
-    this.optimisticUpdate(
+    optimisticSignalUpdate(
+      this.shoppingList,
+      this.destroyRef,
       () => {
         for (const item of list.items) item.isChecked = checked;
       },
@@ -91,28 +94,5 @@ export class ShoppingDetailComponent implements OnInit {
       },
       (l) => this.shoppingApi.checkOffAllItems(l.identifier, checked),
     );
-  }
-
-  private optimisticUpdate(
-    apply: () => void,
-    rollback: () => void,
-    apiCall: (list: ShoppingListDetail) => import('rxjs').Observable<unknown>,
-  ): void {
-    const list = this.shoppingList();
-    if (!list) {
-      return;
-    }
-
-    apply();
-    this.shoppingList.set({ ...list });
-
-    apiCall(list)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: () => {
-          rollback();
-          this.shoppingList.set({ ...list });
-        },
-      });
   }
 }

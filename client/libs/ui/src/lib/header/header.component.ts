@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '@yumney/shared/auth';
-import { LanguageService, ThemeService, ChatStateService } from '@yumney/shared/models';
+import { LanguageService, ThemeService, ChatStateService, ROUTES } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-header',
@@ -12,6 +12,8 @@ import { LanguageService, ThemeService, ChatStateService } from '@yumney/shared/
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
+  protected readonly ROUTES = ROUTES;
+
   protected authService = inject(AuthService);
   protected languageService = inject(LanguageService);
   protected themeService = inject(ThemeService);

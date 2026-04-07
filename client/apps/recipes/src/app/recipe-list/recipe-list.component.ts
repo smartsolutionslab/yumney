@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   Component,
   ChangeDetectionStrategy,
   computed,
@@ -10,27 +9,24 @@ import {
   OnInit,
   DestroyRef,
   signal,
-  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
-import { createAsyncState, HttpErrorMap, UI } from '@yumney/shared/models';
+import { createAsyncState, ERROR_MAPS, ROUTES, UI } from '@yumney/shared/models';
 import { RouterLink } from '@angular/router';
-import { LoadingSpinnerComponent, staggerFadeIn, prefersReducedMotion } from '@yumney/ui';
+import { InfiniteScrollDirective, staggerFadeIn, prefersReducedMotion } from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-list',
-  imports: [TranslocoModule, RouterLink, LoadingSpinnerComponent],
+  imports: [TranslocoModule, RouterLink, InfiniteScrollDirective],
   templateUrl: './recipe-list.component.html',
   styleUrl: './recipe-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RecipeListComponent implements OnInit, AfterViewInit {
-  private static readonly listErrorMap: HttpErrorMap = {
-    default: 'recipes.list.errors.generic',
-  };
+export class RecipeListComponent implements OnInit {
+  protected readonly ROUTES = ROUTES;
 
   private static readonly sortOptionList = [
     {
@@ -63,7 +59,6 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
   private destroyRef = inject(DestroyRef);
   private elementRef = inject(ElementRef);
   private asyncState = createAsyncState(this.destroyRef);
-  private observer: IntersectionObserver | null = null;
   private searchSubject = new Subject<string>();
 
   @HostListener('document:click', ['$event.target'])
@@ -77,7 +72,6 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
     }
   }
 
-  scrollSentinel = viewChild<ElementRef>('scrollSentinel');
   private hostEl = inject(ElementRef);
   private previousCardCount = 0;
 
@@ -178,20 +172,7 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
     this.loadRecipes(false);
   }
 
-  ngAfterViewInit(): void {
-    this.observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && this.hasMore() && !this.isLoading()) {
-        this.loadMore();
-      }
-    });
-    const sentinel = this.scrollSentinel()?.nativeElement;
-    if (sentinel) {
-      this.observer.observe(sentinel);
-    }
-    this.destroyRef.onDestroy(() => this.observer?.disconnect());
-  }
-
-  private loadMore(): void {
+  onLoadMore(): void {
     this.currentPage.update((p) => p + 1);
     this.loadRecipes(true);
   }
@@ -208,7 +189,7 @@ export class RecipeListComponent implements OnInit, AfterViewInit {
 
     this.asyncState.execute(
       this.recipeApi.getRecipes(params),
-      RecipeListComponent.listErrorMap,
+      ERROR_MAPS.recipes.list,
       (response) => {
         this.totalCount.set(response.totalCount);
         if (append) {

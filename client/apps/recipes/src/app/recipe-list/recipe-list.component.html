@@ -63,7 +63,7 @@
       <div class="empty-state">
         <h2>{{ t('recipes.list.empty.title') }}</h2>
         <p>{{ t('recipes.list.empty.message') }}</p>
-        <a routerLink="/dashboard" class="cta-button">
+        <a [routerLink]="ROUTES.dashboard" class="cta-button">
           {{ t('recipes.list.empty.cta') }}
         </a>
       </div>
@@ -73,7 +73,7 @@
   @if (recipes().length > 0) {
     <div class="recipe-grid">
       @for (recipe of recipes(); track recipe.identifier) {
-        <a class="recipe-card" [routerLink]="['/recipes', recipe.identifier]">
+        <a class="recipe-card" [routerLink]="ROUTES.recipes.detail(recipe.identifier)">
           @if (recipe.imageUrl) {
             <img [src]="recipe.imageUrl" [alt]="recipe.title" class="recipe-image" loading="lazy" />
           } @else {
@@ -110,7 +110,12 @@
     </div>
   }
 
-  <div #scrollSentinel class="scroll-sentinel"></div>
+  <div
+    ynInfiniteScroll
+    class="scroll-sentinel"
+    [enabled]="hasMore() && !isLoading()"
+    (loadMore)="onLoadMore()"
+  ></div>
 
   @if (isLoading()) {
     <div class="skeleton-grid">

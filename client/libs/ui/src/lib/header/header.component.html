@@ -3,10 +3,10 @@
     <a class="brand" routerLink="/">Yumney</a>
     <nav [attr.aria-label]="t('layout.header.navigation')">
       @if (authService.isAuthenticated()) {
-        <a routerLink="/recipes" class="nav-link">
+        <a [routerLink]="ROUTES.recipes.list" class="nav-link">
           {{ t('layout.header.myRecipes') }}
         </a>
-        <a routerLink="/shopping" class="nav-link">
+        <a [routerLink]="ROUTES.shopping.list" class="nav-link">
           {{ t('layout.header.shoppingLists') }}
         </a>
         <div class="user-menu">
@@ -19,7 +19,7 @@
           </button>
         </div>
       } @else {
-        <a routerLink="/auth/login" class="login-link">
+        <a [routerLink]="ROUTES.auth.login" class="login-link">
           {{ t('layout.header.login') }}
         </a>
       }

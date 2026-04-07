@@ -118,8 +118,8 @@
   border: 1.5px solid var(--yn-glass-border);
   border-radius: var(--yn-radius-input);
   background: var(--yn-glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
   transition:
     border-color var(--yn-duration-fast) var(--yn-ease-glass),
     box-shadow var(--yn-duration-fast) var(--yn-ease-glass);

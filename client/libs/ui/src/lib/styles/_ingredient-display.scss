@@ -1,0 +1,23 @@
+// ==========================================================================
+// Ingredient / Item Display Mixin
+// ==========================================================================
+// Shared text styling for ingredient and shopping-list rows.
+// Usage:
+//   @include ingredient-display('.ingredient-amount', '.ingredient-unit', '.ingredient-name');
+
+@mixin ingredient-display($amount: '.ingredient-amount', $unit: '.ingredient-unit', $name: '.ingredient-name') {
+  #{$amount} {
+    font-weight: var(--yn-font-semibold);
+    color: var(--yn-primary);
+    min-width: 2.5rem;
+  }
+
+  #{$unit} {
+    color: var(--yn-text-light);
+    min-width: 2rem;
+  }
+
+  #{$name} {
+    color: var(--yn-text);
+  }
+}

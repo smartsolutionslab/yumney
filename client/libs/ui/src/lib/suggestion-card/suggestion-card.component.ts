@@ -1,12 +1,13 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ROUTES } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-suggestion-card',
   standalone: true,
   imports: [RouterLink],
   template: `
-    <a class="suggestion-card" [routerLink]="['/recipes', identifier()]">
+    <a class="suggestion-card" [routerLink]="ROUTES.recipes.detail(identifier())">
       @if (imageUrl()) {
         <img class="suggestion-image" [src]="imageUrl()!" [alt]="title()" loading="lazy" />
       } @else {
@@ -25,6 +26,8 @@ import { RouterLink } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SuggestionCardComponent {
+  protected readonly ROUTES = ROUTES;
+
   identifier = input.required<string>();
   title = input.required<string>();
   imageUrl = input<string | null>(null);

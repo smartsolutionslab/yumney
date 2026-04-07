@@ -6,8 +6,10 @@ import { AuthApiService } from '@yumney/shared/api-client';
 import {
   passwordsMatchValidator,
   createAsyncState,
+  ensureFormValid,
   VALIDATION,
-  HttpErrorMap,
+  ERROR_MAPS,
+  ROUTES,
 } from '@yumney/shared/models';
 import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
@@ -25,11 +27,7 @@ import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {
-  private static readonly registerErrorMap: HttpErrorMap = {
-    409: 'auth.register.errors.emailAlreadyExists',
-    422: 'auth.register.errors.validationFailed',
-    default: 'auth.register.errors.generic',
-  };
+  protected readonly ROUTES = ROUTES;
 
   private formBuilder = inject(FormBuilder);
   private authApi = inject(AuthApiService);
@@ -69,16 +67,13 @@ export class RegisterComponent {
   );
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (!ensureFormValid(this.form)) return;
 
     const { email, password, displayName } = this.form.getRawValue();
 
     this.asyncState.execute(
       this.authApi.register({ email, password, displayName }),
-      RegisterComponent.registerErrorMap,
+      ERROR_MAPS.auth.register,
       () => {
         this.isSuccess.set(true);
         this.form.reset();

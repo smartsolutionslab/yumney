@@ -1,4 +1,5 @@
 export { mapHttpError, type HttpErrorMap } from './lib/http-error-utils';
+export { ERROR_MAPS } from './lib/error-maps';
 export { type PagedResponse } from './lib/paged-response';
 export { type PaginationParams } from './lib/pagination-params';
 export { urlValidator, passwordsMatchValidator } from './lib/validators';
@@ -6,6 +7,8 @@ export { VALIDATION } from './lib/validation-constants';
 export { scaleIngredients, type ScalableIngredient } from './lib/scale-ingredients';
 export { UI } from './lib/ui-constants';
 export { createAsyncState, type AsyncState } from './lib/async-state';
+export { ensureFormValid } from './lib/form-helpers';
+export { optimisticSignalUpdate } from './lib/optimistic-update';
 export { TranslocoHttpLoader } from './lib/transloco-loader';
 export { IS_STANDALONE } from './lib/federation-context';
 export { LanguageService } from './lib/language.service';

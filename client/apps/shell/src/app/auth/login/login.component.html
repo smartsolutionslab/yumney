@@ -26,7 +26,7 @@
 
       <p class="register-link">
         {{ t('auth.login.noAccount') }}
-        <a routerLink="/auth/register">{{ t('auth.login.registerLink') }}</a>
+        <a [routerLink]="ROUTES.auth.register">{{ t('auth.login.registerLink') }}</a>
       </p>
     </div>
   </div>

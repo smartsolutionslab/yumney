@@ -85,8 +85,8 @@
   margin: 0;
   padding: var(--yn-space-2) var(--yn-space-5);
   background: rgb(0 0 0 / 50%);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
   border-radius: var(--yn-radius-badge);
   color: rgb(255 255 255 / 90%);
   font-size: var(--yn-text-sm);
@@ -232,8 +232,8 @@
   top: var(--yn-space-5);
   right: var(--yn-space-5);
   background: rgb(0 0 0 / 50%);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
   border: 1px solid rgb(255 255 255 / 20%);
   color: rgb(255 255 255 / 90%);
   padding: var(--yn-space-2) var(--yn-space-4);

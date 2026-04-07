@@ -61,7 +61,7 @@
 
     @if (list.recipeIdentifier) {
       <div class="source-link">
-        <a [routerLink]="['/recipes', list.recipeIdentifier]">
+        <a [routerLink]="ROUTES.recipes.detail(list.recipeIdentifier)">
           {{ t('shopping.detail.viewRecipe') }}
         </a>
       </div>

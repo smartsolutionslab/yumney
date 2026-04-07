@@ -48,7 +48,7 @@
             @if (s.recipeIdentifier) {
               <a
                 class="chat-suggestion-card"
-                [routerLink]="['/recipes', s.recipeIdentifier]"
+                [routerLink]="ROUTES.recipes.detail(s.recipeIdentifier)"
                 (click)="onSuggestionClick()"
               >
                 <strong>{{ s.title }}</strong>

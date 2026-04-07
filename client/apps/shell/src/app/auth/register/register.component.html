@@ -8,7 +8,9 @@
         <h2>{{ t('auth.register.success.title') }}</h2>
         <p>{{ t('auth.register.success.message') }}</p>
         <p class="resend-link">
-          <a routerLink="/auth/resend-verification">{{ t('auth.register.success.resendLink') }}</a>
+          <a [routerLink]="ROUTES.auth.resendVerification">{{
+            t('auth.register.success.resendLink')
+          }}</a>
         </p>
       </div>
     } @else {

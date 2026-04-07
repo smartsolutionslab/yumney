@@ -13,7 +13,7 @@ import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
 import {
   createAsyncState,
   scaleIngredients,
-  HttpErrorMap,
+  ERROR_MAPS,
   ROUTES,
   VALIDATION,
 } from '@yumney/shared/models';
@@ -33,15 +33,7 @@ import { BackLinkComponent, ConfirmDialogComponent, LoadingSpinnerComponent } fr
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipeDetailComponent implements OnInit {
-  private static readonly detailErrorMap: HttpErrorMap = {
-    404: 'recipes.detail.notFound',
-    default: 'recipes.detail.errors.generic',
-  };
-
-  private static readonly deleteErrorMap: HttpErrorMap = {
-    404: 'recipes.detail.delete.errors.notFound',
-    default: 'recipes.detail.delete.errors.generic',
-  };
+  protected readonly ROUTES = ROUTES;
 
   private recipeApi = inject(RecipeApiService);
   private route = inject(ActivatedRoute);
@@ -84,7 +76,7 @@ export class RecipeDetailComponent implements OnInit {
 
     this.loadState.execute(
       this.recipeApi.getRecipeById(identifier),
-      RecipeDetailComponent.detailErrorMap,
+      ERROR_MAPS.recipes.detail,
       (recipe) => {
         this.recipe.set(recipe);
         this.desiredServings.set(recipe.servings);
@@ -143,7 +135,7 @@ export class RecipeDetailComponent implements OnInit {
 
     this.deleteState.execute(
       this.recipeApi.deleteRecipe(recipe.identifier),
-      RecipeDetailComponent.deleteErrorMap,
+      ERROR_MAPS.recipes.delete,
       () => this.router.navigate([ROUTES.recipes.list]),
       (error) => this.serverError.set(error),
     );

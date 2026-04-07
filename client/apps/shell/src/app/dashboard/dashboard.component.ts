@@ -23,8 +23,9 @@ import {
   createAsyncState,
   mapToSaveRecipeRequest,
   VALIDATION,
-  HttpErrorMap,
+  ERROR_MAPS,
   ROUTES,
+  ensureFormValid,
 } from '@yumney/shared/models';
 import {
   RecipePreviewComponent,
@@ -63,18 +64,6 @@ import type { RecognizedIngredient } from '@yumney/shared/api-client';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
-  private static readonly importErrorMap: HttpErrorMap = {
-    502: 'dashboard.import.errors.unreachable',
-    504: 'dashboard.import.errors.timeout',
-    404: 'dashboard.import.errors.noRecipe',
-    default: 'dashboard.import.errors.generic',
-  };
-
-  private static readonly saveErrorMap: HttpErrorMap = {
-    409: 'dashboard.save.errors.duplicate',
-    default: 'dashboard.save.errors.generic',
-  };
-
   private formBuilder = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -191,10 +180,7 @@ export class DashboardComponent implements OnInit {
   }
 
   onImport(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (!ensureFormValid(this.form)) return;
 
     this.resetImportState();
 
@@ -297,7 +283,7 @@ export class DashboardComponent implements OnInit {
 
     this.importState.execute(
       this.recipeApi.importFromPhotos(photos),
-      DashboardComponent.importErrorMap,
+      ERROR_MAPS.dashboard.import,
       (response) => {
         this.extractedRecipe.set(response);
         this.sourceUrl.set(null);
@@ -331,7 +317,7 @@ export class DashboardComponent implements OnInit {
 
     this.saveState.execute(
       this.recipeApi.saveRecipe(request),
-      DashboardComponent.saveErrorMap,
+      ERROR_MAPS.dashboard.save,
       (saved) => {
         this.router.navigate([ROUTES.recipes.detail(saved.identifier)]);
       },

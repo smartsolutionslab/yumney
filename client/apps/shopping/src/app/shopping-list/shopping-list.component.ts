@@ -10,7 +10,7 @@ import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
 import { ShoppingApiService, ShoppingListSummary } from '@yumney/shared/api-client';
-import { createAsyncState, HttpErrorMap } from '@yumney/shared/models';
+import { createAsyncState, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
 import { LoadingSpinnerComponent } from '@yumney/ui';
 
 @Component({
@@ -21,9 +21,7 @@ import { LoadingSpinnerComponent } from '@yumney/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShoppingListComponent implements OnInit {
-  private static readonly errorMap: HttpErrorMap = {
-    default: 'shopping.list.errors.generic',
-  };
+  protected readonly ROUTES = ROUTES;
 
   private shoppingApi = inject(ShoppingApiService);
   private asyncState = createAsyncState(inject(DestroyRef));
@@ -35,7 +33,7 @@ export class ShoppingListComponent implements OnInit {
   ngOnInit(): void {
     this.asyncState.execute(
       this.shoppingApi.getShoppingLists(),
-      ShoppingListComponent.errorMap,
+      ERROR_MAPS.shopping.list,
       (lists) => this.lists.set(lists),
     );
   }

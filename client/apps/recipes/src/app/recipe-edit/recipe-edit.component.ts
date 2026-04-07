@@ -13,7 +13,7 @@ import {
   createAsyncState,
   mapToUpdateRecipeRequest,
   mapDetailToImportResponse,
-  HttpErrorMap,
+  ERROR_MAPS,
   ROUTES,
 } from '@yumney/shared/models';
 import { BackLinkComponent, LoadingSpinnerComponent, RecipePreviewComponent } from '@yumney/ui';
@@ -26,11 +26,6 @@ import { BackLinkComponent, LoadingSpinnerComponent, RecipePreviewComponent } fr
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecipeEditComponent implements OnInit {
-  private static readonly errorMap: HttpErrorMap = {
-    404: 'recipes.edit.errors.notFound',
-    default: 'recipes.edit.errors.generic',
-  };
-
   private recipeApi = inject(RecipeApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -53,7 +48,7 @@ export class RecipeEditComponent implements OnInit {
 
     this.loadState.execute(
       this.recipeApi.getRecipeById(this.identifier()),
-      RecipeEditComponent.errorMap,
+      ERROR_MAPS.recipes.edit,
       (recipe) => this.recipeData.set(mapDetailToImportResponse(recipe)),
       (error) => this.serverError.set(error),
     );
@@ -66,7 +61,7 @@ export class RecipeEditComponent implements OnInit {
 
     this.saveState.execute(
       this.recipeApi.updateRecipe(this.identifier(), request),
-      RecipeEditComponent.errorMap,
+      ERROR_MAPS.recipes.edit,
       () => this.router.navigate([ROUTES.recipes.list, this.identifier()]),
       (error) => this.serverError.set(error),
     );

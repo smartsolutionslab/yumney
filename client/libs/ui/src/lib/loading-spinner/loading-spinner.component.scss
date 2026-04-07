@@ -7,8 +7,8 @@
   color: var(--yn-text-muted);
   font-size: var(--yn-text-base);
   background: var(--yn-glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
   border-radius: var(--yn-radius-card);
 }
 

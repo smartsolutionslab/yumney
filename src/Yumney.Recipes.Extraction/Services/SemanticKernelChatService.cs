@@ -17,10 +17,8 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 #pragma warning disable SA1311
 #pragma warning disable SA1204
 #pragma warning disable SA1303
-public sealed partial class SemanticKernelChatService(
-    Kernel kernel,
-    IRecipeRepository recipes,
-    ILogger<SemanticKernelChatService> logger) : IChatService
+public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepository recipes, ILogger<SemanticKernelChatService> logger)
+    : IChatService
 {
     private const int maxRecipesToInclude = 20;
 
@@ -116,12 +114,11 @@ public sealed partial class SemanticKernelChatService(
         return suggestions;
     }
 
-    private async Task<IReadOnlyList<Recipe>> LoadUserRecipeContextAsync(
-        OwnerIdentifier owner,
-        CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<Recipe>> LoadUserRecipeContextAsync(OwnerIdentifier owner, CancellationToken cancellationToken)
     {
         var paging = PagingOptions.Of(Page.From(1), PageSize.From(maxRecipesToInclude));
         var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
+
         var (items, _) = await recipes.GetByOwnerAsync(owner, paging, sorting, cancellationToken: cancellationToken);
         return items;
     }
