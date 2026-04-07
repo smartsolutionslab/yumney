@@ -117,7 +117,10 @@ describe('DashboardComponent', () => {
     saveRecipe: ReturnType<typeof vi.fn>;
   };
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
-  let activatedRouteMock: { snapshot: { queryParams: Record<string, string> } };
+  let activatedRouteMock: {
+    snapshot: { queryParams: Record<string, string> };
+    queryParams: import('rxjs').Observable<Record<string, string>>;
+  };
 
   beforeEach(async () => {
     recipeApiMock = {
@@ -126,7 +129,7 @@ describe('DashboardComponent', () => {
       saveRecipe: vi.fn(),
     };
     routerMock = { navigate: vi.fn() };
-    activatedRouteMock = { snapshot: { queryParams: {} } };
+    activatedRouteMock = { snapshot: { queryParams: {} }, queryParams: of({}) };
 
     const dashboardApiMock = {
       getSuggestions: vi.fn().mockReturnValue(of({ suggestions: [], quickActions: [] })),
@@ -1010,7 +1013,10 @@ describe('DashboardComponent – Share Intent', () => {
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: DashboardApiService, useValue: dashboardMock },
         { provide: Router, useValue: routerMock },
-        { provide: ActivatedRoute, useValue: { snapshot: { queryParams } } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParams }, queryParams: of(queryParams) },
+        },
       ],
     });
 
@@ -1110,4 +1116,52 @@ describe('DashboardComponent – Share Intent', () => {
 
     expect(recipeApiMock.importRecipeStream).not.toHaveBeenCalled();
   });
+
+  it('should show share toast when URL is shared', fakeAsync(() => {
+    const { fixture, component } = createComponentWithQueryParams({
+      url: 'https://example.com/recipe',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(component.shareToast()).toBe('https://example.com/recipe');
+  }));
+
+  it('should expand import section when URL is shared', fakeAsync(() => {
+    const { fixture, component } = createComponentWithQueryParams({
+      url: 'https://example.com/recipe',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(component.importSectionExpanded()).toBe(true);
+  }));
+
+  it('should show error when shared text contains no URL', fakeAsync(() => {
+    const { fixture, component } = createComponentWithQueryParams({
+      text: 'Just some text without a link',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(component.serverError()).toBe('dashboard.share.noUrlFound');
+    expect(component.importSectionExpanded()).toBe(true);
+    expect(recipeApiMock.importRecipeStream).not.toHaveBeenCalled();
+  }));
+
+  it('should dismiss share toast when dismissShareToast is called', fakeAsync(() => {
+    const { fixture, component } = createComponentWithQueryParams({
+      url: 'https://example.com/recipe',
+    });
+
+    fixture.detectChanges();
+    tick();
+
+    expect(component.shareToast()).toBeTruthy();
+    component.dismissShareToast();
+    expect(component.shareToast()).toBeNull();
+  }));
 });

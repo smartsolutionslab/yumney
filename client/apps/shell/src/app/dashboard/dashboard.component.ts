@@ -89,6 +89,7 @@ export class DashboardComponent implements OnInit {
   streamingChunks = signal('');
   importSectionExpanded = signal(false);
   cameraActive = signal(false);
+  shareToast = signal<string | null>(null);
 
   // Smart dashboard state
   quickActions = signal<QuickAction[]>([]);
@@ -108,16 +109,37 @@ export class DashboardComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const params = this.route.snapshot.queryParams;
-    const sharedUrl = params['url'] || this.extractUrl(params['text']);
-
-    if (sharedUrl) {
-      this.form.controls.url.setValue(sharedUrl);
-      this.importSectionExpanded.set(true);
-      this.onImport();
-    }
-
     this.loadDashboardData();
+
+    // Subscribe to query params so subsequent shares (when app already open) also work
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const urlParam = params['url'] as string | undefined;
+      const textParam = params['text'] as string | undefined;
+      const sharedText = urlParam || textParam;
+
+      if (!sharedText) return;
+
+      const sharedUrl = urlParam || this.extractUrl(textParam);
+
+      if (sharedUrl) {
+        this.handleSharedUrl(sharedUrl);
+      } else if (textParam) {
+        // Shared text without a recognizable URL
+        this.serverError.set('dashboard.share.noUrlFound');
+        this.importSectionExpanded.set(true);
+      }
+    });
+  }
+
+  private handleSharedUrl(sharedUrl: string): void {
+    this.form.controls.url.setValue(sharedUrl);
+    this.importSectionExpanded.set(true);
+    this.shareToast.set(sharedUrl);
+    this.onImport();
+  }
+
+  dismissShareToast(): void {
+    this.shareToast.set(null);
   }
 
   toggleImportSection(): void {

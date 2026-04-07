@@ -293,6 +293,11 @@
         "recipe_deleted": "Rezept gel�scht",
         "shopping_list_created": "Einkaufsliste erstellt"
       }
+    },
+    "share": {
+      "toastTitle": "Rezept geteilt",
+      "dismiss": "Schließen",
+      "noUrlFound": "Keine Rezept-URL im geteilten Text gefunden."
     }
   },
   "units": {
