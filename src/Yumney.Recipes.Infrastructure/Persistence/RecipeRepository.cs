@@ -20,6 +20,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             .AsNoTracking()
             .Include(r => r.Ingredients)
             .Include(r => r.Steps.OrderBy(s => s.Number))
+            .Include(r => r.Tags)
             .AsSplitQuery()
             .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
     }
@@ -29,6 +30,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         return await recipes
             .Include(r => r.Ingredients)
             .Include(r => r.Steps.OrderBy(s => s.Number))
+            .Include(r => r.Tags)
             .AsSplitQuery()
             .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
     }
@@ -72,6 +74,8 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
+            .Include(r => r.Tags)
+            .AsSplitQuery()
             .Skip(paging.Skip)
             .Take(paging.PageSize.Value)
             .ToListAsync(cancellationToken);
