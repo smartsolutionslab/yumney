@@ -52,10 +52,7 @@ describe('RegisterComponent', () => {
     authApiMock = { register: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [
-        RegisterComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [RegisterComponent, setupTranslocoTesting(en)],
       providers: [provideRouter([]), { provide: AuthApiService, useValue: authApiMock }],
     }).compileComponents();
 

@@ -30,10 +30,7 @@ describe('LoginComponent', () => {
     authServiceMock = { login: vi.fn(), forgotPassword: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [
-        LoginComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [LoginComponent, setupTranslocoTesting(en)],
       providers: [provideRouter([]), { provide: AuthService, useValue: authServiceMock }],
     }).compileComponents();
 

@@ -99,10 +99,7 @@ describe('RecipeEditComponent', () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [
-        RecipeEditComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [RecipeEditComponent, setupTranslocoTesting(en)],
       providers: [
         provideRouter([]),
         { provide: RecipeApiService, useValue: recipeApiMock },

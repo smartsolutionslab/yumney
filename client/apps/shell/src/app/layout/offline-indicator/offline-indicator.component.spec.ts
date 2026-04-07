@@ -90,10 +90,7 @@ describe('OfflineIndicatorComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [
-        OfflineIndicatorComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [OfflineIndicatorComponent, setupTranslocoTesting(en)],
       providers: [{ provide: OfflineStatusService, useValue: offlineStatusMock }],
     }).compileComponents();
 

@@ -31,10 +31,7 @@ describe('ChatPanelComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [
-        ChatPanelComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [ChatPanelComponent, setupTranslocoTesting(en)],
       providers: [
         provideRouter([]),
         { provide: ChatApiService, useValue: chatApiMock },

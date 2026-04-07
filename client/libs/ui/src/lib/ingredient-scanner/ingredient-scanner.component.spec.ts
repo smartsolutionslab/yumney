@@ -2,7 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { IngredientScannerComponent } from './ingredient-scanner.component';
-import { CameraService, IngredientRecognitionService, setupTranslocoTesting } from '@yumney/shared/models';
+import {
+  CameraService,
+  IngredientRecognitionService,
+  setupTranslocoTesting,
+} from '@yumney/shared/models';
 import type {
   RecognizedIngredient,
   RecognizedIngredientsResponse,
@@ -69,10 +73,7 @@ async function setup(
 ): Promise<ComponentFixture<IngredientScannerComponent>> {
   await TestBed.resetTestingModule()
     .configureTestingModule({
-      imports: [
-        IngredientScannerComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [IngredientScannerComponent, setupTranslocoTesting(en)],
       providers: [
         { provide: CameraService, useValue: cameraMock },
         { provide: IngredientRecognitionService, useValue: recognitionMock },

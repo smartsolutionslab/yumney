@@ -82,10 +82,7 @@ describe('ShoppingCreateComponent', () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [
-        ShoppingCreateComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [ShoppingCreateComponent, setupTranslocoTesting(en)],
       providers: [
         provideRouter([]),
         { provide: RecipeApiService, useValue: recipeApiMock },

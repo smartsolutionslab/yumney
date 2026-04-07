@@ -43,10 +43,7 @@ describe('ShoppingDetailComponent', () => {
     shoppingApiMock = { getShoppingListById: apiReturn };
 
     TestBed.configureTestingModule({
-      imports: [
-        ShoppingDetailComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [ShoppingDetailComponent, setupTranslocoTesting(en)],
       providers: [
         provideRouter([]),
         { provide: ShoppingApiService, useValue: shoppingApiMock },

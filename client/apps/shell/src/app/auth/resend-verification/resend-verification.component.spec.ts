@@ -40,10 +40,7 @@ describe('ResendVerificationComponent', () => {
     authApiMock = { resendVerificationEmail: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [
-        ResendVerificationComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [ResendVerificationComponent, setupTranslocoTesting(en)],
       providers: [provideRouter([]), { provide: AuthApiService, useValue: authApiMock }],
     }).compileComponents();
 

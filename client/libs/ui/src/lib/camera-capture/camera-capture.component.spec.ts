@@ -48,10 +48,7 @@ async function setupComponent(
 ): Promise<ComponentFixture<CameraCaptureComponent>> {
   await TestBed.resetTestingModule()
     .configureTestingModule({
-      imports: [
-        CameraCaptureComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [CameraCaptureComponent, setupTranslocoTesting(en)],
       providers: [{ provide: CameraService, useValue: cameraServiceMock }],
     })
     .compileComponents();

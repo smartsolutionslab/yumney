@@ -47,10 +47,7 @@ describe('HeaderComponent', () => {
     const themeServiceMock = { theme: signal('light'), toggle: vi.fn(), initialize: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [
-        HeaderComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [HeaderComponent, setupTranslocoTesting(en)],
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: authServiceMock },

@@ -16,10 +16,7 @@ describe('AccountPlaceholderComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        AccountPlaceholderComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [AccountPlaceholderComponent, setupTranslocoTesting(en)],
     });
 
     fixture = TestBed.createComponent(AccountPlaceholderComponent);
