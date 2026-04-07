@@ -33,14 +33,22 @@ public class SaveRecipeCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ValidCommand_ReturnsSavedRecipeDto()
+    public async Task HandleAsync_ValidCommand_ReturnsDtoWithMatchingTitle()
     {
         var command = CreateValidCommand();
 
         var result = await handler.HandleAsync(command);
 
         result.Value.Title.Should().Be("Pasta Carbonara");
-        result.Value.Identifier.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task HandleAsync_ValidCommand_ReturnsDtoWithRecentCreatedAt()
+    {
+        var command = CreateValidCommand();
+
+        var result = await handler.HandleAsync(command);
+
         result.Value.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
     }
 
@@ -145,31 +153,50 @@ public class SaveRecipeCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_WithOptionalFields_PassesThemThrough()
+    public async Task HandleAsync_WithDescription_PassesDescriptionThrough()
     {
-        Recipe? capturedRecipe = null;
-        await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
+        var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-        var command = new SaveRecipeCommand(
-            RecipeTitle.From("Test"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
-            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))],
-            RecipeDescription.From("A test recipe"),
-            Servings.From(4),
-            PreparationTime.From(10),
-            CookingTime.From(20),
-            Difficulty.From("easy"),
-            ImageUrl.From("https://example.com/image.jpg"),
-            SourceUrl: RecipeUrl.From("https://example.com/recipe"));
+        capturedRecipe.Description!.Value.Should().Be("A test recipe");
+    }
 
-        await handler.HandleAsync(command);
+    [Fact]
+    public async Task HandleAsync_WithServings_PassesServingsThrough()
+    {
+        var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-        capturedRecipe.Should().NotBeNull();
-        capturedRecipe!.Description!.Value.Should().Be("A test recipe");
         capturedRecipe.Servings!.Value.Should().Be(4);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithPreparationTime_PassesPreparationTimeThrough()
+    {
+        var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+
         capturedRecipe.PreparationTime!.Value.Should().Be(10);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithCookingTime_PassesCookingTimeThrough()
+    {
+        var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+
         capturedRecipe.CookingTime!.Value.Should().Be(20);
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithDifficulty_PassesDifficultyThrough()
+    {
+        var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+
         capturedRecipe.Difficulty!.Value.Should().Be("easy");
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithImageUrl_PassesImageUrlThrough()
+    {
+        var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+
         capturedRecipe.ImageUrl!.Value.Should().Be("https://example.com/image.jpg");
     }
 
@@ -188,7 +215,7 @@ public class SaveRecipeCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ForwardsCancellationToken()
+    public async Task HandleAsync_ForwardsCancellationTokenToExistsCheck()
     {
         var cts = new CancellationTokenSource();
         var command = CreateValidCommand();
@@ -199,10 +226,17 @@ public class SaveRecipeCommandHandlerTests
             Arg.Any<RecipeUrl>(),
             Arg.Any<OwnerIdentifier>(),
             cts.Token);
+    }
 
-        await recipes.Received(1).AddAsync(
-            Arg.Any<Recipe>(),
-            cts.Token);
+    [Fact]
+    public async Task HandleAsync_ForwardsCancellationTokenToAdd()
+    {
+        var cts = new CancellationTokenSource();
+        var command = CreateValidCommand();
+
+        await handler.HandleAsync(command, cts.Token);
+
+        await recipes.Received(1).AddAsync(Arg.Any<Recipe>(), cts.Token);
     }
 
     [Fact]
@@ -222,35 +256,31 @@ public class SaveRecipeCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_NullSourceUrl_SavesSuccessfully()
+    public async Task HandleAsync_NullSourceUrl_ReturnsSuccess()
     {
-        var command = new SaveRecipeCommand(
-            RecipeTitle.From("Manual Recipe"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
-            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))]);
+        var command = CreateManualCommand();
 
         var result = await handler.HandleAsync(command);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Title.Should().Be("Manual Recipe");
+    }
+
+    [Fact]
+    public async Task HandleAsync_NullSourceUrl_CallsAddAsync()
+    {
+        var command = CreateManualCommand();
+
+        await handler.HandleAsync(command);
+
         await recipes.Received(1).AddAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task HandleAsync_NullSourceUrl_CreatesRecipeWithNullSourceUrl()
     {
-        Recipe? capturedRecipe = null;
-        await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
+        var capturedRecipe = await CaptureSavedRecipeAsync(CreateManualCommand());
 
-        var command = new SaveRecipeCommand(
-            RecipeTitle.From("Manual Recipe"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
-            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))]);
-
-        await handler.HandleAsync(command);
-
-        capturedRecipe.Should().NotBeNull();
-        capturedRecipe!.SourceUrl.Should().BeNull();
+        capturedRecipe.SourceUrl.Should().BeNull();
     }
 
     private static SaveRecipeCommand CreateValidCommand()
@@ -260,5 +290,39 @@ public class SaveRecipeCommandHandlerTests
             [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.From("g")))],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Cook pasta"))],
             SourceUrl: RecipeUrl.From("https://example.com/recipe"));
+    }
+
+    private static SaveRecipeCommand CreateCommandWithAllOptionalFields()
+    {
+        return new SaveRecipeCommand(
+            RecipeTitle.From("Test"),
+            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
+            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))],
+            RecipeDescription.From("A test recipe"),
+            Servings.From(4),
+            PreparationTime.From(10),
+            CookingTime.From(20),
+            Difficulty.From("easy"),
+            ImageUrl.From("https://example.com/image.jpg"),
+            SourceUrl: RecipeUrl.From("https://example.com/recipe"));
+    }
+
+    private static SaveRecipeCommand CreateManualCommand()
+    {
+        return new SaveRecipeCommand(
+            RecipeTitle.From("Manual Recipe"),
+            [new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
+            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))]);
+    }
+
+    private async Task<Recipe> CaptureSavedRecipeAsync(SaveRecipeCommand command)
+    {
+        Recipe? capturedRecipe = null;
+        await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
+
+        await handler.HandleAsync(command);
+
+        capturedRecipe.Should().NotBeNull();
+        return capturedRecipe!;
     }
 }

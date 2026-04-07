@@ -74,6 +74,32 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task GetByIdAsync_ReturnsDetachedEntity()
+    {
+        var recipe = RecipeFactory.TomatoSoup(owner.Value);
+        await fixture.SeedRecipesAsync(recipe);
+
+        await using var readContext = await fixture.CreateRecipesDbContextAsync();
+        var recipes = new RecipeRepository(readContext);
+        var loaded = await recipes.GetByIdAsync(recipe.Id);
+
+        readContext.Entry(loaded!).State.Should().Be(EntityState.Detached);
+    }
+
+    [Fact]
+    public async Task GetByIdForUpdateAsync_ReturnsTrackedEntity()
+    {
+        var recipe = RecipeFactory.TomatoSoup(owner.Value);
+        await fixture.SeedRecipesAsync(recipe);
+
+        await using var readContext = await fixture.CreateRecipesDbContextAsync();
+        var recipes = new RecipeRepository(readContext);
+        var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
+
+        readContext.Entry(loaded!).State.Should().Be(EntityState.Unchanged);
+    }
+
+    [Fact]
     public async Task UpdateAsync_ExistingRecipe_PersistsChanges()
     {
         var recipe = RecipeFactory.TomatoSoup(owner.Value);

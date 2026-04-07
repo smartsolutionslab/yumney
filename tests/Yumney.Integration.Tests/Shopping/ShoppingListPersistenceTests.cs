@@ -170,13 +170,70 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
             ShoppingListFactory.WeeklyGroceries(owner.Value),
             ShoppingListFactory.BakingIngredients(owner.Value),
             ShoppingListFactory.PartySupplies(owner.Value));
-
-        var titleAscSorting = new SortingOptions<ShoppingListSortField>(ShoppingListSortField.Title, SortDirection.Ascending);
+        var sorting = new SortingOptions<ShoppingListSortField>(ShoppingListSortField.Title, SortDirection.Ascending);
 
         await using var readContext = await fixture.CreateShoppingDbContextAsync();
         var shoppingLists = new ShoppingListRepository(readContext);
-        var (items, _) = await shoppingLists.GetByOwnerAsync(owner, DefaultPaging, titleAscSorting);
+        var (items, _) = await shoppingLists.GetByOwnerAsync(owner, DefaultPaging, sorting);
 
         items.Select(i => i.Title.Value).Should().BeInAscendingOrder();
+    }
+
+    [Fact]
+    public async Task GetByOwnerAsync_SortByTitleDescending_ReturnsSorted()
+    {
+        await fixture.SeedShoppingListsAsync(
+            ShoppingListFactory.WeeklyGroceries(owner.Value),
+            ShoppingListFactory.BakingIngredients(owner.Value),
+            ShoppingListFactory.PartySupplies(owner.Value));
+        var sorting = new SortingOptions<ShoppingListSortField>(ShoppingListSortField.Title, SortDirection.Descending);
+
+        await using var readContext = await fixture.CreateShoppingDbContextAsync();
+        var shoppingLists = new ShoppingListRepository(readContext);
+        var (items, _) = await shoppingLists.GetByOwnerAsync(owner, DefaultPaging, sorting);
+
+        items.Select(i => i.Title.Value).Should().BeInDescendingOrder();
+    }
+
+    [Fact]
+    public async Task GetByOwnerAsync_SortByDateAscending_ReturnsOldestFirst()
+    {
+        await fixture.SeedShoppingListsAsync(
+            ShoppingListFactory.WeeklyGroceries(owner.Value),
+            ShoppingListFactory.BakingIngredients(owner.Value),
+            ShoppingListFactory.PartySupplies(owner.Value));
+        var sorting = new SortingOptions<ShoppingListSortField>(ShoppingListSortField.Date, SortDirection.Ascending);
+
+        await using var readContext = await fixture.CreateShoppingDbContextAsync();
+        var shoppingLists = new ShoppingListRepository(readContext);
+        var (items, _) = await shoppingLists.GetByOwnerAsync(owner, DefaultPaging, sorting);
+
+        items.Select(i => i.CreatedAt).Should().BeInAscendingOrder();
+    }
+
+    [Fact]
+    public async Task GetByOwnerAsync_OwnerWithNoLists_ReturnsEmptyResult()
+    {
+        var loneOwner = OwnerIdentifier.From($"empty-{Guid.NewGuid():N}");
+
+        await using var readContext = await fixture.CreateShoppingDbContextAsync();
+        var shoppingLists = new ShoppingListRepository(readContext);
+        var (items, totalCount) = await shoppingLists.GetByOwnerAsync(loneOwner, DefaultPaging, DefaultSorting);
+
+        items.Should().BeEmpty();
+        totalCount.Value.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsDetachedEntity()
+    {
+        var list = ShoppingListFactory.WeeklyGroceries(owner.Value);
+        await fixture.SeedShoppingListsAsync(list);
+
+        await using var readContext = await fixture.CreateShoppingDbContextAsync();
+        var shoppingLists = new ShoppingListRepository(readContext);
+        var loaded = await shoppingLists.GetByIdAsync(list.Id);
+
+        readContext.Entry(loaded!).State.Should().Be(EntityState.Detached);
     }
 }
