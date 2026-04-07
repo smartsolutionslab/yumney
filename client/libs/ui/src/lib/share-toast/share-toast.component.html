@@ -1,0 +1,16 @@
+<div class="share-toast" *transloco="let t" role="status" aria-live="polite">
+  <div class="share-toast-content">
+    <span class="share-toast-icon">&#x2192;</span>
+    <div class="share-toast-text">
+      <strong>{{ t(titleKey()) }}</strong>
+      <span class="share-toast-url">{{ url() }}</span>
+    </div>
+  </div>
+  <button
+    class="share-toast-dismiss"
+    (click)="dismissed.emit()"
+    [attr.aria-label]="t('dashboard.share.dismiss')"
+  >
+    &times;
+  </button>
+</div>

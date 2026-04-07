@@ -1,0 +1,17 @@
+<div class="ingredients-toast" *transloco="let t" role="status" aria-live="polite">
+  <div class="ingredients-toast-content">
+    <strong>{{ t('dashboard.scanner.foundIngredients', { count: ingredients().length }) }}</strong>
+    <div class="ingredients-toast-chips">
+      @for (item of ingredients(); track item.name) {
+        <span class="ingredients-chip">{{ item.name }}</span>
+      }
+    </div>
+  </div>
+  <button
+    class="ingredients-toast-dismiss"
+    (click)="dismissed.emit()"
+    [attr.aria-label]="t('dashboard.scanner.dismiss')"
+  >
+    &times;
+  </button>
+</div>

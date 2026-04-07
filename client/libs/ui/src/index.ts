@@ -36,3 +36,5 @@ export {
 export { CameraCaptureComponent } from './lib/camera-capture/camera-capture.component';
 export { IngredientScannerComponent } from './lib/ingredient-scanner/ingredient-scanner.component';
 export { ChatPanelComponent } from './lib/chat-panel/chat-panel.component';
+export { ShareToastComponent } from './lib/share-toast/share-toast.component';
+export { IngredientsToastComponent } from './lib/ingredients-toast/ingredients-toast.component';

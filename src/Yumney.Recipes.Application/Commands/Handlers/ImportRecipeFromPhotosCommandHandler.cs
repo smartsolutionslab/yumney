@@ -8,43 +8,20 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1303
-#pragma warning disable SA1311
-public sealed partial class ImportRecipeFromPhotosCommandHandler(
-    IRecipeExtractionService extractionService,
-    ILogger<ImportRecipeFromPhotosCommandHandler> logger)
+public sealed partial class ImportRecipeFromPhotosCommandHandler(IRecipeExtractionService extractionService, ILogger<ImportRecipeFromPhotosCommandHandler> logger)
     : ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>>
 {
     private const int maxPhotos = 10;
-    private const long maxPhotoSizeBytes = 10 * 1024 * 1024;
 
-    private static readonly HashSet<string> allowedContentTypes =
-    [
-        MediaTypes.ImageJpeg,
-        MediaTypes.ImagePng,
-        MediaTypes.ImageWebp,
-    ];
-
-    public async Task<Result<ExtractedRecipeDto>> HandleAsync(
-        ImportRecipeFromPhotosCommand command,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<ExtractedRecipeDto>> HandleAsync(ImportRecipeFromPhotosCommand command, CancellationToken cancellationToken = default)
     {
         var photos = command.Photos;
 
-        if (photos.Count == 0 || photos.Count > maxPhotos) return ImportRecipeErrors.TooManyPhotos;
-
-        foreach (var photo in photos)
+        var validation = PhotoValidator.ValidateMany(photos, maxPhotos);
+        if (validation.IsFailure)
         {
-            if (photo.Content.Length > maxPhotoSizeBytes)
-            {
-                LogPhotoTooLarge(photo.FileName, photo.Content.Length);
-                return ImportRecipeErrors.PhotoTooLarge;
-            }
-
-            if (!allowedContentTypes.Contains(photo.ContentType.ToLowerInvariant()))
-            {
-                LogInvalidFormat(photo.FileName, photo.ContentType);
-                return ImportRecipeErrors.InvalidPhotoFormat;
-            }
+            LogValidationFailed(validation.Error!.Code);
+            return Result.Failure<ExtractedRecipeDto>(validation.Error);
         }
 
         LogExtractingFromPhotos(photos.Count);
@@ -52,11 +29,8 @@ public sealed partial class ImportRecipeFromPhotosCommandHandler(
         return await extractionService.ExtractFromPhotosAsync(photos, cancellationToken);
     }
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Photo {FileName} exceeds size limit: {SizeBytes} bytes")]
-    private partial void LogPhotoTooLarge(string fileName, long sizeBytes);
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Invalid photo format {FileName}: {ContentType}")]
-    private partial void LogInvalidFormat(string fileName, string contentType);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Photo validation failed: {ErrorCode}")]
+    private partial void LogValidationFailed(string errorCode);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Extracting recipe from {PhotoCount} photos")]
     private partial void LogExtractingFromPhotos(int photoCount);

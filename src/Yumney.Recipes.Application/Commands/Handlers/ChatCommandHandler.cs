@@ -13,9 +13,7 @@ public sealed partial class ChatCommandHandler(
     ICurrentUser currentUser,
     ILogger<ChatCommandHandler> logger) : ICommandHandler<ChatCommand, Result<ChatResponseDto>>
 {
-    public async Task<Result<ChatResponseDto>> HandleAsync(
-        ChatCommand command,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<ChatResponseDto>> HandleAsync(ChatCommand command, CancellationToken cancellationToken = default)
     {
         var owner = OwnerIdentifier.From(currentUser.UserId);
 
