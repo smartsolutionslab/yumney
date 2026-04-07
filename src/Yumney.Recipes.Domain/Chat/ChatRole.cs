@@ -3,10 +3,11 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Chat;
 
+#pragma warning disable SA1311 // editorconfig requires camelCase for private fields
 public sealed record ChatRole : IValueObject<string>
 {
-#pragma warning disable SA1202 // AllowedValues must initialize before the public static instances
-    private static readonly string[] AllowedValues = ["user", "assistant"];
+#pragma warning disable SA1202 // allowedValues must initialize before the public static instances
+    private static readonly string[] allowedValues = ["user", "assistant"];
 
     public static readonly ChatRole User = new("user");
     public static readonly ChatRole Assistant = new("assistant");
@@ -16,7 +17,7 @@ public sealed record ChatRole : IValueObject<string>
 
     private ChatRole(string value)
     {
-        Value = Ensure.That(value).IsNotNullOrWhiteSpace().IsOneOf(AllowedValues).AndReturn();
+        Value = Ensure.That(value).IsNotNullOrWhiteSpace().IsOneOf(allowedValues).AndReturn();
     }
 
     public static ChatRole From(string value)
@@ -27,3 +28,4 @@ public sealed record ChatRole : IValueObject<string>
 
     public static implicit operator string(ChatRole role) => role.Value;
 }
+#pragma warning restore SA1311

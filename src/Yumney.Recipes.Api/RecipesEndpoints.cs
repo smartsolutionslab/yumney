@@ -268,7 +268,9 @@ public static class RecipesEndpoints
             statusCode: StatusCodes.Status413PayloadTooLarge,
             detail: $"Photo '{fileName}' exceeds the maximum size of 10 MB.");
 
-    private const string EmptyChatMessageError = "Message cannot be empty.";
+#pragma warning disable SA1303 // editorconfig requires camelCase for private const fields
+    private const string emptyChatMessageError = "Message cannot be empty.";
+#pragma warning restore SA1303
 
     private static async Task<IResult> ChatAsync(
         ChatRequestDto request,
@@ -279,7 +281,7 @@ public static class RecipesEndpoints
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
-                detail: EmptyChatMessageError);
+                detail: emptyChatMessageError);
         }
 
         var historyEntries = request.History

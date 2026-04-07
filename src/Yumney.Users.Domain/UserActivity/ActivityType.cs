@@ -3,10 +3,11 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 
+#pragma warning disable SA1311 // editorconfig requires camelCase for private fields
 public sealed record ActivityType : IValueObject<string>
 {
-#pragma warning disable SA1202 // AllowedValues must initialize before the public static instances
-    private static readonly string[] AllowedValues =
+#pragma warning disable SA1202 // allowedValues must initialize before the public static instances
+    private static readonly string[] allowedValues =
     [
         "recipe_imported",
         "recipe_viewed",
@@ -26,10 +27,11 @@ public sealed record ActivityType : IValueObject<string>
 
     private ActivityType(string value)
     {
-        Value = Ensure.That(value).IsNotNullOrWhiteSpace().IsOneOf(AllowedValues).AndReturn();
+        Value = Ensure.That(value).IsNotNullOrWhiteSpace().IsOneOf(allowedValues).AndReturn();
     }
 
     public static ActivityType From(string value) => new(value);
 
     public static implicit operator string(ActivityType type) => type.Value;
 }
+#pragma warning restore SA1311
