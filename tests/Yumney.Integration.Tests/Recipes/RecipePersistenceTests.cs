@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes;
@@ -97,6 +98,34 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
 
         readContext.Entry(loaded!).State.Should().Be(EntityState.Unchanged);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_RecipeWithTags_LoadsTags()
+    {
+        var recipe = RecipeFactory.Lasagne(owner.Value);
+        await fixture.SeedRecipesAsync(recipe);
+
+        await using var readContext = await fixture.CreateRecipesDbContextAsync();
+        var recipes = new RecipeRepository(readContext);
+        var loaded = await recipes.GetByIdAsync(recipe.Id);
+
+        loaded!.Tags.Select(t => t.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
+    }
+
+    [Fact]
+    public async Task GetByOwnerAsync_RecipeWithTags_LoadsTagsForListItems()
+    {
+        var recipe = RecipeFactory.Lasagne(owner.Value);
+        await fixture.SeedRecipesAsync(recipe);
+        var paging = PagingOptions.Of(Page.From(1), PageSize.From(20));
+        var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
+
+        await using var readContext = await fixture.CreateRecipesDbContextAsync();
+        var recipes = new RecipeRepository(readContext);
+        var (items, _) = await recipes.GetByOwnerAsync(owner, paging, sorting);
+
+        items.Single().Tags.Select(t => t.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
     }
 
     [Fact]

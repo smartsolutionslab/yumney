@@ -12,7 +12,8 @@ public static class RecipeFactory
         string? description = null,
         int? servings = null,
         IReadOnlyList<(string Name, decimal? Amount, string? Unit)>? ingredients = null,
-        IReadOnlyList<string>? steps = null)
+        IReadOnlyList<string>? steps = null,
+        IReadOnlyList<string>? tags = null)
     {
         var recipeIngredients = (ingredients ?? [("Default Ingredient", null, null)])
             .Select(i => Ingredient.Create(
@@ -24,13 +25,16 @@ public static class RecipeFactory
             .Select((s, i) => Step.Create(StepNumber.From(i + 1), StepDescription.From(s)))
             .ToList();
 
+        var recipeTags = tags?.Select(RecipeTag.From).ToList();
+
         return Recipe.Create(
             RecipeTitle.From(title),
             OwnerIdentifier.From(owner ?? DefaultOwner),
             recipeIngredients,
             recipeSteps,
             RecipeDescription.FromNullable(description),
-            Servings.FromNullable(servings));
+            Servings.FromNullable(servings),
+            tags: recipeTags);
     }
 
     public static Recipe Lasagne(string? owner = null) => Create(
@@ -58,7 +62,8 @@ public static class RecipeFactory
             "Make bechamel: melt butter, add flour, gradually add milk",
             "Layer lasagne sheets, Bolognese, and bechamel in a baking dish",
             "Top with mozzarella and parmesan, bake at 180°C for 40 minutes",
-        ]);
+        ],
+        tags: ["italian", "pasta", "comfort-food"]);
 
     public static Recipe TomatoSoup(string? owner = null) => Create(
         "Roasted Tomato Soup",
