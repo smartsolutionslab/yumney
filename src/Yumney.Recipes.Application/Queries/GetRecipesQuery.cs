@@ -8,4 +8,5 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 public sealed record GetRecipesQuery(
     PagingOptions Paging,
     SortingOptions<RecipeSortField> Sorting,
-    SearchTerm? Search = null) : IQuery<Result<PagedResult<RecipeListItemDto>>>;
+    SearchTerm? Search = null,
+    RecipeFilter? Filter = null) : IQuery<Result<PagedResult<RecipeListItemDto>>>;

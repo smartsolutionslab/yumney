@@ -148,6 +148,10 @@ export class RecipeApiService {
         ...(params.sortBy != null && { sortBy: params.sortBy }),
         ...(params.sortDirection != null && { sortDirection: params.sortDirection }),
         ...(params.search != null && params.search !== '' && { search: params.search }),
+        ...(params.tags != null && params.tags.length > 0 && { tags: params.tags.join(',') }),
+        ...(params.difficulty != null && { difficulty: params.difficulty }),
+        ...(params.maxPrepTime != null && { maxPrepTime: params.maxPrepTime }),
+        ...(params.maxCookTime != null && { maxCookTime: params.maxCookTime }),
       },
     });
   }

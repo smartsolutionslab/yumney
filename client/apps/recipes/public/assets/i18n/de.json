@@ -43,6 +43,21 @@
         "noResultsMessage": "Keine Rezepte für \"{{query}}\" gefunden. Versuche einen anderen Suchbegriff.",
         "clear": "Suche löschen"
       },
+      "filter": {
+        "toggle": "Filter",
+        "title": "Rezepte filtern",
+        "clear": "Alle löschen",
+        "tags": "Tags",
+        "difficulty": "Schwierigkeit",
+        "difficultyOption": {
+          "easy": "Einfach",
+          "medium": "Mittel",
+          "hard": "Schwer"
+        },
+        "maxPrepTime": "Max. Vorbereitung (Min.)",
+        "maxCookTime": "Max. Kochzeit (Min.)",
+        "minutesPlaceholder": "Min."
+      },
       "errors": {
         "generic": "Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
       }

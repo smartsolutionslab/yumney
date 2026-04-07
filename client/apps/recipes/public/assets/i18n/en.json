@@ -43,6 +43,21 @@
         "noResultsMessage": "No recipes match \"{{query}}\". Try a different search term.",
         "clear": "Clear search"
       },
+      "filter": {
+        "toggle": "Filters",
+        "title": "Filter recipes",
+        "clear": "Clear all",
+        "tags": "Tags",
+        "difficulty": "Difficulty",
+        "difficultyOption": {
+          "easy": "Easy",
+          "medium": "Medium",
+          "hard": "Hard"
+        },
+        "maxPrepTime": "Max prep time (min)",
+        "maxCookTime": "Max cook time (min)",
+        "minutesPlaceholder": "min"
+      },
       "errors": {
         "generic": "Failed to load recipes. Please try again later."
       }

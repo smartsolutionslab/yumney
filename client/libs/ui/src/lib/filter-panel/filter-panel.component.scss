@@ -1,0 +1,112 @@
+.filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-4);
+  padding: var(--yn-space-5);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-lg);
+  background: var(--yn-glass-bg);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filter-title {
+  margin: 0;
+  font-size: var(--yn-text-lg);
+  font-weight: var(--yn-font-semibold);
+  color: var(--yn-text);
+}
+
+.filter-count {
+  margin-left: var(--yn-space-2);
+  color: var(--yn-primary);
+  font-weight: var(--yn-font-medium);
+}
+
+.clear-button {
+  padding: var(--yn-space-2) var(--yn-space-3);
+  border: none;
+  background: transparent;
+  color: var(--yn-primary);
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-medium);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-2);
+}
+
+.filter-label {
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-medium);
+  color: var(--yn-text-muted);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yn-space-2);
+}
+
+.filter-chip {
+  padding: var(--yn-space-2) var(--yn-space-4);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-badge);
+  background: transparent;
+  color: var(--yn-text);
+  font-size: var(--yn-text-sm);
+  cursor: pointer;
+  transition:
+    background var(--yn-duration-fast) var(--yn-ease-glass),
+    border-color var(--yn-duration-fast) var(--yn-ease-glass),
+    color var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover {
+    border-color: var(--yn-primary);
+    color: var(--yn-primary);
+  }
+
+  &.active {
+    background: var(--yn-primary);
+    border-color: var(--yn-primary);
+    color: var(--yn-on-primary, white);
+  }
+}
+
+.time-group {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--yn-space-3);
+
+  .filter-label {
+    flex: 1;
+  }
+}
+
+.time-input {
+  width: 6rem;
+  padding: var(--yn-space-2) var(--yn-space-3);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-md);
+  background: var(--yn-glass-bg);
+  color: var(--yn-text);
+  font-size: var(--yn-text-base);
+
+  &:focus {
+    outline: none;
+    border-color: var(--yn-primary);
+  }
+}

@@ -12,12 +12,12 @@ public sealed partial class GetRecipesQueryHandler(IRecipeRepository recipes, IC
 {
     public async Task<Result<PagedResult<RecipeListItemDto>>> HandleAsync(GetRecipesQuery query, CancellationToken cancellationToken = default)
     {
-        var (paging, sorting, search) = query;
+        var (paging, sorting, search, filter) = query;
         var owner = currentUser.AsOwner();
 
         LogGetRecipes(owner.Value, paging.Page.Value, paging.PageSize.Value, search?.Value);
 
-        var (items, totalCount) = await recipes.GetByOwnerAsync(owner, paging, sorting, search, cancellationToken);
+        var (items, totalCount) = await recipes.GetByOwnerAsync(owner, paging, sorting, search, filter, cancellationToken);
         var dtoItems = items.Select(r => r.ToListItemDto()).ToList();
 
         return PagedResultExtensions.With(dtoItems, totalCount, paging);

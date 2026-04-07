@@ -1,0 +1,79 @@
+<div class="filter-panel" *transloco="let t">
+  <div class="filter-header">
+    <h3 class="filter-title">
+      {{ t('recipes.list.filter.title') }}
+      @if (activeCount() > 0) {
+        <span class="filter-count">({{ activeCount() }})</span>
+      }
+    </h3>
+    @if (activeCount() > 0) {
+      <button type="button" class="clear-button" (click)="clearAll()">
+        {{ t('recipes.list.filter.clear') }}
+      </button>
+    }
+  </div>
+
+  @if (availableTags().length > 0) {
+    <div class="filter-group">
+      <label class="filter-label">{{ t('recipes.list.filter.tags') }}</label>
+      <div class="chip-row">
+        @for (tag of availableTags(); track tag) {
+          <button
+            type="button"
+            class="filter-chip"
+            [class.active]="isTagActive(tag)"
+            (click)="toggleTag(tag)"
+          >
+            {{ tag }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="filter-group">
+    <label class="filter-label">{{ t('recipes.list.filter.difficulty') }}</label>
+    <div class="chip-row">
+      @for (option of difficultyOptions; track option) {
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="value().difficulty === option"
+          (click)="toggleDifficulty(option)"
+        >
+          {{ t('recipes.list.filter.difficultyOption.' + option) }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="filter-group time-group">
+    <label class="filter-label" for="filter-max-prep">
+      {{ t('recipes.list.filter.maxPrepTime') }}
+    </label>
+    <input
+      id="filter-max-prep"
+      type="number"
+      class="time-input"
+      min="1"
+      [value]="value().maxPrepTime ?? ''"
+      (change)="onPrepTimeChange($event)"
+      [placeholder]="t('recipes.list.filter.minutesPlaceholder')"
+    />
+  </div>
+
+  <div class="filter-group time-group">
+    <label class="filter-label" for="filter-max-cook">
+      {{ t('recipes.list.filter.maxCookTime') }}
+    </label>
+    <input
+      id="filter-max-cook"
+      type="number"
+      class="time-input"
+      min="1"
+      [value]="value().maxCookTime ?? ''"
+      (change)="onCookTimeChange($event)"
+      [placeholder]="t('recipes.list.filter.minutesPlaceholder')"
+    />
+  </div>
+</div>

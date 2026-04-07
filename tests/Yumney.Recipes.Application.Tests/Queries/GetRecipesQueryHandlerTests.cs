@@ -99,6 +99,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<PagingOptions>(),
             Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<SearchTerm?>(),
+            Arg.Any<RecipeFilter?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -115,6 +116,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Is<PagingOptions>(p => p.Skip == 20 && p.PageSize.Value == 10),
             Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<SearchTerm?>(),
+            Arg.Any<RecipeFilter?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -131,6 +133,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Is<PagingOptions>(p => p.Skip == 0 && p.PageSize.Value == 20),
             Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<SearchTerm?>(),
+            Arg.Any<RecipeFilter?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -147,6 +150,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<PagingOptions>(),
             Arg.Is<SortingOptions<RecipeSortField>>(s => s.SortBy == RecipeSortField.Name && s.Direction == SortDirection.Ascending),
             Arg.Any<SearchTerm?>(),
+            Arg.Any<RecipeFilter?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -163,6 +167,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<PagingOptions>(),
             Arg.Is<SortingOptions<RecipeSortField>>(s => s.SortBy == RecipeSortField.Date && s.Direction == SortDirection.Descending),
             Arg.Any<SearchTerm?>(),
+            Arg.Any<RecipeFilter?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -180,6 +185,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<PagingOptions>(),
             Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<SearchTerm?>(),
+            Arg.Any<RecipeFilter?>(),
             cts.Token);
     }
 
@@ -197,6 +203,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<PagingOptions>(),
             Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Is<SearchTerm?>(s => s != null && s.Value == "pasta"),
+            Arg.Any<RecipeFilter?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -213,6 +220,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<PagingOptions>(),
             Arg.Any<SortingOptions<RecipeSortField>>(),
             null,
+            Arg.Any<RecipeFilter?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -282,12 +290,56 @@ public class GetRecipesQueryHandlerTests
         result.Value.TotalCount.Should().Be(25);
     }
 
+    [Fact]
+    public async Task HandleAsync_WithFilter_ForwardsFilterToRepository()
+    {
+        SetupEmptyRepository();
+        var filter = new RecipeFilter(
+            Tags: [RecipeTag.From("vegan")],
+            Difficulty: Difficulty.From("easy"),
+            MaxPrepTime: PreparationTime.From(15),
+            MaxCookTime: CookingTime.From(30));
+
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending, filter: filter);
+        await handler.HandleAsync(query);
+
+        await recipes.Received(1).GetByOwnerAsync(
+            Arg.Any<OwnerIdentifier>(),
+            Arg.Any<PagingOptions>(),
+            Arg.Any<SortingOptions<RecipeSortField>>(),
+            Arg.Any<SearchTerm?>(),
+            Arg.Is<RecipeFilter?>(f => f != null && ReferenceEquals(f, filter)),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task HandleAsync_WithoutFilter_PassesNullFilterToRepository()
+    {
+        SetupEmptyRepository();
+
+        var query = CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending);
+        await handler.HandleAsync(query);
+
+        await recipes.Received(1).GetByOwnerAsync(
+            Arg.Any<OwnerIdentifier>(),
+            Arg.Any<PagingOptions>(),
+            Arg.Any<SortingOptions<RecipeSortField>>(),
+            Arg.Any<SearchTerm?>(),
+            (RecipeFilter?)null,
+            Arg.Any<CancellationToken>());
+    }
+
     private static GetRecipesQuery CreateQuery(
-        int page, int pageSize, RecipeSortField sortBy, SortDirection sortDirection, SearchTerm? search = null)
+        int page,
+        int pageSize,
+        RecipeSortField sortBy,
+        SortDirection sortDirection,
+        SearchTerm? search = null,
+        RecipeFilter? filter = null)
     {
         var paging = PagingOptions.Of(Page.From(page), PageSize.From(pageSize));
         var sorting = new SortingOptions<RecipeSortField>(sortBy, sortDirection);
-        return new GetRecipesQuery(paging, sorting, search);
+        return new GetRecipesQuery(paging, sorting, search, filter);
     }
 
     private void SetupEmptyRepository()
@@ -302,6 +354,7 @@ public class GetRecipesQueryHandlerTests
             Arg.Any<PagingOptions>(),
             Arg.Any<SortingOptions<RecipeSortField>>(),
             Arg.Any<SearchTerm?>(),
+            Arg.Any<RecipeFilter?>(),
             Arg.Any<CancellationToken>())
             .Returns((items, ItemCount.From(totalCount)));
     }
