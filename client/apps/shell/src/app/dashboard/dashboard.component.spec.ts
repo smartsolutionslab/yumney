@@ -344,9 +344,9 @@ describe('DashboardComponent', () => {
 
   it('should clear serverError when starting a save', fakeAsync(() => {
     component.serverError.set('previous error');
-    recipeApiMock.saveRecipe.mockReturnValue(of(
-      { identifier: '1', title: 'X', createdAt: '2026-03-10T00:00:00Z' } as SavedRecipeResponse,
-    ));
+    recipeApiMock.saveRecipe.mockReturnValue(
+      of({ identifier: '1', title: 'X', createdAt: '2026-03-10T00:00:00Z' } as SavedRecipeResponse),
+    );
 
     component.onUrlExtracted({ recipe: mockRecipe, sourceUrl: 'https://example.com/recipe' });
     component.onSaveRecipe(mockRecipe);
