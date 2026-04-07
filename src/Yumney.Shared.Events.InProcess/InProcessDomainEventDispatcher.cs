@@ -30,13 +30,29 @@ public sealed partial class InProcessDomainEventDispatcher(IServiceProvider serv
 
             foreach (var handler in handlers)
             {
-                LogDispatchingEvent(eventType.Name, handler!.GetType().Name);
+                var handlerName = handler!.GetType().Name;
+                LogDispatchingEvent(eventType.Name, handlerName);
 
-                await (Task)method.Invoke(handler!, [domainEvent, cancellationToken])!;
+                try
+                {
+                    await (Task)method.Invoke(handler!, [domainEvent, cancellationToken])!;
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    // Isolate handlers — one failing handler must not block the others.
+                    LogHandlerFailed(ex, eventType.Name, handlerName);
+                }
             }
         }
     }
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Dispatching domain event {EventType} to {HandlerType}")]
     private partial void LogDispatchingEvent(string eventType, string handlerType);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Domain event handler {HandlerType} failed for {EventType}")]
+    private partial void LogHandlerFailed(Exception ex, string eventType, string handlerType);
 }

@@ -1,4 +1,5 @@
 using System.Net.Mail;
+using System.Numerics;
 using System.Text.RegularExpressions;
 
 namespace SmartSolutionsLab.Yumney.Shared.Guards;
@@ -91,48 +92,30 @@ public static class GuardExtensions
         }
     }
 
-    extension(GuardClause<int> guard)
+    extension<T>(GuardClause<T> guard)
+        where T : struct, INumber<T>
     {
-        public GuardClause<int> IsPositive()
+        public GuardClause<T> IsPositive()
         {
-            if (guard.Value <= 0) throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
-            return guard;
-        }
-
-        public GuardClause<int> IsNotNegative()
-        {
-            if (guard.Value < 0) throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
-            return guard;
-        }
-
-        public GuardClause<int> IsInRange(int min, int max)
-        {
-            if (guard.Value < min || guard.Value > max)
+            if (guard.Value <= T.Zero)
             {
-                throw new GuardException(
-                    guard.ParameterName,
-                    $"{guard.ParameterName} must be between {min} and {max}.");
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
             }
 
             return guard;
         }
-    }
 
-    extension(GuardClause<decimal> guard)
-    {
-        public GuardClause<decimal> IsPositive()
+        public GuardClause<T> IsNotNegative()
         {
-            if (guard.Value <= 0) throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must be positive.");
+            if (guard.Value < T.Zero)
+            {
+                throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
+            }
+
             return guard;
         }
 
-        public GuardClause<decimal> IsNotNegative()
-        {
-            if (guard.Value < 0) throw new GuardException(guard.ParameterName, $"{guard.ParameterName} must not be negative.");
-            return guard;
-        }
-
-        public GuardClause<decimal> IsInRange(decimal min, decimal max)
+        public GuardClause<T> IsInRange(T min, T max)
         {
             if (guard.Value < min || guard.Value > max)
             {
