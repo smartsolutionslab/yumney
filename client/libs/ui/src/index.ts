@@ -10,17 +10,7 @@ export { UnitSelectComponent } from './lib/unit-select/unit-select.component';
 export { LoadingSpinnerComponent } from './lib/loading-spinner/loading-spinner.component';
 
 // Animation utilities
-export {
-  springPress,
-  springHover,
-  resetTransform,
-  fadeInUp,
-  scaleIn,
-  staggerFadeIn,
-  prefersReducedMotion,
-  safeAnimate,
-  observeReveal,
-} from './lib/animation/gsap-utils';
+export { springPress, staggerFadeIn, prefersReducedMotion } from './lib/animation/gsap-utils';
 
 // Dashboard components
 export {
@@ -28,10 +18,7 @@ export {
   type QuickAction,
 } from './lib/quick-actions/quick-actions.component';
 export { SuggestionCardComponent } from './lib/suggestion-card/suggestion-card.component';
-export {
-  RecentActivityComponent,
-  type ActivityItem,
-} from './lib/recent-activity/recent-activity.component';
+export { RecentActivityComponent } from './lib/recent-activity/recent-activity.component';
 
 export { CameraCaptureComponent } from './lib/camera-capture/camera-capture.component';
 export { IngredientScannerComponent } from './lib/ingredient-scanner/ingredient-scanner.component';

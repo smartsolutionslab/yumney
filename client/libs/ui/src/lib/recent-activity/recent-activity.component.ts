@@ -3,13 +3,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ROUTES } from '@yumney/shared/models';
-
-export interface ActivityItem {
-  type: string;
-  recipeIdentifier: string | null;
-  recipeTitle: string | null;
-  occurredAt: string;
-}
+import type { UserActivityItem } from '@yumney/shared/api-client';
 
 @Component({
   selector: 'yn-recent-activity',
@@ -50,7 +44,7 @@ export interface ActivityItem {
 export class RecentActivityComponent {
   protected readonly ROUTES = ROUTES;
 
-  activities = input.required<ActivityItem[]>();
+  activities = input.required<UserActivityItem[]>();
 
   getIcon(type: string): string {
     const icons: Record<string, string> = {
