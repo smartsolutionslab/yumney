@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { } from '@jsverse/transloco';
 import { ShareToastComponent } from './share-toast.component';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
   dashboard: {
@@ -18,10 +19,7 @@ describe('ShareToastComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         ShareToastComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
+        setupTranslocoTesting(en),
       ],
     }).compileComponents();
 

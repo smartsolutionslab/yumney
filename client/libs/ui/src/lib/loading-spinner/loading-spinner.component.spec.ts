@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 import { LoadingSpinnerComponent } from './loading-spinner.component';
 
 const en = {
@@ -14,13 +14,7 @@ describe('LoadingSpinnerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        LoadingSpinnerComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
-      ],
+      imports: [LoadingSpinnerComponent, setupTranslocoTesting(en)],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoadingSpinnerComponent);

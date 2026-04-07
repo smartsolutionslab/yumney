@@ -118,17 +118,24 @@ public sealed class AspireFixture : IAsyncLifetime
         CancellationToken cancellationToken)
         where TContext : DbContext
     {
+        const int maxAttempts = 10;
+        const int initialDelayMs = 100;
+        const int maxDelayMs = 2000;
+
         await using var context = await contextFactory();
-        for (var attempt = 1; attempt <= 10; attempt++)
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
             try
             {
                 await context.Database.EnsureCreatedAsync(cancellationToken);
                 return;
             }
-            catch when (attempt < 10)
+            catch when (attempt < maxAttempts)
             {
-                await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+                // Exponential backoff: 100, 200, 400, 800, 1600, 2000, 2000, ...
+                // Caps at 2s. Worst case: ~10s vs 18s with the previous fixed-2s loop.
+                var delayMs = Math.Min(initialDelayMs * (1 << (attempt - 1)), maxDelayMs);
+                await Task.Delay(delayMs, cancellationToken);
             }
         }
     }

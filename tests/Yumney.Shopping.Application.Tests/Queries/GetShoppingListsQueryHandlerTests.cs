@@ -102,6 +102,22 @@ public class GetShoppingListsQueryHandlerTests
             Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task HandleAsync_ForwardsCancellationToken()
+    {
+        SetupRepository([], 0);
+        var cts = new CancellationTokenSource();
+        var query = CreateQuery(1, 20, ShoppingListSortField.Date, SortDirection.Descending);
+
+        await handler.HandleAsync(query, cts.Token);
+
+        await shoppingLists.Received(1).GetByOwnerAsync(
+            Arg.Any<OwnerIdentifier>(),
+            Arg.Any<PagingOptions>(),
+            Arg.Any<SortingOptions<ShoppingListSortField>>(),
+            cts.Token);
+    }
+
     private static GetShoppingListsQuery CreateQuery(
         int page, int pageSize, ShoppingListSortField sortBy, SortDirection sortDirection)
     {

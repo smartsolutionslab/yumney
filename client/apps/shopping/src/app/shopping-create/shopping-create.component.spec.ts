@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, throwError, Subject } from 'rxjs';
 import { ShoppingCreateComponent } from './shopping-create.component';
 import {
@@ -10,6 +9,7 @@ import {
   ShoppingListDetail,
 } from '@yumney/shared/api-client';
 import { HttpErrorResponse } from '@angular/common/http';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const mockRecipe: RecipeDetail = {
   identifier: 'recipe-abc',
@@ -84,13 +84,7 @@ describe('ShoppingCreateComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         ShoppingCreateComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: {
-            availableLangs: ['en'],
-            defaultLang: 'en',
-          },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [
         provideRouter([]),

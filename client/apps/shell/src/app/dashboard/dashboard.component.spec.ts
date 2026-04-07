@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 import {
   RecipeApiService,
   ImportRecipeResponse,
@@ -114,10 +115,7 @@ describe('DashboardComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         DashboardComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [
         { provide: RecipeApiService, useValue: recipeApiMock },
@@ -528,10 +526,7 @@ describe('DashboardComponent – Share Intent', () => {
     TestBed.configureTestingModule({
       imports: [
         DashboardComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [
         { provide: RecipeApiService, useValue: recipeApiMock },

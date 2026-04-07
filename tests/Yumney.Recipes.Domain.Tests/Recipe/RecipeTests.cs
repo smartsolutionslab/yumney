@@ -181,37 +181,59 @@ public class RecipeTests
     }
 
     [Fact]
-    public void Update_ValidInput_SetsAllEditableFields()
+    public void Update_ValidInput_SetsTitle()
     {
-        var recipe = CreateValidRecipe(
-            description: RecipeDescription.From("Old description"),
-            servings: Servings.From(2));
+        var recipe = CreateRecipeWithUpdatedFields();
 
-        var newTitle = RecipeTitle.From("Updated Recipe");
-        var newDescription = RecipeDescription.From("Updated description");
-        var newServings = Servings.From(6);
-        var newPrepTime = PreparationTime.From(15);
-        var newCookTime = CookingTime.From(30);
-        var newDifficulty = Difficulty.From("hard");
-        var newImageUrl = ImageUrl.From("https://example.com/new.jpg");
-        List<Ingredient> newIngredients =
-        [
-            Ingredient.Create(IngredientName.From("Butter"), Quantity.Of(Amount.From(100), Unit.From("g"))),
-        ];
-        List<Step> newSteps =
-        [
-            Step.Create(StepNumber.From(1), StepDescription.From("Melt butter")),
-        ];
+        recipe.Title.Should().Be(RecipeTitle.From("Updated Recipe"));
+    }
 
-        recipe.Update(newTitle, newIngredients, newSteps, newDescription, newServings, newPrepTime, newCookTime, newDifficulty, newImageUrl);
+    [Fact]
+    public void Update_ValidInput_SetsDescription()
+    {
+        var recipe = CreateRecipeWithUpdatedFields();
 
-        recipe.Title.Should().Be(newTitle);
-        recipe.Description.Should().Be(newDescription);
-        recipe.Servings.Should().Be(newServings);
-        recipe.PreparationTime.Should().Be(newPrepTime);
-        recipe.CookingTime.Should().Be(newCookTime);
-        recipe.Difficulty.Should().Be(newDifficulty);
-        recipe.ImageUrl.Should().Be(newImageUrl);
+        recipe.Description.Should().Be(RecipeDescription.From("Updated description"));
+    }
+
+    [Fact]
+    public void Update_ValidInput_SetsServings()
+    {
+        var recipe = CreateRecipeWithUpdatedFields();
+
+        recipe.Servings.Should().Be(Servings.From(6));
+    }
+
+    [Fact]
+    public void Update_ValidInput_SetsPreparationTime()
+    {
+        var recipe = CreateRecipeWithUpdatedFields();
+
+        recipe.PreparationTime.Should().Be(PreparationTime.From(15));
+    }
+
+    [Fact]
+    public void Update_ValidInput_SetsCookingTime()
+    {
+        var recipe = CreateRecipeWithUpdatedFields();
+
+        recipe.CookingTime.Should().Be(CookingTime.From(30));
+    }
+
+    [Fact]
+    public void Update_ValidInput_SetsDifficulty()
+    {
+        var recipe = CreateRecipeWithUpdatedFields();
+
+        recipe.Difficulty.Should().Be(Difficulty.From("hard"));
+    }
+
+    [Fact]
+    public void Update_ValidInput_SetsImageUrl()
+    {
+        var recipe = CreateRecipeWithUpdatedFields();
+
+        recipe.ImageUrl.Should().Be(ImageUrl.From("https://example.com/new.jpg"));
     }
 
     [Fact]
@@ -482,6 +504,35 @@ public class RecipeTests
             [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
 
         recipe.Tags.Should().BeEmpty();
+    }
+
+    private static Domain.Recipe.Recipe CreateRecipeWithUpdatedFields()
+    {
+        var recipe = CreateValidRecipe(
+            description: RecipeDescription.From("Old description"),
+            servings: Servings.From(2));
+
+        List<Ingredient> newIngredients =
+        [
+            Ingredient.Create(IngredientName.From("Butter"), Quantity.Of(Amount.From(100), Unit.From("g"))),
+        ];
+        List<Step> newSteps =
+        [
+            Step.Create(StepNumber.From(1), StepDescription.From("Melt butter")),
+        ];
+
+        recipe.Update(
+            RecipeTitle.From("Updated Recipe"),
+            newIngredients,
+            newSteps,
+            RecipeDescription.From("Updated description"),
+            Servings.From(6),
+            PreparationTime.From(15),
+            CookingTime.From(30),
+            Difficulty.From("hard"),
+            ImageUrl.From("https://example.com/new.jpg"));
+
+        return recipe;
     }
 
     private static Domain.Recipe.Recipe CreateValidRecipe(

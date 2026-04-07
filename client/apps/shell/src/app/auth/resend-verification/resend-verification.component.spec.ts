@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, Subject, throwError } from 'rxjs';
 import { ResendVerificationComponent } from './resend-verification.component';
 import { AuthApiService } from '@yumney/shared/api-client';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
   auth: {
@@ -42,13 +42,7 @@ describe('ResendVerificationComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         ResendVerificationComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: {
-            availableLangs: ['en'],
-            defaultLang: 'en',
-          },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [provideRouter([]), { provide: AuthApiService, useValue: authApiMock }],
     }).compileComponents();

@@ -1,10 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { HeaderComponent } from '@yumney/ui';
 import { AuthService } from '@yumney/shared/auth';
-import { LanguageService, ThemeService } from '@yumney/shared/models';
+import { LanguageService, ThemeService, setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
   layout: {
@@ -50,13 +49,7 @@ describe('HeaderComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         HeaderComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: {
-            availableLangs: ['en'],
-            defaultLang: 'en',
-          },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [
         provideRouter([]),

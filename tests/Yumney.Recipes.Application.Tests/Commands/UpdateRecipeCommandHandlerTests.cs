@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
@@ -36,18 +37,50 @@ public class UpdateRecipeCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ValidCommand_ReturnsRecipeDetailDto()
+    public async Task HandleAsync_ValidCommand_ReturnsDtoWithMatchingIdentifier()
     {
         var recipe = RecipeTestData.CreateRecipe();
         recipes.GetByIdForUpdateAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
-
         var command = CreateValidCommand(recipe.Id);
 
         var result = await handler.HandleAsync(command);
 
         result.Value.Identifier.Should().Be(recipe.Id.Value);
+    }
+
+    [Fact]
+    public async Task HandleAsync_ValidCommand_ReturnsDtoWithUpdatedTitle()
+    {
+        var recipe = RecipeTestData.CreateRecipe();
+        recipes.GetByIdForUpdateAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
+        var command = CreateValidCommand(recipe.Id);
+
+        var result = await handler.HandleAsync(command);
+
         result.Value.Title.Should().Be("Updated Pasta");
+    }
+
+    [Fact]
+    public async Task HandleAsync_ValidCommand_ReturnsDtoWithUpdatedIngredients()
+    {
+        var recipe = RecipeTestData.CreateRecipe();
+        recipes.GetByIdForUpdateAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
+        var command = CreateValidCommand(recipe.Id);
+
+        var result = await handler.HandleAsync(command);
+
         result.Value.Ingredients.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task HandleAsync_ValidCommand_ReturnsDtoWithUpdatedSteps()
+    {
+        var recipe = RecipeTestData.CreateRecipe();
+        recipes.GetByIdForUpdateAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
+        var command = CreateValidCommand(recipe.Id);
+
+        var result = await handler.HandleAsync(command);
+
         result.Value.Steps.Should().HaveCount(1);
     }
 
@@ -120,52 +153,102 @@ public class UpdateRecipeCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ValidCommand_UpdatesRecipeFields()
+    public async Task HandleAsync_FullUpdateCommand_UpdatesTitle()
     {
-        var recipe = RecipeTestData.CreateRecipe();
-        var recipeId = recipe.Id;
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
-
-        var command = new UpdateRecipeCommand(
-            recipeId,
-            RecipeTitle.From("New Title"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Butter"), Quantity.Of(Amount.From(200), Unit.From("g")))],
-            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Melt butter"))],
-            RecipeDescription.From("New description"),
-            Servings.From(6),
-            PreparationTime.From(15),
-            CookingTime.From(30),
-            Difficulty.From("hard"),
-            ImageUrl.From("https://example.com/new.jpg"));
-
-        var result = await handler.HandleAsync(command);
+        var result = await ExecuteFullUpdateAsync();
 
         result.Value.Title.Should().Be("New Title");
+    }
+
+    [Fact]
+    public async Task HandleAsync_FullUpdateCommand_UpdatesDescription()
+    {
+        var result = await ExecuteFullUpdateAsync();
+
         result.Value.Description.Should().Be("New description");
+    }
+
+    [Fact]
+    public async Task HandleAsync_FullUpdateCommand_UpdatesServings()
+    {
+        var result = await ExecuteFullUpdateAsync();
+
         result.Value.Servings.Should().Be(6);
+    }
+
+    [Fact]
+    public async Task HandleAsync_FullUpdateCommand_UpdatesPrepTimeMinutes()
+    {
+        var result = await ExecuteFullUpdateAsync();
+
         result.Value.PrepTimeMinutes.Should().Be(15);
+    }
+
+    [Fact]
+    public async Task HandleAsync_FullUpdateCommand_UpdatesCookTimeMinutes()
+    {
+        var result = await ExecuteFullUpdateAsync();
+
         result.Value.CookTimeMinutes.Should().Be(30);
+    }
+
+    [Fact]
+    public async Task HandleAsync_FullUpdateCommand_UpdatesDifficulty()
+    {
+        var result = await ExecuteFullUpdateAsync();
+
         result.Value.Difficulty.Should().Be("hard");
+    }
+
+    [Fact]
+    public async Task HandleAsync_FullUpdateCommand_UpdatesImageUrl()
+    {
+        var result = await ExecuteFullUpdateAsync();
+
         result.Value.ImageUrl.Should().Be("https://example.com/new.jpg");
-        result.Value.Ingredients.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task HandleAsync_FullUpdateCommand_ReplacesIngredients()
+    {
+        var result = await ExecuteFullUpdateAsync();
+
         result.Value.Ingredients[0].Name.Should().Be("Butter");
-        result.Value.Steps.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task HandleAsync_FullUpdateCommand_ReplacesSteps()
+    {
+        var result = await ExecuteFullUpdateAsync();
+
         result.Value.Steps[0].Description.Should().Be("Melt butter");
     }
 
     [Fact]
-    public async Task HandleAsync_ForwardsCancellationToken()
+    public async Task HandleAsync_ForwardsCancellationTokenToGetByIdForUpdate()
     {
         var recipe = RecipeTestData.CreateRecipe();
         var recipeId = recipe.Id;
         recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
         var cts = new CancellationTokenSource();
-
         var command = CreateValidCommand(recipeId);
 
         await handler.HandleAsync(command, cts.Token);
 
         await recipes.Received(1).GetByIdForUpdateAsync(recipeId, cts.Token);
+    }
+
+    [Fact]
+    public async Task HandleAsync_ForwardsCancellationTokenToUpdate()
+    {
+        var recipe = RecipeTestData.CreateRecipe();
+        var recipeId = recipe.Id;
+        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+        var cts = new CancellationTokenSource();
+        var command = CreateValidCommand(recipeId);
+
+        await handler.HandleAsync(command, cts.Token);
+
         await recipes.Received(1).UpdateAsync(recipe, cts.Token);
     }
 
@@ -239,5 +322,29 @@ public class UpdateRecipeCommandHandlerTests
             RecipeTitle.From("Updated Pasta"),
             [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.From("g")))],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Cook pasta"))]);
+    }
+
+    private static UpdateRecipeCommand CreateFullUpdateCommand(RecipeIdentifier identifier)
+    {
+        return new UpdateRecipeCommand(
+            identifier,
+            RecipeTitle.From("New Title"),
+            [new SaveRecipeIngredientItem(IngredientName.From("Butter"), Quantity.Of(Amount.From(200), Unit.From("g")))],
+            [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Melt butter"))],
+            RecipeDescription.From("New description"),
+            Servings.From(6),
+            PreparationTime.From(15),
+            CookingTime.From(30),
+            Difficulty.From("hard"),
+            ImageUrl.From("https://example.com/new.jpg"));
+    }
+
+    private async Task<Result<RecipeDetailDto>> ExecuteFullUpdateAsync()
+    {
+        var recipe = RecipeTestData.CreateRecipe();
+        recipes.GetByIdForUpdateAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
+        var command = CreateFullUpdateCommand(recipe.Id);
+
+        return await handler.HandleAsync(command);
     }
 }

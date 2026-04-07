@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, viewChild } from '@angular/core';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { ImportRecipeResponse } from '@yumney/shared/api-client';
 import { RecipePreviewComponent } from './recipe-preview.component';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const mockRecipe: ImportRecipeResponse = {
   title: 'Pasta Carbonara',
@@ -87,13 +87,7 @@ describe('RecipePreviewComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         TestHostComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: {
-            availableLangs: ['en'],
-            defaultLang: 'en',
-          },
-        }),
+        setupTranslocoTesting(en),
       ],
     }).compileComponents();
 

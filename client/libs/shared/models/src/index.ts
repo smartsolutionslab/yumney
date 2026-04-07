@@ -1,4 +1,5 @@
 export { ERROR_MAPS } from './lib/error-maps';
+export { setupTranslocoTesting } from './lib/testing/setup-transloco-testing';
 export { type PagedResponse } from './lib/paged-response';
 export { type PaginationParams } from './lib/pagination-params';
 export { urlValidator, passwordsMatchValidator } from './lib/validators';

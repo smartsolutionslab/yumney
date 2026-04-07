@@ -66,4 +66,18 @@ public class GetShoppingListByIdQueryHandlerTests
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(GetShoppingListByIdErrors.AccessDenied);
     }
+
+    [Fact]
+    public async Task HandleAsync_ForwardsCancellationToken()
+    {
+        var shoppingList = ShoppingListTestData.CreateList();
+        shoppingLists.GetByIdAsync(Arg.Any<ShoppingListIdentifier>(), Arg.Any<CancellationToken>())
+            .Returns(shoppingList);
+        var cts = new CancellationTokenSource();
+        var query = new GetShoppingListByIdQuery(shoppingList.Id);
+
+        await handler.HandleAsync(query, cts.Token);
+
+        await shoppingLists.Received(1).GetByIdAsync(Arg.Any<ShoppingListIdentifier>(), cts.Token);
+    }
 }

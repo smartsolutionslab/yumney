@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { EditableListItemComponent } from './editable-list-item.component';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
   shared: {
@@ -43,13 +43,7 @@ describe('EditableListItemComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         TestHostComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: {
-            availableLangs: ['en'],
-            defaultLang: 'en',
-          },
-        }),
+        setupTranslocoTesting(en),
       ],
     }).compileComponents();
 

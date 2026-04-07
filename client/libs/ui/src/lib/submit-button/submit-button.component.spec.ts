@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 import { SubmitButtonComponent } from './submit-button.component';
 
 const en = {
@@ -14,13 +14,7 @@ describe('SubmitButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        SubmitButtonComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
-      ],
+      imports: [SubmitButtonComponent, setupTranslocoTesting(en)],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SubmitButtonComponent);
