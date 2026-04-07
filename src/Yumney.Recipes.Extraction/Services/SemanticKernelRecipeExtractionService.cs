@@ -24,25 +24,25 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
     public async Task<Result<ExtractedRecipeDto>> ExtractAsync(ScrapedContent content, CancellationToken cancellationToken = default)
     {
-        using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.url");
-        activity?.SetTag("extract.source", content.SourceUrl.Value);
-        activity?.SetTag("extract.content_length", content.CleanedText.Length);
+        var (cleanedText, sourceUrl) = content;
 
-        var sanitized = ContentSanitizer.Sanitize(content.CleanedText);
+        using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.url");
+        activity?.SetTag("extract.source", sourceUrl);
+        activity?.SetTag("extract.content_length", cleanedText.Length);
+
+        var sanitized = ContentSanitizer.Sanitize(cleanedText);
 
         var chatHistory = new ChatHistory();
         chatHistory.AddSystemMessage(ExtractionPrompts.WebExtraction);
         chatHistory.AddUserMessage(ExtractionPrompts.WrapInContentDelimiters(sanitized));
 
-        var result = await CallLlmAndParseAsync(chatHistory, content.SourceUrl.Value, cancellationToken);
+        var result = await CallLlmAndParseAsync(chatHistory, sourceUrl, cancellationToken);
         SetActivityResult(activity, result);
 
         return result;
     }
 
-    public async Task<Result<ExtractedRecipeDto>> ExtractFromPhotosAsync(
-        IReadOnlyList<PhotoData> photos,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<ExtractedRecipeDto>> ExtractFromPhotosAsync(IReadOnlyList<PhotoData> photos, CancellationToken cancellationToken = default)
     {
         using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.photos");
         activity?.SetTag("extract.photo_count", photos.Count);

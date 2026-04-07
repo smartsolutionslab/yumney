@@ -119,7 +119,12 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
         var paging = PagingOptions.Of(Page.From(1), PageSize.From(maxRecipesToInclude));
         var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
 
-        var (items, _) = await recipes.GetByOwnerAsync(owner, paging, sorting, cancellationToken: cancellationToken);
+        var (items, _) = await recipes.GetByOwnerAsync(
+            owner,
+            paging,
+            sorting,
+            null,
+            cancellationToken);
         return items;
     }
 
