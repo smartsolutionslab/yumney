@@ -36,6 +36,8 @@ import {
   RecentActivityComponent,
   CameraCaptureComponent,
   IngredientScannerComponent,
+  ShareToastComponent,
+  IngredientsToastComponent,
 } from '@yumney/ui';
 import { CameraService } from '@yumney/shared/models';
 import type { RecognizedIngredient } from '@yumney/shared/api-client';
@@ -53,6 +55,8 @@ import type { RecognizedIngredient } from '@yumney/shared/api-client';
     RecentActivityComponent,
     CameraCaptureComponent,
     IngredientScannerComponent,
+    ShareToastComponent,
+    IngredientsToastComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

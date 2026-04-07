@@ -1,21 +1,6 @@
 <div class="dashboard-container" *transloco="let t">
   @if (shareToast(); as sharedUrl) {
-    <div class="share-toast" role="status" aria-live="polite">
-      <div class="share-toast-content">
-        <span class="share-toast-icon">&#x2192;</span>
-        <div class="share-toast-text">
-          <strong>{{ t('dashboard.share.toastTitle') }}</strong>
-          <span class="share-toast-url">{{ sharedUrl }}</span>
-        </div>
-      </div>
-      <button
-        class="share-toast-dismiss"
-        (click)="dismissShareToast()"
-        [attr.aria-label]="t('dashboard.share.dismiss')"
-      >
-        &times;
-      </button>
-    </div>
+    <yn-share-toast [url]="sharedUrl" (dismissed)="dismissShareToast()" />
   }
 
   <h1>{{ t('dashboard.title') }}</h1>
@@ -210,24 +195,9 @@
   }
 
   @if (recognizedIngredients(); as ingredients) {
-    <div class="recognized-ingredients-toast" role="status" aria-live="polite">
-      <div class="recognized-ingredients-content">
-        <strong>{{
-          t('dashboard.scanner.foundIngredients', { count: ingredients.length })
-        }}</strong>
-        <div class="recognized-ingredients-chips">
-          @for (item of ingredients; track item.name) {
-            <span class="recognized-chip">{{ item.name }}</span>
-          }
-        </div>
-      </div>
-      <button
-        class="recognized-dismiss"
-        (click)="dismissRecognizedIngredients()"
-        [attr.aria-label]="t('dashboard.scanner.dismiss')"
-      >
-        &times;
-      </button>
-    </div>
+    <yn-ingredients-toast
+      [ingredients]="ingredients"
+      (dismissed)="dismissRecognizedIngredients()"
+    />
   }
 </div>
