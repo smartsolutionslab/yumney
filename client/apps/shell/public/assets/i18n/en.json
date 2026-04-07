@@ -225,7 +225,8 @@
       "submit": "Upload Photos",
       "extracting": "Extracting recipe...",
       "hint": "JPG, PNG or WebP. Up to 10 images, max 10 MB each.",
-      "scanRecipe": "Scan with camera"
+      "scanRecipe": "Scan with camera",
+      "scanIngredients": "Scan ingredients"
     },
     "create": {
       "title": "Create a Recipe",
@@ -298,6 +299,10 @@
       "toastTitle": "Recipe shared",
       "dismiss": "Dismiss",
       "noUrlFound": "No recipe URL found in the shared text."
+    },
+    "scanner": {
+      "foundIngredients": "Found {{count}} ingredients",
+      "dismiss": "Dismiss"
     }
   },
   "units": {
@@ -343,6 +348,19 @@
       "notSupported": "Camera not supported on this device",
       "permissionDenied": "Camera permission denied",
       "captureFailed": "Failed to capture photo"
+    }
+  },
+  "scanner": {
+    "scan": "Scan",
+    "cancel": "Cancel",
+    "removeIngredient": "Remove ingredient",
+    "useIngredients": "Use {{count}} ingredients",
+    "errors": {
+      "notSupported": "Camera not supported on this device",
+      "permissionDenied": "Camera permission denied",
+      "captureFailed": "Failed to capture frame",
+      "recognitionFailed": "Could not recognize ingredients. Please try again.",
+      "nothingDetected": "No ingredients detected. Try better lighting or move closer."
     }
   }
 }

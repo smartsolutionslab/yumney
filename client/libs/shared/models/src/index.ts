@@ -27,3 +27,4 @@ export {
 export { ROUTES } from './lib/route-paths';
 export { ThemeService, type Theme } from './lib/theme.service';
 export { CameraService, type FacingMode } from './lib/camera.service';
+export { IngredientRecognitionService } from './lib/ingredient-recognition.service';

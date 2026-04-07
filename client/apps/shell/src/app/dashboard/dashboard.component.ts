@@ -35,8 +35,10 @@ import {
   SuggestionCardComponent,
   RecentActivityComponent,
   CameraCaptureComponent,
+  IngredientScannerComponent,
 } from '@yumney/ui';
 import { CameraService } from '@yumney/shared/models';
+import type { RecognizedIngredient } from '@yumney/shared/api-client';
 
 @Component({
   selector: 'yn-dashboard',
@@ -50,6 +52,7 @@ import { CameraService } from '@yumney/shared/models';
     SuggestionCardComponent,
     RecentActivityComponent,
     CameraCaptureComponent,
+    IngredientScannerComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -89,7 +92,9 @@ export class DashboardComponent implements OnInit {
   streamingChunks = signal('');
   importSectionExpanded = signal(false);
   cameraActive = signal(false);
+  scannerActive = signal(false);
   shareToast = signal<string | null>(null);
+  recognizedIngredients = signal<RecognizedIngredient[] | null>(null);
 
   // Smart dashboard state
   quickActions = signal<QuickAction[]>([]);
@@ -264,6 +269,23 @@ export class DashboardComponent implements OnInit {
 
   onCameraFallback(): void {
     this.cameraActive.set(false);
+  }
+
+  onOpenScanner(): void {
+    this.scannerActive.set(true);
+  }
+
+  onIngredientsConfirmed(ingredients: RecognizedIngredient[]): void {
+    this.scannerActive.set(false);
+    this.recognizedIngredients.set(ingredients);
+  }
+
+  onScannerCancelled(): void {
+    this.scannerActive.set(false);
+  }
+
+  dismissRecognizedIngredients(): void {
+    this.recognizedIngredients.set(null);
   }
 
   private importPhotos(photos: File[]): void {

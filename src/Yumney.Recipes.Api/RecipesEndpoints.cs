@@ -57,6 +57,16 @@ public static class RecipesEndpoints
             .RequireRateLimiting("RecipeImport")
             .DisableAntiforgery();
 
+        group.MapPost("/recognize-ingredients", RecognizeIngredientsAsync)
+            .WithName("RecognizeIngredients")
+            .WithTags("Recipes")
+            .Produces<RecognizedIngredientsResponseDto>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
+            .RequireRateLimiting("RecipeImport")
+            .DisableAntiforgery();
+
         group.MapGet("/import/stream", ImportStreamAsync)
             .WithName("ImportRecipeStream")
             .WithTags("Recipes")
@@ -235,6 +245,28 @@ public static class RecipesEndpoints
 
         var command = new ImportRecipeFromPhotosCommand(photoDataList);
 
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> RecognizeIngredientsAsync(
+        IFormFile photo,
+        ICommandHandler<RecognizeIngredientsCommand, Result<RecognizedIngredientsResponseDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        if (photo.Length > maxPhotoSizeBytes)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status413PayloadTooLarge,
+                detail: $"Photo exceeds the maximum size of 10 MB.");
+        }
+
+        using var memoryStream = new MemoryStream((int)photo.Length);
+        await photo.CopyToAsync(memoryStream, cancellationToken);
+        var photoData = new PhotoData(memoryStream.ToArray(), photo.ContentType, photo.FileName);
+
+        var command = new RecognizeIngredientsCommand(photoData);
         var result = await handler.HandleAsync(command, cancellationToken);
 
         return result.ToOk();

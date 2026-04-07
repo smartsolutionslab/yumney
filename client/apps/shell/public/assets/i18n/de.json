@@ -225,7 +225,8 @@
       "submit": "Fotos hochladen",
       "extracting": "Rezept wird extrahiert...",
       "hint": "JPG, PNG oder WebP. Bis zu 10 Bilder, max. 10 MB pro Bild.",
-      "scanRecipe": "Mit Kamera scannen"
+      "scanRecipe": "Mit Kamera scannen",
+      "scanIngredients": "Zutaten scannen"
     },
     "create": {
       "title": "Rezept erstellen",
@@ -298,6 +299,10 @@
       "toastTitle": "Rezept geteilt",
       "dismiss": "Schließen",
       "noUrlFound": "Keine Rezept-URL im geteilten Text gefunden."
+    },
+    "scanner": {
+      "foundIngredients": "{{count}} Zutaten erkannt",
+      "dismiss": "Schließen"
     }
   },
   "units": {
@@ -343,6 +348,19 @@
       "notSupported": "Kamera wird auf diesem Gerät nicht unterstützt",
       "permissionDenied": "Kamera-Zugriff verweigert",
       "captureFailed": "Foto konnte nicht aufgenommen werden"
+    }
+  },
+  "scanner": {
+    "scan": "Scannen",
+    "cancel": "Abbrechen",
+    "removeIngredient": "Zutat entfernen",
+    "useIngredients": "{{count}} Zutaten verwenden",
+    "errors": {
+      "notSupported": "Kamera wird auf diesem Gerät nicht unterstützt",
+      "permissionDenied": "Kamera-Zugriff verweigert",
+      "captureFailed": "Bild konnte nicht aufgenommen werden",
+      "recognitionFailed": "Zutaten konnten nicht erkannt werden. Bitte erneut versuchen.",
+      "nothingDetected": "Keine Zutaten erkannt. Bessere Beleuchtung oder näher rangehen."
     }
   }
 }

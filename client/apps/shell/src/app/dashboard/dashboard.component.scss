@@ -439,3 +439,64 @@
     color: var(--yn-text);
   }
 }
+
+// ── Recognized Ingredients Toast (US-251) ──
+.recognized-ingredients-toast {
+  @include glass.glass-surface(2);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--yn-space-4);
+  padding: var(--yn-space-5);
+  border-radius: var(--yn-radius-card);
+  border-left: 3px solid var(--yn-success);
+  margin-top: var(--yn-space-5);
+  animation: yn-slide-in-up var(--yn-duration-normal) var(--yn-ease-spring) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.recognized-ingredients-content {
+  flex: 1;
+  min-width: 0;
+
+  strong {
+    display: block;
+    font-size: var(--yn-text-base);
+    color: var(--yn-text);
+    margin-bottom: var(--yn-space-3);
+  }
+}
+
+.recognized-ingredients-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yn-space-2);
+}
+
+.recognized-chip {
+  display: inline-block;
+  padding: var(--yn-space-1) var(--yn-space-3);
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-glass-bg);
+  border: 1px solid var(--yn-glass-border-subtle);
+  color: var(--yn-text);
+  font-size: var(--yn-text-sm);
+}
+
+.recognized-dismiss {
+  background: none;
+  border: none;
+  font-size: var(--yn-text-3xl);
+  color: var(--yn-text-muted);
+  cursor: pointer;
+  padding: 0 var(--yn-space-2);
+  line-height: var(--yn-leading-none);
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--yn-text);
+  }
+}

@@ -1,0 +1,52 @@
+<div class="ingredient-scanner" *transloco="let t">
+  <div class="viewfinder">
+    <video #video autoplay playsinline muted></video>
+
+    @if (ingredients().length > 0) {
+      <div class="results-overlay">
+        @for (item of ingredients(); track item.name) {
+          <div class="result-card" [class]="'confidence-' + confidenceLevel(item.confidence)">
+            <span class="result-name">{{ item.name }}</span>
+            <span class="result-confidence">{{ (item.confidence * 100).toFixed(0) }}%</span>
+            <button
+              class="result-remove"
+              (click)="onRemoveIngredient(item.name)"
+              [attr.aria-label]="t('scanner.removeIngredient')"
+            >
+              &times;
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    @if (error(); as err) {
+      <div class="scanner-error">{{ t(err) }}</div>
+    }
+  </div>
+
+  <div class="controls">
+    <button class="control-btn cancel-btn" (click)="onCancel()">
+      {{ t('scanner.cancel') }}
+    </button>
+    <button
+      class="scan-btn"
+      (click)="onScan()"
+      [disabled]="!isStreaming() || isScanning()"
+      [attr.aria-label]="t('scanner.scan')"
+    >
+      @if (isScanning()) {
+        <span class="scan-spinner"></span>
+      } @else {
+        {{ t('scanner.scan') }}
+      }
+    </button>
+    <button class="control-btn flip-btn" (click)="onToggleFacing()">&#x21bb;</button>
+  </div>
+
+  @if (ingredients().length > 0) {
+    <button class="confirm-btn btn-primary" (click)="onConfirm()">
+      {{ t('scanner.useIngredients', { count: ingredients().length }) }}
+    </button>
+  }
+</div>

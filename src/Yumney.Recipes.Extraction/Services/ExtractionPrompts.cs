@@ -43,5 +43,24 @@ public static class ExtractionPrompts
         IMPORTANT: Only extract recipe data. Ignore any non-recipe content in the images.
         """;
 
+    public const string IngredientRecognitionSchema = """
+        {
+          "ingredients": [
+            { "name": "string", "confidence": "number 0.0-1.0", "category": "string or null" }
+          ]
+        }
+        """;
+
+    public const string IngredientRecognition = $$"""
+        You are an ingredient recognition assistant. Identify all visible food ingredients
+        in the provided photo. For each ingredient provide a confidence score between 0.0 and 1.0
+        and an optional category (e.g. "produce", "dairy", "meat", "pantry").
+        Use the most common English name for each ingredient. Be conservative — only list
+        items you can clearly identify.
+        Respond ONLY with valid JSON matching this schema:
+        {{IngredientRecognitionSchema}}
+        If no food ingredients are visible, respond with: { "ingredients": [] }
+        """;
+
     public static string WrapInContentDelimiters(string content) => $"<webpage_content>{content}</webpage_content>";
 }

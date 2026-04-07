@@ -12,6 +12,7 @@ import type { SavedRecipeResponse } from './saved-recipe-response';
 import type { RecipeDetail } from './recipe-detail';
 import type { RecipeListResponse } from './recipe-list-response';
 import type { GetRecipesParams } from './get-recipes-params';
+import type { RecognizedIngredientsResponse } from './recognized-ingredient';
 
 @Injectable({ providedIn: 'root' })
 export class RecipeApiService {
@@ -112,6 +113,15 @@ export class RecipeApiService {
       formData.append('photos', photo);
     }
     return this.http.post<ImportRecipeResponse>(API_ENDPOINTS.recipes.importFromPhotos, formData);
+  }
+
+  recognizeIngredients(photo: Blob): Observable<RecognizedIngredientsResponse> {
+    const formData = new FormData();
+    formData.append('photo', photo, 'scan.jpg');
+    return this.http.post<RecognizedIngredientsResponse>(
+      API_ENDPOINTS.recipes.recognizeIngredients,
+      formData,
+    );
   }
 
   saveRecipe(request: SaveRecipeRequest): Observable<SavedRecipeResponse> {

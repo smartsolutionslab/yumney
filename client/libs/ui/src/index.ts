@@ -34,3 +34,4 @@ export {
 } from './lib/recent-activity/recent-activity.component';
 
 export { CameraCaptureComponent } from './lib/camera-capture/camera-capture.component';
+export { IngredientScannerComponent } from './lib/ingredient-scanner/ingredient-scanner.component';
