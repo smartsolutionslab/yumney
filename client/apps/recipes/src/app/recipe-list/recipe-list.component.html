@@ -30,24 +30,46 @@
   </div>
 
   <div class="search-bar">
-    <input
-      type="search"
-      class="search-input"
-      [value]="searchQuery()"
-      (input)="onSearchInput($event)"
-      [placeholder]="t('recipes.list.search.placeholder')"
-      [attr.aria-label]="t('recipes.list.search.label')"
-    />
-    @if (searchQuery()) {
-      <button
-        class="search-clear"
-        (click)="onSearchClear()"
-        [attr.aria-label]="t('recipes.list.search.clear')"
-      >
-        &times;
-      </button>
-    }
+    <div class="search-input-wrapper">
+      <input
+        type="search"
+        class="search-input"
+        [value]="searchQuery()"
+        (input)="onSearchInput($event)"
+        [placeholder]="t('recipes.list.search.placeholder')"
+        [attr.aria-label]="t('recipes.list.search.label')"
+      />
+      @if (searchQuery()) {
+        <button
+          class="search-clear"
+          (click)="onSearchClear()"
+          [attr.aria-label]="t('recipes.list.search.clear')"
+        >
+          &times;
+        </button>
+      }
+    </div>
+    <button
+      type="button"
+      class="filter-toggle"
+      (click)="toggleFilterPanel()"
+      [attr.aria-expanded]="filterPanelOpen()"
+      [attr.aria-label]="t('recipes.list.filter.toggle')"
+    >
+      {{ t('recipes.list.filter.toggle') }}
+      @if (filterActiveCount() > 0) {
+        <span class="filter-toggle-count">{{ filterActiveCount() }}</span>
+      }
+    </button>
   </div>
+
+  @if (filterPanelOpen()) {
+    <yn-filter-panel
+      [value]="filter()"
+      [availableTags]="availableTags()"
+      (valueChange)="onFilterChange($event)"
+    />
+  }
 
   @if (serverError(); as error) {
     <div class="error-banner" role="alert">{{ t(error) }}</div>

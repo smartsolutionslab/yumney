@@ -120,12 +120,17 @@ public static partial class RecipesEndpoints
         string sortBy = "Date",
         SortDirection sortDirection = SortDirection.Descending,
         string? search = null,
+        string? tags = null,
+        string? difficulty = null,
+        int? maxPrepTime = null,
+        int? maxCookTime = null,
         CancellationToken cancellationToken = default)
     {
         var query = new GetRecipesQuery(
             PagingOptions.From(page, pageSize),
             SortingOptions<RecipeSortField>.Parse(sortBy, sortDirection, RecipeSortField.Date),
-            SearchTerm.FromNullable(search));
+            SearchTerm.FromNullable(search),
+            RecipeFilterParser.Build(tags, difficulty, maxPrepTime, maxCookTime));
 
         var result = await handler.HandleAsync(query, cancellationToken);
         return result.ToOk();
@@ -266,9 +271,7 @@ public static partial class RecipesEndpoints
     }
 
     private static IResult PhotoTooLargeProblem(string fileName) =>
-        Results.Problem(
-            statusCode: StatusCodes.Status413PayloadTooLarge,
-            detail: $"Photo '{fileName}' exceeds the maximum size of 10 MB.");
+        Results.Problem(statusCode: StatusCodes.Status413PayloadTooLarge, detail: $"Photo '{fileName}' exceeds the maximum size of 10 MB.");
 
 #pragma warning disable SA1303 // editorconfig requires camelCase for private const fields
     private const string emptyChatMessageError = "Message cannot be empty.";

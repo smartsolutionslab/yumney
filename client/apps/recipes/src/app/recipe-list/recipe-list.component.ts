@@ -16,11 +16,18 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
 import { createAsyncState, ERROR_MAPS, ROUTES, UI } from '@yumney/shared/models';
 import { RouterLink } from '@angular/router';
-import { InfiniteScrollDirective, staggerFadeIn, prefersReducedMotion } from '@yumney/ui';
+import {
+  EMPTY_FILTER,
+  FilterPanelComponent,
+  InfiniteScrollDirective,
+  prefersReducedMotion,
+  type RecipeFilterValue,
+  staggerFadeIn,
+} from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-list',
-  imports: [TranslocoModule, RouterLink, InfiniteScrollDirective],
+  imports: [TranslocoModule, RouterLink, InfiniteScrollDirective, FilterPanelComponent],
   templateUrl: './recipe-list.component.html',
   styleUrl: './recipe-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -103,6 +110,9 @@ export class RecipeListComponent implements OnInit {
   serverError = this.asyncState.serverError;
   searchQuery = signal('');
   activeSearch = signal('');
+  filter = signal<RecipeFilterValue>({ ...EMPTY_FILTER });
+  filterPanelOpen = signal(false);
+  availableTags = signal<string[]>([]);
 
   hasMore = computed(() => this.recipes().length < this.totalCount());
   sortMenuOpen = signal(false);
@@ -177,14 +187,40 @@ export class RecipeListComponent implements OnInit {
     this.loadRecipes(true);
   }
 
+  toggleFilterPanel(): void {
+    this.filterPanelOpen.update((open) => !open);
+  }
+
+  onFilterChange(value: RecipeFilterValue): void {
+    this.filter.set(value);
+    this.currentPage.set(1);
+    this.recipes.set([]);
+    this.totalCount.set(0);
+    this.loadRecipes(false);
+  }
+
+  filterActiveCount = computed(() => {
+    const f = this.filter();
+    let count = f.tags.length;
+    if (f.difficulty !== null) count += 1;
+    if (f.maxPrepTime !== null) count += 1;
+    if (f.maxCookTime !== null) count += 1;
+    return count;
+  });
+
   private loadRecipes(append: boolean): void {
     const search = this.activeSearch();
+    const f = this.filter();
     const params: GetRecipesParams = {
       page: this.currentPage(),
       pageSize: this.pageSize(),
       sortBy: this.sortBy(),
       sortDirection: this.sortDirection(),
       ...(search !== '' && { search }),
+      ...(f.tags.length > 0 && { tags: f.tags }),
+      ...(f.difficulty !== null && { difficulty: f.difficulty }),
+      ...(f.maxPrepTime !== null && { maxPrepTime: f.maxPrepTime }),
+      ...(f.maxCookTime !== null && { maxCookTime: f.maxCookTime }),
     };
 
     this.asyncState.execute(
@@ -197,7 +233,18 @@ export class RecipeListComponent implements OnInit {
         } else {
           this.recipes.set(response.items);
         }
+        this.collectAvailableTags(response.items);
       },
     );
+  }
+
+  private collectAvailableTags(items: RecipeListItem[]): void {
+    const existing = new Set(this.availableTags());
+    for (const item of items) {
+      if (Array.isArray(item.tags)) {
+        for (const tag of item.tags) existing.add(tag);
+      }
+    }
+    this.availableTags.set([...existing].sort((a, b) => a.localeCompare(b)));
   }
 }

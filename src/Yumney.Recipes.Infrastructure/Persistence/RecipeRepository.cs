@@ -56,6 +56,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         PagingOptions paging,
         SortingOptions<RecipeSortField> sorting,
         SearchTerm? search = null,
+        RecipeFilter? filter = null,
         CancellationToken cancellationToken = default)
     {
         var query = recipes.AsNoTracking().Where(r => r.Owner == owner);
@@ -70,6 +71,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
                 r.Ingredients.Any(i => EF.Functions.ILike(i.Name, pattern)));
         }
 
+        query = ApplyFilter(query, filter);
         query = ApplySorting(query, sorting);
 
         var totalCount = await query.CountAsync(cancellationToken);
@@ -81,6 +83,40 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             .ToListAsync(cancellationToken);
 
         return (items, ItemCount.From(totalCount));
+    }
+
+    private static IQueryable<Recipe> ApplyFilter(IQueryable<Recipe> query, RecipeFilter? filter)
+    {
+        if (filter is null || filter.IsEmpty) return query;
+
+        if (filter.Difficulty is not null)
+        {
+            query = query.Where(r => r.Difficulty == filter.Difficulty);
+        }
+
+        if (filter.MaxPrepTime is not null)
+        {
+            var maxPrep = filter.MaxPrepTime;
+            query = query.Where(r => r.PreparationTime != null && r.PreparationTime <= maxPrep);
+        }
+
+        if (filter.MaxCookTime is not null)
+        {
+            var maxCook = filter.MaxCookTime;
+            query = query.Where(r => r.CookingTime != null && r.CookingTime <= maxCook);
+        }
+
+        if (filter.Tags is not null && filter.Tags.Count > 0)
+        {
+            // AND logic: every requested tag must be present on the recipe.
+            foreach (var requiredTag in filter.Tags)
+            {
+                var tagValue = requiredTag.Value;
+                query = query.Where(r => r.Tags.Any(t => t.Value == tagValue));
+            }
+        }
+
+        return query;
     }
 
     private static IQueryable<Recipe> ApplySorting(IQueryable<Recipe> query, SortingOptions<RecipeSortField> sorting)

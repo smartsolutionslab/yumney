@@ -123,8 +123,9 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
             owner,
             paging,
             sorting,
-            null,
-            cancellationToken);
+            search: null,
+            filter: null,
+            cancellationToken: cancellationToken);
         return items;
     }
 

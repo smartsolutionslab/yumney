@@ -25,6 +25,12 @@ export { IngredientScannerComponent } from './lib/ingredient-scanner/ingredient-
 export { ChatPanelComponent } from './lib/chat-panel/chat-panel.component';
 export { ShareToastComponent } from './lib/share-toast/share-toast.component';
 export { IngredientsToastComponent } from './lib/ingredients-toast/ingredients-toast.component';
+export {
+  FilterPanelComponent,
+  type RecipeFilterValue,
+  type RecipeDifficulty,
+  EMPTY_FILTER,
+} from './lib/filter-panel/filter-panel.component';
 
 // Directives
 export { InfiniteScrollDirective } from './lib/directives/infinite-scroll.directive';
