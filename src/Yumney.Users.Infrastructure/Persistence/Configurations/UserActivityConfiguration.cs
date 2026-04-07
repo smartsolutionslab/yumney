@@ -24,10 +24,16 @@ internal sealed class UserActivityConfiguration : IEntityTypeConfiguration<UserA
             .HasMaxLength(50)
             .IsRequired();
 
-        entity.Property(e => e.RecipeIdentifier);
+        entity.Property(e => e.RecipeIdentifier)
+            .HasConversion(
+                v => v == null ? (Guid?)null : v.Value,
+                v => v.HasValue ? RecipeIdentifierSnapshot.From(v.Value) : null);
 
         entity.Property(e => e.RecipeTitle)
-            .HasMaxLength(200);
+            .HasMaxLength(RecipeTitleSnapshot.MaxLength)
+            .HasConversion(
+                v => v == null ? null : v.Value,
+                v => v == null ? null : RecipeTitleSnapshot.From(v));
 
         entity.Property(e => e.OccurredAt)
             .IsRequired();

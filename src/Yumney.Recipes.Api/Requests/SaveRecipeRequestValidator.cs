@@ -18,8 +18,16 @@ public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeReq
             .When(x => x.SourceUrl.HasValue());
 
         ConfigureOptionalFieldRules();
-        ConfigureIngredientRules();
-        ConfigureStepRules();
+
+        RuleFor(x => x.Ingredients)
+            .NotEmpty()
+            .WithMessage("At least one ingredient is required.");
+        RuleForEach(x => x.Ingredients).SetValidator(new SaveRecipeIngredientRequestValidator());
+
+        RuleFor(x => x.Steps)
+            .NotEmpty()
+            .WithMessage("At least one step is required.");
+        RuleForEach(x => x.Steps).SetValidator(new SaveRecipeStepRequestValidator());
     }
 
     private void ConfigureOptionalFieldRules()
@@ -48,44 +56,5 @@ public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeReq
         RuleFor(x => x.CookTimeMinutes)
             .GreaterThanOrEqualTo(0)
             .When(x => x.CookTimeMinutes.HasValue);
-    }
-
-    private void ConfigureIngredientRules()
-    {
-        RuleFor(x => x.Ingredients)
-            .NotEmpty()
-            .WithMessage("At least one ingredient is required.");
-
-        RuleForEach(x => x.Ingredients).ChildRules(ingredient =>
-        {
-            ingredient.RuleFor(i => i.Name)
-                .NotEmpty()
-                .MaximumLength(IngredientName.MaxLength);
-
-            ingredient.RuleFor(i => i.Amount)
-                .GreaterThanOrEqualTo(0)
-                .When(i => i.Amount.HasValue);
-
-            ingredient.RuleFor(i => i.Unit)
-                .MaximumLength(Unit.MaxLength)
-                .When(i => i.Unit is not null);
-        });
-    }
-
-    private void ConfigureStepRules()
-    {
-        RuleFor(x => x.Steps)
-            .NotEmpty()
-            .WithMessage("At least one step is required.");
-
-        RuleForEach(x => x.Steps).ChildRules(step =>
-        {
-            step.RuleFor(s => s.Number)
-                .GreaterThan(0);
-
-            step.RuleFor(s => s.Description)
-                .NotEmpty()
-                .MaximumLength(StepDescription.MaxLength);
-        });
     }
 }

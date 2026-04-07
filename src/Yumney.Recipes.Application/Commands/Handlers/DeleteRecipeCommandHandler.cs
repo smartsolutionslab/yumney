@@ -19,7 +19,7 @@ public sealed partial class DeleteRecipeCommandHandler(
 
         LogDeleteRecipe(identifier, owner.Value);
 
-        var recipe = await recipes.GetByIdAsync(identifier, cancellationToken);
+        var recipe = await recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
         if (recipe is null)
         {
