@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '@yumney/shared/auth';
-import { LanguageService, ThemeService } from '@yumney/shared/models';
+import { LanguageService, ThemeService, ChatStateService } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-header',
@@ -15,6 +15,7 @@ export class HeaderComponent {
   protected authService = inject(AuthService);
   protected languageService = inject(LanguageService);
   protected themeService = inject(ThemeService);
+  protected chatState = inject(ChatStateService);
 
   protected isDark = computed(() => this.themeService.theme() === 'dark');
 
@@ -33,5 +34,9 @@ export class HeaderComponent {
 
   onToggleTheme(): void {
     this.themeService.toggle();
+  }
+
+  onToggleChat(): void {
+    this.chatState.toggle();
   }
 }

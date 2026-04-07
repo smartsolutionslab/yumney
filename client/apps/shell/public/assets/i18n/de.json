@@ -79,7 +79,8 @@
       "navigation": "Hauptnavigation",
       "switchLanguage": "Sprache wechseln",
       "languageDe": "DE",
-      "languageEn": "EN"
+      "languageEn": "EN",
+      "openChat": "Rezept-Chat öffnen"
     },
     "offlineIndicator": {
       "offline": "Du bist offline. Einige Funktionen sind nicht verfügbar.",
@@ -361,6 +362,25 @@
       "captureFailed": "Bild konnte nicht aufgenommen werden",
       "recognitionFailed": "Zutaten konnten nicht erkannt werden. Bitte erneut versuchen.",
       "nothingDetected": "Keine Zutaten erkannt. Bessere Beleuchtung oder näher rangehen."
+    }
+  },
+  "chat": {
+    "title": "Rezept-Chat",
+    "welcome": "Frag mich alles über Rezepte — was du heute kochen sollst, Ernährungsalternativen, Zutatenersatz und mehr.",
+    "examples": {
+      "1": "Was kann ich aus Hähnchen und Reis machen?",
+      "2": "Zeig mir vegetarische Gerichte unter 30 Minuten",
+      "3": "Ich habe Eier und Mehl — welche Kekse kann ich backen?"
+    },
+    "placeholder": "Frag nach Rezepten…",
+    "inputLabel": "Chat-Eingabe",
+    "send": "Senden",
+    "close": "Chat schließen",
+    "clear": "Löschen",
+    "clearHistory": "Verlauf löschen",
+    "errors": {
+      "offline": "Chat benötigt eine Internetverbindung.",
+      "failed": "Chat-Dienst nicht erreichbar. Bitte erneut versuchen."
     }
   }
 }

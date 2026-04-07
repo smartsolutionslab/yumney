@@ -16,6 +16,7 @@ public static class ExtractionServiceCollectionExtensions
             .AddStandardResilienceHandler();
         services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
         services.AddScoped<IIngredientRecognitionService, SemanticKernelIngredientRecognitionService>();
+        services.AddScoped<IChatService, SemanticKernelChatService>();
 
         var skOptions = configuration
             .GetSection(SemanticKernelOptions.SectionName)

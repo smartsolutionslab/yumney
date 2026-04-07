@@ -67,6 +67,13 @@ public static class RecipesEndpoints
             .RequireRateLimiting("RecipeImport")
             .DisableAntiforgery();
 
+        group.MapPost("/chat", ChatAsync)
+            .WithName("RecipeChat")
+            .WithTags("Recipes")
+            .Produces<ChatResponseDto>()
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
+            .RequireRateLimiting("RecipeImport");
+
         group.MapGet("/import/stream", ImportStreamAsync)
             .WithName("ImportRecipeStream")
             .WithTags("Recipes")
@@ -269,6 +276,23 @@ public static class RecipesEndpoints
         var command = new RecognizeIngredientsCommand(photoData);
         var result = await handler.HandleAsync(command, cancellationToken);
 
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> ChatAsync(
+        ChatRequestDto request,
+        ICommandHandler<ChatCommand, Result<ChatResponseDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                detail: "Message cannot be empty.");
+        }
+
+        var command = new ChatCommand(request.Message, request.History);
+        var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
 

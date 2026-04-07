@@ -116,3 +116,19 @@ nav {
     text-decoration: underline;
   }
 }
+
+.chat-toggle {
+  padding: var(--yn-space-1) var(--yn-space-3);
+  border: 1px solid var(--yn-border);
+  border-radius: var(--yn-radius-sm);
+  background: none;
+  font-size: var(--yn-text-lg);
+  color: var(--yn-text-muted);
+  cursor: pointer;
+  line-height: var(--yn-leading-none);
+
+  &:hover {
+    background-color: var(--yn-background);
+    color: var(--yn-primary);
+  }
+}

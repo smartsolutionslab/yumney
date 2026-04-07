@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
       `${API_BASE}/recipes/import/stream?url=${encodeURIComponent(url)}`,
     importFromPhotos: `${API_BASE}/recipes/import-from-photos`,
     recognizeIngredients: `${API_BASE}/recipes/recognize-ingredients`,
+    chat: `${API_BASE}/recipes/chat`,
     byIdentifier: (identifier: string) => `${API_BASE}/recipes/${identifier}`,
   },
   shoppingLists: {

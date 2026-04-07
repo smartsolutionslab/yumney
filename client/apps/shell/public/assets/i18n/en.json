@@ -79,7 +79,8 @@
       "navigation": "Main navigation",
       "switchLanguage": "Switch language",
       "languageDe": "DE",
-      "languageEn": "EN"
+      "languageEn": "EN",
+      "openChat": "Open recipe chat"
     },
     "offlineIndicator": {
       "offline": "You are offline. Some features may be unavailable.",
@@ -361,6 +362,25 @@
       "captureFailed": "Failed to capture frame",
       "recognitionFailed": "Could not recognize ingredients. Please try again.",
       "nothingDetected": "No ingredients detected. Try better lighting or move closer."
+    }
+  },
+  "chat": {
+    "title": "Recipe Chat",
+    "welcome": "Ask me anything about recipes — what to cook tonight, dietary swaps, ingredient substitutions, and more.",
+    "examples": {
+      "1": "What can I make with chicken and rice?",
+      "2": "Show me 30-minute vegetarian meals",
+      "3": "I have eggs and flour — what cookies can I bake?"
+    },
+    "placeholder": "Ask about recipes…",
+    "inputLabel": "Chat input",
+    "send": "Send",
+    "close": "Close chat",
+    "clear": "Clear",
+    "clearHistory": "Clear conversation history",
+    "errors": {
+      "offline": "Chat requires an internet connection.",
+      "failed": "Could not reach the chat service. Please try again."
     }
   }
 }

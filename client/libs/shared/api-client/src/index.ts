@@ -31,3 +31,10 @@ export type {
   RecognizedIngredient,
   RecognizedIngredientsResponse,
 } from './lib/recognized-ingredient';
+export { ChatApiService } from './lib/chat-api.service';
+export type {
+  ChatMessage,
+  ChatRecipeSuggestion,
+  ChatRequest,
+  ChatResponse,
+} from './lib/chat-message';
