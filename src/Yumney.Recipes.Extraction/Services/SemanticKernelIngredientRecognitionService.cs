@@ -13,9 +13,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1311
-public sealed partial class SemanticKernelIngredientRecognitionService(
-    Kernel kernel,
-    ILogger<SemanticKernelIngredientRecognitionService> logger)
+public sealed partial class SemanticKernelIngredientRecognitionService(Kernel kernel, ILogger<SemanticKernelIngredientRecognitionService> logger)
     : IIngredientRecognitionService
 {
     private static readonly JsonSerializerOptions jsonOptions = new()
@@ -24,9 +22,7 @@ public sealed partial class SemanticKernelIngredientRecognitionService(
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    public async Task<Result<RecognizedIngredientsResponseDto>> RecognizeAsync(
-        PhotoData photo,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<RecognizedIngredientsResponseDto>> RecognizeAsync(PhotoData photo, CancellationToken cancellationToken = default)
     {
         using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("recognize.ingredients");
         activity?.SetTag("recognize.photo_size", photo.Content.Length);
@@ -46,6 +42,7 @@ public sealed partial class SemanticKernelIngredientRecognitionService(
         {
             var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
             response = result.Content ?? string.Empty;
+
             activity?.SetTag("llm.response_length", response.Length);
             activity?.SetTag("llm.model", result.ModelId);
         }
