@@ -17,7 +17,7 @@ public sealed partial class ChatCommandHandler(
     {
         var owner = OwnerIdentifier.From(currentUser.UserId);
 
-        LogChatRequest(owner.Value, command.Message.Length, command.History.Count);
+        LogChatRequest(owner.Value, command.Message.Value.Length, command.History.Count);
 
         return await chatService.ChatAsync(command.Message, command.History, owner, cancellationToken);
     }

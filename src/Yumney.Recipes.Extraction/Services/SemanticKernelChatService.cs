@@ -7,6 +7,9 @@ using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using ChatMessageContent = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatMessageContent;
+using ChatRole = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatRole;
+using DomainChatHistoryEntry = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatHistoryEntry;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
@@ -22,8 +25,8 @@ public sealed partial class SemanticKernelChatService(
     private const int maxRecipesToInclude = 20;
 
     public async Task<Result<ChatResponseDto>> ChatAsync(
-        string message,
-        IReadOnlyList<ChatMessageDto> history,
+        ChatMessageContent message,
+        IReadOnlyList<DomainChatHistoryEntry> history,
         OwnerIdentifier owner,
         CancellationToken cancellationToken = default)
     {
@@ -35,19 +38,19 @@ public sealed partial class SemanticKernelChatService(
         var chatHistory = new ChatHistory();
         chatHistory.AddSystemMessage(BuildSystemPrompt(userRecipes));
 
-        foreach (var msg in history)
+        foreach (var entry in history)
         {
-            if (msg.Role == "user")
+            if (entry.Role == ChatRole.User)
             {
-                chatHistory.AddUserMessage(msg.Content);
+                chatHistory.AddUserMessage(entry.Content.Value);
             }
-            else if (msg.Role == "assistant")
+            else if (entry.Role == ChatRole.Assistant)
             {
-                chatHistory.AddAssistantMessage(msg.Content);
+                chatHistory.AddAssistantMessage(entry.Content.Value);
             }
         }
 
-        chatHistory.AddUserMessage(message);
+        chatHistory.AddUserMessage(message.Value);
 
         var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
 

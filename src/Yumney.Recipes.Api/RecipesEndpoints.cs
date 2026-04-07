@@ -6,6 +6,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Chat;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 using SmartSolutionsLab.Yumney.Shared.Common;
@@ -291,7 +292,10 @@ public static class RecipesEndpoints
                 detail: "Message cannot be empty.");
         }
 
-        var command = new ChatCommand(request.Message, request.History);
+        var historyEntries = request.History
+            .Select(h => new ChatHistoryEntry(ChatRole.From(h.Role), ChatMessageContent.From(h.Content)))
+            .ToList();
+        var command = new ChatCommand(ChatMessageContent.From(request.Message), historyEntries);
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
