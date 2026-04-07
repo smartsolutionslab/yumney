@@ -10,7 +10,7 @@ public class PreferredUnitSystemTests
     [Theory]
     [InlineData("metric")]
     [InlineData("imperial")]
-    public void Constructor_ValidValue_CreatesInstance(string value)
+    public void Constructor_SupportedValue_CreatesInstance(string value)
     {
         var unitSystem = PreferredUnitSystem.From(value);
 
@@ -28,20 +28,28 @@ public class PreferredUnitSystemTests
         act.Should().Throw<GuardException>();
     }
 
-    [Fact]
-    public void Constructor_AtMaxLength_CreatesInstance()
+    [Theory]
+    [InlineData("Metric")]
+    [InlineData("METRIC")]
+    [InlineData("us")]
+    [InlineData("uk")]
+    public void Constructor_UnsupportedValue_ThrowsGuardException(string value)
     {
-        var unitSystem = PreferredUnitSystem.From(new string('a', 20));
+        var act = () => PreferredUnitSystem.From(value);
 
-        unitSystem.Value.Should().HaveLength(20);
+        act.Should().Throw<GuardException>();
     }
 
     [Fact]
-    public void Constructor_ExceedsMaxLength_ThrowsGuardException()
+    public void Metric_StaticInstance_HasValueMetric()
     {
-        var act = () => PreferredUnitSystem.From(new string('a', 21));
+        PreferredUnitSystem.Metric.Value.Should().Be("metric");
+    }
 
-        act.Should().Throw<GuardException>();
+    [Fact]
+    public void Imperial_StaticInstance_HasValueImperial()
+    {
+        PreferredUnitSystem.Imperial.Value.Should().Be("imperial");
     }
 
     [Fact]
