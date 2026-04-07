@@ -358,3 +358,18 @@
     }
   }
 }
+
+// ── Photo import actions (US-250) ──
+.photo-import-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-3);
+
+  @media (min-width: 480px) {
+    flex-direction: row;
+
+    > * {
+      flex: 1;
+    }
+  }
+}

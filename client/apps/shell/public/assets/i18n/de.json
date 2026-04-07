@@ -224,7 +224,8 @@
       "subtitle": "Lade Fotos eines Rezepts aus einem Kochbuch oder handgeschriebene Notizen hoch",
       "submit": "Fotos hochladen",
       "extracting": "Rezept wird extrahiert...",
-      "hint": "JPG, PNG oder WebP. Bis zu 10 Bilder, max. 10 MB pro Bild."
+      "hint": "JPG, PNG oder WebP. Bis zu 10 Bilder, max. 10 MB pro Bild.",
+      "scanRecipe": "Mit Kamera scannen"
     },
     "create": {
       "title": "Rezept erstellen",
@@ -324,6 +325,19 @@
       "volume": "Volumen",
       "weight": "Gewicht",
       "count": "Anzahl / Sonstiges"
+    }
+  },
+  "camera": {
+    "capture": "Aufnehmen",
+    "cancel": "Abbrechen",
+    "done": "Fertig ({{count}})",
+    "deletePhoto": "Foto löschen",
+    "useGallery": "Galerie verwenden",
+    "guideHint": "Rezept im Rahmen zentrieren",
+    "errors": {
+      "notSupported": "Kamera wird auf diesem Gerät nicht unterstützt",
+      "permissionDenied": "Kamera-Zugriff verweigert",
+      "captureFailed": "Foto konnte nicht aufgenommen werden"
     }
   }
 }

@@ -34,7 +34,9 @@ import {
   type QuickAction,
   SuggestionCardComponent,
   RecentActivityComponent,
+  CameraCaptureComponent,
 } from '@yumney/ui';
+import { CameraService } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-dashboard',
@@ -47,6 +49,7 @@ import {
     QuickActionsComponent,
     SuggestionCardComponent,
     RecentActivityComponent,
+    CameraCaptureComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -70,6 +73,7 @@ export class DashboardComponent implements OnInit {
   private router = inject(Router);
   private recipeApi = inject(RecipeApiService);
   private dashboardApi = inject(DashboardApiService);
+  protected camera = inject(CameraService);
   private destroyRef = inject(DestroyRef);
   private importState = createAsyncState(this.destroyRef);
   private saveState = createAsyncState(this.destroyRef);
@@ -84,6 +88,7 @@ export class DashboardComponent implements OnInit {
   streamingStatus = signal<string | null>(null);
   streamingChunks = signal('');
   importSectionExpanded = signal(false);
+  cameraActive = signal(false);
 
   // Smart dashboard state
   quickActions = signal<QuickAction[]>([]);
@@ -218,9 +223,28 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    const photos = Array.from(files);
     input.value = '';
+    this.importPhotos(Array.from(files));
+  }
 
+  onOpenCamera(): void {
+    this.cameraActive.set(true);
+  }
+
+  onCameraCaptured(files: File[]): void {
+    this.cameraActive.set(false);
+    this.importPhotos(files);
+  }
+
+  onCameraCancelled(): void {
+    this.cameraActive.set(false);
+  }
+
+  onCameraFallback(): void {
+    this.cameraActive.set(false);
+  }
+
+  private importPhotos(photos: File[]): void {
     this.resetImportState();
 
     this.importState.execute(

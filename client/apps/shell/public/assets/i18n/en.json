@@ -224,7 +224,8 @@
       "subtitle": "Upload photos of a recipe from a cookbook or handwritten notes",
       "submit": "Upload Photos",
       "extracting": "Extracting recipe...",
-      "hint": "JPG, PNG or WebP. Up to 10 images, max 10 MB each."
+      "hint": "JPG, PNG or WebP. Up to 10 images, max 10 MB each.",
+      "scanRecipe": "Scan with camera"
     },
     "create": {
       "title": "Create a Recipe",
@@ -324,6 +325,19 @@
       "volume": "Volume",
       "weight": "Weight",
       "count": "Count / Other"
+    }
+  },
+  "camera": {
+    "capture": "Capture",
+    "cancel": "Cancel",
+    "done": "Done ({{count}})",
+    "deletePhoto": "Delete photo",
+    "useGallery": "Use gallery",
+    "guideHint": "Center the recipe in the frame",
+    "errors": {
+      "notSupported": "Camera not supported on this device",
+      "permissionDenied": "Camera permission denied",
+      "captureFailed": "Failed to capture photo"
     }
   }
 }

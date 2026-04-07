@@ -1,0 +1,58 @@
+<div class="camera-capture" *transloco="let t">
+  @if (error(); as err) {
+    <div class="camera-error">{{ t(err) }}</div>
+  }
+
+  <div class="viewfinder">
+    <video #video autoplay playsinline muted></video>
+    <div class="alignment-guide">
+      <div class="guide-corner top-left"></div>
+      <div class="guide-corner top-right"></div>
+      <div class="guide-corner bottom-left"></div>
+      <div class="guide-corner bottom-right"></div>
+    </div>
+    <p class="guide-hint">{{ t('camera.guideHint') }}</p>
+  </div>
+
+  <div class="controls">
+    <button class="control-btn cancel-btn" (click)="onCancel()">
+      {{ t('camera.cancel') }}
+    </button>
+    <button
+      #captureBtn
+      class="capture-btn"
+      (click)="onCapture()"
+      [disabled]="!isStreaming()"
+      [attr.aria-label]="t('camera.capture')"
+    >
+      <span class="capture-ring"></span>
+    </button>
+    <button class="control-btn flip-btn" (click)="onToggleFacing()">&#x21bb;</button>
+  </div>
+
+  @if (captures().length > 0) {
+    <div class="thumbnails">
+      <div class="thumbnails-scroll">
+        @for (photo of captures(); track photo.id) {
+          <div class="thumbnail">
+            <img [src]="photo.url" alt="" />
+            <button
+              class="thumbnail-delete"
+              (click)="onDeleteCapture(photo.id)"
+              [attr.aria-label]="t('camera.deletePhoto')"
+            >
+              &times;
+            </button>
+          </div>
+        }
+      </div>
+      <button class="done-btn btn-primary" (click)="onDone()">
+        {{ t('camera.done', { count: captures().length }) }}
+      </button>
+    </div>
+  }
+
+  <button class="gallery-fallback" (click)="onUseGallery()">
+    {{ t('camera.useGallery') }}
+  </button>
+</div>

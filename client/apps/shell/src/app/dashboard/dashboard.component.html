@@ -93,23 +93,34 @@
         <section class="photo-import">
           <h3>{{ t('dashboard.photoImport.title') }}</h3>
           <p class="subtitle">{{ t('dashboard.photoImport.subtitle') }}</p>
-          <label class="btn-dashed" [class.disabled]="isLoading() || isSaving()">
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              multiple
-              capture="environment"
-              [disabled]="isLoading() || isSaving()"
-              (change)="onImportFromPhotos($event)"
-              hidden
-            />
-            @if (isLoading()) {
-              <span class="btn-spinner"></span>
-              <span>{{ t('dashboard.photoImport.extracting') }}</span>
-            } @else {
-              <span>{{ t('dashboard.photoImport.submit') }}</span>
+          <div class="photo-import-actions">
+            @if (camera.cameraSupported()) {
+              <button
+                type="button"
+                class="btn-dashed"
+                [disabled]="isLoading() || isSaving()"
+                (click)="onOpenCamera()"
+              >
+                {{ t('dashboard.photoImport.scanRecipe') }}
+              </button>
             }
-          </label>
+            <label class="btn-dashed" [class.disabled]="isLoading() || isSaving()">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                [disabled]="isLoading() || isSaving()"
+                (change)="onImportFromPhotos($event)"
+                hidden
+              />
+              @if (isLoading()) {
+                <span class="btn-spinner"></span>
+                <span>{{ t('dashboard.photoImport.extracting') }}</span>
+              } @else {
+                <span>{{ t('dashboard.photoImport.submit') }}</span>
+              }
+            </label>
+          </div>
           <p class="hint">{{ t('dashboard.photoImport.hint') }}</p>
         </section>
 
@@ -154,5 +165,13 @@
 
   @if (recentActivity().length > 0) {
     <yn-recent-activity [activities]="recentActivity()" />
+  }
+
+  @if (cameraActive()) {
+    <yn-camera-capture
+      (capturedReady)="onCameraCaptured($event)"
+      (cancelled)="onCameraCancelled()"
+      (fallbackRequested)="onCameraFallback()"
+    />
   }
 </div>
