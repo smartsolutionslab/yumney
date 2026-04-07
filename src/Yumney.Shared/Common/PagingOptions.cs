@@ -20,10 +20,6 @@ public sealed record PagingOptions
 
     public static PagingOptions Of(Page page, PageSize pageSize) => new(page, pageSize);
 
-    /// <summary>
-    /// Convenience factory for endpoint query-parameter parsing — wraps the
-    /// raw page/pageSize ints in their value objects.
-    /// </summary>
     public static PagingOptions From(int page, int pageSize) =>
         new(Page.From(page), PageSize.From(pageSize));
 }
