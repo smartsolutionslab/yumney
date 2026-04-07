@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 import { FormFieldComponent } from './form-field.component';
 
 const en = {
@@ -17,13 +17,7 @@ describe('FormFieldComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        FormFieldComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
-      ],
+      imports: [FormFieldComponent, setupTranslocoTesting(en)],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FormFieldComponent);

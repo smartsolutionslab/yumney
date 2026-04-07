@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, throwError, Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ShoppingListComponent } from './shopping-list.component';
 import { ShoppingApiService, ShoppingListSummary } from '@yumney/shared/api-client';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const mockLists: ShoppingListSummary[] = [
   {
@@ -49,10 +49,7 @@ describe('ShoppingListComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         ShoppingListComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [provideRouter([]), { provide: ShoppingApiService, useValue: shoppingApiMock }],
     });

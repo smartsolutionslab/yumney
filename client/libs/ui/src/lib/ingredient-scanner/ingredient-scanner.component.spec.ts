@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
 import { IngredientScannerComponent } from './ingredient-scanner.component';
-import { CameraService, IngredientRecognitionService } from '@yumney/shared/models';
+import { CameraService, IngredientRecognitionService, setupTranslocoTesting } from '@yumney/shared/models';
 import type {
   RecognizedIngredient,
   RecognizedIngredientsResponse,
@@ -72,10 +71,7 @@ async function setup(
     .configureTestingModule({
       imports: [
         IngredientScannerComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [
         { provide: CameraService, useValue: cameraMock },

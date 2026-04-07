@@ -1,10 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
 import { ChatPanelComponent } from './chat-panel.component';
 import { ChatApiService } from '@yumney/shared/api-client';
-import { ChatStateService } from '@yumney/shared/models';
+import { ChatStateService, setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
   chat: {
@@ -34,10 +33,7 @@ describe('ChatPanelComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         ChatPanelComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [
         provideRouter([]),

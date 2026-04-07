@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { AccountPlaceholderComponent } from './account-placeholder.component';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
   account: {
@@ -18,10 +18,7 @@ describe('AccountPlaceholderComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         AccountPlaceholderComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
+        setupTranslocoTesting(en),
       ],
     });
 

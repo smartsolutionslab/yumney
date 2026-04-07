@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { TranslocoTestingModule } from '@jsverse/transloco';
+import { } from '@jsverse/transloco';
 import { of, Subject, throwError } from 'rxjs';
 import { UrlImportComponent } from './url-import.component';
 import { FormFieldComponent } from '@yumney/ui';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 import {
   RecipeApiService,
   ImportRecipeResponse,
@@ -62,10 +63,7 @@ describe('UrlImportComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         UrlImportComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [{ provide: RecipeApiService, useValue: recipeApiMock }],
     })

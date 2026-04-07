@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { LoginComponent } from './login.component';
 import { AuthService } from '@yumney/shared/auth';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
   auth: {
@@ -32,13 +32,7 @@ describe('LoginComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         LoginComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: {
-            availableLangs: ['en'],
-            defaultLang: 'en',
-          },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [provideRouter([]), { provide: AuthService, useValue: authServiceMock }],
     }).compileComponents();

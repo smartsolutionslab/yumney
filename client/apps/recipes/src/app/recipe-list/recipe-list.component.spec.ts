@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, Subject, throwError } from 'rxjs';
 import { RecipeListComponent } from './recipe-list.component';
 import { RecipeApiService, RecipeListResponse } from '@yumney/shared/api-client';
+import { setupTranslocoTesting } from '@yumney/shared/models';
 
 let intersectionCallback: IntersectionObserverCallback;
 
@@ -124,13 +124,7 @@ describe('RecipeListComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         RecipeListComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: {
-            availableLangs: ['en'],
-            defaultLang: 'en',
-          },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [provideRouter([]), { provide: RecipeApiService, useValue: recipeApiMock }],
     });

@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
 import { CameraCaptureComponent } from './camera-capture.component';
-import { CameraService } from '@yumney/shared/models';
+import { CameraService, setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
   camera: {
@@ -51,10 +50,7 @@ async function setupComponent(
     .configureTestingModule({
       imports: [
         CameraCaptureComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
+        setupTranslocoTesting(en),
       ],
       providers: [{ provide: CameraService, useValue: cameraServiceMock }],
     })

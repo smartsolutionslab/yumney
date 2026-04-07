@@ -1,9 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal, computed } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { TranslocoTestingModule } from '@jsverse/transloco';
 import { AuthService } from '@yumney/shared/auth';
-import { LanguageService, ThemeService, ChatStateService } from '@yumney/shared/models';
+import {
+  LanguageService,
+  ThemeService,
+  ChatStateService,
+  setupTranslocoTesting,
+} from '@yumney/shared/models';
 import { HeaderComponent } from './header.component';
 
 const en = {
@@ -56,13 +60,7 @@ describe('HeaderComponent', () => {
     chatMock = { toggle: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [
-        HeaderComponent,
-        TranslocoTestingModule.forRoot({
-          langs: { en },
-          translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
-        }),
-      ],
+      imports: [HeaderComponent, setupTranslocoTesting(en)],
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: authMock },
