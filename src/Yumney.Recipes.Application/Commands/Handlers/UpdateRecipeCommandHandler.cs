@@ -18,7 +18,7 @@ public sealed partial class UpdateRecipeCommandHandler(
         var (identifier, title, ingredientCommands, stepCommands, description, servings,
              preparationTime, cookingTime, difficulty, imageUrl, tags) = command;
 
-        var owner = OwnerIdentifier.From(currentUser.UserId);
+        var owner = currentUser.AsOwner();
 
         LogUpdateRecipe(identifier, owner.Value);
 

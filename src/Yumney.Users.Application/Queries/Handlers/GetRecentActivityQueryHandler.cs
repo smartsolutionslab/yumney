@@ -16,7 +16,7 @@ public sealed partial class GetRecentActivityQueryHandler(
 {
     public async Task<Result<IReadOnlyList<UserActivityDto>>> HandleAsync(GetRecentActivityQuery query, CancellationToken cancellationToken = default)
     {
-        var owner = OwnerIdentifier.From(currentUser.UserId);
+        var owner = currentUser.AsOwner();
 
         LogGetRecentActivity(owner.Value, query.Limit);
 

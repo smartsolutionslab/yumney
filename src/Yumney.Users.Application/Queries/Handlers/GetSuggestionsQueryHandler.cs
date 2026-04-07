@@ -14,7 +14,7 @@ public sealed partial class GetSuggestionsQueryHandler(
 {
     public async Task<Result<SuggestionsResponseDto>> HandleAsync(GetSuggestionsQuery query, CancellationToken cancellationToken = default)
     {
-        var owner = OwnerIdentifier.From(currentUser.UserId);
+        var owner = currentUser.AsOwner();
 
         LogGetSuggestions(owner.Value);
 
@@ -25,34 +25,24 @@ public sealed partial class GetSuggestionsQueryHandler(
         return Result.Success(new SuggestionsResponseDto(Suggestions: [], QuickActions: quickActions));
     }
 
+    private static class MealHours
+    {
+        public const int BreakfastStart = 5;
+        public const int BreakfastEnd = 11;
+        public const int LunchEnd = 15;
+        public const int DinnerEnd = 21;
+    }
+
+    private const int RecentImportLookbackHours = -1;
+    private const int MaxQuickActions = 4;
+
     private static List<string> BuildQuickActions(IReadOnlyList<UserActivity> recentActivities)
     {
-        var actions = new List<string>();
-        var hour = DateTime.UtcNow.Hour;
-        var dayOfWeek = DateTime.UtcNow.DayOfWeek;
+        var now = DateTime.UtcNow;
+        var hour = now.Hour;
+        var actions = new List<string>(BuildTimeOfDayActions(hour));
 
-        if (hour >= 5 && hour < 11)
-        {
-            actions.Add("breakfast_ideas");
-            actions.Add("quick_meals");
-        }
-        else if (hour >= 11 && hour < 15)
-        {
-            actions.Add("lunch_recipes");
-            actions.Add("quick_meals");
-        }
-        else if (hour >= 15 && hour < 21)
-        {
-            actions.Add("whats_for_dinner");
-            actions.Add("30_min_recipes");
-        }
-        else
-        {
-            actions.Add("snack_ideas");
-            actions.Add("meal_prep");
-        }
-
-        if (dayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
+        if (now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
         {
             actions.Add("meal_prep");
             actions.Add("try_something_new");
@@ -60,7 +50,7 @@ public sealed partial class GetSuggestionsQueryHandler(
 
         var hasRecentImport = recentActivities.Any(a =>
             a.Type == ActivityType.RecipeImported &&
-            a.OccurredAt > DateTime.UtcNow.AddHours(-1));
+            a.OccurredAt > now.AddHours(RecentImportLookbackHours));
 
         if (hasRecentImport)
         {
@@ -68,8 +58,16 @@ public sealed partial class GetSuggestionsQueryHandler(
             actions.Insert(1, "add_to_shopping_list");
         }
 
-        return actions.Distinct().Take(4).ToList();
+        return actions.Distinct().Take(MaxQuickActions).ToList();
     }
+
+    private static IEnumerable<string> BuildTimeOfDayActions(int hour) => hour switch
+    {
+        >= MealHours.BreakfastStart and < MealHours.BreakfastEnd => ["breakfast_ideas", "quick_meals"],
+        >= MealHours.BreakfastEnd and < MealHours.LunchEnd => ["lunch_recipes", "quick_meals"],
+        >= MealHours.LunchEnd and < MealHours.DinnerEnd => ["whats_for_dinner", "30_min_recipes"],
+        _ => ["snack_ideas", "meal_prep"],
+    };
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Getting suggestions for user {UserId}")]
     private partial void LogGetSuggestions(string userId);

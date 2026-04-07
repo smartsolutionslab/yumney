@@ -26,7 +26,7 @@ public sealed partial class GetShoppingListByIdQueryHandler(
 
         if (shoppingList is null) return GetShoppingListByIdErrors.NotFound;
 
-        var owner = OwnerIdentifier.From(currentUser.UserId);
+        var owner = currentUser.AsOwner();
 
         if (shoppingList.Owner != owner) return GetShoppingListByIdErrors.AccessDenied;
 

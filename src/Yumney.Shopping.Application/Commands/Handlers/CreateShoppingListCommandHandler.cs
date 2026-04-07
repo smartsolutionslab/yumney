@@ -17,7 +17,7 @@ public sealed partial class CreateShoppingListCommandHandler(
     {
         var (title, itemCommands, recipeReference) = command;
 
-        var owner = OwnerIdentifier.From(currentUser.UserId);
+        var owner = currentUser.AsOwner();
 
         var items = itemCommands
             .Select(i => Domain.ShoppingList.ShoppingListItem.Create(i.Name, i.Quantity))

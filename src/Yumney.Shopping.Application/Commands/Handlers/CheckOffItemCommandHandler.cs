@@ -20,7 +20,7 @@ public sealed partial class CheckOffItemCommandHandler(
 
         if (shoppingList is null) return Result.Failure(CheckOffItemErrors.ListNotFound);
 
-        var owner = OwnerIdentifier.From(currentUser.UserId);
+        var owner = currentUser.AsOwner();
 
         if (shoppingList.Owner != owner) return Result.Failure(CheckOffItemErrors.AccessDenied);
 

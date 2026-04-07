@@ -79,11 +79,9 @@ public static class ShoppingEndpoints
         SortDirection sortDirection = SortDirection.Descending,
         CancellationToken cancellationToken = default)
     {
-        var sortField = default(ShoppingListSortField).ParseNullable(sortBy) ?? ShoppingListSortField.Date;
-
         var query = new GetShoppingListsQuery(
-            PagingOptions.Of(Page.From(page), PageSize.From(pageSize)),
-            new SortingOptions<ShoppingListSortField>(sortField, sortDirection));
+            PagingOptions.From(page, pageSize),
+            SortingOptions<ShoppingListSortField>.Parse(sortBy, sortDirection, ShoppingListSortField.Date));
         var result = await handler.HandleAsync(query, cancellationToken);
 
         return result.ToOk();

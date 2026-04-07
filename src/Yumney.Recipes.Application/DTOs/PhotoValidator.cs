@@ -5,6 +5,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 public static class PhotoValidator
 {
     public const long MaxPhotoSizeBytes = 10 * 1024 * 1024;
+    public const int MaxPhotos = 10;
 
     public static readonly HashSet<string> AllowedContentTypes =
     [

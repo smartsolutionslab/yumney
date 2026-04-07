@@ -15,7 +15,7 @@ public sealed partial class DeleteRecipeCommandHandler(
     public async Task<Result> HandleAsync(DeleteRecipeCommand command, CancellationToken cancellationToken = default)
     {
         var identifier = command.Identifier;
-        var owner = OwnerIdentifier.From(currentUser.UserId);
+        var owner = currentUser.AsOwner();
 
         LogDeleteRecipe(identifier, owner.Value);
 
