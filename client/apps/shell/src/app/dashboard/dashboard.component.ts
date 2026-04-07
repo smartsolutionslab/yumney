@@ -5,32 +5,26 @@ import {
   inject,
   DestroyRef,
   OnInit,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
   RecipeApiService,
   ImportRecipeResponse,
-  ImportStreamEvent,
   DashboardApiService,
   type UserActivityItem,
   type SuggestionsResponse,
 } from '@yumney/shared/api-client';
 import {
-  urlValidator,
   createAsyncState,
   mapToSaveRecipeRequest,
-  VALIDATION,
   ERROR_MAPS,
   ROUTES,
-  ensureFormValid,
 } from '@yumney/shared/models';
 import {
   RecipePreviewComponent,
-  FormFieldComponent,
-  SubmitButtonComponent,
   QuickActionsComponent,
   type QuickAction,
   SuggestionCardComponent,
@@ -42,15 +36,14 @@ import {
 } from '@yumney/ui';
 import { CameraService } from '@yumney/shared/models';
 import type { RecognizedIngredient } from '@yumney/shared/api-client';
+import { UrlImportComponent } from './url-import.component';
 
 @Component({
   selector: 'yn-dashboard',
   imports: [
-    ReactiveFormsModule,
     TranslocoModule,
+    UrlImportComponent,
     RecipePreviewComponent,
-    FormFieldComponent,
-    SubmitButtonComponent,
     QuickActionsComponent,
     SuggestionCardComponent,
     RecentActivityComponent,
@@ -64,7 +57,6 @@ import type { RecognizedIngredient } from '@yumney/shared/api-client';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
-  private formBuilder = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private recipeApi = inject(RecipeApiService);
@@ -74,6 +66,8 @@ export class DashboardComponent implements OnInit {
   private importState = createAsyncState(this.destroyRef);
   private saveState = createAsyncState(this.destroyRef);
 
+  protected urlImport = viewChild<UrlImportComponent>(UrlImportComponent);
+
   isLoading = this.importState.isLoading;
   isSaving = this.saveState.isLoading;
   serverError = signal<string | null>(null);
@@ -81,8 +75,6 @@ export class DashboardComponent implements OnInit {
   sourceUrl = signal<string | null>(null);
   saveSuccess = signal<string | null>(null);
   isManualEntry = signal(false);
-  streamingStatus = signal<string | null>(null);
-  streamingChunks = signal('');
   importSectionExpanded = signal(false);
   cameraActive = signal(false);
   scannerActive = signal(false);
@@ -95,21 +87,9 @@ export class DashboardComponent implements OnInit {
   recentActivity = signal<UserActivityItem[]>([]);
   suggestionsLoading = signal(true);
 
-  form = this.formBuilder.nonNullable.group({
-    url: [
-      '',
-      [
-        Validators.required,
-        Validators.maxLength(VALIDATION.RECIPES.RECIPE_URL.MAX_LENGTH),
-        urlValidator,
-      ],
-    ],
-  });
-
   ngOnInit(): void {
     this.loadDashboardData();
 
-    // Subscribe to query params so subsequent shares (when app already open) also work
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const urlParam = params['url'] as string | undefined;
       const textParam = params['text'] as string | undefined;
@@ -122,7 +102,6 @@ export class DashboardComponent implements OnInit {
       if (sharedUrl) {
         this.handleSharedUrl(sharedUrl);
       } else if (textParam) {
-        // Shared text without a recognizable URL
         this.serverError.set('dashboard.share.noUrlFound');
         this.importSectionExpanded.set(true);
       }
@@ -130,10 +109,11 @@ export class DashboardComponent implements OnInit {
   }
 
   private handleSharedUrl(sharedUrl: string): void {
-    this.form.controls.url.setValue(sharedUrl);
     this.importSectionExpanded.set(true);
     this.shareToast.set(sharedUrl);
-    this.onImport();
+    // Defer one microtask so the *@if (importSectionExpanded())* block renders
+    // and the UrlImportComponent ViewChild is available.
+    queueMicrotask(() => this.urlImport()?.importUrl(sharedUrl));
   }
 
   dismissShareToast(): void {
@@ -150,6 +130,19 @@ export class DashboardComponent implements OnInit {
     } else {
       this.importSectionExpanded.set(true);
     }
+  }
+
+  onUrlExtracted(payload: { recipe: ImportRecipeResponse; sourceUrl: string }): void {
+    this.extractedRecipe.set(payload.recipe);
+    this.sourceUrl.set(payload.sourceUrl);
+  }
+
+  onUrlImportFailed(errorKey: string): void {
+    this.serverError.set(errorKey);
+  }
+
+  onUrlImportStarted(): void {
+    this.resetImportState();
   }
 
   private loadDashboardData(): void {
@@ -179,66 +172,10 @@ export class DashboardComponent implements OnInit {
     }));
   }
 
-  onImport(): void {
-    if (!ensureFormValid(this.form)) return;
-
-    this.resetImportState();
-
-    const { url } = this.form.getRawValue();
-
-    this.importWithStreaming(url);
-  }
-
-  private importWithStreaming(url: string): void {
-    this.importState.isLoading.set(true);
-
-    this.recipeApi
-      .importRecipeStream(url)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (event: ImportStreamEvent) => this.handleStreamEvent(event, url),
-        error: () => {
-          this.importState.isLoading.set(false);
-          this.streamingStatus.set(null);
-          this.serverError.set('dashboard.import.errors.generic');
-        },
-      });
-  }
-
-  private handleStreamEvent(event: ImportStreamEvent, url: string): void {
-    switch (event.type) {
-      case 'status':
-        this.streamingStatus.set(event.data);
-        break;
-      case 'chunk':
-        this.streamingChunks.update((prev) => prev + event.data);
-        break;
-      case 'done':
-        this.importState.isLoading.set(false);
-        this.streamingStatus.set(null);
-        try {
-          const recipe = JSON.parse(event.data) as ImportRecipeResponse;
-          this.extractedRecipe.set(recipe);
-          this.sourceUrl.set(url);
-          this.form.reset();
-        } catch {
-          this.serverError.set('dashboard.import.errors.generic');
-        }
-        break;
-      case 'fail':
-        this.importState.isLoading.set(false);
-        this.streamingStatus.set(null);
-        this.serverError.set('dashboard.import.errors.generic');
-        break;
-    }
-  }
-
   onImportFromPhotos(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = input.files;
-    if (!files || files.length === 0) {
-      return;
-    }
+    if (!files || files.length === 0) return;
 
     input.value = '';
     this.importPhotos(Array.from(files));
@@ -333,10 +270,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private extractUrl(text: string | undefined): string | null {
-    if (!text) {
-      return null;
-    }
-
+    if (!text) return null;
     const [url] = text.match(/https?:\/\/\S+/i) ?? [];
     return url ?? null;
   }
@@ -346,7 +280,5 @@ export class DashboardComponent implements OnInit {
     this.extractedRecipe.set(null);
     this.saveSuccess.set(null);
     this.isManualEntry.set(false);
-    this.streamingStatus.set(null);
-    this.streamingChunks.set('');
   }
 }
