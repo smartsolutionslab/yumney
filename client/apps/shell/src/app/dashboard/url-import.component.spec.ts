@@ -60,10 +60,7 @@ describe('UrlImportComponent', () => {
     recipeApiMock = { importRecipeStream: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [
-        UrlImportComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [UrlImportComponent, setupTranslocoTesting(en)],
       providers: [{ provide: RecipeApiService, useValue: recipeApiMock }],
     })
       .overrideComponent(FormFieldComponent, {

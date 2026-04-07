@@ -41,10 +41,7 @@ describe('EditableListItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        TestHostComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [TestHostComponent, setupTranslocoTesting(en)],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);

@@ -16,10 +16,7 @@ describe('ShareToastComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        ShareToastComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [ShareToastComponent, setupTranslocoTesting(en)],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ShareToastComponent);

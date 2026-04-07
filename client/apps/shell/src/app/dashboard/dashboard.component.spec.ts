@@ -111,10 +111,7 @@ describe('DashboardComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [
-        DashboardComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [DashboardComponent, setupTranslocoTesting(en)],
       providers: [
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: DashboardApiService, useValue: dashboardApiMock },
@@ -526,10 +523,7 @@ describe('DashboardComponent – Share Intent', () => {
       getRecentActivity: vi.fn().mockReturnValue(of([])),
     };
     TestBed.configureTestingModule({
-      imports: [
-        DashboardComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [DashboardComponent, setupTranslocoTesting(en)],
       providers: [
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: DashboardApiService, useValue: dashboardMock },

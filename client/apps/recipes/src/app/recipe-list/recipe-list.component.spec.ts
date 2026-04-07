@@ -122,10 +122,7 @@ describe('RecipeListComponent', () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [
-        RecipeListComponent,
-        setupTranslocoTesting(en),
-      ],
+      imports: [RecipeListComponent, setupTranslocoTesting(en)],
       providers: [provideRouter([]), { provide: RecipeApiService, useValue: recipeApiMock }],
     });
 
