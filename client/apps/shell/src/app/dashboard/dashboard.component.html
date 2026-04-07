@@ -122,6 +122,14 @@
               >
                 {{ t('dashboard.photoImport.scanRecipe') }}
               </button>
+              <button
+                type="button"
+                class="btn-dashed"
+                [disabled]="isLoading() || isSaving()"
+                (click)="onOpenScanner()"
+              >
+                {{ t('dashboard.photoImport.scanIngredients') }}
+              </button>
             }
             <label class="btn-dashed" [class.disabled]="isLoading() || isSaving()">
               <input
@@ -192,5 +200,34 @@
       (cancelled)="onCameraCancelled()"
       (fallbackRequested)="onCameraFallback()"
     />
+  }
+
+  @if (scannerActive()) {
+    <yn-ingredient-scanner
+      (ingredientsConfirmed)="onIngredientsConfirmed($event)"
+      (cancelled)="onScannerCancelled()"
+    />
+  }
+
+  @if (recognizedIngredients(); as ingredients) {
+    <div class="recognized-ingredients-toast" role="status" aria-live="polite">
+      <div class="recognized-ingredients-content">
+        <strong>{{
+          t('dashboard.scanner.foundIngredients', { count: ingredients.length })
+        }}</strong>
+        <div class="recognized-ingredients-chips">
+          @for (item of ingredients; track item.name) {
+            <span class="recognized-chip">{{ item.name }}</span>
+          }
+        </div>
+      </div>
+      <button
+        class="recognized-dismiss"
+        (click)="dismissRecognizedIngredients()"
+        [attr.aria-label]="t('dashboard.scanner.dismiss')"
+      >
+        &times;
+      </button>
+    </div>
   }
 </div>

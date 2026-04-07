@@ -1,0 +1,199 @@
+@use 'buttons';
+@use 'glass';
+
+.ingredient-scanner {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yn-z-modal);
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+
+// ── Viewfinder ──
+.viewfinder {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// ── Results overlay ──
+.results-overlay {
+  position: absolute;
+  top: var(--yn-space-5);
+  left: var(--yn-space-5);
+  right: var(--yn-space-5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yn-space-3);
+  max-height: 50%;
+  overflow-y: auto;
+}
+
+.result-card {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-3);
+  padding: var(--yn-space-3) var(--yn-space-4);
+  border-radius: var(--yn-radius-badge);
+  background: rgb(255 255 255 / 15%);
+  backdrop-filter: blur(var(--yn-glass-blur));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur));
+  border: 1px solid rgb(255 255 255 / 30%);
+  color: #fff;
+  animation: yn-scale-up var(--yn-duration-fast) var(--yn-ease-spring) both;
+
+  &.confidence-high {
+    border-color: var(--yn-success);
+  }
+
+  &.confidence-medium {
+    border-color: var(--yn-warning);
+  }
+
+  &.confidence-low {
+    border-color: rgb(255 255 255 / 30%);
+    opacity: 0.7;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.result-name {
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
+}
+
+.result-confidence {
+  font-size: var(--yn-text-xs);
+  opacity: 0.8;
+}
+
+.result-remove {
+  background: none;
+  border: none;
+  color: rgb(255 255 255 / 80%);
+  font-size: var(--yn-text-lg);
+  cursor: pointer;
+  padding: 0 var(--yn-space-1);
+  line-height: var(--yn-leading-none);
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+// ── Error ──
+.scanner-error {
+  position: absolute;
+  bottom: var(--yn-space-7);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--yn-space-3) var(--yn-space-5);
+  border-radius: var(--yn-radius-card);
+  background: rgb(0 0 0 / 70%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: var(--yn-text-sm);
+  text-align: center;
+}
+
+// ── Controls ──
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--yn-space-7) var(--yn-space-8);
+  background: rgb(0 0 0 / 80%);
+  backdrop-filter: blur(var(--yn-glass-blur));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur));
+}
+
+.control-btn {
+  background: none;
+  border: 1px solid rgb(255 255 255 / 30%);
+  color: rgb(255 255 255 / 90%);
+  padding: var(--yn-space-3) var(--yn-space-5);
+  border-radius: var(--yn-radius-badge);
+  font-size: var(--yn-text-base);
+  cursor: pointer;
+  transition: background var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover {
+    background: rgb(255 255 255 / 10%);
+  }
+}
+
+.flip-btn {
+  font-size: var(--yn-text-2xl);
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--yn-radius-circle);
+}
+
+.scan-btn {
+  min-width: 8rem;
+  padding: var(--yn-space-4) var(--yn-space-7);
+  border: none;
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-primary);
+  color: #fff;
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-semibold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--yn-primary-hover);
+  }
+}
+
+.scan-spinner {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2.5px solid rgb(255 255 255 / 30%);
+  border-top-color: #fff;
+  border-radius: var(--yn-radius-circle);
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ── Confirm button ──
+.confirm-btn {
+  position: absolute;
+  bottom: 8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  animation: yn-slide-in-up var(--yn-duration-normal) var(--yn-ease-spring) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

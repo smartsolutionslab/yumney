@@ -15,6 +15,7 @@ public static class ExtractionServiceCollectionExtensions
             .ConfigurePrimaryHttpMessageHandler(BrowserHttpClientDefaults.CreateHandler)
             .AddStandardResilienceHandler();
         services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
+        services.AddScoped<IIngredientRecognitionService, SemanticKernelIngredientRecognitionService>();
 
         var skOptions = configuration
             .GetSection(SemanticKernelOptions.SectionName)

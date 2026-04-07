@@ -27,3 +27,7 @@ export type { ShoppingListSummary } from './lib/shopping-list-summary';
 export { DashboardApiService } from './lib/dashboard-api.service';
 export type { UserActivityItem } from './lib/user-activity';
 export type { SuggestionItem, SuggestionsResponse } from './lib/suggestion';
+export type {
+  RecognizedIngredient,
+  RecognizedIngredientsResponse,
+} from './lib/recognized-ingredient';
