@@ -120,6 +120,7 @@
   background: var(--yn-glass-bg);
   backdrop-filter: blur(var(--yn-glass-blur-soft));
   -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
+  overflow: hidden;
   transition:
     border-color var(--yn-duration-fast) var(--yn-ease-glass),
     box-shadow var(--yn-duration-fast) var(--yn-ease-glass);
@@ -134,15 +135,21 @@
     margin-bottom: 0;
   }
 
+  // Amount fills the row, the number is right-aligned so it sits next to the
+  // unit label like "500 g" — the unit reads as a postfix to the amount.
   .ingredient-amount {
-    flex: 0 0 5.5rem;
+    flex: 1 1 auto;
+    min-width: 0;
 
     input {
       border: none;
-      border-radius: var(--yn-radius-md) 0 0 var(--yn-radius-md);
+      border-radius: 0;
       background: transparent;
       box-shadow: none;
       min-height: 2.5rem;
+      padding-right: var(--yn-space-2);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
 
       &:focus {
         border: none;
@@ -151,41 +158,49 @@
     }
   }
 
-  .ingredient-amount::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: var(--yn-space-2);
-    bottom: var(--yn-space-2);
-    width: 1px;
-    background: var(--yn-border-light);
-  }
-
-  .ingredient-amount {
-    position: relative;
-  }
-
+  // Unit hugs its label and shows a thin separator chip rather than a full
+  // vertical divider — keeps the visual weight on the amount.
   .ingredient-unit {
-    flex: 1;
-    min-width: 0;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: stretch;
 
-    .unit-toggle {
+    &::before {
+      content: '';
+      align-self: center;
+      width: 1px;
+      height: 1.25rem;
+      background: var(--yn-glass-border-subtle);
+    }
+
+    ::ng-deep .unit-toggle {
       border: none;
-      border-radius: 0 var(--yn-radius-md) var(--yn-radius-md) 0;
+      border-radius: 0;
       background: transparent;
       box-shadow: none;
       min-height: 2.5rem;
+      width: auto;
+      padding: 0 var(--yn-space-3);
+      color: var(--yn-text-secondary);
+      font-weight: var(--yn-font-medium);
 
       &:hover:not(:disabled) {
         border: none;
-        background: var(--yn-background-subtle);
+        background: var(--yn-glass-bg-elevated);
+        color: var(--yn-text);
       }
 
       &:focus-visible,
       &.open {
         border: none;
         box-shadow: none;
+        background: var(--yn-glass-bg-elevated);
       }
+    }
+
+    ::ng-deep .unit-placeholder {
+      font-size: var(--yn-text-sm);
+      color: var(--yn-text-muted);
     }
   }
 }
@@ -244,8 +259,11 @@
     grid-template-columns: 1fr auto;
   }
 
+  // Compact on tablet+ — amount + unit now read as a single combined input
+  // so they no longer need 15rem of breathing room.
   .ingredient-quantity {
-    min-width: 15rem;
+    min-width: 11rem;
+    max-width: 14rem;
   }
 }
 
