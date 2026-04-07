@@ -1,9 +1,9 @@
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Shared.Guards;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 using Xunit;
 
-namespace SmartSolutionsLab.Yumney.Shopping.Domain.Tests.ShoppingList;
+namespace SmartSolutionsLab.Yumney.Users.Domain.Tests.UserActivity;
 
 public class OwnerIdentifierTests
 {

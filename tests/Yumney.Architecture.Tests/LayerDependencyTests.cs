@@ -202,6 +202,66 @@ public class LayerDependencyTests
         result.IsSuccessful.Should().BeTrue($"{sourceModule}.Application must not depend on {targetModule}.Infrastructure");
     }
 
+    [Theory]
+    [MemberData(nameof(CrossModulePairs))]
+    public void ModuleApplication_ShouldNotDependOn_OtherModuleDomain(string sourceModule, string targetModule)
+    {
+        var applicationAssembly = GetAssembly($"Yumney.{sourceModule}.Application");
+
+        var result = Types.InAssembly(applicationAssembly)
+            .ShouldNot()
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{targetModule}.Domain")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            $"{sourceModule}.Application must not depend on {targetModule}.Domain — module identifier types must stay isolated");
+    }
+
+    [Theory]
+    [MemberData(nameof(CrossModulePairs))]
+    public void ModuleApplication_ShouldNotDependOn_OtherModuleApplication(string sourceModule, string targetModule)
+    {
+        var applicationAssembly = GetAssembly($"Yumney.{sourceModule}.Application");
+
+        var result = Types.InAssembly(applicationAssembly)
+            .ShouldNot()
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{targetModule}.Application")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            $"{sourceModule}.Application must not depend on {targetModule}.Application — cross-module communication goes through Shared.Events");
+    }
+
+    [Theory]
+    [MemberData(nameof(CrossModulePairs))]
+    public void ModuleApi_ShouldNotDependOn_OtherModuleDomain(string sourceModule, string targetModule)
+    {
+        var apiAssembly = GetAssembly($"Yumney.{sourceModule}.Api");
+
+        var result = Types.InAssembly(apiAssembly)
+            .ShouldNot()
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{targetModule}.Domain")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            $"{sourceModule}.Api must not depend on {targetModule}.Domain — module identifier types must stay isolated");
+    }
+
+    [Theory]
+    [MemberData(nameof(CrossModulePairs))]
+    public void ModuleApi_ShouldNotDependOn_OtherModuleApplication(string sourceModule, string targetModule)
+    {
+        var apiAssembly = GetAssembly($"Yumney.{sourceModule}.Api");
+
+        var result = Types.InAssembly(apiAssembly)
+            .ShouldNot()
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{targetModule}.Application")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            $"{sourceModule}.Api must not depend on {targetModule}.Application");
+    }
+
     private static System.Reflection.Assembly GetAssembly(string name)
     {
         return System.Reflection.Assembly.Load(name);
