@@ -142,7 +142,8 @@ export class VoiceService {
 
   private createRecognition(): SpeechRecognitionLike | null {
     const ctor =
-      (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition ??
+      (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor })
+        .SpeechRecognition ??
       (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionConstructor })
         .webkitSpeechRecognition;
     return ctor ? new ctor() : null;
