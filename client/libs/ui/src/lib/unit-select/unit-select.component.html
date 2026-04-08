@@ -15,7 +15,12 @@
       }
     </span>
     @if (selectedValue()) {
-      <span class="unit-clear" (click)="clearSelection($event)" aria-label="Clear">&times;</span>
+      <span
+        class="unit-clear"
+        (click)="clearSelection($event)"
+        [attr.aria-label]="t('dashboard.preview.clearUnit')"
+        >&times;</span
+      >
     }
     <span class="unit-chevron" [class.open]="isOpen()">&#9662;</span>
   </button>

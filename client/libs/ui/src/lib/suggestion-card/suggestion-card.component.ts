@@ -1,13 +1,14 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslocoModule } from '@jsverse/transloco';
 import { ROUTES } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-suggestion-card',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslocoModule],
   template: `
-    <a class="suggestion-card" [routerLink]="ROUTES.recipes.detail(identifier())">
+    <a class="suggestion-card" [routerLink]="ROUTES.recipes.detail(identifier())" *transloco="let t">
       @if (imageUrl()) {
         <img class="suggestion-image" [src]="imageUrl()!" [alt]="title()" loading="lazy" />
       } @else {
@@ -16,7 +17,9 @@ import { ROUTES } from '@yumney/shared/models';
       <div class="suggestion-info">
         <h3 class="suggestion-title">{{ title() }}</h3>
         @if (prepTimeMinutes()) {
-          <span class="suggestion-time">{{ prepTimeMinutes() }} min</span>
+          <span class="suggestion-time">{{
+            t('dashboard.suggestions.prepTime', { minutes: prepTimeMinutes() })
+          }}</span>
         }
         <span class="suggestion-reason">{{ reason() }}</span>
       </div>

@@ -7,7 +7,9 @@
       "myRecipes": "My Recipes",
       "shoppingLists": "Shopping Lists",
       "navigation": "Main navigation",
-      "switchLanguage": "Switch language"
+      "switchLanguage": "Switch language",
+      "switchToDark": "Switch to dark mode",
+      "switchToLight": "Switch to light mode"
     }
   },
   "shared": {
@@ -86,7 +88,8 @@
       "actions": {
         "edit": "Edit",
         "delete": "Delete",
-        "shoppingList": "Shopping List"
+        "shoppingList": "Shopping List",
+        "startCooking": "Start Cooking"
       },
       "loading": "Loading recipe...",
       "notFound": "Recipe not found.",
@@ -108,6 +111,28 @@
       },
       "errors": {
         "generic": "Failed to load recipe. Please try again later."
+      }
+    },
+    "cook": {
+      "loading": "Loading recipe...",
+      "exit": "Exit",
+      "previous": "Previous",
+      "next": "Next",
+      "repeat": "Repeat",
+      "ingredients": "Ingredients",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "voiceToggle": "Toggle voice control",
+      "voiceListening": "Listening...",
+      "voiceTapToTalk": "Tap to talk",
+      "stepProgress": "Step {{current}} of {{total}}",
+      "timer": {
+        "defaultName": "Timer",
+        "cancel": "Cancel",
+        "done": "Timer done"
+      },
+      "errors": {
+        "notFound": "Recipe not found."
       }
     }
   },
@@ -135,7 +160,8 @@
         "titleMaxLength": "Title must not exceed 200 characters.",
         "ingredientNameRequired": "Ingredient name is required.",
         "stepDescriptionRequired": "Step description is required."
-      }
+      },
+      "clearUnit": "Clear unit"
     },
     "save": {
       "saving": "Saving..."

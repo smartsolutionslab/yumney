@@ -35,7 +35,9 @@
       <button
         class="theme-toggle"
         (click)="onToggleTheme()"
-        [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+        [attr.aria-label]="
+          isDark() ? t('layout.header.switchToLight') : t('layout.header.switchToDark')
+        "
       >
         {{ isDark() ? '☀' : '☾' }}
       </button>

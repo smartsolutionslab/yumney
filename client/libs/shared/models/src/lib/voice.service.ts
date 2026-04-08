@@ -1,0 +1,162 @@
+import { Injectable, signal } from '@angular/core';
+
+export type VoiceCommand =
+  | { type: 'next' }
+  | { type: 'previous' }
+  | { type: 'repeat' }
+  | { type: 'stop' }
+  | { type: 'ingredients' }
+  | { type: 'timer'; minutes: number };
+
+const COMMAND_PATTERNS: Array<{
+  match: RegExp;
+  build: (groups: RegExpMatchArray) => VoiceCommand;
+}> = [
+  { match: /^(next step|next|nächster schritt|weiter)$/i, build: () => ({ type: 'next' }) },
+  {
+    match: /^(previous step|previous|back|vorheriger schritt|zurück)$/i,
+    build: () => ({ type: 'previous' }),
+  },
+  { match: /^(repeat|wiederhole|wiederholen)$/i, build: () => ({ type: 'repeat' }) },
+  { match: /^(stop|stopp|stop it|halt)$/i, build: () => ({ type: 'stop' }) },
+  { match: /^(ingredients|zutaten)$/i, build: () => ({ type: 'ingredients' }) },
+  {
+    match: /^timer\s+(\d{1,3})\s*(?:minutes?|min|minuten|minute)$/i,
+    build: (m) => ({ type: 'timer', minutes: Number(m[1]) }),
+  },
+  {
+    match: /^(\d{1,3})\s*(?:minute|minuten|min)\s+timer$/i,
+    build: (m) => ({ type: 'timer', minutes: Number(m[1]) }),
+  },
+];
+
+interface SpeechRecognitionLike {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start(): void;
+  stop(): void;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognitionLike;
+}
+
+@Injectable({ providedIn: 'root' })
+export class VoiceService {
+  readonly ttsSupported = signal(this.detectTtsSupport());
+  readonly sttSupported = signal(this.detectSttSupport());
+  readonly isListening = signal(false);
+  readonly isSpeaking = signal(false);
+  readonly muted = signal(false);
+
+  private recognition: SpeechRecognitionLike | null = null;
+  private currentLang = 'en-US';
+
+  setLanguage(lang: 'en' | 'de'): void {
+    this.currentLang = lang === 'de' ? 'de-DE' : 'en-US';
+    if (this.recognition) {
+      this.recognition.lang = this.currentLang;
+    }
+  }
+
+  speak(text: string): void {
+    if (!this.ttsSupported() || this.muted() || text.trim() === '') {
+      return;
+    }
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = this.currentLang;
+    utterance.onstart = () => this.isSpeaking.set(true);
+    utterance.onend = () => this.isSpeaking.set(false);
+    utterance.onerror = () => this.isSpeaking.set(false);
+    synth.speak(utterance);
+  }
+
+  stopSpeaking(): void {
+    if (this.ttsSupported()) {
+      window.speechSynthesis.cancel();
+      this.isSpeaking.set(false);
+    }
+  }
+
+  setMuted(muted: boolean): void {
+    this.muted.set(muted);
+    if (muted) {
+      this.stopSpeaking();
+    }
+  }
+
+  startListening(onCommand: (command: VoiceCommand) => void): void {
+    if (!this.sttSupported() || this.isListening()) {
+      return;
+    }
+    const recognition = this.createRecognition();
+    if (!recognition) return;
+
+    recognition.lang = this.currentLang;
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      const last = event.results[event.results.length - 1];
+      const transcript = last[0]?.transcript?.trim() ?? '';
+      const command = VoiceService.parseCommand(transcript);
+      if (command) {
+        onCommand(command);
+      }
+    };
+    recognition.onerror = () => {
+      this.isListening.set(false);
+    };
+    recognition.onend = () => {
+      this.isListening.set(false);
+    };
+
+    this.recognition = recognition;
+    recognition.start();
+    this.isListening.set(true);
+  }
+
+  stopListening(): void {
+    if (this.recognition && this.isListening()) {
+      this.recognition.stop();
+      this.isListening.set(false);
+    }
+  }
+
+  static parseCommand(transcript: string): VoiceCommand | null {
+    const normalized = transcript.trim().toLowerCase();
+    if (normalized === '') return null;
+    for (const pattern of COMMAND_PATTERNS) {
+      const match = normalized.match(pattern.match);
+      if (match) {
+        return pattern.build(match);
+      }
+    }
+    return null;
+  }
+
+  private createRecognition(): SpeechRecognitionLike | null {
+    const ctor =
+      (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition ??
+      (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionConstructor })
+        .webkitSpeechRecognition;
+    return ctor ? new ctor() : null;
+  }
+
+  private detectTtsSupport(): boolean {
+    return typeof window !== 'undefined' && 'speechSynthesis' in window;
+  }
+
+  private detectSttSupport(): boolean {
+    if (typeof window === 'undefined') return false;
+    return (
+      'SpeechRecognition' in window ||
+      'webkitSpeechRecognition' in (window as unknown as Record<string, unknown>)
+    );
+  }
+}

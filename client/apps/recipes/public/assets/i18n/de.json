@@ -7,7 +7,9 @@
       "myRecipes": "Meine Rezepte",
       "shoppingLists": "Einkaufslisten",
       "navigation": "Hauptnavigation",
-      "switchLanguage": "Sprache wechseln"
+      "switchLanguage": "Sprache wechseln",
+      "switchToDark": "Zu dunklem Modus wechseln",
+      "switchToLight": "Zu hellem Modus wechseln"
     }
   },
   "shared": {
@@ -86,7 +88,8 @@
       "actions": {
         "edit": "Bearbeiten",
         "delete": "Löschen",
-        "shoppingList": "Einkaufsliste"
+        "shoppingList": "Einkaufsliste",
+        "startCooking": "Kochmodus starten"
       },
       "loading": "Rezept wird geladen...",
       "notFound": "Rezept nicht gefunden.",
@@ -108,6 +111,28 @@
       },
       "errors": {
         "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut."
+      }
+    },
+    "cook": {
+      "loading": "Rezept wird geladen...",
+      "exit": "Beenden",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "repeat": "Wiederholen",
+      "ingredients": "Zutaten",
+      "mute": "Stumm",
+      "unmute": "Ton an",
+      "voiceToggle": "Sprachsteuerung umschalten",
+      "voiceListening": "Höre zu...",
+      "voiceTapToTalk": "Zum Sprechen tippen",
+      "stepProgress": "Schritt {{current}} von {{total}}",
+      "timer": {
+        "defaultName": "Timer",
+        "cancel": "Abbrechen",
+        "done": "Timer fertig"
+      },
+      "errors": {
+        "notFound": "Rezept nicht gefunden."
       }
     }
   },
@@ -135,7 +160,8 @@
         "titleMaxLength": "Titel darf maximal 200 Zeichen lang sein.",
         "ingredientNameRequired": "Zutatname ist erforderlich.",
         "stepDescriptionRequired": "Schrittbeschreibung ist erforderlich."
-      }
+      },
+      "clearUnit": "Einheit l�schen"
     },
     "save": {
       "saving": "Wird gespeichert..."

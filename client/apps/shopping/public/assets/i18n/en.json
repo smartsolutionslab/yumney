@@ -7,7 +7,9 @@
       "myRecipes": "My Recipes",
       "shoppingLists": "Shopping Lists",
       "navigation": "Main navigation",
-      "switchLanguage": "Switch language"
+      "switchLanguage": "Switch language",
+      "switchToDark": "Switch to dark mode",
+      "switchToLight": "Switch to light mode"
     }
   },
   "shopping": {
