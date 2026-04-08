@@ -8,7 +8,11 @@ import { ROUTES } from '@yumney/shared/models';
   standalone: true,
   imports: [RouterLink, TranslocoModule],
   template: `
-    <a class="suggestion-card" [routerLink]="ROUTES.recipes.detail(identifier())" *transloco="let t">
+    <a
+      class="suggestion-card"
+      [routerLink]="ROUTES.recipes.detail(identifier())"
+      *transloco="let t"
+    >
       @if (imageUrl()) {
         <img class="suggestion-image" [src]="imageUrl()!" [alt]="title()" loading="lazy" />
       } @else {

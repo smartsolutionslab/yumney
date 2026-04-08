@@ -10,10 +10,7 @@ describe('CookingTimerService', () => {
     vi.useFakeTimers();
     voiceSpeak = vi.fn();
     TestBed.configureTestingModule({
-      providers: [
-        CookingTimerService,
-        { provide: VoiceService, useValue: { speak: voiceSpeak } },
-      ],
+      providers: [CookingTimerService, { provide: VoiceService, useValue: { speak: voiceSpeak } }],
     });
     service = TestBed.inject(CookingTimerService);
   });

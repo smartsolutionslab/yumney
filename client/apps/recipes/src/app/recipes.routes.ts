@@ -10,8 +10,7 @@ export const recipesRoutes: Route[] = [
   {
     path: ':identifier/cook',
     title: 'Cook Mode — Yumney',
-    loadComponent: () =>
-      import('./cook-mode/cook-mode.component').then((m) => m.CookModeComponent),
+    loadComponent: () => import('./cook-mode/cook-mode.component').then((m) => m.CookModeComponent),
   },
   {
     path: ':identifier',
