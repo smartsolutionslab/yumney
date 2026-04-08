@@ -1,0 +1,6 @@
+<div class="step-display" *transloco="let t">
+  <div class="step-progress">
+    {{ t('recipes.cook.stepProgress', { current: stepNumber(), total: totalSteps() }) }}
+  </div>
+  <p class="step-text">{{ text() }}</p>
+</div>

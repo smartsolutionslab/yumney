@@ -80,7 +80,9 @@
       "switchLanguage": "Switch language",
       "languageDe": "DE",
       "languageEn": "EN",
-      "openChat": "Open recipe chat"
+      "openChat": "Open recipe chat",
+      "switchToDark": "Switch to dark mode",
+      "switchToLight": "Switch to light mode"
     },
     "offlineIndicator": {
       "offline": "You are offline. Some features may be unavailable.",
@@ -267,10 +269,12 @@
         "titleMaxLength": "Title must not exceed 200 characters.",
         "ingredientNameRequired": "Ingredient name is required.",
         "stepDescriptionRequired": "Step description is required."
-      }
+      },
+      "clearUnit": "Clear unit"
     },
     "suggestions": {
-      "title": "Suggested for You"
+      "title": "Suggested for You",
+      "prepTime": "{{minutes}} min"
     },
     "quickActions": {
       "breakfast_ideas": "Breakfast ideas",

@@ -31,6 +31,9 @@ export {
   type RecipeDifficulty,
   EMPTY_FILTER,
 } from './lib/filter-panel/filter-panel.component';
+export { StepDisplayComponent } from './lib/step-display/step-display.component';
+export { CookingTimerComponent } from './lib/cooking-timer/cooking-timer.component';
+export { VoiceIndicatorComponent } from './lib/voice-indicator/voice-indicator.component';
 
 // Directives
 export { InfiniteScrollDirective } from './lib/directives/infinite-scroll.directive';

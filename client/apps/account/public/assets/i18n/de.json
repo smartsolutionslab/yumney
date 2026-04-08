@@ -7,7 +7,9 @@
       "myRecipes": "Meine Rezepte",
       "shoppingLists": "Einkaufslisten",
       "navigation": "Hauptnavigation",
-      "switchLanguage": "Sprache wechseln"
+      "switchLanguage": "Sprache wechseln",
+      "switchToDark": "Zu dunklem Modus wechseln",
+      "switchToLight": "Zu hellem Modus wechseln"
     }
   },
   "account": {

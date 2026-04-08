@@ -197,6 +197,35 @@
   }
 }
 
+.btn-cook {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yn-space-3) var(--yn-space-6);
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-primary);
+  color: var(--yn-on-primary, white);
+  font-weight: var(--yn-font-semibold);
+  text-decoration: none;
+  border: 1px solid var(--yn-primary);
+  cursor: pointer;
+  transition:
+    transform var(--yn-duration-fast) var(--yn-ease-spring),
+    box-shadow var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: var(--yn-shadow-md);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
 // ── Floating action bar (mobile) ──
 .floating-actions {
   @include glass.glass-surface(2);

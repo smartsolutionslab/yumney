@@ -1,0 +1,205 @@
+.cook-mode {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: var(--yn-space-5);
+  gap: var(--yn-space-6);
+  background: var(--yn-bg);
+}
+
+.cook-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 800px;
+  gap: var(--yn-space-4);
+}
+
+.cook-title {
+  flex: 1;
+  margin: 0;
+  font-size: var(--yn-text-xl);
+  font-weight: var(--yn-font-semibold);
+  color: var(--yn-text);
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.exit-button,
+.header-action {
+  padding: var(--yn-space-2) var(--yn-space-4);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-glass-bg);
+  color: var(--yn-text);
+  font-size: var(--yn-text-sm);
+  cursor: pointer;
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
+
+  &:hover {
+    border-color: var(--yn-primary);
+    color: var(--yn-primary);
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--yn-space-2);
+}
+
+yn-step-display {
+  display: block;
+  width: 100%;
+  max-width: 800px;
+}
+
+.step-controls {
+  display: flex;
+  gap: var(--yn-space-3);
+  width: 100%;
+  max-width: 800px;
+  justify-content: center;
+}
+
+.nav-button {
+  flex: 1;
+  max-width: 12rem;
+  padding: var(--yn-space-4) var(--yn-space-5);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-lg);
+  background: var(--yn-glass-bg);
+  color: var(--yn-text);
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-medium);
+  cursor: pointer;
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
+
+  &:hover:not(:disabled) {
+    border-color: var(--yn-primary);
+    color: var(--yn-primary);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &.repeat {
+    flex: 0 0 auto;
+  }
+}
+
+.voice-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yn-space-3);
+  padding: var(--yn-space-3) var(--yn-space-5);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-glass-bg);
+  color: var(--yn-text);
+  font-size: var(--yn-text-base);
+  cursor: pointer;
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
+}
+
+.timers-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yn-space-4);
+  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+}
+
+.ingredients-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(360px, 90vw);
+  height: 100vh;
+  padding: var(--yn-space-5);
+  overflow-y: auto;
+  border-left: 1px solid var(--yn-glass-border);
+  background: var(--yn-glass-bg);
+  backdrop-filter: blur(var(--yn-glass-blur));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur));
+  z-index: 100;
+  animation: slide-in var(--yn-duration-normal) var(--yn-ease-glass);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--yn-space-5);
+
+  h2 {
+    margin: 0;
+    font-size: var(--yn-text-lg);
+  }
+}
+
+.panel-close {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  font-size: var(--yn-text-2xl);
+  color: var(--yn-text);
+  cursor: pointer;
+}
+
+.ingredient-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-3);
+
+  li {
+    display: flex;
+    gap: var(--yn-space-3);
+    padding: var(--yn-space-2) 0;
+    border-bottom: 1px solid var(--yn-glass-border);
+    color: var(--yn-text);
+  }
+
+  .amount {
+    flex: 0 0 5rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--yn-text-muted);
+  }
+}
+
+.error-banner {
+  padding: var(--yn-space-3) var(--yn-space-5);
+  border: 1px solid var(--yn-error);
+  border-radius: var(--yn-radius-md);
+  background: var(--yn-error-bg);
+  color: var(--yn-error);
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ingredients-panel {
+    animation: none;
+  }
+}

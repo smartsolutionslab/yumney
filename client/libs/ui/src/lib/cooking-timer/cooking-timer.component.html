@@ -1,0 +1,18 @@
+<div class="cooking-timer" [class.completed]="timer().status === 'completed'" *transloco="let t">
+  <svg class="timer-ring" viewBox="0 0 140 140" aria-hidden="true">
+    <circle class="ring-bg" cx="70" cy="70" [attr.r]="radius"></circle>
+    <circle
+      class="ring-fg"
+      cx="70"
+      cy="70"
+      [attr.r]="radius"
+      [attr.stroke-dasharray]="circumference"
+      [attr.stroke-dashoffset]="dashOffset()"
+    ></circle>
+  </svg>
+  <div class="timer-text">{{ displayText() }}</div>
+  <div class="timer-name">{{ timer().name }}</div>
+  <button type="button" class="timer-cancel" (click)="onCancel()">
+    {{ t('recipes.cook.timer.cancel') }}
+  </button>
+</div>

@@ -9,6 +9,7 @@ export const ROUTES = {
     list: '/recipes',
     detail: (identifier: string) => `/recipes/${identifier}`,
     edit: (identifier: string) => `/recipes/${identifier}/edit`,
+    cook: (identifier: string) => `/recipes/${identifier}/cook`,
   },
   shopping: {
     list: '/shopping',

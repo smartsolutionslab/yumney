@@ -80,7 +80,9 @@
       "switchLanguage": "Sprache wechseln",
       "languageDe": "DE",
       "languageEn": "EN",
-      "openChat": "Rezept-Chat öffnen"
+      "openChat": "Rezept-Chat öffnen",
+      "switchToDark": "Zu dunklem Modus wechseln",
+      "switchToLight": "Zu hellem Modus wechseln"
     },
     "offlineIndicator": {
       "offline": "Du bist offline. Einige Funktionen sind nicht verfügbar.",
@@ -267,13 +269,15 @@
         "titleMaxLength": "Titel darf maximal 200 Zeichen lang sein.",
         "ingredientNameRequired": "Zutatname ist erforderlich.",
         "stepDescriptionRequired": "Schrittbeschreibung ist erforderlich."
-      }
+      },
+      "clearUnit": "Einheit l�schen"
     },
     "suggestions": {
-      "title": "Vorschl�ge f�r dich"
+      "title": "Vorschläge für dich",
+      "prepTime": "{{minutes}} Min."
     },
     "quickActions": {
-      "breakfast_ideas": "Fr�hst�cksideen",
+      "breakfast_ideas": "Frühstücksideen",
       "quick_meals": "Schnelle Gerichte",
       "lunch_recipes": "Mittagsrezepte",
       "whats_for_dinner": "Was gibt es zum Abendessen?",
@@ -285,14 +289,14 @@
       "add_to_shopping_list": "Zur Einkaufsliste"
     },
     "recentActivity": {
-      "title": "Letzte Aktivit�t",
-      "empty": "Noch keine Aktivit�t. Importiere dein erstes Rezept!",
+      "title": "Letzte Aktivität",
+      "empty": "Noch keine Aktivität. Importiere dein erstes Rezept!",
       "unknownRecipe": "Unbekanntes Rezept",
       "types": {
         "recipe_imported": "Rezept importiert",
         "recipe_viewed": "Rezept angesehen",
         "recipe_edited": "Rezept bearbeitet",
-        "recipe_deleted": "Rezept gel�scht",
+        "recipe_deleted": "Rezept gelöscht",
         "shopping_list_created": "Einkaufsliste erstellt"
       }
     },
