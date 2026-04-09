@@ -203,8 +203,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
             owner,
             ingredients,
             steps,
-            preparationTime: PreparationTime.FromNullable(prepMinutes),
-            cookingTime: CookingTime.FromNullable(cookMinutes),
+            timing: TimingInfo.FromNullable(PreparationTime.FromNullable(prepMinutes), CookingTime.FromNullable(cookMinutes)),
             difficulty: Difficulty.FromNullable(difficulty),
             tags: tags?.Select(RecipeTag.From).ToList());
     }

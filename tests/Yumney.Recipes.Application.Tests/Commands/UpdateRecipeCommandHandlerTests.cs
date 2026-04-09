@@ -277,8 +277,7 @@ public class UpdateRecipeCommandHandlerTests
             [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
             RecipeDescription.From("Old description"),
             Servings.From(4),
-            PreparationTime.From(10),
-            CookingTime.From(20),
+            TimingInfo.Of(PreparationTime.From(10), CookingTime.From(20)),
             Difficulty.From("easy"),
             ImageUrl.From("https://example.com/old.jpg"));
 
@@ -334,8 +333,7 @@ public class UpdateRecipeCommandHandlerTests
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Melt butter"))],
             RecipeDescription.From("New description"),
             Servings.From(6),
-            PreparationTime.From(15),
-            CookingTime.From(30),
+            TimingInfo.Of(PreparationTime.From(15), CookingTime.From(30)),
             Difficulty.From("hard"),
             ImageUrl.From("https://example.com/new.jpg"));
     }
