@@ -4,7 +4,12 @@ import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { HeaderComponent } from '@yumney/ui';
 import { AuthService } from '@yumney/shared/auth';
-import { LanguageService, ThemeService, setupTranslocoTesting } from '@yumney/shared/models';
+import {
+  LanguageService,
+  ThemeService,
+  ChatStateService,
+  setupTranslocoTesting,
+} from '@yumney/shared/models';
 
 const en = {
   layout: {
@@ -13,7 +18,13 @@ const en = {
       logout: 'Sign out',
       login: 'Sign in',
       navigation: 'Main navigation',
+      recipes: 'My Recipes',
+      shoppingLists: 'Shopping Lists',
+      openChat: 'Open chat',
+      settings: 'Settings',
       switchLanguage: 'Switch language',
+      switchToDark: 'Switch to dark mode',
+      switchToLight: 'Switch to light mode',
       languageDe: 'DE',
       languageEn: 'EN',
     },
@@ -30,11 +41,6 @@ describe('HeaderComponent', () => {
     userInitial: ReturnType<typeof signal<string | null>>;
     logout: ReturnType<typeof vi.fn>;
   };
-  let languageServiceMock: {
-    activeLang: string;
-    nextLanguage: string;
-    switchTo: ReturnType<typeof vi.fn>;
-  };
 
   beforeEach(async () => {
     authServiceMock = {
@@ -44,8 +50,9 @@ describe('HeaderComponent', () => {
       userInitial: signal<string | null>(null),
       logout: vi.fn(),
     };
-    languageServiceMock = { activeLang: 'en', nextLanguage: 'de', switchTo: vi.fn() };
+    const languageServiceMock = { activeLang: 'en', nextLanguage: 'de', switchTo: vi.fn() };
     const themeServiceMock = { theme: signal('light'), toggle: vi.fn(), initialize: vi.fn() };
+    const chatStateMock = { toggle: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [HeaderComponent, setupTranslocoTesting(en)],
@@ -55,6 +62,7 @@ describe('HeaderComponent', () => {
         { provide: AuthService, useValue: authServiceMock },
         { provide: LanguageService, useValue: languageServiceMock },
         { provide: ThemeService, useValue: themeServiceMock },
+        { provide: ChatStateService, useValue: chatStateMock },
       ],
     }).compileComponents();
 
@@ -63,76 +71,78 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
   });
 
+  function setAuthenticated(): void {
+    authServiceMock.isAuthenticated.set(true);
+    authServiceMock.shortName.set('testuser');
+    authServiceMock.userInitial.set('T');
+    authServiceMock.displayName.set('testuser');
+    fixture.detectChanges();
+  }
+
+  function openDropdown(): void {
+    setAuthenticated();
+    const avatarBtn = fixture.nativeElement.querySelector('.avatar-button');
+    avatarBtn.click();
+    fixture.detectChanges();
+  }
+
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });
 
   it('should show login link when not authenticated', () => {
     const loginLink = fixture.nativeElement.querySelector('.login-link');
+
     expect(loginLink).toBeTruthy();
     expect(loginLink.textContent).toContain('Sign in');
   });
 
-  it('should show logout button when authenticated', () => {
-    authServiceMock.isAuthenticated.set(true);
-    authServiceMock.shortName.set('testuser');
-    authServiceMock.userInitial.set('T');
-    fixture.detectChanges();
-
-    const logoutButton = fixture.nativeElement.querySelector('.logout-button');
-    expect(logoutButton).toBeTruthy();
-    expect(logoutButton.textContent).toContain('Sign out');
-  });
-
   it('should show user avatar with initial when authenticated', () => {
-    authServiceMock.isAuthenticated.set(true);
-    authServiceMock.shortName.set('testuser');
-    authServiceMock.userInitial.set('T');
-    authServiceMock.displayName.set('testuser');
-    fixture.detectChanges();
+    setAuthenticated();
 
     const avatar = fixture.nativeElement.querySelector('.user-avatar');
     expect(avatar).toBeTruthy();
     expect(avatar.textContent.trim()).toBe('T');
   });
 
-  it('should show short name when authenticated', () => {
-    authServiceMock.isAuthenticated.set(true);
-    authServiceMock.shortName.set('testuser');
-    authServiceMock.userInitial.set('T');
-    fixture.detectChanges();
+  it('should show display name in dropdown when authenticated', () => {
+    openDropdown();
 
-    const userName = fixture.nativeElement.querySelector('.user-name');
-    expect(userName.textContent.trim()).toBe('testuser');
+    const name = fixture.nativeElement.querySelector('.dropdown-name');
+    expect(name.textContent.trim()).toBe('testuser');
   });
 
-  it('should call logout on logout button click', () => {
-    authServiceMock.isAuthenticated.set(true);
-    authServiceMock.shortName.set('testuser');
-    authServiceMock.userInitial.set('T');
-    fixture.detectChanges();
+  it('should show logout in dropdown when authenticated', () => {
+    openDropdown();
 
-    const logoutButton = fixture.nativeElement.querySelector('.logout-button');
-    logoutButton.click();
+    const logoutItem = fixture.nativeElement.querySelector('.dropdown-item--danger');
+    expect(logoutItem).toBeTruthy();
+    expect(logoutItem.textContent).toContain('Sign out');
+  });
+
+  it('should call logout from dropdown', () => {
+    openDropdown();
+
+    const logoutItem = fixture.nativeElement.querySelector('.dropdown-item--danger');
+    logoutItem.click();
 
     expect(authServiceMock.logout).toHaveBeenCalled();
   });
 
   it('should show brand text', () => {
     const brand = fixture.nativeElement.querySelector('.brand');
+
     expect(brand.textContent).toContain('Yumney');
   });
 
-  it('should not show logout button when not authenticated', () => {
-    const logoutButton = fixture.nativeElement.querySelector('.logout-button');
-    expect(logoutButton).toBeNull();
+  it('should not show avatar when not authenticated', () => {
+    const avatar = fixture.nativeElement.querySelector('.avatar-wrapper');
+
+    expect(avatar).toBeNull();
   });
 
   it('should not show login link when authenticated', () => {
-    authServiceMock.isAuthenticated.set(true);
-    authServiceMock.shortName.set('testuser');
-    authServiceMock.userInitial.set('T');
-    fixture.detectChanges();
+    setAuthenticated();
 
     const loginLink = fixture.nativeElement.querySelector('.login-link');
     expect(loginLink).toBeNull();
@@ -140,26 +150,17 @@ describe('HeaderComponent', () => {
 
   it('should link brand to home page', () => {
     const brand = fixture.nativeElement.querySelector('.brand');
+
     expect(brand.getAttribute('href')).toBe('/');
   });
 
-  it('should update user name reactively when shortName changes', () => {
-    authServiceMock.isAuthenticated.set(true);
-    authServiceMock.shortName.set('Alice');
+  it('should update avatar reactively when userInitial changes', () => {
+    setAuthenticated();
+    expect(fixture.nativeElement.querySelector('.user-avatar').textContent.trim()).toBe('T');
+
     authServiceMock.userInitial.set('A');
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.user-name').textContent.trim()).toBe('Alice');
-
-    authServiceMock.shortName.set('Bob');
-    authServiceMock.userInitial.set('B');
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.querySelector('.user-name').textContent.trim()).toBe('Bob');
-  });
-
-  it('should not show user menu when not authenticated', () => {
-    const userMenu = fixture.nativeElement.querySelector('.user-menu');
-    expect(userMenu).toBeNull();
+    expect(fixture.nativeElement.querySelector('.user-avatar').textContent.trim()).toBe('A');
   });
 });
