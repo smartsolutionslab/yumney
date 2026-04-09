@@ -8,6 +8,7 @@ export interface RecipeFilterValue {
   difficulty: RecipeDifficulty | null;
   maxPrepTime: number | null;
   maxCookTime: number | null;
+  favoritesOnly: boolean;
 }
 
 export const EMPTY_FILTER: RecipeFilterValue = {
@@ -15,6 +16,7 @@ export const EMPTY_FILTER: RecipeFilterValue = {
   difficulty: null,
   maxPrepTime: null,
   maxCookTime: null,
+  favoritesOnly: false,
 };
 
 const DIFFICULTY_OPTIONS: RecipeDifficulty[] = ['easy', 'medium', 'hard'];
@@ -40,8 +42,14 @@ export class FilterPanelComponent {
     if (v.difficulty !== null) count += 1;
     if (v.maxPrepTime !== null) count += 1;
     if (v.maxCookTime !== null) count += 1;
+    if (v.favoritesOnly) count += 1;
     return count;
   });
+
+  protected toggleFavoritesOnly(): void {
+    const current = this.value();
+    this.valueChange.emit({ ...current, favoritesOnly: !current.favoritesOnly });
+  }
 
   protected isTagActive(tag: string): boolean {
     return this.value().tags.includes(tag);

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 
@@ -19,6 +20,7 @@ public static class RecipesInfrastructureServiceCollectionExtensions
         });
 
         services.AddScoped<IRecipeRepository, RecipeRepository>();
+        services.AddScoped<IRecipeFavoriteRepository, RecipeFavoriteRepository>();
         services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
 
         return services;

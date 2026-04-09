@@ -252,6 +252,7 @@ yn-filter-panel {
   @include glass.glass-card;
   display: block;
   overflow: hidden;
+  position: relative;
   transition:
     box-shadow var(--yn-duration-normal) var(--yn-ease-glass),
     transform var(--yn-duration-normal) var(--yn-ease-spring);
@@ -271,6 +272,13 @@ yn-filter-panel {
       transform: none;
     }
   }
+}
+
+.favorite-overlay {
+  position: absolute;
+  top: var(--yn-space-3);
+  right: var(--yn-space-3);
+  z-index: 2;
 }
 
 .recipe-image {

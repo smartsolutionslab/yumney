@@ -18,6 +18,7 @@ import { createAsyncState, ERROR_MAPS, ROUTES, UI } from '@yumney/shared/models'
 import { RouterLink } from '@angular/router';
 import {
   EMPTY_FILTER,
+  FavoriteButtonComponent,
   FilterPanelComponent,
   InfiniteScrollDirective,
   prefersReducedMotion,
@@ -27,7 +28,13 @@ import {
 
 @Component({
   selector: 'yn-recipe-list',
-  imports: [TranslocoModule, RouterLink, InfiniteScrollDirective, FilterPanelComponent],
+  imports: [
+    TranslocoModule,
+    RouterLink,
+    InfiniteScrollDirective,
+    FilterPanelComponent,
+    FavoriteButtonComponent,
+  ],
   templateUrl: './recipe-list.component.html',
   styleUrl: './recipe-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -191,6 +198,43 @@ export class RecipeListComponent implements OnInit {
     this.filterPanelOpen.update((open) => !open);
   }
 
+  onToggleFavorite(identifier: string): void {
+    // Optimistic update — flip immediately, revert on error.
+    const current = this.recipes();
+    const idx = current.findIndex((r) => r.identifier === identifier);
+    if (idx === -1) return;
+    const original = current[idx];
+    this.recipes.update((list) => {
+      const next = [...list];
+      next[idx] = { ...original, isFavorite: !original.isFavorite };
+      return next;
+    });
+
+    this.recipeApi
+      .toggleFavorite(identifier)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (state) => {
+          this.recipes.update((list) => {
+            const j = list.findIndex((r) => r.identifier === identifier);
+            if (j === -1) return list;
+            const next = [...list];
+            next[j] = { ...next[j], isFavorite: state.isFavorite };
+            return next;
+          });
+        },
+        error: () => {
+          this.recipes.update((list) => {
+            const j = list.findIndex((r) => r.identifier === identifier);
+            if (j === -1) return list;
+            const next = [...list];
+            next[j] = { ...next[j], isFavorite: original.isFavorite };
+            return next;
+          });
+        },
+      });
+  }
+
   onFilterChange(value: RecipeFilterValue): void {
     this.filter.set(value);
     this.currentPage.set(1);
@@ -221,6 +265,7 @@ export class RecipeListComponent implements OnInit {
       ...(f.difficulty !== null && { difficulty: f.difficulty }),
       ...(f.maxPrepTime !== null && { maxPrepTime: f.maxPrepTime }),
       ...(f.maxCookTime !== null && { maxCookTime: f.maxCookTime }),
+      ...(f.favoritesOnly && { favorites: true }),
     };
 
     this.asyncState.execute(

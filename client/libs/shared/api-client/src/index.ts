@@ -15,6 +15,7 @@ export type { SavedRecipeResponse } from './lib/saved-recipe-response';
 export type { RecipeListItem } from './lib/recipe-list-item';
 export type { RecipeListResponse } from './lib/recipe-list-response';
 export type { GetRecipesParams } from './lib/get-recipes-params';
+export type { FavoriteState } from './lib/favorite-state';
 export type { RecipeDetail } from './lib/recipe-detail';
 export type { RecipeIngredient } from './lib/recipe-ingredient';
 export type { RecipeStep } from './lib/recipe-step';

@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
@@ -33,6 +34,12 @@ public static partial class RecipesEndpoints
         public const string ExtractingStatusMessage = "Extracting recipe...";
         public const string ResponseTooLargeMessage = "Response too large";
         public const string ExtractionFailedMessage = "Extraction failed";
+    }
+
+    internal static string CompactJson(string json)
+    {
+        using var document = JsonDocument.Parse(json);
+        return JsonSerializer.Serialize(document.RootElement);
     }
 
     private static async Task ImportStreamAsync(

@@ -71,7 +71,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
                 r.Ingredients.Any(i => EF.Functions.ILike(i.Name, pattern)));
         }
 
-        query = ApplyFilter(query, filter);
+        query = ApplyFilter(query, owner, filter);
         query = ApplySorting(query, sorting);
 
         var totalCount = await query.CountAsync(cancellationToken);
@@ -85,7 +85,19 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         return (items, ItemCount.From(totalCount));
     }
 
-    private static IQueryable<Recipe> ApplyFilter(IQueryable<Recipe> query, RecipeFilter? filter)
+    private static IQueryable<Recipe> ApplySorting(IQueryable<Recipe> query, SortingOptions<RecipeSortField> sorting)
+    {
+        return (sorting.SortBy, sorting.Direction) switch
+        {
+            (RecipeSortField.Name, SortDirection.Ascending) => query.OrderBy(r => r.Title),
+            (RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(r => r.Title),
+            (RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
+            (RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
+            _ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
+        };
+    }
+
+    private IQueryable<Recipe> ApplyFilter(IQueryable<Recipe> query, OwnerIdentifier owner, RecipeFilter? filter)
     {
         if (filter is null || filter.IsEmpty) return query;
 
@@ -116,18 +128,14 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             }
         }
 
-        return query;
-    }
-
-    private static IQueryable<Recipe> ApplySorting(IQueryable<Recipe> query, SortingOptions<RecipeSortField> sorting)
-    {
-        return (sorting.SortBy, sorting.Direction) switch
+        if (filter.FavoritesOnly == true)
         {
-            (RecipeSortField.Name, SortDirection.Ascending) => query.OrderBy(r => r.Title),
-            (RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(r => r.Title),
-            (RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
-            (RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
-            _ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
-        };
+            var favoriteRecipeIds = context.RecipeFavorites
+                .Where(f => f.Owner == owner)
+                .Select(f => f.RecipeIdentifier);
+            query = query.Where(r => favoriteRecipeIds.Contains(r.Id));
+        }
+
+        return query;
     }
 }

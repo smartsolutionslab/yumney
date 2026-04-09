@@ -34,6 +34,7 @@ export {
 export { StepDisplayComponent } from './lib/step-display/step-display.component';
 export { CookingTimerComponent } from './lib/cooking-timer/cooking-timer.component';
 export { VoiceIndicatorComponent } from './lib/voice-indicator/voice-indicator.component';
+export { FavoriteButtonComponent } from './lib/favorite-button/favorite-button.component';
 
 // Directives
 export { InfiniteScrollDirective } from './lib/directives/infinite-scroll.directive';

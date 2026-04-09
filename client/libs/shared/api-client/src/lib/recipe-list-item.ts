@@ -9,4 +9,5 @@ export interface RecipeListItem {
   imageUrl: string | null;
   createdAt: string;
   tags: string[];
+  isFavorite: boolean;
 }

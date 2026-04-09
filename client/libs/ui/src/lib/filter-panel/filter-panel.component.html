@@ -32,6 +32,20 @@
   }
 
   <div class="filter-group">
+    <label class="filter-label">{{ t('recipes.list.filter.favorites') }}</label>
+    <div class="chip-row">
+      <button
+        type="button"
+        class="filter-chip"
+        [class.active]="value().favoritesOnly"
+        (click)="toggleFavoritesOnly()"
+      >
+        {{ t('recipes.list.filter.favoritesOnly') }}
+      </button>
+    </div>
+  </div>
+
+  <div class="filter-group">
     <label class="filter-label">{{ t('recipes.list.filter.difficulty') }}</label>
     <div class="chip-row">
       @for (option of difficultyOptions; track option) {

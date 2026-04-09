@@ -1,13 +1,18 @@
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 
 #pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
-public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes, ICurrentUser currentUser, ILogger<GetRecipeByIdQueryHandler> logger)
+public sealed partial class GetRecipeByIdQueryHandler(
+    IRecipeRepository recipes,
+    IRecipeFavoriteRepository favorites,
+    ICurrentUser currentUser,
+    ILogger<GetRecipeByIdQueryHandler> logger)
     : IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>>
 {
     public async Task<Result<RecipeDetailDto>> HandleAsync(GetRecipeByIdQuery query, CancellationToken cancellationToken = default)
@@ -31,7 +36,8 @@ public sealed partial class GetRecipeByIdQueryHandler(IRecipeRepository recipes,
             return GetRecipeByIdErrors.AccessDenied;
         }
 
-        return recipe.ToDetailDto();
+        var isFavorite = await favorites.IsFavoritedAsync(owner, identifier, cancellationToken);
+        return recipe.ToDetailDto(isFavorite);
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipe {RecipeIdentifier} for owner {OwnerId}")]
