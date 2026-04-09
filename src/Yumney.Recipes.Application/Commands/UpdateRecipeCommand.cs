@@ -12,8 +12,7 @@ public sealed record UpdateRecipeCommand(
     IReadOnlyList<SaveRecipeStepItem> Steps,
     RecipeDescription? Description = null,
     Servings? Servings = null,
-    PreparationTime? PreparationTime = null,
-    CookingTime? CookingTime = null,
+    TimingInfo? Timing = null,
     Difficulty? Difficulty = null,
     ImageUrl? ImageUrl = null,
     IReadOnlyList<RecipeTag>? Tags = null) : ICommand<Result<RecipeDetailDto>>;

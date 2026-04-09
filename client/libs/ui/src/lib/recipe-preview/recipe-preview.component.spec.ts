@@ -123,7 +123,7 @@ describe('RecipePreviewComponent', () => {
   });
 
   it('should render all ingredients', () => {
-    const items = fixture.nativeElement.querySelectorAll('.ingredient-fields');
+    const items = fixture.nativeElement.querySelectorAll('.ingredient-row');
     expect(items.length).toBe(2);
   });
 
@@ -137,7 +137,7 @@ describe('RecipePreviewComponent', () => {
     addBtn.click();
     fixture.detectChanges();
 
-    const items = fixture.nativeElement.querySelectorAll('.ingredient-fields');
+    const items = fixture.nativeElement.querySelectorAll('.ingredient-row');
     expect(items.length).toBe(3);
   });
 
@@ -148,7 +148,7 @@ describe('RecipePreviewComponent', () => {
     removeBtn.click();
     fixture.detectChanges();
 
-    const items = fixture.nativeElement.querySelectorAll('.ingredient-fields');
+    const items = fixture.nativeElement.querySelectorAll('.ingredient-row');
     expect(items.length).toBe(1);
   });
 
@@ -228,7 +228,7 @@ describe('RecipePreviewComponent', () => {
     preview.onSave();
     fixture.detectChanges();
 
-    const errors = fixture.nativeElement.querySelectorAll('.ingredient-fields .field-error');
+    const errors = fixture.nativeElement.querySelectorAll('.ingredient-row .field-error');
     expect(errors.length).toBeGreaterThan(0);
     expect(errors[errors.length - 1].textContent).toContain('Ingredient name is required.');
   });
@@ -267,7 +267,7 @@ describe('RecipePreviewComponent', () => {
     fixture.detectChanges();
 
     const nameInputs = fixture.nativeElement.querySelectorAll(
-      '.ingredient-fields input[formcontrolname="name"]',
+      '.ingredient-row input[formcontrolname="name"]',
     );
     expect(nameInputs[0].value).toBe('Pancetta');
     expect(nameInputs[1].value).toBe('Spaghetti');
@@ -278,7 +278,7 @@ describe('RecipePreviewComponent', () => {
     fixture.detectChanges();
 
     const nameInputs = fixture.nativeElement.querySelectorAll(
-      '.ingredient-fields input[formcontrolname="name"]',
+      '.ingredient-row input[formcontrolname="name"]',
     );
     expect(nameInputs[0].value).toBe('Pancetta');
     expect(nameInputs[1].value).toBe('Spaghetti');
@@ -425,7 +425,7 @@ describe('RecipePreviewComponent', () => {
     const titleInput = fixture.nativeElement.querySelector('#preview-title') as HTMLInputElement;
     expect(titleInput.value).toBe('');
 
-    const ingredients = fixture.nativeElement.querySelectorAll('.ingredient-fields');
+    const ingredients = fixture.nativeElement.querySelectorAll('.ingredient-row');
     expect(ingredients.length).toBe(1);
 
     const steps = fixture.nativeElement.querySelectorAll('.step-fields');

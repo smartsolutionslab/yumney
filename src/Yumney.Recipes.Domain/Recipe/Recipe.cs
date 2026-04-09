@@ -47,8 +47,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         IReadOnlyList<Step> steps,
         RecipeDescription? description = null,
         Servings? servings = null,
-        PreparationTime? preparationTime = null,
-        CookingTime? cookingTime = null,
+        TimingInfo? timing = null,
         Difficulty? difficulty = null,
         ImageUrl? imageUrl = null,
         RecipeLanguage? language = null,
@@ -66,7 +65,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
             Owner = owner,
             Description = description,
             Servings = servings,
-            Timing = TimingInfo.FromNullable(preparationTime, cookingTime),
+            Timing = timing,
             Difficulty = difficulty,
             ImageUrl = imageUrl,
             Language = language,
@@ -88,8 +87,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         IReadOnlyList<Step> steps,
         RecipeDescription? description = null,
         Servings? servings = null,
-        PreparationTime? preparationTime = null,
-        CookingTime? cookingTime = null,
+        TimingInfo? timing = null,
         Difficulty? difficulty = null,
         ImageUrl? imageUrl = null,
         IReadOnlyList<RecipeTag>? tags = null)
@@ -100,7 +98,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         Title = title;
         Description = description;
         Servings = servings;
-        Timing = TimingInfo.FromNullable(preparationTime, cookingTime);
+        Timing = timing;
         Difficulty = difficulty;
         ImageUrl = imageUrl;
 

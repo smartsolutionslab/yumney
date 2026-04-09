@@ -84,33 +84,32 @@
             (moveDown)="moveIngredientDown(i)"
             (remove)="removeIngredient(i)"
           >
-            <div class="ingredient-fields" [formGroupName]="i">
+            <div class="ingredient-row" [formGroupName]="i">
               <yn-form-field
-                class="ingredient-name"
+                class="ingredient-name-field"
                 [control]="ingredients.at(i).get('name')!"
                 [errors]="{ required: 'dashboard.preview.errors.ingredientNameRequired' }"
               >
-                <input
-                  type="text"
-                  formControlName="name"
-                  [placeholder]="t('dashboard.preview.ingredientName')"
-                />
-              </yn-form-field>
-              <div class="ingredient-quantity">
-                <yn-form-field
-                  class="ingredient-amount"
-                  [control]="ingredients.at(i).get('amount')!"
-                >
+                <div class="ingredient-compound">
                   <input
+                    class="compound-name"
+                    type="text"
+                    formControlName="name"
+                    [placeholder]="t('dashboard.preview.ingredientName')"
+                  />
+                  <input
+                    class="compound-amount"
                     type="number"
                     formControlName="amount"
                     [placeholder]="t('dashboard.preview.amount')"
                   />
-                </yn-form-field>
-                <yn-form-field class="ingredient-unit" [control]="ingredients.at(i).get('unit')!">
-                  <yn-unit-select formControlName="unit" [unitGroups]="unitGroups" />
-                </yn-form-field>
-              </div>
+                  <yn-unit-select
+                    class="compound-unit"
+                    formControlName="unit"
+                    [unitGroups]="unitGroups"
+                  />
+                </div>
+              </yn-form-field>
             </div>
           </yn-editable-list-item>
         }
