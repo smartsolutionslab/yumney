@@ -1,4 +1,5 @@
 @use 'glass';
+@use 'breakpoints' as bp;
 
 header {
   position: sticky;
@@ -14,98 +15,198 @@ header {
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--yn-space-4) var(--yn-space-5);
+  padding: var(--yn-space-3) var(--yn-space-4);
+
+  @include bp.respond-to('md') {
+    padding: var(--yn-space-4) var(--yn-space-5);
+  }
 }
 
 .brand {
-  font-size: var(--yn-text-2xl);
+  font-size: var(--yn-text-xl);
   font-weight: var(--yn-font-bold);
   color: var(--yn-link);
   text-decoration: none;
+
+  @include bp.respond-to('md') {
+    font-size: var(--yn-text-2xl);
+  }
 }
+
+// ---------------------------------------------------------------------------
+// Navigation
+// ---------------------------------------------------------------------------
 
 nav {
   display: flex;
   align-items: center;
-  gap: var(--yn-space-5);
+  gap: var(--yn-space-2);
+
+  @include bp.respond-to('md') {
+    gap: var(--yn-space-4);
+  }
 }
 
-.user-menu {
+.nav-link {
   display: flex;
   align-items: center;
-  gap: var(--yn-space-3);
+  gap: var(--yn-space-1);
+  padding: var(--yn-space-1) var(--yn-space-2);
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-medium);
+  color: var(--yn-text-muted);
+  text-decoration: none;
+  border-radius: var(--yn-radius-sm);
+  transition: color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    color: var(--yn-text);
+    background-color: var(--yn-background);
+  }
+
+  @include bp.respond-to('md') {
+    padding: var(--yn-space-2) var(--yn-space-3);
+    font-size: var(--yn-text-base);
+  }
+}
+
+.nav-icon {
+  flex-shrink: 0;
+}
+
+.nav-label {
+  @include bp.respond-below('sm') {
+    display: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Icon buttons (chat)
+// ---------------------------------------------------------------------------
+
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--yn-border);
+  border-radius: var(--yn-radius-sm);
+  background: none;
+  color: var(--yn-text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--yn-background);
+    color: var(--yn-primary);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Avatar & User dropdown
+// ---------------------------------------------------------------------------
+
+.avatar-wrapper {
+  position: relative;
+}
+
+.avatar-button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 .user-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: var(--yn-radius-circle);
   background-color: var(--yn-link);
   color: var(--yn-text-inverse);
-  font-size: var(--yn-text-base);
+  font-size: var(--yn-text-sm);
   font-weight: var(--yn-font-semibold);
   line-height: var(--yn-leading-none);
   user-select: none;
+  transition: box-shadow 0.15s ease;
+
+  .avatar-button:hover & {
+    box-shadow: 0 0 0 2px var(--yn-glass-border);
+  }
 }
 
-.user-name {
-  font-size: var(--yn-text-base);
-  font-weight: var(--yn-font-medium);
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + var(--yn-space-2));
+  right: 0;
+  min-width: 220px;
+  @include glass.glass-surface(2);
+  border-radius: var(--yn-radius-card);
+  padding: var(--yn-space-2);
+  z-index: var(--yn-z-overlay);
+  animation: dropdown-enter 0.15s var(--yn-ease-glass) both;
+}
+
+@keyframes dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-header {
+  padding: var(--yn-space-2) var(--yn-space-3);
+}
+
+.dropdown-name {
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-semibold);
   color: var(--yn-text);
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.logout-button {
-  padding: var(--yn-space-2) var(--yn-space-4);
-  border: 1px solid var(--yn-border);
-  border-radius: var(--yn-radius-sm);
-  background: none;
-  font-size: var(--yn-text-base);
-  color: var(--yn-text-muted);
-  cursor: pointer;
-
-  &:hover {
-    background-color: var(--yn-background);
-    border-color: var(--yn-border);
-  }
+.dropdown-divider {
+  height: 1px;
+  background: var(--yn-glass-border-subtle);
+  margin: var(--yn-space-1) 0;
 }
 
-.theme-toggle {
-  padding: var(--yn-space-1) var(--yn-space-3);
-  border: 1px solid var(--yn-border);
-  border-radius: var(--yn-radius-sm);
-  background: none;
-  font-size: var(--yn-text-lg);
-  color: var(--yn-text-muted);
-  cursor: pointer;
-  line-height: var(--yn-leading-none);
-
-  &:hover {
-    background-color: var(--yn-background);
-  }
-}
-
-.lang-toggle {
-  padding: var(--yn-space-1) var(--yn-space-3);
-  border: 1px solid var(--yn-border);
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-3);
+  width: 100%;
+  padding: var(--yn-space-2) var(--yn-space-3);
+  border: none;
   border-radius: var(--yn-radius-sm);
   background: none;
   font-size: var(--yn-text-sm);
-  font-weight: var(--yn-font-semibold);
   color: var(--yn-text-muted);
   cursor: pointer;
-  letter-spacing: 0.05em;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  text-align: left;
 
   &:hover {
     background-color: var(--yn-background);
+    color: var(--yn-text);
+  }
+
+  &--danger:hover {
+    color: var(--yn-error, #ef4444);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Login link (unauthenticated)
+// ---------------------------------------------------------------------------
 
 .login-link {
   font-size: var(--yn-text-base);
@@ -114,21 +215,5 @@ nav {
 
   &:hover {
     text-decoration: underline;
-  }
-}
-
-.chat-toggle {
-  padding: var(--yn-space-1) var(--yn-space-3);
-  border: 1px solid var(--yn-border);
-  border-radius: var(--yn-radius-sm);
-  background: none;
-  font-size: var(--yn-text-lg);
-  color: var(--yn-text-muted);
-  cursor: pointer;
-  line-height: var(--yn-leading-none);
-
-  &:hover {
-    background-color: var(--yn-background);
-    color: var(--yn-primary);
   }
 }

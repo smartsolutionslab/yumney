@@ -74,15 +74,17 @@
       "greeting": "Hallo, {{name}}",
       "logout": "Abmelden",
       "login": "Anmelden",
+      "recipes": "Rezepte",
       "myRecipes": "Meine Rezepte",
       "shoppingLists": "Einkaufslisten",
       "navigation": "Hauptnavigation",
+      "settings": "Einstellungen",
       "switchLanguage": "Sprache wechseln",
-      "languageDe": "DE",
-      "languageEn": "EN",
+      "languageDe": "Deutsch",
+      "languageEn": "English",
       "openChat": "Rezept-Chat öffnen",
-      "switchToDark": "Zu dunklem Modus wechseln",
-      "switchToLight": "Zu hellem Modus wechseln"
+      "switchToDark": "Heller Modus",
+      "switchToLight": "Dunkler Modus"
     },
     "offlineIndicator": {
       "offline": "Du bist offline. Einige Funktionen sind nicht verfügbar.",
