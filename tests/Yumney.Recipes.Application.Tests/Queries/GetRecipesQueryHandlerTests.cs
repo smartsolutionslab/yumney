@@ -318,6 +318,66 @@ public class GetRecipesQueryHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_FavoritedRecipe_MapsIsFavoriteTrue()
+    {
+        var recipe = RecipeTestData.CreateRecipe(title: "Pasta");
+        SetupRepository([recipe], 1);
+        favorites
+            .GetFavoritedIdsAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<IReadOnlyCollection<RecipeIdentifier>>(), Arg.Any<CancellationToken>())
+            .Returns((IReadOnlySet<Guid>)new HashSet<Guid> { recipe.Id.Value });
+
+        var result = await handler.HandleAsync(CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending));
+
+        result.Value.Items[0].IsFavorite.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HandleAsync_NotFavoritedRecipe_MapsIsFavoriteFalse()
+    {
+        var recipe = RecipeTestData.CreateRecipe(title: "Pasta");
+        SetupRepository([recipe], 1);
+        favorites
+            .GetFavoritedIdsAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<IReadOnlyCollection<RecipeIdentifier>>(), Arg.Any<CancellationToken>())
+            .Returns((IReadOnlySet<Guid>)new HashSet<Guid>());
+
+        var result = await handler.HandleAsync(CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending));
+
+        result.Value.Items[0].IsFavorite.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task HandleAsync_MixedFavorites_OnlyFavoritedItemsHaveIsFavoriteTrue()
+    {
+        var fav = RecipeTestData.CreateRecipe(title: "Favorited");
+        var notFav = RecipeTestData.CreateRecipe(title: "Not Favorited");
+        SetupRepository([fav, notFav], 2);
+        favorites
+            .GetFavoritedIdsAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<IReadOnlyCollection<RecipeIdentifier>>(), Arg.Any<CancellationToken>())
+            .Returns((IReadOnlySet<Guid>)new HashSet<Guid> { fav.Id.Value });
+
+        var result = await handler.HandleAsync(CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending));
+
+        result.Value.Items.Single(i => i.Identifier == fav.Id.Value).IsFavorite.Should().BeTrue();
+        result.Value.Items.Single(i => i.Identifier == notFav.Id.Value).IsFavorite.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task HandleAsync_QueriesFavoritesOncePerPage()
+    {
+        var r1 = RecipeTestData.CreateRecipe(title: "A");
+        var r2 = RecipeTestData.CreateRecipe(title: "B");
+        var r3 = RecipeTestData.CreateRecipe(title: "C");
+        SetupRepository([r1, r2, r3], 3);
+
+        await handler.HandleAsync(CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending));
+
+        await favorites.Received(1).GetFavoritedIdsAsync(
+            Arg.Any<OwnerIdentifier>(),
+            Arg.Any<IReadOnlyCollection<RecipeIdentifier>>(),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task HandleAsync_WithoutFilter_PassesNullFilterToRepository()
     {
         SetupEmptyRepository();

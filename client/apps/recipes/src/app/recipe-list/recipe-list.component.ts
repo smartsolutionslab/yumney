@@ -249,6 +249,7 @@ export class RecipeListComponent implements OnInit {
     if (f.difficulty !== null) count += 1;
     if (f.maxPrepTime !== null) count += 1;
     if (f.maxCookTime !== null) count += 1;
+    if (f.favoritesOnly) count += 1;
     return count;
   });
 

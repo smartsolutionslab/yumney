@@ -88,6 +88,48 @@ public class GetRecipeByIdQueryHandlerTests
     }
 
     [Fact]
+    public async Task HandleAsync_FavoritedRecipe_ReturnsIsFavoriteTrue()
+    {
+        var recipe = RecipeTestData.CreateRecipe();
+        recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
+        favorites
+            .IsFavoritedAsync(Arg.Any<OwnerIdentifier>(), recipe.Id, Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        var result = await handler.HandleAsync(new(recipe.Id));
+
+        result.Value.IsFavorite.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HandleAsync_NotFavoritedRecipe_ReturnsIsFavoriteFalse()
+    {
+        var recipe = RecipeTestData.CreateRecipe();
+        recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
+        favorites
+            .IsFavoritedAsync(Arg.Any<OwnerIdentifier>(), recipe.Id, Arg.Any<CancellationToken>())
+            .Returns(false);
+
+        var result = await handler.HandleAsync(new(recipe.Id));
+
+        result.Value.IsFavorite.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task HandleAsync_AccessDenied_DoesNotQueryFavoriteState()
+    {
+        var recipe = RecipeTestData.CreateRecipe("other-user");
+        recipes.GetByIdAsync(recipe.Id, Arg.Any<CancellationToken>()).Returns(recipe);
+
+        await handler.HandleAsync(new(recipe.Id));
+
+        await favorites.DidNotReceive().IsFavoritedAsync(
+            Arg.Any<OwnerIdentifier>(),
+            Arg.Any<RecipeIdentifier>(),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task HandleAsync_RecipeWithAllFields_MapsOptionalFieldsCorrectly()
     {
         var recipe = RecipeTestData.CreateRecipeWithOptionals();

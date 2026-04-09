@@ -10,6 +10,8 @@ export class RecipeListPage {
   readonly ctaButton: Locator;
   readonly errorBanner: Locator;
   readonly loading: Locator;
+  readonly filterToggle: Locator;
+  readonly favoritesFilterChip: Locator;
 
   constructor(private page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -21,6 +23,10 @@ export class RecipeListPage {
     this.ctaButton = page.locator('.cta-button');
     this.errorBanner = page.locator('[role="alert"]');
     this.loading = page.locator('.loading');
+    this.filterToggle = page.locator('.filter-toggle');
+    this.favoritesFilterChip = page.locator('yn-filter-panel .filter-chip', {
+      hasText: /show only favorites|nur favoriten/i,
+    });
   }
 
   async goto(): Promise<void> {
@@ -29,5 +35,9 @@ export class RecipeListPage {
 
   recipeCard(title: string): Locator {
     return this.recipeCards.filter({ hasText: title });
+  }
+
+  favoriteButtonOnCard(title: string): Locator {
+    return this.recipeCard(title).locator('.favorite-overlay .favorite-button');
   }
 }
