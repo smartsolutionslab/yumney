@@ -56,7 +56,11 @@
 
               <div class="dropdown-divider"></div>
 
-              <button class="dropdown-item dropdown-item--danger" (click)="onLogout()" role="menuitem">
+              <button
+                class="dropdown-item dropdown-item--danger"
+                (click)="onLogout()"
+                role="menuitem"
+              >
                 <lucide-icon name="log-out" [size]="18" />
                 <span>{{ t('layout.header.logout') }}</span>
               </button>
