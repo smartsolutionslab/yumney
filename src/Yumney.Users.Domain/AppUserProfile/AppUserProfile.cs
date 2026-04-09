@@ -14,6 +14,8 @@ public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
 
     public DefaultServings DefaultServings { get; private set; } = DefaultServings.Default;
 
+    public DietaryProfile DietaryProfile { get; private set; } = DietaryProfile.Empty;
+
     private AppUserProfile()
     {
     }
@@ -46,5 +48,10 @@ public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
     public void AdjustDefaultServingsTo(DefaultServings defaultServings)
     {
         DefaultServings = defaultServings;
+    }
+
+    public void UpdateDietaryProfile(DietaryProfile dietaryProfile)
+    {
+        DietaryProfile = dietaryProfile;
     }
 }
