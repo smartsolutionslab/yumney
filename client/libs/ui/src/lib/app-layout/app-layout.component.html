@@ -4,4 +4,6 @@
 <main>
   <router-outlet />
 </main>
-<yn-chat-panel />
+@if (isStandalone) {
+  <yn-chat-panel />
+}
