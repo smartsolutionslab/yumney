@@ -174,4 +174,73 @@ describe('ChatPanelComponent', () => {
 
     expect(chatApiMock.send).not.toHaveBeenCalled();
   });
+
+  it('should close panel when backdrop is clicked', () => {
+    chatState.open();
+    fixture.detectChanges();
+
+    const backdrop = fixture.nativeElement.querySelector('.chat-backdrop');
+    backdrop.click();
+    fixture.detectChanges();
+
+    expect(chatState.isOpen()).toBe(false);
+  });
+
+  it('should render backdrop when panel is open', () => {
+    chatState.open();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.chat-backdrop')).toBeTruthy();
+  });
+
+  it('should show offline error when request fails with status 0', async () => {
+    chatApiMock.send = vi.fn().mockReturnValue(throwError(() => ({ status: 0 })));
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Hello');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+
+    expect(fixture.componentInstance['error']()).toBe('chat.errors.offline');
+  });
+
+  it('should show generic error when request fails with server error', async () => {
+    chatApiMock.send = vi.fn().mockReturnValue(throwError(() => ({ status: 500 })));
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Hello');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+
+    expect(fixture.componentInstance['error']()).toBe('chat.errors.failed');
+  });
+
+  it('should update lastAssistantMessage on successful response', async () => {
+    chatApiMock.send = vi.fn().mockReturnValue(of({ reply: 'Try pasta!', suggestions: [] }));
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Suggest something');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+
+    expect(fixture.componentInstance['lastAssistantMessage']()).toBe('Try pasta!');
+  });
+
+  it('should render aria-live region with last assistant message', async () => {
+    chatApiMock.send = vi.fn().mockReturnValue(of({ reply: 'Try pasta!', suggestions: [] }));
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Suggest');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const liveRegion = fixture.nativeElement.querySelector('[role="status"][aria-live="polite"]');
+    expect(liveRegion).toBeTruthy();
+    expect(liveRegion.textContent.trim()).toBe('Try pasta!');
+  });
 });
