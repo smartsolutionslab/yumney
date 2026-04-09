@@ -8,10 +8,7 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
 {
     private readonly DbSet<RecipeFavorite> favorites = context.RecipeFavorites;
 
-    public async Task<bool> IsFavoritedAsync(
-        OwnerIdentifier owner,
-        RecipeIdentifier recipeIdentifier,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> IsFavoritedAsync(OwnerIdentifier owner, RecipeIdentifier recipeIdentifier, CancellationToken cancellationToken = default)
     {
         return await favorites
             .AsNoTracking()
@@ -23,10 +20,7 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
         IReadOnlyCollection<RecipeIdentifier> recipeIdentifiers,
         CancellationToken cancellationToken = default)
     {
-        if (recipeIdentifiers.Count == 0)
-        {
-            return new HashSet<Guid>();
-        }
+        if (recipeIdentifiers.Count == 0) return new HashSet<Guid>();
 
         var idList = recipeIdentifiers.ToList();
         var favorited = await favorites
@@ -44,10 +38,7 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task RemoveAsync(
-        OwnerIdentifier owner,
-        RecipeIdentifier recipeIdentifier,
-        CancellationToken cancellationToken = default)
+    public async Task RemoveAsync(OwnerIdentifier owner, RecipeIdentifier recipeIdentifier, CancellationToken cancellationToken = default)
     {
         await favorites
             .Where(f => f.Owner == owner && f.RecipeIdentifier == recipeIdentifier)
