@@ -107,6 +107,7 @@
     }
 
     <div class="actions-bar">
+      <yn-favorite-button [isFavorite]="recipe.isFavorite" (toggled)="onToggleFavorite()" />
       <a class="btn-cook" [routerLink]="ROUTES.recipes.cook(recipe.identifier)">
         {{ t('recipes.detail.actions.startCooking') }}
       </a>

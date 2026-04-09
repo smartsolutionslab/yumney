@@ -50,6 +50,8 @@
         "title": "Filter recipes",
         "clear": "Clear all",
         "tags": "Tags",
+        "favorites": "Favorites",
+        "favoritesOnly": "Show only favorites",
         "difficulty": "Difficulty",
         "difficultyOption": {
           "easy": "Easy",
@@ -112,6 +114,10 @@
       "errors": {
         "generic": "Failed to load recipe. Please try again later."
       }
+    },
+    "favorite": {
+      "addAriaLabel": "Add to favorites",
+      "removeAriaLabel": "Remove from favorites"
     },
     "cook": {
       "loading": "Loading recipe...",

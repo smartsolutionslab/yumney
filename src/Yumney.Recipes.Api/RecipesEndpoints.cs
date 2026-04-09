@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json;
 using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
@@ -104,13 +102,13 @@ public static partial class RecipesEndpoints
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        return app;
-    }
+        group.MapPost("/{identifier:guid}/favorite", ToggleFavoriteAsync)
+            .WithName("ToggleRecipeFavorite")
+            .WithTags("Recipes")
+            .Produces<FavoriteStateDto>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
 
-    internal static string CompactJson(string json)
-    {
-        using var document = JsonDocument.Parse(json);
-        return JsonSerializer.Serialize(document.RootElement);
+        return app;
     }
 
     private static async Task<IResult> GetAllAsync(
@@ -124,13 +122,14 @@ public static partial class RecipesEndpoints
         string? difficulty = null,
         int? maxPrepTime = null,
         int? maxCookTime = null,
+        bool? favorites = null,
         CancellationToken cancellationToken = default)
     {
         var query = new GetRecipesQuery(
             PagingOptions.From(page, pageSize),
             SortingOptions<RecipeSortField>.Parse(sortBy, sortDirection, RecipeSortField.Date),
             SearchTerm.FromNullable(search),
-            RecipeFilterParser.Build(tags, difficulty, maxPrepTime, maxCookTime));
+            RecipeFilterParser.Build(tags, difficulty, maxPrepTime, maxCookTime, favorites));
 
         var result = await handler.HandleAsync(query, cancellationToken);
         return result.ToOk();

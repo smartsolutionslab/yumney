@@ -17,7 +17,12 @@ import {
   ROUTES,
   VALIDATION,
 } from '@yumney/shared/models';
-import { BackLinkComponent, ConfirmDialogComponent, LoadingSpinnerComponent } from '@yumney/ui';
+import {
+  BackLinkComponent,
+  ConfirmDialogComponent,
+  FavoriteButtonComponent,
+  LoadingSpinnerComponent,
+} from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-detail',
@@ -27,6 +32,7 @@ import { BackLinkComponent, ConfirmDialogComponent, LoadingSpinnerComponent } fr
     ConfirmDialogComponent,
     BackLinkComponent,
     LoadingSpinnerComponent,
+    FavoriteButtonComponent,
   ],
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
@@ -143,5 +149,27 @@ export class RecipeDetailComponent implements OnInit {
 
   onDeleteCancelled(): void {
     this.showDeleteConfirm.set(false);
+  }
+
+  onToggleFavorite(): void {
+    const recipe = this.recipe();
+    if (!recipe) return;
+    const original = recipe.isFavorite;
+    this.recipe.set({ ...recipe, isFavorite: !original });
+
+    this.recipeApi.toggleFavorite(recipe.identifier).subscribe({
+      next: (state) => {
+        const current = this.recipe();
+        if (current && current.identifier === recipe.identifier) {
+          this.recipe.set({ ...current, isFavorite: state.isFavorite });
+        }
+      },
+      error: () => {
+        const current = this.recipe();
+        if (current && current.identifier === recipe.identifier) {
+          this.recipe.set({ ...current, isFavorite: original });
+        }
+      },
+    });
   }
 }

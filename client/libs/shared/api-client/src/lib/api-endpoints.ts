@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
     recognizeIngredients: `${API_BASE}/recipes/recognize-ingredients`,
     chat: `${API_BASE}/recipes/chat`,
     byIdentifier: (identifier: string) => `${API_BASE}/recipes/${identifier}`,
+    favorite: (identifier: string) => `${API_BASE}/recipes/${identifier}/favorite`,
   },
   shoppingLists: {
     base: `${API_BASE}/shopping-lists`,

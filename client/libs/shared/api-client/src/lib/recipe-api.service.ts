@@ -13,6 +13,7 @@ import type { RecipeDetail } from './recipe-detail';
 import type { RecipeListResponse } from './recipe-list-response';
 import type { GetRecipesParams } from './get-recipes-params';
 import type { RecognizedIngredientsResponse } from './recognized-ingredient';
+import type { FavoriteState } from './favorite-state';
 
 @Injectable({ providedIn: 'root' })
 export class RecipeApiService {
@@ -152,7 +153,12 @@ export class RecipeApiService {
         ...(params.difficulty != null && { difficulty: params.difficulty }),
         ...(params.maxPrepTime != null && { maxPrepTime: params.maxPrepTime }),
         ...(params.maxCookTime != null && { maxCookTime: params.maxCookTime }),
+        ...(params.favorites === true && { favorites: true }),
       },
     });
+  }
+
+  toggleFavorite(identifier: string): Observable<FavoriteState> {
+    return this.http.post<FavoriteState>(API_ENDPOINTS.recipes.favorite(identifier), {});
   }
 }

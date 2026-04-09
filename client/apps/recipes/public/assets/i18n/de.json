@@ -50,6 +50,8 @@
         "title": "Rezepte filtern",
         "clear": "Alle löschen",
         "tags": "Tags",
+        "favorites": "Favoriten",
+        "favoritesOnly": "Nur Favoriten anzeigen",
         "difficulty": "Schwierigkeit",
         "difficultyOption": {
           "easy": "Einfach",
@@ -113,6 +115,10 @@
         "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut."
       }
     },
+    "favorite": {
+      "addAriaLabel": "Zu Favoriten hinzufügen",
+      "removeAriaLabel": "Aus Favoriten entfernen"
+    },
     "cook": {
       "loading": "Rezept wird geladen...",
       "exit": "Beenden",
@@ -161,7 +167,7 @@
         "ingredientNameRequired": "Zutatname ist erforderlich.",
         "stepDescriptionRequired": "Schrittbeschreibung ist erforderlich."
       },
-      "clearUnit": "Einheit l�schen"
+      "clearUnit": "Einheit l�schen"
     },
     "save": {
       "saving": "Wird gespeichert..."

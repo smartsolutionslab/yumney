@@ -6,7 +6,7 @@ public static class RecipeMappingExtensions
 {
     extension(Recipe recipe)
     {
-        public RecipeDetailDto ToDetailDto()
+        public RecipeDetailDto ToDetailDto(bool isFavorite = false)
         {
             return new RecipeDetailDto(
                 recipe.Id.Value,
@@ -22,10 +22,11 @@ public static class RecipeMappingExtensions
                 recipe.CreatedAt,
                 recipe.Ingredients.Select(i => i.ToDto()).ToList(),
                 recipe.Steps.Select(s => s.ToDto()).ToList(),
-                recipe.Tags.Select(t => t.Value).ToList());
+                recipe.Tags.Select(t => t.Value).ToList(),
+                isFavorite);
         }
 
-        public RecipeListItemDto ToListItemDto()
+        public RecipeListItemDto ToListItemDto(bool isFavorite = false)
         {
             return new RecipeListItemDto(
                 recipe.Id.Value,
@@ -37,7 +38,8 @@ public static class RecipeMappingExtensions
                 recipe.Difficulty?.Value,
                 recipe.ImageUrl?.Value,
                 recipe.CreatedAt,
-                recipe.Tags.Select(t => t.Value).ToList());
+                recipe.Tags.Select(t => t.Value).ToList(),
+                isFavorite);
         }
     }
 

@@ -101,6 +101,12 @@
           } @else {
             <div class="recipe-image-placeholder"></div>
           }
+          <div class="favorite-overlay">
+            <yn-favorite-button
+              [isFavorite]="recipe.isFavorite"
+              (toggled)="onToggleFavorite(recipe.identifier)"
+            />
+          </div>
           <div class="recipe-info">
             <h3 class="recipe-title">{{ recipe.title }}</h3>
             @if (recipe.description) {

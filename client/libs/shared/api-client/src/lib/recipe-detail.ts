@@ -15,4 +15,5 @@ export interface RecipeDetail {
   ingredients: RecipeIngredient[];
   steps: RecipeStep[];
   tags: string[];
+  isFavorite: boolean;
 }

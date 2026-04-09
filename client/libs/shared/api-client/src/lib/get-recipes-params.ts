@@ -9,4 +9,5 @@ export interface GetRecipesParams extends PaginationParams {
   difficulty?: RecipeDifficulty;
   maxPrepTime?: number;
   maxCookTime?: number;
+  favorites?: boolean;
 }

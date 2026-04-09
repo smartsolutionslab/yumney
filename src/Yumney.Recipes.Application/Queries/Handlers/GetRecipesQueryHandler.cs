@@ -1,13 +1,18 @@
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 
 #pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
-public sealed partial class GetRecipesQueryHandler(IRecipeRepository recipes, ICurrentUser currentUser, ILogger<GetRecipesQueryHandler> logger)
+public sealed partial class GetRecipesQueryHandler(
+    IRecipeRepository recipes,
+    IRecipeFavoriteRepository favorites,
+    ICurrentUser currentUser,
+    ILogger<GetRecipesQueryHandler> logger)
     : IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>>
 {
     public async Task<Result<PagedResult<RecipeListItemDto>>> HandleAsync(GetRecipesQuery query, CancellationToken cancellationToken = default)
@@ -18,7 +23,15 @@ public sealed partial class GetRecipesQueryHandler(IRecipeRepository recipes, IC
         LogGetRecipes(owner.Value, paging.Page.Value, paging.PageSize.Value, search?.Value);
 
         var (items, totalCount) = await recipes.GetByOwnerAsync(owner, paging, sorting, search, filter, cancellationToken);
-        var dtoItems = items.Select(r => r.ToListItemDto()).ToList();
+
+        var favoritedIds = await favorites.GetFavoritedIdsAsync(
+            owner,
+            items.Select(r => r.Id).ToList(),
+            cancellationToken);
+
+        var dtoItems = items
+            .Select(r => r.ToListItemDto(favoritedIds.Contains(r.Id.Value)))
+            .ToList();
 
         return PagedResultExtensions.With(dtoItems, totalCount, paging);
     }
