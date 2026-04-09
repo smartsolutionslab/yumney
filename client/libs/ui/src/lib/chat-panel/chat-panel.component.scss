@@ -2,6 +2,29 @@
 @use 'glass';
 @use 'breakpoints' as bp;
 
+.chat-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--yn-z-modal) - 1);
+  background: rgba(0, 0, 0, 0.3);
+
+  @include bp.respond-to('md') {
+    display: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .chat-panel {
   @include glass.glass-surface(2);
   position: fixed;
@@ -90,10 +113,15 @@
 .chat-messages {
   flex: 1;
   overflow-y: auto;
+  scroll-behavior: smooth;
   padding: var(--yn-space-5);
   display: flex;
   flex-direction: column;
   gap: var(--yn-space-4);
+
+  @media (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
+  }
 }
 
 .chat-welcome {

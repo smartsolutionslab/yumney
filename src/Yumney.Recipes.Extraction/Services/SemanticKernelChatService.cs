@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -82,15 +83,16 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
             : string.Join("\n", userRecipes.Select(r => $"- {r.Title.Value}"));
 
         return $$"""
-            You are a friendly cooking assistant for the Yumney recipe app.
+            You are a friendly, concise cooking assistant for the Yumney recipe app.
             Help the user discover recipes from their collection or suggest new ones.
             When suggesting recipes from their collection, mention the exact title in quotes.
+            Keep answers to 2-3 sentences unless the user asks for more detail.
 
             The user's recipe collection contains:
             {{recipeList}}
 
-            Be concise. Use natural language. If the user asks for something not in their
-            collection, suggest a general recipe idea or recommend they import one from a website.
+            If the user asks for something not in their collection, suggest a general recipe
+            idea or recommend they import one from a website.
             """;
     }
 
@@ -102,11 +104,14 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 
         foreach (var recipe in userRecipes)
         {
-            if (reply.Contains(recipe.Title.Value, StringComparison.OrdinalIgnoreCase))
+            var title = recipe.Title.Value;
+            var pattern = $@"\b{Regex.Escape(title)}\b";
+
+            if (Regex.IsMatch(reply, pattern, RegexOptions.IgnoreCase))
             {
                 suggestions.Add(new ChatRecipeSuggestionDto(
                     recipe.Id.Value,
-                    recipe.Title.Value,
+                    title,
                     Reason: null));
             }
         }
@@ -116,19 +121,30 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 
     private async Task<IReadOnlyList<Recipe>> LoadUserRecipeContextAsync(OwnerIdentifier owner, CancellationToken cancellationToken)
     {
-        var paging = PagingOptions.Of(Page.From(1), PageSize.From(maxRecipesToInclude));
-        var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
+        try
+        {
+            var paging = PagingOptions.Of(Page.From(1), PageSize.From(maxRecipesToInclude));
+            var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
 
-        var (items, _) = await recipes.GetByOwnerAsync(
-            owner,
-            paging,
-            sorting,
-            search: null,
-            filter: null,
-            cancellationToken: cancellationToken);
-        return items;
+            var (items, _) = await recipes.GetByOwnerAsync(
+                owner,
+                paging,
+                sorting,
+                search: null,
+                filter: null,
+                cancellationToken: cancellationToken);
+            return items;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogRecipeContextLoadFailed(ex.Message);
+            return [];
+        }
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Chat LLM call failed: {Reason}")]
     private partial void LogChatFailed(string reason);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to load recipe context for chat: {Reason}")]
+    private partial void LogRecipeContextLoadFailed(string reason);
 }

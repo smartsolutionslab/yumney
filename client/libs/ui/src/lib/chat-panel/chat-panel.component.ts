@@ -1,6 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
   ElementRef,
   inject,
   signal,
@@ -8,6 +9,7 @@ import {
   effect,
   AfterViewInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -27,15 +29,16 @@ export class ChatPanelComponent implements AfterViewInit {
 
   protected state = inject(ChatStateService);
   private chatApi = inject(ChatApiService);
+  private destroyRef = inject(DestroyRef);
 
   protected input = signal('');
   protected error = signal<string | null>(null);
   protected lastSuggestions = signal<ChatRecipeSuggestion[]>([]);
+  protected lastAssistantMessage = signal('');
 
   messagesContainer = viewChild<ElementRef<HTMLDivElement>>('messages');
 
   constructor() {
-    // Auto-scroll on new messages
     effect(() => {
       this.state.messages();
       this.state.isThinking();
@@ -48,6 +51,10 @@ export class ChatPanelComponent implements AfterViewInit {
   }
 
   protected onClose(): void {
+    this.state.close();
+  }
+
+  protected onBackdropClick(): void {
     this.state.close();
   }
 
@@ -67,22 +74,31 @@ export class ChatPanelComponent implements AfterViewInit {
 
     const history = this.state.messages().slice(0, -1);
 
-    this.chatApi.send({ message, history }).subscribe({
-      next: (response) => {
-        this.state.addMessage({ role: 'assistant', content: response.reply });
-        this.lastSuggestions.set(response.suggestions);
-        this.state.setThinking(false);
-      },
-      error: () => {
-        this.state.setThinking(false);
-        this.error.set('chat.errors.failed');
-      },
-    });
+    this.chatApi
+      .send({ message, history })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.state.addMessage({ role: 'assistant', content: response.reply });
+          this.lastSuggestions.set(response.suggestions);
+          this.lastAssistantMessage.set(response.reply);
+          this.state.setThinking(false);
+        },
+        error: (err) => {
+          this.state.setThinking(false);
+          if (err?.status === 0 || !navigator.onLine) {
+            this.error.set('chat.errors.offline');
+          } else {
+            this.error.set('chat.errors.failed');
+          }
+        },
+      });
   }
 
   protected onClear(): void {
     this.state.clear();
     this.lastSuggestions.set([]);
+    this.lastAssistantMessage.set('');
     this.error.set(null);
   }
 
