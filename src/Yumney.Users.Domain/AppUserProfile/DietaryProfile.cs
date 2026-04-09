@@ -40,4 +40,24 @@ public sealed record DietaryProfile : IValueObject
     public static readonly DietaryProfile Empty = new(null, [], WeeklyBalanceGoals.None, null);
 
     public bool IsEmpty => DietaryType is null && Restrictions.Count == 0 && BalanceGoals.IsEmpty && CookingEffort is null;
+
+    public bool Equals(DietaryProfile? other)
+    {
+        if (other is null) return false;
+        return DietaryType == other.DietaryType
+            && Restrictions.SequenceEqual(other.Restrictions)
+            && BalanceGoals == other.BalanceGoals
+            && CookingEffort == other.CookingEffort;
+    }
+
+    public override int GetHashCode()
+    {
+        HashCode hash = default;
+        hash.Add(DietaryType);
+        foreach (var restriction in Restrictions)
+            hash.Add(restriction);
+        hash.Add(BalanceGoals);
+        hash.Add(CookingEffort);
+        return hash.ToHashCode();
+    }
 }
