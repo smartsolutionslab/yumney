@@ -83,4 +83,24 @@ public class AppUserProfileTests
 
         profile.PreferredUnitSystem.Should().Be(imperial);
     }
+
+    [Fact]
+    public void Create_ValidParameters_SetsDefaultServingsTo4()
+    {
+        var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+
+        profile.DefaultServings.Should().Be(DefaultServings.Default);
+        profile.DefaultServings.Value.Should().Be(4);
+    }
+
+    [Fact]
+    public void AdjustDefaultServingsTo_NewValue_UpdatesDefaultServings()
+    {
+        var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+        var newServings = DefaultServings.From(6);
+
+        profile.AdjustDefaultServingsTo(newServings);
+
+        profile.DefaultServings.Should().Be(newServings);
+    }
 }
