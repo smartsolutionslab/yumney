@@ -1,4 +1,12 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  computed,
+  signal,
+  ElementRef,
+  HostListener,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
@@ -20,6 +28,9 @@ export class HeaderComponent {
   protected themeService = inject(ThemeService);
   protected chatState = inject(ChatStateService);
 
+  private elementRef = inject(ElementRef);
+
+  protected menuOpen = signal(false);
   protected isDark = computed(() => this.themeService.theme() === 'dark');
 
   protected nextLanguageKey = computed(() => {
@@ -27,7 +38,19 @@ export class HeaderComponent {
     return `layout.header.language${lang[0].toUpperCase()}${lang.slice(1)}`;
   });
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.menuOpen() && !this.elementRef.nativeElement.contains(event.target)) {
+      this.menuOpen.set(false);
+    }
+  }
+
+  onToggleMenu(): void {
+    this.menuOpen.update((open) => !open);
+  }
+
   onLogout(): void {
+    this.menuOpen.set(false);
     this.authService.logout();
   }
 

@@ -1,9 +1,12 @@
 import {
   ArrowLeft,
+  BookOpen,
   ChevronDown,
   ChevronUp,
   Eye,
   Heart,
+  Languages,
+  LogOut,
   MessageSquare,
   Mic,
   Moon,
@@ -26,10 +29,13 @@ import {
  */
 export const YN_ICONS = {
   ArrowLeft,
+  BookOpen,
   ChevronDown,
   ChevronUp,
   Eye,
   Heart,
+  Languages,
+  LogOut,
   MessageSquare,
   Mic,
   Moon,
