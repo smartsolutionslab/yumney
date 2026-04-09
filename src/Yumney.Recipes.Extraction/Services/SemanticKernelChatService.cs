@@ -76,6 +76,29 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
         return new ChatResponseDto(reply, suggestions);
     }
 
+    internal static List<ChatRecipeSuggestionDto> MatchRecipesByMention(
+        string reply,
+        IReadOnlyList<Recipe> userRecipes)
+    {
+        var suggestions = new List<ChatRecipeSuggestionDto>();
+
+        foreach (var recipe in userRecipes)
+        {
+            var title = recipe.Title.Value;
+            var pattern = $@"(?<!\w){Regex.Escape(title)}(?!\w)";
+
+            if (Regex.IsMatch(reply, pattern, RegexOptions.IgnoreCase))
+            {
+                suggestions.Add(new ChatRecipeSuggestionDto(
+                    recipe.Id.Value,
+                    title,
+                    Reason: null));
+            }
+        }
+
+        return suggestions;
+    }
+
     private static string BuildSystemPrompt(IReadOnlyList<Recipe> userRecipes)
     {
         var recipeList = userRecipes.Count == 0
@@ -94,29 +117,6 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
             If the user asks for something not in their collection, suggest a general recipe
             idea or recommend they import one from a website.
             """;
-    }
-
-    private static List<ChatRecipeSuggestionDto> MatchRecipesByMention(
-        string reply,
-        IReadOnlyList<Recipe> userRecipes)
-    {
-        var suggestions = new List<ChatRecipeSuggestionDto>();
-
-        foreach (var recipe in userRecipes)
-        {
-            var title = recipe.Title.Value;
-            var pattern = $@"\b{Regex.Escape(title)}\b";
-
-            if (Regex.IsMatch(reply, pattern, RegexOptions.IgnoreCase))
-            {
-                suggestions.Add(new ChatRecipeSuggestionDto(
-                    recipe.Id.Value,
-                    title,
-                    Reason: null));
-            }
-        }
-
-        return suggestions;
     }
 
     private async Task<IReadOnlyList<Recipe>> LoadUserRecipeContextAsync(OwnerIdentifier owner, CancellationToken cancellationToken)
