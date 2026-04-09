@@ -1,9 +1,10 @@
 import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'yn-editable-list-item',
-  imports: [TranslocoModule],
+  imports: [TranslocoModule, LucideAngularModule],
   templateUrl: './editable-list-item.component.html',
   styleUrl: './editable-list-item.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

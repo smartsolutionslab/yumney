@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -62,16 +61,15 @@ public class GetRecipeByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_RecipeNotFound_ReturnsFailure()
+    public async Task HandleAsync_RecipeNotFound_ThrowsEntityNotFoundException()
     {
-        var id = Guid.NewGuid();
-        var recipeId = RecipeIdentifier.From(id);
-        recipes.GetByIdAsync(RecipeIdentifier.From(id), Arg.Any<CancellationToken>()).Returns((Recipe?)null);
+        var recipeId = RecipeIdentifier.New();
+        recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>())
+            .Returns<Recipe>(_ => throw new EntityNotFoundException(nameof(Recipe), recipeId.Value));
 
-        var result = await handler.HandleAsync(new(recipeId));
+        var act = () => handler.HandleAsync(new(recipeId));
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(GetRecipeByIdErrors.NotFound);
+        await act.Should().ThrowAsync<EntityNotFoundException>();
     }
 
     [Fact]
@@ -228,10 +226,10 @@ public class GetRecipeByIdQueryHandlerTests
     [Fact]
     public async Task HandleAsync_WithCancellationToken_ForwardsToRepository()
     {
-        var id = Guid.NewGuid();
-        var recipeId = RecipeIdentifier.From(id);
+        var recipe = RecipeTestData.CreateRecipe();
+        var recipeId = recipe.Id;
         var cts = new CancellationTokenSource();
-        recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
+        recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
         await handler.HandleAsync(new(recipeId), cts.Token);
 

@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, viewChild } from '@angular/core';
 import { ImportRecipeResponse } from '@yumney/shared/api-client';
@@ -86,6 +87,7 @@ describe('RecipePreviewComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestHostComponent, setupTranslocoTesting(en)],
+      providers: [provideYumneyIcons()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);

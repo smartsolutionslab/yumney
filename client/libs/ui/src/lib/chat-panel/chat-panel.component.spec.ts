@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -33,6 +34,7 @@ describe('ChatPanelComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ChatPanelComponent, setupTranslocoTesting(en)],
       providers: [
+        provideYumneyIcons(),
         provideRouter([]),
         { provide: ChatApiService, useValue: chatApiMock },
         ChatStateService,

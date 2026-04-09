@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { EditableListItemComponent } from './editable-list-item.component';
@@ -41,6 +42,7 @@ describe('EditableListItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideYumneyIcons()],
       imports: [TestHostComponent, setupTranslocoTesting(en)],
     }).compileComponents();
 

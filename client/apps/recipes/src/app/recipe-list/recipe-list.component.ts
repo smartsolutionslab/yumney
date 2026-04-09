@@ -13,6 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
 import { createAsyncState, ERROR_MAPS, ROUTES, UI } from '@yumney/shared/models';
 import { RouterLink } from '@angular/router';
@@ -31,6 +32,7 @@ import {
   imports: [
     TranslocoModule,
     RouterLink,
+    LucideAngularModule,
     InfiniteScrollDirective,
     FilterPanelComponent,
     FavoriteButtonComponent,

@@ -88,15 +88,15 @@ public class ToggleFavoriteCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_RecipeNotFound_ReturnsNotFound()
+    public async Task HandleAsync_RecipeNotFound_ThrowsEntityNotFoundException()
     {
         var recipeId = RecipeIdentifier.New();
-        recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
+        recipes.GetByIdAsync(recipeId, Arg.Any<CancellationToken>())
+            .Returns<Recipe>(_ => throw new EntityNotFoundException(nameof(Recipe), recipeId.Value));
 
-        var result = await handler.HandleAsync(new ToggleFavoriteCommand(recipeId));
+        var act = () => handler.HandleAsync(new ToggleFavoriteCommand(recipeId));
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(ToggleFavoriteErrors.NotFound);
+        await act.Should().ThrowAsync<EntityNotFoundException>();
     }
 
     [Fact]

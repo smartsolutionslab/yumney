@@ -2,13 +2,14 @@ import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { LucideAngularModule } from 'lucide-angular';
 import { ROUTES } from '@yumney/shared/models';
 import type { UserActivityItem } from '@yumney/shared/api-client';
 
 @Component({
   selector: 'yn-recent-activity',
   standalone: true,
-  imports: [TranslocoModule, RouterLink, DatePipe],
+  imports: [TranslocoModule, RouterLink, DatePipe, LucideAngularModule],
   template: `
     <div class="recent-activity" *transloco="let t">
       <h3 class="activity-heading">{{ t('dashboard.recentActivity.title') }}</h3>
@@ -18,7 +19,9 @@ import type { UserActivityItem } from '@yumney/shared/api-client';
         <ul class="activity-list">
           @for (item of activities(); track item.occurredAt) {
             <li class="activity-item">
-              <span class="activity-icon">{{ getIcon(item.type) }}</span>
+              <span class="activity-icon"
+                ><lucide-icon [name]="getIcon(item.type)" [size]="16"
+              /></span>
               <div class="activity-detail">
                 @if (item.recipeIdentifier) {
                   <a
@@ -48,12 +51,12 @@ export class RecentActivityComponent {
 
   getIcon(type: string): string {
     const icons: Record<string, string> = {
-      recipe_imported: '+',
-      recipe_viewed: '○',
-      recipe_edited: '✎',
-      recipe_deleted: '×',
-      shopping_list_created: '☐',
+      recipe_imported: 'plus',
+      recipe_viewed: 'eye',
+      recipe_edited: 'pencil',
+      recipe_deleted: 'trash-2',
+      shopping_list_created: 'shopping-cart',
     };
-    return icons[type] ?? '·';
+    return icons[type] ?? 'circle';
   }
 }

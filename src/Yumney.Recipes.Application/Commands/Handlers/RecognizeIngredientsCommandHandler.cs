@@ -16,20 +16,10 @@ public sealed partial class RecognizeIngredientsCommandHandler(
         RecognizeIngredientsCommand command,
         CancellationToken cancellationToken = default)
     {
-        var validation = PhotoValidator.Validate(command.Photo);
-        if (validation.IsFailure)
-        {
-            LogValidationFailed(command.Photo.FileName, validation.Error!.Code);
-            return Result.Failure<RecognizedIngredientsResponseDto>(validation.Error);
-        }
-
         LogRecognizingIngredients(command.Photo.Content.Length);
 
         return await recognitionService.RecognizeAsync(command.Photo, cancellationToken);
     }
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Photo validation failed for {FileName}: {ErrorCode}")]
-    private partial void LogValidationFailed(string fileName, string errorCode);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Recognizing ingredients from photo ({SizeBytes} bytes)")]
     private partial void LogRecognizingIngredients(long sizeBytes);

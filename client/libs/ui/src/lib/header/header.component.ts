@@ -1,12 +1,13 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '@yumney/shared/auth';
 import { LanguageService, ThemeService, ChatStateService, ROUTES } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-header',
-  imports: [TranslocoModule, RouterLink],
+  imports: [TranslocoModule, RouterLink, LucideAngularModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -16,6 +16,11 @@ public sealed partial class GlobalExceptionHandlerMiddleware(RequestDelegate nex
         {
             await next(context);
         }
+        catch (EntityNotFoundException ex)
+        {
+            LogEntityNotFound(ex, ex.EntityName, ex.Identifier.ToString()!);
+            await WriteProblemDetailsAsync(context, HttpStatusCode.NotFound, "Not Found", ex.Message);
+        }
         catch (GuardException ex)
         {
             LogValidationFailed(ex, ex.ParameterName);
@@ -55,6 +60,9 @@ public sealed partial class GlobalExceptionHandlerMiddleware(RequestDelegate nex
 
         await context.Response.WriteAsJsonAsync(problemDetails);
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "{EntityName} with identifier '{Identifier}' not found")]
+    private partial void LogEntityNotFound(Exception ex, string entityName, string identifier);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Validation failed for {Parameter}")]
     private partial void LogValidationFailed(Exception ex, string parameter);

@@ -13,13 +13,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
 import { ChatApiService, type ChatRecipeSuggestion } from '@yumney/shared/api-client';
 import { ChatStateService, ROUTES } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-chat-panel',
   standalone: true,
-  imports: [FormsModule, RouterLink, TranslocoModule],
+  imports: [FormsModule, RouterLink, TranslocoModule, LucideAngularModule],
   templateUrl: './chat-panel.component.html',
   styleUrl: './chat-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

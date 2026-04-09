@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
@@ -75,6 +76,7 @@ async function setup(
     .configureTestingModule({
       imports: [IngredientScannerComponent, setupTranslocoTesting(en)],
       providers: [
+        provideYumneyIcons(),
         { provide: CameraService, useValue: cameraMock },
         { provide: IngredientRecognitionService, useValue: recognitionMock },
       ],

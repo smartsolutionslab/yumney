@@ -10,7 +10,9 @@
         [attr.aria-expanded]="sortMenuOpen()"
       >
         {{ t(currentSortLabel()) }}
-        <span class="sort-chevron" [class.open]="sortMenuOpen()">&#9662;</span>
+        <span class="sort-chevron" [class.open]="sortMenuOpen()"
+          ><lucide-icon name="chevron-down" [size]="18"
+        /></span>
       </button>
       @if (sortMenuOpen()) {
         <ul class="sort-menu" role="listbox">
@@ -45,7 +47,7 @@
           (click)="onSearchClear()"
           [attr.aria-label]="t('recipes.list.search.clear')"
         >
-          &times;
+          <lucide-icon name="x" [size]="18" />
         </button>
       }
     </div>

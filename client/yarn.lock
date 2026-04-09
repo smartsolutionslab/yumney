@@ -6094,6 +6094,7 @@ __metadata:
     jiti: "npm:2.6.1"
     jsdom: "npm:~28.1.0"
     jsonc-eslint-parser: "npm:^3.1.0"
+    lucide-angular: "npm:^1.0.0"
     nx: "npm:22.5.4"
     prettier: "npm:^3.8.1"
     rxjs: "npm:~7.8.2"
@@ -15222,6 +15223,18 @@ __metadata:
   dependencies:
     yallist: "npm:^3.0.2"
   checksum: 10c0/89b2ef2ef45f543011e38737b8a8622a2f8998cddf0e5437174ef8f1f70a8b9d14a918ab3e232cb3ba343b7abddffa667f0b59075b2b80e6b4d63c3de6127482
+  languageName: node
+  linkType: hard
+
+"lucide-angular@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "lucide-angular@npm:1.0.0"
+  dependencies:
+    tslib: "npm:^2.3.0"
+  peerDependencies:
+    "@angular/common": 13.x - 21.x
+    "@angular/core": 13.x - 21.x
+  checksum: 10c0/a024c17295a01ebf9bb601ec41d2da777a88fb70309b0935b1f5e0e73a9db46e3bd219ef721c110b33e04d59d4e1cecfc5040a5f5708c9dd061a4ebd4a975264
   languageName: node
   linkType: hard
 

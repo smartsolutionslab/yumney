@@ -14,23 +14,25 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<ShoppingList?> GetByIdAsync(
+    public async Task<ShoppingList> GetByIdAsync(
         ShoppingListIdentifier identifier,
         CancellationToken cancellationToken = default)
     {
         return await shoppingLists
             .AsNoTracking()
             .Include(l => l.Items)
-            .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken);
+            .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken)
+            ?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
     }
 
-    public async Task<ShoppingList?> GetByIdForUpdateAsync(
+    public async Task<ShoppingList> GetByIdForUpdateAsync(
         ShoppingListIdentifier identifier,
         CancellationToken cancellationToken = default)
     {
         return await shoppingLists
             .Include(l => l.Items)
-            .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken);
+            .FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken)
+            ?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
     }
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)

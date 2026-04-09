@@ -24,12 +24,6 @@ public sealed partial class GetRecipeByIdQueryHandler(
 
         var recipe = await recipes.GetByIdAsync(identifier, cancellationToken);
 
-        if (recipe is null)
-        {
-            LogRecipeNotFound(identifier);
-            return GetRecipeByIdErrors.NotFound;
-        }
-
         if (recipe.Owner != owner)
         {
             LogRecipeAccessDenied(identifier, owner.Value);
@@ -42,9 +36,6 @@ public sealed partial class GetRecipeByIdQueryHandler(
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipe {RecipeIdentifier} for owner {OwnerId}")]
     private partial void LogGetRecipeById(RecipeIdentifier recipeIdentifier, string ownerId);
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Recipe {RecipeIdentifier} not found")]
-    private partial void LogRecipeNotFound(RecipeIdentifier recipeIdentifier);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Access denied to recipe {RecipeIdentifier} for owner {OwnerId}")]
     private partial void LogRecipeAccessDenied(RecipeIdentifier recipeIdentifier, string ownerId);

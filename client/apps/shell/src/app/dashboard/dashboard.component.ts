@@ -23,6 +23,7 @@ import {
   ERROR_MAPS,
   ROUTES,
 } from '@yumney/shared/models';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   RecipePreviewComponent,
   QuickActionsComponent,
@@ -42,6 +43,7 @@ import { UrlImportComponent } from './url-import.component';
   selector: 'yn-dashboard',
   imports: [
     TranslocoModule,
+    LucideAngularModule,
     UrlImportComponent,
     RecipePreviewComponent,
     QuickActionsComponent,

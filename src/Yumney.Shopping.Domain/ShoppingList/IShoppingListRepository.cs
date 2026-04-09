@@ -6,9 +6,11 @@ public interface IShoppingListRepository
 {
     Task AddAsync(ShoppingList shoppingList, CancellationToken cancellationToken = default);
 
-    Task<ShoppingList?> GetByIdAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default);
+    // Throws EntityNotFoundException if not found.
+    Task<ShoppingList> GetByIdAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default);
 
-    Task<ShoppingList?> GetByIdForUpdateAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default);
+    // Throws EntityNotFoundException if not found.
+    Task<ShoppingList> GetByIdForUpdateAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<ShoppingListSummary> Items, ItemCount TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,

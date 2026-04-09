@@ -13,6 +13,7 @@ const sharedPackages = {
   '@angular/platform-browser': singleton,
   '@jsverse/transloco': singleton,
   'angular-oauth2-oidc': singleton,
+  'lucide-angular': singleton,
   rxjs: singleton,
 };
 

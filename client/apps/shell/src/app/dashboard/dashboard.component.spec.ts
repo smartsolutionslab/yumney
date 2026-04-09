@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '@yumney/ui';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -113,6 +114,7 @@ describe('DashboardComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DashboardComponent, setupTranslocoTesting(en)],
       providers: [
+        provideYumneyIcons(),
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: DashboardApiService, useValue: dashboardApiMock },
         { provide: Router, useValue: routerMock },
@@ -525,6 +527,7 @@ describe('DashboardComponent – Share Intent', () => {
     TestBed.configureTestingModule({
       imports: [DashboardComponent, setupTranslocoTesting(en)],
       providers: [
+        provideYumneyIcons(),
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: DashboardApiService, useValue: dashboardMock },
         { provide: Router, useValue: routerMock },

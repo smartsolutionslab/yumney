@@ -10,6 +10,7 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { authInterceptor, provideAuth } from '@yumney/shared/auth';
+import { provideYumneyIcons } from '@yumney/ui';
 import { appRoutes } from './app.routes';
 import {
   TranslocoHttpLoader,
@@ -25,6 +26,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
+    provideYumneyIcons(),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideAuth(),
     provideServiceWorker('ngsw-worker.js', {

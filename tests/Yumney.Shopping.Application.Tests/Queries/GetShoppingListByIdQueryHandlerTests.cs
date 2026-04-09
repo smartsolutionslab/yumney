@@ -38,17 +38,17 @@ public class GetShoppingListByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_NotFound_ReturnsFailure()
+    public async Task HandleAsync_NotFound_ThrowsEntityNotFoundException()
     {
-        shoppingLists.GetByIdAsync(Arg.Any<ShoppingListIdentifier>(), Arg.Any<CancellationToken>())
-            .Returns((ShoppingList?)null);
+        var listId = ShoppingListIdentifier.New();
+        shoppingLists.GetByIdAsync(listId, Arg.Any<CancellationToken>())
+            .Returns<ShoppingList>(_ => throw new EntityNotFoundException(nameof(ShoppingList), listId.Value));
 
-        var query = new GetShoppingListByIdQuery(ShoppingListIdentifier.New());
+        var query = new GetShoppingListByIdQuery(listId);
 
-        var result = await handler.HandleAsync(query);
+        var act = () => handler.HandleAsync(query);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(GetShoppingListByIdErrors.NotFound);
+        await act.Should().ThrowAsync<EntityNotFoundException>();
     }
 
     [Fact]

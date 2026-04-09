@@ -22,6 +22,7 @@ import {
   VoiceService,
   WakeLockService,
 } from '@yumney/shared/models';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   CookingTimerComponent,
   LoadingSpinnerComponent,
@@ -35,6 +36,7 @@ const SWIPE_THRESHOLD = 50;
   selector: 'yn-cook-mode',
   imports: [
     TranslocoModule,
+    LucideAngularModule,
     StepDisplayComponent,
     CookingTimerComponent,
     VoiceIndicatorComponent,

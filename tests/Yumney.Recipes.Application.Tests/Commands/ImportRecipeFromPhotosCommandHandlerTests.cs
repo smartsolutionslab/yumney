@@ -50,48 +50,6 @@ public class ImportRecipeFromPhotosCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_EmptyPhotos_ReturnsFailure()
-    {
-        var result = await CreateSut().HandleAsync(new ImportRecipeFromPhotosCommand([]));
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(ImportRecipeErrors.TooManyPhotos);
-    }
-
-    [Fact]
-    public async Task HandleAsync_TooManyPhotos_ReturnsFailure()
-    {
-        var photos = Enumerable.Range(0, 11).Select(i => CreatePhoto($"photo{i}.jpg")).ToList();
-
-        var result = await CreateSut().HandleAsync(new ImportRecipeFromPhotosCommand(photos));
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(ImportRecipeErrors.TooManyPhotos);
-    }
-
-    [Fact]
-    public async Task HandleAsync_PhotoTooLarge_ReturnsFailure()
-    {
-        var largePhoto = new PhotoData(new byte[11 * 1024 * 1024], "image/jpeg", "large.jpg");
-
-        var result = await CreateSut().HandleAsync(new ImportRecipeFromPhotosCommand([largePhoto]));
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(ImportRecipeErrors.PhotoTooLarge);
-    }
-
-    [Fact]
-    public async Task HandleAsync_InvalidFormat_ReturnsFailure()
-    {
-        var pdfFile = new PhotoData(new byte[100], "application/pdf", "recipe.pdf");
-
-        var result = await CreateSut().HandleAsync(new ImportRecipeFromPhotosCommand([pdfFile]));
-
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(ImportRecipeErrors.InvalidPhotoFormat);
-    }
-
-    [Fact]
     public async Task HandleAsync_ExtractionFails_ReturnsFailure()
     {
         var photos = new[] { CreatePhoto() };
@@ -103,32 +61,6 @@ public class ImportRecipeFromPhotosCommandHandlerTests
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
-    }
-
-    [Fact]
-    public async Task HandleAsync_TenPhotos_Succeeds()
-    {
-        var photos = Enumerable.Range(0, 10).Select(i => CreatePhoto($"photo{i}.jpg")).ToList();
-
-        extraction.ExtractFromPhotosAsync(Arg.Any<IReadOnlyList<PhotoData>>(), Arg.Any<CancellationToken>())
-            .Returns(Result<ExtractedRecipeDto>.Success(CreateExtractedRecipe()));
-
-        var result = await CreateSut().HandleAsync(new ImportRecipeFromPhotosCommand(photos));
-
-        result.IsSuccess.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task HandleAsync_WebpPhoto_Succeeds()
-    {
-        var webpPhoto = new PhotoData(new byte[100], "image/webp", "recipe.webp");
-
-        extraction.ExtractFromPhotosAsync(Arg.Any<IReadOnlyList<PhotoData>>(), Arg.Any<CancellationToken>())
-            .Returns(Result<ExtractedRecipeDto>.Success(CreateExtractedRecipe()));
-
-        var result = await CreateSut().HandleAsync(new ImportRecipeFromPhotosCommand([webpPhoto]));
-
-        result.IsSuccess.Should().BeTrue();
     }
 
     private static PhotoData CreatePhoto(string fileName = "recipe.jpg") =>

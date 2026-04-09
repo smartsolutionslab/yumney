@@ -21,11 +21,6 @@ public sealed partial class ToggleFavoriteCommandHandler(
         var owner = currentUser.AsOwner();
 
         var recipe = await recipes.GetByIdAsync(identifier, cancellationToken);
-        if (recipe is null)
-        {
-            LogRecipeNotFound(identifier);
-            return ToggleFavoriteErrors.NotFound;
-        }
 
         if (recipe.Owner != owner)
         {
@@ -47,9 +42,6 @@ public sealed partial class ToggleFavoriteCommandHandler(
         LogRecipeFavorited(identifier, owner.Value);
         return new FavoriteStateDto(identifier.Value, true);
     }
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Recipe {RecipeIdentifier} not found for favorite toggle")]
-    private partial void LogRecipeNotFound(RecipeIdentifier recipeIdentifier);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Access denied to favorite recipe {RecipeIdentifier} for owner {OwnerId}")]
     private partial void LogRecipeAccessDenied(RecipeIdentifier recipeIdentifier, string ownerId);

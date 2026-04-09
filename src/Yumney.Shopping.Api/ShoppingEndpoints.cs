@@ -2,13 +2,11 @@ using FluentValidation;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
-using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
-using Page = SmartSolutionsLab.Yumney.Shared.Common.Page;
 using ShoppingListItem = SmartSolutionsLab.Yumney.Shopping.Application.Commands.ShoppingListItem;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
@@ -57,17 +55,21 @@ public static class ShoppingEndpoints
         ICommandHandler<CreateShoppingListCommand, Result<ShoppingListDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null) return problem;
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
+
+        var (title, items, recipeReference) = request;
 
         var command = new CreateShoppingListCommand(
-            ShoppingListTitle.From(request.Title),
+            ShoppingListTitle.From(title),
             request.Items.Select(i => new ShoppingListItem(
                 ItemName.From(i.Name),
-                Quantity.FromNullable(Amount.FromNullable(i.Amount), Unit.FromNullable(i.Unit)))).ToList(),
-            RecipeReference.FromNullable(request.RecipeReference));
-        var result = await handler.HandleAsync(command, cancellationToken);
+                Quantity.FromNullable(
+                    Amount.FromNullable(i.Amount),
+                    Unit.FromNullable(i.Unit)))).ToList(),
+            RecipeReference.FromNullable(recipeReference));
 
+        var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToCreated($"/api/v1/shopping-lists/{result.Value?.Identifier}");
     }
 
@@ -82,8 +84,8 @@ public static class ShoppingEndpoints
         var query = new GetShoppingListsQuery(
             PagingOptions.From(page, pageSize),
             SortingOptions<ShoppingListSortField>.Parse(sortBy, sortDirection, ShoppingListSortField.Date));
-        var result = await handler.HandleAsync(query, cancellationToken);
 
+        var result = await handler.HandleAsync(query, cancellationToken);
         return result.ToOk();
     }
 
@@ -93,8 +95,8 @@ public static class ShoppingEndpoints
         CancellationToken cancellationToken)
     {
         var query = new GetShoppingListByIdQuery(ShoppingListIdentifier.From(identifier));
-        var result = await handler.HandleAsync(query, cancellationToken);
 
+        var result = await handler.HandleAsync(query, cancellationToken);
         return result.ToOk();
     }
 
@@ -109,8 +111,8 @@ public static class ShoppingEndpoints
             ShoppingListIdentifier.From(identifier),
             ShoppingListItemIdentifier.From(itemId),
             request.IsChecked);
-        var result = await handler.HandleAsync(command, cancellationToken);
 
+        var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToNoContent();
     }
 
@@ -123,8 +125,8 @@ public static class ShoppingEndpoints
         var command = new CheckOffAllItemsCommand(
             ShoppingListIdentifier.From(identifier),
             request.IsChecked);
-        var result = await handler.HandleAsync(command, cancellationToken);
 
+        var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToNoContent();
     }
 }

@@ -24,12 +24,6 @@ public sealed partial class UpdateRecipeCommandHandler(
 
         var recipe = await recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
-        if (recipe is null)
-        {
-            LogRecipeNotFound(identifier);
-            return UpdateRecipeErrors.NotFound;
-        }
-
         if (recipe.Owner != owner)
         {
             LogRecipeAccessDenied(identifier, owner.Value);
@@ -60,9 +54,6 @@ public sealed partial class UpdateRecipeCommandHandler(
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Updating recipe {RecipeIdentifier} for owner {OwnerId}")]
     private partial void LogUpdateRecipe(RecipeIdentifier recipeIdentifier, string ownerId);
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Recipe {RecipeIdentifier} not found for update")]
-    private partial void LogRecipeNotFound(RecipeIdentifier recipeIdentifier);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Access denied to update recipe {RecipeIdentifier} for owner {OwnerId}")]
     private partial void LogRecipeAccessDenied(RecipeIdentifier recipeIdentifier, string ownerId);

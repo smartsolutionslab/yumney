@@ -47,16 +47,16 @@ public class CheckOffItemCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_ListNotFound_ReturnsFailure()
+    public async Task HandleAsync_ListNotFound_ThrowsEntityNotFoundException()
     {
         var listId = ShoppingListIdentifier.New();
-        shoppingLists.GetByIdForUpdateAsync(listId, Arg.Any<CancellationToken>()).Returns((ShoppingList?)null);
+        shoppingLists.GetByIdForUpdateAsync(listId, Arg.Any<CancellationToken>())
+            .Returns<ShoppingList>(_ => throw new EntityNotFoundException(nameof(ShoppingList), listId.Value));
         var command = new CheckOffItemCommand(listId, ShoppingListItemIdentifier.New(), true);
 
-        var result = await handler.HandleAsync(command);
+        var act = () => handler.HandleAsync(command);
 
-        result.IsSuccess.Should().BeFalse();
-        result.Error.Should().Be(CheckOffItemErrors.ListNotFound);
+        await act.Should().ThrowAsync<EntityNotFoundException>();
     }
 
     [Fact]
