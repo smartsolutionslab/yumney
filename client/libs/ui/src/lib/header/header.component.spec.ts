@@ -15,12 +15,15 @@ const en = {
   layout: {
     header: {
       navigation: 'Main navigation',
-      myRecipes: 'My Recipes',
+      recipes: 'My Recipes',
       shoppingLists: 'Shopping Lists',
       logout: 'Logout',
       login: 'Login',
       openChat: 'Open chat',
+      settings: 'Settings',
       switchLanguage: 'Switch language',
+      switchToDark: 'Switch to dark mode',
+      switchToLight: 'Switch to light mode',
       languageEn: 'EN',
       languageDe: 'DE',
     },
@@ -75,7 +78,15 @@ describe('HeaderComponent', () => {
     fixture = TestBed.createComponent(HeaderComponent);
   });
 
-  // ── Anonymous user ─────────────────────────────────────────────────────────
+  function openDropdown(): void {
+    isAuthenticated.set(true);
+    fixture.detectChanges();
+    const avatarBtn = fixture.nativeElement.querySelector('.avatar-button');
+    avatarBtn.click();
+    fixture.detectChanges();
+  }
+
+  // ── Anonymous user ─────────────────────────────────────────────
 
   it('should render the login link when user is not authenticated', () => {
     fixture.detectChanges();
@@ -84,32 +95,32 @@ describe('HeaderComponent', () => {
     expect(loginLink.textContent).toContain('Login');
   });
 
-  it('should not render the user menu when user is not authenticated', () => {
+  it('should not render the avatar when user is not authenticated', () => {
     fixture.detectChanges();
 
-    const userMenu = fixture.nativeElement.querySelector('.user-menu');
-    expect(userMenu).toBeFalsy();
+    const avatar = fixture.nativeElement.querySelector('.avatar-wrapper');
+    expect(avatar).toBeFalsy();
   });
 
-  it('should not render the chat toggle when user is not authenticated', () => {
+  it('should not render the chat button when user is not authenticated', () => {
     fixture.detectChanges();
 
-    const chatToggle = fixture.nativeElement.querySelector('.chat-toggle');
-    expect(chatToggle).toBeFalsy();
+    const chatBtn = fixture.nativeElement.querySelector('.icon-button');
+    expect(chatBtn).toBeFalsy();
   });
 
-  // ── Authenticated user ─────────────────────────────────────────────────────
+  // ── Authenticated user ─────────────────────────────────────────
 
-  it('should render the user menu when user is authenticated', () => {
+  it('should render the avatar when user is authenticated', () => {
     isAuthenticated.set(true);
 
     fixture.detectChanges();
 
-    const userMenu = fixture.nativeElement.querySelector('.user-menu');
-    expect(userMenu).toBeTruthy();
+    const avatar = fixture.nativeElement.querySelector('.avatar-wrapper');
+    expect(avatar).toBeTruthy();
   });
 
-  it('should render the user initial when user is authenticated', () => {
+  it('should render the user initial in the avatar', () => {
     isAuthenticated.set(true);
 
     fixture.detectChanges();
@@ -142,67 +153,71 @@ describe('HeaderComponent', () => {
     expect(shoppingLink).toBeTruthy();
   });
 
-  // ── User actions ───────────────────────────────────────────────────────────
+  // ── Chat toggle ────────────────────────────────────────────────
 
-  it('should call authService.logout when logout button is clicked', () => {
+  it('should call chatState.toggle when chat button is clicked', () => {
     isAuthenticated.set(true);
     fixture.detectChanges();
 
-    const logoutBtn = fixture.nativeElement.querySelector('.logout-button');
-    logoutBtn.click();
-
-    expect(authMock.logout).toHaveBeenCalled();
-  });
-
-  it('should call languageService.switchTo when language toggle is clicked', () => {
-    fixture.detectChanges();
-
-    const langBtn = fixture.nativeElement.querySelector('.lang-toggle');
-    langBtn.click();
-
-    expect(languageMock.switchTo).toHaveBeenCalledWith('de');
-  });
-
-  it('should call themeService.toggle when theme toggle is clicked', () => {
-    fixture.detectChanges();
-
-    const themeBtn = fixture.nativeElement.querySelector('.theme-toggle');
-    themeBtn.click();
-
-    expect(themeMock.toggle).toHaveBeenCalled();
-  });
-
-  it('should call chatState.toggle when chat toggle is clicked', () => {
-    isAuthenticated.set(true);
-    fixture.detectChanges();
-
-    const chatBtn = fixture.nativeElement.querySelector('.chat-toggle');
+    const chatBtn = fixture.nativeElement.querySelector('.icon-button');
     chatBtn.click();
 
     expect(chatMock.toggle).toHaveBeenCalled();
   });
 
-  // ── Theme display ─────────────────────────────────────────────────────────
+  // ── Dropdown menu ──────────────────────────────────────────────
 
-  it('should render the moon icon in light theme', () => {
+  it('should open dropdown when avatar is clicked', () => {
+    openDropdown();
+
+    const dropdown = fixture.nativeElement.querySelector('.user-dropdown');
+    expect(dropdown).toBeTruthy();
+  });
+
+  it('should call authService.logout from dropdown', () => {
+    openDropdown();
+
+    const logoutItem = fixture.nativeElement.querySelector('.dropdown-item--danger');
+    logoutItem.click();
+
+    expect(authMock.logout).toHaveBeenCalled();
+  });
+
+  it('should call themeService.toggle from dropdown', () => {
+    openDropdown();
+
+    const items = fixture.nativeElement.querySelectorAll('.dropdown-item');
+    items[0].click();
+
+    expect(themeMock.toggle).toHaveBeenCalled();
+  });
+
+  it('should call languageService.switchTo from dropdown', () => {
+    openDropdown();
+
+    const items = fixture.nativeElement.querySelectorAll('.dropdown-item');
+    items[1].click();
+
+    expect(languageMock.switchTo).toHaveBeenCalledWith('de');
+  });
+
+  // ── Theme icons ────────────────────────────────────────────────
+
+  it('should render the moon icon in light theme dropdown', () => {
     theme.set('light');
+    openDropdown();
 
-    fixture.detectChanges();
-
-    const themeBtn = fixture.nativeElement.querySelector('.theme-toggle');
-    const icon = themeBtn.querySelector('lucide-icon');
-    expect(icon).toBeTruthy();
+    const items = fixture.nativeElement.querySelectorAll('.dropdown-item');
+    const icon = items[0].querySelector('lucide-icon');
     expect(icon.getAttribute('name')).toBe('moon');
   });
 
-  it('should render the sun icon in dark theme', () => {
+  it('should render the sun icon in dark theme dropdown', () => {
     theme.set('dark');
+    openDropdown();
 
-    fixture.detectChanges();
-
-    const themeBtn = fixture.nativeElement.querySelector('.theme-toggle');
-    const icon = themeBtn.querySelector('lucide-icon');
-    expect(icon).toBeTruthy();
+    const items = fixture.nativeElement.querySelectorAll('.dropdown-item');
+    const icon = items[0].querySelector('lucide-icon');
     expect(icon.getAttribute('name')).toBe('sun');
   });
 });
