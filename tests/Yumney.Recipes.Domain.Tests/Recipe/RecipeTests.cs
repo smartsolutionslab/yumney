@@ -527,8 +527,7 @@ public class RecipeTests
             newSteps,
             RecipeDescription.From("Updated description"),
             Servings.From(6),
-            PreparationTime.From(15),
-            CookingTime.From(30),
+            TimingInfo.Of(PreparationTime.From(15), CookingTime.From(30)),
             Difficulty.From("hard"),
             ImageUrl.From("https://example.com/new.jpg"));
 
@@ -556,8 +555,7 @@ public class RecipeTests
             steps ?? [Step.Create(StepNumber.From(1), StepDescription.From("Mix ingredients"))],
             description,
             servings,
-            preparationTime,
-            cookingTime,
+            TimingInfo.FromNullable(preparationTime, cookingTime),
             difficulty,
             imageUrl,
             sourceUrl: sourceUrl,
