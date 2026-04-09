@@ -34,6 +34,11 @@ internal sealed class AppUserProfileConfiguration : IEntityTypeConfiguration<App
             .HasMaxLength(PreferredUnitSystem.MaxLength)
             .IsRequired();
 
+        entity.Property(e => e.DefaultServings)
+            .HasConversion<DefaultServingsConverter>()
+            .HasDefaultValue(DefaultServings.Default)
+            .IsRequired();
+
         entity.HasIndex(e => e.KeycloakUserId).IsUnique();
         entity.Ignore(e => e.DomainEvents);
     }

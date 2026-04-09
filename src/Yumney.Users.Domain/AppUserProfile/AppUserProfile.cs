@@ -12,6 +12,8 @@ public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
 
     public PreferredUnitSystem PreferredUnitSystem { get; private set; } = PreferredUnitSystem.From("metric");
 
+    public DefaultServings DefaultServings { get; private set; } = DefaultServings.Default;
+
     private AppUserProfile()
     {
     }
@@ -39,5 +41,10 @@ public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
     public void RenameAs(DisplayName displayName)
     {
         DisplayName = displayName;
+    }
+
+    public void AdjustDefaultServingsTo(DefaultServings defaultServings)
+    {
+        DefaultServings = defaultServings;
     }
 }
