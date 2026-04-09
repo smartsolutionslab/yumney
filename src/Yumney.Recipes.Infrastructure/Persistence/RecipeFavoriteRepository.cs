@@ -6,16 +6,16 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 
 public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipeFavoriteRepository
 {
+    private readonly DbSet<RecipeFavorite> favorites = context.RecipeFavorites;
+
     public async Task<bool> IsFavoritedAsync(
         OwnerIdentifier owner,
         RecipeIdentifier recipeIdentifier,
         CancellationToken cancellationToken = default)
     {
-        return await context.RecipeFavorites
+        return await favorites
             .AsNoTracking()
-            .AnyAsync(
-                f => f.Owner == owner && f.RecipeIdentifier == recipeIdentifier,
-                cancellationToken);
+            .AnyAsync(f => f.Owner == owner && f.RecipeIdentifier == recipeIdentifier, cancellationToken);
     }
 
     public async Task<IReadOnlySet<Guid>> GetFavoritedIdsAsync(
@@ -29,7 +29,7 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
         }
 
         var idList = recipeIdentifiers.ToList();
-        var favorited = await context.RecipeFavorites
+        var favorited = await favorites
             .AsNoTracking()
             .Where(f => f.Owner == owner && idList.Contains(f.RecipeIdentifier))
             .Select(f => f.RecipeIdentifier)
@@ -40,7 +40,7 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
 
     public async Task AddAsync(RecipeFavorite favorite, CancellationToken cancellationToken = default)
     {
-        await context.RecipeFavorites.AddAsync(favorite, cancellationToken);
+        await favorites.AddAsync(favorite, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
 
@@ -49,7 +49,7 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
         RecipeIdentifier recipeIdentifier,
         CancellationToken cancellationToken = default)
     {
-        await context.RecipeFavorites
+        await favorites
             .Where(f => f.Owner == owner && f.RecipeIdentifier == recipeIdentifier)
             .ExecuteDeleteAsync(cancellationToken);
     }
