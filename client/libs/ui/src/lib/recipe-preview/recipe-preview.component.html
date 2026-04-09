@@ -42,21 +42,32 @@
           for="preview-prepTime"
           [control]="form.controls.prepTimeMinutes"
         >
-          <input id="preview-prepTime" type="number" formControlName="prepTimeMinutes" />
+          <div class="input-with-unit">
+            <input id="preview-prepTime" type="number" formControlName="prepTimeMinutes" />
+            <span class="input-unit">min</span>
+          </div>
         </yn-form-field>
         <yn-form-field
           label="dashboard.preview.cookTime"
           for="preview-cookTime"
           [control]="form.controls.cookTimeMinutes"
         >
-          <input id="preview-cookTime" type="number" formControlName="cookTimeMinutes" />
+          <div class="input-with-unit">
+            <input id="preview-cookTime" type="number" formControlName="cookTimeMinutes" />
+            <span class="input-unit">min</span>
+          </div>
         </yn-form-field>
         <yn-form-field
           label="dashboard.preview.difficulty"
           for="preview-difficulty"
           [control]="form.controls.difficulty"
         >
-          <input id="preview-difficulty" type="text" formControlName="difficulty" />
+          <select id="preview-difficulty" formControlName="difficulty">
+            <option value="">{{ t('dashboard.preview.difficultyPlaceholder') }}</option>
+            <option value="easy">{{ t('dashboard.preview.difficultyOption.easy') }}</option>
+            <option value="medium">{{ t('dashboard.preview.difficultyOption.medium') }}</option>
+            <option value="hard">{{ t('dashboard.preview.difficultyOption.hard') }}</option>
+          </select>
         </yn-form-field>
       </div>
     </div>

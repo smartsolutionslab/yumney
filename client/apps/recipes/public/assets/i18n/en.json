@@ -151,6 +151,12 @@
       "prepTime": "Prep Time (min)",
       "cookTime": "Cook Time (min)",
       "difficulty": "Difficulty",
+      "difficultyPlaceholder": "Select difficulty",
+      "difficultyOption": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      },
       "ingredients": "Ingredients",
       "ingredientName": "Ingredient",
       "amount": "Amount",

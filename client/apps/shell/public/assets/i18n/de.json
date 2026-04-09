@@ -116,6 +116,23 @@
       },
       "errors": {
         "generic": "Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
+      },
+      "filter": {
+        "toggle": "Filter",
+        "title": "Rezepte filtern",
+        "clear": "Alle löschen",
+        "tags": "Tags",
+        "favorites": "Favoriten",
+        "favoritesOnly": "Nur Favoriten anzeigen",
+        "difficulty": "Schwierigkeit",
+        "difficultyOption": {
+          "easy": "Einfach",
+          "medium": "Mittel",
+          "hard": "Schwer"
+        },
+        "maxPrepTime": "Max. Vorbereitung (Min.)",
+        "maxCookTime": "Max. Kochzeit (Min.)",
+        "minutesPlaceholder": "Min."
       }
     },
     "edit": {
@@ -142,7 +159,8 @@
       "actions": {
         "edit": "Bearbeiten",
         "delete": "Löschen",
-        "shoppingList": "Einkaufsliste"
+        "shoppingList": "Einkaufsliste",
+        "startCooking": "Kochmodus starten"
       },
       "loading": "Rezept wird geladen...",
       "notFound": "Rezept nicht gefunden.",
@@ -158,6 +176,32 @@
       "resetServings": "Zurücksetzen",
       "errors": {
         "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut."
+      }
+    },
+    "favorite": {
+      "addAriaLabel": "Zu Favoriten hinzufügen",
+      "removeAriaLabel": "Aus Favoriten entfernen"
+    },
+    "cook": {
+      "loading": "Rezept wird geladen...",
+      "exit": "Beenden",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "repeat": "Wiederholen",
+      "ingredients": "Zutaten",
+      "mute": "Stumm",
+      "unmute": "Ton an",
+      "voiceToggle": "Sprachsteuerung umschalten",
+      "voiceListening": "Höre zu...",
+      "voiceTapToTalk": "Zum Sprechen tippen",
+      "stepProgress": "Schritt {{current}} von {{total}}",
+      "timer": {
+        "defaultName": "Timer",
+        "cancel": "Abbrechen",
+        "done": "Timer fertig"
+      },
+      "errors": {
+        "notFound": "Rezept nicht gefunden."
       }
     }
   },
@@ -254,6 +298,12 @@
       "prepTime": "Vorbereitungszeit (Min.)",
       "cookTime": "Kochzeit (Min.)",
       "difficulty": "Schwierigkeit",
+      "difficultyPlaceholder": "Schwierigkeit wählen",
+      "difficultyOption": {
+        "easy": "Einfach",
+        "medium": "Mittel",
+        "hard": "Schwer"
+      },
       "ingredients": "Zutaten",
       "ingredientName": "Zutat",
       "amount": "Menge",
@@ -270,7 +320,7 @@
         "ingredientNameRequired": "Zutatname ist erforderlich.",
         "stepDescriptionRequired": "Schrittbeschreibung ist erforderlich."
       },
-      "clearUnit": "Einheit l�schen"
+      "clearUnit": "Einheit l�schen"
     },
     "suggestions": {
       "title": "Vorschläge für dich",

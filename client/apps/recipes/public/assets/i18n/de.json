@@ -151,6 +151,12 @@
       "prepTime": "Vorbereitungszeit (Min.)",
       "cookTime": "Kochzeit (Min.)",
       "difficulty": "Schwierigkeit",
+      "difficultyPlaceholder": "Schwierigkeit wählen",
+      "difficultyOption": {
+        "easy": "Einfach",
+        "medium": "Mittel",
+        "hard": "Schwer"
+      },
       "ingredients": "Zutaten",
       "ingredientName": "Zutat",
       "amount": "Menge",
