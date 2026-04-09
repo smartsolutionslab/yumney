@@ -37,6 +37,10 @@
     color: var(--yn-primary);
     border-color: var(--yn-primary);
 
+    ::ng-deep svg {
+      fill: currentColor;
+    }
+
     svg {
       animation: heart-pop var(--yn-duration-normal) var(--yn-ease-spring);
     }

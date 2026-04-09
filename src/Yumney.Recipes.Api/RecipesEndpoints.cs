@@ -2,16 +2,12 @@ using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
-using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Chat;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
-using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
-using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shared.Web;
-using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
@@ -141,13 +137,13 @@ public static partial class RecipesEndpoints
         ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null) return problem;
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
         var command = new SaveRecipeCommand(
             RecipeTitle.From(request.Title),
-            request.Ingredients.Select(i => i.ToCommandItem()).ToList(),
-            request.Steps.Select(s => s.ToCommandItem()).ToList(),
+            request.Ingredients.MapToRecipeIngredientItems().ToList(),
+            request.Steps.MapToRecipeStepItems().ToList(),
             RecipeDescription.FromNullable(request.Description),
             Servings.FromNullable(request.Servings),
             PreparationTime.FromNullable(request.PrepTimeMinutes),
@@ -160,18 +156,14 @@ public static partial class RecipesEndpoints
 
         var result = await handler.HandleAsync(command, cancellationToken);
 
-        return result.ToCreated($"/api/v1/recipes/{result.Value?.Identifier}");
+        return result.ToCreated($"/api/v1/recipes/{result.Value.Identifier}");
     }
 
-    private static async Task<IResult> GetByIdAsync(
-        Guid identifier,
-        IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler,
-        CancellationToken cancellationToken)
+    private static async Task<IResult> GetByIdAsync(Guid identifier, IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler, CancellationToken cancellationToken)
     {
         var query = new GetRecipeByIdQuery(RecipeIdentifier.From(identifier));
 
         var result = await handler.HandleAsync(query, cancellationToken);
-
         return result.ToOk();
     }
 
@@ -182,8 +174,8 @@ public static partial class RecipesEndpoints
         ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>> handler,
         CancellationToken cancellationToken)
     {
-        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null) return problem;
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
         var (title, description, ingredients, steps, servings, prepTimeMinutes, cookTimeMinutes, difficulty, imageUrl,
             tags) = request;
@@ -191,7 +183,7 @@ public static partial class RecipesEndpoints
         var command = new UpdateRecipeCommand(
             RecipeIdentifier.From(identifier),
             RecipeTitle.From(title),
-            ingredients.Select(i => i.ToCommandItem()).ToList(),
+            ingredients.MapToRecipeIngredientItems().ToList(),
             steps.Select(s => s.ToCommandItem()).ToList(),
             RecipeDescription.FromNullable(description),
             Servings.FromNullable(servings),
@@ -202,7 +194,6 @@ public static partial class RecipesEndpoints
             tags?.Select(t => RecipeTag.From(t)).ToList());
 
         var result = await handler.HandleAsync(command, cancellationToken);
-
         return result.ToOk();
     }
 
@@ -212,6 +203,7 @@ public static partial class RecipesEndpoints
         CancellationToken cancellationToken)
     {
         var command = new DeleteRecipeCommand(RecipeIdentifier.From(identifier));
+
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToNoContent();
     }
@@ -222,42 +214,57 @@ public static partial class RecipesEndpoints
         ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null) return problem;
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
         var command = new ImportRecipeCommand(RecipeUrl.From(request.Url));
+
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
 
     private static async Task<IResult> ImportFromPhotosAsync(
         IFormFileCollection photos,
+        IValidator<PhotoData> validator,
         ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        var oversized = photos.FirstOrDefault(p => p.Length > PhotoValidator.MaxPhotoSizeBytes);
-        if (oversized is not null) return PhotoTooLargeProblem(oversized.FileName);
+        if (photos.Count == 0 || photos.Count > PhotoDataValidator.MaxPhotos)
+        {
+            return Results.ValidationProblem(new Dictionary<string, string[]>
+            {
+                ["Photos"] = [$"Must contain between 1 and {PhotoDataValidator.MaxPhotos} photos."],
+            });
+        }
 
-        List<PhotoData> photoDataList = [];
+        var photoDataList = new List<PhotoData>(photos.Count);
         foreach (var file in photos)
         {
-            photoDataList.Add(await LoadPhotoDataAsync(file, cancellationToken));
+            var photoData = await LoadPhotoDataAsync(file, cancellationToken);
+            var validation = await validator.ValidateAsync(photoData, cancellationToken);
+            if (validation.HasFailed()) return validation.ToValidationProblem();
+
+            photoDataList.Add(photoData);
         }
 
         var command = new ImportRecipeFromPhotosCommand(photoDataList);
+
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
 
     private static async Task<IResult> RecognizeIngredientsAsync(
         IFormFile photo,
+        IValidator<PhotoData> validator,
         ICommandHandler<RecognizeIngredientsCommand, Result<RecognizedIngredientsResponseDto>> handler,
         CancellationToken cancellationToken)
     {
-        if (photo.Length > PhotoValidator.MaxPhotoSizeBytes) return PhotoTooLargeProblem(photo.FileName);
-
         var photoData = await LoadPhotoDataAsync(photo, cancellationToken);
+        var validation = await validator.ValidateAsync(photoData, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
+
         var command = new RecognizeIngredientsCommand(photoData);
+
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
@@ -266,11 +273,9 @@ public static partial class RecipesEndpoints
     {
         using var memoryStream = new MemoryStream((int)file.Length);
         await file.CopyToAsync(memoryStream, cancellationToken);
+
         return new PhotoData(memoryStream.ToArray(), file.ContentType, file.FileName);
     }
-
-    private static IResult PhotoTooLargeProblem(string fileName) =>
-        Results.Problem(statusCode: StatusCodes.Status413PayloadTooLarge, detail: $"Photo '{fileName}' exceeds the maximum size of 10 MB.");
 
 #pragma warning disable SA1303 // editorconfig requires camelCase for private const fields
     private const string emptyChatMessageError = "Message cannot be empty.";
@@ -281,17 +286,14 @@ public static partial class RecipesEndpoints
         ICommandHandler<ChatCommand, Result<ChatResponseDto>> handler,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Message))
-        {
-            return Results.Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                detail: emptyChatMessageError);
-        }
+        var (message, history) = request;
 
-        var historyEntries = request.History
-            .Select(h => new ChatHistoryEntry(ChatRole.From(h.Role), ChatMessageContent.From(h.Content)))
-            .ToList();
-        var command = new ChatCommand(ChatMessageContent.From(request.Message), historyEntries);
+        if (string.IsNullOrWhiteSpace(message)) return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: emptyChatMessageError);
+
+        var command = new ChatCommand(
+            ChatMessageContent.From(message),
+            history.MapToChatHistoryEntries().ToList());
+
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }

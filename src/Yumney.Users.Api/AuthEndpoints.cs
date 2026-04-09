@@ -2,7 +2,6 @@ using FluentValidation;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
-using SmartSolutionsLab.Yumney.Shared.Web.Validation;
 using SmartSolutionsLab.Yumney.Users.Api.Requests;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using SmartSolutionsLab.Yumney.Users.Application.DTOs;
@@ -40,17 +39,17 @@ public static class AuthEndpoints
         ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>> handler,
         CancellationToken cancellationToken)
     {
-        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null) return problem;
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
         var (email, password, displayName) = request;
+
         var command = new RegisterUserCommand(
             Email.From(email),
             Password.From(password),
             DisplayName.From(displayName));
 
         var result = await handler.HandleAsync(command, cancellationToken);
-
         return result.ToCreated("/api/v1/users/me");
     }
 
@@ -60,8 +59,8 @@ public static class AuthEndpoints
         ICommandHandler<ResendVerificationEmailCommand, Result> handler,
         CancellationToken cancellationToken)
     {
-        var problem = await validator.ValidateAndProblemAsync(request, cancellationToken);
-        if (problem is not null) return problem;
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
         var command = new ResendVerificationEmailCommand(Email.From(request.Email));
 

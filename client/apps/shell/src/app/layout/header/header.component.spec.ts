@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '@yumney/ui';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
@@ -49,6 +50,7 @@ describe('HeaderComponent', () => {
     await TestBed.configureTestingModule({
       imports: [HeaderComponent, setupTranslocoTesting(en)],
       providers: [
+        provideYumneyIcons(),
         provideRouter([]),
         { provide: AuthService, useValue: authServiceMock },
         { provide: LanguageService, useValue: languageServiceMock },

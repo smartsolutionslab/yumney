@@ -57,21 +57,20 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         var recipes = new RecipeRepository(readContext);
         var loaded = await recipes.GetByIdAsync(recipe.Id);
 
-        loaded.Should().NotBeNull();
-        loaded!.Title.Value.Should().Be("Roasted Tomato Soup");
+        loaded.Title.Value.Should().Be("Roasted Tomato Soup");
         loaded.Ingredients.Should().NotBeEmpty();
         loaded.Steps.Should().NotBeEmpty();
     }
 
     [Fact]
-    public async Task GetByIdAsync_NonExistent_ReturnsNull()
+    public async Task GetByIdAsync_NonExistent_ThrowsEntityNotFoundException()
     {
         await using var context = await fixture.CreateRecipesDbContextAsync();
         var recipes = new RecipeRepository(context);
 
-        var loaded = await recipes.GetByIdAsync(RecipeIdentifier.New());
+        var act = () => recipes.GetByIdAsync(RecipeIdentifier.New());
 
-        loaded.Should().BeNull();
+        await act.Should().ThrowAsync<EntityNotFoundException>();
     }
 
     [Fact]
@@ -84,7 +83,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         var recipes = new RecipeRepository(readContext);
         var loaded = await recipes.GetByIdAsync(recipe.Id);
 
-        readContext.Entry(loaded!).State.Should().Be(EntityState.Detached);
+        readContext.Entry(loaded).State.Should().Be(EntityState.Detached);
     }
 
     [Fact]
@@ -97,7 +96,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         var recipes = new RecipeRepository(readContext);
         var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
 
-        readContext.Entry(loaded!).State.Should().Be(EntityState.Unchanged);
+        readContext.Entry(loaded).State.Should().Be(EntityState.Unchanged);
     }
 
     [Fact]
@@ -110,7 +109,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         var recipes = new RecipeRepository(readContext);
         var loaded = await recipes.GetByIdAsync(recipe.Id);
 
-        loaded!.Tags.Select(t => t.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
+        loaded.Tags.Select(t => t.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
     }
 
     [Fact]
@@ -138,7 +137,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         {
             var recipes = new RecipeRepository(updateContext);
             var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
-            loaded!.Update(
+            loaded.Update(
                 RecipeTitle.From("Updated Tomato Soup"),
                 [Ingredient.Create(IngredientName.From("Cherry tomatoes"), Quantity.Of(Amount.From(800), Unit.From("g")))],
                 [Step.Create(StepNumber.From(1), StepDescription.From("Roast cherry tomatoes"))],
@@ -171,7 +170,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
         {
             var recipes = new RecipeRepository(deleteContext);
             var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
-            await recipes.DeleteAsync(loaded!);
+            await recipes.DeleteAsync(loaded);
         }
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();

@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '@yumney/ui';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -84,6 +85,7 @@ describe('ShoppingCreateComponent', () => {
     TestBed.configureTestingModule({
       imports: [ShoppingCreateComponent, setupTranslocoTesting(en)],
       providers: [
+        provideYumneyIcons(),
         provideRouter([]),
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: ShoppingApiService, useValue: shoppingApiMock },

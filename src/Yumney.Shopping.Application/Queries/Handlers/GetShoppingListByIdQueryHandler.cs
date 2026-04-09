@@ -24,8 +24,6 @@ public sealed partial class GetShoppingListByIdQueryHandler(
 
         var shoppingList = await shoppingLists.GetByIdAsync(identifier, cancellationToken);
 
-        if (shoppingList is null) return GetShoppingListByIdErrors.NotFound;
-
         var owner = currentUser.AsOwner();
 
         if (shoppingList.Owner != owner) return GetShoppingListByIdErrors.AccessDenied;

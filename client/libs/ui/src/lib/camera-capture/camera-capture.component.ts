@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslocoModule } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
 import { CameraService, type FacingMode } from '@yumney/shared/models';
 import { springPress, prefersReducedMotion } from '../animation/gsap-utils';
 
@@ -24,7 +25,7 @@ interface CapturedPhoto {
 @Component({
   selector: 'yn-camera-capture',
   standalone: true,
-  imports: [TranslocoModule],
+  imports: [TranslocoModule, LucideAngularModule],
   templateUrl: './camera-capture.component.html',
   styleUrl: './camera-capture.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

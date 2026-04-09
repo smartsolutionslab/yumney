@@ -14,7 +14,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<Recipe?> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
+    public async Task<Recipe> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
     {
         return await recipes
             .AsNoTracking()
@@ -22,17 +22,19 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
             .Include(r => r.Steps.OrderBy(s => s.Number))
             .Include(r => r.Tags)
             .AsSplitQuery()
-            .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
+            .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken)
+            ?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
     }
 
-    public async Task<Recipe?> GetByIdForUpdateAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
+    public async Task<Recipe> GetByIdForUpdateAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
     {
         return await recipes
             .Include(r => r.Ingredients)
             .Include(r => r.Steps.OrderBy(s => s.Number))
             .Include(r => r.Tags)
             .AsSplitQuery()
-            .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken);
+            .FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken)
+            ?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
     }
 
     public async Task<bool> ExistsBySourceUrlAsync(RecipeUrl sourceUrl, OwnerIdentifier owner, CancellationToken cancellationToken = default)

@@ -33,6 +33,7 @@ public static class UserActivityEndpoints
         CancellationToken cancellationToken = default)
     {
         var query = new GetRecentActivityQuery(limit);
+
         var result = await handler.HandleAsync(query, cancellationToken);
         return result.ToOk();
     }
@@ -42,6 +43,7 @@ public static class UserActivityEndpoints
         CancellationToken cancellationToken = default)
     {
         var query = new GetSuggestionsQuery();
+
         var result = await handler.HandleAsync(query, cancellationToken);
         return result.ToOk();
     }

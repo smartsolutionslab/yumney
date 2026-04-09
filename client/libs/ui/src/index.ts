@@ -36,5 +36,8 @@ export { CookingTimerComponent } from './lib/cooking-timer/cooking-timer.compone
 export { VoiceIndicatorComponent } from './lib/voice-indicator/voice-indicator.component';
 export { FavoriteButtonComponent } from './lib/favorite-button/favorite-button.component';
 
+// Icons
+export { provideYumneyIcons } from './lib/icons/provide-icons';
+
 // Directives
 export { InfiniteScrollDirective } from './lib/directives/infinite-scroll.directive';

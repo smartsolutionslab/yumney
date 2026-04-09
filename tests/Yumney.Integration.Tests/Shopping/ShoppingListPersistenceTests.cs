@@ -73,20 +73,19 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
         var shoppingLists = new ShoppingListRepository(readContext);
         var loaded = await shoppingLists.GetByIdAsync(list.Id);
 
-        loaded.Should().NotBeNull();
-        loaded!.Title.Value.Should().Be("Party Supplies");
+        loaded.Title.Value.Should().Be("Party Supplies");
         loaded.Items.Should().NotBeEmpty();
     }
 
     [Fact]
-    public async Task GetByIdAsync_NonExistent_ReturnsNull()
+    public async Task GetByIdAsync_NonExistent_ThrowsEntityNotFoundException()
     {
         await using var context = await fixture.CreateShoppingDbContextAsync();
         var shoppingLists = new ShoppingListRepository(context);
 
-        var loaded = await shoppingLists.GetByIdAsync(ShoppingListIdentifier.New());
+        var act = () => shoppingLists.GetByIdAsync(ShoppingListIdentifier.New());
 
-        loaded.Should().BeNull();
+        await act.Should().ThrowAsync<EntityNotFoundException>();
     }
 
     [Fact]
@@ -99,8 +98,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
         var shoppingLists = new ShoppingListRepository(updateContext);
         var loaded = await shoppingLists.GetByIdForUpdateAsync(list.Id);
 
-        loaded.Should().NotBeNull();
-        updateContext.Entry(loaded!).State.Should().Be(EntityState.Unchanged);
+        updateContext.Entry(loaded).State.Should().Be(EntityState.Unchanged);
     }
 
     [Fact]
@@ -114,7 +112,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
         {
             var shoppingLists = new ShoppingListRepository(updateContext);
             var loaded = await shoppingLists.GetByIdForUpdateAsync(list.Id);
-            loaded!.CheckOffItem(itemId);
+            loaded.CheckOffItem(itemId);
             await shoppingLists.SaveChangesAsync();
         }
 
@@ -122,7 +120,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
         var shoppingLists2 = new ShoppingListRepository(readContext);
         var reloaded = await shoppingLists2.GetByIdAsync(list.Id);
 
-        reloaded!.Items.First(i => i.Id == itemId).IsChecked.Should().BeTrue();
+        reloaded.Items.First(i => i.Id == itemId).IsChecked.Should().BeTrue();
     }
 
     [Fact]
@@ -234,6 +232,6 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
         var shoppingLists = new ShoppingListRepository(readContext);
         var loaded = await shoppingLists.GetByIdAsync(list.Id);
 
-        readContext.Entry(loaded!).State.Should().Be(EntityState.Detached);
+        readContext.Entry(loaded).State.Should().Be(EntityState.Detached);
     }
 }

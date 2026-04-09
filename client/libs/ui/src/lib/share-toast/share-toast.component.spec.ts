@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShareToastComponent } from './share-toast.component';
 import { setupTranslocoTesting } from '@yumney/shared/models';
@@ -16,6 +17,7 @@ describe('ShareToastComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideYumneyIcons()],
       imports: [ShareToastComponent, setupTranslocoTesting(en)],
     }).compileComponents();
 

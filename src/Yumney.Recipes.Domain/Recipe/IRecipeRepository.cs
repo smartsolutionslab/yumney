@@ -8,11 +8,11 @@ public interface IRecipeRepository
 
     Task<bool> ExistsBySourceUrlAsync(RecipeUrl sourceUrl, OwnerIdentifier owner, CancellationToken cancellationToken = default);
 
-    // Read-only fetch — entity is not tracked.
-    Task<Recipe?> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default);
+    // Read-only fetch — entity is not tracked. Throws EntityNotFoundException if not found.
+    Task<Recipe> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default);
 
-    // Tracked fetch for update / delete flows.
-    Task<Recipe?> GetByIdForUpdateAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default);
+    // Tracked fetch for update / delete flows. Throws EntityNotFoundException if not found.
+    Task<Recipe> GetByIdForUpdateAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<Recipe> Items, ItemCount TotalCount)> GetByOwnerAsync(
         OwnerIdentifier owner,

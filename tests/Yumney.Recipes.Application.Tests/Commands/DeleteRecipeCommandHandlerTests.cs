@@ -38,17 +38,17 @@ public class DeleteRecipeCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_RecipeNotFound_ReturnsFailure()
+    public async Task HandleAsync_RecipeNotFound_ThrowsEntityNotFoundException()
     {
         var recipeId = RecipeIdentifier.New();
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
+        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>())
+            .Returns<Recipe>(_ => throw new EntityNotFoundException(nameof(Recipe), recipeId.Value));
 
         var command = new DeleteRecipeCommand(recipeId);
 
-        var result = await handler.HandleAsync(command);
+        var act = () => handler.HandleAsync(command);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(DeleteRecipeErrors.NotFound);
+        await act.Should().ThrowAsync<EntityNotFoundException>();
     }
 
     [Fact]
@@ -98,11 +98,12 @@ public class DeleteRecipeCommandHandlerTests
     public async Task HandleAsync_RecipeNotFound_DoesNotCallDeleteAsync()
     {
         var recipeId = RecipeIdentifier.New();
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns((Recipe?)null);
+        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>())
+            .Returns<Recipe>(_ => throw new EntityNotFoundException(nameof(Recipe), recipeId.Value));
 
         var command = new DeleteRecipeCommand(recipeId);
 
-        await handler.HandleAsync(command);
+        try { await handler.HandleAsync(command); } catch (EntityNotFoundException) { }
 
         await recipes.DidNotReceive().DeleteAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
     }

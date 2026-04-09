@@ -10,11 +10,12 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
 import { type UnitGroupInfo, type KnownUnit, KNOWN_UNITS } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-unit-select',
-  imports: [TranslocoModule],
+  imports: [TranslocoModule, LucideAngularModule],
   templateUrl: './unit-select.component.html',
   styleUrl: './unit-select.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

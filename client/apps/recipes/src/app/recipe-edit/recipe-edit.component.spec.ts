@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '@yumney/ui';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
@@ -101,6 +102,7 @@ describe('RecipeEditComponent', () => {
     TestBed.configureTestingModule({
       imports: [RecipeEditComponent, setupTranslocoTesting(en)],
       providers: [
+        provideYumneyIcons(),
         provideRouter([]),
         { provide: RecipeApiService, useValue: recipeApiMock },
         {

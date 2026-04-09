@@ -36,7 +36,9 @@
   <section class="import-section" [class.expanded]="importSectionExpanded()">
     <button class="import-toggle" (click)="toggleImportSection()">
       <h2>{{ t('dashboard.import.sectionTitle') }}</h2>
-      <span class="toggle-chevron" [class.open]="importSectionExpanded()">&#x25BC;</span>
+      <span class="toggle-chevron" [class.open]="importSectionExpanded()"
+        ><lucide-icon name="chevron-down" [size]="18"
+      /></span>
     </button>
 
     @if (importSectionExpanded()) {

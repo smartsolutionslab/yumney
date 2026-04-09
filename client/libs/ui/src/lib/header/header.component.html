@@ -29,7 +29,7 @@
           (click)="onToggleChat()"
           [attr.aria-label]="t('layout.header.openChat')"
         >
-          &#x1F4AC;
+          <lucide-icon name="message-square" [size]="20" />
         </button>
       }
       <button
@@ -39,7 +39,11 @@
           isDark() ? t('layout.header.switchToLight') : t('layout.header.switchToDark')
         "
       >
-        {{ isDark() ? '☀' : '☾' }}
+        @if (isDark()) {
+          <lucide-icon name="sun" [size]="20" />
+        } @else {
+          <lucide-icon name="moon" [size]="20" />
+        }
       </button>
       <button
         class="lang-toggle"

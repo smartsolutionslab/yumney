@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslocoModule } from '@jsverse/transloco';
+import { LucideAngularModule } from 'lucide-angular';
 import {
   CameraService,
   IngredientRecognitionService,
@@ -22,7 +23,7 @@ import type { RecognizedIngredient } from '@yumney/shared/api-client';
 @Component({
   selector: 'yn-ingredient-scanner',
   standalone: true,
-  imports: [TranslocoModule],
+  imports: [TranslocoModule, LucideAngularModule],
   templateUrl: './ingredient-scanner.component.html',
   styleUrl: './ingredient-scanner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

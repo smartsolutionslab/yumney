@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   isDevMode,
+  Provider,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
@@ -11,7 +12,7 @@ import { authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { TranslocoHttpLoader } from './transloco-loader';
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from './language-code';
 
-export function createMfeAppConfig(routes: Routes): ApplicationConfig {
+export function createMfeAppConfig(routes: Routes, extra: Provider[] = []): ApplicationConfig {
   return {
     providers: [
       provideBrowserGlobalErrorListeners(),
@@ -28,6 +29,7 @@ export function createMfeAppConfig(routes: Routes): ApplicationConfig {
         },
         loader: TranslocoHttpLoader,
       }),
+      ...extra,
     ],
   };
 }

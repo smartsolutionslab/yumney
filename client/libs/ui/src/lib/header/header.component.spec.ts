@@ -1,3 +1,4 @@
+import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal, computed } from '@angular/core';
 import { provideRouter } from '@angular/router';
@@ -62,6 +63,7 @@ describe('HeaderComponent', () => {
     await TestBed.configureTestingModule({
       imports: [HeaderComponent, setupTranslocoTesting(en)],
       providers: [
+        provideYumneyIcons(),
         provideRouter([]),
         { provide: AuthService, useValue: authMock },
         { provide: LanguageService, useValue: languageMock },
@@ -188,7 +190,9 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
 
     const themeBtn = fixture.nativeElement.querySelector('.theme-toggle');
-    expect(themeBtn.textContent.trim()).toBe('☾');
+    const icon = themeBtn.querySelector('lucide-icon');
+    expect(icon).toBeTruthy();
+    expect(icon.getAttribute('name')).toBe('moon');
   });
 
   it('should render the sun icon in dark theme', () => {
@@ -197,6 +201,8 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
 
     const themeBtn = fixture.nativeElement.querySelector('.theme-toggle');
-    expect(themeBtn.textContent.trim()).toBe('☀');
+    const icon = themeBtn.querySelector('lucide-icon');
+    expect(icon).toBeTruthy();
+    expect(icon.getAttribute('name')).toBe('sun');
   });
 });

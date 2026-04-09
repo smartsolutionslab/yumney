@@ -21,12 +21,6 @@ public sealed partial class DeleteRecipeCommandHandler(
 
         var recipe = await recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
-        if (recipe is null)
-        {
-            LogRecipeNotFound(identifier);
-            return Result.Failure(DeleteRecipeErrors.NotFound);
-        }
-
         if (recipe.Owner != owner)
         {
             LogRecipeAccessDenied(identifier, owner.Value);
@@ -44,9 +38,6 @@ public sealed partial class DeleteRecipeCommandHandler(
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Deleting recipe {RecipeIdentifier} for owner {OwnerId}")]
     private partial void LogDeleteRecipe(RecipeIdentifier recipeIdentifier, string ownerId);
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Recipe {RecipeIdentifier} not found for deletion")]
-    private partial void LogRecipeNotFound(RecipeIdentifier recipeIdentifier);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Access denied to delete recipe {RecipeIdentifier} for owner {OwnerId}")]
     private partial void LogRecipeAccessDenied(RecipeIdentifier recipeIdentifier, string ownerId);

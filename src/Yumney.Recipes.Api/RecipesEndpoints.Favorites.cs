@@ -17,6 +17,7 @@ public static partial class RecipesEndpoints
         CancellationToken cancellationToken)
     {
         var command = new ToggleFavoriteCommand(RecipeIdentifier.From(identifier));
+
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
