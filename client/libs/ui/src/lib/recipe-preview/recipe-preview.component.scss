@@ -117,19 +117,18 @@
   }
 }
 
-.ingredient-fields {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--yn-space-3);
+// ── Compound ingredient input ──
+// Single-row control: [ Name ········· 500 | ml ▾ ]
+// Name fills available space, amount + unit sit at the trailing end.
+.ingredient-row {
   flex: 1;
-
-  .ingredient-name,
-  .ingredient-quantity {
-    margin-bottom: 0;
-  }
 }
 
-.ingredient-quantity {
+.ingredient-name-field {
+  margin-bottom: 0;
+}
+
+.ingredient-compound {
   display: flex;
   align-items: stretch;
   border: 1.5px solid var(--yn-glass-border);
@@ -146,79 +145,97 @@
     border-color: var(--yn-primary);
     box-shadow: var(--yn-ring-primary);
   }
+}
 
-  .ingredient-amount,
-  .ingredient-unit {
-    margin-bottom: 0;
+.compound-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 2.5rem;
+  padding: 0 var(--yn-space-3);
+  font-size: var(--yn-text-base);
+  color: var(--yn-text);
+
+  &:focus {
+    border: none;
+    box-shadow: none;
+    outline: none;
   }
 
-  // Amount fills the row, the number is right-aligned so it sits next to the
-  // unit label like "500 g" — the unit reads as a postfix to the amount.
-  .ingredient-amount {
-    flex: 1 1 auto;
-    min-width: 0;
+  &::placeholder {
+    color: var(--yn-text-placeholder);
+  }
+}
 
-    input {
+.compound-amount {
+  flex: 0 0 5rem;
+  border: none;
+  border-left: 1px solid var(--yn-glass-border-subtle);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  min-height: 2.5rem;
+  padding: 0 var(--yn-space-2);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--yn-text-base);
+  color: var(--yn-text);
+
+  &:focus {
+    border: none;
+    border-left: 1px solid var(--yn-glass-border-subtle);
+    box-shadow: none;
+    outline: none;
+  }
+
+  &::placeholder {
+    color: var(--yn-text-placeholder);
+    font-size: var(--yn-text-sm);
+  }
+}
+
+.compound-unit {
+  flex: 0 0 auto;
+
+  &::before {
+    content: '';
+    align-self: center;
+    width: 1px;
+    height: 1.25rem;
+    background: var(--yn-glass-border-subtle);
+  }
+
+  ::ng-deep .unit-toggle {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    min-height: 2.5rem;
+    width: auto;
+    padding: 0 var(--yn-space-3);
+    color: var(--yn-text-secondary);
+    font-weight: var(--yn-font-medium);
+
+    &:hover:not(:disabled) {
       border: none;
-      border-radius: 0;
-      background: transparent;
-      box-shadow: none;
-      min-height: 2.5rem;
-      padding-right: var(--yn-space-2);
-      text-align: right;
-      font-variant-numeric: tabular-nums;
+      background: var(--yn-glass-bg-elevated);
+      color: var(--yn-text);
+    }
 
-      &:focus {
-        border: none;
-        box-shadow: none;
-      }
+    &:focus-visible,
+    &.open {
+      border: none;
+      box-shadow: none;
+      background: var(--yn-glass-bg-elevated);
     }
   }
 
-  // Unit hugs its label and shows a thin separator chip rather than a full
-  // vertical divider — keeps the visual weight on the amount.
-  .ingredient-unit {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: stretch;
-
-    &::before {
-      content: '';
-      align-self: center;
-      width: 1px;
-      height: 1.25rem;
-      background: var(--yn-glass-border-subtle);
-    }
-
-    ::ng-deep .unit-toggle {
-      border: none;
-      border-radius: 0;
-      background: transparent;
-      box-shadow: none;
-      min-height: 2.5rem;
-      width: auto;
-      padding: 0 var(--yn-space-3);
-      color: var(--yn-text-secondary);
-      font-weight: var(--yn-font-medium);
-
-      &:hover:not(:disabled) {
-        border: none;
-        background: var(--yn-glass-bg-elevated);
-        color: var(--yn-text);
-      }
-
-      &:focus-visible,
-      &.open {
-        border: none;
-        box-shadow: none;
-        background: var(--yn-glass-bg-elevated);
-      }
-    }
-
-    ::ng-deep .unit-placeholder {
-      font-size: var(--yn-text-sm);
-      color: var(--yn-text-muted);
-    }
+  ::ng-deep .unit-placeholder {
+    font-size: var(--yn-text-sm);
+    color: var(--yn-text-muted);
   }
 }
 
@@ -272,15 +289,8 @@
 }
 
 @include bp.respond-to('sm') {
-  .ingredient-fields {
-    grid-template-columns: 1fr auto;
-  }
-
-  // Compact on tablet+ — amount + unit now read as a single combined input
-  // so they no longer need 15rem of breathing room.
-  .ingredient-quantity {
-    min-width: 11rem;
-    max-width: 14rem;
+  .compound-amount {
+    flex: 0 0 6rem;
   }
 }
 
