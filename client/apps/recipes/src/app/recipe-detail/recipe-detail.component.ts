@@ -7,6 +7,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
@@ -44,8 +45,9 @@ export class RecipeDetailComponent implements OnInit {
   private recipeApi = inject(RecipeApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private loadState = createAsyncState(inject(DestroyRef));
-  private deleteState = createAsyncState(inject(DestroyRef));
+  private destroyRef = inject(DestroyRef);
+  private loadState = createAsyncState(this.destroyRef);
+  private deleteState = createAsyncState(this.destroyRef);
 
   recipe = signal<RecipeDetail | null>(null);
   isLoading = this.loadState.isLoading;
@@ -157,19 +159,22 @@ export class RecipeDetailComponent implements OnInit {
     const original = recipe.isFavorite;
     this.recipe.set({ ...recipe, isFavorite: !original });
 
-    this.recipeApi.toggleFavorite(recipe.identifier).subscribe({
-      next: (state) => {
-        const current = this.recipe();
-        if (current && current.identifier === recipe.identifier) {
-          this.recipe.set({ ...current, isFavorite: state.isFavorite });
-        }
-      },
-      error: () => {
-        const current = this.recipe();
-        if (current && current.identifier === recipe.identifier) {
-          this.recipe.set({ ...current, isFavorite: original });
-        }
-      },
-    });
+    this.recipeApi
+      .toggleFavorite(recipe.identifier)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (state) => {
+          const current = this.recipe();
+          if (current && current.identifier === recipe.identifier) {
+            this.recipe.set({ ...current, isFavorite: state.isFavorite });
+          }
+        },
+        error: () => {
+          const current = this.recipe();
+          if (current && current.identifier === recipe.identifier) {
+            this.recipe.set({ ...current, isFavorite: original });
+          }
+        },
+      });
   }
 }

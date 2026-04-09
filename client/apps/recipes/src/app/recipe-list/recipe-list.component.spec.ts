@@ -45,6 +45,8 @@ const mockResponse: RecipeListResponse = {
       difficulty: 'medium',
       imageUrl: 'https://example.com/image.jpg',
       createdAt: '2026-03-10T00:00:00Z',
+      tags: [],
+      isFavorite: false,
     },
     {
       identifier: 'def-456',
@@ -56,6 +58,8 @@ const mockResponse: RecipeListResponse = {
       difficulty: 'easy',
       imageUrl: null,
       createdAt: '2026-03-09T00:00:00Z',
+      tags: [],
+      isFavorite: false,
     },
   ],
   totalCount: 5,
@@ -106,7 +110,10 @@ const en = {
 describe('RecipeListComponent', () => {
   let component: RecipeListComponent;
   let fixture: ComponentFixture<RecipeListComponent>;
-  let recipeApiMock: { getRecipes: ReturnType<typeof vi.fn> };
+  let recipeApiMock: {
+    getRecipes: ReturnType<typeof vi.fn>;
+    toggleFavorite: ReturnType<typeof vi.fn>;
+  };
 
   beforeAll(() => {
     vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
@@ -119,6 +126,7 @@ describe('RecipeListComponent', () => {
   function setupTestBed(getRecipesReturn: ReturnType<typeof vi.fn> = vi.fn()) {
     recipeApiMock = {
       getRecipes: getRecipesReturn,
+      toggleFavorite: vi.fn(),
     };
 
     TestBed.configureTestingModule({
@@ -552,5 +560,105 @@ describe('RecipeListComponent', () => {
       sortBy: 'Date',
       sortDirection: 'Descending',
     });
+  }));
+
+  it('should optimistically flip isFavorite when toggled', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+    recipeApiMock.toggleFavorite.mockReturnValue(
+      new Subject<{ recipeIdentifier: string; isFavorite: boolean }>(),
+    );
+
+    component.onToggleFavorite('abc-123');
+
+    const recipe = component.recipes().find((r) => r.identifier === 'abc-123');
+    expect(recipe?.isFavorite).toBe(true);
+  }));
+
+  it('should sync isFavorite with server response', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+    recipeApiMock.toggleFavorite.mockReturnValue(
+      of({ recipeIdentifier: 'abc-123', isFavorite: true }),
+    );
+
+    component.onToggleFavorite('abc-123');
+    tick();
+
+    expect(component.recipes().find((r) => r.identifier === 'abc-123')?.isFavorite).toBe(true);
+  }));
+
+  it('should rollback isFavorite when server call errors', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+    recipeApiMock.toggleFavorite.mockReturnValue(throwError(() => new Error('boom')));
+
+    component.onToggleFavorite('abc-123');
+    tick();
+
+    expect(component.recipes().find((r) => r.identifier === 'abc-123')?.isFavorite).toBe(false);
+  }));
+
+  it('should call toggleFavorite api with the recipe identifier', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+    recipeApiMock.toggleFavorite.mockReturnValue(
+      of({ recipeIdentifier: 'abc-123', isFavorite: true }),
+    );
+
+    component.onToggleFavorite('abc-123');
+    tick();
+
+    expect(recipeApiMock.toggleFavorite).toHaveBeenCalledWith('abc-123');
+  }));
+
+  it('should ignore toggle for unknown identifier', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.onToggleFavorite('not-in-list');
+
+    expect(recipeApiMock.toggleFavorite).not.toHaveBeenCalled();
+  }));
+
+  it('should count favoritesOnly toward filterActiveCount', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.onFilterChange({
+      tags: [],
+      difficulty: null,
+      maxPrepTime: null,
+      maxCookTime: null,
+      favoritesOnly: true,
+    });
+
+    expect(component.filterActiveCount()).toBe(1);
+  }));
+
+  it('should pass favorites=true when filter favoritesOnly is set', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+    recipeApiMock.getRecipes.mockClear();
+
+    component.onFilterChange({
+      tags: [],
+      difficulty: null,
+      maxPrepTime: null,
+      maxCookTime: null,
+      favoritesOnly: true,
+    });
+    tick();
+
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
+      expect.objectContaining({ favorites: true }),
+    );
   }));
 });

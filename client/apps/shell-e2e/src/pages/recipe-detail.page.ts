@@ -16,6 +16,7 @@ export class RecipeDetailPage {
   readonly confirmDialog: Locator;
   readonly errorBanner: Locator;
   readonly backLink: Locator;
+  readonly favoriteButton: Locator;
 
   constructor(private page: Page) {
     this.title = page.locator('.recipe-title');
@@ -33,6 +34,7 @@ export class RecipeDetailPage {
     this.confirmDialog = page.locator('yn-confirm-dialog');
     this.errorBanner = page.locator('[role="alert"]');
     this.backLink = page.locator('.back-link');
+    this.favoriteButton = page.locator('.actions-bar yn-favorite-button .favorite-button');
   }
 
   async goto(identifier: string): Promise<void> {
