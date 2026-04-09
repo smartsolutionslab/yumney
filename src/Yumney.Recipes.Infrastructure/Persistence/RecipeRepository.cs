@@ -111,13 +111,13 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
         if (filter.MaxPrepTime is not null)
         {
             var maxPrep = filter.MaxPrepTime;
-            query = query.Where(r => r.PreparationTime != null && r.PreparationTime <= maxPrep);
+            query = query.Where(r => r.Timing != null && r.Timing.Preparation != null && r.Timing.Preparation <= maxPrep);
         }
 
         if (filter.MaxCookTime is not null)
         {
             var maxCook = filter.MaxCookTime;
-            query = query.Where(r => r.CookingTime != null && r.CookingTime <= maxCook);
+            query = query.Where(r => r.Timing != null && r.Timing.Cooking != null && r.Timing.Cooking <= maxCook);
         }
 
         if (filter.Tags is not null && filter.Tags.Count > 0)

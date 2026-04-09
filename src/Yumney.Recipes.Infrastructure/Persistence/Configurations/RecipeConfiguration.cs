@@ -26,13 +26,16 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
         entity.Property(e => e.Servings)
             .HasConversion<ServingsConverter>();
 
-        entity.Property(e => e.PreparationTime)
-            .HasConversion<PreparationTimeConverter>()
-            .HasColumnName("PreparationTimeMinutes");
+        entity.OwnsOne(e => e.Timing, timing =>
+        {
+            timing.Property(t => t.Preparation)
+                .HasConversion<PreparationTimeConverter>()
+                .HasColumnName("PreparationTimeMinutes");
 
-        entity.Property(e => e.CookingTime)
-            .HasConversion<CookingTimeConverter>()
-            .HasColumnName("CookingTimeMinutes");
+            timing.Property(t => t.Cooking)
+                .HasConversion<CookingTimeConverter>()
+                .HasColumnName("CookingTimeMinutes");
+        });
 
         entity.Property(e => e.Difficulty)
             .HasConversion<DifficultyConverter>()

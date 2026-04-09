@@ -173,7 +173,7 @@ public class SaveRecipeCommandHandlerTests
     {
         var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-        capturedRecipe.PreparationTime!.Value.Should().Be(10);
+        capturedRecipe.Timing?.Preparation!.Value.Should().Be(10);
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public class SaveRecipeCommandHandlerTests
     {
         var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-        capturedRecipe.CookingTime!.Value.Should().Be(20);
+        capturedRecipe.Timing?.Cooking!.Value.Should().Be(20);
     }
 
     [Fact]
