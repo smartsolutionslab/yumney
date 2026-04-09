@@ -16,9 +16,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 
     public Servings? Servings { get; private set; }
 
-    public PreparationTime? PreparationTime { get; private set; }
-
-    public CookingTime? CookingTime { get; private set; }
+    public TimingInfo? Timing { get; private set; }
 
     public Difficulty? Difficulty { get; private set; }
 
@@ -68,8 +66,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
             Owner = owner,
             Description = description,
             Servings = servings,
-            PreparationTime = preparationTime,
-            CookingTime = cookingTime,
+            Timing = TimingInfo.FromNullable(preparationTime, cookingTime),
             Difficulty = difficulty,
             ImageUrl = imageUrl,
             Language = language,
@@ -103,8 +100,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         Title = title;
         Description = description;
         Servings = servings;
-        PreparationTime = preparationTime;
-        CookingTime = cookingTime;
+        Timing = TimingInfo.FromNullable(preparationTime, cookingTime);
         Difficulty = difficulty;
         ImageUrl = imageUrl;
 

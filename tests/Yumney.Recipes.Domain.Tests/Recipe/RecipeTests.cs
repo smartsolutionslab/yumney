@@ -113,8 +113,8 @@ public class RecipeTests
 
         recipe.Description.Should().Be(description);
         recipe.Servings.Should().Be(servings);
-        recipe.PreparationTime.Should().Be(preparationTime);
-        recipe.CookingTime.Should().Be(cookingTime);
+        recipe.Timing?.Preparation.Should().Be(preparationTime);
+        recipe.Timing?.Cooking.Should().Be(cookingTime);
         recipe.Difficulty.Should().Be(difficulty);
         recipe.ImageUrl.Should().Be(imageUrl);
     }
@@ -126,8 +126,8 @@ public class RecipeTests
 
         recipe.Description.Should().BeNull();
         recipe.Servings.Should().BeNull();
-        recipe.PreparationTime.Should().BeNull();
-        recipe.CookingTime.Should().BeNull();
+        recipe.Timing?.Preparation.Should().BeNull();
+        recipe.Timing?.Cooking.Should().BeNull();
         recipe.Difficulty.Should().BeNull();
         recipe.ImageUrl.Should().BeNull();
     }
@@ -209,7 +209,7 @@ public class RecipeTests
     {
         var recipe = CreateRecipeWithUpdatedFields();
 
-        recipe.PreparationTime.Should().Be(PreparationTime.From(15));
+        recipe.Timing?.Preparation.Should().Be(PreparationTime.From(15));
     }
 
     [Fact]
@@ -217,7 +217,7 @@ public class RecipeTests
     {
         var recipe = CreateRecipeWithUpdatedFields();
 
-        recipe.CookingTime.Should().Be(CookingTime.From(30));
+        recipe.Timing?.Cooking.Should().Be(CookingTime.From(30));
     }
 
     [Fact]
@@ -397,8 +397,8 @@ public class RecipeTests
 
         recipe.Description.Should().BeNull();
         recipe.Servings.Should().BeNull();
-        recipe.PreparationTime.Should().BeNull();
-        recipe.CookingTime.Should().BeNull();
+        recipe.Timing?.Preparation.Should().BeNull();
+        recipe.Timing?.Cooking.Should().BeNull();
         recipe.Difficulty.Should().BeNull();
         recipe.ImageUrl.Should().BeNull();
     }
