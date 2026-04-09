@@ -57,7 +57,9 @@ nav {
   color: var(--yn-text-muted);
   text-decoration: none;
   border-radius: var(--yn-radius-sm);
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 
   &:hover {
     color: var(--yn-text);
@@ -95,7 +97,9 @@ nav {
   background: none;
   color: var(--yn-text-muted);
   cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 
   &:hover {
     background-color: var(--yn-background);
@@ -191,7 +195,9 @@ nav {
   font-size: var(--yn-text-sm);
   color: var(--yn-text-muted);
   cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
   text-align: left;
 
   &:hover {
