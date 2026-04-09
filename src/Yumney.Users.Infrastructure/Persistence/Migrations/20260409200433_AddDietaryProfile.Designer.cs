@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    partial class UsersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260409200433_AddDietaryProfile")]
+    partial class AddDietaryProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,11 +29,6 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("DefaultServings")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(4);
 
                     b.Property<string>("DisplayName")
                         .IsRequired()

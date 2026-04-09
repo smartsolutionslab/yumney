@@ -39,6 +39,33 @@ internal sealed class AppUserProfileConfiguration : IEntityTypeConfiguration<App
             .HasDefaultValue(DefaultServings.Default)
             .IsRequired();
 
+        entity.OwnsOne(e => e.DietaryProfile, dietary =>
+        {
+            dietary.Property(d => d.DietaryType)
+                .HasConversion<DietaryTypeConverter>()
+                .HasMaxLength(DietaryType.MaxLength)
+                .HasColumnName("DietaryType");
+
+            dietary.Property(d => d.Restrictions)
+                .HasConversion<DietaryRestrictionsConverter>()
+                .HasMaxLength(500)
+                .HasColumnName("DietaryRestrictions");
+
+            dietary.Property(d => d.CookingEffort)
+                .HasConversion<CookingEffortPreferenceConverter>()
+                .HasMaxLength(CookingEffortPreference.MaxLength)
+                .HasColumnName("CookingEffort");
+
+            dietary.OwnsOne(d => d.BalanceGoals, goals =>
+            {
+                goals.Property(g => g.MinVeggieMeals)
+                    .HasColumnName("MinVeggieMeals");
+
+                goals.Property(g => g.MaxRedMeatMeals)
+                    .HasColumnName("MaxRedMeatMeals");
+            });
+        });
+
         entity.HasIndex(e => e.KeycloakUserId).IsUnique();
         entity.Ignore(e => e.DomainEvents);
     }
