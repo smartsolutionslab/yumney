@@ -76,4 +76,21 @@ public class DietaryProfileTests
 
         p1.Should().Be(p2);
     }
+
+    [Fact]
+    public void Equality_SameRestrictions_AreEqual()
+    {
+        var p1 = DietaryProfile.From(
+            DietaryType.Vegetarian,
+            [DietaryRestriction.GlutenFree, DietaryRestriction.LactoseFree],
+            WeeklyBalanceGoals.From(2, 3),
+            CookingEffortPreference.Balanced);
+        var p2 = DietaryProfile.From(
+            DietaryType.Vegetarian,
+            [DietaryRestriction.GlutenFree, DietaryRestriction.LactoseFree],
+            WeeklyBalanceGoals.From(2, 3),
+            CookingEffortPreference.Balanced);
+
+        p1.Should().Be(p2);
+    }
 }
