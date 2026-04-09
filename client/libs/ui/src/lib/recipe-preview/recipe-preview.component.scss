@@ -2,6 +2,23 @@
 @use 'breakpoints' as bp;
 @use 'glass';
 
+.input-with-unit {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-2);
+
+  input {
+    flex: 1;
+  }
+
+  .input-unit {
+    flex-shrink: 0;
+    font-size: var(--yn-text-sm);
+    color: var(--yn-text-muted);
+    font-weight: var(--yn-font-medium);
+  }
+}
+
 .recipe-preview {
   @include glass.glass-surface(1);
   margin-top: var(--yn-space-7);

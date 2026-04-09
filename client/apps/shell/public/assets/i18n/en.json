@@ -116,6 +116,23 @@
       },
       "errors": {
         "generic": "Failed to load recipes. Please try again later."
+      },
+      "filter": {
+        "toggle": "Filters",
+        "title": "Filter recipes",
+        "clear": "Clear all",
+        "tags": "Tags",
+        "favorites": "Favorites",
+        "favoritesOnly": "Show only favorites",
+        "difficulty": "Difficulty",
+        "difficultyOption": {
+          "easy": "Easy",
+          "medium": "Medium",
+          "hard": "Hard"
+        },
+        "maxPrepTime": "Max prep time (min)",
+        "maxCookTime": "Max cook time (min)",
+        "minutesPlaceholder": "min"
       }
     },
     "edit": {
@@ -142,7 +159,8 @@
       "actions": {
         "edit": "Edit",
         "delete": "Delete",
-        "shoppingList": "Shopping List"
+        "shoppingList": "Shopping List",
+        "startCooking": "Start Cooking"
       },
       "loading": "Loading recipe...",
       "notFound": "Recipe not found.",
@@ -158,6 +176,32 @@
       "resetServings": "Reset",
       "errors": {
         "generic": "Failed to load recipe. Please try again later."
+      }
+    },
+    "favorite": {
+      "addAriaLabel": "Add to favorites",
+      "removeAriaLabel": "Remove from favorites"
+    },
+    "cook": {
+      "loading": "Loading recipe...",
+      "exit": "Exit",
+      "previous": "Previous",
+      "next": "Next",
+      "repeat": "Repeat",
+      "ingredients": "Ingredients",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "voiceToggle": "Toggle voice control",
+      "voiceListening": "Listening...",
+      "voiceTapToTalk": "Tap to talk",
+      "stepProgress": "Step {{current}} of {{total}}",
+      "timer": {
+        "defaultName": "Timer",
+        "cancel": "Cancel",
+        "done": "Timer done"
+      },
+      "errors": {
+        "notFound": "Recipe not found."
       }
     }
   },
@@ -254,6 +298,12 @@
       "prepTime": "Prep Time (min)",
       "cookTime": "Cook Time (min)",
       "difficulty": "Difficulty",
+      "difficultyPlaceholder": "Select difficulty",
+      "difficultyOption": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      },
       "ingredients": "Ingredients",
       "ingredientName": "Ingredient",
       "amount": "Amount",
