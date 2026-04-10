@@ -5,12 +5,13 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 /// Supports EN and DE item names with basic plural normalization.
 /// Category-based lookup with a fallback of 1 piece for unknown items.
 /// </summary>
+#pragma warning disable SA1311
 public static class DefaultQuantityResolver
 {
-    private static readonly Dictionary<string, ResolvedQuantity> ItemDefaults =
-        BuildItemDefaults();
+    private static readonly Dictionary<string, ResolvedQuantity> itemDefaults =
+        BuilditemDefaults();
 
-    private static readonly Dictionary<string, ResolvedQuantity> CategoryDefaults =
+    private static readonly Dictionary<string, ResolvedQuantity> categoryDefaults =
         new(StringComparer.OrdinalIgnoreCase)
         {
             ["liquid"] = new(1, "L"),
@@ -27,6 +28,9 @@ public static class DefaultQuantityResolver
     /// Resolve the default quantity for an item. Returns the standard default
     /// for known items, or falls back to 1 piece for unknown items.
     /// </summary>
+    /// <param name="itemName">The item name (EN or DE).</param>
+    /// <param name="category">Optional category hint for unknown items.</param>
+    /// <returns>The resolved default quantity.</returns>
     public static ResolvedQuantity Resolve(string itemName, string? category = null)
     {
         if (string.IsNullOrWhiteSpace(itemName))
@@ -34,10 +38,10 @@ public static class DefaultQuantityResolver
 
         var normalized = Normalize(itemName);
 
-        if (ItemDefaults.TryGetValue(normalized, out var itemDefault))
+        if (itemDefaults.TryGetValue(normalized, out var itemDefault))
             return itemDefault;
 
-        if (category is not null && CategoryDefaults.TryGetValue(category, out var categoryDefault))
+        if (category is not null && categoryDefaults.TryGetValue(category, out var categoryDefault))
             return categoryDefault;
 
         return ResolvedQuantity.OnePiece;
@@ -51,7 +55,7 @@ public static class DefaultQuantityResolver
         if (trimmed.Length > 3 && trimmed.EndsWith('s') && !trimmed.EndsWith("ss", StringComparison.Ordinal))
         {
             var singular = trimmed[..^1];
-            if (ItemDefaults.ContainsKey(singular))
+            if (itemDefaults.ContainsKey(singular))
                 return singular;
         }
 
@@ -59,7 +63,7 @@ public static class DefaultQuantityResolver
     }
 
 #pragma warning disable SA1117 // Parameters should be on same line or each on its own line
-    private static Dictionary<string, ResolvedQuantity> BuildItemDefaults()
+    private static Dictionary<string, ResolvedQuantity> BuilditemDefaults()
     {
         var defaults = new Dictionary<string, ResolvedQuantity>(StringComparer.OrdinalIgnoreCase);
 
@@ -138,3 +142,4 @@ public static class DefaultQuantityResolver
             dict.TryAdd(name, quantity);
     }
 }
+#pragma warning restore SA1311
