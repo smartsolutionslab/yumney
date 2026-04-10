@@ -71,6 +71,13 @@ public static partial class RecipesEndpoints
             .ProducesProblem(StatusCodes.Status429TooManyRequests)
             .RequireRateLimiting("RecipeImport");
 
+        group.MapPost("/parse-intent", ParseIntentAsync)
+            .WithName("ParseIntent")
+            .WithTags("Recipes")
+            .Produces<ParsedIntentDto>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .RequireRateLimiting("RecipeImport");
+
         group.MapGet("/import/stream", ImportStreamAsync)
             .WithName("ImportRecipeStream")
             .WithTags("Recipes")
@@ -291,6 +298,20 @@ public static partial class RecipesEndpoints
         var command = new ChatCommand(
             ChatMessageContent.From(message),
             history.MapToChatHistoryEntries().ToList());
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> ParseIntentAsync(
+        ParseIntentRequestDto request,
+        ICommandHandler<ParseIntentCommand, Result<ParsedIntentDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+            return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: emptyChatMessageError);
+
+        var command = new ParseIntentCommand(request.Message, request.Context);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
