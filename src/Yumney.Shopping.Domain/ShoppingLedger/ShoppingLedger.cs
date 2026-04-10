@@ -39,6 +39,11 @@ public sealed class ShoppingLedger
     /// <summary>
     /// Rebuild aggregate from persisted events (optionally starting from a snapshot).
     /// </summary>
+    /// <param name="id">The aggregate identifier.</param>
+    /// <param name="ownerId">The owner user identifier.</param>
+    /// <param name="events">The domain events to replay.</param>
+    /// <param name="startVersion">The starting version (default 0).</param>
+    /// <returns>The hydrated aggregate.</returns>
     public static ShoppingLedger FromEvents(Guid id, string ownerId, IEnumerable<IDomainEvent> events, int startVersion = 0)
     {
         var ledger = new ShoppingLedger { Id = id, OwnerId = ownerId, Version = startVersion };
@@ -54,6 +59,12 @@ public sealed class ShoppingLedger
     /// <summary>
     /// Rebuild from snapshot state + events since snapshot.
     /// </summary>
+    /// <param name="id">The aggregate identifier.</param>
+    /// <param name="ownerId">The owner user identifier.</param>
+    /// <param name="snapshotItems">The snapshot item state.</param>
+    /// <param name="snapshotVersion">The version at snapshot time.</param>
+    /// <param name="eventsSinceSnapshot">Events to replay after the snapshot.</param>
+    /// <returns>The hydrated aggregate.</returns>
     public static ShoppingLedger FromSnapshot(
         Guid id,
         string ownerId,
