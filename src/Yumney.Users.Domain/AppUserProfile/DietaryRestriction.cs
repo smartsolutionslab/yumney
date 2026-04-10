@@ -3,9 +3,14 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
+#pragma warning disable SA1311 // editorconfig requires camelCase for private fields
 public sealed record DietaryRestriction : IValueObject<string>
 {
     public const int MaxLength = 30;
+
+#pragma warning disable SA1202 // allowedValues must initialize before the public static instances
+    private static readonly string[] allowedValues =
+        ["gluten-free", "lactose-free", "nut-allergy", "egg-free", "soy-free", "shellfish-allergy", "halal", "kosher"];
 
     public static readonly DietaryRestriction GlutenFree = new("gluten-free");
     public static readonly DietaryRestriction LactoseFree = new("lactose-free");
@@ -15,9 +20,7 @@ public sealed record DietaryRestriction : IValueObject<string>
     public static readonly DietaryRestriction ShellfishAllergy = new("shellfish-allergy");
     public static readonly DietaryRestriction Halal = new("halal");
     public static readonly DietaryRestriction Kosher = new("kosher");
-
-    private static readonly string[] AllValues =
-        [GlutenFree, LactoseFree, NutAllergy, EggFree, SoyFree, ShellfishAllergy, Halal, Kosher];
+#pragma warning restore SA1202
 
     public string Value { get; }
 
@@ -26,16 +29,14 @@ public sealed record DietaryRestriction : IValueObject<string>
         Value = Ensure.That(value)
             .IsNotNullOrWhiteSpace()
             .HasMaxLength(MaxLength)
+            .IsOneOf(allowedValues)
             .AndReturn();
     }
 
-    public static DietaryRestriction From(string value)
-    {
-        Ensure.That(value).IsOneOf(AllValues);
-        return new(value);
-    }
+    public static DietaryRestriction From(string value) => new(value);
 
-    public static IReadOnlyList<string> AllowedValues => AllValues;
+    public static IReadOnlyList<string> AllowedValues => allowedValues;
 
     public static implicit operator string(DietaryRestriction obj) => obj.Value;
 }
+#pragma warning restore SA1311
