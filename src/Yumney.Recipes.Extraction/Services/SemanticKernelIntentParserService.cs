@@ -10,11 +10,12 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
+#pragma warning disable SA1311
 public sealed partial class SemanticKernelIntentParserService(
     Kernel kernel,
     ILogger<SemanticKernelIntentParserService> logger) : IIntentParserService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonSerializerOptions jsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
     };
@@ -95,7 +96,7 @@ public sealed partial class SemanticKernelIntentParserService(
 
         try
         {
-            var parsed = JsonSerializer.Deserialize<IntentParseResult>(json, JsonOptions);
+            var parsed = JsonSerializer.Deserialize<IntentParseResult>(json, jsonOptions);
 
             if (parsed is null || string.IsNullOrWhiteSpace(parsed.Intent))
             {
