@@ -18,7 +18,7 @@ export function uniqueTitle(prefix: string): string {
   return `${prefix} ${Date.now()}`;
 }
 
-export function uniqueEmail(prefix: string = 'e2e'): string {
+export function uniqueEmail(prefix = 'e2e'): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}@yumney.dev`;
 }
 

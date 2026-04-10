@@ -63,8 +63,7 @@ test.describe('Recipe Chat (US-230, US-303, US-306)', () => {
     await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
 
     const placeholder = await chat.input.getAttribute('placeholder');
-    expect(placeholder).toBeTruthy();
-    expect(placeholder!.length).toBeGreaterThan(0);
+    expect(placeholder?.length).toBeGreaterThan(0);
   });
 
   test('should send a message and receive a response', async ({ authenticatedPage }) => {
