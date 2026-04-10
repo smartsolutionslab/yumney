@@ -438,5 +438,8 @@
       "offline": "Chat requires an internet connection.",
       "failed": "Could not reach the chat service. Please try again."
     }
+  },
+  "commandBar": {
+    "toggle": "Open command bar"
   }
 }

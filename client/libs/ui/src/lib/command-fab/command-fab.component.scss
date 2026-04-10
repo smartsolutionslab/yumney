@@ -1,0 +1,60 @@
+@use 'glass';
+@use 'breakpoints' as bp;
+
+.command-fab {
+  position: fixed;
+  bottom: var(--yn-space-6);
+  right: var(--yn-space-6);
+  z-index: calc(var(--yn-z-modal) + 1);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 56px;
+  height: 56px;
+  border-radius: var(--yn-radius-circle);
+  border: 1px solid var(--yn-glass-border);
+
+  background: var(--yn-primary);
+  color: var(--yn-text-inverse);
+  cursor: pointer;
+
+  box-shadow: var(--yn-shadow-lg);
+  transition:
+    transform var(--yn-duration-fast) var(--yn-ease-spring),
+    background var(--yn-duration-fast) var(--yn-ease-glass),
+    box-shadow var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: var(--yn-shadow-xl);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &.is-open {
+    @include glass.glass-surface(2);
+    color: var(--yn-text);
+    border: 1px solid var(--yn-glass-border);
+  }
+
+  @include bp.respond-to('md') {
+    bottom: var(--yn-space-7);
+    right: var(--yn-space-7);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+
+    &:active {
+      transform: none;
+    }
+  }
+}
