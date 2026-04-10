@@ -1,3 +1,4 @@
+using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Chat;
@@ -41,6 +42,20 @@ public static partial class RecipesEndpoints
             return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: emptyChatMessageError);
 
         var command = new ParseIntentCommand(request.Message, request.Context);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> ImportFromTextAsync(
+        ImportFromTextRequestDto request,
+        ICommandHandler<ImportRecipeFromTextCommand, Result<ExtractedRecipeDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Text))
+            return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: emptyChatMessageError);
+
+        var command = new ImportRecipeFromTextCommand(request.Text);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
