@@ -46,6 +46,12 @@ public static class ShoppingEndpoints
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapPost("/items", AddManualItemAsync)
+            .WithName("AddManualItem")
+            .WithTags("Shopping")
+            .Produces<AddedItemDto>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status400BadRequest);
+
         return app;
     }
 
@@ -128,5 +134,21 @@ public static class ShoppingEndpoints
 
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToNoContent();
+    }
+
+    private static async Task<IResult> AddManualItemAsync(
+        AddManualItemRequest request,
+        ICommandHandler<AddManualItemCommand, Result<AddedItemDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Item name is required.");
+
+        var command = new AddManualItemCommand(request.Name.Trim(), request.Quantity, request.Unit);
+
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.IsSuccess
+            ? Results.Created($"/shopping-lists/items/{result.Value.TransactionIdentifier}", result.Value)
+            : result.ToOk();
     }
 }
