@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 
@@ -25,6 +26,7 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
         });
 
         services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
+        services.AddScoped<IShoppingLedgerRepository, ShoppingLedgerRepository>();
         services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");
 
         return services;
