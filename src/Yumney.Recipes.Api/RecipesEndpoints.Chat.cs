@@ -7,6 +7,7 @@ using SmartSolutionsLab.Yumney.Shared.Web;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
+#pragma warning disable SA1601
 public static partial class RecipesEndpoints
 {
 #pragma warning disable SA1303
