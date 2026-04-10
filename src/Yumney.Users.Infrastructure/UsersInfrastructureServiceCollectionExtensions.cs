@@ -5,6 +5,7 @@ using Microsoft.Extensions.Http.Resilience;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Users.Domain.StaplesList;
 using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
@@ -30,6 +31,7 @@ public static class UsersInfrastructureServiceCollectionExtensions
 
         services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
         services.AddScoped<IUserActivityRepository, UserActivityRepository>();
+        services.AddScoped<IStaplesListRepository, StaplesListRepository>();
 
         services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client =>
         {
