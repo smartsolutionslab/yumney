@@ -78,6 +78,14 @@ public static partial class RecipesEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .RequireRateLimiting("RecipeImport");
 
+        group.MapPost("/import-from-text", ImportFromTextAsync)
+            .WithName("ImportRecipeFromText")
+            .WithTags("Recipes")
+            .Produces<ExtractedRecipeDto>()
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .RequireRateLimiting("RecipeImport");
+
         group.MapGet("/import/stream", ImportStreamAsync)
             .WithName("ImportRecipeStream")
             .WithTags("Recipes")

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ChatPanelComponent } from './chat-panel.component';
-import { ChatApiService } from '@yumney/shared/api-client';
+import { ChatApiService, RecipeApiService } from '@yumney/shared/api-client';
 import { ChatStateService, setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
@@ -19,16 +19,26 @@ const en = {
     clearHistory: 'Clear history',
     errors: { offline: 'Offline', failed: 'Failed' },
   },
+  commandBar: {
+    hints: {
+      default: 'Ask me anything...',
+    },
+  },
 };
 
 describe('ChatPanelComponent', () => {
   let fixture: ComponentFixture<ChatPanelComponent>;
   let chatState: ChatStateService;
-  let chatApiMock: { send: ReturnType<typeof vi.fn> };
+  let chatApiMock: { send: ReturnType<typeof vi.fn>; importFromText: ReturnType<typeof vi.fn> };
+  let recipeApiMock: { importRecipe: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     chatApiMock = {
       send: vi.fn().mockReturnValue(of({ reply: 'Hello!', suggestions: [] })),
+      importFromText: vi.fn().mockReturnValue(of({ title: 'Test', ingredients: [], steps: [] })),
+    };
+    recipeApiMock = {
+      importRecipe: vi.fn().mockReturnValue(of({ title: 'Test', ingredients: [], steps: [] })),
     };
 
     await TestBed.configureTestingModule({
@@ -37,6 +47,7 @@ describe('ChatPanelComponent', () => {
         provideYumneyIcons(),
         provideRouter([]),
         { provide: ChatApiService, useValue: chatApiMock },
+        { provide: RecipeApiService, useValue: recipeApiMock },
         ChatStateService,
       ],
     }).compileComponents();
