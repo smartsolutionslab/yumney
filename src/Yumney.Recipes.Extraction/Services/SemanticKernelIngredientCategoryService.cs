@@ -11,7 +11,8 @@ public sealed partial class SemanticKernelIngredientCategoryService(
     Kernel kernel,
     ILogger<SemanticKernelIngredientCategoryService> logger) : IIngredientCategoryService
 {
-    private const string SystemPrompt = """
+#pragma warning disable SA1303
+    private const string systemPrompt = """
         You are a grocery item categorizer. Given an item name, respond with exactly one of these categories:
         produce, dairy, meat-fish, bakery, frozen, beverages, pantry, household, other
 
@@ -24,6 +25,7 @@ public sealed partial class SemanticKernelIngredientCategoryService(
         "Alufolie" → household
         "Tiefkühlerbsen" → frozen
         """;
+#pragma warning restore SA1303
 
     public async Task<IngredientCategory> CategorizeAsync(string itemName, CancellationToken cancellationToken = default)
     {
@@ -34,7 +36,7 @@ public sealed partial class SemanticKernelIngredientCategoryService(
         try
         {
             var chatHistory = new ChatHistory();
-            chatHistory.AddSystemMessage(SystemPrompt);
+            chatHistory.AddSystemMessage(systemPrompt);
             chatHistory.AddUserMessage(itemName);
 
             var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
