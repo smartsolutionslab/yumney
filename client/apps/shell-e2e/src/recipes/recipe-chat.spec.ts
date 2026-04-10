@@ -1,90 +1,89 @@
 import { test, expect } from '../fixtures/auth.fixture';
+import { ChatPage } from '../pages/chat.page';
+import { TIMEOUTS } from '../helpers/timeouts';
 
-test.describe('Recipe Chat (US-230, US-303)', () => {
+test.describe('Recipe Chat (US-230, US-303, US-306)', () => {
   test('should open chat panel when FAB is clicked', async ({ authenticatedPage }) => {
-    const fab = authenticatedPage.locator('.command-fab');
-    await expect(fab).toBeVisible({ timeout: 10_000 });
+    const chat = new ChatPage(authenticatedPage);
+    await expect(chat.fab).toBeVisible({ timeout: TIMEOUTS.default });
 
-    await fab.click();
+    await chat.open();
 
-    const chatPanel = authenticatedPage.locator('.chat-panel');
-    await expect(chatPanel).toBeVisible({ timeout: 5_000 });
+    await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
   });
 
   test('should close chat panel when FAB is clicked again', async ({ authenticatedPage }) => {
-    const fab = authenticatedPage.locator('.command-fab');
-    await fab.click();
-    await expect(authenticatedPage.locator('.chat-panel')).toBeVisible({ timeout: 5_000 });
+    const chat = new ChatPage(authenticatedPage);
+    await chat.open();
+    await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
 
-    await fab.click();
+    await chat.fab.click();
 
-    await expect(authenticatedPage.locator('.chat-panel')).not.toBeVisible();
+    await expect(chat.panel).not.toBeVisible();
   });
 
   test('should close chat panel when close button is clicked', async ({ authenticatedPage }) => {
-    await authenticatedPage.locator('.command-fab').click();
-    await expect(authenticatedPage.locator('.chat-panel')).toBeVisible({ timeout: 5_000 });
+    const chat = new ChatPage(authenticatedPage);
+    await chat.open();
+    await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
 
-    await authenticatedPage.locator('.chat-close').click();
+    await chat.close();
 
-    await expect(authenticatedPage.locator('.chat-panel')).not.toBeVisible();
+    await expect(chat.panel).not.toBeVisible();
   });
 
   test('should close chat panel when backdrop is tapped on mobile', async ({
     authenticatedPage,
   }) => {
     await authenticatedPage.setViewportSize({ width: 375, height: 812 });
-    await authenticatedPage.locator('.command-fab').click();
-    await expect(authenticatedPage.locator('.chat-panel')).toBeVisible({ timeout: 5_000 });
+    const chat = new ChatPage(authenticatedPage);
+    await chat.open();
+    await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
 
-    const backdrop = authenticatedPage.locator('.chat-backdrop');
-    await expect(backdrop).toBeVisible();
-    await backdrop.click({ position: { x: 10, y: 10 } });
+    await expect(chat.backdrop).toBeVisible();
+    await chat.backdrop.click({ position: { x: 10, y: 10 } });
 
-    await expect(authenticatedPage.locator('.chat-panel')).not.toBeVisible();
+    await expect(chat.panel).not.toBeVisible();
   });
 
   test('should show welcome message with examples when panel first opens', async ({
     authenticatedPage,
   }) => {
-    await authenticatedPage.locator('.command-fab').click();
-    await expect(authenticatedPage.locator('.chat-panel')).toBeVisible({ timeout: 5_000 });
+    const chat = new ChatPage(authenticatedPage);
+    await chat.open();
+    await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
 
-    await expect(authenticatedPage.locator('.chat-welcome')).toBeVisible();
-    await expect(authenticatedPage.locator('.chat-examples li')).toHaveCount(3);
+    await expect(chat.welcome).toBeVisible();
+    await expect(chat.examples).toHaveCount(3);
   });
 
-  test('should show context-aware placeholder on dashboard', async ({ authenticatedPage }) => {
-    await authenticatedPage.locator('.command-fab').click();
-    await expect(authenticatedPage.locator('.chat-panel')).toBeVisible({ timeout: 5_000 });
+  test('should show context-aware placeholder', async ({ authenticatedPage }) => {
+    const chat = new ChatPage(authenticatedPage);
+    await chat.open();
+    await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
 
-    const textarea = authenticatedPage.locator('.chat-input textarea');
-    const placeholder = await textarea.getAttribute('placeholder');
+    const placeholder = await chat.input.getAttribute('placeholder');
     expect(placeholder).toBeTruthy();
     expect(placeholder!.length).toBeGreaterThan(0);
   });
 
   test('should send a message and receive a response', async ({ authenticatedPage }) => {
-    await authenticatedPage.locator('.command-fab').click();
-    await expect(authenticatedPage.locator('.chat-panel')).toBeVisible({ timeout: 5_000 });
+    const chat = new ChatPage(authenticatedPage);
+    await chat.open();
+    await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
 
-    const textarea = authenticatedPage.locator('.chat-input textarea');
-    await textarea.fill('What can I cook tonight?');
-    await authenticatedPage.locator('.chat-send').click();
+    await chat.sendMessage('What can I cook tonight?');
 
-    await expect(authenticatedPage.locator('.chat-message.role-user .chat-bubble')).toBeVisible();
-
-    await expect(
-      authenticatedPage.locator('.chat-message.role-assistant .chat-bubble'),
-    ).toBeVisible({ timeout: 30_000 });
+    await expect(chat.userMessage()).toBeVisible();
+    await expect(chat.assistantMessage()).toBeVisible({ timeout: TIMEOUTS.veryLong });
   });
 
   test('should show FAB with aria-expanded attribute', async ({ authenticatedPage }) => {
-    const fab = authenticatedPage.locator('.command-fab');
-    await expect(fab).toBeVisible({ timeout: 10_000 });
-    await expect(fab).toHaveAttribute('aria-expanded', 'false');
+    const chat = new ChatPage(authenticatedPage);
+    await expect(chat.fab).toBeVisible({ timeout: TIMEOUTS.default });
+    await expect(chat.fab).toHaveAttribute('aria-expanded', 'false');
 
-    await fab.click();
-    await expect(fab).toHaveAttribute('aria-expanded', 'true');
+    await chat.open();
+    await expect(chat.fab).toHaveAttribute('aria-expanded', 'true');
   });
 });

@@ -1,8 +1,8 @@
 import { test, expect } from '../fixtures/auth.fixture';
-import { DashboardPage } from '../pages/dashboard.page';
 import { RecipeDetailPage } from '../pages/recipe-detail.page';
 import { RecipeListPage } from '../pages/recipe-list.page';
-import { uniqueTitle } from '../helpers/test-data.helper';
+import { uniqueTitle, loginViaKeycloak, createTestRecipe } from '../helpers/test-data.helper';
+import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Favorite Recipes (US-071)', () => {
   let recipeTitle: string;
@@ -10,31 +10,13 @@ test.describe('Favorite Recipes (US-071)', () => {
 
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage();
-
-    await page.goto('/auth/login');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL('**/realms/yumney/**');
-    await page.locator('#username').fill('testuser');
-    await page.locator('#password').fill('Test1234');
-    await page.locator('#kc-login').click();
-    await page.waitForURL('**/dashboard', { timeout: 15_000 });
-
-    const dashboard = new DashboardPage(page);
-    await dashboard.createButton.click();
+    await loginViaKeycloak(page);
 
     recipeTitle = uniqueTitle('E2E Favorite');
-    await page.locator('#title').fill(recipeTitle);
-    await page.locator('.ingredient-fields input[type="text"]').first().fill('Salt');
-    await page.locator('.step-fields textarea').first().fill('Add salt to taste');
-    await page.getByRole('button', { name: /save/i }).click();
-    await expect(page.locator('.success-banner')).toBeVisible({ timeout: 15_000 });
-
-    await page.goto('/recipes');
-    await page.waitForTimeout(1000);
-
-    const card = page.locator('.recipe-card').filter({ hasText: recipeTitle }).first();
-    const href = await card.getAttribute('href');
-    recipeIdentifier = href?.replace('/recipes/', '') ?? '';
+    recipeIdentifier = await createTestRecipe(page, recipeTitle, {
+      ingredient: 'Salt',
+      step: 'Add salt to taste',
+    });
 
     await page.close();
   });
@@ -44,7 +26,7 @@ test.describe('Favorite Recipes (US-071)', () => {
 
     const list = new RecipeListPage(authenticatedPage);
     await list.goto();
-    await expect(list.recipeCard(recipeTitle).first()).toBeVisible({ timeout: 10_000 });
+    await expect(list.recipeCard(recipeTitle).first()).toBeVisible({ timeout: TIMEOUTS.default });
 
     const heart = list.favoriteButtonOnCard(recipeTitle).first();
     await expect(heart).toHaveAttribute('aria-pressed', 'false');
@@ -58,13 +40,13 @@ test.describe('Favorite Recipes (US-071)', () => {
 
     const list = new RecipeListPage(authenticatedPage);
     await list.goto();
-    await expect(list.recipeCard(recipeTitle).first()).toBeVisible({ timeout: 10_000 });
+    await expect(list.recipeCard(recipeTitle).first()).toBeVisible({ timeout: TIMEOUTS.default });
 
     const heart = list.favoriteButtonOnCard(recipeTitle).first();
-    await expect(heart).toHaveAttribute('aria-pressed', 'true', { timeout: 5_000 });
+    await expect(heart).toHaveAttribute('aria-pressed', 'true', { timeout: TIMEOUTS.short });
 
     await authenticatedPage.reload();
-    await expect(list.recipeCard(recipeTitle).first()).toBeVisible({ timeout: 10_000 });
+    await expect(list.recipeCard(recipeTitle).first()).toBeVisible({ timeout: TIMEOUTS.default });
     await expect(heart).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -75,13 +57,12 @@ test.describe('Favorite Recipes (US-071)', () => {
 
     const list = new RecipeListPage(authenticatedPage);
     await list.goto();
-    await expect(list.recipeCard(recipeTitle).first()).toBeVisible({ timeout: 10_000 });
+    await expect(list.recipeCard(recipeTitle).first()).toBeVisible({ timeout: TIMEOUTS.default });
 
     await list.filterToggle.click();
     await list.favoritesFilterChip.click();
     await authenticatedPage.waitForTimeout(500);
 
-    // Favorited recipe should still be present
     await expect(list.recipeCard(recipeTitle).first()).toBeVisible();
   });
 
@@ -91,7 +72,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     const detail = new RecipeDetailPage(authenticatedPage);
     await detail.goto(recipeIdentifier);
 
-    await expect(detail.favoriteButton).toBeVisible({ timeout: 10_000 });
+    await expect(detail.favoriteButton).toBeVisible({ timeout: TIMEOUTS.default });
     await expect(detail.favoriteButton).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -100,7 +81,7 @@ test.describe('Favorite Recipes (US-071)', () => {
 
     const detail = new RecipeDetailPage(authenticatedPage);
     await detail.goto(recipeIdentifier);
-    await expect(detail.favoriteButton).toBeVisible({ timeout: 10_000 });
+    await expect(detail.favoriteButton).toBeVisible({ timeout: TIMEOUTS.default });
 
     await detail.favoriteButton.click();
     await expect(detail.favoriteButton).toHaveAttribute('aria-pressed', 'false');

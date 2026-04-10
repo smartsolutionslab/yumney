@@ -1,22 +1,16 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { RecipeDetailPage } from '../pages/recipe-detail.page';
+import { loginViaKeycloak, deleteTestRecipe } from '../helpers/test-data.helper';
+import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Recipe Tags (US-070)', () => {
   let recipeIdentifier: string;
 
-  // Create a recipe with tags via API
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage();
+    await loginViaKeycloak(page);
 
-    await page.goto('/auth/login');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL('**/realms/yumney/**');
-    await page.locator('#username').fill('testuser');
-    await page.locator('#password').fill('Test1234');
-    await page.locator('#kc-login').click();
-    await page.waitForURL('**/dashboard', { timeout: 15_000 });
-
-    // Create recipe with tags via API
+    // Create recipe with tags via API (authenticated session from loginViaKeycloak)
     const response = await page.evaluate(async () => {
       const res = await fetch('/api/v1/recipes', {
         method: 'POST',
@@ -46,7 +40,7 @@ test.describe('Recipe Tags (US-070)', () => {
 
     await authenticatedPage.goto(`/recipes/${recipeIdentifier}`);
     const detailPage = new RecipeDetailPage(authenticatedPage);
-    await expect(detailPage.heading).toBeVisible({ timeout: 10_000 });
+    await expect(detailPage.title).toBeVisible({ timeout: TIMEOUTS.default });
 
     const tags = authenticatedPage.locator('.tag');
     await expect(tags).toHaveCount(3);
@@ -56,7 +50,9 @@ test.describe('Recipe Tags (US-070)', () => {
     test.skip(!recipeIdentifier, 'No recipe created');
 
     await authenticatedPage.goto(`/recipes/${recipeIdentifier}`);
-    await expect(authenticatedPage.locator('.tag').first()).toBeVisible({ timeout: 10_000 });
+    await expect(authenticatedPage.locator('.tag').first()).toBeVisible({
+      timeout: TIMEOUTS.default,
+    });
 
     const tagTexts = await authenticatedPage.locator('.tag').allTextContents();
     expect(tagTexts).toContain('italian');
@@ -64,23 +60,12 @@ test.describe('Recipe Tags (US-070)', () => {
     expect(tagTexts).toContain('quick');
   });
 
-  // Cleanup
   test.afterAll(async ({ browser }) => {
     if (!recipeIdentifier) return;
 
     const page = await browser.newPage();
-    await page.goto('/auth/login');
-    await page.getByRole('button', { name: /sign in/i }).click();
-    await page.waitForURL('**/realms/yumney/**');
-    await page.locator('#username').fill('testuser');
-    await page.locator('#password').fill('Test1234');
-    await page.locator('#kc-login').click();
-    await page.waitForURL('**/dashboard', { timeout: 15_000 });
-
-    await page.goto(`/recipes/${recipeIdentifier}`);
-    await page.locator('.btn-danger').click();
-    await page.locator('.btn-danger-filled').click();
-    await page.waitForURL(/\/recipes$/, { timeout: 10_000 });
+    await loginViaKeycloak(page);
+    await deleteTestRecipe(page, recipeIdentifier);
     await page.close();
   });
 });
