@@ -256,4 +256,58 @@ describe('ChatPanelComponent', () => {
     expect(liveRegion).toBeTruthy();
     expect(liveRegion.textContent.trim()).toBe('Try pasta!');
   });
+
+  // ── URL / text detection ──
+
+  it('should trigger URL import when input is a URL', async () => {
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('https://example.com/recipe');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+
+    expect(recipeApiMock.importRecipe).toHaveBeenCalledWith({ url: 'https://example.com/recipe' });
+    expect(chatApiMock.send).not.toHaveBeenCalled();
+  });
+
+  it('should trigger text import when input is long recipe text', async () => {
+    chatState.open();
+    fixture.detectChanges();
+
+    const longText =
+      'Pasta Carbonara\n200g spaghetti\n4 eggs\n100g guanciale\nBoil pasta, mix with eggs and cheese';
+    fixture.componentInstance['input'].set(longText);
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+
+    expect(chatApiMock.importFromText).toHaveBeenCalledWith(longText);
+    expect(chatApiMock.send).not.toHaveBeenCalled();
+  });
+
+  it('should send regular chat for short text input', async () => {
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('What can I cook?');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+
+    expect(chatApiMock.send).toHaveBeenCalled();
+    expect(recipeApiMock.importRecipe).not.toHaveBeenCalled();
+    expect(chatApiMock.importFromText).not.toHaveBeenCalled();
+  });
+
+  it('should detect URL correctly', () => {
+    expect(fixture.componentInstance['looksLikeUrl']('https://example.com/recipe')).toBe(true);
+    expect(fixture.componentInstance['looksLikeUrl']('http://food.com/pasta')).toBe(true);
+    expect(fixture.componentInstance['looksLikeUrl']('not a url')).toBe(false);
+    expect(fixture.componentInstance['looksLikeUrl']('Check https://example.com')).toBe(false);
+  });
+
+  it('should detect recipe text correctly', () => {
+    expect(fixture.componentInstance['looksLikeRecipeText']('line1\nline2\nline3')).toBe(true);
+    expect(fixture.componentInstance['looksLikeRecipeText']('a '.repeat(30))).toBe(true);
+    expect(fixture.componentInstance['looksLikeRecipeText']('short text')).toBe(false);
+  });
 });

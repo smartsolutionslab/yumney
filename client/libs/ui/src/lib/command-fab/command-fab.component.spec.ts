@@ -72,4 +72,17 @@ describe('CommandFabComponent', () => {
     fixture.detectChanges();
     expect(button.getAttribute('aria-expanded')).toBe('true');
   });
+
+  it('should show message-circle icon when closed', () => {
+    fixture.detectChanges();
+    const icon = fixture.nativeElement.querySelector('lucide-icon');
+    expect(icon.getAttribute('name')).toBe('message-circle');
+  });
+
+  it('should show x icon when open', () => {
+    chatState.open();
+    fixture.detectChanges();
+    const icon = fixture.nativeElement.querySelector('lucide-icon');
+    expect(icon.getAttribute('name')).toBe('x');
+  });
 });
