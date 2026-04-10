@@ -18,6 +18,7 @@ public static class ExtractionServiceCollectionExtensions
         services.AddScoped<IIngredientRecognitionService, SemanticKernelIngredientRecognitionService>();
         services.AddScoped<IChatService, SemanticKernelChatService>();
         services.AddScoped<IIntentParserService, SemanticKernelIntentParserService>();
+        services.AddScoped<IIngredientCategoryService, SemanticKernelIngredientCategoryService>();
 
         var skOptions = configuration
             .GetSection(SemanticKernelOptions.SectionName)
