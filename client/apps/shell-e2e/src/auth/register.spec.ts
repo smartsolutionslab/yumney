@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { RegisterPage } from '../pages/register.page';
+import { uniqueEmail } from '../helpers/test-data.helper';
+import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Register Page (US-001)', () => {
   let registerPage: RegisterPage;
@@ -63,7 +65,7 @@ test.describe('Register Page (US-001)', () => {
   });
 
   test('should successfully register a new user', async () => {
-    const email = `e2e-${Date.now()}@yumney.dev`;
+    const email = uniqueEmail();
 
     await registerPage.fillForm({
       email,
@@ -73,7 +75,7 @@ test.describe('Register Page (US-001)', () => {
     });
     await registerPage.submitButton.click();
 
-    await expect(registerPage.successHeading).toBeVisible({ timeout: 10_000 });
+    await expect(registerPage.successHeading).toBeVisible({ timeout: TIMEOUTS.default });
     await expect(registerPage.resendLink).toBeVisible();
   });
 
@@ -86,7 +88,7 @@ test.describe('Register Page (US-001)', () => {
     });
     await registerPage.submitButton.click();
 
-    await expect(registerPage.errorBanner).toBeVisible({ timeout: 10_000 });
+    await expect(registerPage.errorBanner).toBeVisible({ timeout: TIMEOUTS.default });
     await expect(registerPage.errorBanner).toContainText(/already exists/i);
   });
 

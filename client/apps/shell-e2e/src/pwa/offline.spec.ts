@@ -1,51 +1,6 @@
-import { test, expect, Page } from '@playwright/test';
-
-async function setupKeycloakMock(page: Page) {
-  await page.route('**/realms/yumney/.well-known/openid-configuration', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        issuer: 'http://localhost:8080/realms/yumney',
-        authorization_endpoint: 'http://localhost:8080/realms/yumney/protocol/openid-connect/auth',
-        token_endpoint: 'http://localhost:8080/realms/yumney/protocol/openid-connect/token',
-        end_session_endpoint: 'http://localhost:8080/realms/yumney/protocol/openid-connect/logout',
-        jwks_uri: 'http://localhost:8080/realms/yumney/protocol/openid-connect/certs',
-        userinfo_endpoint: 'http://localhost:8080/realms/yumney/protocol/openid-connect/userinfo',
-        response_types_supported: ['code'],
-        subject_types_supported: ['public'],
-        id_token_signing_alg_values_supported: ['RS256'],
-      }),
-    }),
-  );
-  await page.route('**/realms/yumney/protocol/openid-connect/auth*', (route) =>
-    route.fulfill({ status: 200, body: '' }),
-  );
-  await page.route('**/realms/yumney/protocol/openid-connect/certs', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ keys: [] }),
-    }),
-  );
-}
-
-async function waitForServiceWorker(page: Page) {
-  await page.evaluate(async () => {
-    if (!('serviceWorker' in navigator)) {
-      return;
-    }
-    const deadline = Date.now() + 40000;
-    while (Date.now() < deadline) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      const active = registrations.find((r) => r.active?.state === 'activated');
-      if (active) {
-        return;
-      }
-      await new Promise((r) => setTimeout(r, 500));
-    }
-  });
-}
+import { test, expect } from '@playwright/test';
+import { setupKeycloakMock, waitForServiceWorker } from '../helpers/pwa.helper';
+import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Offline Caching', () => {
   test.beforeEach(async ({ page }) => {
@@ -62,7 +17,7 @@ test.describe('Offline Caching', () => {
     await page.reload({ waitUntil: 'domcontentloaded' });
 
     const root = page.locator('yn-root');
-    await expect(root).toBeAttached({ timeout: 10000 });
+    await expect(root).toBeAttached({ timeout: TIMEOUTS.default });
   });
 
   test('should serve cached i18n translations when offline', async ({ page, context }) => {
