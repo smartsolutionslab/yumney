@@ -52,6 +52,11 @@ public static class ShoppingEndpoints
             .Produces<AddedItemDto>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest);
 
+        group.MapGet("/merged", GetMergedAsync)
+            .WithName("GetMergedShoppingList")
+            .WithTags("Shopping")
+            .Produces<MergedShoppingListDto>();
+
         return app;
     }
 
@@ -150,5 +155,14 @@ public static class ShoppingEndpoints
         return result.IsSuccess
             ? Results.Created($"/shopping-lists/items/{result.Value.TransactionIdentifier}", result.Value)
             : result.ToOk();
+    }
+
+    private static async Task<IResult> GetMergedAsync(
+        IQueryHandler<GetMergedShoppingListQuery, Result<MergedShoppingListDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetMergedShoppingListQuery();
+        var result = await handler.HandleAsync(query, cancellationToken);
+        return result.ToOk();
     }
 }
