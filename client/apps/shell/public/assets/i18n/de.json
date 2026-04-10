@@ -440,6 +440,14 @@
     }
   },
   "commandBar": {
-    "toggle": "Kommandoleiste öffnen"
+    "toggle": "Kommandoleiste öffnen",
+    "hints": {
+      "default": "Frag mich alles, füge eine Rezept-URL ein oder sag mir, was du kochen willst...",
+      "dashboard": "Frag mich alles, füge eine Rezept-URL ein oder sag mir, was du kochen willst...",
+      "recipes": "Rezepte suchen, nach Kategorie filtern oder Vorschläge erhalten...",
+      "shopping": "Artikel hinzufügen, Einkaufsliste ansehen oder Einkauf verwalten...",
+      "mealPlanner": "Mahlzeiten planen, Tage tauschen, Rezepte für die Woche vorschlagen...",
+      "account": "Einstellungen, Ernährungsprofil oder Haushaltsgröße anpassen..."
+    }
   }
 }
