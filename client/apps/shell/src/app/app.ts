@@ -6,7 +6,13 @@ import { OfflineIndicatorComponent } from './layout/offline-indicator/offline-in
 import { filter } from 'rxjs';
 
 @Component({
-  imports: [RouterModule, HeaderComponent, ChatPanelComponent, CommandFabComponent, OfflineIndicatorComponent],
+  imports: [
+    RouterModule,
+    HeaderComponent,
+    ChatPanelComponent,
+    CommandFabComponent,
+    OfflineIndicatorComponent,
+  ],
   selector: 'yn-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
