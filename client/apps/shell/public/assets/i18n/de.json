@@ -438,5 +438,8 @@
       "offline": "Chat benötigt eine Internetverbindung.",
       "failed": "Chat-Dienst nicht erreichbar. Bitte erneut versuchen."
     }
+  },
+  "commandBar": {
+    "toggle": "Kommandoleiste öffnen"
   }
 }

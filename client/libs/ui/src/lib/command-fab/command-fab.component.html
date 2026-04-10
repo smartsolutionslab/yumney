@@ -1,0 +1,14 @@
+<button
+  *transloco="let t"
+  class="command-fab"
+  [class.is-open]="chatState.isOpen()"
+  (click)="onToggle()"
+  [attr.aria-label]="t('commandBar.toggle')"
+  [attr.aria-expanded]="chatState.isOpen()"
+>
+  @if (chatState.isOpen()) {
+    <lucide-icon name="x" [size]="24" />
+  } @else {
+    <lucide-icon name="message-circle" [size]="24" />
+  }
+</button>
