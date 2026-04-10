@@ -107,6 +107,40 @@ public sealed class ShoppingLedger : AggregateRoot<ShoppingLedgerIdentifier>
         }).ToList();
     }
 
+    /// <summary>
+    /// Project transactions into merged shopping items — same item + same unit
+    /// summed into one line with source breakdown.
+    /// Different units for the same item produce separate lines.
+    /// </summary>
+    public IReadOnlyList<MergedShoppingItem> GetMergedItems()
+    {
+        var groups = new Dictionary<string, List<LedgerTransaction>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var tx in transactions.Where(t => t.Action == LedgerAction.Added))
+        {
+            var key = $"{tx.ItemName.Value}|{tx.Unit ?? string.Empty}";
+            if (!groups.ContainsKey(key))
+                groups[key] = [];
+            groups[key].Add(tx);
+        }
+
+        var boughtKeys = transactions
+            .Where(t => t.Action == LedgerAction.Bought)
+            .Select(t => $"{t.ItemName.Value}|{t.Unit ?? string.Empty}")
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return groups.Select(kvp =>
+        {
+            var txList = kvp.Value;
+            var first = txList[0];
+            var totalQuantity = txList.Sum(t => t.Quantity);
+            var sources = txList.Select(t => new ItemSource(t.Quantity, t.Source.Value, t.OccurredAt)).ToList();
+            var isBought = boughtKeys.Contains(kvp.Key);
+
+            return new MergedShoppingItem(first.ItemName.Value, totalQuantity, first.Unit, isBought, sources);
+        }).ToList();
+    }
+
     private (decimal OnList, decimal Bought, decimal Consumed, decimal Removed) ReverseTransaction(
         (decimal OnList, decimal Bought, decimal Consumed, decimal Removed) current,
         LedgerTransaction rollbackTx,
