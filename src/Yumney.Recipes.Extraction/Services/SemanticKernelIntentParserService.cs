@@ -61,7 +61,7 @@ public sealed partial class SemanticKernelIntentParserService(
         return ParseResponse(response);
     }
 
-    private static string ExtractJson(string response)
+    internal static string ExtractJson(string response)
     {
         var trimmed = response.Trim();
 
