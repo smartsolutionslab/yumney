@@ -440,6 +440,14 @@
     }
   },
   "commandBar": {
-    "toggle": "Open command bar"
+    "toggle": "Open command bar",
+    "hints": {
+      "default": "Ask me anything, paste a recipe URL, or tell me what to cook...",
+      "dashboard": "Ask me anything, paste a recipe URL, or tell me what to cook...",
+      "recipes": "Search recipes, filter by category, or ask for suggestions...",
+      "shopping": "Add items, ask what's on the list, or manage your shopping...",
+      "mealPlanner": "Plan meals, swap days, suggest recipes for the week...",
+      "account": "Update your preferences, dietary profile, or household settings..."
+    }
   }
 }

@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { ChatApiService, type ChatRecipeSuggestion } from '@yumney/shared/api-client';
-import { ChatStateService, ROUTES } from '@yumney/shared/models';
+import { ChatHintService, ChatStateService, ROUTES } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-chat-panel',
@@ -29,6 +29,7 @@ export class ChatPanelComponent implements AfterViewInit {
   protected readonly ROUTES = ROUTES;
 
   protected state = inject(ChatStateService);
+  protected hints = inject(ChatHintService);
   private chatApi = inject(ChatApiService);
   private destroyRef = inject(DestroyRef);
 

@@ -76,7 +76,7 @@
         [ngModel]="input()"
         (ngModelChange)="input.set($event)"
         (keydown)="onKeydown($event)"
-        [placeholder]="t('chat.placeholder')"
+        [placeholder]="t(hints.hintKey())"
         [attr.aria-label]="t('chat.inputLabel')"
         rows="2"
         name="chat-input"
