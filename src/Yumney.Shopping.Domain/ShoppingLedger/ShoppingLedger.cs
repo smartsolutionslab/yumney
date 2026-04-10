@@ -112,6 +112,7 @@ public sealed class ShoppingLedger : AggregateRoot<ShoppingLedgerIdentifier>
     /// summed into one line with source breakdown.
     /// Different units for the same item produce separate lines.
     /// </summary>
+    /// <returns>Merged items grouped by item name and unit.</returns>
     public IReadOnlyList<MergedShoppingItem> GetMergedItems()
     {
         var groups = new Dictionary<string, List<LedgerTransaction>>(StringComparer.OrdinalIgnoreCase);
