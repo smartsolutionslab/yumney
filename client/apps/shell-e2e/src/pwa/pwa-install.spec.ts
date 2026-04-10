@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { isServiceWorkerRegistered } from '../helpers/pwa.helper';
 
 test.describe('PWA Installation', () => {
   test('should serve a valid web manifest', async ({ page }) => {
@@ -42,20 +43,7 @@ test.describe('PWA Installation', () => {
     await page.route('**/realms/**', (route) => route.abort());
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    const swRegistered = await page.evaluate(async () => {
-      if (!('serviceWorker' in navigator)) {
-        return false;
-      }
-      const deadline = Date.now() + 35000;
-      while (Date.now() < deadline) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        if (registrations.length > 0) {
-          return true;
-        }
-        await new Promise((r) => setTimeout(r, 500));
-      }
-      return false;
-    });
-    expect(swRegistered).toBe(true);
+    const registered = await isServiceWorkerRegistered(page);
+    expect(registered).toBe(true);
   });
 });
