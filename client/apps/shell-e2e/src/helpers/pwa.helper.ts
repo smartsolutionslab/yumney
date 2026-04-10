@@ -36,7 +36,7 @@ export async function setupKeycloakMock(page: Page): Promise<void> {
 /**
  * Wait for the service worker to become activated.
  */
-export async function waitForServiceWorker(page: Page, timeout: number = 40_000): Promise<void> {
+export async function waitForServiceWorker(page: Page, timeout = 40_000): Promise<void> {
   await page.evaluate(async (ms) => {
     if (!('serviceWorker' in navigator)) return;
     const deadline = Date.now() + ms;
@@ -54,7 +54,7 @@ export async function waitForServiceWorker(page: Page, timeout: number = 40_000)
  */
 export async function isServiceWorkerRegistered(
   page: Page,
-  timeout: number = 35_000,
+  timeout = 35_000,
 ): Promise<boolean> {
   return page.evaluate(async (ms) => {
     if (!('serviceWorker' in navigator)) return false;

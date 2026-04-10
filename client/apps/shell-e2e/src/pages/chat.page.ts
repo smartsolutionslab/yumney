@@ -37,11 +37,11 @@ export class ChatPage {
     await this.sendButton.click();
   }
 
-  userMessage(index: number = 0): Locator {
+  userMessage(index = 0): Locator {
     return this.page.locator(SELECTORS.chat.userMessage).nth(index);
   }
 
-  assistantMessage(index: number = 0): Locator {
+  assistantMessage(index = 0): Locator {
     return this.page.locator(SELECTORS.chat.assistantMessage).nth(index);
   }
 }
