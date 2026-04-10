@@ -52,10 +52,7 @@ export async function waitForServiceWorker(page: Page, timeout = 40_000): Promis
 /**
  * Check if any service worker is registered.
  */
-export async function isServiceWorkerRegistered(
-  page: Page,
-  timeout = 35_000,
-): Promise<boolean> {
+export async function isServiceWorkerRegistered(page: Page, timeout = 35_000): Promise<boolean> {
   return page.evaluate(async (ms) => {
     if (!('serviceWorker' in navigator)) return false;
     const deadline = Date.now() + ms;
