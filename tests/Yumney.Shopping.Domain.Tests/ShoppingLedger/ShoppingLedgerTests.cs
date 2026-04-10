@@ -1,243 +1,209 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.Tests.ShoppingLedger;
 
 public class ShoppingLedgerTests
 {
-    private static readonly OwnerIdentifier TestOwner = OwnerIdentifier.From("user-123");
-
     [Fact]
     public void Create_ValidOwner_ReturnsEmptyLedger()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        ledger.Owner.Should().Be(TestOwner);
-        ledger.Transactions.Should().BeEmpty();
-        ledger.Id.Should().NotBeNull();
+        ledger.OwnerId.Should().Be("user-123");
+        ledger.Items.Should().BeEmpty();
+        ledger.Version.Should().Be(0);
+        ledger.UncommittedEvents.Should().BeEmpty();
     }
 
     [Fact]
-    public void AddItem_RecordsTransaction()
+    public void AddItem_RaisesEventAndUpdatesState()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var tx = ledger.AddItem(ItemName.From("Milk"), 1, "L", TransactionSource.Manual);
+        ledger.AddItem("Milk", 1, "L", "manual");
 
-        ledger.Transactions.Should().HaveCount(1);
-        tx.Action.Should().Be(LedgerAction.Added);
-        tx.ItemName.Value.Should().Be("Milk");
-        tx.Quantity.Should().Be(1);
-        tx.Unit.Should().Be("L");
-        tx.Source.IsManual.Should().BeTrue();
+        ledger.UncommittedEvents.Should().HaveCount(1);
+        ledger.UncommittedEvents.First().Should().BeOfType<ShoppingItemAdded>();
+        ledger.Version.Should().Be(1);
+        ledger.Items.Should().HaveCount(1);
     }
 
     [Fact]
-    public void AddItem_FromRecipe_TracksSource()
+    public void AddItem_UpdatesItemState()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        var recipeId = Guid.NewGuid();
-        var source = TransactionSource.FromRecipe(recipeId, "monday-dinner");
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var tx = ledger.AddItem(ItemName.From("Chicken"), 500, "g", source);
+        ledger.AddItem("Milk", 2, "L", "manual");
 
-        tx.Source.Value.Should().Contain(recipeId.ToString());
-        tx.Source.Value.Should().Contain("monday-dinner");
-        tx.Source.IsManual.Should().BeFalse();
+        var item = ledger.Items.Values.First();
+        item.ItemName.Should().Be("Milk");
+        item.OnList.Should().Be(2);
+        item.Unit.Should().Be("L");
     }
 
     [Fact]
-    public void MarkBought_RecordsTransaction()
+    public void MarkBought_UpdatesBoughtQuantity()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        ledger.AddItem(ItemName.From("Milk"), 2, "L", TransactionSource.Manual);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 2, "L", "manual");
 
-        var tx = ledger.MarkBought(ItemName.From("Milk"), 2, "L");
+        ledger.MarkBought("Milk", 2, "L");
 
-        tx.Action.Should().Be(LedgerAction.Bought);
-        ledger.Transactions.Should().HaveCount(2);
+        var item = ledger.Items.Values.First();
+        item.Bought.Should().Be(2);
+        item.IsBought.Should().BeTrue();
+        item.AtHome.Should().Be(2);
     }
 
     [Fact]
-    public void MarkConsumed_RecordsTransaction()
+    public void MarkConsumed_ReducesAtHome()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        var source = TransactionSource.FromRecipe(Guid.NewGuid());
-        ledger.AddItem(ItemName.From("Milk"), 2, "L", source);
-        ledger.MarkBought(ItemName.From("Milk"), 2, "L");
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 2, "L", "manual");
+        ledger.MarkBought("Milk", 2, "L");
 
-        var tx = ledger.MarkConsumed(ItemName.From("Milk"), 1, "L", source);
+        ledger.MarkConsumed("Milk", 1, "L", "recipe:abc");
 
-        tx.Action.Should().Be(LedgerAction.Consumed);
+        var item = ledger.Items.Values.First();
+        item.Consumed.Should().Be(1);
+        item.AtHome.Should().Be(1);
     }
 
     [Fact]
-    public void RemoveItem_RecordsTransactionWithReason()
+    public void RemoveItem_ReducesAtHome()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        ledger.AddItem(ItemName.From("Milk"), 1, "L", TransactionSource.Manual);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 2, "L", "manual");
+        ledger.MarkBought("Milk", 2, "L");
 
-        var tx = ledger.RemoveItem(ItemName.From("Milk"), 1, "L", "spoiled");
+        ledger.RemoveItem("Milk", 1, "L", "spoiled");
 
-        tx.Action.Should().Be(LedgerAction.Removed);
-        tx.Source.Value.Should().Contain("spoiled");
+        var item = ledger.Items.Values.First();
+        item.Removed.Should().Be(1);
+        item.AtHome.Should().Be(1);
     }
 
     [Fact]
-    public void AdjustQuantity_RecordsTransaction()
+    public void AdjustQuantity_OverridesOnList()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        ledger.AddItem(ItemName.From("Milk"), 1, "L", TransactionSource.Manual);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 2, "L", "manual");
 
-        var tx = ledger.AdjustQuantity(ItemName.From("Milk"), 3, "L");
+        ledger.AdjustQuantity("Milk", 5, "L");
 
-        tx.Action.Should().Be(LedgerAction.Adjusted);
-        tx.Quantity.Should().Be(3);
+        var item = ledger.Items.Values.First();
+        item.OnList.Should().Be(5);
     }
 
     [Fact]
-    public void Rollback_ExistingTransaction_RecordsRollback()
+    public void MultipleAdds_SameItem_SumsQuantity()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        var addTx = ledger.AddItem(ItemName.From("Milk"), 1, "L", TransactionSource.Manual);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var rollbackTx = ledger.Rollback(addTx.Id);
+        ledger.AddItem("Milk", 1, "L", "manual");
+        ledger.AddItem("Milk", 2, "L", "recipe:abc");
 
-        rollbackTx.Action.Should().Be(LedgerAction.RolledBack);
-        rollbackTx.Source.Value.Should().Contain(addTx.Id.Value.ToString());
-        ledger.Transactions.Should().HaveCount(2);
+        ledger.Items.Should().HaveCount(1);
+        ledger.Items.Values.First().OnList.Should().Be(3);
     }
 
     [Fact]
-    public void Rollback_NonExistingTransaction_ThrowsEntityNotFoundException()
+    public void DifferentUnits_SeparateItems()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var act = () => ledger.Rollback(LedgerTransactionIdentifier.New());
+        ledger.AddItem("Milk", 2, "cups", "manual");
+        ledger.AddItem("Milk", 500, "ml", "manual");
 
-        act.Should().Throw<EntityNotFoundException>();
+        ledger.Items.Should().HaveCount(2);
     }
 
     [Fact]
-    public void CalculateBalance_AddedItem_ShowsOnList()
+    public void CaseInsensitiveMerge()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        ledger.AddItem(ItemName.From("Milk"), 2, "L", TransactionSource.Manual);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var balance = ledger.CalculateBalance();
+        ledger.AddItem("milk", 1, "L", "manual");
+        ledger.AddItem("MILK", 1, "L", "manual");
 
-        balance.Should().HaveCount(1);
-        balance[0].ItemName.Should().Be("Milk");
-        balance[0].OnList.Should().Be(2);
-        balance[0].Bought.Should().Be(0);
-        balance[0].AtHome.Should().Be(0);
+        ledger.Items.Should().HaveCount(1);
+        ledger.Items.Values.First().OnList.Should().Be(2);
     }
 
     [Fact]
-    public void CalculateBalance_BoughtItem_ShowsAtHome()
+    public void AtHome_NeverNegative()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        ledger.AddItem(ItemName.From("Milk"), 2, "L", TransactionSource.Manual);
-        ledger.MarkBought(ItemName.From("Milk"), 2, "L");
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 1, "L", "manual");
 
-        var balance = ledger.CalculateBalance();
+        ledger.MarkConsumed("Milk", 5, "L", "manual");
 
-        balance[0].Bought.Should().Be(2);
-        balance[0].AtHome.Should().Be(2);
-        balance[0].Remaining.Should().Be(0);
+        ledger.Items.Values.First().AtHome.Should().Be(0);
     }
 
     [Fact]
-    public void CalculateBalance_ConsumedItem_ReducesAtHome()
+    public void MarkCommitted_ClearsUncommittedEvents()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        var source = TransactionSource.FromRecipe(Guid.NewGuid());
-        ledger.AddItem(ItemName.From("Milk"), 2, "L", source);
-        ledger.MarkBought(ItemName.From("Milk"), 2, "L");
-        ledger.MarkConsumed(ItemName.From("Milk"), 1, "L", source);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 1, "L", "manual");
 
-        var balance = ledger.CalculateBalance();
+        ledger.MarkCommitted();
 
-        balance[0].AtHome.Should().Be(1);
+        ledger.UncommittedEvents.Should().BeEmpty();
     }
 
     [Fact]
-    public void CalculateBalance_MultipleAddsOfSameItem_Sums()
+    public void FromEvents_RebuildsSameState()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        ledger.AddItem(ItemName.From("Milk"), 1, "L", TransactionSource.Manual);
-        ledger.AddItem(ItemName.From("Milk"), 2, "L", TransactionSource.FromRecipe(Guid.NewGuid()));
+        var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        original.AddItem("Milk", 2, "L", "manual");
+        original.MarkBought("Milk", 2, "L");
+        original.MarkConsumed("Milk", 1, "L", "recipe:abc");
 
-        var balance = ledger.CalculateBalance();
+        var events = original.UncommittedEvents.ToList();
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
 
-        balance.Should().HaveCount(1);
-        balance[0].OnList.Should().Be(3);
+        rebuilt.Items.Should().HaveCount(1);
+        var item = rebuilt.Items.Values.First();
+        item.OnList.Should().Be(2);
+        item.Bought.Should().Be(2);
+        item.Consumed.Should().Be(1);
+        item.AtHome.Should().Be(1);
+        rebuilt.Version.Should().Be(3);
     }
 
     [Fact]
-    public void CalculateBalance_MultipleItems_TrackedSeparately()
+    public void FromSnapshot_ContinuesFromSnapshotState()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        ledger.AddItem(ItemName.From("Milk"), 1, "L", TransactionSource.Manual);
-        ledger.AddItem(ItemName.From("Eggs"), 6, "pc", TransactionSource.Manual);
+        var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        original.AddItem("Milk", 2, "L", "manual");
+        original.MarkBought("Milk", 2, "L");
 
-        var balance = ledger.CalculateBalance();
+        var snapshotItems = original.Items.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-        balance.Should().HaveCount(2);
+        var newEvents = new[] { new ShoppingItemConsumed("Milk", 1, "L", "recipe:abc") };
+
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromSnapshot(
+            original.Id, "user-123", snapshotItems, 2, newEvents);
+
+        rebuilt.Version.Should().Be(3);
+        var item = rebuilt.Items.Values.First();
+        item.AtHome.Should().Be(1);
     }
 
     [Fact]
-    public void CalculateBalance_AtHomeNeverNegative()
+    public void Version_IncrementsPerEvent()
     {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        ledger.AddItem(ItemName.From("Milk"), 1, "L", TransactionSource.Manual);
-        ledger.MarkConsumed(ItemName.From("Milk"), 5, "L", TransactionSource.Manual);
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var balance = ledger.CalculateBalance();
+        ledger.AddItem("A", 1, null, "manual");
+        ledger.AddItem("B", 1, null, "manual");
+        ledger.AddItem("C", 1, null, "manual");
 
-        balance[0].AtHome.Should().Be(0);
-    }
-
-    [Fact]
-    public void CalculateBalance_RollbackReversesPrevious()
-    {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        var addTx = ledger.AddItem(ItemName.From("Milk"), 2, "L", TransactionSource.Manual);
-        ledger.Rollback(addTx.Id);
-
-        var balance = ledger.CalculateBalance();
-
-        balance[0].OnList.Should().Be(0);
-    }
-
-    [Fact]
-    public void TransactionSource_Manual_IsManual()
-    {
-        TransactionSource.Manual.IsManual.Should().BeTrue();
-    }
-
-    [Fact]
-    public void TransactionSource_FromRecipe_IsNotManual()
-    {
-        var source = TransactionSource.FromRecipe(Guid.NewGuid());
-
-        source.IsManual.Should().BeFalse();
-    }
-
-    [Fact]
-    public void AllTransactions_PreservedInOrder()
-    {
-        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(TestOwner);
-        ledger.AddItem(ItemName.From("Milk"), 1, "L", TransactionSource.Manual);
-        ledger.MarkBought(ItemName.From("Milk"), 1, "L");
-        ledger.MarkConsumed(ItemName.From("Milk"), 1, "L", TransactionSource.Manual);
-
-        ledger.Transactions.Should().HaveCount(3);
-        ledger.Transactions[0].Action.Should().Be(LedgerAction.Added);
-        ledger.Transactions[1].Action.Should().Be(LedgerAction.Bought);
-        ledger.Transactions[2].Action.Should().Be(LedgerAction.Consumed);
+        ledger.Version.Should().Be(3);
+        ledger.UncommittedEvents.Should().HaveCount(3);
     }
 }

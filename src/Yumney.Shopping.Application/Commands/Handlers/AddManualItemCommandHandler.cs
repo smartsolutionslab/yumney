@@ -3,47 +3,39 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
 #pragma warning disable SA1601
 public sealed partial class AddManualItemCommandHandler(
-    IShoppingLedgerRepository ledgers,
+    IShoppingEventStore eventStore,
     ICurrentUser currentUser,
     ILogger<AddManualItemCommandHandler> logger) : ICommandHandler<AddManualItemCommand, Result<AddedItemDto>>
 {
     public async Task<Result<AddedItemDto>> HandleAsync(AddManualItemCommand command, CancellationToken cancellationToken = default)
     {
         var (itemName, explicitQuantity, explicitUnit) = command;
-        var owner = currentUser.AsOwner();
+        var ownerId = currentUser.UserId;
 
-        LogAddManualItem(owner.Value, itemName);
+        LogAddManualItem(ownerId, itemName);
 
         var resolved = ResolveQuantity(itemName, explicitQuantity, explicitUnit);
         var category = IngredientCategoryResolver.Resolve(itemName) ?? IngredientCategory.Other;
 
-        var ledger = await ledgers.FindByOwnerAsync(owner, cancellationToken);
-        if (ledger is null)
-        {
-            ledger = ShoppingLedger.Create(owner);
-            var tx = ledger.AddItem(ItemName.From(itemName), resolved.Quantity, resolved.Unit, TransactionSource.Manual);
-            await ledgers.AddAsync(ledger, cancellationToken);
-            return ToDto(itemName, resolved, category, tx);
-        }
+        var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
+            ?? ShoppingLedger.Create(ownerId);
 
-        var transaction = ledger.AddItem(ItemName.From(itemName), resolved.Quantity, resolved.Unit, TransactionSource.Manual);
-        await ledgers.SaveChangesAsync(cancellationToken);
-        return ToDto(itemName, resolved, category, transaction);
-    }
+        ledger.AddItem(itemName, resolved.Quantity, resolved.Unit, "manual");
 
-    private static Result<AddedItemDto> ToDto(
-        string itemName,
-        (decimal Quantity, string? Unit) resolved,
-        IngredientCategory category,
-        LedgerTransaction tx)
-    {
-        return new AddedItemDto(itemName, resolved.Quantity, resolved.Unit, category.Value, tx.Source.Value, tx.Id.Value);
+        await eventStore.SaveAsync(ledger, cancellationToken);
+
+        return new AddedItemDto(
+            itemName,
+            resolved.Quantity,
+            resolved.Unit,
+            category.Value,
+            "manual",
+            ledger.Id);
     }
 
     private static (decimal Quantity, string? Unit) ResolveQuantity(string itemName, decimal? explicitQuantity, string? explicitUnit)
