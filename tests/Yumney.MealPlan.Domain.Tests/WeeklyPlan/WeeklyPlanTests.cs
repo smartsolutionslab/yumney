@@ -119,4 +119,62 @@ public class WeeklyPlanTests
         week.Year.Should().Be(2026);
         week.WeekNumber.Should().Be(16);
     }
+
+    [Fact]
+    public void AssignRecipe_OverwritesExistingRecipe()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+
+        var newRecipeId = Guid.NewGuid();
+        plan.AssignRecipe(DayOfWeek.Monday, newRecipeId, "Steak");
+
+        var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
+        monday.RecipeIdentifier.Should().Be(newRecipeId);
+        monday.RecipeTitle.Should().Be("Steak");
+    }
+
+    [Fact]
+    public void SwapSlots_BothEmpty_NoOp()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).IsEmpty.Should().BeTrue();
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ClearSlot_AlreadyEmpty_NoError()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        var act = () => plan.ClearSlot(DayOfWeek.Friday);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void WeekIdentifier_ToString_ReturnsIsoFormat()
+    {
+        var week = WeekIdentifier.From(2026, 3);
+
+        week.ToString().Should().Be("2026-W03");
+    }
+
+    [Fact]
+    public void Slots_ContainAllSevenDays()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        var days = plan.Slots.Select(s => s.Day).ToList();
+        days.Should().Contain(DayOfWeek.Monday);
+        days.Should().Contain(DayOfWeek.Tuesday);
+        days.Should().Contain(DayOfWeek.Wednesday);
+        days.Should().Contain(DayOfWeek.Thursday);
+        days.Should().Contain(DayOfWeek.Friday);
+        days.Should().Contain(DayOfWeek.Saturday);
+        days.Should().Contain(DayOfWeek.Sunday);
+    }
 }

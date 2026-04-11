@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.MigrationRunner;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
@@ -23,6 +24,11 @@ builder.Services.AddDbContext<ShoppingDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("shoppingdb"),
         x => x.MigrationsHistoryTable("__ShoppingMigrationsHistory")));
+
+builder.Services.AddDbContext<MealPlanDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("mealplandb"),
+        x => x.MigrationsHistoryTable("__MealPlanMigrationsHistory")));
 
 builder.Services.AddHostedService<MigrationWorker>();
 

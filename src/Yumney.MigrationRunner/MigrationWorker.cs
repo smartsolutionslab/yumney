@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
@@ -23,6 +24,7 @@ public sealed partial class MigrationWorker(
             await ApplyMigrationsAsync<RecipesDbContext>("Recipes", stoppingToken);
             await ApplyMigrationsAsync<UsersDbContext>("Users", stoppingToken);
             await ApplyMigrationsAsync<ShoppingDbContext>("Shopping", stoppingToken);
+            await ApplyMigrationsAsync<MealPlanDbContext>("MealPlan", stoppingToken);
 
             LogAllMigrationsApplied(logger);
         }

@@ -20,7 +20,7 @@ var keycloakPassword = builder.AddParameter("KeycloakPassword", secret: true);
 var messagingPassword = builder.AddParameter("MessagingPassword", secret: true);
 var redisPassword = builder.AddParameter("RedisPassword", secret: true);
 
-IResourceBuilder<IResourceWithConnectionString> recipesDb, shoppingDb, usersDb, keycloakDb;
+IResourceBuilder<IResourceWithConnectionString> recipesDb, shoppingDb, usersDb, mealplanDb, keycloakDb;
 
 if (options.DatabaseOnly)
 {
@@ -28,6 +28,7 @@ if (options.DatabaseOnly)
     recipesDb = postgres.AddDatabase("recipesdb");
     shoppingDb = postgres.AddDatabase("shoppingdb");
     usersDb = postgres.AddDatabase("usersdb");
+    mealplanDb = postgres.AddDatabase("mealplandb");
     keycloakDb = postgres.AddDatabase("keycloakdb");
 }
 else
@@ -42,6 +43,7 @@ else
     recipesDb = postgres.AddDatabase("recipesdb");
     shoppingDb = postgres.AddDatabase("shoppingdb");
     usersDb = postgres.AddDatabase("usersdb");
+    mealplanDb = postgres.AddDatabase("mealplandb");
     keycloakDb = postgres.AddDatabase("keycloakdb");
 }
 
@@ -51,9 +53,11 @@ if (!options.DatabaseOnly)
         .WithReference(recipesDb)
         .WithReference(shoppingDb)
         .WithReference(usersDb)
+        .WithReference(mealplanDb)
         .WaitFor(recipesDb)
         .WaitFor(shoppingDb)
-        .WaitFor(usersDb);
+        .WaitFor(usersDb)
+        .WaitFor(mealplanDb);
 
     // ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
     var redis = builder.AddRedis("redis", password: redisPassword);
@@ -101,6 +105,9 @@ if (!options.DatabaseOnly)
     var usersApi = builder
         .AddProject<Projects.Yumney_Users_Api>("users-api")
         .AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
+    var mealplanApi = builder
+        .AddProject<Projects.Yumney_MealPlan_Api>("mealplan-api")
+        .AsYumneyApi(mealplanDb, keycloak, redis, messaging, migrationRunner);
 
     // ── Container Registry (GHCR for CI/CD) ──
 #pragma warning disable ASPIRECOMPUTE003
