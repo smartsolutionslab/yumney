@@ -24,6 +24,12 @@ public sealed class ShoppingLedger
 
     public IReadOnlyDictionary<string, ShoppingItemState> Items => items;
 
+    public bool IsInShoppingMode { get; private set; }
+
+    public DateTime? ShoppingModeStartedAt { get; private set; }
+
+    public int PendingChangesCount { get; private set; }
+
     private ShoppingLedger()
     {
     }
@@ -118,6 +124,18 @@ public sealed class ShoppingLedger
         RaiseEvent(new ShoppingItemQuantityAdjusted(itemName, newQuantity, unit));
     }
 
+    public void StartShoppingMode()
+    {
+        if (IsInShoppingMode) return;
+        RaiseEvent(new ShoppingModeStarted(DateTime.UtcNow));
+    }
+
+    public void EndShoppingMode(bool acceptPendingChanges)
+    {
+        if (!IsInShoppingMode) return;
+        RaiseEvent(new ShoppingModeEnded(acceptPendingChanges));
+    }
+
     public void MarkCommitted()
     {
         uncommittedEvents.Clear();
@@ -136,6 +154,7 @@ public sealed class ShoppingLedger
         {
             case ShoppingItemAdded e:
                 GetOrCreateItem(e.ItemName, e.Unit).OnList += e.Quantity;
+                if (IsInShoppingMode) PendingChangesCount++;
                 break;
             case ShoppingItemBought e:
                 GetOrCreateItem(e.ItemName, e.Unit).Bought += e.Quantity;
@@ -148,6 +167,16 @@ public sealed class ShoppingLedger
                 break;
             case ShoppingItemQuantityAdjusted e:
                 GetOrCreateItem(e.ItemName, e.Unit).OnList = e.NewQuantity;
+                break;
+            case ShoppingModeStarted e:
+                IsInShoppingMode = true;
+                ShoppingModeStartedAt = e.SnapshotTakenAt;
+                PendingChangesCount = 0;
+                break;
+            case ShoppingModeEnded:
+                IsInShoppingMode = false;
+                ShoppingModeStartedAt = null;
+                PendingChangesCount = 0;
                 break;
         }
     }
