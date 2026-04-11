@@ -121,6 +121,7 @@ if (!options.DatabaseOnly)
         recipesApi.WithContainerRegistry(registry);
         shoppingApi.WithContainerRegistry(registry);
         usersApi.WithContainerRegistry(registry);
+        mealplanApi.WithContainerRegistry(registry);
     }
 #pragma warning restore ASPIRECOMPUTE003
 
@@ -167,6 +168,7 @@ if (!options.DatabaseOnly)
     recipesApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 10, 20));
     shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 5, 50));
     usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
+    mealplanApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
     migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
     if (isRunMode)
@@ -200,11 +202,13 @@ if (!options.DatabaseOnly)
             .WithReference(recipesApi)
             .WithReference(shoppingApi)
             .WithReference(usersApi)
+            .WithReference(mealplanApi)
             .WithReference(shell)
             .WithReference(keycloak)
             .WaitFor(recipesApi)
             .WaitFor(shoppingApi)
             .WaitFor(usersApi)
+            .WaitFor(mealplanApi)
             .WaitFor(shell)
             .WaitFor(recipesMfe)
             .WaitFor(shoppingMfe)
@@ -230,6 +234,7 @@ if (!options.DatabaseOnly)
                 yarp.AddRoute("/api/v1/recipes/{**catch-all}", recipesApi);
                 yarp.AddRoute("/api/v1/shopping-lists/{**catch-all}", shoppingApi);
                 yarp.AddRoute("/api/v1/auth/{**catch-all}", usersApi);
+                yarp.AddRoute("/api/v1/meal-plans/{**catch-all}", mealplanApi);
                 yarp.AddRoute("/{**catch-all}", frontend.GetEndpoint("http"));
             })
             .WithExternalHttpEndpoints();
