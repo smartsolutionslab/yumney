@@ -29,6 +29,8 @@ public sealed partial class EfCoreShoppingEventStore(
         [nameof(ShoppingItemConsumed)] = typeof(ShoppingItemConsumed),
         [nameof(ShoppingItemRemoved)] = typeof(ShoppingItemRemoved),
         [nameof(ShoppingItemQuantityAdjusted)] = typeof(ShoppingItemQuantityAdjusted),
+        [nameof(ShoppingModeStarted)] = typeof(ShoppingModeStarted),
+        [nameof(ShoppingModeEnded)] = typeof(ShoppingModeEnded),
     };
 #pragma warning restore SA1311
 

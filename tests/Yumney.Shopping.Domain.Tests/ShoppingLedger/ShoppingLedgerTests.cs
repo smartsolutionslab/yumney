@@ -245,4 +245,76 @@ public class ShoppingLedgerTests
 
         act.Should().Throw<GuardException>();
     }
+
+    [Fact]
+    public void StartShoppingMode_SetsIsInShoppingMode()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+
+        ledger.StartShoppingMode();
+
+        ledger.IsInShoppingMode.Should().BeTrue();
+        ledger.ShoppingModeStartedAt.Should().NotBeNull();
+        ledger.PendingChangesCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void StartShoppingMode_AlreadyInMode_NoOp()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.StartShoppingMode();
+        var version = ledger.Version;
+
+        ledger.StartShoppingMode();
+
+        ledger.Version.Should().Be(version);
+    }
+
+    [Fact]
+    public void EndShoppingMode_ClearsShoppingState()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.StartShoppingMode();
+
+        ledger.EndShoppingMode(acceptPendingChanges: true);
+
+        ledger.IsInShoppingMode.Should().BeFalse();
+        ledger.ShoppingModeStartedAt.Should().BeNull();
+    }
+
+    [Fact]
+    public void EndShoppingMode_NotInMode_NoOp()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        var version = ledger.Version;
+
+        ledger.EndShoppingMode(acceptPendingChanges: false);
+
+        ledger.Version.Should().Be(version);
+    }
+
+    [Fact]
+    public void AddItem_WhileInShoppingMode_IncrementsPendingChanges()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 1, "L", "manual");
+        ledger.StartShoppingMode();
+
+        ledger.AddItem("Eggs", 6, "pc", "manual");
+        ledger.AddItem("Bread", 1, "pc", "manual");
+
+        ledger.PendingChangesCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void EndShoppingMode_ResetsPendingChanges()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.StartShoppingMode();
+        ledger.AddItem("Eggs", 6, "pc", "manual");
+
+        ledger.EndShoppingMode(acceptPendingChanges: false);
+
+        ledger.PendingChangesCount.Should().Be(0);
+    }
 }

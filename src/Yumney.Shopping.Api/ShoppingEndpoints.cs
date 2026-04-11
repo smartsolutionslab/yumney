@@ -57,6 +57,16 @@ public static class ShoppingEndpoints
             .WithTags("Shopping")
             .Produces<MergedShoppingListDto>();
 
+        group.MapPost("/shopping-mode/start", StartShoppingModeAsync)
+            .WithName("StartShoppingMode")
+            .WithTags("Shopping")
+            .Produces(StatusCodes.Status204NoContent);
+
+        group.MapPost("/shopping-mode/end", EndShoppingModeAsync)
+            .WithName("EndShoppingMode")
+            .WithTags("Shopping")
+            .Produces(StatusCodes.Status204NoContent);
+
         return app;
     }
 
@@ -164,5 +174,22 @@ public static class ShoppingEndpoints
         var query = new GetMergedShoppingListQuery();
         var result = await handler.HandleAsync(query, cancellationToken);
         return result.ToOk();
+    }
+
+    private static async Task<IResult> StartShoppingModeAsync(
+        ICommandHandler<StartShoppingModeCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(new StartShoppingModeCommand(), cancellationToken);
+        return result.ToNoContent();
+    }
+
+    private static async Task<IResult> EndShoppingModeAsync(
+        EndShoppingModeRequest request,
+        ICommandHandler<EndShoppingModeCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(new EndShoppingModeCommand(request.AcceptPendingChanges), cancellationToken);
+        return result.ToNoContent();
     }
 }
