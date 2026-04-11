@@ -4,6 +4,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 /// Internal mutable state for a single item in the shopping list.
 /// Rebuilt from events during aggregate hydration.
 /// </summary>
+#pragma warning disable SA1600
 public sealed class ShoppingItemState
 {
     public string ItemName { get; init; } = default!;
