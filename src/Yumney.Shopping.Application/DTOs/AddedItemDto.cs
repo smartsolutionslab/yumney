@@ -6,4 +6,4 @@ public sealed record AddedItemDto(
     string? Unit,
     string Category,
     string Source,
-    Guid TransactionIdentifier);
+    Guid LedgerIdentifier);

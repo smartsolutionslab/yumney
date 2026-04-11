@@ -3,6 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
@@ -15,26 +16,27 @@ public sealed partial class AddManualItemCommandHandler(
     public async Task<Result<AddedItemDto>> HandleAsync(AddManualItemCommand command, CancellationToken cancellationToken = default)
     {
         var (itemName, explicitQuantity, explicitUnit) = command;
+        var name = itemName.Value;
         var ownerId = currentUser.UserId;
 
-        LogAddManualItem(ownerId, itemName);
+        LogAddManualItem(ownerId, name);
 
-        var resolved = ResolveQuantity(itemName, explicitQuantity, explicitUnit);
-        var category = IngredientCategoryResolver.Resolve(itemName) ?? IngredientCategory.Other;
+        var resolved = ResolveQuantity(name, explicitQuantity, explicitUnit);
+        var category = IngredientCategoryResolver.Resolve(name) ?? IngredientCategory.Other;
 
         var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
             ?? ShoppingLedger.Create(ownerId);
 
-        ledger.AddItem(itemName, resolved.Quantity, resolved.Unit, "manual");
+        ledger.AddItem(name, resolved.Quantity, resolved.Unit, ItemSources.Manual);
 
         await eventStore.SaveAsync(ledger, cancellationToken);
 
         return new AddedItemDto(
-            itemName,
+            name,
             resolved.Quantity,
             resolved.Unit,
             category.Value,
-            "manual",
+            ItemSources.Manual,
             ledger.Id);
     }
 

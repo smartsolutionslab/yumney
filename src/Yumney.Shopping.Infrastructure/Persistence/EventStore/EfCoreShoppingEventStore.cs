@@ -109,7 +109,7 @@ public sealed partial class EfCoreShoppingEventStore(
 
         ledger.MarkCommitted();
 
-        await PublishEventsAsync(uncommitted, cancellationToken);
+        await PublishEventsAsync(ledger.OwnerId, uncommitted, cancellationToken);
 
         LogEventsSaved(ledger.OwnerId, uncommitted.Count, ledger.Version);
     }
@@ -139,20 +139,20 @@ public sealed partial class EfCoreShoppingEventStore(
         }
     }
 
-    private async Task PublishEventsAsync(List<IDomainEvent> events, CancellationToken cancellationToken)
+    private async Task PublishEventsAsync(string ownerId, List<IDomainEvent> events, CancellationToken cancellationToken)
     {
         foreach (var @event in events)
         {
             if (@event is ShoppingItemAdded added)
-                await eventBus.PublishAsync(new ShoppingItemAddedIntegrationEvent(added), cancellationToken);
+                await eventBus.PublishAsync(new ShoppingItemAddedIntegrationEvent(ownerId, added), cancellationToken);
             else if (@event is ShoppingItemBought bought)
-                await eventBus.PublishAsync(new ShoppingItemBoughtIntegrationEvent(bought), cancellationToken);
+                await eventBus.PublishAsync(new ShoppingItemBoughtIntegrationEvent(ownerId, bought), cancellationToken);
             else if (@event is ShoppingItemConsumed consumed)
-                await eventBus.PublishAsync(new ShoppingItemConsumedIntegrationEvent(consumed), cancellationToken);
+                await eventBus.PublishAsync(new ShoppingItemConsumedIntegrationEvent(ownerId, consumed), cancellationToken);
             else if (@event is ShoppingItemRemoved removed)
-                await eventBus.PublishAsync(new ShoppingItemRemovedIntegrationEvent(removed), cancellationToken);
+                await eventBus.PublishAsync(new ShoppingItemRemovedIntegrationEvent(ownerId, removed), cancellationToken);
             else if (@event is ShoppingItemQuantityAdjusted adjusted)
-                await eventBus.PublishAsync(new ShoppingItemQuantityAdjustedIntegrationEvent(adjusted), cancellationToken);
+                await eventBus.PublishAsync(new ShoppingItemQuantityAdjustedIntegrationEvent(ownerId, adjusted), cancellationToken);
         }
     }
 

@@ -1,4 +1,5 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
@@ -87,26 +88,33 @@ public sealed class ShoppingLedger
 
     public void AddItem(string itemName, decimal quantity, string? unit, string source)
     {
+        Ensure.That(itemName).IsNotNullOrWhiteSpace();
+        Ensure.That(source).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemAdded(itemName, quantity, unit, source));
     }
 
     public void MarkBought(string itemName, decimal quantity, string? unit)
     {
+        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemBought(itemName, quantity, unit));
     }
 
     public void MarkConsumed(string itemName, decimal quantity, string? unit, string source)
     {
+        Ensure.That(itemName).IsNotNullOrWhiteSpace();
+        Ensure.That(source).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemConsumed(itemName, quantity, unit, source));
     }
 
     public void RemoveItem(string itemName, decimal quantity, string? unit, string? reason = null)
     {
+        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemRemoved(itemName, quantity, unit, reason));
     }
 
     public void AdjustQuantity(string itemName, decimal newQuantity, string? unit)
     {
+        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemQuantityAdjusted(itemName, newQuantity, unit));
     }
 

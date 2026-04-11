@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
+
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 
 /// <summary>
@@ -16,7 +18,7 @@ public sealed class ShoppingListReadItem
 
     public string? Unit { get; set; }
 
-    public string Category { get; set; } = "other";
+    public string Category { get; set; } = IngredientCategory.Other.Value;
 
     public bool IsBought { get; set; }
 
