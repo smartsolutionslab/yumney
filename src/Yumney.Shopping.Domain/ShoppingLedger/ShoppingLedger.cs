@@ -124,6 +124,18 @@ public sealed class ShoppingLedger
         RaiseEvent(new ShoppingItemQuantityAdjusted(itemName, newQuantity, unit));
     }
 
+    public void UndoBought(string itemName, decimal quantity, string? unit)
+    {
+        Ensure.That(itemName).IsNotNullOrWhiteSpace();
+        RaiseEvent(new ShoppingItemUndoBought(itemName, quantity, unit));
+    }
+
+    public void AddAsAtHome(string itemName, decimal quantity, string? unit)
+    {
+        Ensure.That(itemName).IsNotNullOrWhiteSpace();
+        RaiseEvent(new ShoppingItemAddedAsAtHome(itemName, quantity, unit));
+    }
+
     public void StartShoppingMode()
     {
         if (IsInShoppingMode) return;
@@ -169,6 +181,14 @@ public sealed class ShoppingLedger
             case ShoppingItemQuantityAdjusted e:
                 GetOrCreateItem(e.ItemName, e.Unit).OnList = e.NewQuantity;
                 if (IsInShoppingMode) PendingChangesCount++;
+                break;
+            case ShoppingItemUndoBought e:
+                var undoItem = GetOrCreateItem(e.ItemName, e.Unit);
+                undoItem.Bought = Math.Max(0, undoItem.Bought - e.Quantity);
+                break;
+            case ShoppingItemAddedAsAtHome e:
+                var atHomeItem = GetOrCreateItem(e.ItemName, e.Unit);
+                atHomeItem.Bought += e.Quantity;
                 break;
             case ShoppingModeStarted e:
                 IsInShoppingMode = true;

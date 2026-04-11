@@ -419,4 +419,104 @@ public class ShoppingLedgerTests
         endEvent.Should().NotBeNull();
         endEvent!.AcceptedPendingChanges.Should().BeFalse();
     }
+
+    [Fact]
+    public void UndoBought_ReversesBoughtQuantity()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 2, "L", "manual");
+        ledger.MarkBought("Milk", 2, "L");
+
+        ledger.UndoBought("Milk", 2, "L");
+
+        var item = ledger.Items.Values.First();
+        item.Bought.Should().Be(0);
+        item.IsBought.Should().BeFalse();
+    }
+
+    [Fact]
+    public void UndoBought_PartialUndo()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 3, "L", "manual");
+        ledger.MarkBought("Milk", 3, "L");
+
+        ledger.UndoBought("Milk", 1, "L");
+
+        ledger.Items.Values.First().Bought.Should().Be(2);
+    }
+
+    [Fact]
+    public void UndoBought_NeverNegative()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 1, "L", "manual");
+
+        ledger.UndoBought("Milk", 5, "L");
+
+        ledger.Items.Values.First().Bought.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void UndoBought_EmptyItemName_ThrowsGuardException(string? itemName)
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+
+        var act = () => ledger.UndoBought(itemName!, 1, "L");
+
+        act.Should().Throw<GuardException>();
+    }
+
+    [Fact]
+    public void AddAsAtHome_AddsDirectlyToBought()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+
+        ledger.AddAsAtHome("Butter", 250, "g");
+
+        var item = ledger.Items.Values.First();
+        item.Bought.Should().Be(250);
+        item.OnList.Should().Be(0);
+        item.AtHome.Should().Be(250);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void AddAsAtHome_EmptyItemName_ThrowsGuardException(string? itemName)
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+
+        var act = () => ledger.AddAsAtHome(itemName!, 1, "pc");
+
+        act.Should().Throw<GuardException>();
+    }
+
+    [Fact]
+    public void FromEvents_RebuildsUndoBoughtState()
+    {
+        var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        original.AddItem("Milk", 2, "L", "manual");
+        original.MarkBought("Milk", 2, "L");
+        original.UndoBought("Milk", 2, "L");
+
+        var events = original.UncommittedEvents.ToList();
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
+
+        rebuilt.Items.Values.First().Bought.Should().Be(0);
+    }
+
+    [Fact]
+    public void FromEvents_RebuildsAddAsAtHomeState()
+    {
+        var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        original.AddAsAtHome("Butter", 250, "g");
+
+        var events = original.UncommittedEvents.ToList();
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
+
+        rebuilt.Items.Values.First().AtHome.Should().Be(250);
+    }
 }
