@@ -41,6 +41,7 @@
     <Project Path="src/Yumney.Users.Api/Yumney.Users.Api.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Yumney.MealPlan.Application.Tests/Yumney.MealPlan.Application.Tests.csproj" />
     <Project Path="tests/Yumney.MealPlan.Domain.Tests/Yumney.MealPlan.Domain.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Shared/">
