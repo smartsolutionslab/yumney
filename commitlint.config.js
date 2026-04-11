@@ -4,7 +4,7 @@ module.exports = {
     'scope-enum': [
       2,
       'always',
-      ['recipes', 'shopping', 'users', 'account', 'shared', 'api', 'shell', 'infra', 'ui', 'scaffold', 'ci', 'auth', 'e2e', 'frontend', 'test', 'domain', 'application'],
+      ['recipes', 'shopping', 'users', 'account', 'shared', 'api', 'shell', 'infra', 'ui', 'scaffold', 'ci', 'auth', 'e2e', 'frontend', 'test', 'domain', 'application', 'mealplan'],
     ],
     'header-max-length': [2, 'always', 120],
     'subject-case': [2, 'never', ['start-case', 'pascal-case', 'upper-case']],

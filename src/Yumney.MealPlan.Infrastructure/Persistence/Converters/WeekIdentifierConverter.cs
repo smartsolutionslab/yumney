@@ -4,6 +4,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Converters;
 
+#pragma warning disable SA1601
 internal sealed partial class WeekIdentifierConverter()
     : ValueConverter<WeekIdentifier, string>(
         v => v.Value,
