@@ -317,4 +317,106 @@ public class ShoppingLedgerTests
 
         ledger.PendingChangesCount.Should().Be(0);
     }
+
+    [Fact]
+    public void RemoveItem_WhileInShoppingMode_IncrementsPendingChanges()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 2, "L", "manual");
+        ledger.StartShoppingMode();
+
+        ledger.RemoveItem("Milk", 1, "L");
+
+        ledger.PendingChangesCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void AdjustQuantity_WhileInShoppingMode_IncrementsPendingChanges()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 2, "L", "manual");
+        ledger.StartShoppingMode();
+
+        ledger.AdjustQuantity("Milk", 5, "L");
+
+        ledger.PendingChangesCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void MarkBought_WhileInShoppingMode_DoesNotIncrementPendingChanges()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.AddItem("Milk", 2, "L", "manual");
+        ledger.StartShoppingMode();
+
+        ledger.MarkBought("Milk", 2, "L");
+
+        ledger.PendingChangesCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void AddItem_NotInShoppingMode_DoesNotTrackPending()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+
+        ledger.AddItem("Milk", 1, "L", "manual");
+
+        ledger.PendingChangesCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void FromEvents_RebuildShoppingModeState()
+    {
+        var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        original.AddItem("Milk", 1, "L", "manual");
+        original.StartShoppingMode();
+        original.AddItem("Eggs", 6, "pc", "manual");
+
+        var events = original.UncommittedEvents.ToList();
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
+
+        rebuilt.IsInShoppingMode.Should().BeTrue();
+        rebuilt.ShoppingModeStartedAt.Should().NotBeNull();
+        rebuilt.PendingChangesCount.Should().Be(1);
+    }
+
+    [Fact]
+    public void FromEvents_RebuildEndedShoppingMode()
+    {
+        var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        original.StartShoppingMode();
+        original.AddItem("Eggs", 6, "pc", "manual");
+        original.EndShoppingMode(acceptPendingChanges: true);
+
+        var events = original.UncommittedEvents.ToList();
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
+
+        rebuilt.IsInShoppingMode.Should().BeFalse();
+        rebuilt.PendingChangesCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void StartShoppingMode_RaisesCorrectEvent()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+
+        ledger.StartShoppingMode();
+
+        ledger.UncommittedEvents.Should().HaveCount(1);
+        ledger.UncommittedEvents.First().Should().BeOfType<ShoppingModeStarted>();
+    }
+
+    [Fact]
+    public void EndShoppingMode_RaisesCorrectEvent()
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+        ledger.StartShoppingMode();
+
+        ledger.EndShoppingMode(acceptPendingChanges: false);
+
+        ledger.UncommittedEvents.Should().HaveCount(2);
+        var endEvent = ledger.UncommittedEvents.Last() as ShoppingModeEnded;
+        endEvent.Should().NotBeNull();
+        endEvent!.AcceptedPendingChanges.Should().BeFalse();
+    }
 }

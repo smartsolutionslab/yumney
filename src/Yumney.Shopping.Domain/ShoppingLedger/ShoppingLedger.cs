@@ -164,9 +164,11 @@ public sealed class ShoppingLedger
                 break;
             case ShoppingItemRemoved e:
                 GetOrCreateItem(e.ItemName, e.Unit).Removed += e.Quantity;
+                if (IsInShoppingMode) PendingChangesCount++;
                 break;
             case ShoppingItemQuantityAdjusted e:
                 GetOrCreateItem(e.ItemName, e.Unit).OnList = e.NewQuantity;
+                if (IsInShoppingMode) PendingChangesCount++;
                 break;
             case ShoppingModeStarted e:
                 IsInShoppingMode = true;
