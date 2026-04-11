@@ -38,6 +38,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
         if (readItem is null) return;
 
         readItem.IsBought = true;
+        readItem.BoughtAt = DateTime.UtcNow;
         readItem.LastUpdated = DateTime.UtcNow;
 
         await context.SaveChangesAsync(cancellationToken);
