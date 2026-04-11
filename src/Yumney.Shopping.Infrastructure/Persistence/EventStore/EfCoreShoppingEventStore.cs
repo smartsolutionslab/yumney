@@ -29,6 +29,8 @@ public sealed partial class EfCoreShoppingEventStore(
         [nameof(ShoppingItemConsumed)] = typeof(ShoppingItemConsumed),
         [nameof(ShoppingItemRemoved)] = typeof(ShoppingItemRemoved),
         [nameof(ShoppingItemQuantityAdjusted)] = typeof(ShoppingItemQuantityAdjusted),
+        [nameof(ShoppingItemUndoBought)] = typeof(ShoppingItemUndoBought),
+        [nameof(ShoppingItemAddedAsAtHome)] = typeof(ShoppingItemAddedAsAtHome),
         [nameof(ShoppingModeStarted)] = typeof(ShoppingModeStarted),
         [nameof(ShoppingModeEnded)] = typeof(ShoppingModeEnded),
     };
