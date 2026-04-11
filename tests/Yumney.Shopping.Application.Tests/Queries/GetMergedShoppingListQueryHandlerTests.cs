@@ -38,8 +38,8 @@ public class GetMergedShoppingListQueryHandlerTests
     {
         var items = new List<MergedShoppingItemDto>
         {
-            new("Milk", 2, "L", "dairy", false, []),
-            new("Chicken", 500, "g", "meat-fish", false, []),
+            new("Milk", 2, 2, "L", "dairy", false, []),
+            new("Chicken", 500, 500, "g", "meat-fish", false, []),
         };
         readModel.GetByOwnerAsync("user-123", Arg.Any<CancellationToken>())
             .Returns(new MergedShoppingListDto(items));

@@ -20,7 +20,8 @@ public sealed class ShoppingListReadModelRepository(ShoppingDbContext context) :
             {
                 var sources = JsonSerializer.Deserialize<List<SourceEntry>>(r.SourcesJson) ?? [];
                 var sourceDtos = sources.Select(s => new ItemSourceDto(s.Quantity, s.Source, s.OccurredAt)).ToList();
-                return new MergedShoppingItemDto(r.ItemName, r.TotalQuantity, r.Unit, r.Category, r.IsBought, sourceDtos);
+                var rounded = QuantityRounder.RoundUp(r.TotalQuantity, r.Unit);
+                return new MergedShoppingItemDto(r.ItemName, r.TotalQuantity, rounded.DisplayQuantity, r.Unit, r.Category, r.IsBought, sourceDtos);
             })
             .OrderBy(i => IngredientCategory.From(i.Category).DisplayOrder)
             .ToList();
