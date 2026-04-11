@@ -26,7 +26,7 @@ public sealed class ShoppingItemState
     public bool IsBought => Bought > 0;
 
     /// <summary>
-    /// Key used for grouping: item name + unit (case-insensitive).
+    /// Gets the grouping key: item name + unit (case-insensitive).
     /// </summary>
     public string GroupKey => $"{ItemName.ToLowerInvariant()}|{Unit ?? string.Empty}";
 }

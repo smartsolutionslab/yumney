@@ -21,7 +21,7 @@ public sealed class ShoppingListReadItem
     public bool IsBought { get; set; }
 
     /// <summary>
-    /// JSON-serialized list of sources (source label + quantity + timestamp).
+    /// Gets or sets the JSON-serialized list of sources (source label + quantity + timestamp).
     /// </summary>
     public string SourcesJson { get; set; } = "[]";
 
