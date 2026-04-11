@@ -67,6 +67,11 @@ public static class ShoppingEndpoints
             .WithTags("Shopping")
             .Produces(StatusCodes.Status204NoContent);
 
+        group.MapGet("/export", ExportAsync)
+            .WithName("ExportShoppingList")
+            .WithTags("Shopping")
+            .Produces<string>(contentType: "text/plain");
+
         return app;
     }
 
@@ -191,5 +196,16 @@ public static class ShoppingEndpoints
     {
         var result = await handler.HandleAsync(new EndShoppingModeCommand(request.AcceptPendingChanges), cancellationToken);
         return result.ToNoContent();
+    }
+
+    private static async Task<IResult> ExportAsync(
+        IQueryHandler<ExportShoppingListQuery, Result<string>> handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(new ExportShoppingListQuery(), cancellationToken);
+        if (result.IsFailure)
+            return result.ToOk();
+
+        return Results.Text(result.Value, "text/plain");
     }
 }
