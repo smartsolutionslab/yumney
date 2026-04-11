@@ -45,7 +45,7 @@ public sealed class ExportShoppingListQueryHandler(
     /// <inheritdoc />
     public async Task<Result<string>> HandleAsync(ExportShoppingListQuery query, CancellationToken cancellationToken = default)
     {
-        var list = await readModel.GetByOwnerAsync(currentUser.UserId, cancellationToken);
+        var list = await readModel.GetByOwnerAsync(currentUser.UserId, cancellationToken: cancellationToken);
 
         var openItems = list.Items.Where(i => !i.IsBought).ToList();
         if (openItems.Count == 0)

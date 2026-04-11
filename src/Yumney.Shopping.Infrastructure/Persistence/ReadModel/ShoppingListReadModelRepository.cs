@@ -8,12 +8,21 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 
 public sealed class ShoppingListReadModelRepository(ShoppingDbContext context) : IShoppingListReadModelRepository
 {
-    public async Task<MergedShoppingListDto> GetByOwnerAsync(string ownerId, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<MergedShoppingListDto> GetByOwnerAsync(string ownerId, bool includePastBought = false, CancellationToken cancellationToken = default)
     {
-        var readItems = await context.ShoppingListReadItems
+        var today = DateTime.UtcNow.Date;
+
+        var query = context.ShoppingListReadItems
             .AsNoTracking()
-            .Where(r => r.OwnerId == ownerId)
-            .ToListAsync(cancellationToken);
+            .Where(r => r.OwnerId == ownerId);
+
+        if (!includePastBought)
+        {
+            query = query.Where(r => !r.IsBought || r.BoughtAt == null || r.BoughtAt >= today);
+        }
+
+        var readItems = await query.ToListAsync(cancellationToken);
 
         var dtoItems = readItems
             .Select(r =>
