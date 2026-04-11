@@ -9,6 +9,7 @@
     <ProjectReference Include="..\Yumney.Recipes.Infrastructure\Yumney.Recipes.Infrastructure.csproj" />
     <ProjectReference Include="..\Yumney.Users.Infrastructure\Yumney.Users.Infrastructure.csproj" />
     <ProjectReference Include="..\Yumney.Shopping.Infrastructure\Yumney.Shopping.Infrastructure.csproj" />
+    <ProjectReference Include="..\Yumney.MealPlan.Infrastructure\Yumney.MealPlan.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
