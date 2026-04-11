@@ -1,4 +1,5 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 using Xunit;
@@ -205,5 +206,43 @@ public class ShoppingLedgerTests
 
         ledger.Version.Should().Be(3);
         ledger.UncommittedEvents.Should().HaveCount(3);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void AddItem_EmptyItemName_ThrowsGuardException(string? itemName)
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+
+        var act = () => ledger.AddItem(itemName!, 1, "L", "manual");
+
+        act.Should().Throw<GuardException>();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void AddItem_EmptySource_ThrowsGuardException(string? source)
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+
+        var act = () => ledger.AddItem("Milk", 1, "L", source!);
+
+        act.Should().Throw<GuardException>();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void MarkBought_EmptyItemName_ThrowsGuardException(string? itemName)
+    {
+        var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
+
+        var act = () => ledger.MarkBought(itemName!, 1, "L");
+
+        act.Should().Throw<GuardException>();
     }
 }

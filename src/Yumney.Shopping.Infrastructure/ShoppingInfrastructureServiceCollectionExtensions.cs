@@ -35,6 +35,7 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
         services.AddScoped<ShoppingListProjectionHandler>();
         services.AddScoped<IIntegrationEventHandler<ShoppingItemAddedIntegrationEvent>, ShoppingListProjectionHandler>();
         services.AddScoped<IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>, ShoppingListProjectionHandler>();
+        services.AddScoped<IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>, ShoppingListProjectionHandler>();
         services.AddScoped<IIntegrationEventHandler<ShoppingItemRemovedIntegrationEvent>, ShoppingListProjectionHandler>();
         services.AddScoped<IIntegrationEventHandler<ShoppingItemQuantityAdjustedIntegrationEvent>, ShoppingListProjectionHandler>();
         services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");

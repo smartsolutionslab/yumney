@@ -149,11 +149,11 @@ public static class ShoppingEndpoints
         if (string.IsNullOrWhiteSpace(request.Name))
             return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Item name is required.");
 
-        var command = new AddManualItemCommand(request.Name.Trim(), request.Quantity, request.Unit);
+        var command = new AddManualItemCommand(ItemName.From(request.Name.Trim()), request.Quantity, request.Unit);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.IsSuccess
-            ? Results.Created($"/shopping-lists/items/{result.Value.TransactionIdentifier}", result.Value)
+            ? Results.Created($"/shopping-lists/items/{result.Value.LedgerIdentifier}", result.Value)
             : result.ToOk();
     }
 

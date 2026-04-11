@@ -2,12 +2,10 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 
-#pragma warning disable SA1204
 /// <summary>
 /// Async projection handler — rebuilds the read model from shopping events.
 /// Subscribes to integration events published by the event store.
@@ -15,16 +13,15 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
     : IIntegrationEventHandler<ShoppingItemAddedIntegrationEvent>,
       IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>,
+      IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>,
       IIntegrationEventHandler<ShoppingItemRemovedIntegrationEvent>,
       IIntegrationEventHandler<ShoppingItemQuantityAdjustedIntegrationEvent>
 {
+    /// <inheritdoc />
     public async Task HandleAsync(ShoppingItemAddedIntegrationEvent @event, CancellationToken cancellationToken = default)
     {
         var inner = @event.Inner;
-        var ownerId = await ResolveOwnerAsync(inner.Source, cancellationToken);
-        if (ownerId is null) return;
-
-        var readItem = await FindOrCreateAsync(ownerId, inner.ItemName, inner.Unit, cancellationToken);
+        var readItem = await FindOrCreateAsync(@event.OwnerId, inner.ItemName, inner.Unit, cancellationToken);
         readItem.TotalQuantity += inner.Quantity;
         readItem.LastUpdated = DateTime.UtcNow;
 
@@ -33,13 +30,11 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task HandleAsync(ShoppingItemBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
     {
         var inner = @event.Inner;
-        var ownerId = await ResolveOwnerFromRecentEventsAsync(inner.ItemName, cancellationToken);
-        if (ownerId is null) return;
-
-        var readItem = await FindAsync(ownerId, inner.ItemName, inner.Unit, cancellationToken);
+        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Unit, cancellationToken);
         if (readItem is null) return;
 
         readItem.IsBought = true;
@@ -48,13 +43,22 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
+    public async Task HandleAsync(ShoppingItemConsumedIntegrationEvent @event, CancellationToken cancellationToken = default)
+    {
+        var inner = @event.Inner;
+        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Unit, cancellationToken);
+        if (readItem is null) return;
+
+        readItem.LastUpdated = DateTime.UtcNow;
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task HandleAsync(ShoppingItemRemovedIntegrationEvent @event, CancellationToken cancellationToken = default)
     {
         var inner = @event.Inner;
-        var ownerId = await ResolveOwnerFromRecentEventsAsync(inner.ItemName, cancellationToken);
-        if (ownerId is null) return;
-
-        var readItem = await FindAsync(ownerId, inner.ItemName, inner.Unit, cancellationToken);
+        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Unit, cancellationToken);
         if (readItem is null) return;
 
         readItem.TotalQuantity = Math.Max(0, readItem.TotalQuantity - inner.Quantity);
@@ -66,13 +70,11 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task HandleAsync(ShoppingItemQuantityAdjustedIntegrationEvent @event, CancellationToken cancellationToken = default)
     {
         var inner = @event.Inner;
-        var ownerId = await ResolveOwnerFromRecentEventsAsync(inner.ItemName, cancellationToken);
-        if (ownerId is null) return;
-
-        var readItem = await FindAsync(ownerId, inner.ItemName, inner.Unit, cancellationToken);
+        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Unit, cancellationToken);
         if (readItem is null) return;
 
         readItem.TotalQuantity = inner.NewQuantity;
@@ -111,22 +113,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
                 cancellationToken);
     }
 
-    private async Task<string?> ResolveOwnerAsync(string source, CancellationToken cancellationToken)
-    {
-        // For now, resolve from the most recent aggregate metadata
-        return await ResolveOwnerFromRecentEventsAsync(string.Empty, cancellationToken);
-    }
-
-    private async Task<string?> ResolveOwnerFromRecentEventsAsync(string itemName, CancellationToken cancellationToken)
-    {
-        var metadata = await context.Set<AggregateMetadata>()
-            .AsNoTracking()
-            .OrderByDescending(m => m.AggregateId)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        return metadata?.OwnerId;
-    }
-
+#pragma warning disable SA1204
     private static void AppendSource(ShoppingListReadItem readItem, decimal quantity, string source)
     {
         var sources = JsonSerializer.Deserialize<List<SourceEntry>>(readItem.SourcesJson) ?? [];

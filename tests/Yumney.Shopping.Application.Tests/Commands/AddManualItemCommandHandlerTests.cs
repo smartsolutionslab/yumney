@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
@@ -29,7 +30,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
-        var command = new AddManualItemCommand("Potatoes", 2, "kg");
+        var command = new AddManualItemCommand(ItemName.From("Potatoes"), 2, "kg");
 
         var result = await handler.HandleAsync(command);
 
@@ -46,7 +47,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
-        var command = new AddManualItemCommand("Milk", null, null);
+        var command = new AddManualItemCommand(ItemName.From("Milk"), null, null);
 
         var result = await handler.HandleAsync(command);
 
@@ -62,7 +63,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
-        var command = new AddManualItemCommand("Chicken", 500, "g");
+        var command = new AddManualItemCommand(ItemName.From("Chicken"), 500, "g");
 
         var result = await handler.HandleAsync(command);
 
@@ -76,7 +77,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns((ShoppingLedger?)null);
 
-        var command = new AddManualItemCommand("Salt", null, null);
+        var command = new AddManualItemCommand(ItemName.From("Salt"), null, null);
 
         var result = await handler.HandleAsync(command);
 
@@ -91,7 +92,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
-        var command = new AddManualItemCommand("Bread", null, null);
+        var command = new AddManualItemCommand(ItemName.From("Bread"), null, null);
 
         var result = await handler.HandleAsync(command);
 
