@@ -18,5 +18,6 @@ public interface IShoppingEventStore
     /// </summary>
     /// <param name="ledger">The aggregate with uncommitted events.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A task representing the async operation.</returns>
     Task SaveAsync(ShoppingLedger ledger, CancellationToken cancellationToken = default);
 }
