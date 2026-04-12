@@ -457,6 +457,10 @@
     "loading": "Loading meal plan...",
     "servings": "servings",
     "clearSlot": "Clear this slot",
-    "retry": "Retry"
+    "retry": "Retry",
+    "generateShoppingList": "Generate Shopping List",
+    "generatingList": "Generating...",
+    "itemsAdded": "{{count}} items added",
+    "staplesSkipped": "{{count}} staples skipped"
   }
 }

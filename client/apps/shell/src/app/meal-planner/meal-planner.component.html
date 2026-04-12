@@ -24,6 +24,25 @@
     </div>
   }
 
+  @if (hasRecipeSlots()) {
+    <div class="planner-actions">
+      <button class="generate-btn" [disabled]="generatingList()" (click)="onGenerateShoppingList()">
+        <lucide-icon name="shopping-cart" [size]="16" />
+        {{
+          generatingList() ? t('mealPlanner.generatingList') : t('mealPlanner.generateShoppingList')
+        }}
+      </button>
+      @if (shoppingResult(); as result) {
+        <span class="shopping-result">
+          {{ t('mealPlanner.itemsAdded', { count: result.itemsAdded }) }}
+          @if (result.staplesSkipped > 0) {
+            ({{ t('mealPlanner.staplesSkipped', { count: result.staplesSkipped }) }})
+          }
+        </span>
+      }
+    </div>
+  }
+
   <div class="week-grid">
     @for (entry of dinnerSlots(); track entry.day) {
       <div

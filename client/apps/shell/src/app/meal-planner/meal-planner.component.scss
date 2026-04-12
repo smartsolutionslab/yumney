@@ -40,6 +40,37 @@
   }
 }
 
+.planner-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-4);
+  margin-bottom: var(--yn-space-5);
+}
+
+.generate-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-2);
+  padding: var(--yn-space-3) var(--yn-space-5);
+  border: none;
+  border-radius: var(--yn-radius-button);
+  background: var(--yn-primary);
+  color: var(--yn-text-inverse);
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-semibold);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.shopping-result {
+  color: var(--yn-success);
+  font-size: var(--yn-text-sm);
+}
+
 .week-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

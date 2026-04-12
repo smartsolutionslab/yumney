@@ -9,7 +9,12 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { MealPlanApiService, type WeeklyPlan, type MealSlot } from '@yumney/shared/api-client';
+import {
+  MealPlanApiService,
+  type WeeklyPlan,
+  type MealSlot,
+  type GenerateShoppingListResult,
+} from '@yumney/shared/api-client';
 
 @Component({
   selector: 'yn-meal-planner',
@@ -28,6 +33,8 @@ export class MealPlannerComponent {
   protected plan = signal<WeeklyPlan | null>(null);
   protected loading = signal(false);
   protected error = signal<string | null>(null);
+  protected generatingList = signal(false);
+  protected shoppingResult = signal<GenerateShoppingListResult | null>(null);
 
   protected weekLabel = computed(
     () => `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}`,
@@ -66,6 +73,31 @@ export class MealPlannerComponent {
       this.weekNumber.update((w) => w + 1);
     }
     this.loadPlan();
+  }
+
+  protected hasRecipeSlots = computed(
+    () => this.plan()?.slots.some((s) => s.contentType === 'Recipe') ?? false,
+  );
+
+  protected onGenerateShoppingList(): void {
+    this.generatingList.set(true);
+    this.shoppingResult.set(null);
+    this.error.set(null);
+
+    this.api
+      .generateShoppingList(this.year(), this.weekNumber())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.shoppingResult.set(result);
+          this.generatingList.set(false);
+          setTimeout(() => this.shoppingResult.set(null), 5000);
+        },
+        error: () => {
+          this.error.set('Failed to generate shopping list');
+          this.generatingList.set(false);
+        },
+      });
   }
 
   protected onClearSlot(day: string): void {

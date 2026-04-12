@@ -65,6 +65,12 @@ public static class MealPlanEndpoints
             .Produces<WeeklyPlanDto>()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapPost("/{year:int}/w/{weekNumber:int}/generate-shopping-list", GenerateShoppingListAsync)
+            .WithName("GenerateShoppingList")
+            .WithTags("MealPlan")
+            .Produces<GenerateShoppingListResult>()
+            .ProducesProblem(StatusCodes.Status400BadRequest);
+
         return app;
     }
 
@@ -187,6 +193,17 @@ public static class MealPlanEndpoints
         CancellationToken cancellationToken)
     {
         var command = new ClearMealSlotCommand(year, weekNumber, request.Day, request.MealType);
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> GenerateShoppingListAsync(
+        int year,
+        int weekNumber,
+        ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResult>> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new GenerateShoppingListCommand(year, weekNumber);
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }

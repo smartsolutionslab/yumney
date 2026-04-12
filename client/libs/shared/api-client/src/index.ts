@@ -59,6 +59,7 @@ export type {
   AdjustServingsRequest,
   ConfirmMealRequest,
   CookWithLeftoversRequest,
+  GenerateShoppingListResult,
 } from './lib/meal-plan';
 export { UserProfileApiService } from './lib/user-profile-api.service';
 export type { UserProfile, DietaryProfileDto, UpdateProfileRequest } from './lib/user-profile';
