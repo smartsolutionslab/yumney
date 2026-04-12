@@ -41,6 +41,8 @@ export const API_ENDPOINTS = {
       `${API_BASE}/meal-plans/${year}/w/${week}/cook-with-leftovers`,
     plannedRecipes: (year: number, week: number) =>
       `${API_BASE}/meal-plans/${year}/w/${week}/planned-recipes`,
+    generateShoppingList: (year: number, week: number) =>
+      `${API_BASE}/meal-plans/${year}/w/${week}/generate-shopping-list`,
   },
   auth: {
     register: `${API_BASE}/auth/register`,

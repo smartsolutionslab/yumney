@@ -457,6 +457,10 @@
     "loading": "Essensplan wird geladen...",
     "servings": "Portionen",
     "clearSlot": "Slot leeren",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "generateShoppingList": "Einkaufsliste erstellen",
+    "generatingList": "Wird erstellt...",
+    "itemsAdded": "{{count}} Artikel hinzugefügt",
+    "staplesSkipped": "{{count}} Grundzutaten übersprungen"
   }
 }

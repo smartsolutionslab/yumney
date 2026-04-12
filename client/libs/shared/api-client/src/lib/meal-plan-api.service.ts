@@ -11,6 +11,7 @@ import type {
   AdjustServingsRequest,
   ConfirmMealRequest,
   CookWithLeftoversRequest,
+  GenerateShoppingListResult,
 } from './meal-plan';
 
 @Injectable({ providedIn: 'root' })
@@ -66,5 +67,12 @@ export class MealPlanApiService {
 
   getPlannedRecipes(year: number, week: number): Observable<WeeklyPlannedRecipes> {
     return this.http.get<WeeklyPlannedRecipes>(API_ENDPOINTS.mealPlans.plannedRecipes(year, week));
+  }
+
+  generateShoppingList(year: number, week: number): Observable<GenerateShoppingListResult> {
+    return this.http.post<GenerateShoppingListResult>(
+      API_ENDPOINTS.mealPlans.generateShoppingList(year, week),
+      {},
+    );
   }
 }

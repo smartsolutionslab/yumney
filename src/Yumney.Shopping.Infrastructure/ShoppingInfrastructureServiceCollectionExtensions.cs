@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
@@ -10,6 +11,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Services;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure;
 
@@ -31,6 +33,7 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 
         services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
         services.AddScoped<IShoppingEventStore, EfCoreShoppingEventStore>();
+        services.AddScoped<IShoppingListWriter, ShoppingListWriter>();
         services.AddScoped<IShoppingListReadModelRepository, ShoppingListReadModelRepository>();
         services.AddScoped<ShoppingListProjectionHandler>();
         services.AddScoped<IIntegrationEventHandler<ShoppingItemAddedIntegrationEvent>, ShoppingListProjectionHandler>();

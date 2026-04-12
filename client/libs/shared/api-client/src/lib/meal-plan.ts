@@ -71,3 +71,8 @@ export interface CookWithLeftoversRequest {
   leftoverDay: string;
   mealType?: string;
 }
+
+export interface GenerateShoppingListResult {
+  itemsAdded: number;
+  staplesSkipped: number;
+}

@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure;
@@ -21,6 +23,7 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 
         services.AddScoped<IRecipeRepository, RecipeRepository>();
         services.AddScoped<IRecipeFavoriteRepository, RecipeFavoriteRepository>();
+        services.AddScoped<IRecipeIngredientProvider, RecipeIngredientProvider>();
         services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
 
         return services;
