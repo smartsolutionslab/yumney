@@ -10,6 +10,7 @@ public static class MealSlotMappingExtensions
             slot.Day.ToString(),
             slot.MealType.ToString(),
             slot.ContentType.ToString(),
+            slot.State.ToString(),
             slot.RecipeIdentifier,
             slot.RecipeTitle,
             slot.Servings,

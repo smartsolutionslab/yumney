@@ -26,6 +26,8 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
 
     public MealType? LeftoverSourceMealType { get; private set; }
 
+    public MealState State { get; private set; }
+
     public bool IsEmpty => ContentType == SlotContentType.Empty;
 
     private MealSlot()
@@ -93,9 +95,24 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         Servings = servings;
     }
 
+    internal void MarkAsCooked()
+    {
+        State = MealState.Cooked;
+    }
+
+    internal void MarkAsSkipped()
+    {
+        State = MealState.Skipped;
+    }
+
+    internal void ResetToPlanned()
+    {
+        State = MealState.Planned;
+    }
+
     internal SlotSnapshot TakeSnapshot()
     {
-        return new SlotSnapshot(ContentType, RecipeIdentifier, RecipeTitle, Servings, FreetextLabel, LeftoverSourceDay, LeftoverSourceMealType);
+        return new SlotSnapshot(ContentType, RecipeIdentifier, RecipeTitle, Servings, FreetextLabel, LeftoverSourceDay, LeftoverSourceMealType, State);
     }
 
     internal void RestoreFromSnapshot(SlotSnapshot snapshot)
@@ -107,6 +124,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         FreetextLabel = snapshot.FreetextLabel;
         LeftoverSourceDay = snapshot.LeftoverSourceDay;
         LeftoverSourceMealType = snapshot.LeftoverSourceMealType;
+        State = snapshot.State;
     }
 
     internal sealed record SlotSnapshot(
@@ -116,5 +134,6 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         int Servings,
         string? FreetextLabel,
         DayOfWeek? LeftoverSourceDay,
-        MealType? LeftoverSourceMealType);
+        MealType? LeftoverSourceMealType,
+        MealState State);
 }
