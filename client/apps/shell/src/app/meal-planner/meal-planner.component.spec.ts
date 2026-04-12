@@ -196,4 +196,21 @@ describe('MealPlannerComponent', () => {
     expect(fixture.nativeElement.querySelector('.error')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('.retry-btn')).toBeTruthy();
   });
+
+  it('should navigate to previous week', () => {
+    const initialCalls = apiMock.getWeeklyPlan.mock.calls.length;
+
+    fixture.componentInstance['onPreviousWeek']();
+    fixture.detectChanges();
+
+    expect(apiMock.getWeeklyPlan.mock.calls.length).toBeGreaterThan(initialCalls);
+  });
+
+  it('should call clearSlot API when clearing a slot', () => {
+    fixture.componentInstance['onClearSlot']('Monday');
+
+    expect(apiMock.clearSlot).toHaveBeenCalledWith(expect.any(Number), expect.any(Number), {
+      day: 'Monday',
+    });
+  });
 });
