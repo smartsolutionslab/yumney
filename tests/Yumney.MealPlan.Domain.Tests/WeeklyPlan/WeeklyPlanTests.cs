@@ -273,4 +273,48 @@ public class WeeklyPlanTests
 
         plan.GetVisibleSlots().Should().HaveCount(7);
     }
+
+    [Fact]
+    public void AssignRecipe_BreakfastInDefaultMode_ThrowsEntityNotFoundException()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        var act = () => plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Cereal", MealType.Breakfast);
+
+        act.Should().Throw<EntityNotFoundException>();
+    }
+
+    [Fact]
+    public void ClearSlot_BreakfastInDefaultMode_ThrowsEntityNotFoundException()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        var act = () => plan.ClearSlot(DayOfWeek.Monday, MealType.Breakfast);
+
+        act.Should().Throw<EntityNotFoundException>();
+    }
+
+    [Fact]
+    public void SwapSlots_BreakfastInExtendedMode_Works()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.EnableExtendedMode();
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pancakes", MealType.Breakfast);
+
+        plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday, MealType.Breakfast);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Breakfast).IsEmpty.Should().BeTrue();
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).RecipeTitle.Should().Be("Pancakes");
+    }
+
+    [Fact]
+    public void DisableExtendedMode_NotExtended_NoOp()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        plan.DisableExtendedMode();
+
+        plan.IsExtendedMode.Should().BeFalse();
+        plan.Slots.Should().HaveCount(7);
+    }
 }

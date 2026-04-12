@@ -23,7 +23,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Migration
                 type: "character varying(10)",
                 maxLength: 10,
                 nullable: false,
-                defaultValue: "");
+                defaultValue: "Dinner");
         }
 
         /// <inheritdoc />
