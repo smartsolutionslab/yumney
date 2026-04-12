@@ -1,0 +1,195 @@
+@use 'glass';
+@use 'breakpoints' as bp;
+
+.meal-planner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--yn-space-5);
+}
+
+.planner-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yn-space-5);
+  margin-bottom: var(--yn-space-7);
+
+  h1 {
+    margin: 0;
+    font-size: var(--yn-text-2xl);
+    font-weight: var(--yn-font-bold);
+    color: var(--yn-text);
+  }
+}
+
+.nav-btn {
+  @include glass.glass-surface(1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--yn-radius-circle);
+  border: 1px solid var(--yn-glass-border);
+  cursor: pointer;
+  color: var(--yn-text);
+  transition: background var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover {
+    background: var(--yn-glass-bg-elevated);
+  }
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--yn-space-3);
+
+  @include bp.respond-below('lg') {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @include bp.respond-below('md') {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: var(--yn-space-3);
+    padding-bottom: var(--yn-space-3);
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+.day-card {
+  @include glass.glass-surface(1);
+  border-radius: var(--yn-radius-card);
+  padding: var(--yn-space-4);
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--yn-duration-fast) var(--yn-ease-glass);
+
+  @include bp.respond-below('md') {
+    min-width: 200px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  &.today {
+    border: 2px solid var(--yn-primary);
+  }
+
+  &.has-meal {
+    border-color: var(--yn-glass-border);
+  }
+}
+
+.day-header {
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-semibold);
+  color: var(--yn-text-muted);
+  margin-bottom: var(--yn-space-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.meal-content {
+  flex: 1;
+  position: relative;
+}
+
+.meal-title {
+  font-size: var(--yn-text-base);
+  font-weight: var(--yn-font-semibold);
+  color: var(--yn-text);
+  margin-bottom: var(--yn-space-2);
+}
+
+.meal-servings {
+  font-size: var(--yn-text-sm);
+  color: var(--yn-text-muted);
+}
+
+.meal-freetext {
+  font-size: var(--yn-text-base);
+  color: var(--yn-text-muted);
+  font-style: italic;
+}
+
+.meal-leftover {
+  font-size: var(--yn-text-sm);
+  color: var(--yn-text-muted);
+}
+
+.meal-state {
+  font-size: var(--yn-text-xs);
+  padding: var(--yn-space-1) var(--yn-space-2);
+  border-radius: var(--yn-radius-badge);
+  display: inline-block;
+  margin-top: var(--yn-space-2);
+
+  &.state-cooked {
+    background: var(--yn-success-light);
+    color: var(--yn-success);
+  }
+
+  &.state-skipped {
+    background: var(--yn-warning-light);
+    color: var(--yn-warning);
+  }
+}
+
+.clear-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: var(--yn-text-muted);
+  cursor: pointer;
+  padding: var(--yn-space-1);
+  opacity: 0;
+  transition: opacity var(--yn-duration-fast);
+
+  .day-card:hover & {
+    opacity: 1;
+  }
+}
+
+.empty-slot {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--yn-text-placeholder);
+  cursor: pointer;
+  border-radius: var(--yn-radius-card);
+  transition: background var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover {
+    background: var(--yn-glass-bg);
+  }
+}
+
+.loading {
+  text-align: center;
+  color: var(--yn-text-muted);
+  padding: var(--yn-space-7);
+}
+
+.error {
+  text-align: center;
+  color: var(--yn-danger);
+  padding: var(--yn-space-5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-btn,
+  .clear-btn,
+  .empty-slot,
+  .day-card {
+    transition: none;
+  }
+}

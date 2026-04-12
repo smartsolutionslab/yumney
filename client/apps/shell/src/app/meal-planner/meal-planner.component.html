@@ -1,0 +1,72 @@
+<div class="meal-planner" *transloco="let t">
+  <div class="planner-header">
+    <button
+      class="nav-btn"
+      (click)="onPreviousWeek()"
+      [attr.aria-label]="t('mealPlanner.previousWeek')"
+    >
+      <lucide-icon name="chevron-left" [size]="20" />
+    </button>
+    <h1>{{ weekLabel() }}</h1>
+    <button class="nav-btn" (click)="onNextWeek()" [attr.aria-label]="t('mealPlanner.nextWeek')">
+      <lucide-icon name="chevron-right" [size]="20" />
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">{{ t('mealPlanner.loading') }}</div>
+  }
+
+  @if (error(); as err) {
+    <div class="error" role="alert">{{ err }}</div>
+  }
+
+  <div class="week-grid">
+    @for (entry of dinnerSlots(); track entry.day) {
+      <div
+        class="day-card"
+        [class.today]="isToday(entry.day)"
+        [class.has-meal]="entry.slot && !entry.slot.isEmpty"
+      >
+        <div class="day-header">{{ entry.day }}</div>
+
+        @if (entry.slot && !entry.slot.isEmpty) {
+          <div class="meal-content">
+            @switch (entry.slot.contentType) {
+              @case ('Recipe') {
+                <div class="meal-title">{{ entry.slot.recipeTitle }}</div>
+                <div class="meal-servings">
+                  {{ entry.slot.servings }} {{ t('mealPlanner.servings') }}
+                </div>
+              }
+              @case ('Freetext') {
+                <div class="meal-freetext">{{ entry.slot.freetextLabel }}</div>
+              }
+              @case ('Leftover') {
+                <div class="meal-leftover">{{ entry.slot.recipeTitle }}</div>
+              }
+            }
+
+            @if (entry.slot.state !== 'Planned') {
+              <div class="meal-state" [class]="'state-' + entry.slot.state.toLowerCase()">
+                {{ entry.slot.state }}
+              </div>
+            }
+
+            <button
+              class="clear-btn"
+              (click)="onClearSlot(entry.day)"
+              [attr.aria-label]="t('mealPlanner.clearSlot')"
+            >
+              <lucide-icon name="x" [size]="14" />
+            </button>
+          </div>
+        } @else {
+          <div class="empty-slot">
+            <lucide-icon name="plus" [size]="24" />
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

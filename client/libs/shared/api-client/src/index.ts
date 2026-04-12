@@ -39,3 +39,16 @@ export type {
   ChatRequest,
   ChatResponse,
 } from './lib/chat-message';
+export { MealPlanApiService } from './lib/meal-plan-api.service';
+export type {
+  MealSlot,
+  WeeklyPlan,
+  PlannedRecipe,
+  WeeklyPlannedRecipes,
+  AssignRecipeRequest,
+  SwapSlotsRequest,
+  ClearSlotRequest,
+  AdjustServingsRequest,
+  ConfirmMealRequest,
+  CookWithLeftoversRequest,
+} from './lib/meal-plan';

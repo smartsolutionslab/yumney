@@ -21,6 +21,22 @@ export const API_ENDPOINTS = {
       `${API_BASE}/shopping-lists/${listIdentifier}/items/${itemIdentifier}/check`,
     checkAll: (listIdentifier: string) => `${API_BASE}/shopping-lists/${listIdentifier}/check-all`,
   },
+  mealPlans: {
+    byWeek: (year: number, week: number) => `${API_BASE}/meal-plans/${year}/w/${week}`,
+    slots: (year: number, week: number) => `${API_BASE}/meal-plans/${year}/w/${week}/slots`,
+    slotsSwap: (year: number, week: number) =>
+      `${API_BASE}/meal-plans/${year}/w/${week}/slots/swap`,
+    slotsServings: (year: number, week: number) =>
+      `${API_BASE}/meal-plans/${year}/w/${week}/slots/servings`,
+    slotsConfirm: (year: number, week: number) =>
+      `${API_BASE}/meal-plans/${year}/w/${week}/slots/confirm`,
+    extendedMode: (year: number, week: number) =>
+      `${API_BASE}/meal-plans/${year}/w/${week}/extended-mode`,
+    cookWithLeftovers: (year: number, week: number) =>
+      `${API_BASE}/meal-plans/${year}/w/${week}/cook-with-leftovers`,
+    plannedRecipes: (year: number, week: number) =>
+      `${API_BASE}/meal-plans/${year}/w/${week}/planned-recipes`,
+  },
   auth: {
     register: `${API_BASE}/auth/register`,
     resendVerificationEmail: `${API_BASE}/auth/resend-verification-email`,
