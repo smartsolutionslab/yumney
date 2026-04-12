@@ -36,6 +36,12 @@ public static class MealPlanEndpoints
             .Produces<WeeklyPlanDto>()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapPost("/{year:int}/w/{weekNumber:int}/cook-with-leftovers", CookWithLeftoversAsync)
+            .WithName("CookWithLeftovers")
+            .WithTags("MealPlan")
+            .Produces<WeeklyPlanDto>()
+            .ProducesProblem(StatusCodes.Status400BadRequest);
+
         return app;
     }
 
@@ -90,6 +96,27 @@ public static class MealPlanEndpoints
         CancellationToken cancellationToken)
     {
         var command = new AdjustSlotServingsCommand(year, weekNumber, request.Day, request.MealType, request.Servings);
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> CookWithLeftoversAsync(
+        int year,
+        int weekNumber,
+        CookWithLeftoversRequest request,
+        ICommandHandler<CookWithLeftoversCommand, Result<WeeklyPlanDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new CookWithLeftoversCommand(
+            year,
+            weekNumber,
+            request.CookDay,
+            request.RecipeIdentifier,
+            request.RecipeTitle,
+            request.TotalServings,
+            request.EatServings,
+            request.LeftoverDay,
+            request.MealType);
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
