@@ -92,4 +92,29 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
     {
         Servings = servings;
     }
+
+    internal SlotSnapshot TakeSnapshot()
+    {
+        return new SlotSnapshot(ContentType, RecipeIdentifier, RecipeTitle, Servings, FreetextLabel, LeftoverSourceDay, LeftoverSourceMealType);
+    }
+
+    internal void RestoreFromSnapshot(SlotSnapshot snapshot)
+    {
+        ContentType = snapshot.ContentType;
+        RecipeIdentifier = snapshot.RecipeIdentifier;
+        RecipeTitle = snapshot.RecipeTitle;
+        Servings = snapshot.Servings;
+        FreetextLabel = snapshot.FreetextLabel;
+        LeftoverSourceDay = snapshot.LeftoverSourceDay;
+        LeftoverSourceMealType = snapshot.LeftoverSourceMealType;
+    }
+
+    internal sealed record SlotSnapshot(
+        SlotContentType ContentType,
+        Guid? RecipeIdentifier,
+        string? RecipeTitle,
+        int Servings,
+        string? FreetextLabel,
+        DayOfWeek? LeftoverSourceDay,
+        MealType? LeftoverSourceMealType);
 }

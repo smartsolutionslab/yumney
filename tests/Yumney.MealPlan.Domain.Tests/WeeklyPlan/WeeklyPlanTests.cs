@@ -413,4 +413,55 @@ public class WeeklyPlanTests
 
         plan.Slots.Should().OnlyContain(s => s.ContentType == SlotContentType.Empty);
     }
+
+    [Fact]
+    public void SwapSlots_RecipeWithFreetext_SwapsAllContent()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        var recipeId = Guid.NewGuid();
+        plan.AssignRecipe(DayOfWeek.Monday, recipeId, "Pasta");
+        plan.SetFreetext(DayOfWeek.Tuesday, "Eating out");
+
+        plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
+
+        var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
+        monday.ContentType.Should().Be(SlotContentType.Freetext);
+        monday.FreetextLabel.Should().Be("Eating out");
+        monday.RecipeIdentifier.Should().BeNull();
+
+        var tuesday = plan.Slots.First(s => s.Day == DayOfWeek.Tuesday);
+        tuesday.ContentType.Should().Be(SlotContentType.Recipe);
+        tuesday.RecipeIdentifier.Should().Be(recipeId);
+        tuesday.FreetextLabel.Should().BeNull();
+    }
+
+    [Fact]
+    public void SwapSlots_RecipeWithLeftover_SwapsAllContent()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Bolognese");
+        plan.SetLeftover(DayOfWeek.Wednesday, DayOfWeek.Monday, MealType.Dinner, "Bolognese");
+
+        plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Wednesday);
+
+        var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
+        monday.ContentType.Should().Be(SlotContentType.Leftover);
+        monday.LeftoverSourceDay.Should().Be(DayOfWeek.Monday);
+
+        var wednesday = plan.Slots.First(s => s.Day == DayOfWeek.Wednesday);
+        wednesday.ContentType.Should().Be(SlotContentType.Recipe);
+        wednesday.RecipeTitle.Should().Be("Bolognese");
+    }
+
+    [Fact]
+    public void SwapSlots_FreetextWithEmpty_MovesContent()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.SetFreetext(DayOfWeek.Monday, "Pizza order");
+
+        plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).IsEmpty.Should().BeTrue();
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).FreetextLabel.Should().Be("Pizza order");
+    }
 }
