@@ -49,7 +49,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
 
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta", 8);
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta", servings: 8);
 
         plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(8);
     }
@@ -176,5 +176,101 @@ public class WeeklyPlanTests
         days.Should().Contain(DayOfWeek.Friday);
         days.Should().Contain(DayOfWeek.Saturday);
         days.Should().Contain(DayOfWeek.Sunday);
+    }
+
+    [Fact]
+    public void Create_DefaultMode_AllSlotsDinner()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        plan.IsExtendedMode.Should().BeFalse();
+        plan.Slots.Should().OnlyContain(s => s.MealType == MealType.Dinner);
+    }
+
+    [Fact]
+    public void EnableExtendedMode_Adds21Slots()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        plan.EnableExtendedMode();
+
+        plan.IsExtendedMode.Should().BeTrue();
+        plan.Slots.Should().HaveCount(21);
+    }
+
+    [Fact]
+    public void EnableExtendedMode_PreservesDinnerRecipes()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+
+        plan.EnableExtendedMode();
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Dinner).RecipeTitle.Should().Be("Pasta");
+    }
+
+    [Fact]
+    public void EnableExtendedMode_AlreadyExtended_NoOp()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.EnableExtendedMode();
+
+        plan.EnableExtendedMode();
+
+        plan.Slots.Should().HaveCount(21);
+    }
+
+    [Fact]
+    public void DisableExtendedMode_ShowsOnlyDinner()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.EnableExtendedMode();
+
+        plan.DisableExtendedMode();
+
+        plan.IsExtendedMode.Should().BeFalse();
+        plan.GetVisibleSlots().Should().HaveCount(7);
+        plan.GetVisibleSlots().Should().OnlyContain(s => s.MealType == MealType.Dinner);
+    }
+
+    [Fact]
+    public void DisableExtendedMode_PreservesAllData()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.EnableExtendedMode();
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Cereal", MealType.Breakfast);
+
+        plan.DisableExtendedMode();
+
+        plan.Slots.Should().HaveCount(21);
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Breakfast).RecipeTitle.Should().Be("Cereal");
+    }
+
+    [Fact]
+    public void AssignRecipe_BreakfastSlot_InExtendedMode()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.EnableExtendedMode();
+
+        plan.AssignRecipe(DayOfWeek.Tuesday, Guid.NewGuid(), "Pancakes", MealType.Breakfast);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).RecipeTitle.Should().Be("Pancakes");
+    }
+
+    [Fact]
+    public void GetVisibleSlots_ExtendedMode_ReturnsAll21()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.EnableExtendedMode();
+
+        plan.GetVisibleSlots().Should().HaveCount(21);
+    }
+
+    [Fact]
+    public void GetVisibleSlots_DefaultMode_Returns7()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        plan.GetVisibleSlots().Should().HaveCount(7);
     }
 }

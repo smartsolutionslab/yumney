@@ -18,21 +18,22 @@ public sealed class AssignRecipeCommandHandler(
         if (plan is null)
         {
             plan = WeeklyPlan.Create(owner, week);
-            plan.AssignRecipe(command.Day, command.RecipeIdentifier, command.RecipeTitle, command.Servings);
+            plan.AssignRecipe(command.Day, command.RecipeIdentifier, command.RecipeTitle, command.MealType, command.Servings);
             await plans.AddAsync(plan, cancellationToken);
         }
         else
         {
             plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
-            plan.AssignRecipe(command.Day, command.RecipeIdentifier, command.RecipeTitle, command.Servings);
+            plan.AssignRecipe(command.Day, command.RecipeIdentifier, command.RecipeTitle, command.MealType, command.Servings);
             await plans.SaveChangesAsync(cancellationToken);
         }
 
-        var slots = plan.Slots
+        var visibleSlots = plan.GetVisibleSlots()
             .OrderBy(s => s.Day)
-            .Select(s => new MealSlotDto(s.Day.ToString(), s.RecipeIdentifier, s.RecipeTitle, s.Servings, s.IsEmpty))
+            .ThenBy(s => s.MealType)
+            .Select(s => new MealSlotDto(s.Day.ToString(), s.MealType.ToString(), s.RecipeIdentifier, s.RecipeTitle, s.Servings, s.IsEmpty))
             .ToList();
 
-        return new WeeklyPlanDto(week.Value, slots);
+        return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, visibleSlots);
     }
 }

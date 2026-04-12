@@ -5,15 +5,21 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
 /// <summary>
 /// A weekly meal plan — one per user per week.
-/// Contains 7 meal slots (one per day, default mode).
+/// Default mode: 7 Dinner slots. Extended mode: 21 slots (Breakfast + Lunch + Dinner).
 /// </summary>
+#pragma warning disable SA1311
 public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
 {
+    private static readonly DayOfWeek[] allDays =
+        [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday];
+
     private readonly List<MealSlot> slots = [];
 
     public OwnerIdentifier Owner { get; private set; } = default!;
 
     public WeekIdentifier Week { get; private set; } = default!;
+
+    public bool IsExtendedMode { get; private set; }
 
     public IReadOnlyList<MealSlot> Slots => slots.AsReadOnly();
 
@@ -22,12 +28,12 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     }
 
     /// <summary>
-    /// Create a new weekly plan with empty slots for each day.
+    /// Create a new weekly plan with Dinner slots for each day (default mode).
     /// </summary>
     /// <param name="owner">The user who owns this plan.</param>
     /// <param name="week">The week this plan covers.</param>
     /// <param name="defaultServings">Default servings per slot (from household profile).</param>
-    /// <returns>A new weekly plan with 7 empty slots.</returns>
+    /// <returns>A new weekly plan with 7 empty Dinner slots.</returns>
     public static WeeklyPlan Create(OwnerIdentifier owner, WeekIdentifier week, int defaultServings = 4)
     {
         var plan = new WeeklyPlan
@@ -37,50 +43,88 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
             Week = week,
         };
 
-        plan.slots.Add(MealSlot.Create(DayOfWeek.Monday, defaultServings));
-        plan.slots.Add(MealSlot.Create(DayOfWeek.Tuesday, defaultServings));
-        plan.slots.Add(MealSlot.Create(DayOfWeek.Wednesday, defaultServings));
-        plan.slots.Add(MealSlot.Create(DayOfWeek.Thursday, defaultServings));
-        plan.slots.Add(MealSlot.Create(DayOfWeek.Friday, defaultServings));
-        plan.slots.Add(MealSlot.Create(DayOfWeek.Saturday, defaultServings));
-        plan.slots.Add(MealSlot.Create(DayOfWeek.Sunday, defaultServings));
+        foreach (var day in allDays)
+            plan.slots.Add(MealSlot.Create(day, MealType.Dinner, defaultServings));
 
         return plan;
     }
 
     /// <summary>
-    /// Assign a recipe to a specific day's slot.
+    /// Enable extended mode — adds Breakfast and Lunch slots for each day.
+    /// Existing Dinner slots are preserved.
+    /// </summary>
+    /// <param name="defaultServings">Default servings for new slots.</param>
+    public void EnableExtendedMode(int defaultServings = 4)
+    {
+        if (IsExtendedMode) return;
+
+        foreach (var day in allDays)
+        {
+            if (!slots.Any(s => s.Day == day && s.MealType == MealType.Breakfast))
+                slots.Add(MealSlot.Create(day, MealType.Breakfast, defaultServings));
+            if (!slots.Any(s => s.Day == day && s.MealType == MealType.Lunch))
+                slots.Add(MealSlot.Create(day, MealType.Lunch, defaultServings));
+        }
+
+        IsExtendedMode = true;
+    }
+
+    /// <summary>
+    /// Disable extended mode — hides Breakfast and Lunch slots but preserves their data.
+    /// Only Dinner slots are visible in default mode.
+    /// </summary>
+    public void DisableExtendedMode()
+    {
+        IsExtendedMode = false;
+    }
+
+    /// <summary>
+    /// Get slots visible in the current mode.
+    /// </summary>
+    /// <returns>Dinner slots only in default mode, all slots in extended mode.</returns>
+    public IReadOnlyList<MealSlot> GetVisibleSlots()
+    {
+        return IsExtendedMode
+            ? slots.AsReadOnly()
+            : slots.Where(s => s.MealType == MealType.Dinner).ToList().AsReadOnly();
+    }
+
+    /// <summary>
+    /// Assign a recipe to a specific slot.
     /// </summary>
     /// <param name="day">The day of the week.</param>
     /// <param name="recipeIdentifier">The recipe identifier.</param>
     /// <param name="recipeTitle">The recipe title for display.</param>
+    /// <param name="mealType">The meal type (defaults to Dinner).</param>
     /// <param name="servings">Optional serving count override.</param>
-    public void AssignRecipe(DayOfWeek day, Guid recipeIdentifier, string recipeTitle, int? servings = null)
+    public void AssignRecipe(DayOfWeek day, Guid recipeIdentifier, string recipeTitle, MealType mealType = MealType.Dinner, int? servings = null)
     {
         Ensure.That(recipeTitle).IsNotNullOrWhiteSpace();
-        var slot = FindSlot(day);
+        var slot = FindSlot(day, mealType);
         slot.AssignRecipe(recipeIdentifier, recipeTitle, servings);
     }
 
     /// <summary>
-    /// Remove the recipe from a specific day's slot.
+    /// Remove the recipe from a specific slot.
     /// </summary>
     /// <param name="day">The day of the week.</param>
-    public void ClearSlot(DayOfWeek day)
+    /// <param name="mealType">The meal type (defaults to Dinner).</param>
+    public void ClearSlot(DayOfWeek day, MealType mealType = MealType.Dinner)
     {
-        var slot = FindSlot(day);
+        var slot = FindSlot(day, mealType);
         slot.ClearRecipe();
     }
 
     /// <summary>
-    /// Swap the meals between two days.
+    /// Swap the meals between two slots.
     /// </summary>
     /// <param name="day1">First day.</param>
     /// <param name="day2">Second day.</param>
-    public void SwapSlots(DayOfWeek day1, DayOfWeek day2)
+    /// <param name="mealType">The meal type to swap (defaults to Dinner).</param>
+    public void SwapSlots(DayOfWeek day1, DayOfWeek day2, MealType mealType = MealType.Dinner)
     {
-        var slot1 = FindSlot(day1);
-        var slot2 = FindSlot(day2);
+        var slot1 = FindSlot(day1, mealType);
+        var slot2 = FindSlot(day2, mealType);
 
         var tempRecipe = slot1.RecipeIdentifier;
         var tempTitle = slot1.RecipeTitle;
@@ -97,9 +141,10 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
             slot2.ClearRecipe();
     }
 
-    private MealSlot FindSlot(DayOfWeek day)
+    private MealSlot FindSlot(DayOfWeek day, MealType mealType)
     {
-        return slots.FirstOrDefault(s => s.Day == day)
-            ?? throw new EntityNotFoundException(nameof(MealSlot), day.ToString());
+        return slots.FirstOrDefault(s => s.Day == day && s.MealType == mealType)
+            ?? throw new EntityNotFoundException(nameof(MealSlot), $"{day}/{mealType}");
     }
 }
+#pragma warning restore SA1311
