@@ -464,4 +464,37 @@ public class WeeklyPlanTests
         plan.Slots.First(s => s.Day == DayOfWeek.Monday).IsEmpty.Should().BeTrue();
         plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).FreetextLabel.Should().Be("Pizza order");
     }
+
+    [Fact]
+    public void AdjustServings_ChangesSlotServings()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15), 4);
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+
+        plan.AdjustServings(DayOfWeek.Monday, 8);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(8);
+    }
+
+    [Fact]
+    public void AdjustServings_DefaultServingsPreservedOnOtherSlots()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15), 4);
+
+        plan.AdjustServings(DayOfWeek.Monday, 6);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Should().Be(4);
+    }
+
+    [Fact]
+    public void SwapSlots_PreservesServings()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15), 4);
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta", servings: 8);
+
+        plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Should().Be(8);
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(4);
+    }
 }
