@@ -317,4 +317,100 @@ public class WeeklyPlanTests
         plan.IsExtendedMode.Should().BeFalse();
         plan.Slots.Should().HaveCount(7);
     }
+
+    [Fact]
+    public void SetFreetext_SetsContentType()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        plan.SetFreetext(DayOfWeek.Monday, "Eating out");
+
+        var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
+        monday.ContentType.Should().Be(SlotContentType.Freetext);
+        monday.FreetextLabel.Should().Be("Eating out");
+        monday.IsEmpty.Should().BeFalse();
+        monday.RecipeIdentifier.Should().BeNull();
+    }
+
+    [Fact]
+    public void SetFreetext_EmptyLabel_ThrowsGuardException()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        var act = () => plan.SetFreetext(DayOfWeek.Monday, string.Empty);
+
+        act.Should().Throw<GuardException>();
+    }
+
+    [Fact]
+    public void SetLeftover_SetsContentTypeAndSource()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Bolognese");
+
+        plan.SetLeftover(DayOfWeek.Wednesday, DayOfWeek.Monday, MealType.Dinner, "Bolognese");
+
+        var wednesday = plan.Slots.First(s => s.Day == DayOfWeek.Wednesday);
+        wednesday.ContentType.Should().Be(SlotContentType.Leftover);
+        wednesday.LeftoverSourceDay.Should().Be(DayOfWeek.Monday);
+        wednesday.LeftoverSourceMealType.Should().Be(MealType.Dinner);
+        wednesday.RecipeTitle.Should().Contain("Bolognese");
+        wednesday.IsEmpty.Should().BeFalse();
+    }
+
+    [Fact]
+    public void SetLeftover_EmptyTitle_ThrowsGuardException()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        var act = () => plan.SetLeftover(DayOfWeek.Wednesday, DayOfWeek.Monday, MealType.Dinner, string.Empty);
+
+        act.Should().Throw<GuardException>();
+    }
+
+    [Fact]
+    public void AssignRecipe_SetsContentTypeToRecipe()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        plan.AssignRecipe(DayOfWeek.Tuesday, Guid.NewGuid(), "Steak");
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).ContentType.Should().Be(SlotContentType.Recipe);
+    }
+
+    [Fact]
+    public void ClearSlot_ResetsContentTypeToEmpty()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.SetFreetext(DayOfWeek.Monday, "Pizza night");
+
+        plan.ClearSlot(DayOfWeek.Monday);
+
+        var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
+        monday.ContentType.Should().Be(SlotContentType.Empty);
+        monday.FreetextLabel.Should().BeNull();
+        monday.IsEmpty.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AssignRecipe_ClearsFreetextAndLeftoverFields()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.SetFreetext(DayOfWeek.Monday, "Eating out");
+
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+
+        var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
+        monday.ContentType.Should().Be(SlotContentType.Recipe);
+        monday.FreetextLabel.Should().BeNull();
+        monday.LeftoverSourceDay.Should().BeNull();
+    }
+
+    [Fact]
+    public void Create_AllSlotsStartEmpty()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        plan.Slots.Should().OnlyContain(s => s.ContentType == SlotContentType.Empty);
+    }
 }

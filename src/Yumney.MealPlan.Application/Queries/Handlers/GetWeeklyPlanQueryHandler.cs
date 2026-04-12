@@ -18,24 +18,10 @@ public sealed class GetWeeklyPlanQueryHandler(
 
         if (plan is null)
         {
-            var emptySlots = Enumerable.Range(0, 7)
-                .Select(i => new MealSlotDto(
-                    ((DayOfWeek)((i + 1) % 7)).ToString(),
-                    MealType.Dinner.ToString(),
-                    null,
-                    null,
-                    4,
-                    true))
-                .ToList();
-            return new WeeklyPlanDto(week.Value, false, emptySlots);
+            var empty = WeeklyPlan.Create(owner, week);
+            return new WeeklyPlanDto(week.Value, false, empty.GetVisibleSlots().ToOrderedDtos());
         }
 
-        var visibleSlots = plan.GetVisibleSlots()
-            .OrderBy(s => s.Day)
-            .ThenBy(s => s.MealType)
-            .Select(s => new MealSlotDto(s.Day.ToString(), s.MealType.ToString(), s.RecipeIdentifier, s.RecipeTitle, s.Servings, s.IsEmpty))
-            .ToList();
-
-        return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, visibleSlots);
+        return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
     }
 }
