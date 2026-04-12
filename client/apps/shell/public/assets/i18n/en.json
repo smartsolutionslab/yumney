@@ -449,5 +449,12 @@
       "mealPlanner": "Plan meals, swap days, suggest recipes for the week...",
       "account": "Update your preferences, dietary profile, or household settings..."
     }
+  },
+  "mealPlanner": {
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "loading": "Loading meal plan...",
+    "servings": "servings",
+    "clearSlot": "Clear this slot"
   }
 }

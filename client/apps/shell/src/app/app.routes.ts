@@ -27,6 +27,13 @@ export const appRoutes: Route[] = [
     loadChildren: () => loadRemoteModule('shopping', './routes').then((m) => m.shoppingRoutes),
   },
   {
+    path: 'meal-planner',
+    title: 'Meal Planner — Yumney',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./meal-planner/meal-planner.component').then((m) => m.MealPlannerComponent),
+  },
+  {
     path: 'account',
     title: 'Account — Yumney',
     canActivate: [authGuard],

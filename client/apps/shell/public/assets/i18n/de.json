@@ -449,5 +449,12 @@
       "mealPlanner": "Mahlzeiten planen, Tage tauschen, Rezepte für die Woche vorschlagen...",
       "account": "Einstellungen, Ernährungsprofil oder Haushaltsgröße anpassen..."
     }
+  },
+  "mealPlanner": {
+    "previousWeek": "Vorherige Woche",
+    "nextWeek": "Nächste Woche",
+    "loading": "Essensplan wird geladen...",
+    "servings": "Portionen",
+    "clearSlot": "Slot leeren"
   }
 }
