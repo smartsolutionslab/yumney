@@ -152,6 +152,7 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
     public void AdjustServings(DayOfWeek day, int servings, MealType mealType = MealType.Dinner)
     {
+        Ensure.That(servings).IsPositive();
         var slot = FindSlot(day, mealType);
         slot.AdjustServingsTo(servings);
     }

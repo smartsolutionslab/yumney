@@ -497,4 +497,16 @@ public class WeeklyPlanTests
         plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Should().Be(8);
         plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(4);
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void AdjustServings_ZeroOrNegative_ThrowsGuardException(int servings)
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        var act = () => plan.AdjustServings(DayOfWeek.Monday, servings);
+
+        act.Should().Throw<GuardException>();
+    }
 }
