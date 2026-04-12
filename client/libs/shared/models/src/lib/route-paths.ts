@@ -11,6 +11,7 @@ export const ROUTES = {
     edit: (identifier: string) => `/recipes/${identifier}/edit`,
     cook: (identifier: string) => `/recipes/${identifier}/cook`,
   },
+  mealPlanner: '/meal-planner',
   shopping: {
     list: '/shopping',
     detail: (identifier: string) => `/shopping/${identifier}`,

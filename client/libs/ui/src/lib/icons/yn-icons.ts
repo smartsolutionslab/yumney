@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   BookOpen,
+  CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -34,6 +35,7 @@ import {
 export const YN_ICONS = {
   ArrowLeft,
   BookOpen,
+  CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,

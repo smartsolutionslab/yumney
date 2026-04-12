@@ -183,6 +183,24 @@
   text-align: center;
   color: var(--yn-danger);
   padding: var(--yn-space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--yn-space-3);
+}
+
+.retry-btn {
+  padding: var(--yn-space-2) var(--yn-space-4);
+  border: 1px solid var(--yn-danger);
+  border-radius: var(--yn-radius-button);
+  background: none;
+  color: var(--yn-danger);
+  cursor: pointer;
+  font-size: var(--yn-text-sm);
+
+  &:hover {
+    background: var(--yn-danger-light);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

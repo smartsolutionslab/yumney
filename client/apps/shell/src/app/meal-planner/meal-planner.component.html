@@ -18,7 +18,10 @@
   }
 
   @if (error(); as err) {
-    <div class="error" role="alert">{{ err }}</div>
+    <div class="error" role="alert">
+      {{ err }}
+      <button class="retry-btn" (click)="onRetry()">{{ t('mealPlanner.retry') }}</button>
+    </div>
   }
 
   <div class="week-grid">

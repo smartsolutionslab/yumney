@@ -77,6 +77,7 @@
       "recipes": "Recipes",
       "myRecipes": "My Recipes",
       "shoppingLists": "Shopping Lists",
+      "mealPlanner": "Meal Planner",
       "navigation": "Main navigation",
       "settings": "User settings",
       "switchLanguage": "Switch language",
@@ -455,6 +456,7 @@
     "nextWeek": "Next week",
     "loading": "Loading meal plan...",
     "servings": "servings",
-    "clearSlot": "Clear this slot"
+    "clearSlot": "Clear this slot",
+    "retry": "Retry"
   }
 }
