@@ -1,4 +1,5 @@
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
+using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
@@ -10,4 +11,5 @@ public sealed record AssignRecipeCommand(
     DayOfWeek Day,
     Guid RecipeIdentifier,
     string RecipeTitle,
-    int? Servings) : ICommand<Result<WeeklyPlanDto>>;
+    MealType MealType = MealType.Dinner,
+    int? Servings = null) : ICommand<Result<WeeklyPlanDto>>;

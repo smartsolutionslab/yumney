@@ -3,11 +3,14 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
 /// <summary>
-/// A single meal slot within a weekly plan — one per day (default mode).
+/// A single meal slot within a weekly plan.
+/// Default mode: one Dinner slot per day. Extended mode: Breakfast + Lunch + Dinner.
 /// </summary>
 public sealed class MealSlot : Entity<MealSlotIdentifier>
 {
     public DayOfWeek Day { get; private set; }
+
+    public MealType MealType { get; private set; }
 
     public Guid? RecipeIdentifier { get; private set; }
 
@@ -21,12 +24,13 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
     {
     }
 
-    internal static MealSlot Create(DayOfWeek day, int defaultServings)
+    internal static MealSlot Create(DayOfWeek day, MealType mealType, int defaultServings)
     {
         return new MealSlot
         {
             Id = MealSlotIdentifier.New(),
             Day = day,
+            MealType = mealType,
             Servings = defaultServings,
         };
     }

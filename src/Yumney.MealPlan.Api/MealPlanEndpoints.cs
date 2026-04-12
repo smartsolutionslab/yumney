@@ -52,6 +52,7 @@ public static class MealPlanEndpoints
             request.Day,
             request.RecipeIdentifier,
             request.RecipeTitle,
+            request.MealType,
             request.Servings);
 
         var result = await handler.HandleAsync(command, cancellationToken);
