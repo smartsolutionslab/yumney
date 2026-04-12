@@ -17,6 +17,7 @@ const en = {
       navigation: 'Main navigation',
       recipes: 'My Recipes',
       shoppingLists: 'Shopping Lists',
+      mealPlanner: 'Meal Planner',
       logout: 'Logout',
       login: 'Login',
       openChat: 'Open chat',
@@ -151,6 +152,18 @@ describe('HeaderComponent', () => {
       (el as HTMLElement).textContent?.includes('Shopping Lists'),
     );
     expect(shoppingLink).toBeTruthy();
+  });
+
+  it('should render the meal planner nav link when user is authenticated', () => {
+    isAuthenticated.set(true);
+
+    fixture.detectChanges();
+
+    const navLinks = fixture.nativeElement.querySelectorAll('.nav-link');
+    const mealPlannerLink = Array.from(navLinks).find((el) =>
+      (el as HTMLElement).textContent?.includes('Meal Planner'),
+    );
+    expect(mealPlannerLink).toBeTruthy();
   });
 
   // ── Chat toggle ────────────────────────────────────────────────
