@@ -158,6 +158,51 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     }
 
     /// <summary>
+    /// Mark a meal as cooked — ingredients consumed from balance sheet.
+    /// </summary>
+    /// <param name="day">The day of the week.</param>
+    /// <param name="mealType">The meal type (defaults to Dinner).</param>
+    public void MarkAsCooked(DayOfWeek day, MealType mealType = MealType.Dinner)
+    {
+        var slot = FindSlot(day, mealType);
+        slot.MarkAsCooked();
+    }
+
+    /// <summary>
+    /// Mark a meal as skipped — ingredients stay at home.
+    /// </summary>
+    /// <param name="day">The day of the week.</param>
+    /// <param name="mealType">The meal type (defaults to Dinner).</param>
+    public void MarkAsSkipped(DayOfWeek day, MealType mealType = MealType.Dinner)
+    {
+        var slot = FindSlot(day, mealType);
+        slot.MarkAsSkipped();
+    }
+
+    /// <summary>
+    /// Reset a cooked/skipped meal back to planned.
+    /// </summary>
+    /// <param name="day">The day of the week.</param>
+    /// <param name="mealType">The meal type (defaults to Dinner).</param>
+    public void ResetToPlanned(DayOfWeek day, MealType mealType = MealType.Dinner)
+    {
+        var slot = FindSlot(day, mealType);
+        slot.ResetToPlanned();
+    }
+
+    /// <summary>
+    /// Get meals that need cooked confirmation (planned recipes from past days).
+    /// </summary>
+    /// <param name="today">Today's day of week.</param>
+    /// <returns>Slots that are Recipe type, still in Planned state, and before today.</returns>
+    public IReadOnlyList<MealSlot> GetUnconfirmedPastMeals(DayOfWeek today)
+    {
+        return slots
+            .Where(s => s.ContentType == SlotContentType.Recipe && s.State == MealState.Planned && s.Day < today)
+            .ToList();
+    }
+
+    /// <summary>
     /// Swap the meals between two slots.
     /// </summary>
     /// <param name="day1">First day.</param>

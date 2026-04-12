@@ -509,4 +509,73 @@ public class WeeklyPlanTests
 
         act.Should().Throw<GuardException>();
     }
+
+    [Fact]
+    public void MarkAsCooked_SetsState()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+
+        plan.MarkAsCooked(DayOfWeek.Monday);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).State.Should().Be(MealState.Cooked);
+    }
+
+    [Fact]
+    public void MarkAsSkipped_SetsState()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+
+        plan.MarkAsSkipped(DayOfWeek.Monday);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).State.Should().Be(MealState.Skipped);
+    }
+
+    [Fact]
+    public void ResetToPlanned_ResetsState()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.MarkAsCooked(DayOfWeek.Monday);
+
+        plan.ResetToPlanned(DayOfWeek.Monday);
+
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).State.Should().Be(MealState.Planned);
+    }
+
+    [Fact]
+    public void Create_AllSlotsStartAsPlanned()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+
+        plan.Slots.Should().OnlyContain(s => s.State == MealState.Planned);
+    }
+
+    [Fact]
+    public void GetUnconfirmedPastMeals_ReturnsOnlyPlannedRecipesBeforeToday()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Tuesday, Guid.NewGuid(), "Steak");
+        plan.MarkAsCooked(DayOfWeek.Monday);
+
+        var unconfirmed = plan.GetUnconfirmedPastMeals(DayOfWeek.Wednesday);
+
+        unconfirmed.Should().HaveCount(1);
+        unconfirmed[0].Day.Should().Be(DayOfWeek.Tuesday);
+    }
+
+    [Fact]
+    public void GetUnconfirmedPastMeals_ExcludesFreetextAndLeftover()
+    {
+        var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
+        plan.SetFreetext(DayOfWeek.Monday, "Eating out");
+        plan.AssignRecipe(DayOfWeek.Tuesday, Guid.NewGuid(), "Steak");
+
+        var unconfirmed = plan.GetUnconfirmedPastMeals(DayOfWeek.Wednesday);
+
+        unconfirmed.Should().HaveCount(1);
+        unconfirmed[0].RecipeTitle.Should().Be("Steak");
+    }
 }
