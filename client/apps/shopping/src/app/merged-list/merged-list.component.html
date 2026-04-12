@@ -1,0 +1,71 @@
+<div class="merged-list" *transloco="let t">
+  <div class="list-header">
+    <h1>{{ t('shopping.title') }}</h1>
+    <div class="list-actions">
+      <button class="export-btn" (click)="onExport()" [attr.aria-label]="t('shopping.export')">
+        <lucide-icon name="share" [size]="18" />
+      </button>
+    </div>
+  </div>
+
+  @if (totalItems() > 0) {
+    <div class="progress-bar">
+      {{ boughtItems() }} / {{ totalItems() }} {{ t('shopping.checked') }}
+    </div>
+  }
+
+  <div class="add-item">
+    <input
+      type="text"
+      [ngModel]="newItemName()"
+      (ngModelChange)="newItemName.set($event)"
+      (keydown)="onKeydown($event)"
+      [placeholder]="t('shopping.addPlaceholder')"
+      class="add-input"
+    />
+    <button class="add-btn" (click)="onAddItem()" [disabled]="!newItemName().trim()">
+      <lucide-icon name="plus" [size]="18" />
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">{{ t('shopping.loading') }}</div>
+  }
+
+  @if (error(); as err) {
+    <div class="error" role="alert">
+      {{ err }}
+      <button class="retry-btn" (click)="onRetry()">{{ t('shopping.retry') }}</button>
+    </div>
+  }
+
+  @for (group of categoryGroups(); track group.category) {
+    <div class="category-group">
+      <h2 class="category-header">{{ getCategoryLabel(group.category) }}</h2>
+
+      @for (item of group.items; track item.itemName) {
+        <div class="item-row" [class.bought]="item.isBought">
+          <div class="item-info">
+            <span class="item-quantity"
+              >{{ item.displayQuantity }}{{ item.unit ? ' ' + item.unit : '' }}</span
+            >
+            <span class="item-name">{{ item.itemName }}</span>
+          </div>
+          <button
+            class="remove-btn"
+            (click)="onRemoveItem(item.itemName)"
+            [attr.aria-label]="t('shopping.remove')"
+          >
+            <lucide-icon name="x" [size]="14" />
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading() && totalItems() === 0) {
+    <div class="empty-state">
+      <p>{{ t('shopping.empty') }}</p>
+    </div>
+  }
+</div>
