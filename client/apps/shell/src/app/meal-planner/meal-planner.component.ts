@@ -96,24 +96,19 @@ export class MealPlannerComponent {
       });
   }
 
+  protected onRetry(): void {
+    this.loadPlan();
+  }
+
   protected isToday(dayName: string): boolean {
-    const dayMap: Record<string, number> = {
-      Sunday: 0,
-      Monday: 1,
-      Tuesday: 2,
-      Wednesday: 3,
-      Thursday: 4,
-      Friday: 5,
-      Saturday: 6,
-    };
-    return dayMap[dayName] === new Date().getDay();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[new Date().getDay()] === dayName;
   }
 
   private getCurrentWeek(): number {
     const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const diff = now.getTime() - start.getTime();
-    const oneWeek = 604800000;
-    return Math.ceil((diff / oneWeek + start.getDay() + 1) / 7);
+    const jan4 = new Date(now.getFullYear(), 0, 4);
+    const daysDiff = Math.floor((now.getTime() - jan4.getTime()) / 86400000);
+    return Math.ceil((daysDiff + jan4.getDay() + 1) / 7);
   }
 }
