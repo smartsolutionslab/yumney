@@ -1,0 +1,122 @@
+<div class="profile-settings" *transloco="let t">
+  <h1>{{ t('account.settings.title') }}</h1>
+
+  @if (loading()) {
+    <div class="loading">{{ t('account.settings.loading') }}</div>
+  }
+
+  @if (error(); as err) {
+    <div class="error" role="alert">
+      {{ err }}
+      <button class="retry-btn" (click)="onRetry()">{{ t('account.settings.retry') }}</button>
+    </div>
+  }
+
+  @if (profile(); as p) {
+    <form (submit)="$event.preventDefault(); onSave()">
+      <section class="settings-section">
+        <h2>{{ t('account.settings.household') }}</h2>
+        <div class="form-field">
+          <label for="servings">{{ t('account.settings.defaultServings') }}</label>
+          <input
+            id="servings"
+            type="number"
+            min="1"
+            max="12"
+            [ngModel]="defaultServings()"
+            (ngModelChange)="defaultServings.set($event)"
+            name="servings"
+          />
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>{{ t('account.settings.dietary') }}</h2>
+        <div class="form-field">
+          <label for="dietaryType">{{ t('account.settings.dietaryType') }}</label>
+          <select
+            id="dietaryType"
+            [ngModel]="dietaryType()"
+            (ngModelChange)="dietaryType.set($event)"
+            name="dietaryType"
+          >
+            <option value="">{{ t('account.settings.none') }}</option>
+            @for (type of dietaryTypes; track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>{{ t('account.settings.restrictions') }}</label>
+          <div class="checkbox-group">
+            @for (r of availableRestrictions; track r) {
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [checked]="restrictions().includes(r)"
+                  (change)="onToggleRestriction(r)"
+                />
+                {{ r }}
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="cookingEffort">{{ t('account.settings.cookingEffort') }}</label>
+          <select
+            id="cookingEffort"
+            [ngModel]="cookingEffort()"
+            (ngModelChange)="cookingEffort.set($event)"
+            name="cookingEffort"
+          >
+            <option value="">{{ t('account.settings.none') }}</option>
+            @for (effort of cookingEfforts; track effort) {
+              <option [value]="effort">{{ effort }}</option>
+            }
+          </select>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>{{ t('account.settings.weeklyGoals') }}</h2>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="minVeggie">{{ t('account.settings.minVeggie') }}</label>
+            <input
+              id="minVeggie"
+              type="number"
+              min="0"
+              max="7"
+              [ngModel]="minVeggieMeals()"
+              (ngModelChange)="minVeggieMeals.set($event)"
+              name="minVeggie"
+            />
+          </div>
+          <div class="form-field">
+            <label for="maxMeat">{{ t('account.settings.maxMeat') }}</label>
+            <input
+              id="maxMeat"
+              type="number"
+              min="0"
+              max="7"
+              [ngModel]="maxRedMeatMeals()"
+              (ngModelChange)="maxRedMeatMeals.set($event)"
+              name="maxMeat"
+            />
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button type="submit" class="save-btn" [disabled]="saving()">
+          {{ saving() ? t('account.settings.saving') : t('account.settings.save') }}
+        </button>
+        @if (saved()) {
+          <span class="saved-indicator">{{ t('account.settings.saved') }}</span>
+        }
+      </div>
+    </form>
+  }
+</div>
