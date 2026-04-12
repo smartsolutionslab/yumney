@@ -16,6 +16,24 @@
     "placeholder": {
       "title": "Kontoeinstellungen",
       "message": "Kontoverwaltungsfunktionen folgen in Kürze."
+    },
+    "settings": {
+      "title": "Profileinstellungen",
+      "loading": "Profil wird geladen…",
+      "retry": "Erneut versuchen",
+      "household": "Haushalt",
+      "defaultServings": "Standard-Portionen",
+      "dietary": "Ernährungspräferenzen",
+      "dietaryType": "Ernährungstyp",
+      "none": "Keine",
+      "restrictions": "Einschränkungen & Allergien",
+      "cookingEffort": "Kochaufwand",
+      "weeklyGoals": "Wochenziele",
+      "minVeggie": "Min. vegetarische Gerichte",
+      "maxMeat": "Max. Rotfleisch-Gerichte",
+      "save": "Speichern",
+      "saving": "Speichert…",
+      "saved": "Gespeichert!"
     }
   }
 }

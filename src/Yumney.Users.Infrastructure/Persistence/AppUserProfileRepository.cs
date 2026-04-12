@@ -24,4 +24,9 @@ public sealed class AppUserProfileRepository(UsersDbContext context) : IAppUserP
         await profiles.AddAsync(profile, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await context.SaveChangesAsync(cancellationToken);
+    }
 }

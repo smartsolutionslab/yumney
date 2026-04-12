@@ -3,10 +3,10 @@ import { Route } from '@angular/router';
 export const accountRoutes: Route[] = [
   {
     path: '',
-    title: 'Account — Yumney',
+    title: 'Profile Settings — Yumney',
     loadComponent: () =>
-      import('./account-placeholder/account-placeholder.component').then(
-        (m) => m.AccountPlaceholderComponent,
+      import('./profile-settings/profile-settings.component').then(
+        (m) => m.ProfileSettingsComponent,
       ),
   },
 ];
