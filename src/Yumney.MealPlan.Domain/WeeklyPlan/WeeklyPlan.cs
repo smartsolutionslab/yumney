@@ -145,6 +145,18 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     }
 
     /// <summary>
+    /// Adjust servings for a specific slot.
+    /// </summary>
+    /// <param name="day">The day of the week.</param>
+    /// <param name="servings">The new serving count.</param>
+    /// <param name="mealType">The meal type (defaults to Dinner).</param>
+    public void AdjustServings(DayOfWeek day, int servings, MealType mealType = MealType.Dinner)
+    {
+        var slot = FindSlot(day, mealType);
+        slot.AdjustServingsTo(servings);
+    }
+
+    /// <summary>
     /// Swap the meals between two slots.
     /// </summary>
     /// <param name="day1">First day.</param>

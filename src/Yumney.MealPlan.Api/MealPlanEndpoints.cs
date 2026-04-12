@@ -30,6 +30,12 @@ public static class MealPlanEndpoints
             .WithTags("MealPlan")
             .Produces<WeeklyPlanDto>();
 
+        group.MapPut("/{year:int}/w/{weekNumber:int}/slots/servings", AdjustServingsAsync)
+            .WithName("AdjustSlotServings")
+            .WithTags("MealPlan")
+            .Produces<WeeklyPlanDto>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 
@@ -72,6 +78,18 @@ public static class MealPlanEndpoints
         CancellationToken cancellationToken)
     {
         var command = new ToggleExtendedModeCommand(year, weekNumber, request.Enable);
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> AdjustServingsAsync(
+        int year,
+        int weekNumber,
+        AdjustServingsRequest request,
+        ICommandHandler<AdjustSlotServingsCommand, Result<WeeklyPlanDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new AdjustSlotServingsCommand(year, weekNumber, request.Day, request.MealType, request.Servings);
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
