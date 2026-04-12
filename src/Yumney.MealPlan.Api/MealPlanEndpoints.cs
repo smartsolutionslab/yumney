@@ -25,6 +25,11 @@ public static class MealPlanEndpoints
             .Produces<WeeklyPlanDto>()
             .ProducesProblem(StatusCodes.Status400BadRequest);
 
+        group.MapPut("/{year:int}/w/{weekNumber:int}/extended-mode", ToggleExtendedModeAsync)
+            .WithName("ToggleExtendedMode")
+            .WithTags("MealPlan")
+            .Produces<WeeklyPlanDto>();
+
         return app;
     }
 
@@ -55,6 +60,18 @@ public static class MealPlanEndpoints
             request.MealType,
             request.Servings);
 
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> ToggleExtendedModeAsync(
+        int year,
+        int weekNumber,
+        ToggleExtendedModeRequest request,
+        ICommandHandler<ToggleExtendedModeCommand, Result<WeeklyPlanDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new ToggleExtendedModeCommand(year, weekNumber, request.Enable);
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }

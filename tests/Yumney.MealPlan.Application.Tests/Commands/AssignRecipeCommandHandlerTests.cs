@@ -68,4 +68,25 @@ public class AssignRecipeCommandHandlerTests
 
         result.Value.Week.Should().Be("2026-W15");
     }
+
+    [Fact]
+    public async Task HandleAsync_WithBreakfastMealType_AssignsToBreakfastSlot()
+    {
+        var owner = OwnerIdentifier.From("user-123");
+        var week = WeekIdentifier.From(2026, 15);
+        var existing = WeeklyPlan.Create(owner, week);
+        existing.EnableExtendedMode();
+
+        plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+            .Returns(existing);
+        plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+            .Returns(existing);
+
+        var command = new AssignRecipeCommand(2026, 15, DayOfWeek.Monday, Guid.NewGuid(), "Pancakes", MealType.Breakfast);
+
+        var result = await handler.HandleAsync(command);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Slots.Should().Contain(s => s.RecipeTitle == "Pancakes" && s.MealType == "Breakfast");
+    }
 }
