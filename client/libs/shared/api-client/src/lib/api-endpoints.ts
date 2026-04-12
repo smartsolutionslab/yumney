@@ -20,6 +20,11 @@ export const API_ENDPOINTS = {
     checkItem: (listIdentifier: string, itemIdentifier: string) =>
       `${API_BASE}/shopping-lists/${listIdentifier}/items/${itemIdentifier}/check`,
     checkAll: (listIdentifier: string) => `${API_BASE}/shopping-lists/${listIdentifier}/check-all`,
+    merged: `${API_BASE}/shopping-lists/merged`,
+    items: `${API_BASE}/shopping-lists/items`,
+    export: `${API_BASE}/shopping-lists/export`,
+    shoppingModeStart: `${API_BASE}/shopping-lists/shopping-mode/start`,
+    shoppingModeEnd: `${API_BASE}/shopping-lists/shopping-mode/end`,
   },
   mealPlans: {
     byWeek: (year: number, week: number) => `${API_BASE}/meal-plans/${year}/w/${week}`,

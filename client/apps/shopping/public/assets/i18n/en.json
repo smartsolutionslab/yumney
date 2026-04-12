@@ -53,6 +53,14 @@
       },
       "allDone": "All done!",
       "allDoneMessage": "Everything on your list is checked off."
-    }
+    },
+    "title": "Shopping List",
+    "loading": "Loading...",
+    "empty": "Your shopping list is empty. Add items or plan meals.",
+    "addPlaceholder": "Add an item...",
+    "export": "Export list",
+    "remove": "Remove item",
+    "checked": "checked",
+    "retry": "Retry"
   }
 }

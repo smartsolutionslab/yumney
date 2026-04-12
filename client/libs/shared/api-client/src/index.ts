@@ -24,6 +24,14 @@ export type { CreateShoppingListItem } from './lib/create-shopping-list-item';
 export type { CreateShoppingListRequest } from './lib/create-shopping-list-request';
 export type { ShoppingListItemResponse } from './lib/shopping-list-item-response';
 export type { ShoppingListDetail } from './lib/shopping-list-detail';
+export type {
+  MergedShoppingList,
+  MergedShoppingItem,
+  ItemSource,
+  AddItemRequest,
+  AddedItem,
+  RemoveItemRequest,
+} from './lib/merged-shopping-list';
 export type { ShoppingListSummary } from './lib/shopping-list-summary';
 export { DashboardApiService } from './lib/dashboard-api.service';
 export type { UserActivityItem } from './lib/user-activity';

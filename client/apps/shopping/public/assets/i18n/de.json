@@ -53,6 +53,14 @@
       },
       "allDone": "Alles erledigt!",
       "allDoneMessage": "Alles auf deiner Liste ist abgehakt."
-    }
+    },
+    "title": "Einkaufsliste",
+    "loading": "Wird geladen...",
+    "empty": "Deine Einkaufsliste ist leer. Füge Artikel hinzu oder plane Mahlzeiten.",
+    "addPlaceholder": "Artikel hinzufügen...",
+    "export": "Liste exportieren",
+    "remove": "Artikel entfernen",
+    "checked": "erledigt",
+    "retry": "Erneut versuchen"
   }
 }
