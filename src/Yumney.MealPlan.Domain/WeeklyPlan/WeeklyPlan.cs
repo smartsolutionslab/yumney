@@ -155,19 +155,9 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
         var slot1 = FindSlot(day1, mealType);
         var slot2 = FindSlot(day2, mealType);
 
-        var tempRecipe = slot1.RecipeIdentifier;
-        var tempTitle = slot1.RecipeTitle;
-        var tempServings = slot1.Servings;
-
-        if (slot2.RecipeIdentifier.HasValue)
-            slot1.AssignRecipe(slot2.RecipeIdentifier.Value, slot2.RecipeTitle!, slot2.Servings);
-        else
-            slot1.ClearSlot();
-
-        if (tempRecipe.HasValue)
-            slot2.AssignRecipe(tempRecipe.Value, tempTitle!, tempServings);
-        else
-            slot2.ClearSlot();
+        var snapshot1 = slot1.TakeSnapshot();
+        slot1.RestoreFromSnapshot(slot2.TakeSnapshot());
+        slot2.RestoreFromSnapshot(snapshot1);
     }
 
     private MealSlot FindSlot(DayOfWeek day, MealType mealType)
