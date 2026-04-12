@@ -52,6 +52,12 @@ public static class ShoppingEndpoints
             .Produces<AddedItemDto>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest);
 
+        group.MapDelete("/items", RemoveItemAsync)
+            .WithName("RemoveShoppingItem")
+            .WithTags("Shopping")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status400BadRequest);
+
         group.MapGet("/merged", GetMergedAsync)
             .WithName("GetMergedShoppingList")
             .WithTags("Shopping")
@@ -207,5 +213,18 @@ public static class ShoppingEndpoints
             return result.ToOk();
 
         return Results.Text(result.Value, "text/plain");
+    }
+
+    private static async Task<IResult> RemoveItemAsync(
+        RemoveItemRequest request,
+        ICommandHandler<RemoveShoppingItemCommand, Result> handler,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Item name is required.");
+
+        var command = new RemoveShoppingItemCommand(ItemName.From(request.Name.Trim()), request.Quantity, request.Unit, request.Reason);
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToNoContent();
     }
 }
