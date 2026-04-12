@@ -42,6 +42,11 @@ public static class MealPlanEndpoints
             .Produces<WeeklyPlanDto>()
             .ProducesProblem(StatusCodes.Status400BadRequest);
 
+        group.MapGet("/{year:int}/w/{weekNumber:int}/planned-recipes", GetPlannedRecipesAsync)
+            .WithName("GetPlannedRecipes")
+            .WithTags("MealPlan")
+            .Produces<WeeklyPlannedRecipesDto>();
+
         return app;
     }
 
@@ -118,6 +123,17 @@ public static class MealPlanEndpoints
             request.LeftoverDay,
             request.MealType);
         var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> GetPlannedRecipesAsync(
+        int year,
+        int weekNumber,
+        IQueryHandler<GetPlannedRecipesQuery, Result<WeeklyPlannedRecipesDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetPlannedRecipesQuery(year, weekNumber);
+        var result = await handler.HandleAsync(query, cancellationToken);
         return result.ToOk();
     }
 }
