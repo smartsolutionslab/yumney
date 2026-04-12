@@ -47,6 +47,12 @@ public static class MealPlanEndpoints
             .WithTags("MealPlan")
             .Produces<WeeklyPlannedRecipesDto>();
 
+        group.MapPut("/{year:int}/w/{weekNumber:int}/slots/swap", SwapSlotsAsync)
+            .WithName("SwapMealSlots")
+            .WithTags("MealPlan")
+            .Produces<WeeklyPlanDto>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 
@@ -134,6 +140,18 @@ public static class MealPlanEndpoints
     {
         var query = new GetPlannedRecipesQuery(year, weekNumber);
         var result = await handler.HandleAsync(query, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> SwapSlotsAsync(
+        int year,
+        int weekNumber,
+        SwapSlotsRequest request,
+        ICommandHandler<SwapMealSlotsCommand, Result<WeeklyPlanDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new SwapMealSlotsCommand(year, weekNumber, request.SourceDay, request.TargetDay, request.MealType);
+        var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
 }
