@@ -32,9 +32,13 @@ internal sealed class WeeklyPlanConfiguration : IEntityTypeConfiguration<WeeklyP
                 .HasConversion<MealSlotIdentifierConverter>();
             slot.Property(s => s.Day).HasConversion<string>().HasMaxLength(10).IsRequired();
             slot.Property(s => s.MealType).HasConversion<string>().HasMaxLength(10).IsRequired();
+            slot.Property(s => s.ContentType).HasConversion<string>().HasMaxLength(10).IsRequired();
             slot.Property(s => s.RecipeIdentifier);
             slot.Property(s => s.RecipeTitle).HasMaxLength(200);
             slot.Property(s => s.Servings).IsRequired();
+            slot.Property(s => s.FreetextLabel).HasMaxLength(200);
+            slot.Property(s => s.LeftoverSourceDay).HasConversion<string>().HasMaxLength(10);
+            slot.Property(s => s.LeftoverSourceMealType).HasConversion<string>().HasMaxLength(10);
         });
 
         entity.Property(e => e.IsExtendedMode).IsRequired();

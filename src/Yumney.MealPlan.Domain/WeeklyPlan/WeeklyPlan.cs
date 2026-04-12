@@ -105,14 +105,43 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     }
 
     /// <summary>
-    /// Remove the recipe from a specific slot.
+    /// Set a slot as freetext (eating out, pizza order, etc.). No shopping integration.
+    /// </summary>
+    /// <param name="day">The day of the week.</param>
+    /// <param name="label">The freetext label.</param>
+    /// <param name="mealType">The meal type (defaults to Dinner).</param>
+    public void SetFreetext(DayOfWeek day, string label, MealType mealType = MealType.Dinner)
+    {
+        Ensure.That(label).IsNotNullOrWhiteSpace();
+        var slot = FindSlot(day, mealType);
+        slot.SetAsFreetext(label);
+    }
+
+    /// <summary>
+    /// Set a slot as leftovers from another meal. No new shopping items.
+    /// </summary>
+    /// <param name="day">The day of the week.</param>
+    /// <param name="sourceDay">The day of the source meal.</param>
+    /// <param name="sourceMealType">The meal type of the source meal.</param>
+    /// <param name="sourceRecipeTitle">The source recipe title for display.</param>
+    /// <param name="mealType">The meal type of this slot (defaults to Dinner).</param>
+    /// <param name="servings">Optional serving count.</param>
+    public void SetLeftover(DayOfWeek day, DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, MealType mealType = MealType.Dinner, int? servings = null)
+    {
+        Ensure.That(sourceRecipeTitle).IsNotNullOrWhiteSpace();
+        var slot = FindSlot(day, mealType);
+        slot.SetAsLeftover(sourceDay, sourceMealType, sourceRecipeTitle, servings);
+    }
+
+    /// <summary>
+    /// Clear a slot back to empty.
     /// </summary>
     /// <param name="day">The day of the week.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
     public void ClearSlot(DayOfWeek day, MealType mealType = MealType.Dinner)
     {
         var slot = FindSlot(day, mealType);
-        slot.ClearRecipe();
+        slot.ClearSlot();
     }
 
     /// <summary>
@@ -133,12 +162,12 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
         if (slot2.RecipeIdentifier.HasValue)
             slot1.AssignRecipe(slot2.RecipeIdentifier.Value, slot2.RecipeTitle!, slot2.Servings);
         else
-            slot1.ClearRecipe();
+            slot1.ClearSlot();
 
         if (tempRecipe.HasValue)
             slot2.AssignRecipe(tempRecipe.Value, tempTitle!, tempServings);
         else
-            slot2.ClearRecipe();
+            slot2.ClearSlot();
     }
 
     private MealSlot FindSlot(DayOfWeek day, MealType mealType)

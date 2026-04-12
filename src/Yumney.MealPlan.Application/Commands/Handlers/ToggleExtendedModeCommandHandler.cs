@@ -32,12 +32,6 @@ public sealed class ToggleExtendedModeCommandHandler(
             await plans.SaveChangesAsync(cancellationToken);
         }
 
-        var visibleSlots = plan.GetVisibleSlots()
-            .OrderBy(s => s.Day)
-            .ThenBy(s => s.MealType)
-            .Select(s => new MealSlotDto(s.Day.ToString(), s.MealType.ToString(), s.RecipeIdentifier, s.RecipeTitle, s.Servings, s.IsEmpty))
-            .ToList();
-
-        return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, visibleSlots);
+        return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
     }
 }
