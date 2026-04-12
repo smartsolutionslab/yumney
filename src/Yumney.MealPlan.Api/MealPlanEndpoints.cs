@@ -59,6 +59,12 @@ public static class MealPlanEndpoints
             .Produces<WeeklyPlanDto>()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        group.MapDelete("/{year:int}/w/{weekNumber:int}/slots", ClearSlotAsync)
+            .WithName("ClearMealSlot")
+            .WithTags("MealPlan")
+            .Produces<WeeklyPlanDto>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         return app;
     }
 
@@ -169,6 +175,18 @@ public static class MealPlanEndpoints
         CancellationToken cancellationToken)
     {
         var command = new ConfirmMealCommand(year, weekNumber, request.Day, request.MealType, request.State);
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToOk();
+    }
+
+    private static async Task<IResult> ClearSlotAsync(
+        int year,
+        int weekNumber,
+        ClearSlotRequest request,
+        ICommandHandler<ClearMealSlotCommand, Result<WeeklyPlanDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new ClearMealSlotCommand(year, weekNumber, request.Day, request.MealType);
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
