@@ -8,6 +8,7 @@ export { HeaderComponent } from './lib/header/header.component';
 export { AppLayoutComponent } from './lib/app-layout/app-layout.component';
 export { UnitSelectComponent } from './lib/unit-select/unit-select.component';
 export { LoadingSpinnerComponent } from './lib/loading-spinner/loading-spinner.component';
+export { AsyncStateComponent } from './lib/async-state/async-state.component';
 
 // Animation utilities
 export { springPress, staggerFadeIn, prefersReducedMotion } from './lib/animation/gsap-utils';

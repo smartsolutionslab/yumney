@@ -8,11 +8,12 @@ import {
   type UpdateProfileRequest,
 } from '@yumney/shared/api-client';
 import { UI } from '@yumney/shared/models';
+import { AsyncStateComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-profile-settings',
   standalone: true,
-  imports: [FormsModule, TranslocoModule],
+  imports: [FormsModule, TranslocoModule, AsyncStateComponent],
   templateUrl: './profile-settings.component.html',
   styleUrl: './profile-settings.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

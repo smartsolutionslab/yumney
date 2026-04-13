@@ -9,6 +9,7 @@ export { UI } from './lib/ui-constants';
 export { createAsyncState, type AsyncState } from './lib/async-state';
 export { ensureFormValid } from './lib/form-helpers';
 export { optimisticSignalUpdate } from './lib/optimistic-update';
+export { toggleFavoriteOnItem, toggleFavoriteInList } from './lib/favorite-toggle';
 export { TranslocoHttpLoader } from './lib/transloco-loader';
 export { IS_STANDALONE } from './lib/federation-context';
 export { LanguageService } from './lib/language.service';

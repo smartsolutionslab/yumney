@@ -16,11 +16,12 @@ import {
   type GenerateShoppingListResult,
 } from '@yumney/shared/api-client';
 import { UI } from '@yumney/shared/models';
+import { AsyncStateComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-meal-planner',
   standalone: true,
-  imports: [TranslocoModule, LucideAngularModule],
+  imports: [TranslocoModule, LucideAngularModule, AsyncStateComponent],
   templateUrl: './meal-planner.component.html',
   styleUrl: './meal-planner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

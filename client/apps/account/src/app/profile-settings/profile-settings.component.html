@@ -1,16 +1,13 @@
 <div class="profile-settings" *transloco="let t">
   <h1>{{ t('account.settings.title') }}</h1>
 
-  @if (loading()) {
-    <div class="loading">{{ t('account.settings.loading') }}</div>
-  }
-
-  @if (error(); as err) {
-    <div class="error" role="alert">
-      {{ err }}
-      <button class="retry-btn" (click)="onRetry()">{{ t('account.settings.retry') }}</button>
-    </div>
-  }
+  <yn-async-state
+    [loading]="loading()"
+    [error]="error()"
+    loadingKey="account.settings.loading"
+    retryKey="account.settings.retry"
+    (retry)="onRetry()"
+  />
 
   @if (profile(); as p) {
     <form (submit)="$event.preventDefault(); onSave()">
