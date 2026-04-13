@@ -138,6 +138,7 @@ public static class HostBuilderExtensions
     public static WebApplication UseYumneyDefaults(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
         if (!app.Environment.IsDevelopment())
