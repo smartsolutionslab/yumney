@@ -112,7 +112,7 @@ public class SaveRecipeCommandHandlerTests
         var command = new SaveRecipeCommand(
             RecipeTitle.From("Test"),
             [
-                new SaveRecipeIngredientItem(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
+                new SaveRecipeIngredientItem(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
                 new SaveRecipeIngredientItem(IngredientName.From("Sugar"), Quantity.Of(Amount.From(100), null)),
             ],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))],
@@ -285,7 +285,7 @@ public class SaveRecipeCommandHandlerTests
     {
         return new SaveRecipeCommand(
             RecipeTitle.From("Pasta Carbonara"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.Gram))],
+            [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.From("g")))],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Cook pasta"))],
             SourceUrl: RecipeUrl.From("https://example.com/recipe"));
     }

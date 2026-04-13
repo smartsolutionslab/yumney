@@ -61,14 +61,14 @@ public class CreateShoppingListCommandHandlerTests
         var command = new CreateShoppingListCommand(
             ShoppingListTitle.From("Big List"),
             [
-                new ShoppingListItem(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-                new ShoppingListItem(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram)),
-                new ShoppingListItem(ItemName.From("Butter"), Quantity.Of(Amount.From(250), Unit.Gram)),
+                new ShoppingListItem(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
+                new ShoppingListItem(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.From("g"))),
+                new ShoppingListItem(ItemName.From("Butter"), Quantity.Of(Amount.From(250), Unit.From("g"))),
                 new ShoppingListItem(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), null)),
-                new ShoppingListItem(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.Liter)),
+                new ShoppingListItem(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l"))),
                 new ShoppingListItem(ItemName.From("Salt"), null),
                 new ShoppingListItem(ItemName.From("Pepper"), null),
-                new ShoppingListItem(ItemName.From("Vanilla"), Quantity.Of(Amount.From(1), Unit.Teaspoon)),
+                new ShoppingListItem(ItemName.From("Vanilla"), Quantity.Of(Amount.From(1), Unit.From("tsp"))),
             ]);
 
         var result = await handler.HandleAsync(command);
@@ -112,7 +112,7 @@ public class CreateShoppingListCommandHandlerTests
         var recipeId = Guid.NewGuid();
         var command = new CreateShoppingListCommand(
             ShoppingListTitle.From("From Recipe"),
-            [new ShoppingListItem(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))],
+            [new ShoppingListItem(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g")))],
             RecipeReference.From(recipeId));
 
         var result = await handler.HandleAsync(command);
@@ -126,7 +126,7 @@ public class CreateShoppingListCommandHandlerTests
         var command = new CreateShoppingListCommand(
             ShoppingListTitle.From("Test"),
             [
-                new ShoppingListItem(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
+                new ShoppingListItem(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
                 new ShoppingListItem(ItemName.From("Salt"), null),
             ]);
 
@@ -144,10 +144,6 @@ public class CreateShoppingListCommandHandlerTests
     {
         return new CreateShoppingListCommand(
             ShoppingListTitle.From("Weekly Groceries"),
-            [
-                new ShoppingListItem(
-                    ItemName.From("Spaghetti"),
-                    Quantity.Of(Amount.From(400), Unit.Gram))
-            ]);
+            [new ShoppingListItem(ItemName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.From("g")))]);
     }
 }

@@ -70,8 +70,8 @@ public class RecipeTests
     {
         List<Ingredient> ingredients =
         [
-            Ingredient.Create(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.Gram)),
-            Ingredient.Create(IngredientName.From("Pancetta"), Quantity.Of(Amount.From(200), Unit.Gram)),
+            Ingredient.Create(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.From("g"))),
+            Ingredient.Create(IngredientName.From("Pancetta"), Quantity.Of(Amount.From(200), Unit.From("g"))),
         ];
 
         var recipe = CreateValidRecipe(ingredients: ingredients);
@@ -241,13 +241,13 @@ public class RecipeTests
     {
         var recipe = CreateValidRecipe(ingredients:
         [
-            Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-            Ingredient.Create(IngredientName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram)),
+            Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
+            Ingredient.Create(IngredientName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.From("g"))),
         ]);
 
         List<Ingredient> newIngredients =
         [
-            Ingredient.Create(IngredientName.From("Butter"), Quantity.Of(Amount.From(100), Unit.Gram)),
+            Ingredient.Create(IngredientName.From("Butter"), Quantity.Of(Amount.From(100), Unit.From("g"))),
         ];
 
         recipe.Update(RecipeTitle.From("Updated"), newIngredients, [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
@@ -514,7 +514,7 @@ public class RecipeTests
 
         List<Ingredient> newIngredients =
         [
-            Ingredient.Create(IngredientName.From("Butter"), Quantity.Of(Amount.From(100), Unit.Gram)),
+            Ingredient.Create(IngredientName.From("Butter"), Quantity.Of(Amount.From(100), Unit.From("g"))),
         ];
         List<Step> newSteps =
         [
@@ -551,7 +551,7 @@ public class RecipeTests
         return Domain.Recipe.Recipe.Create(
             title ?? RecipeTitle.From("Test Recipe"),
             owner ?? OwnerIdentifier.From("user-123"),
-            ingredients ?? [Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))],
+            ingredients ?? [Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g")))],
             steps ?? [Step.Create(StepNumber.From(1), StepDescription.From("Mix ingredients"))],
             description,
             servings,

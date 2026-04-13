@@ -52,8 +52,8 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-            ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram)),
+            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
+            ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.From("g"))),
         ];
 
         var shoppingList = CreateValidShoppingList(items: items);
@@ -124,7 +124,7 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
+            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
         ];
         var shoppingList = CreateValidShoppingList(items: items);
 
@@ -138,7 +138,7 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
+            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
         ];
         var shoppingList = CreateValidShoppingList(items: items);
         shoppingList.CheckOffItem(items[0].Id);
@@ -153,8 +153,8 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-            ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram)),
+            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
+            ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.From("g"))),
         ];
         var shoppingList = CreateValidShoppingList(items: items);
 
@@ -168,8 +168,8 @@ public class ShoppingListTests
     {
         List<ShoppingListItem> items =
         [
-            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-            ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram)),
+            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g"))),
+            ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.From("g"))),
         ];
         var shoppingList = CreateValidShoppingList(items: items);
         shoppingList.CheckAllItems();
@@ -198,7 +198,7 @@ public class ShoppingListTests
         return Domain.ShoppingList.ShoppingList.Create(
             title ?? ShoppingListTitle.From("Test Shopping List"),
             owner ?? OwnerIdentifier.From("user-123"),
-            items ?? [ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))],
+            items ?? [ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g")))],
             recipeReference);
     }
 }
