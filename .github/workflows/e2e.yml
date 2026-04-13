@@ -16,7 +16,7 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     continue-on-error: true
-    timeout-minutes: 30
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v6
@@ -71,15 +71,19 @@ jobs:
         working-directory: client
         run: npx playwright install chromium --with-deps
 
-      - name: Restore .NET packages
-        run: dotnet restore Yumney.slnx
-
-      - name: Build solution (including AppHost)
-        run: dotnet build Yumney.slnx --no-restore
-
-      - name: Start Aspire AppHost
+      - name: Restore and build backend
         run: |
-          # Start Aspire detached (--no-build since we already built, --detach returns after startup)
+          dotnet restore Yumney.slnx
+          dotnet build Yumney.slnx --no-restore
+
+      - name: Build frontend
+        working-directory: client
+        run: yarn build:all
+
+      - name: Start Aspire AppHost (backend only via DatabaseOnly=false)
+        run: |
+          # Start Aspire detached — it will start infra (Keycloak, PostgreSQL, Redis, RabbitMQ)
+          # and .NET API projects, but NOT JS dev servers (we serve pre-built frontend separately)
           aspire run \
             --project src/Yumney.AppHost/Yumney.AppHost.csproj \
             --no-build \
@@ -90,9 +94,14 @@ jobs:
           echo "Aspire detach completed"
           cat /tmp/aspire.log
 
+      - name: Serve pre-built frontend
+        run: |
+          # Serve the shell dist on port 4200 (same port Aspire would use for dev servers)
+          npx serve client/dist/apps/shell/browser -l 4200 --no-clipboard --single &
+          echo "Static frontend server started on port 4200"
+
       - name: Wait for services to be ready
         run: |
-          # Wait up to 10 minutes for Gateway (Docker images may need to pull)
           echo "Waiting for Gateway (port 5100)..."
           GATEWAY_READY=false
           for i in $(seq 1 120); do
@@ -101,7 +110,6 @@ jobs:
               GATEWAY_READY=true
               break
             fi
-            # Show Aspire log tail every 30s for debugging
             if [ $((i % 6)) -eq 0 ]; then
               echo "--- Aspire log (last 5 lines) at $((i * 5))s ---"
               tail -5 /tmp/aspire.log 2>/dev/null || true
@@ -115,15 +123,11 @@ jobs:
             cat /tmp/aspire.log 2>/dev/null || true
           fi
 
-          # Wait up to 5 minutes for Frontend
           echo "Waiting for Frontend (port 4200)..."
-          for i in $(seq 1 60); do
+          for i in $(seq 1 12); do
             if curl -sf http://localhost:4200 > /dev/null 2>&1; then
-              echo "Frontend is ready after $((i * 5))s!"
+              echo "Frontend is ready!"
               break
-            fi
-            if [ $i -eq 60 ]; then
-              echo "::warning::Frontend did not become ready within 5 minutes"
             fi
             sleep 5
           done
@@ -142,12 +146,12 @@ jobs:
           E2E_PASSWORD: Test1234
           CI: true
 
-      - name: Stop Aspire
+      - name: Stop services
         if: always()
         run: |
           aspire stop 2>/dev/null || true
-          pkill -f "Yumney.AppHost" 2>/dev/null || true
-          pkill -f "aspire" 2>/dev/null || true
+          pkill -f "serve.*4200" 2>/dev/null || true
+          pkill -f "Yumney" 2>/dev/null || true
           docker stop $(docker ps -q) 2>/dev/null || true
 
       - name: Upload Aspire logs
