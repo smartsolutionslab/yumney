@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
@@ -14,13 +13,12 @@ public class CreateShoppingListCommandHandlerTests
 {
     private readonly IShoppingListRepository shoppingLists = Substitute.For<IShoppingListRepository>();
     private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
-    private readonly ILogger<CreateShoppingListCommandHandler> logger = Substitute.For<ILogger<CreateShoppingListCommandHandler>>();
     private readonly CreateShoppingListCommandHandler handler;
 
     public CreateShoppingListCommandHandlerTests()
     {
         currentUser.UserId.Returns("user-123");
-        handler = new CreateShoppingListCommandHandler(shoppingLists, currentUser, logger);
+        handler = new CreateShoppingListCommandHandler(shoppingLists, currentUser);
     }
 
     [Fact]

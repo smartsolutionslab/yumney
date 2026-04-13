@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
@@ -13,8 +12,6 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 public class ImportRecipeFromPhotosCommandHandlerTests
 {
     private readonly IRecipeExtractionService extraction = Substitute.For<IRecipeExtractionService>();
-    private readonly ILogger<ImportRecipeFromPhotosCommandHandler> logger =
-        Substitute.For<ILogger<ImportRecipeFromPhotosCommandHandler>>();
 
     [Fact]
     public async Task HandleAsync_ValidPhoto_ReturnsExtractedRecipe()
@@ -69,5 +66,5 @@ public class ImportRecipeFromPhotosCommandHandlerTests
     private static ExtractedRecipeDto CreateExtractedRecipe() =>
         new("Test Recipe", [new ExtractedIngredientDto("Flour", 500, "g")], [new ExtractedStepDto(1, "Mix")], Servings: 4);
 
-    private ImportRecipeFromPhotosCommandHandler CreateSut() => new(extraction, logger);
+    private ImportRecipeFromPhotosCommandHandler CreateSut() => new(extraction);
 }

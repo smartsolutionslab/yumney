@@ -1,11 +1,10 @@
 using System.Diagnostics;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace SmartSolutionsLab.Yumney.Shared.Web;
 
-public static partial class ValidationExtensions
+public static class ValidationExtensions
 {
     public static bool HasFailed(this ValidationResult result) => !result.IsValid;
 

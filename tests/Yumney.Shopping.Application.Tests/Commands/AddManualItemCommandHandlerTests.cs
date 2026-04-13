@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
@@ -14,13 +13,12 @@ public class AddManualItemCommandHandlerTests
 {
     private readonly IShoppingEventStore eventStore = Substitute.For<IShoppingEventStore>();
     private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
-    private readonly ILogger<AddManualItemCommandHandler> logger = Substitute.For<ILogger<AddManualItemCommandHandler>>();
     private readonly AddManualItemCommandHandler handler;
 
     public AddManualItemCommandHandlerTests()
     {
         currentUser.UserId.Returns("user-123");
-        handler = new AddManualItemCommandHandler(eventStore, currentUser, logger);
+        handler = new AddManualItemCommandHandler(eventStore, currentUser);
     }
 
     [Fact]

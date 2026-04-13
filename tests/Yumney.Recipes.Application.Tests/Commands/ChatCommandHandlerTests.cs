@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
@@ -16,13 +15,12 @@ public class ChatCommandHandlerTests
 {
     private readonly IChatService chatService = Substitute.For<IChatService>();
     private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
-    private readonly ILogger<ChatCommandHandler> logger = Substitute.For<ILogger<ChatCommandHandler>>();
     private readonly ChatCommandHandler handler;
 
     public ChatCommandHandlerTests()
     {
         currentUser.UserId.Returns("user-123");
-        handler = new ChatCommandHandler(chatService, currentUser, logger);
+        handler = new ChatCommandHandler(chatService, currentUser);
     }
 
     [Fact]

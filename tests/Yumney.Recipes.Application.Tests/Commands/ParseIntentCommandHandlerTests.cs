@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
@@ -13,12 +12,11 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 public class ParseIntentCommandHandlerTests
 {
     private readonly IIntentParserService intentParser = Substitute.For<IIntentParserService>();
-    private readonly ILogger<ParseIntentCommandHandler> logger = Substitute.For<ILogger<ParseIntentCommandHandler>>();
     private readonly ParseIntentCommandHandler handler;
 
     public ParseIntentCommandHandlerTests()
     {
-        handler = new ParseIntentCommandHandler(intentParser, logger);
+        handler = new ParseIntentCommandHandler(intentParser);
     }
 
     [Fact]

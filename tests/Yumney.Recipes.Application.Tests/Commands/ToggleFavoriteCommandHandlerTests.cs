@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
@@ -15,13 +14,12 @@ public class ToggleFavoriteCommandHandlerTests
     private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
     private readonly IRecipeFavoriteRepository favorites = Substitute.For<IRecipeFavoriteRepository>();
     private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
-    private readonly ILogger<ToggleFavoriteCommandHandler> logger = Substitute.For<ILogger<ToggleFavoriteCommandHandler>>();
     private readonly ToggleFavoriteCommandHandler handler;
 
     public ToggleFavoriteCommandHandlerTests()
     {
         currentUser.UserId.Returns("user-123");
-        handler = new ToggleFavoriteCommandHandler(recipes, favorites, currentUser, logger);
+        handler = new ToggleFavoriteCommandHandler(recipes, favorites, currentUser);
     }
 
     [Fact]
