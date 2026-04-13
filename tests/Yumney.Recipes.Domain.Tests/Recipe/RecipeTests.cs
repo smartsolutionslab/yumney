@@ -527,7 +527,7 @@ public class RecipeTests
             newSteps,
             RecipeDescription.From("Updated description"),
             Servings.From(6),
-            TimingInfo.Of(PreparationTime.From(15), CookingTime.From(30)),
+            TimingInfo.FromNullable(15, 30),
             Difficulty.From("hard"),
             ImageUrl.From("https://example.com/new.jpg"));
 

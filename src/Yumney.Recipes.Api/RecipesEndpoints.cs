@@ -161,7 +161,7 @@ public static partial class RecipesEndpoints
             request.Steps.MapToRecipeStepItems().ToList(),
             RecipeDescription.FromNullable(request.Description),
             Servings.FromNullable(request.Servings),
-            TimingInfo.FromNullable(PreparationTime.FromNullable(request.PrepTimeMinutes), CookingTime.FromNullable(request.CookTimeMinutes)),
+            TimingInfo.FromNullable(request.PrepTimeMinutes, request.CookTimeMinutes),
             Difficulty.FromNullable(request.Difficulty),
             ImageUrl.FromNullable(request.ImageUrl),
             RecipeLanguage.FromNullable(request.Language),

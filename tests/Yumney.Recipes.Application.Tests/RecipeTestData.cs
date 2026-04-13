@@ -32,7 +32,7 @@ internal static class RecipeTestData
             [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
             RecipeDescription.From("A test recipe"),
             Servings.From(4),
-            TimingInfo.Of(PreparationTime.From(10), CookingTime.From(20)),
+            TimingInfo.FromNullable(10, 20),
             Difficulty.From("easy"),
             ImageUrl.From("https://example.com/image.jpg"),
             sourceUrl: RecipeUrl.From("https://example.com/recipe"));

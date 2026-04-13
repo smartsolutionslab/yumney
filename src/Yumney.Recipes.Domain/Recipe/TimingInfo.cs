@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Shared.Common;
+
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 /// Either or both components may be null when unknown. The object
 /// itself is null when neither value is provided.
 /// </summary>
-public sealed record TimingInfo
+public sealed record TimingInfo : IValueObject
 {
     public PreparationTime? Preparation { get; }
 
@@ -17,8 +19,10 @@ public sealed record TimingInfo
         Cooking = cooking;
     }
 
-    public static TimingInfo Of(PreparationTime? preparation, CookingTime? cooking) =>
-        new(preparation, cooking);
+    public static TimingInfo? FromNullable(int? prepMinutes, int? cookMinutes) =>
+        prepMinutes is null && cookMinutes is null
+            ? null
+            : new(PreparationTime.FromNullable(prepMinutes), CookingTime.FromNullable(cookMinutes));
 
     public static TimingInfo? FromNullable(PreparationTime? preparation, CookingTime? cooking) =>
         preparation is null && cooking is null ? null : new(preparation, cooking);
