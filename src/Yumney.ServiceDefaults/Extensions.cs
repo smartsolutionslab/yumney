@@ -46,6 +46,7 @@ public static class Extensions
                 {
                     tracing.AddSource(builder.Environment.ApplicationName)
                         .AddSource("Yumney.*")
+                        .AddSource("Microsoft.EntityFrameworkCore")
                         .AddAspNetCoreInstrumentation()
                         .AddHttpClientInstrumentation();
                 });
