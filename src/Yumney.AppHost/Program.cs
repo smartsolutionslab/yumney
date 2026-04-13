@@ -171,7 +171,7 @@ if (!options.DatabaseOnly)
     mealplanApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
     migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
-    if (isRunMode)
+    if (isRunMode && !options.HeadlessMode)
     {
         var keycloakRealmUrl = "http://localhost:8080/realms/yumney";
         var scalar = builder.AddScalarApiReference("scalar", scalarOptions => scalarOptions
@@ -213,6 +213,12 @@ if (!options.DatabaseOnly)
             .WaitFor(recipesMfe)
             .WaitFor(shoppingMfe)
             .WaitFor(accountMfe);
+    }
+    else if (isRunMode && options.HeadlessMode)
+    {
+        // Headless mode: APIs + infra only, no JS dev servers or Gateway.
+        // Frontend is served externally (e.g. npx serve in CI).
+        // APIs are accessible directly on their assigned ports.
     }
     else
     {
