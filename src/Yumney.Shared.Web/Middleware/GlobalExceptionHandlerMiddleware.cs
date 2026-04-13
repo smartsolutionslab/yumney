@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -57,6 +58,13 @@ public sealed partial class GlobalExceptionHandlerMiddleware(RequestDelegate nex
             Detail = detail,
             Instance = context.Request.Path,
         };
+
+        problemDetails.Extensions["traceId"] = Activity.Current?.TraceId.ToString();
+
+        if (context.Items[CorrelationIdMiddleware.HeaderName] is string correlationId)
+        {
+            problemDetails.Extensions["correlationId"] = correlationId;
+        }
 
         await context.Response.WriteAsJsonAsync(problemDetails);
     }

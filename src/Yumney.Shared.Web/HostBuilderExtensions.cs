@@ -137,6 +137,7 @@ public static class HostBuilderExtensions
 
     public static WebApplication UseYumneyDefaults(this WebApplication app)
     {
+        app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
         if (!app.Environment.IsDevelopment())
@@ -149,6 +150,8 @@ public static class HostBuilderExtensions
 
         app.UseAuthentication()
             .UseAuthorization();
+
+        app.UseMiddleware<RequestContextMiddleware>();
 
         app.UseRateLimiter();
 
