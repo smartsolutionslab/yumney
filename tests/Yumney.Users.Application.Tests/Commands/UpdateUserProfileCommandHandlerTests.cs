@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Testing;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using SmartSolutionsLab.Yumney.Users.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
@@ -16,7 +17,7 @@ public class UpdateUserProfileCommandHandlerTests
 
     public UpdateUserProfileCommandHandlerTests()
     {
-        currentUser.UserId.Returns("kc-user-123");
+        currentUser.UserId.Returns(TestSamples.KeycloakUserId);
         handler = new UpdateUserProfileCommandHandler(profiles, currentUser);
     }
 
@@ -99,7 +100,7 @@ public class UpdateUserProfileCommandHandlerTests
     private AppUserProfile CreateProfile()
     {
         var profile = AppUserProfile.Create(
-            KeycloakUserId.From("kc-user-123"),
+            KeycloakUserId.From(TestSamples.KeycloakUserId),
             DisplayName.From("Test User"));
 
         profiles.GetByKeycloakUserIdAsync(Arg.Any<KeycloakUserId>(), Arg.Any<CancellationToken>())

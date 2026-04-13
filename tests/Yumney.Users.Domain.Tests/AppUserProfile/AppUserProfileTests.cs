@@ -1,4 +1,5 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Testing;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using Xunit;
 
@@ -6,7 +7,7 @@ namespace SmartSolutionsLab.Yumney.Users.Domain.Tests.AppUserProfile;
 
 public class AppUserProfileTests
 {
-    private static readonly KeycloakUserId TestKeycloakUserId = KeycloakUserId.From("kc-user-123");
+    private static readonly KeycloakUserId TestKeycloakUserId = KeycloakUserId.From(TestSamples.KeycloakUserId);
     private static readonly DisplayName TestDisplayName = DisplayName.From("Test User");
 
     [Fact]

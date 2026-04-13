@@ -6,6 +6,7 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Testing;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
@@ -19,15 +20,15 @@ public class AddManualItemCommandHandlerTests
 
     public AddManualItemCommandHandlerTests()
     {
-        currentUser.UserId.Returns("user-123");
+        currentUser.UserId.Returns(TestSamples.UserId);
         handler = new AddManualItemCommandHandler(eventStore, currentUser, logger);
     }
 
     [Fact]
     public async Task HandleAsync_WithExplicitQuantity_UsesProvidedValues()
     {
-        var existingLedger = ShoppingLedger.Create("user-123");
-        eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
+        var existingLedger = ShoppingLedger.Create(TestSamples.UserId);
+        eventStore.LoadAsync(TestSamples.UserId, Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
         var command = new AddManualItemCommand(ItemName.From("Potatoes"), 2, "kg");
@@ -43,8 +44,8 @@ public class AddManualItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_WithoutQuantity_ResolvesDefault()
     {
-        var existingLedger = ShoppingLedger.Create("user-123");
-        eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
+        var existingLedger = ShoppingLedger.Create(TestSamples.UserId);
+        eventStore.LoadAsync(TestSamples.UserId, Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
         var command = new AddManualItemCommand(ItemName.From("Milk"), null, null);
@@ -59,8 +60,8 @@ public class AddManualItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_KnownItem_ResolvesCategory()
     {
-        var existingLedger = ShoppingLedger.Create("user-123");
-        eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
+        var existingLedger = ShoppingLedger.Create(TestSamples.UserId);
+        eventStore.LoadAsync(TestSamples.UserId, Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
         var command = new AddManualItemCommand(ItemName.From("Chicken"), 500, "g");
@@ -74,7 +75,7 @@ public class AddManualItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_NoLedgerExists_CreatesNew()
     {
-        eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
+        eventStore.LoadAsync(TestSamples.UserId, Arg.Any<CancellationToken>())
             .Returns((ShoppingLedger?)null);
 
         var command = new AddManualItemCommand(ItemName.From("Salt"), null, null);
@@ -88,8 +89,8 @@ public class AddManualItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_SourceIsManual()
     {
-        var existingLedger = ShoppingLedger.Create("user-123");
-        eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
+        var existingLedger = ShoppingLedger.Create(TestSamples.UserId);
+        eventStore.LoadAsync(TestSamples.UserId, Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
         var command = new AddManualItemCommand(ItemName.From("Bread"), null, null);

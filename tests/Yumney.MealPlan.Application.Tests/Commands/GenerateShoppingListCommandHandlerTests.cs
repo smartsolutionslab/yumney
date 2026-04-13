@@ -4,6 +4,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Testing;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
@@ -19,7 +20,7 @@ public class GenerateShoppingListCommandHandlerTests
 
     public GenerateShoppingListCommandHandlerTests()
     {
-        currentUser.UserId.Returns("user-123");
+        currentUser.UserId.Returns(TestSamples.UserId);
         staplesProvider.GetStapleNamesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "salt", "pepper", "flour" });
         handler = new GenerateShoppingListCommandHandler(plans, ingredientProvider, staplesProvider, shoppingListWriter, currentUser);
@@ -40,7 +41,7 @@ public class GenerateShoppingListCommandHandlerTests
     [Fact]
     public async Task HandleAsync_NoRecipeSlots_ReturnsFailure()
     {
-        var plan = WeeklyPlan.Create(OwnerIdentifier.From("user-123"), WeekIdentifier.From(2026, 15));
+        var plan = WeeklyPlan.Create(OwnerIdentifier.From(TestSamples.UserId), WeekIdentifier.From(2026, 15));
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
@@ -68,7 +69,7 @@ public class GenerateShoppingListCommandHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.ItemsAdded.Should().Be(2);
         await shoppingListWriter.Received(1).AddItemsAsync(
-            "user-123",
+            TestSamples.UserId,
             Arg.Is<IReadOnlyList<ShoppingItemRequest>>(items => items.Count == 2),
             Arg.Any<CancellationToken>());
     }
@@ -89,7 +90,7 @@ public class GenerateShoppingListCommandHandlerTests
 
         result.IsSuccess.Should().BeTrue();
         await shoppingListWriter.Received(1).AddItemsAsync(
-            "user-123",
+            TestSamples.UserId,
             Arg.Is<IReadOnlyList<ShoppingItemRequest>>(items =>
                 items.Count == 1 && items[0].Quantity == 1000m),
             Arg.Any<CancellationToken>());
@@ -118,7 +119,7 @@ public class GenerateShoppingListCommandHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.ItemsAdded.Should().Be(1);
         await shoppingListWriter.Received(1).AddItemsAsync(
-            "user-123",
+            TestSamples.UserId,
             Arg.Is<IReadOnlyList<ShoppingItemRequest>>(items =>
                 items.Count == 1 && items[0].Quantity == 5m),
             Arg.Any<CancellationToken>());
@@ -170,7 +171,7 @@ public class GenerateShoppingListCommandHandlerTests
 
     private WeeklyPlan CreatePlanWithRecipe(Guid recipeId, string title, int servings)
     {
-        var owner = OwnerIdentifier.From("user-123");
+        var owner = OwnerIdentifier.From(TestSamples.UserId);
         var week = WeekIdentifier.From(2026, 15);
         var plan = WeeklyPlan.Create(owner, week);
         plan.AssignRecipe(DayOfWeek.Monday, recipeId, title, servings: servings);
@@ -183,7 +184,7 @@ public class GenerateShoppingListCommandHandlerTests
 
     private WeeklyPlan CreatePlanWithTwoRecipes(Guid recipeA, string titleA, int servingsA, Guid recipeB, string titleB, int servingsB)
     {
-        var owner = OwnerIdentifier.From("user-123");
+        var owner = OwnerIdentifier.From(TestSamples.UserId);
         var week = WeekIdentifier.From(2026, 15);
         var plan = WeeklyPlan.Create(owner, week);
         plan.AssignRecipe(DayOfWeek.Monday, recipeA, titleA, servings: servingsA);

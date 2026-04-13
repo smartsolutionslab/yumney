@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
+using SmartSolutionsLab.Yumney.Testing;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Queries;
@@ -17,14 +18,14 @@ public class ExportShoppingListQueryHandlerTests
 
     public ExportShoppingListQueryHandlerTests()
     {
-        currentUser.UserId.Returns("user-123");
+        currentUser.UserId.Returns(TestSamples.UserId);
         handler = new ExportShoppingListQueryHandler(readModel, currentUser);
     }
 
     [Fact]
     public async Task HandleAsync_NoItems_ReturnsEmptyString()
     {
-        readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+        readModel.GetByOwnerAsync(TestSamples.UserId, Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(new MergedShoppingListDto([]));
 
         var result = await handler.HandleAsync(new ExportShoppingListQuery());
@@ -40,7 +41,7 @@ public class ExportShoppingListQueryHandlerTests
         {
             new("Milk", 2, 2, "L", "dairy", true, []),
         };
-        readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+        readModel.GetByOwnerAsync(TestSamples.UserId, Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(new MergedShoppingListDto(items));
 
         var result = await handler.HandleAsync(new ExportShoppingListQuery());
@@ -57,7 +58,7 @@ public class ExportShoppingListQueryHandlerTests
             new("Milk", 2, 2, "L", "dairy", false, []),
             new("Onion", 3, 3, "pc", "produce", false, []),
         };
-        readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+        readModel.GetByOwnerAsync(TestSamples.UserId, Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(new MergedShoppingListDto(items));
 
         var result = await handler.HandleAsync(new ExportShoppingListQuery());
@@ -79,7 +80,7 @@ public class ExportShoppingListQueryHandlerTests
             new("Milk", 2, 2, "L", "dairy", true, []),
             new("Eggs", 6, 6, "pc", "dairy", false, []),
         };
-        readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+        readModel.GetByOwnerAsync(TestSamples.UserId, Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(new MergedShoppingListDto(items));
 
         var result = await handler.HandleAsync(new ExportShoppingListQuery());
@@ -95,7 +96,7 @@ public class ExportShoppingListQueryHandlerTests
         {
             new("Milk", 5.3m, 6, "L", "dairy", false, []),
         };
-        readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+        readModel.GetByOwnerAsync(TestSamples.UserId, Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(new MergedShoppingListDto(items));
 
         var result = await handler.HandleAsync(new ExportShoppingListQuery());
@@ -111,7 +112,7 @@ public class ExportShoppingListQueryHandlerTests
             new("Soap", 1, 1, "pc", "household", false, []),
             new("Onion", 1, 1, "pc", "produce", false, []),
         };
-        readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+        readModel.GetByOwnerAsync(TestSamples.UserId, Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(new MergedShoppingListDto(items));
 
         var result = await handler.HandleAsync(new ExportShoppingListQuery());

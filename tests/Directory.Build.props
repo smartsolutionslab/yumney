@@ -4,4 +4,8 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);CA1707;IDE1006</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)TestSamples.cs" Link="TestSamples.cs" />
+  </ItemGroup>
 </Project>

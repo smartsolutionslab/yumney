@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Testing;
 using SmartSolutionsLab.Yumney.Users.Application.Queries;
 using SmartSolutionsLab.Yumney.Users.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
@@ -16,7 +17,7 @@ public class GetUserProfileQueryHandlerTests
 
     public GetUserProfileQueryHandlerTests()
     {
-        currentUser.UserId.Returns("kc-user-123");
+        currentUser.UserId.Returns(TestSamples.KeycloakUserId);
         handler = new GetUserProfileQueryHandler(profiles, currentUser);
     }
 
@@ -24,7 +25,7 @@ public class GetUserProfileQueryHandlerTests
     public async Task HandleAsync_ProfileExists_ReturnsSuccess()
     {
         var profile = AppUserProfile.Create(
-            KeycloakUserId.From("kc-user-123"),
+            KeycloakUserId.From(TestSamples.KeycloakUserId),
             DisplayName.From("Test User"));
 
         profiles.FindByKeycloakUserIdAsync(Arg.Any<KeycloakUserId>(), Arg.Any<CancellationToken>())
@@ -53,7 +54,7 @@ public class GetUserProfileQueryHandlerTests
     public async Task HandleAsync_MapsDietaryProfile()
     {
         var profile = AppUserProfile.Create(
-            KeycloakUserId.From("kc-user-123"),
+            KeycloakUserId.From(TestSamples.KeycloakUserId),
             DisplayName.From("Test User"));
 
         profile.UpdateDietaryProfile(DietaryProfile.From(
