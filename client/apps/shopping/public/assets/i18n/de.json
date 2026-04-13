@@ -61,6 +61,23 @@
     "export": "Liste exportieren",
     "remove": "Artikel entfernen",
     "checked": "erledigt",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "errors": {
+      "addFailed": "Artikel konnte nicht hinzugefügt werden.",
+      "removeFailed": "Artikel konnte nicht entfernt werden.",
+      "exportFailed": "Liste konnte nicht exportiert werden.",
+      "loadFailed": "Einkaufsliste konnte nicht geladen werden."
+    },
+    "category": {
+      "produce": "Obst & Gemüse",
+      "dairy": "Milchprodukte",
+      "meat-fish": "Fleisch & Fisch",
+      "bakery": "Backwaren",
+      "frozen": "Tiefkühl",
+      "beverages": "Getränke",
+      "pantry": "Vorratskammer",
+      "household": "Haushalt",
+      "other": "Sonstiges"
+    }
   }
 }

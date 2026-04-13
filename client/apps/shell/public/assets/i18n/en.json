@@ -461,6 +461,11 @@
     "generateShoppingList": "Generate Shopping List",
     "generatingList": "Generating...",
     "itemsAdded": "{{count}} items added",
-    "staplesSkipped": "{{count}} staples skipped"
+    "staplesSkipped": "{{count}} staples skipped",
+    "errors": {
+      "loadFailed": "Failed to load meal plan.",
+      "clearFailed": "Failed to clear slot.",
+      "generateFailed": "Failed to generate shopping list."
+    }
   }
 }

@@ -33,7 +33,11 @@
       "maxMeat": "Max. red-meat meals",
       "save": "Save",
       "saving": "Saving…",
-      "saved": "Saved!"
+      "saved": "Saved!",
+      "errors": {
+        "saveFailed": "Failed to save profile.",
+        "loadFailed": "Failed to load profile."
+      }
     }
   }
 }

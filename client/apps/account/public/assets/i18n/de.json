@@ -33,7 +33,11 @@
       "maxMeat": "Max. Rotfleisch-Gerichte",
       "save": "Speichern",
       "saving": "Speichert…",
-      "saved": "Gespeichert!"
+      "saved": "Gespeichert!",
+      "errors": {
+        "saveFailed": "Profil konnte nicht gespeichert werden.",
+        "loadFailed": "Profil konnte nicht geladen werden."
+      }
     }
   }
 }
