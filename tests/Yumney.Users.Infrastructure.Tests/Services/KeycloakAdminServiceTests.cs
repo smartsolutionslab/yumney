@@ -18,6 +18,7 @@ public class KeycloakAdminServiceTests
 {
     private readonly IDistributedCache cache = Substitute.For<IDistributedCache>();
     private readonly ILogger<KeycloakAdminService> logger = Substitute.For<ILogger<KeycloakAdminService>>();
+    private readonly ILogger<KeycloakTokenProvider> tokenLogger = Substitute.For<ILogger<KeycloakTokenProvider>>();
 
     private readonly IOptions<KeycloakOptions> options = Options.Create(new KeycloakOptions
     {
@@ -205,7 +206,9 @@ public class KeycloakAdminServiceTests
     private KeycloakAdminService CreateService(HttpMessageHandler handler)
     {
         var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://keycloak.test") };
-        return new KeycloakAdminService(httpClient, options, cache, logger);
+        var tokenHttpClient = new HttpClient(handler) { BaseAddress = new Uri("https://keycloak.test") };
+        var tokenProvider = new KeycloakTokenProvider(tokenHttpClient, options, cache, tokenLogger);
+        return new KeycloakAdminService(httpClient, options, tokenProvider, logger);
     }
 
     private sealed class FakeHttpHandler : HttpMessageHandler

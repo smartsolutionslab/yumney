@@ -4,7 +4,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SmartSolutionsLab.Yumney.Shared.Common;
@@ -14,26 +13,38 @@ using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
 
-#pragma warning disable SA1303 // Const field names should begin with upper-case letter (editorconfig requires camelCase for private fields)
-#pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase for private fields)
-#pragma warning disable SA1601
+#pragma warning disable SA1202, SA1204, SA1303, SA1311, SA1601
 public sealed partial class KeycloakAdminService(
     HttpClient httpClient,
     IOptions<KeycloakOptions> options,
-    IDistributedCache cache,
+    KeycloakTokenProvider tokenProvider,
     ILogger<KeycloakAdminService> logger)
     : IKeycloakAdminService
 {
-    private const string tokenCacheKey = "keycloak:admin:token";
-
     private static readonly JsonSerializerOptions jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    private static readonly TimeSpan tokenExpiryBuffer = TimeSpan.FromSeconds(30);
     private static readonly string[] verifyEmailActions = ["VERIFY_EMAIL"];
+
+    private static object BuildUserPayload(Email email, Password password, DisplayName displayName)
+    {
+        return new
+        {
+            username = email.Value,
+            email = email.Value,
+            enabled = true,
+            emailVerified = false,
+            firstName = displayName.Value,
+            requiredActions = new[] { "VERIFY_EMAIL" },
+            credentials = new[]
+            {
+                new { type = "password", value = password.Value, temporary = false },
+            },
+        };
+    }
 
     public async Task<Result<KeycloakUserId>> CreateUserAsync(
         Email email,
@@ -44,7 +55,7 @@ public sealed partial class KeycloakAdminService(
         using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.create_user");
         activity?.SetTag("keycloak.email", email.Value);
 
-        var token = await GetServiceAccountTokenAsync(cancellationToken);
+        var token = await tokenProvider.GetAccessTokenAsync(cancellationToken);
         if (token.IsFailure)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
@@ -61,7 +72,7 @@ public sealed partial class KeycloakAdminService(
         using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.find_user");
         activity?.SetTag("keycloak.email", email.Value);
 
-        var token = await GetServiceAccountTokenAsync(cancellationToken);
+        var token = await tokenProvider.GetAccessTokenAsync(cancellationToken);
         if (token.IsFailure)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
@@ -107,7 +118,7 @@ public sealed partial class KeycloakAdminService(
     {
         using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.send_verification_email");
 
-        var token = await GetServiceAccountTokenAsync(cancellationToken);
+        var token = await tokenProvider.GetAccessTokenAsync(cancellationToken);
         if (token.IsFailure)
         {
             activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
@@ -140,63 +151,6 @@ public sealed partial class KeycloakAdminService(
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             LogSendVerificationHttpError(ex);
             return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
-        }
-    }
-
-    private static object BuildUserPayload(Email email, Password password, DisplayName displayName)
-    {
-        return new
-        {
-            username = email.Value,
-            email = email.Value,
-            enabled = true,
-            emailVerified = false,
-            firstName = displayName.Value,
-            requiredActions = new[] { "VERIFY_EMAIL" },
-            credentials = new[]
-            {
-                new { type = "password", value = password.Value, temporary = false },
-            },
-        };
-    }
-
-    private async Task<Result<string>> GetServiceAccountTokenAsync(CancellationToken cancellationToken)
-    {
-        var cachedToken = await cache.GetStringAsync(tokenCacheKey, cancellationToken);
-        if (cachedToken.HasValue()) return cachedToken!;
-
-        var content = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            ["grant_type"] = "client_credentials",
-            ["client_id"] = options.Value.ClientId,
-            ["client_secret"] = options.Value.ClientSecret,
-        });
-
-        try
-        {
-            var tokenUrl = $"/realms/{options.Value.Realm}/protocol/openid-connect/token";
-            var response = await httpClient.PostAsync(tokenUrl, content, cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                LogTokenAcquisitionFailed(response.StatusCode);
-                return RegistrationErrors.IdentityProviderUnavailable;
-            }
-
-            var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
-            var absoluteExpirationRelativeToNow = TimeSpan.FromSeconds(tokenResponse!.ExpiresIn) - tokenExpiryBuffer;
-            await cache.SetStringAsync(
-                tokenCacheKey,
-                tokenResponse!.AccessToken,
-                new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow },
-                cancellationToken);
-
-            return tokenResponse.AccessToken;
-        }
-        catch (HttpRequestException ex)
-        {
-            LogTokenAcquisitionHttpError(ex);
-            return RegistrationErrors.IdentityProviderUnavailable;
         }
     }
 
@@ -260,10 +214,6 @@ public sealed partial class KeycloakAdminService(
         return KeycloakUserId.From(keycloakUserIdString!);
     }
 
-    private sealed record TokenResponse(
-        [property: JsonPropertyName("access_token")] string AccessToken,
-        [property: JsonPropertyName("expires_in")] int ExpiresIn);
-
     private sealed record KeycloakUserRepresentation(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("email")] string Email);
@@ -280,12 +230,6 @@ public sealed partial class KeycloakAdminService(
     [LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while sending verification email")]
     private partial void LogSendVerificationHttpError(Exception ex);
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to obtain service account token. Status: {StatusCode}")]
-    private partial void LogTokenAcquisitionFailed(HttpStatusCode statusCode);
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while obtaining service account token")]
-    private partial void LogTokenAcquisitionHttpError(Exception ex);
-
     [LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while creating Keycloak user")]
     private partial void LogCreateUserHttpError(Exception ex);
 
@@ -298,3 +242,4 @@ public sealed partial class KeycloakAdminService(
     [LoggerMessage(Level = LogLevel.Error, Message = "Malformed Location header: {LocationHeader}")]
     private partial void LogMalformedLocationHeader(string locationHeader);
 }
+#pragma warning restore SA1303, SA1311, SA1601

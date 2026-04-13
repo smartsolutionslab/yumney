@@ -76,7 +76,7 @@ public static class ShoppingEndpoints
         group.MapGet("/export", ExportAsync)
             .WithName("ExportShoppingList")
             .WithTags("Shopping")
-            .Produces<string>(contentType: "text/plain");
+            .Produces<string>(contentType: MediaTypes.TextPlain);
 
         return app;
     }
@@ -212,7 +212,7 @@ public static class ShoppingEndpoints
         if (result.IsFailure)
             return result.ToOk();
 
-        return Results.Text(result.Value, "text/plain");
+        return Results.Text(result.Value, MediaTypes.TextPlain);
     }
 
     private static async Task<IResult> RemoveItemAsync(

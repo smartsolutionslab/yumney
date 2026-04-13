@@ -35,6 +35,11 @@ public static class UsersInfrastructureServiceCollectionExtensions
         services.AddScoped<IStaplesListRepository, StaplesListRepository>();
         services.AddScoped<IStaplesProvider, StaplesProvider>();
 
+        services.AddHttpClient<KeycloakTokenProvider>(client =>
+        {
+            client.BaseAddress = new Uri("https+http://_http.keycloak");
+        }).AddStandardResilienceHandler();
+
         services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client =>
         {
             client.BaseAddress = new Uri("https+http://_http.keycloak");
