@@ -44,7 +44,7 @@ internal static class RecipeTestData
             RecipeTitle.From("Recipe With Ingredients"),
             OwnerIdentifier.From(ownerId),
             [
-                Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500m), Unit.Grams)),
+                Ingredient.Create(IngredientName.From("Flour"), Quantity.From(500m, Unit.Grams)),
                 Ingredient.Create(IngredientName.From("Eggs"), null),
             ],
             [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);

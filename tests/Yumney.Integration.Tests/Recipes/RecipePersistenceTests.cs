@@ -139,7 +139,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
             var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
             loaded.Update(
                 RecipeTitle.From("Updated Tomato Soup"),
-                [Ingredient.Create(IngredientName.From("Cherry tomatoes"), Quantity.Of(Amount.From(800), Unit.Grams))],
+                [Ingredient.Create(IngredientName.From("Cherry tomatoes"), Quantity.From(800, Unit.Grams))],
                 [Step.Create(StepNumber.From(1), StepDescription.From("Roast cherry tomatoes"))],
                 RecipeDescription.From("Updated description"),
                 Servings.From(2));
