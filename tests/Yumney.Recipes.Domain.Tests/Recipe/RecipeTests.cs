@@ -100,7 +100,7 @@ public class RecipeTests
         var servings = Servings.From(4);
         var preparationTime = PreparationTime.From(10);
         var cookingTime = CookingTime.From(20);
-        var difficulty = Difficulty.From("medium");
+        var difficulty = Difficulty.Medium;
         var imageUrl = ImageUrl.From("https://example.com/image.jpg");
 
         var recipe = CreateValidRecipe(
@@ -225,7 +225,7 @@ public class RecipeTests
     {
         var recipe = CreateRecipeWithUpdatedFields();
 
-        recipe.Difficulty.Should().Be(Difficulty.From("hard"));
+        recipe.Difficulty.Should().Be(Difficulty.Hard);
     }
 
     [Fact]
@@ -387,7 +387,7 @@ public class RecipeTests
             servings: Servings.From(4),
             preparationTime: PreparationTime.From(10),
             cookingTime: CookingTime.From(20),
-            difficulty: Difficulty.From("easy"),
+            difficulty: Difficulty.Easy,
             imageUrl: ImageUrl.From("https://example.com/old.jpg"));
 
         recipe.Update(
@@ -528,7 +528,7 @@ public class RecipeTests
             RecipeDescription.From("Updated description"),
             Servings.From(6),
             TimingInfo.FromNullable(15, 30),
-            Difficulty.From("hard"),
+            Difficulty.Hard,
             ImageUrl.From("https://example.com/new.jpg"));
 
         return recipe;

@@ -141,7 +141,7 @@ public class GetRecipeByIdQueryHandlerTests
         dto.Servings.Should().Be(4);
         dto.PrepTimeMinutes.Should().Be(10);
         dto.CookTimeMinutes.Should().Be(20);
-        dto.Difficulty.Should().Be("easy");
+        dto.Difficulty.Should().Be("Easy");
         dto.ImageUrl.Should().Be("https://example.com/image.jpg");
         dto.SourceUrl.Should().Be("https://example.com/recipe");
     }

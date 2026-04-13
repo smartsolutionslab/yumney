@@ -42,7 +42,8 @@ public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeReq
 
         RuleFor(x => x.Difficulty)
             .NotEmpty()
-            .MaximumLength(Difficulty.MaxLength)
+            .Must(d => Difficulty.AllValues.Contains(d!, StringComparer.OrdinalIgnoreCase))
+            .WithMessage($"Difficulty must be one of: {string.Join(", ", Difficulty.AllValues)}.")
             .When(x => x.Difficulty is not null);
 
         RuleFor(x => x.Servings)

@@ -189,7 +189,7 @@ public class SaveRecipeCommandHandlerTests
     {
         var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-        capturedRecipe.Difficulty!.Value.Should().Be("easy");
+        capturedRecipe.Difficulty!.Value.Should().Be("Easy");
     }
 
     [Fact]
@@ -301,7 +301,7 @@ public class SaveRecipeCommandHandlerTests
             RecipeDescription.From("A test recipe"),
             Servings.From(4),
             TimingInfo.FromNullable(10, 20),
-            Difficulty.From("easy"),
+            Difficulty.Easy,
             ImageUrl.From("https://example.com/image.jpg"),
             SourceUrl: RecipeUrl.From("https://example.com/recipe"));
     }

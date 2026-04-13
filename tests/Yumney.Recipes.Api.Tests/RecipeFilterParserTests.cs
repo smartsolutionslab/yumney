@@ -70,7 +70,7 @@ public class RecipeFilterParserTests
         var result = RecipeFilterParser.Build(null, "easy", null, null);
 
         result.Should().NotBeNull();
-        result!.Difficulty!.Value.Should().Be("easy");
+        result!.Difficulty!.Value.Should().Be("Easy");
     }
 
     [Fact]
@@ -115,7 +115,7 @@ public class RecipeFilterParserTests
 
         result.Should().NotBeNull();
         result!.Tags.Should().ContainSingle(t => t.Value == "vegan");
-        result.Difficulty!.Value.Should().Be("medium");
+        result.Difficulty!.Value.Should().Be("Medium");
         result.MaxPrepTime!.Value.Should().Be(20);
         result.MaxCookTime!.Value.Should().Be(40);
         result.FavoritesOnly.Should().BeTrue();

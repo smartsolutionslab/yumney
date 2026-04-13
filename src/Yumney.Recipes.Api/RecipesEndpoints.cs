@@ -19,6 +19,11 @@ public static partial class RecipesEndpoints
     {
         var group = app.MapGroup("/recipes");
 
+        group.MapGet("/difficulties", () => Results.Ok(Difficulty.AllValues))
+            .WithName("GetDifficulties")
+            .WithTags("Recipes")
+            .Produces<IReadOnlyList<string>>();
+
         group.MapGet("/", GetAllAsync)
             .WithName("GetRecipes")
             .WithTags("Recipes")

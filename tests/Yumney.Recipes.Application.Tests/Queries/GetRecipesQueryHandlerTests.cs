@@ -243,7 +243,7 @@ public class GetRecipesQueryHandlerTests
         item.Servings.Should().Be(4);
         item.PrepTimeMinutes.Should().Be(10);
         item.CookTimeMinutes.Should().Be(20);
-        item.Difficulty.Should().Be("easy");
+        item.Difficulty.Should().Be("Easy");
         item.ImageUrl.Should().Be("https://example.com/image.jpg");
     }
 
@@ -301,7 +301,7 @@ public class GetRecipesQueryHandlerTests
         SetupEmptyRepository();
         var filter = new RecipeFilter(
             Tags: [RecipeTag.From("vegan")],
-            Difficulty: Difficulty.From("easy"),
+            Difficulty: Difficulty.Easy,
             MaxPrepTime: PreparationTime.From(15),
             MaxCookTime: CookingTime.From(30));
 

@@ -53,7 +53,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
     {
         await using var context = await fixture.CreateRecipesDbContextAsync();
         var recipes = new RecipeRepository(context);
-        var filter = new RecipeFilter(Difficulty: Difficulty.From("easy"));
+        var filter = new RecipeFilter(Difficulty: Difficulty.Easy);
 
         var (items, totalCount) = await recipes.GetByOwnerAsync(
             owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
@@ -132,7 +132,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
         var recipes = new RecipeRepository(context);
         var filter = new RecipeFilter(
             Tags: [RecipeTag.From("vegan")],
-            Difficulty: Difficulty.From("medium"),
+            Difficulty: Difficulty.Medium,
             MaxPrepTime: PreparationTime.From(30),
             MaxCookTime: CookingTime.From(60));
 

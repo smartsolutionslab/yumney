@@ -198,7 +198,7 @@ public class UpdateRecipeCommandHandlerTests
     {
         var result = await ExecuteFullUpdateAsync();
 
-        result.Value.Difficulty.Should().Be("hard");
+        result.Value.Difficulty.Should().Be("Hard");
     }
 
     [Fact]
@@ -278,7 +278,7 @@ public class UpdateRecipeCommandHandlerTests
             RecipeDescription.From("Old description"),
             Servings.From(4),
             TimingInfo.FromNullable(10, 20),
-            Difficulty.From("easy"),
+            Difficulty.Easy,
             ImageUrl.From("https://example.com/old.jpg"));
 
         var recipeId = recipe.Id;
@@ -334,7 +334,7 @@ public class UpdateRecipeCommandHandlerTests
             RecipeDescription.From("New description"),
             Servings.From(6),
             TimingInfo.FromNullable(15, 30),
-            Difficulty.From("hard"),
+            Difficulty.Hard,
             ImageUrl.From("https://example.com/new.jpg"));
     }
 
