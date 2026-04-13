@@ -43,7 +43,6 @@ public sealed class AspireFixture : IAsyncLifetime
                 "Parameters:KeycloakPassword=testkeycloak",
                 "Parameters:MessagingPassword=testmessaging",
                 "Parameters:RedisPassword=testredis",
-                "DatabaseOnly=true",
             ]);
 
         builder.Services.ConfigureHttpClientDefaults(http => http.AddStandardResilienceHandler());

@@ -80,17 +80,14 @@ jobs:
         working-directory: client
         run: yarn build:all
 
-      - name: Start Aspire AppHost (headless — no JS dev servers)
+      - name: Start Aspire AppHost
         run: |
-          # HeadlessMode skips JS dev servers, Gateway, PgAdmin, Mailpit, Ollama
-          # SkipMigrations lets tests use EnsureCreated instead of MigrationRunner
           aspire run \
             --project src/Yumney.AppHost/Yumney.AppHost.csproj \
             --no-build \
             --detach \
             --non-interactive \
             --log-level Information \
-            -- --HeadlessMode=true --SkipMigrations=true \
             > /tmp/aspire.log 2>&1 || true
           echo "Aspire detach completed"
           cat /tmp/aspire.log

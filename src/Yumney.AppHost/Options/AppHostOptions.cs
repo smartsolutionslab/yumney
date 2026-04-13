@@ -3,9 +3,6 @@ using Microsoft.Extensions.Configuration;
 namespace SmartSolutionsLab.Yumney.AppHost.Options;
 
 internal sealed record AppHostOptions(
-    bool DatabaseOnly,
-    bool HeadlessMode,
-    bool SkipMigrations,
     LlmProvider LlmProvider,
     string OpenAiModelId,
     string? RegistryEndpoint,
@@ -27,9 +24,6 @@ internal sealed record AppHostOptions(
             : LlmProvider.Ollama;
 
         return new AppHostOptions(
-            DatabaseOnly: config.GetValue<bool>("DatabaseOnly"),
-            HeadlessMode: config.GetValue<bool>("HeadlessMode"),
-            SkipMigrations: config.GetValue<bool>("SkipMigrations"),
             LlmProvider: provider,
             OpenAiModelId: config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini",
             RegistryEndpoint: config.GetValue<string>("RegistryEndpoint"),

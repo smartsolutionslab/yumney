@@ -10,22 +10,18 @@ internal static class AppHostExtensions
         IResourceBuilder<KeycloakResource> keycloak,
         IResourceBuilder<IResourceWithConnectionString> redis,
         IResourceBuilder<IResourceWithConnectionString> messaging,
-        IResourceBuilder<ProjectResource>? migrationRunner = null)
+        IResourceBuilder<ProjectResource> migrationRunner)
     {
-        api
+        return api
             .WithHttpEndpoint()
             .WithReference(keycloak)
             .WithReference(database)
             .WithReference(redis)
             .WithReference(messaging)
             .WaitFor(keycloak)
+            .WaitFor(migrationRunner)
             .WaitFor(redis)
             .WaitFor(messaging);
-
-        if (migrationRunner is not null)
-            api.WaitFor(migrationRunner);
-
-        return api;
     }
 
     public static IResourceBuilder<ProjectResource> WithLlmProvider(
@@ -33,9 +29,6 @@ internal static class AppHostExtensions
         IDistributedApplicationBuilder builder,
         AppHostOptions options)
     {
-        if (options.HeadlessMode)
-            return api;
-
         if (options.UseOllama)
         {
             var ollama = builder.AddOllama("ollama").WithDataVolume();
