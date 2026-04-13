@@ -11,7 +11,7 @@ public class ShoppingListItemTests
     {
         var name = ItemName.From("Flour");
         var amount = Amount.From(500);
-        var unit = Unit.From("g");
+        var unit = Unit.Grams;
 
         var item = ShoppingListItem.Create(name, Quantity.Of(amount, unit));
 
@@ -43,7 +43,7 @@ public class ShoppingListItemTests
     [Fact]
     public void Create_SetsIsCheckedToFalse()
     {
-        var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g")));
+        var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Grams));
 
         item.IsChecked.Should().BeFalse();
     }
@@ -51,7 +51,7 @@ public class ShoppingListItemTests
     [Fact]
     public void Check_SetsIsCheckedToTrue()
     {
-        var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g")));
+        var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Grams));
 
         item.Check();
 
@@ -61,7 +61,7 @@ public class ShoppingListItemTests
     [Fact]
     public void Uncheck_SetsIsCheckedToFalse()
     {
-        var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.From("g")));
+        var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Grams));
         item.Check();
 
         item.Uncheck();

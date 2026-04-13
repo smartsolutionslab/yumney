@@ -8,10 +8,10 @@ public static class ShoppingListFactory
         ShoppingListTitle.From("Weekly Groceries"),
         OwnerIdentifier.From(owner ?? "integration-test-user"),
         [
-            ShoppingListItem.Create(ItemName.From("Milk"), Quantity.Of(Amount.From(2), Unit.From("l"))),
+            ShoppingListItem.Create(ItemName.From("Milk"), Quantity.Of(Amount.From(2), Unit.Liters)),
             ShoppingListItem.Create(ItemName.From("Bread"), Quantity.Of(Amount.From(1), null)),
             ShoppingListItem.Create(ItemName.From("Eggs"), Quantity.Of(Amount.From(12), null)),
-            ShoppingListItem.Create(ItemName.From("Butter"), Quantity.Of(Amount.From(250), Unit.From("g"))),
+            ShoppingListItem.Create(ItemName.From("Butter"), Quantity.Of(Amount.From(250), Unit.Grams)),
         ]);
 
     public static ShoppingList PartySupplies(string? owner = null) => ShoppingList.Create(
@@ -27,8 +27,8 @@ public static class ShoppingListFactory
         ShoppingListTitle.From("Baking Ingredients"),
         OwnerIdentifier.From(owner ?? "integration-test-user"),
         [
-            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(1000), Unit.From("g"))),
-            ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(500), Unit.From("g"))),
+            ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(1000), Unit.Grams)),
+            ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(500), Unit.Grams)),
         ],
         RecipeReference.From(Guid.NewGuid()));
 }

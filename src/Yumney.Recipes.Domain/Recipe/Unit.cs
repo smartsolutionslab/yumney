@@ -18,6 +18,15 @@ public sealed record Unit : IValueObject
         Value = validated.Trim();
     }
 
+    public static readonly Unit Grams = new("g");
+    public static readonly Unit Kilograms = new("kg");
+    public static readonly Unit Milliliters = new("ml");
+    public static readonly Unit Liters = new("l");
+    public static readonly Unit Teaspoon = new("tsp");
+    public static readonly Unit Tablespoon = new("tbsp");
+    public static readonly Unit Cups = new("cups");
+    public static readonly Unit Pieces = new("pcs");
+
     public static Unit From(string value) => new(value);
 
     public static Unit? FromNullable(string? value) =>

@@ -10,7 +10,7 @@ public class UnitTests
     [Fact]
     public void Constructor_ValidUnit_CreatesInstance()
     {
-        var unit = Unit.From("g");
+        var unit = Unit.Grams;
 
         unit.Value.Should().Be("g");
     }
@@ -57,8 +57,8 @@ public class UnitTests
     [Fact]
     public void Equality_SameValue_AreEqual()
     {
-        var unit1 = Unit.From("ml");
-        var unit2 = Unit.From("ml");
+        var unit1 = Unit.Milliliters;
+        var unit2 = Unit.Milliliters;
 
         unit1.Should().Be(unit2);
     }
@@ -66,8 +66,8 @@ public class UnitTests
     [Fact]
     public void Equality_DifferentValue_AreNotEqual()
     {
-        var unit1 = Unit.From("ml");
-        var unit2 = Unit.From("g");
+        var unit1 = Unit.Milliliters;
+        var unit2 = Unit.Grams;
 
         unit1.Should().NotBe(unit2);
     }
@@ -87,6 +87,6 @@ public class UnitTests
         var result = Unit.FromNullable("ml");
 
         result.Should().NotBeNull();
-        result!.Value.Should().Be("ml");
+        result.Should().Be(Unit.Milliliters);
     }
 }
