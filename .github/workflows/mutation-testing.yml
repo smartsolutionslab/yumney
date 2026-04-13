@@ -30,6 +30,10 @@ jobs:
         include:
           - project: Yumney.Shared.Tests
             display: Shared
+          - project: Yumney.Shared.Guards.Tests
+            display: Shared.Guards
+          - project: Yumney.Shared.Events.Tests
+            display: Shared.Events
           - project: Yumney.Recipes.Api.Tests
             display: Recipes.Api
           - project: Yumney.Recipes.Domain.Tests
@@ -40,14 +44,22 @@ jobs:
             display: Recipes.Infrastructure
           - project: Yumney.Shopping.Api.Tests
             display: Shopping.Api
+          - project: Yumney.Shopping.Domain.Tests
+            display: Shopping.Domain
           - project: Yumney.Shopping.Application.Tests
             display: Shopping.Application
+          - project: Yumney.MealPlan.Domain.Tests
+            display: MealPlan.Domain
+          - project: Yumney.MealPlan.Application.Tests
+            display: MealPlan.Application
           - project: Yumney.Users.Api.Tests
             display: Users.Api
           - project: Yumney.Users.Domain.Tests
             display: Users.Domain
           - project: Yumney.Users.Application.Tests
             display: Users.Application
+          - project: Yumney.Users.Infrastructure.Tests
+            display: Users.Infrastructure
 
     steps:
       - uses: actions/checkout@v6
