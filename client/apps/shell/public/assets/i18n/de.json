@@ -461,6 +461,11 @@
     "generateShoppingList": "Einkaufsliste erstellen",
     "generatingList": "Wird erstellt...",
     "itemsAdded": "{{count}} Artikel hinzugefügt",
-    "staplesSkipped": "{{count}} Grundzutaten übersprungen"
+    "staplesSkipped": "{{count}} Grundzutaten übersprungen",
+    "errors": {
+      "loadFailed": "Essensplan konnte nicht geladen werden.",
+      "clearFailed": "Slot konnte nicht geleert werden.",
+      "generateFailed": "Einkaufsliste konnte nicht erstellt werden."
+    }
   }
 }

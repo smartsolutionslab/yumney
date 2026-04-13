@@ -61,6 +61,23 @@
     "export": "Export list",
     "remove": "Remove item",
     "checked": "checked",
-    "retry": "Retry"
+    "retry": "Retry",
+    "errors": {
+      "addFailed": "Failed to add item.",
+      "removeFailed": "Failed to remove item.",
+      "exportFailed": "Failed to export list.",
+      "loadFailed": "Failed to load shopping list."
+    },
+    "category": {
+      "produce": "Produce",
+      "dairy": "Dairy",
+      "meat-fish": "Meat & Fish",
+      "bakery": "Bakery",
+      "frozen": "Frozen",
+      "beverages": "Beverages",
+      "pantry": "Pantry",
+      "household": "Household",
+      "other": "Other"
+    }
   }
 }

@@ -7,7 +7,7 @@ import {
   computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   MealPlanApiService,
@@ -15,6 +15,7 @@ import {
   type MealSlot,
   type GenerateShoppingListResult,
 } from '@yumney/shared/api-client';
+import { UI } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-meal-planner',
@@ -27,6 +28,7 @@ import {
 export class MealPlannerComponent {
   private api = inject(MealPlanApiService);
   private destroyRef = inject(DestroyRef);
+  private transloco = inject(TranslocoService);
 
   protected year = signal(new Date().getFullYear());
   protected weekNumber = signal(this.getCurrentWeek());
@@ -91,10 +93,10 @@ export class MealPlannerComponent {
         next: (result) => {
           this.shoppingResult.set(result);
           this.generatingList.set(false);
-          setTimeout(() => this.shoppingResult.set(null), 5000);
+          setTimeout(() => this.shoppingResult.set(null), UI.RESULT_DISPLAY_MS);
         },
         error: () => {
-          this.error.set('Failed to generate shopping list');
+          this.error.set(this.transloco.translate('mealPlanner.errors.generateFailed'));
           this.generatingList.set(false);
         },
       });
@@ -106,7 +108,7 @@ export class MealPlannerComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (plan) => this.plan.set(plan),
-        error: () => this.error.set('Failed to clear slot'),
+        error: () => this.error.set(this.transloco.translate('mealPlanner.errors.clearFailed')),
       });
   }
 
@@ -122,7 +124,7 @@ export class MealPlannerComponent {
           this.loading.set(false);
         },
         error: () => {
-          this.error.set('Failed to load meal plan');
+          this.error.set(this.transloco.translate('mealPlanner.errors.loadFailed'));
           this.loading.set(false);
         },
       });

@@ -15,6 +15,7 @@ import {
   type MergedShoppingList,
   type MergedShoppingItem,
 } from '@yumney/shared/api-client';
+import { TranslocoService } from '@jsverse/transloco';
 
 interface CategoryGroup {
   category: string;
@@ -33,6 +34,7 @@ interface CategoryGroup {
 export class MergedListComponent {
   private api = inject(ShoppingApiService);
   private destroyRef = inject(DestroyRef);
+  private transloco = inject(TranslocoService);
 
   protected list = signal<MergedShoppingList | null>(null);
   protected loading = signal(false);
@@ -74,7 +76,7 @@ export class MergedListComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loadList(),
-        error: () => this.error.set('Failed to add item'),
+        error: () => this.error.set(this.transloco.translate('shopping.errors.addFailed')),
       });
   }
 
@@ -84,7 +86,7 @@ export class MergedListComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.loadList(),
-        error: () => this.error.set('Failed to remove item'),
+        error: () => this.error.set(this.transloco.translate('shopping.errors.removeFailed')),
       });
   }
 
@@ -100,7 +102,7 @@ export class MergedListComponent {
             this.copyToClipboard(text);
           }
         },
-        error: () => this.error.set('Failed to export'),
+        error: () => this.error.set(this.transloco.translate('shopping.errors.exportFailed')),
       });
   }
 
@@ -115,18 +117,9 @@ export class MergedListComponent {
   }
 
   protected getCategoryLabel(category: string): string {
-    const labels: Record<string, string> = {
-      produce: '🥦 Produce',
-      dairy: '🥛 Dairy',
-      'meat-fish': '🥩 Meat & Fish',
-      bakery: '🍞 Bakery',
-      frozen: '❄️ Frozen',
-      beverages: '🥤 Beverages',
-      pantry: '🏠 Pantry',
-      household: '🧹 Household',
-      other: '📦 Other',
-    };
-    return labels[category] ?? category;
+    const key = `shopping.category.${category}`;
+    const translated = this.transloco.translate(key);
+    return translated !== key ? translated : category;
   }
 
   private loadList(): void {
@@ -141,7 +134,7 @@ export class MergedListComponent {
           this.loading.set(false);
         },
         error: () => {
-          this.error.set('Failed to load shopping list');
+          this.error.set(this.transloco.translate('shopping.errors.loadFailed'));
           this.loading.set(false);
         },
       });

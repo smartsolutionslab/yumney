@@ -1,12 +1,13 @@
 import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
   UserProfileApiService,
   type UserProfile,
   type UpdateProfileRequest,
 } from '@yumney/shared/api-client';
+import { UI } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-profile-settings',
@@ -19,6 +20,7 @@ import {
 export class ProfileSettingsComponent {
   private api = inject(UserProfileApiService);
   private destroyRef = inject(DestroyRef);
+  private transloco = inject(TranslocoService);
 
   protected profile = signal<UserProfile | null>(null);
   protected loading = signal(false);
@@ -72,10 +74,10 @@ export class ProfileSettingsComponent {
           this.profile.set(updated);
           this.saving.set(false);
           this.saved.set(true);
-          setTimeout(() => this.saved.set(false), 3000);
+          setTimeout(() => this.saved.set(false), UI.SAVED_INDICATOR_MS);
         },
         error: () => {
-          this.error.set('Failed to save profile');
+          this.error.set(this.transloco.translate('account.settings.errors.saveFailed'));
           this.saving.set(false);
         },
       });
@@ -112,7 +114,7 @@ export class ProfileSettingsComponent {
           this.loading.set(false);
         },
         error: () => {
-          this.error.set('Failed to load profile');
+          this.error.set(this.transloco.translate('account.settings.errors.loadFailed'));
           this.loading.set(false);
         },
       });
