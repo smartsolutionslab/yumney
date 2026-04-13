@@ -28,16 +28,13 @@
     </button>
   </div>
 
-  @if (loading()) {
-    <div class="loading">{{ t('shopping.loading') }}</div>
-  }
-
-  @if (error(); as err) {
-    <div class="error" role="alert">
-      {{ err }}
-      <button class="retry-btn" (click)="onRetry()">{{ t('shopping.retry') }}</button>
-    </div>
-  }
+  <yn-async-state
+    [loading]="loading()"
+    [error]="error()"
+    loadingKey="shopping.loading"
+    retryKey="shopping.retry"
+    (retry)="onRetry()"
+  />
 
   @for (group of categoryGroups(); track group.category) {
     <div class="category-group">

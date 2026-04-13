@@ -17,6 +17,7 @@ import {
   ERROR_MAPS,
   ROUTES,
   VALIDATION,
+  toggleFavoriteOnItem,
 } from '@yumney/shared/models';
 import {
   BackLinkComponent,
@@ -154,27 +155,6 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onToggleFavorite(): void {
-    const recipe = this.recipe();
-    if (!recipe) return;
-    const original = recipe.isFavorite;
-    this.recipe.set({ ...recipe, isFavorite: !original });
-
-    this.recipeApi
-      .toggleFavorite(recipe.identifier)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (state) => {
-          const current = this.recipe();
-          if (current && current.identifier === recipe.identifier) {
-            this.recipe.set({ ...current, isFavorite: state.isFavorite });
-          }
-        },
-        error: () => {
-          const current = this.recipe();
-          if (current && current.identifier === recipe.identifier) {
-            this.recipe.set({ ...current, isFavorite: original });
-          }
-        },
-      });
+    toggleFavoriteOnItem(this.recipe, this.destroyRef, (id) => this.recipeApi.toggleFavorite(id));
   }
 }

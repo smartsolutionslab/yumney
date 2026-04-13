@@ -13,16 +13,13 @@
     </button>
   </div>
 
-  @if (loading()) {
-    <div class="loading">{{ t('mealPlanner.loading') }}</div>
-  }
-
-  @if (error(); as err) {
-    <div class="error" role="alert">
-      {{ err }}
-      <button class="retry-btn" (click)="onRetry()">{{ t('mealPlanner.retry') }}</button>
-    </div>
-  }
+  <yn-async-state
+    [loading]="loading()"
+    [error]="error()"
+    loadingKey="mealPlanner.loading"
+    retryKey="mealPlanner.retry"
+    (retry)="onRetry()"
+  />
 
   @if (hasRecipeSlots()) {
     <div class="planner-actions">

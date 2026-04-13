@@ -16,6 +16,7 @@ import {
   type MergedShoppingItem,
 } from '@yumney/shared/api-client';
 import { TranslocoService } from '@jsverse/transloco';
+import { AsyncStateComponent } from '@yumney/ui';
 
 interface CategoryGroup {
   category: string;
@@ -26,7 +27,7 @@ interface CategoryGroup {
 @Component({
   selector: 'yn-merged-list',
   standalone: true,
-  imports: [FormsModule, TranslocoModule, LucideAngularModule],
+  imports: [FormsModule, TranslocoModule, LucideAngularModule, AsyncStateComponent],
   templateUrl: './merged-list.component.html',
   styleUrl: './merged-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
