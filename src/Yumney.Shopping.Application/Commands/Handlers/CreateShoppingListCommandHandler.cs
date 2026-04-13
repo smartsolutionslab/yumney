@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
@@ -6,11 +5,9 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
-#pragma warning disable SA1601
-public sealed partial class CreateShoppingListCommandHandler(
+public sealed class CreateShoppingListCommandHandler(
     IShoppingListRepository shoppingLists,
-    ICurrentUser currentUser,
-    ILogger<CreateShoppingListCommandHandler> logger)
+    ICurrentUser currentUser)
     : ICommandHandler<CreateShoppingListCommand, Result<ShoppingListDetailDto>>
 {
     public async Task<Result<ShoppingListDetailDto>> HandleAsync(CreateShoppingListCommand command, CancellationToken cancellationToken = default)
@@ -26,11 +23,6 @@ public sealed partial class CreateShoppingListCommandHandler(
 
         await shoppingLists.AddAsync(shoppingList, cancellationToken);
 
-        LogShoppingListCreated(shoppingList.Id.Value, title.Value);
-
         return shoppingList.ToDetailDto();
     }
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Shopping list {ShoppingListId} created: {Title}")]
-    private partial void LogShoppingListCreated(Guid shoppingListId, string title);
 }

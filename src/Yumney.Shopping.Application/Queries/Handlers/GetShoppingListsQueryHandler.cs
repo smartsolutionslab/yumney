@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
@@ -6,11 +5,9 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 
-#pragma warning disable SA1601
-public sealed partial class GetShoppingListsQueryHandler(
+public sealed class GetShoppingListsQueryHandler(
     IShoppingListRepository shoppingLists,
-    ICurrentUser currentUser,
-    ILogger<GetShoppingListsQueryHandler> logger)
+    ICurrentUser currentUser)
     : IQueryHandler<GetShoppingListsQuery, Result<PagedResult<ShoppingListSummaryDto>>>
 {
     public async Task<Result<PagedResult<ShoppingListSummaryDto>>> HandleAsync(
@@ -20,15 +17,10 @@ public sealed partial class GetShoppingListsQueryHandler(
         var (paging, sorting) = query;
         var owner = currentUser.AsOwner();
 
-        LogGetShoppingLists(owner.Value, paging.Page.Value, paging.PageSize.Value);
-
         var (items, totalCount) = await shoppingLists.GetByOwnerAsync(owner, paging, sorting, cancellationToken);
 
         var shoppingListSummaryDtos = items.Select(l => l.ToSummaryDto()).ToList();
 
         return PagedResultExtensions.With(shoppingListSummaryDtos, totalCount, paging);
     }
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping lists for owner {OwnerId}, page {Page}, pageSize {PageSize}")]
-    private partial void LogGetShoppingLists(string ownerId, int page, int pageSize);
 }

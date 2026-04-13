@@ -1,15 +1,12 @@
-using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
-#pragma warning disable SA1601
-public sealed partial class CheckOffItemCommandHandler(
+public sealed class CheckOffItemCommandHandler(
     IShoppingListRepository shoppingLists,
-    ICurrentUser currentUser,
-    ILogger<CheckOffItemCommandHandler> logger)
+    ICurrentUser currentUser)
     : ICommandHandler<CheckOffItemCommand, Result>
 {
     public async Task<Result> HandleAsync(CheckOffItemCommand command, CancellationToken cancellationToken = default)
@@ -33,11 +30,6 @@ public sealed partial class CheckOffItemCommandHandler(
 
         await shoppingLists.SaveChangesAsync(cancellationToken);
 
-        LogItemCheckedOff(listIdentifier.Value, itemId, isChecked);
-
         return Result.Success();
     }
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Item {ItemId} in shopping list {ShoppingListId} set to checked={IsChecked}")]
-    private partial void LogItemCheckedOff(Guid shoppingListId, ShoppingListItemIdentifier itemId, bool isChecked);
 }

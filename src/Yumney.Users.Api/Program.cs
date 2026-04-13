@@ -1,3 +1,4 @@
+using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Users.Api;
 using SmartSolutionsLab.Yumney.Users.Application;
@@ -10,6 +11,7 @@ builder.AddYumneyDefaults();
 builder.Services.AddUsersApi();
 builder.Services.AddUsersApplication();
 builder.Services.AddUsersInfrastructure(builder.Configuration);
+builder.Services.AddCqrsLoggingDecorators();
 
 var app = builder.Build();
 

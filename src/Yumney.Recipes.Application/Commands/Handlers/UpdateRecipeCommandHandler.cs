@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
@@ -6,11 +5,9 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-#pragma warning disable SA1601 // Partial elements should be documented (LoggerMessage generates partial methods)
-public sealed partial class UpdateRecipeCommandHandler(
+public sealed class UpdateRecipeCommandHandler(
     IRecipeRepository recipes,
-    ICurrentUser currentUser,
-    ILogger<UpdateRecipeCommandHandler> logger)
+    ICurrentUser currentUser)
     : ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>>
 {
     public async Task<Result<RecipeDetailDto>> HandleAsync(UpdateRecipeCommand command, CancellationToken cancellationToken = default)
@@ -20,13 +17,10 @@ public sealed partial class UpdateRecipeCommandHandler(
 
         var owner = currentUser.AsOwner();
 
-        LogUpdateRecipe(identifier, owner.Value);
-
         var recipe = await recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
         if (recipe.Owner != owner)
         {
-            LogRecipeAccessDenied(identifier, owner.Value);
             return UpdateRecipeErrors.AccessDenied;
         }
 
@@ -46,17 +40,6 @@ public sealed partial class UpdateRecipeCommandHandler(
 
         await recipes.UpdateAsync(recipe, cancellationToken);
 
-        LogRecipeUpdated(recipe.Id.Value, title.Value);
-
         return recipe.ToDetailDto();
     }
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Updating recipe {RecipeIdentifier} for owner {OwnerId}")]
-    private partial void LogUpdateRecipe(RecipeIdentifier recipeIdentifier, string ownerId);
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Access denied to update recipe {RecipeIdentifier} for owner {OwnerId}")]
-    private partial void LogRecipeAccessDenied(RecipeIdentifier recipeIdentifier, string ownerId);
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Recipe {RecipeIdentifier} '{Title}' updated successfully")]
-    private partial void LogRecipeUpdated(Guid recipeIdentifier, string title);
 }

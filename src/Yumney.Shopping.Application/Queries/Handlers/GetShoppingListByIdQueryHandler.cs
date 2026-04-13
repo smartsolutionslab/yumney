@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
@@ -6,12 +5,9 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 
-#pragma warning disable SA1601
-public sealed partial class GetShoppingListByIdQueryHandler(
-#pragma warning restore SA1601
+public sealed class GetShoppingListByIdQueryHandler(
     IShoppingListRepository shoppingLists,
-    ICurrentUser currentUser,
-    ILogger<GetShoppingListByIdQueryHandler> logger)
+    ICurrentUser currentUser)
     : IQueryHandler<GetShoppingListByIdQuery, Result<ShoppingListDetailDto>>
 {
     public async Task<Result<ShoppingListDetailDto>> HandleAsync(
@@ -19,8 +15,6 @@ public sealed partial class GetShoppingListByIdQueryHandler(
         CancellationToken cancellationToken = default)
     {
         var identifier = query.Identifier;
-
-        LogGetShoppingListById(identifier.Value);
 
         var shoppingList = await shoppingLists.GetByIdAsync(identifier, cancellationToken);
 
@@ -30,7 +24,4 @@ public sealed partial class GetShoppingListByIdQueryHandler(
 
         return shoppingList.ToDetailDto();
     }
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching shopping list {ShoppingListId}")]
-    private partial void LogGetShoppingListById(Guid shoppingListId);
 }
