@@ -10,7 +10,7 @@ public class UnitTests
     [Fact]
     public void Constructor_ValidUnit_CreatesInstance()
     {
-        var unit = Unit.Kilogram;
+        var unit = Unit.From("kg");
 
         unit.Value.Should().Be("kg");
     }
