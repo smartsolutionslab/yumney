@@ -4,21 +4,21 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Aspire -->
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.2.0-preview.1.26170.3" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.2.2-preview.1.26207.2" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.2.1-beta.532" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Hosting.Azure.Redis" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.2.1" />
-    <PackageVersion Include="Aspire.StackExchange.Redis" Version="13.2.1" />
-    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Hosting.Yarp" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.2.1" />
-    <PackageVersion Include="Aspire.Keycloak.Authentication" Version="13.2.0-preview.1.26170.3" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Redis" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.2.2" />
+    <PackageVersion Include="Aspire.StackExchange.Redis" Version="13.2.2" />
+    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Hosting.Yarp" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.2.2" />
+    <PackageVersion Include="Aspire.Keycloak.Authentication" Version="13.2.2-preview.1.26207.2" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.4.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.4.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="10.4.0" />
@@ -47,7 +47,7 @@
     <!-- API -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.13.20" />
-    <PackageVersion Include="Scalar.Aspire" Version="0.9.20" />
+    <PackageVersion Include="Scalar.Aspire" Version="0.9.22" />
     <!-- DI, Configuration & Logging Abstractions -->
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
