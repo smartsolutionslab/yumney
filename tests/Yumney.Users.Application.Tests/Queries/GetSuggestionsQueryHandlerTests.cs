@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Users.Application.Queries;
@@ -13,7 +12,6 @@ public class GetSuggestionsQueryHandlerTests
 {
     private readonly IUserActivityRepository activities = Substitute.For<IUserActivityRepository>();
     private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
-    private readonly ILogger<GetSuggestionsQueryHandler> logger = Substitute.For<ILogger<GetSuggestionsQueryHandler>>();
     private readonly GetSuggestionsQueryHandler handler;
 
     public GetSuggestionsQueryHandlerTests()
@@ -21,7 +19,7 @@ public class GetSuggestionsQueryHandlerTests
         currentUser.UserId.Returns("user-123");
         activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns([]);
-        handler = new GetSuggestionsQueryHandler(activities, currentUser, logger);
+        handler = new GetSuggestionsQueryHandler(activities, currentUser);
     }
 
     [Fact]

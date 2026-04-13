@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
@@ -15,7 +14,6 @@ public class ImportRecipeCommandHandlerTests
 {
     private readonly IWebScraper scraper = Substitute.For<IWebScraper>();
     private readonly IRecipeExtractionService extraction = Substitute.For<IRecipeExtractionService>();
-    private readonly ILogger<ImportRecipeCommandHandler> logger = Substitute.For<ILogger<ImportRecipeCommandHandler>>();
 
     [Fact]
     public async Task HandleAsync_ValidUrl_ReturnsExtractedRecipe()
@@ -248,5 +246,5 @@ public class ImportRecipeCommandHandlerTests
     private static ExtractedRecipeDto CreateExtractedRecipe(string title = "Test Recipe") =>
         new(title, [new ExtractedIngredientDto("Flour", 500, "g")], [new ExtractedStepDto(1, "Mix ingredients")], Servings: 4);
 
-    private ImportRecipeCommandHandler CreateSut() => new(scraper, extraction, logger);
+    private ImportRecipeCommandHandler CreateSut() => new(scraper, extraction);
 }

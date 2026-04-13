@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
@@ -18,13 +17,12 @@ public class RegisterUserCommandHandlerTests
 
     private readonly IKeycloakAdminService keycloakAdmin = Substitute.For<IKeycloakAdminService>();
     private readonly IAppUserProfileRepository users = Substitute.For<IAppUserProfileRepository>();
-    private readonly ILogger<RegisterUserCommandHandler> logger = Substitute.For<ILogger<RegisterUserCommandHandler>>();
 
     private readonly RegisterUserCommandHandler sut;
 
     public RegisterUserCommandHandlerTests()
     {
-        sut = new RegisterUserCommandHandler(keycloakAdmin, users, logger);
+        sut = new RegisterUserCommandHandler(keycloakAdmin, users);
     }
 
     [Fact]

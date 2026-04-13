@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
@@ -14,13 +13,12 @@ public class DeleteRecipeCommandHandlerTests
 {
     private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
     private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
-    private readonly ILogger<DeleteRecipeCommandHandler> logger = Substitute.For<ILogger<DeleteRecipeCommandHandler>>();
     private readonly DeleteRecipeCommandHandler handler;
 
     public DeleteRecipeCommandHandlerTests()
     {
         currentUser.UserId.Returns("user-123");
-        handler = new DeleteRecipeCommandHandler(recipes, currentUser, logger);
+        handler = new DeleteRecipeCommandHandler(recipes, currentUser);
     }
 
     [Fact]

@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
@@ -15,13 +14,12 @@ public class GetRecipeByIdQueryHandlerTests
     private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
     private readonly IRecipeFavoriteRepository favorites = Substitute.For<IRecipeFavoriteRepository>();
     private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
-    private readonly ILogger<GetRecipeByIdQueryHandler> logger = Substitute.For<ILogger<GetRecipeByIdQueryHandler>>();
     private readonly GetRecipeByIdQueryHandler handler;
 
     public GetRecipeByIdQueryHandlerTests()
     {
         currentUser.UserId.Returns("user-123");
-        handler = new GetRecipeByIdQueryHandler(recipes, favorites, currentUser, logger);
+        handler = new GetRecipeByIdQueryHandler(recipes, favorites, currentUser);
     }
 
     [Fact]

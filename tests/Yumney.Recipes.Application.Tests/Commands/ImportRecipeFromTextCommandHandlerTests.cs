@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
@@ -13,12 +12,11 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 public class ImportRecipeFromTextCommandHandlerTests
 {
     private readonly IRecipeExtractionService extraction = Substitute.For<IRecipeExtractionService>();
-    private readonly ILogger<ImportRecipeFromTextCommandHandler> logger = Substitute.For<ILogger<ImportRecipeFromTextCommandHandler>>();
     private readonly ImportRecipeFromTextCommandHandler handler;
 
     public ImportRecipeFromTextCommandHandlerTests()
     {
-        handler = new ImportRecipeFromTextCommandHandler(extraction, logger);
+        handler = new ImportRecipeFromTextCommandHandler(extraction);
     }
 
     [Fact]

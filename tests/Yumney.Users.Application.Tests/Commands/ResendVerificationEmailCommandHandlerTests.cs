@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
@@ -16,14 +15,12 @@ public class ResendVerificationEmailCommandHandlerTests
     private static readonly Email UnknownEmail = Email.From("unknown@example.com");
 
     private readonly IKeycloakAdminService keycloakAdmin = Substitute.For<IKeycloakAdminService>();
-    private readonly ILogger<ResendVerificationEmailCommandHandler> logger =
-        Substitute.For<ILogger<ResendVerificationEmailCommandHandler>>();
 
     private readonly ResendVerificationEmailCommandHandler sut;
 
     public ResendVerificationEmailCommandHandlerTests()
     {
-        sut = new ResendVerificationEmailCommandHandler(keycloakAdmin, logger);
+        sut = new ResendVerificationEmailCommandHandler(keycloakAdmin);
     }
 
     [Fact]

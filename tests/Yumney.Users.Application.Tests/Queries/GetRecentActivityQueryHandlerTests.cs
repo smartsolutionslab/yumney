@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Users.Application.Queries;
@@ -13,13 +12,12 @@ public class GetRecentActivityQueryHandlerTests
 {
     private readonly IUserActivityRepository activities = Substitute.For<IUserActivityRepository>();
     private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
-    private readonly ILogger<GetRecentActivityQueryHandler> logger = Substitute.For<ILogger<GetRecentActivityQueryHandler>>();
     private readonly GetRecentActivityQueryHandler handler;
 
     public GetRecentActivityQueryHandlerTests()
     {
         currentUser.UserId.Returns("user-123");
-        handler = new GetRecentActivityQueryHandler(activities, currentUser, logger);
+        handler = new GetRecentActivityQueryHandler(activities, currentUser);
     }
 
     [Fact]
