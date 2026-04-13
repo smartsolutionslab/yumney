@@ -132,6 +132,11 @@ public static class HostBuilderExtensions
             });
         });
 
+        builder.Services.AddHttpClient();
+        builder.Services.AddHealthChecks()
+            .AddCheck<HealthChecks.KeycloakHealthCheck>("keycloak", tags: ["ready"])
+            .AddCheck<HealthChecks.RedisHealthCheck>("redis", tags: ["ready"]);
+
         return builder;
     }
 

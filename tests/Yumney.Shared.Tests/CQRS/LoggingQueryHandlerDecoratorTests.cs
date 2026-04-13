@@ -1,9 +1,11 @@
+using System.Diagnostics.Metrics;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.CQRS.Decorators;
+using SmartSolutionsLab.Yumney.Shared.CQRS.Diagnostics;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shared.Tests.CQRS;
@@ -12,13 +14,14 @@ public class LoggingQueryHandlerDecoratorTests
 {
     private readonly IQueryHandler<TestQuery, Result<int>> inner = Substitute.For<IQueryHandler<TestQuery, Result<int>>>();
     private readonly ILogger<LoggingQueryHandlerDecorator<TestQuery, Result<int>>> logger = Substitute.For<ILogger<LoggingQueryHandlerDecorator<TestQuery, Result<int>>>>();
+    private readonly ApplicationMetrics metrics = new(new TestMeterFactory());
 
     [Fact]
     public async Task HandleAsync_Success_DelegatesAndReturnsResult()
     {
         var expected = Result<int>.Success(42);
         inner.HandleAsync(Arg.Any<TestQuery>(), Arg.Any<CancellationToken>()).Returns(expected);
-        var decorator = new LoggingQueryHandlerDecorator<TestQuery, Result<int>>(inner, logger);
+        var decorator = new LoggingQueryHandlerDecorator<TestQuery, Result<int>>(inner, logger, metrics);
 
         var result = await decorator.HandleAsync(new TestQuery());
 
@@ -32,7 +35,7 @@ public class LoggingQueryHandlerDecoratorTests
         var error = new ApiError("NOT_FOUND", "Not found", 404);
         var expected = Result<int>.Failure(error);
         inner.HandleAsync(Arg.Any<TestQuery>(), Arg.Any<CancellationToken>()).Returns(expected);
-        var decorator = new LoggingQueryHandlerDecorator<TestQuery, Result<int>>(inner, logger);
+        var decorator = new LoggingQueryHandlerDecorator<TestQuery, Result<int>>(inner, logger, metrics);
 
         var result = await decorator.HandleAsync(new TestQuery());
 
@@ -45,7 +48,7 @@ public class LoggingQueryHandlerDecoratorTests
     {
         inner.HandleAsync(Arg.Any<TestQuery>(), Arg.Any<CancellationToken>())
             .Returns<Result<int>>(_ => throw new InvalidOperationException("boom"));
-        var decorator = new LoggingQueryHandlerDecorator<TestQuery, Result<int>>(inner, logger);
+        var decorator = new LoggingQueryHandlerDecorator<TestQuery, Result<int>>(inner, logger, metrics);
 
         Func<Task> act = () => decorator.HandleAsync(new TestQuery());
 
@@ -54,3 +57,12 @@ public class LoggingQueryHandlerDecoratorTests
 }
 
 public sealed record TestQuery : IQuery<Result<int>>;
+
+internal sealed class TestMeterFactory : IMeterFactory
+{
+    public Meter Create(MeterOptions options) => new(options);
+
+    public void Dispose()
+    {
+    }
+}
