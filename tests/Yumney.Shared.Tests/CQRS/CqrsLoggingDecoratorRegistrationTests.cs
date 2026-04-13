@@ -15,6 +15,7 @@ public class CqrsLoggingDecoratorRegistrationTests
     {
         var services = new ServiceCollection();
         services.AddLogging();
+        services.AddMetrics();
         services.AddHandlersFromAssemblyContaining<FakeCommandHandler>();
 
         services.AddCqrsLoggingDecorators();
@@ -29,6 +30,7 @@ public class CqrsLoggingDecoratorRegistrationTests
     {
         var services = new ServiceCollection();
         services.AddLogging();
+        services.AddMetrics();
         services.AddHandlersFromAssemblyContaining<FakeQueryHandler>();
 
         services.AddCqrsLoggingDecorators();
@@ -43,6 +45,7 @@ public class CqrsLoggingDecoratorRegistrationTests
     {
         var services = new ServiceCollection();
         services.AddLogging();
+        services.AddMetrics();
         services.AddHandlersFromAssemblyContaining<FakeCommandHandler>();
         services.AddCqrsLoggingDecorators();
         var provider = services.BuildServiceProvider();

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Shared.CQRS.Decorators;
+using SmartSolutionsLab.Yumney.Shared.CQRS.Diagnostics;
 
 namespace SmartSolutionsLab.Yumney.Shared.CQRS;
 
@@ -18,6 +19,7 @@ public static class CqrsServiceCollectionExtensions
 
     public static IServiceCollection AddCqrsLoggingDecorators(this IServiceCollection services)
     {
+        services.AddSingleton<ApplicationMetrics>();
         DecorateAll(services, typeof(ICommandHandler<,>), typeof(LoggingCommandHandlerDecorator<,>));
         DecorateAll(services, typeof(IQueryHandler<,>), typeof(LoggingQueryHandlerDecorator<,>));
         return services;

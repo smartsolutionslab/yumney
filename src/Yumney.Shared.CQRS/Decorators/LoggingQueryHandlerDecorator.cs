@@ -8,7 +8,8 @@ namespace SmartSolutionsLab.Yumney.Shared.CQRS.Decorators;
 #pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase)
 public sealed partial class LoggingQueryHandlerDecorator<TQuery, TResult>(
     IQueryHandler<TQuery, TResult> inner,
-    ILogger<LoggingQueryHandlerDecorator<TQuery, TResult>> logger)
+    ILogger<LoggingQueryHandlerDecorator<TQuery, TResult>> logger,
+    ApplicationMetrics metrics)
     : IQueryHandler<TQuery, TResult>
     where TQuery : IQuery<TResult>
 {
@@ -34,12 +35,14 @@ public sealed partial class LoggingQueryHandlerDecorator<TQuery, TResult>(
                 activity?.SetTag("handler.result", "failure");
                 activity?.SetStatus(ActivityStatusCode.Error, errorMessage);
                 LogFailed(queryName, handlerName, elapsed, errorCode!, errorMessage!);
+                metrics.RecordExecution(handlerName, queryName, "failure", elapsed);
             }
             else
             {
                 activity?.SetTag("handler.result", "success");
                 activity?.SetStatus(ActivityStatusCode.Ok);
                 LogHandled(queryName, handlerName, elapsed);
+                metrics.RecordExecution(handlerName, queryName, "success", elapsed);
             }
 
             return result;
@@ -50,6 +53,7 @@ public sealed partial class LoggingQueryHandlerDecorator<TQuery, TResult>(
             activity?.SetTag("handler.result", "exception");
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             LogException(ex, queryName, handlerName, elapsed);
+            metrics.RecordExecution(handlerName, queryName, "exception", elapsed);
             throw;
         }
     }

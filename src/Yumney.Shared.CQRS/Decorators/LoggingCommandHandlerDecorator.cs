@@ -8,7 +8,8 @@ namespace SmartSolutionsLab.Yumney.Shared.CQRS.Decorators;
 #pragma warning disable SA1311 // Static readonly fields should begin with upper-case letter (editorconfig requires camelCase)
 public sealed partial class LoggingCommandHandlerDecorator<TCommand, TResult>(
     ICommandHandler<TCommand, TResult> inner,
-    ILogger<LoggingCommandHandlerDecorator<TCommand, TResult>> logger)
+    ILogger<LoggingCommandHandlerDecorator<TCommand, TResult>> logger,
+    ApplicationMetrics metrics)
     : ICommandHandler<TCommand, TResult>
     where TCommand : ICommand<TResult>
 {
@@ -34,12 +35,14 @@ public sealed partial class LoggingCommandHandlerDecorator<TCommand, TResult>(
                 activity?.SetTag("handler.result", "failure");
                 activity?.SetStatus(ActivityStatusCode.Error, errorMessage);
                 LogFailed(commandName, handlerName, elapsed, errorCode!, errorMessage!);
+                metrics.RecordExecution(handlerName, commandName, "failure", elapsed);
             }
             else
             {
                 activity?.SetTag("handler.result", "success");
                 activity?.SetStatus(ActivityStatusCode.Ok);
                 LogHandled(commandName, handlerName, elapsed);
+                metrics.RecordExecution(handlerName, commandName, "success", elapsed);
             }
 
             return result;
@@ -50,6 +53,7 @@ public sealed partial class LoggingCommandHandlerDecorator<TCommand, TResult>(
             activity?.SetTag("handler.result", "exception");
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             LogException(ex, commandName, handlerName, elapsed);
+            metrics.RecordExecution(handlerName, commandName, "exception", elapsed);
             throw;
         }
     }
