@@ -18,7 +18,6 @@ test.describe('Dashboard — Share Intent (US-124)', () => {
       }),
     );
 
-    const dashboard = new DashboardPage(authenticatedPage);
     await authenticatedPage.goto('/dashboard?url=https://example.com/recipe');
 
     await expect(authenticatedPage.getByText(/fetching|extracting|loading/i)).toBeVisible({
