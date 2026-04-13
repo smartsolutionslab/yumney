@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter, ActivatedRoute } from '@angular/router';
-import { of, Subject } from 'rxjs';
+import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { CookModeComponent } from './cook-mode.component';
 import { RecipeApiService, type RecipeDetail } from '@yumney/shared/api-client';
@@ -10,7 +10,6 @@ import {
   CookingTimerService,
   setupTranslocoTesting,
 } from '@yumney/shared/models';
-import { TranslocoService } from '@jsverse/transloco';
 import { provideYumneyIcons } from '@yumney/ui';
 
 const mockRecipe: RecipeDetail = {

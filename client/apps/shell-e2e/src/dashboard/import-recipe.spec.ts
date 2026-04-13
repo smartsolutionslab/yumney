@@ -25,6 +25,7 @@ test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', ()
     await expect(dashboard.fieldError(/valid.*URL|invalid/i)).toBeVisible();
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   test('should show error for unreachable URL', async ({ authenticatedPage }) => {
     await dashboard.urlInput.fill('https://this-domain-does-not-exist-e2e.invalid/recipe');
     await dashboard.importButton.click();
