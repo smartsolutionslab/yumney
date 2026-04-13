@@ -79,11 +79,16 @@ jobs:
 
       - name: Start Aspire AppHost
         run: |
-          # Start Aspire in background, redirect output to log file for debugging
-          aspire run --project src/Yumney.AppHost/Yumney.AppHost.csproj > /tmp/aspire.log 2>&1 &
-          ASPIRE_PID=$!
-          echo "ASPIRE_PID=$ASPIRE_PID" >> "$GITHUB_ENV"
-          echo "Aspire started with PID $ASPIRE_PID"
+          # Start Aspire detached (--no-build since we already built, --detach returns after startup)
+          aspire run \
+            --project src/Yumney.AppHost/Yumney.AppHost.csproj \
+            --no-build \
+            --detach \
+            --non-interactive \
+            --log-level Information \
+            > /tmp/aspire.log 2>&1 || true
+          echo "Aspire detach completed"
+          cat /tmp/aspire.log
 
       - name: Wait for services to be ready
         run: |
@@ -140,11 +145,10 @@ jobs:
       - name: Stop Aspire
         if: always()
         run: |
-          if [ -n "$ASPIRE_PID" ]; then
-            kill $ASPIRE_PID 2>/dev/null || true
-          fi
+          aspire stop 2>/dev/null || true
           pkill -f "Yumney.AppHost" 2>/dev/null || true
           pkill -f "aspire" 2>/dev/null || true
+          docker stop $(docker ps -q) 2>/dev/null || true
 
       - name: Upload Aspire logs
         if: always()
