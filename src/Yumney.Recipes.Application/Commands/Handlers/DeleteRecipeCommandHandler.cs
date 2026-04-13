@@ -1,15 +1,12 @@
-using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-#pragma warning disable SA1601 // Partial elements should be documented (LoggerMessage generates partial methods)
-public sealed partial class DeleteRecipeCommandHandler(
+public sealed class DeleteRecipeCommandHandler(
     IRecipeRepository recipes,
-    ICurrentUser currentUser,
-    ILogger<DeleteRecipeCommandHandler> logger)
+    ICurrentUser currentUser)
     : ICommandHandler<DeleteRecipeCommand, Result>
 {
     public async Task<Result> HandleAsync(DeleteRecipeCommand command, CancellationToken cancellationToken = default)
@@ -17,13 +14,10 @@ public sealed partial class DeleteRecipeCommandHandler(
         var identifier = command.Identifier;
         var owner = currentUser.AsOwner();
 
-        LogDeleteRecipe(identifier, owner.Value);
-
         var recipe = await recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
         if (recipe.Owner != owner)
         {
-            LogRecipeAccessDenied(identifier, owner.Value);
             return Result.Failure(DeleteRecipeErrors.AccessDenied);
         }
 
@@ -31,17 +25,6 @@ public sealed partial class DeleteRecipeCommandHandler(
 
         await recipes.DeleteAsync(recipe, cancellationToken);
 
-        LogRecipeDeleted(recipe.Id.Value, recipe.Title.Value);
-
         return Result.Success();
     }
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Deleting recipe {RecipeIdentifier} for owner {OwnerId}")]
-    private partial void LogDeleteRecipe(RecipeIdentifier recipeIdentifier, string ownerId);
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Access denied to delete recipe {RecipeIdentifier} for owner {OwnerId}")]
-    private partial void LogRecipeAccessDenied(RecipeIdentifier recipeIdentifier, string ownerId);
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Recipe {RecipeIdentifier} '{Title}' deleted successfully")]
-    private partial void LogRecipeDeleted(Guid recipeIdentifier, string title);
 }

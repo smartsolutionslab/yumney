@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Users.Application.DTOs;
@@ -6,17 +5,13 @@ using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Queries.Handlers;
 
-#pragma warning disable SA1601
-public sealed partial class GetSuggestionsQueryHandler(
-#pragma warning restore SA1601
-    IUserActivityRepository activities, ICurrentUser currentUser, ILogger<GetSuggestionsQueryHandler> logger)
+public sealed class GetSuggestionsQueryHandler(
+    IUserActivityRepository activities, ICurrentUser currentUser)
     : IQueryHandler<GetSuggestionsQuery, Result<SuggestionsResponseDto>>
 {
     public async Task<Result<SuggestionsResponseDto>> HandleAsync(GetSuggestionsQuery query, CancellationToken cancellationToken = default)
     {
         var owner = currentUser.AsOwner();
-
-        LogGetSuggestions(owner.Value);
 
         var recentActivities = await activities.GetRecentAsync(owner, 10, cancellationToken);
 
@@ -70,7 +65,4 @@ public sealed partial class GetSuggestionsQueryHandler(
         >= MealHours.LunchEnd and < MealHours.DinnerEnd => ["whats_for_dinner", "30_min_recipes"],
         _ => ["snack_ideas", "meal_prep"],
     };
-
-    [LoggerMessage(Level = LogLevel.Debug, Message = "Getting suggestions for user {UserId}")]
-    private partial void LogGetSuggestions(string userId);
 }

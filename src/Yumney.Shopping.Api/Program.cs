@@ -1,3 +1,4 @@
+using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Shopping.Api;
 using SmartSolutionsLab.Yumney.Shopping.Application;
@@ -10,7 +11,8 @@ builder.AddYumneyDefaults();
 builder.Services
     .AddShoppingApi()
     .AddShoppingApplication()
-    .AddShoppingInfrastructure(builder.Configuration);
+    .AddShoppingInfrastructure(builder.Configuration)
+    .AddCqrsLoggingDecorators();
 
 var app = builder.Build();
 

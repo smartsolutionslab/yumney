@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shared.Common;
@@ -6,19 +5,13 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-#pragma warning disable SA1601
-public sealed partial class ImportRecipeFromPhotosCommandHandler(IRecipeExtractionService extractionService, ILogger<ImportRecipeFromPhotosCommandHandler> logger)
+public sealed class ImportRecipeFromPhotosCommandHandler(IRecipeExtractionService extractionService)
     : ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>>
 {
     public async Task<Result<ExtractedRecipeDto>> HandleAsync(ImportRecipeFromPhotosCommand command, CancellationToken cancellationToken = default)
     {
         var photos = command.Photos;
 
-        LogExtractingFromPhotos(photos.Count);
-
         return await extractionService.ExtractFromPhotosAsync(photos, cancellationToken);
     }
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Extracting recipe from {PhotoCount} photos")]
-    private partial void LogExtractingFromPhotos(int photoCount);
 }

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
@@ -7,20 +6,16 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 
-#pragma warning disable SA1601 // Partial elements should be documented (required for LoggerMessage source generation)
-public sealed partial class GetRecipesQueryHandler(
+public sealed class GetRecipesQueryHandler(
     IRecipeRepository recipes,
     IRecipeFavoriteRepository favorites,
-    ICurrentUser currentUser,
-    ILogger<GetRecipesQueryHandler> logger)
+    ICurrentUser currentUser)
     : IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>>
 {
     public async Task<Result<PagedResult<RecipeListItemDto>>> HandleAsync(GetRecipesQuery query, CancellationToken cancellationToken = default)
     {
         var (paging, sorting, search, filter) = query;
         var owner = currentUser.AsOwner();
-
-        LogGetRecipes(owner.Value, paging.Page.Value, paging.PageSize.Value, search?.Value);
 
         var (items, totalCount) = await recipes.GetByOwnerAsync(owner, paging, sorting, search, filter, cancellationToken);
 
@@ -35,7 +30,4 @@ public sealed partial class GetRecipesQueryHandler(
 
         return PagedResultExtensions.With(dtoItems, totalCount, paging);
     }
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Fetching recipes for owner {OwnerId}, page {Page}, pageSize {PageSize}, search {Search}")]
-    private partial void LogGetRecipes(string ownerId, int page, int pageSize, string? search);
 }
