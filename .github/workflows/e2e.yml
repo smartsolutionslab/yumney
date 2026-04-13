@@ -1,0 +1,149 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  NODE_VERSION: '22'
+
+jobs:
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Aspire workload
+        run: dotnet workload install aspire
+
+      - name: Install Aspire CLI
+        run: |
+          curl -sSL https://aspire.dev/install.sh | bash
+          echo "$HOME/.aspire/bin" >> $GITHUB_PATH
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Install Yarn
+        run: corepack enable
+
+      - name: Get yarn cache directory
+        id: yarn-cache-dir
+        working-directory: client
+        run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Yarn
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir.outputs.dir }}
+          key: yarn-${{ runner.os }}-${{ hashFiles('client/yarn.lock') }}
+          restore-keys: |
+            yarn-${{ runner.os }}-
+
+      - name: Install frontend dependencies
+        working-directory: client
+        run: yarn install --immutable
+
+      - name: Install Playwright browsers
+        working-directory: client
+        run: npx playwright install chromium --with-deps
+
+      - name: Restore .NET packages
+        run: dotnet restore Yumney.slnx
+
+      - name: Build backend
+        run: dotnet build Yumney.slnx --no-restore
+
+      - name: Start Aspire AppHost
+        run: |
+          aspire run --project src/Yumney.AppHost/Yumney.AppHost.csproj &
+          ASPIRE_PID=$!
+          echo "ASPIRE_PID=$ASPIRE_PID" >> "$GITHUB_ENV"
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for Gateway (port 5100)..."
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:5100/health > /dev/null 2>&1; then
+              echo "Gateway is ready!"
+              break
+            fi
+            if [ $i -eq 60 ]; then
+              echo "::warning::Gateway did not become ready within 60s"
+              curl -v http://localhost:5100/health 2>&1 || true
+            fi
+            sleep 5
+          done
+
+          echo "Waiting for Frontend (port 4200)..."
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:4200 > /dev/null 2>&1; then
+              echo "Frontend is ready!"
+              break
+            fi
+            if [ $i -eq 60 ]; then
+              echo "::warning::Frontend did not become ready within 60s"
+            fi
+            sleep 5
+          done
+
+      - name: Run backend integration tests
+        continue-on-error: true
+        run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj --no-build
+
+      - name: Run Playwright e2e tests
+        continue-on-error: true
+        working-directory: client
+        run: npx nx e2e shell-e2e --skip-nx-cache
+        env:
+          BASE_URL: http://localhost:4200
+          E2E_USER: testuser
+          E2E_PASSWORD: Test1234
+          CI: true
+
+      - name: Stop Aspire
+        if: always()
+        run: |
+          if [ -n "$ASPIRE_PID" ]; then
+            kill $ASPIRE_PID 2>/dev/null || true
+          fi
+          # Also clean up any remaining dotnet processes
+          pkill -f "Yumney.AppHost" 2>/dev/null || true
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: client/test-results/
+          retention-days: 14
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: client/apps/shell-e2e/playwright-report/
+          retention-days: 14
