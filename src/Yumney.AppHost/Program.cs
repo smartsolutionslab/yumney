@@ -38,7 +38,8 @@ else
         .RunAsContainer(pg =>
         {
             pg.WithDataVolume();
-            pg.WithPgAdmin();
+            if (!options.HeadlessMode)
+                pg.WithPgAdmin();
         });
     recipesDb = postgres.AddDatabase("recipesdb");
     shoppingDb = postgres.AddDatabase("shoppingdb");
@@ -49,15 +50,19 @@ else
 
 if (!options.DatabaseOnly)
 {
-    var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
-        .WithReference(recipesDb)
-        .WithReference(shoppingDb)
-        .WithReference(usersDb)
-        .WithReference(mealplanDb)
-        .WaitFor(recipesDb)
-        .WaitFor(shoppingDb)
-        .WaitFor(usersDb)
-        .WaitFor(mealplanDb);
+    IResourceBuilder<ProjectResource>? migrationRunner = null;
+    if (!options.SkipMigrations)
+    {
+        migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
+            .WithReference(recipesDb)
+            .WithReference(shoppingDb)
+            .WithReference(usersDb)
+            .WithReference(mealplanDb)
+            .WaitFor(recipesDb)
+            .WaitFor(shoppingDb)
+            .WaitFor(usersDb)
+            .WaitFor(mealplanDb);
+    }
 
     // ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
     var redis = builder.AddRedis("redis", password: redisPassword);
@@ -73,7 +78,7 @@ if (!options.DatabaseOnly)
 
     keycloak.WithRealmImport("Realms");
 
-    if (isRunMode)
+    if (isRunMode && !options.HeadlessMode)
     {
         var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "latest")
             .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
@@ -117,7 +122,7 @@ if (!options.DatabaseOnly)
 
     if (registry is not null)
     {
-        migrationRunner.WithContainerRegistry(registry);
+        migrationRunner?.WithContainerRegistry(registry);
         recipesApi.WithContainerRegistry(registry);
         shoppingApi.WithContainerRegistry(registry);
         usersApi.WithContainerRegistry(registry);
@@ -169,7 +174,7 @@ if (!options.DatabaseOnly)
     shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 5, 50));
     usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
     mealplanApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
-    migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
+    migrationRunner?.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
     if (isRunMode && !options.HeadlessMode)
     {

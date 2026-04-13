@@ -3,6 +3,7 @@ using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -57,6 +58,7 @@ public sealed class AspireFixture : IAsyncLifetime
         await EnsureDbCreatedAsync<RecipesDbContext>(CreateRecipesDbContextAsync, cts.Token);
         await EnsureDbCreatedAsync<ShoppingDbContext>(CreateShoppingDbContextAsync, cts.Token);
         await EnsureDbCreatedAsync<UsersDbContext>(CreateUsersDbContextAsync, cts.Token);
+        await EnsureDbCreatedAsync<MealPlanDbContext>(CreateMealPlanDbContextAsync, cts.Token);
     }
 
     public async Task DisposeAsync()
@@ -111,6 +113,14 @@ public sealed class AspireFixture : IAsyncLifetime
         await using var context = await CreateUsersDbContextAsync();
         context.AppUserProfiles.AddRange(profiles);
         await context.SaveChangesAsync();
+    }
+
+    public async Task<MealPlanDbContext> CreateMealPlanDbContextAsync()
+    {
+        var connectionString = await App.GetConnectionStringAsync("mealplandb");
+        var optionsBuilder = new DbContextOptionsBuilder<MealPlanDbContext>();
+        optionsBuilder.UseNpgsql(connectionString, x => x.EnableRetryOnFailure());
+        return new MealPlanDbContext(optionsBuilder.Options);
     }
 
     private static async Task EnsureDbCreatedAsync<TContext>(
