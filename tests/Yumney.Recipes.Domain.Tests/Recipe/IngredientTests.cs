@@ -11,7 +11,7 @@ public class IngredientTests
     {
         var name = IngredientName.From("Flour");
         var amount = Amount.From(500);
-        var unit = Unit.From("g");
+        var unit = Unit.Gram;
 
         var ingredient = Ingredient.Create(name, Quantity.Of(amount, unit));
 
