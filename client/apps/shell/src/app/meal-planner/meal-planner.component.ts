@@ -7,6 +7,7 @@ import {
   computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -30,6 +31,7 @@ export class MealPlannerComponent {
   private api = inject(MealPlanApiService);
   private destroyRef = inject(DestroyRef);
   private transloco = inject(TranslocoService);
+  private router = inject(Router);
 
   protected year = signal(new Date().getFullYear());
   protected weekNumber = signal(this.getCurrentWeek());
@@ -101,6 +103,14 @@ export class MealPlannerComponent {
           this.generatingList.set(false);
         },
       });
+  }
+
+  protected onSelectSlot(day: string): void {
+    this.router.navigate(['/recipes'], {
+      queryParams: {
+        assignTo: `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}-${day}`,
+      },
+    });
   }
 
   protected onClearSlot(day: string): void {

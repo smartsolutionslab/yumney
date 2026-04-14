@@ -81,7 +81,7 @@
             </button>
           </div>
         } @else {
-          <div class="empty-slot">
+          <div class="empty-slot" (click)="onSelectSlot(entry.day)">
             <lucide-icon name="plus" [size]="24" />
           </div>
         }

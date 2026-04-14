@@ -133,8 +133,8 @@
           "medium": "Medium",
           "hard": "Hard"
         },
-        "maxPrepTime": "Max prep time (min)",
-        "maxCookTime": "Max cook time (min)",
+        "maxPrepTime": "Max prep time",
+        "maxCookTime": "Max cook time",
         "minutesPlaceholder": "min"
       }
     },
@@ -298,8 +298,8 @@
       "recipeTitle": "Title",
       "description": "Description",
       "servings": "Servings",
-      "prepTime": "Prep Time (min)",
-      "cookTime": "Cook Time (min)",
+      "prepTime": "Prep Time",
+      "cookTime": "Cook Time",
       "difficulty": "Difficulty",
       "difficultyPlaceholder": "Select difficulty",
       "difficultyOption": {

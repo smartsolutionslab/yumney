@@ -133,8 +133,8 @@
           "medium": "Mittel",
           "hard": "Schwer"
         },
-        "maxPrepTime": "Max. Vorbereitung (Min.)",
-        "maxCookTime": "Max. Kochzeit (Min.)",
+        "maxPrepTime": "Max. Vorbereitung",
+        "maxCookTime": "Max. Kochzeit",
         "minutesPlaceholder": "Min."
       }
     },
@@ -298,8 +298,8 @@
       "recipeTitle": "Titel",
       "description": "Beschreibung",
       "servings": "Portionen",
-      "prepTime": "Vorbereitungszeit (Min.)",
-      "cookTime": "Kochzeit (Min.)",
+      "prepTime": "Vorbereitungszeit",
+      "cookTime": "Kochzeit",
       "difficulty": "Schwierigkeit",
       "difficultyPlaceholder": "Schwierigkeit wählen",
       "difficultyOption": {
