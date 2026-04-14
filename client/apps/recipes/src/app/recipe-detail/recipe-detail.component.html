@@ -162,6 +162,9 @@
     }
 
     <div class="floating-actions">
+      <a class="btn-cook" [routerLink]="ROUTES.recipes.cook(recipe.identifier)">
+        {{ t('recipes.detail.actions.startCooking') }}
+      </a>
       <a class="btn-primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
         {{ t('recipes.detail.actions.edit') }}
       </a>
