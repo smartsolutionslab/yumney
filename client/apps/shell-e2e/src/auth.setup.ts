@@ -11,8 +11,9 @@ const AUTH_STATE_PATH = 'src/.auth/user.json';
 
 /**
  * Playwright setup: gets a Keycloak token via direct grant,
- * loads the app to trigger discovery document fetch,
- * injects the tokens, reloads to authenticate, then saves state.
+ * injects tokens into localStorage (with yn_remember_me flag so
+ * angular-oauth2-oidc reads from localStorage instead of sessionStorage),
+ * reloads to authenticate, then saves storageState for all tests.
  */
 setup('authenticate via Keycloak token endpoint', async ({ page }) => {
   // 1. Get tokens from Keycloak
@@ -41,24 +42,26 @@ setup('authenticate via Keycloak token endpoint', async ({ page }) => {
   await page.goto(BASE_URL);
   await page.waitForLoadState('load');
 
-  // 3. Inject tokens into sessionStorage (angular-oauth2-oidc keys)
+  // 3. Inject tokens into localStorage (not sessionStorage!)
+  //    Set yn_remember_me so authStorageFactory() uses localStorage.
+  //    Playwright's storageState persists localStorage but NOT sessionStorage.
   const expiresAt = Math.floor(Date.now() / 1000) + tokens.expires_in;
   const idClaims = JSON.parse(atob(tokens.id_token.split('.')[1]));
 
   await page.evaluate(
     ({ t, exp, claims }) => {
-      const store = sessionStorage;
-      store.setItem('access_token', t.access_token);
-      store.setItem('id_token', t.id_token);
-      store.setItem('refresh_token', t.refresh_token);
-      store.setItem('expires_at', String(exp));
-      store.setItem('granted_scopes', JSON.stringify(t.scope.split(' ')));
-      store.setItem('access_token_stored_at', String(Date.now()));
-      store.setItem('id_token_stored_at', String(Date.now()));
-      store.setItem('id_token_claims_obj', JSON.stringify(claims));
-      store.setItem('id_token_expires_at', String(exp));
-      store.setItem('nonce', claims.nonce || '');
-      store.setItem('PKCE_verifier', '');
+      localStorage.setItem('yn_remember_me', 'true');
+      localStorage.setItem('access_token', t.access_token);
+      localStorage.setItem('id_token', t.id_token);
+      localStorage.setItem('refresh_token', t.refresh_token);
+      localStorage.setItem('expires_at', String(exp));
+      localStorage.setItem('granted_scopes', JSON.stringify(t.scope.split(' ')));
+      localStorage.setItem('access_token_stored_at', String(Date.now()));
+      localStorage.setItem('id_token_stored_at', String(Date.now()));
+      localStorage.setItem('id_token_claims_obj', JSON.stringify(claims));
+      localStorage.setItem('id_token_expires_at', String(exp));
+      localStorage.setItem('nonce', claims.nonce || '');
+      localStorage.setItem('PKCE_verifier', '');
     },
     { t: tokens, exp: expiresAt, claims: idClaims },
   );
@@ -66,10 +69,8 @@ setup('authenticate via Keycloak token endpoint', async ({ page }) => {
   // 4. Reload so the app picks up the injected tokens
   await page.reload();
   await page.waitForLoadState('load');
-
-  // 5. Wait briefly for Angular to process the tokens
   await page.waitForTimeout(2000);
 
-  // 6. Save authenticated state
+  // 5. Save authenticated state (localStorage is persisted by storageState)
   await page.context().storageState({ path: AUTH_STATE_PATH });
 });
