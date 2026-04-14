@@ -50,8 +50,7 @@ export class AuthService {
       await this.oauthService.loadDiscoveryDocument();
       // Override token endpoint to route through Gateway (avoids DCP port proxy 504s)
       if (gatewayUrl) {
-        this.oauthService.tokenEndpoint =
-          `${gatewayUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`;
+        this.oauthService.tokenEndpoint = `${gatewayUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`;
       }
       await this.oauthService.tryLogin();
       this.updateAuthState();
