@@ -17,7 +17,8 @@
           "/shopping/remoteEntry.json",
           "/shopping/*.js",
           "/account/remoteEntry.json",
-          "/account/*.js"
+          "/account/*.js",
+          "/assets/federation.manifest.json"
         ]
       }
     },
