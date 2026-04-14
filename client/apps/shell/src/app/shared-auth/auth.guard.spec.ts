@@ -6,6 +6,7 @@ import { AuthService, authGuard } from '@yumney/shared/auth';
 describe('authGuard', () => {
   let authServiceMock: {
     isAuthenticated: ReturnType<typeof vi.fn>;
+    isLoading: ReturnType<typeof vi.fn>;
   };
 
   const route = {} as ActivatedRouteSnapshot;
@@ -14,6 +15,7 @@ describe('authGuard', () => {
   beforeEach(() => {
     authServiceMock = {
       isAuthenticated: vi.fn(),
+      isLoading: vi.fn().mockReturnValue(false),
     };
 
     TestBed.configureTestingModule({
