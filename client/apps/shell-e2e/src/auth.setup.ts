@@ -1,76 +1,43 @@
-import { test as setup } from '@playwright/test';
+import { test as setup, expect } from '@playwright/test';
 
 const E2E_USER = process.env['E2E_USER'] ?? 'testuser';
 const E2E_PASSWORD = process.env['E2E_PASSWORD'] ?? 'Test1234';
-const KEYCLOAK_URL = process.env['KEYCLOAK_URL'] ?? 'http://localhost:8080';
-const KEYCLOAK_REALM = 'yumney';
-const KEYCLOAK_CLIENT_ID = 'yumney-web';
-const BASE_URL = process.env['BASE_URL'] ?? 'http://localhost:4200';
 
 const AUTH_STATE_PATH = 'src/.auth/user.json';
 
 /**
- * Playwright setup: gets a Keycloak token via direct grant,
- * injects tokens into localStorage (with yn_remember_me flag so
- * angular-oauth2-oidc reads from localStorage instead of sessionStorage),
- * reloads to authenticate, then saves storageState for all tests.
+ * Playwright setup: performs a real browser-based Keycloak login once
+ * and saves the authenticated browser state (localStorage + cookies).
+ * All test projects reuse this state — no login needed per test.
  */
-setup('authenticate via Keycloak token endpoint', async ({ page }) => {
-  // 1. Get tokens from Keycloak
-  const tokenUrl = `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
-
-  const response = await fetch(tokenUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'password',
-      client_id: KEYCLOAK_CLIENT_ID,
-      username: E2E_USER,
-      password: E2E_PASSWORD,
-      scope: 'openid profile email roles',
-    }),
-  });
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Keycloak token request failed (${response.status}): ${body}`);
-  }
-
-  const tokens = await response.json();
-
-  // 2. Load the app to trigger OIDC discovery document fetch
-  await page.goto(BASE_URL);
+setup('authenticate via Keycloak browser login', async ({ page }) => {
+  // Navigate to the app login page
+  await page.goto('/auth/login');
   await page.waitForLoadState('load');
 
-  // 3. Inject tokens into localStorage (not sessionStorage!)
-  //    Set yn_remember_me so authStorageFactory() uses localStorage.
-  //    Playwright's storageState persists localStorage but NOT sessionStorage.
-  const expiresAt = Math.floor(Date.now() / 1000) + tokens.expires_in;
-  const idClaims = JSON.parse(atob(tokens.id_token.split('.')[1]));
+  // Click the "Sign in with Keycloak" button
+  const signInButton = page.getByRole('button', { name: /sign in/i });
+  await expect(signInButton).toBeVisible({ timeout: 10_000 });
+  await signInButton.click();
 
-  await page.evaluate(
-    ({ t, exp, claims }) => {
-      localStorage.setItem('yn_remember_me', 'true');
-      localStorage.setItem('access_token', t.access_token);
-      localStorage.setItem('id_token', t.id_token);
-      localStorage.setItem('refresh_token', t.refresh_token);
-      localStorage.setItem('expires_at', String(exp));
-      localStorage.setItem('granted_scopes', JSON.stringify(t.scope.split(' ')));
-      localStorage.setItem('access_token_stored_at', String(Date.now()));
-      localStorage.setItem('id_token_stored_at', String(Date.now()));
-      localStorage.setItem('id_token_claims_obj', JSON.stringify(claims));
-      localStorage.setItem('id_token_expires_at', String(exp));
-      localStorage.setItem('nonce', claims.nonce || '');
-      localStorage.setItem('PKCE_verifier', '');
-    },
-    { t: tokens, exp: expiresAt, claims: idClaims },
-  );
+  // Wait for Keycloak login page
+  await page.waitForURL('**/realms/yumney/**', { timeout: 15_000 });
 
-  // 4. Reload so the app picks up the injected tokens
-  await page.reload();
+  // Fill credentials on Keycloak form
+  await page.locator('#username').fill(E2E_USER);
+  await page.locator('#password').fill(E2E_PASSWORD);
+  await page.locator('#kc-login').click();
+
+  // Wait for redirect back to the app
+  await page.waitForURL('**/dashboard', { timeout: 15_000 });
+
+  // Ensure the app has fully initialized with the auth tokens
   await page.waitForLoadState('load');
   await page.waitForTimeout(2000);
 
-  // 5. Save authenticated state (localStorage is persisted by storageState)
+  // Persist "remember me" so tokens go to localStorage (survives storageState)
+  await page.evaluate(() => localStorage.setItem('yn_remember_me', 'true'));
+
+  // Save the authenticated state
   await page.context().storageState({ path: AUTH_STATE_PATH });
 });
