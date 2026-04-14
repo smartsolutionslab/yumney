@@ -13,11 +13,15 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 
+/// <summary>
+/// Integration test fixture that boots the Aspire AppHost with E2ETests mode.
+/// Starts infra (PostgreSQL, Keycloak, Redis, RabbitMQ) and all 4 API projects.
+/// Skips frontend, gateway, mailpit, scalar, and LLM for fast startup.
+/// Exposes HttpClients for each API and DbContext factories for seeding.
+/// </summary>
 public sealed class AspireFixture : IAsyncLifetime
 {
     private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(3);
-
-    private DistributedApplication? app;
 
     public static async Task CleanupAsync<TContext>(
         Func<Task<TContext>> contextFactory,
@@ -30,7 +34,21 @@ public sealed class AspireFixture : IAsyncLifetime
         await context.SaveChangesAsync();
     }
 
+    private DistributedApplication? app;
+
     public DistributedApplication App => app ?? throw new InvalidOperationException("Aspire app not started");
+
+    /// <summary>Pre-configured HttpClient targeting the Recipes API.</summary>
+    public HttpClient RecipesApi { get; private set; } = null!;
+
+    /// <summary>Pre-configured HttpClient targeting the Shopping API.</summary>
+    public HttpClient ShoppingApi { get; private set; } = null!;
+
+    /// <summary>Pre-configured HttpClient targeting the Users API.</summary>
+    public HttpClient UsersApi { get; private set; } = null!;
+
+    /// <summary>Pre-configured HttpClient targeting the MealPlan API.</summary>
+    public HttpClient MealPlanApi { get; private set; } = null!;
 
     public async Task InitializeAsync()
     {
@@ -42,7 +60,7 @@ public sealed class AspireFixture : IAsyncLifetime
                 "Parameters:KeycloakPassword=testkeycloak",
                 "Parameters:MessagingPassword=testmessaging",
                 "Parameters:RedisPassword=testredis",
-                "DatabaseOnly=true",
+                "E2ETests=true",
             ]);
 
         builder.Services.ConfigureHttpClientDefaults(http => http.AddStandardResilienceHandler());
@@ -52,15 +70,24 @@ public sealed class AspireFixture : IAsyncLifetime
         using var cts = new CancellationTokenSource(StartupTimeout);
         await app.StartAsync(cts.Token);
 
-        await app.ResourceNotifications.WaitForResourceAsync("postgres", KnownResourceStates.Running, cts.Token);
+        await app.ResourceNotifications.WaitForResourceAsync("recipes-api", KnownResourceStates.Running, cts.Token);
+        await app.ResourceNotifications.WaitForResourceAsync("shopping-api", KnownResourceStates.Running, cts.Token);
+        await app.ResourceNotifications.WaitForResourceAsync("users-api", KnownResourceStates.Running, cts.Token);
+        await app.ResourceNotifications.WaitForResourceAsync("mealplan-api", KnownResourceStates.Running, cts.Token);
 
-        await EnsureDbCreatedAsync<RecipesDbContext>(CreateRecipesDbContextAsync, cts.Token);
-        await EnsureDbCreatedAsync<ShoppingDbContext>(CreateShoppingDbContextAsync, cts.Token);
-        await EnsureDbCreatedAsync<UsersDbContext>(CreateUsersDbContextAsync, cts.Token);
+        RecipesApi = app.CreateHttpClient("recipes-api");
+        ShoppingApi = app.CreateHttpClient("shopping-api");
+        UsersApi = app.CreateHttpClient("users-api");
+        MealPlanApi = app.CreateHttpClient("mealplan-api");
     }
 
     public async Task DisposeAsync()
     {
+        RecipesApi?.Dispose();
+        ShoppingApi?.Dispose();
+        UsersApi?.Dispose();
+        MealPlanApi?.Dispose();
+
         if (app is not null)
         {
             await app.StopAsync();
@@ -111,33 +138,6 @@ public sealed class AspireFixture : IAsyncLifetime
         await using var context = await CreateUsersDbContextAsync();
         context.AppUserProfiles.AddRange(profiles);
         await context.SaveChangesAsync();
-    }
-
-    private static async Task EnsureDbCreatedAsync<TContext>(
-        Func<Task<TContext>> contextFactory,
-        CancellationToken cancellationToken)
-        where TContext : DbContext
-    {
-        const int maxAttempts = 10;
-        const int initialDelayMs = 100;
-        const int maxDelayMs = 2000;
-
-        await using var context = await contextFactory();
-        for (var attempt = 1; attempt <= maxAttempts; attempt++)
-        {
-            try
-            {
-                await context.Database.EnsureCreatedAsync(cancellationToken);
-                return;
-            }
-            catch when (attempt < maxAttempts)
-            {
-                // Exponential backoff: 100, 200, 400, 800, 1600, 2000, 2000, ...
-                // Caps at 2s. Worst case: ~10s vs 18s with the previous fixed-2s loop.
-                var delayMs = Math.Min(initialDelayMs * (1 << (attempt - 1)), maxDelayMs);
-                await Task.Delay(delayMs, cancellationToken);
-            }
-        }
     }
 }
 

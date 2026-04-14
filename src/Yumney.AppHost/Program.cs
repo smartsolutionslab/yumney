@@ -38,7 +38,7 @@ else
         .RunAsContainer(pg =>
         {
             pg.WithDataVolume();
-            pg.WithPgAdmin();
+            if (!options.E2ETests) pg.WithPgAdmin();
         });
     recipesDb = postgres.AddDatabase("recipesdb");
     shoppingDb = postgres.AddDatabase("shoppingdb");
@@ -73,7 +73,7 @@ if (!options.DatabaseOnly)
 
     keycloak.WithRealmImport("Realms");
 
-    if (isRunMode)
+    if (isRunMode && !options.E2ETests)
     {
         var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "latest")
             .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
@@ -173,17 +173,20 @@ if (!options.DatabaseOnly)
 
     if (isRunMode)
     {
-        var keycloakRealmUrl = "http://localhost:8080/realms/yumney";
-        var scalar = builder.AddScalarApiReference("scalar", scalarOptions => scalarOptions
-                .WithTheme(ScalarTheme.Mars)
-                .AddAuthorizationCodeFlow("keycloak", flow => flow
-                    .WithClientId("yumney-web")
-                    .WithAuthorizationUrl($"{keycloakRealmUrl}/protocol/openid-connect/auth")
-                    .WithTokenUrl($"{keycloakRealmUrl}/protocol/openid-connect/token")
-                    .WithSelectedScopes(["openid", "profile"])))
-            .WithApiReference(recipesApi)
-            .WithApiReference(shoppingApi)
-            .WithApiReference(usersApi);
+        if (!options.E2ETests)
+        {
+            var keycloakRealmUrl = "http://localhost:8080/realms/yumney";
+            builder.AddScalarApiReference("scalar", scalarOptions => scalarOptions
+                    .WithTheme(ScalarTheme.Mars)
+                    .AddAuthorizationCodeFlow("keycloak", flow => flow
+                        .WithClientId("yumney-web")
+                        .WithAuthorizationUrl($"{keycloakRealmUrl}/protocol/openid-connect/auth")
+                        .WithTokenUrl($"{keycloakRealmUrl}/protocol/openid-connect/token")
+                        .WithSelectedScopes(["openid", "profile"])))
+                .WithApiReference(recipesApi)
+                .WithApiReference(shoppingApi)
+                .WithApiReference(usersApi);
+        }
 
         var addMfe = (string name, string script, int port) =>
             builder.AddJavaScriptApp(name, "../../client", script)

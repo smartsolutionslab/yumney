@@ -29,6 +29,9 @@ internal static class AppHostExtensions
         IDistributedApplicationBuilder builder,
         AppHostOptions options)
     {
+        if (options.E2ETests)
+            return api;
+
         if (options.UseOllama)
         {
             var ollama = builder.AddOllama("ollama").WithDataVolume();

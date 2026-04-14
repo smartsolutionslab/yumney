@@ -4,6 +4,7 @@ namespace SmartSolutionsLab.Yumney.AppHost.Options;
 
 internal sealed record AppHostOptions(
     bool DatabaseOnly,
+    bool E2ETests,
     LlmProvider LlmProvider,
     string OpenAiModelId,
     string? RegistryEndpoint,
@@ -26,6 +27,7 @@ internal sealed record AppHostOptions(
 
         return new AppHostOptions(
             DatabaseOnly: config.GetValue<bool>("DatabaseOnly"),
+            E2ETests: config.GetValue<bool>("E2ETests"),
             LlmProvider: provider,
             OpenAiModelId: config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini",
             RegistryEndpoint: config.GetValue<string>("RegistryEndpoint"),
