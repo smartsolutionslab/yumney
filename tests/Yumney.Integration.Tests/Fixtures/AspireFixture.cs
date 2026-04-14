@@ -38,16 +38,16 @@ public sealed class AspireFixture : IAsyncLifetime
 
     public DistributedApplication App => app ?? throw new InvalidOperationException("Aspire app not started");
 
-    /// <summary>Pre-configured HttpClient targeting the Recipes API.</summary>
+    /// <summary>Gets the pre-configured HttpClient targeting the Recipes API.</summary>
     public HttpClient RecipesApi { get; private set; } = null!;
 
-    /// <summary>Pre-configured HttpClient targeting the Shopping API.</summary>
+    /// <summary>Gets the pre-configured HttpClient targeting the Shopping API.</summary>
     public HttpClient ShoppingApi { get; private set; } = null!;
 
-    /// <summary>Pre-configured HttpClient targeting the Users API.</summary>
+    /// <summary>Gets the pre-configured HttpClient targeting the Users API.</summary>
     public HttpClient UsersApi { get; private set; } = null!;
 
-    /// <summary>Pre-configured HttpClient targeting the MealPlan API.</summary>
+    /// <summary>Gets the pre-configured HttpClient targeting the MealPlan API.</summary>
     public HttpClient MealPlanApi { get; private set; } = null!;
 
     public async Task InitializeAsync()
