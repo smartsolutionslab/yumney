@@ -1,5 +1,6 @@
 {
   "keycloakUrl": "http://localhost:8080",
   "keycloakRealm": "yumney",
-  "keycloakClientId": "yumney-web"
+  "keycloakClientId": "yumney-web",
+  "gatewayUrl": "http://localhost:5100"
 }
