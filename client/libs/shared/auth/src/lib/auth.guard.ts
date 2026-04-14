@@ -11,19 +11,13 @@ export const authGuard: CanActivateFn = () => {
 
   // If auth has already initialized, check immediately
   if (!authService.isLoading()) {
-    return authService.isAuthenticated()
-      ? true
-      : router.createUrlTree([ROUTES.auth.login]);
+    return authService.isAuthenticated() ? true : router.createUrlTree([ROUTES.auth.login]);
   }
 
   // Wait for auth initialization to complete before deciding
   return toObservable(authService.isLoading).pipe(
     filter((loading) => !loading),
     take(1),
-    map(() =>
-      authService.isAuthenticated()
-        ? true
-        : router.createUrlTree([ROUTES.auth.login]),
-    ),
+    map(() => (authService.isAuthenticated() ? true : router.createUrlTree([ROUTES.auth.login]))),
   );
 };
