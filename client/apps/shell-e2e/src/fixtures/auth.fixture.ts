@@ -1,37 +1,18 @@
 import { test as base, type Page } from '@playwright/test';
 
-const E2E_USER = process.env['E2E_USER'] ?? 'testuser';
-const E2E_PASSWORD = process.env['E2E_PASSWORD'] ?? 'Test1234';
-
 /**
- * Authenticates against the real Keycloak instance by navigating to
- * the login page, clicking "Sign in with Keycloak", and completing
- * the Keycloak login form.
+ * Test fixture that provides an authenticated page.
+ * Storage state (tokens) is injected by the setup project
+ * via Playwright's storageState config — no manual login needed.
  *
- * Requires the full system running (Aspire AppHost):
- *   dotnet run --project src/Yumney.AppHost
+ * Tests using `authenticatedPage` get a page with valid Keycloak
+ * tokens already in sessionStorage.
  */
-async function authenticateViaKeycloak(page: Page): Promise<void> {
-  await page.goto('/auth/login');
-
-  // Click the app's "Sign in with Keycloak" button
-  await page.getByRole('button', { name: /sign in/i }).click();
-
-  // Now on Keycloak login page — wait for it to load
-  await page.waitForURL('**/realms/yumney/protocol/openid-connect/**');
-
-  // Fill Keycloak credentials
-  await page.locator('#username').fill(E2E_USER);
-  await page.locator('#password').fill(E2E_PASSWORD);
-  await page.locator('#kc-login').click();
-
-  // Wait for redirect back to the app dashboard
-  await page.waitForURL('**/dashboard', { timeout: 15_000 });
-}
-
 export const test = base.extend<{ authenticatedPage: Page }>({
   authenticatedPage: async ({ page }, use) => {
-    await authenticateViaKeycloak(page);
+    // Navigate to trigger angular-oauth2-oidc to pick up stored tokens
+    await page.goto('/dashboard');
+    await page.waitForLoadState('load');
     await use(page);
   },
 });
