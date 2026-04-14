@@ -8,7 +8,9 @@ describe('AuthService', () => {
   let oauthMock: {
     configure: ReturnType<typeof vi.fn>;
     setupAutomaticSilentRefresh: ReturnType<typeof vi.fn>;
-    loadDiscoveryDocumentAndTryLogin: ReturnType<typeof vi.fn>;
+    loadDiscoveryDocument: ReturnType<typeof vi.fn>;
+    tryLogin: ReturnType<typeof vi.fn>;
+    tokenEndpoint: string | null;
     hasValidAccessToken: ReturnType<typeof vi.fn>;
     getIdentityClaims: ReturnType<typeof vi.fn>;
     initCodeFlow: ReturnType<typeof vi.fn>;
@@ -31,7 +33,9 @@ describe('AuthService', () => {
     oauthMock = {
       configure: vi.fn(),
       setupAutomaticSilentRefresh: vi.fn(),
-      loadDiscoveryDocumentAndTryLogin: vi.fn().mockResolvedValue(true),
+      loadDiscoveryDocument: vi.fn().mockResolvedValue(true),
+      tryLogin: vi.fn().mockResolvedValue(true),
+      tokenEndpoint: null,
       hasValidAccessToken: vi.fn().mockReturnValue(false),
       getIdentityClaims: vi.fn().mockReturnValue(null),
       initCodeFlow: vi.fn(),
@@ -97,7 +101,7 @@ describe('AuthService', () => {
     });
 
     it('should set isLoading to false even when discovery document fails', async () => {
-      oauthMock.loadDiscoveryDocumentAndTryLogin.mockRejectedValue(new Error('Network error'));
+      oauthMock.loadDiscoveryDocument.mockRejectedValue(new Error('Network error'));
 
       await service.initialize();
 
@@ -166,7 +170,7 @@ describe('AuthService', () => {
     });
 
     it('should remain unauthenticated after failed discovery', async () => {
-      oauthMock.loadDiscoveryDocumentAndTryLogin.mockRejectedValue(new Error('Network error'));
+      oauthMock.loadDiscoveryDocument.mockRejectedValue(new Error('Network error'));
 
       await service.initialize();
 
