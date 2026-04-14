@@ -1,62 +1,53 @@
-import { test as setup } from '@playwright/test';
+import { test as setup, expect } from '@playwright/test';
 
 const E2E_USER = process.env['E2E_USER'] ?? 'testuser';
 const E2E_PASSWORD = process.env['E2E_PASSWORD'] ?? 'Test1234';
-const KEYCLOAK_URL = process.env['KEYCLOAK_URL'] ?? 'http://localhost:8080';
-const KEYCLOAK_REALM = 'yumney';
-const KEYCLOAK_CLIENT_ID = 'yumney-web';
 
 const AUTH_STATE_PATH = 'src/.auth/user.json';
 
 setup('authenticate via Keycloak', async ({ page }) => {
-  const tokenUrl = `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`;
-  const tokenResponse = await fetch(tokenUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'password',
-      client_id: KEYCLOAK_CLIENT_ID,
-      username: E2E_USER,
-      password: E2E_PASSWORD,
-      scope: 'openid profile email roles',
-    }),
+  // Capture token exchange responses
+  page.on('response', (r) => {
+    if (r.url().includes('/token')) {
+      console.log(`Token response: ${r.status()} ${r.url()}`);
+    }
   });
 
-  if (!tokenResponse.ok) {
-    throw new Error(`Keycloak token request failed (${tokenResponse.status})`);
-  }
+  // Capture console errors
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') console.log(`Console error: ${msg.text()}`);
+  });
 
-  const tokens = await tokenResponse.json();
-  const idClaims = JSON.parse(atob(tokens.id_token.split('.')[1]));
-  const expiresAt = Math.floor(Date.now() / 1000) + tokens.expires_in;
-
-  // Inject into BOTH localStorage and sessionStorage — cover both cases
-  await page.addInitScript(
-    ({ t, exp, claims }) => {
-      const stores = [localStorage, sessionStorage];
-      for (const store of stores) {
-        store.setItem('yn_remember_me', 'true');
-        store.setItem('access_token', t.access_token);
-        store.setItem('id_token', t.id_token);
-        store.setItem('refresh_token', t.refresh_token);
-        store.setItem('expires_at', String(exp));
-        store.setItem('id_token_expires_at', String(exp));
-        store.setItem('access_token_stored_at', String(Date.now()));
-        store.setItem('id_token_stored_at', String(Date.now()));
-        store.setItem('id_token_claims_obj', JSON.stringify(claims));
-        store.setItem('granted_scopes', JSON.stringify(t.scope.split(' ')));
-        store.setItem('nonce', '');
-        store.setItem('PKCE_verifier', '');
-        store.setItem('session_state', t.session_state || '');
-      }
-    },
-    { t: tokens, exp: expiresAt, claims: idClaims },
-  );
-
-  await page.goto('/dashboard');
+  // 1. Go to login
+  await page.goto('/auth/login');
   await page.waitForLoadState('load');
-  await page.waitForTimeout(5000);
 
-  console.log('Final URL:', page.url());
+  // 2. Click sign in
+  await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible({ timeout: 10_000 });
+  await page.getByRole('button', { name: /sign in/i }).click();
+
+  // 3. Wait for and fill Keycloak form
+  await page.waitForURL('**/realms/**', { timeout: 10_000 });
+  await page.locator('#username').fill(E2E_USER);
+  await page.locator('#password').fill(E2E_PASSWORD);
+  await page.locator('#kc-login').click();
+
+  // 4. Wait for redirect — code exchange happens automatically
+  await page.waitForURL('http://localhost:4200/**', { timeout: 15_000 });
+  console.log('Redirect URL:', page.url().substring(0, 80) + '...');
+
+  // 5. Wait for Angular to process the code exchange
+  //    The APP_INITIALIZER should handle this before routing starts
+  await page.waitForTimeout(8000);
+  console.log('After wait:', page.url());
+
+  // Check what ended up in storage
+  const storageCheck = await page.evaluate(() => ({
+    ssToken: !!sessionStorage.getItem('access_token'),
+    lsToken: !!localStorage.getItem('access_token'),
+    ssKeys: Object.keys(sessionStorage).sort(),
+  }));
+  console.log('Storage:', JSON.stringify(storageCheck));
+
   await page.context().storageState({ path: AUTH_STATE_PATH });
 });
