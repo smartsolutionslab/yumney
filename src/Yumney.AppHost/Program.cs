@@ -38,6 +38,7 @@ else
         .RunAsContainer(pg =>
         {
             pg.WithDataVolume();
+            pg.WithLifetime(ContainerLifetime.Persistent);
             if (!options.E2ETests) pg.WithPgAdmin();
         });
     recipesDb = postgres.AddDatabase("recipesdb");
@@ -60,9 +61,9 @@ if (!options.DatabaseOnly)
         .WaitFor(mealplanDb);
 
     // ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
-    var redis = builder.AddRedis("redis", password: redisPassword);
-    var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithManagementPlugin();
-    var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
+    var redis = builder.AddRedis("redis", password: redisPassword).WithLifetime(ContainerLifetime.Persistent);
+    var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithManagementPlugin().WithLifetime(ContainerLifetime.Persistent);
+    var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword).WithLifetime(ContainerLifetime.Persistent);
 
     if (isRunMode)
     {
