@@ -19,79 +19,59 @@ public static partial class RecipesEndpoints
     {
         var group = app.MapGroup("/recipes");
 
-        group.MapGet("/", GetAllAsync)
+        MapCrudEndpoints(group);
+        MapImportEndpoints(group);
+        MapChatEndpoints(group);
+
+        return app;
+    }
+
+    private static void MapCrudEndpoints(RouteGroupBuilder group)
+    {
+        group.MapGet("/", GetAll)
             .WithName("GetRecipes")
             .WithTags("Recipes")
             .Produces<PagedResult<RecipeListItemDto>>();
 
-        group.MapGet("/{identifier:guid}", GetByIdAsync)
+        static async Task<IResult> GetAll(
+            IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>> handler,
+            int page = PagingOptions.DefaultPage,
+            int pageSize = PagingOptions.DefaultPageSize,
+            string sortBy = "Date",
+            SortDirection sortDirection = SortDirection.Descending,
+            string? search = null,
+            string? tags = null,
+            string? difficulty = null,
+            int? maxPrepTime = null,
+            int? maxCookTime = null,
+            bool? favorites = null,
+            CancellationToken cancellationToken = default)
+        {
+            var query = new GetRecipesQuery(
+                PagingOptions.From(page, pageSize),
+                SortingOptions<RecipeSortField>.Parse(sortBy, sortDirection, RecipeSortField.Date),
+                SearchTerm.FromNullable(search),
+                RecipeFilterParser.Build(tags, difficulty, maxPrepTime, maxCookTime, favorites));
+
+            var result = await handler.HandleAsync(query, cancellationToken);
+            return result.ToOk();
+        }
+
+        group.MapGet("/{identifier:guid}", GetById)
             .WithName("GetRecipeById")
             .WithTags("Recipes")
             .Produces<RecipeDetailDto>()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapPost("/import", ImportAsync)
-            .WithName("ImportRecipe")
-            .WithTags("Recipes")
-            .Produces<ExtractedRecipeDto>()
-            .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
-            .ProducesProblem(StatusCodes.Status429TooManyRequests)
-            .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .ProducesProblem(StatusCodes.Status502BadGateway)
-            .ProducesProblem(StatusCodes.Status504GatewayTimeout)
-            .RequireRateLimiting("RecipeImport");
-
-        group.MapPost("/import-from-photos", ImportFromPhotosAsync)
-            .WithName("ImportRecipeFromPhotos")
-            .WithTags("Recipes")
-            .Produces<ExtractedRecipeDto>()
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
-            .ProducesProblem(StatusCodes.Status429TooManyRequests)
-            .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .RequireRateLimiting("RecipeImport")
-            .DisableAntiforgery();
-
-        group.MapPost("/recognize-ingredients", RecognizeIngredientsAsync)
-            .WithName("RecognizeIngredients")
-            .WithTags("Recipes")
-            .Produces<RecognizedIngredientsResponseDto>()
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status413PayloadTooLarge)
-            .ProducesProblem(StatusCodes.Status429TooManyRequests)
-            .RequireRateLimiting("RecipeImport")
-            .DisableAntiforgery();
-
-        group.MapPost("/chat", ChatAsync)
-            .WithName("RecipeChat")
-            .WithTags("Recipes")
-            .Produces<ChatResponseDto>()
-            .ProducesProblem(StatusCodes.Status429TooManyRequests)
-            .RequireRateLimiting("RecipeImport");
-
-        group.MapPost("/parse-intent", ParseIntentAsync)
-            .WithName("ParseIntent")
-            .WithTags("Recipes")
-            .Produces<ParsedIntentDto>()
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .RequireRateLimiting("RecipeImport");
-
-        group.MapPost("/import-from-text", ImportFromTextAsync)
-            .WithName("ImportRecipeFromText")
-            .WithTags("Recipes")
-            .Produces<ExtractedRecipeDto>()
-            .ProducesProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .RequireRateLimiting("RecipeImport");
-
-        group.MapGet("/import/stream", ImportStreamAsync)
-            .WithName("ImportRecipeStream")
-            .WithTags("Recipes")
-            .Produces(StatusCodes.Status200OK, contentType: MediaTypes.TextEventStream)
-            .ProducesProblem(StatusCodes.Status502BadGateway)
-            .RequireRateLimiting("RecipeImport");
+        static async Task<IResult> GetById(
+            Guid identifier,
+            IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetRecipeByIdQuery(RecipeIdentifier.From(identifier));
+            var result = await handler.HandleAsync(query, cancellationToken);
+            return result.ToOk();
+        }
 
         group.MapPost("/", Save)
             .WithName("SaveRecipe")
@@ -125,7 +105,6 @@ public static partial class RecipesEndpoints
                 tags);
 
             var result = await handler.HandleAsync(command, cancellationToken);
-
             return result.ToCreated($"/api/v1/recipes/{result.Value.Identifier}");
         }
 
@@ -153,130 +132,38 @@ public static partial class RecipesEndpoints
             return result.ToOk();
         }
 
-        group.MapDelete("/{identifier:guid}", DeleteAsync)
+        group.MapDelete("/{identifier:guid}", Delete)
             .WithName("DeleteRecipe")
             .WithTags("Recipes")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapPost("/{identifier:guid}/favorite", ToggleFavoriteAsync)
+        static async Task<IResult> Delete(
+            Guid identifier,
+            ICommandHandler<DeleteRecipeCommand, Result> handler,
+            CancellationToken cancellationToken)
+        {
+            var command = new DeleteRecipeCommand(RecipeIdentifier.From(identifier));
+
+            var result = await handler.HandleAsync(command, cancellationToken);
+            return result.ToNoContent();
+        }
+
+        group.MapPost("/{identifier:guid}/favorite", ToggleFavorite)
             .WithName("ToggleRecipeFavorite")
             .WithTags("Recipes")
             .Produces<FavoriteStateDto>()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        return app;
-    }
-
-    private static async Task<IResult> GetAllAsync(
-        IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>> handler,
-        int page = PagingOptions.DefaultPage,
-        int pageSize = PagingOptions.DefaultPageSize,
-        string sortBy = "Date",
-        SortDirection sortDirection = SortDirection.Descending,
-        string? search = null,
-        string? tags = null,
-        string? difficulty = null,
-        int? maxPrepTime = null,
-        int? maxCookTime = null,
-        bool? favorites = null,
-        CancellationToken cancellationToken = default)
-    {
-        var query = new GetRecipesQuery(
-            PagingOptions.From(page, pageSize),
-            SortingOptions<RecipeSortField>.Parse(sortBy, sortDirection, RecipeSortField.Date),
-            SearchTerm.FromNullable(search),
-            RecipeFilterParser.Build(tags, difficulty, maxPrepTime, maxCookTime, favorites));
-
-        var result = await handler.HandleAsync(query, cancellationToken);
-        return result.ToOk();
-    }
-
-    private static async Task<IResult> GetByIdAsync(Guid identifier, IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler, CancellationToken cancellationToken)
-    {
-        var query = new GetRecipeByIdQuery(RecipeIdentifier.From(identifier));
-
-        var result = await handler.HandleAsync(query, cancellationToken);
-        return result.ToOk();
-    }
-
-    private static async Task<IResult> DeleteAsync(
-        Guid identifier,
-        ICommandHandler<DeleteRecipeCommand, Result> handler,
-        CancellationToken cancellationToken)
-    {
-        var command = new DeleteRecipeCommand(RecipeIdentifier.From(identifier));
-
-        var result = await handler.HandleAsync(command, cancellationToken);
-        return result.ToNoContent();
-    }
-
-    private static async Task<IResult> ImportAsync(
-        ImportRecipeRequest request,
-        IValidator<ImportRecipeRequest> validator,
-        ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>> handler,
-        CancellationToken cancellationToken)
-    {
-        var validation = await validator.ValidateAsync(request, cancellationToken);
-        if (validation.HasFailed()) return validation.ToValidationProblem();
-
-        var command = new ImportRecipeCommand(RecipeUrl.From(request.Url));
-
-        var result = await handler.HandleAsync(command, cancellationToken);
-        return result.ToOk();
-    }
-
-    private static async Task<IResult> ImportFromPhotosAsync(
-        IFormFileCollection photos,
-        IValidator<PhotoData> validator,
-        ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>> handler,
-        CancellationToken cancellationToken)
-    {
-        if (photos.Count == 0 || photos.Count > PhotoDataValidator.MaxPhotos)
+        static async Task<IResult> ToggleFavorite(
+            Guid identifier,
+            ICommandHandler<ToggleFavoriteCommand, Result<FavoriteStateDto>> handler,
+            CancellationToken cancellationToken)
         {
-            return Results.ValidationProblem(new Dictionary<string, string[]>
-            {
-                ["Photos"] = [$"Must contain between 1 and {PhotoDataValidator.MaxPhotos} photos."],
-            });
+            var command = new ToggleFavoriteCommand(RecipeIdentifier.From(identifier));
+
+            var result = await handler.HandleAsync(command, cancellationToken);
+            return result.ToOk();
         }
-
-        var photoDataList = new List<PhotoData>(photos.Count);
-        foreach (var file in photos)
-        {
-            var photoData = await LoadPhotoDataAsync(file, cancellationToken);
-            var validation = await validator.ValidateAsync(photoData, cancellationToken);
-            if (validation.HasFailed()) return validation.ToValidationProblem();
-
-            photoDataList.Add(photoData);
-        }
-
-        var command = new ImportRecipeFromPhotosCommand(photoDataList);
-
-        var result = await handler.HandleAsync(command, cancellationToken);
-        return result.ToOk();
-    }
-
-    private static async Task<IResult> RecognizeIngredientsAsync(
-        IFormFile photo,
-        IValidator<PhotoData> validator,
-        ICommandHandler<RecognizeIngredientsCommand, Result<RecognizedIngredientsResponseDto>> handler,
-        CancellationToken cancellationToken)
-    {
-        var photoData = await LoadPhotoDataAsync(photo, cancellationToken);
-        var validation = await validator.ValidateAsync(photoData, cancellationToken);
-        if (validation.HasFailed()) return validation.ToValidationProblem();
-
-        var command = new RecognizeIngredientsCommand(photoData);
-
-        var result = await handler.HandleAsync(command, cancellationToken);
-        return result.ToOk();
-    }
-
-    private static async Task<PhotoData> LoadPhotoDataAsync(IFormFile file, CancellationToken cancellationToken)
-    {
-        using var memoryStream = new MemoryStream((int)file.Length);
-        await file.CopyToAsync(memoryStream, cancellationToken);
-
-        return new PhotoData(memoryStream.ToArray(), file.ContentType, file.FileName);
     }
 }

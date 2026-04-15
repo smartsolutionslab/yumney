@@ -20,16 +20,24 @@ public sealed class ToggleExtendedModeCommandHandler(
         {
             plan = WeeklyPlan.Create(owner, week);
             if (enable)
+            {
                 plan.EnableExtendedMode();
+            }
+
             await plans.AddAsync(plan, cancellationToken);
         }
         else
         {
             plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
             if (enable)
+            {
                 plan.EnableExtendedMode();
+            }
             else
+            {
                 plan.DisableExtendedMode();
+            }
+
             await plans.SaveChangesAsync(cancellationToken);
         }
 

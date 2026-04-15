@@ -1,7 +1,7 @@
-using FluentValidation;
+﻿using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests;
+namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 
 public sealed class ParseIntentRequestValidator : AbstractValidator<ParseIntentRequestDto>
 {

@@ -1,7 +1,7 @@
 using FluentValidation;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests;
+namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests.Validator;
 
 public sealed class CreateShoppingListRequestValidator : AbstractValidator<CreateShoppingListRequest>
 {

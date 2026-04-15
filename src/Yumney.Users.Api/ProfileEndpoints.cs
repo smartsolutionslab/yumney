@@ -13,35 +13,35 @@ public static class ProfileEndpoints
     {
         var group = app.MapGroup("/users/me/profile");
 
-        group.MapGet("/", GetProfileAsync)
+        group.MapGet("/", GetProfile)
             .WithName("GetUserProfile")
             .WithTags("Users")
             .Produces<UserProfileDto>()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapPut("/", UpdateProfileAsync)
+        static async Task<IResult> GetProfile(
+            IQueryHandler<GetUserProfileQuery, Result<UserProfileDto>> handler,
+            CancellationToken cancellationToken)
+        {
+            var result = await handler.HandleAsync(new GetUserProfileQuery(), cancellationToken);
+            return result.ToOk();
+        }
+
+        group.MapPut("/", UpdateProfile)
             .WithName("UpdateUserProfile")
             .WithTags("Users")
             .Produces<UserProfileDto>()
             .ProducesValidationProblem();
 
+        static async Task<IResult> UpdateProfile(
+            UpdateUserProfileCommand command,
+            ICommandHandler<UpdateUserProfileCommand, Result<UserProfileDto>> handler,
+            CancellationToken cancellationToken)
+        {
+            var result = await handler.HandleAsync(command, cancellationToken);
+            return result.ToOk();
+        }
+
         return app;
-    }
-
-    private static async Task<IResult> GetProfileAsync(
-        IQueryHandler<GetUserProfileQuery, Result<UserProfileDto>> handler,
-        CancellationToken cancellationToken)
-    {
-        var result = await handler.HandleAsync(new GetUserProfileQuery(), cancellationToken);
-        return result.ToOk();
-    }
-
-    private static async Task<IResult> UpdateProfileAsync(
-        UpdateUserProfileCommand command,
-        ICommandHandler<UpdateUserProfileCommand, Result<UserProfileDto>> handler,
-        CancellationToken cancellationToken)
-    {
-        var result = await handler.HandleAsync(command, cancellationToken);
-        return result.ToOk();
     }
 }

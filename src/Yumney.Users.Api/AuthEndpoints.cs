@@ -15,7 +15,7 @@ public static class AuthEndpoints
     {
         var group = app.MapGroup("/auth");
 
-        group.MapPost("/register", RegisterAsync)
+        group.MapPost("/register", Register)
             .AllowAnonymous()
             .WithName("RegisterUser")
             .WithTags("Auth")
@@ -23,51 +23,49 @@ public static class AuthEndpoints
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status409Conflict);
 
-        group.MapPost("/resend-verification-email", ResendVerificationEmailAsync)
+        static async Task<IResult> Register(
+            RegisterUserRequest request,
+            IValidator<RegisterUserRequest> validator,
+            ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>> handler,
+            CancellationToken cancellationToken)
+        {
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (validation.HasFailed()) return validation.ToValidationProblem();
+
+            var (email, password, displayName) = request.ToValueObjects();
+            var command = new RegisterUserCommand(email, password, displayName);
+            var result = await handler.HandleAsync(command, cancellationToken);
+            return result.ToCreated("/api/v1/users/me");
+        }
+
+        group.MapPost("/resend-verification-email", ResendVerificationEmail)
             .AllowAnonymous()
             .WithName("ResendVerificationEmail")
             .WithTags("Auth")
             .Produces<ResendVerificationEmailResultDto>()
             .ProducesValidationProblem();
 
-        return app;
-    }
-
-    private static async Task<IResult> RegisterAsync(
-        RegisterUserRequest request,
-        IValidator<RegisterUserRequest> validator,
-        ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>> handler,
-        CancellationToken cancellationToken)
-    {
-        var validation = await validator.ValidateAsync(request, cancellationToken);
-        if (validation.HasFailed()) return validation.ToValidationProblem();
-
-        var (email, password, displayName) = request.ToValueObjects();
-        var command = new RegisterUserCommand(email, password, displayName);
-
-        var result = await handler.HandleAsync(command, cancellationToken);
-        return result.ToCreated("/api/v1/users/me");
-    }
-
-    private static async Task<IResult> ResendVerificationEmailAsync(
-        ResendVerificationEmailRequest request,
-        IValidator<ResendVerificationEmailRequest> validator,
-        ICommandHandler<ResendVerificationEmailCommand, Result> handler,
-        CancellationToken cancellationToken)
-    {
-        var validation = await validator.ValidateAsync(request, cancellationToken);
-        if (validation.HasFailed()) return validation.ToValidationProblem();
-
-        var command = new ResendVerificationEmailCommand(Email.From(request.Email));
-
-        var result = await handler.HandleAsync(command, cancellationToken);
-
-        // Always return 200 to prevent email enumeration
-        if (result.IsFailure && result.Error == VerificationErrors.IdentityProviderUnavailable)
+        static async Task<IResult> ResendVerificationEmail(
+            ResendVerificationEmailRequest request,
+            IValidator<ResendVerificationEmailRequest> validator,
+            ICommandHandler<ResendVerificationEmailCommand, Result> handler,
+            CancellationToken cancellationToken)
         {
-            return Results.Problem(result.Error.Message, statusCode: result.Error.HttpStatusCode);
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (validation.HasFailed()) return validation.ToValidationProblem();
+
+            var command = new ResendVerificationEmailCommand(Email.From(request.Email));
+            var result = await handler.HandleAsync(command, cancellationToken);
+
+            // Always return 200 to prevent email enumeration
+            if (result.IsFailure && result.Error == VerificationErrors.IdentityProviderUnavailable)
+            {
+                return Results.Problem(result.Error.Message, statusCode: result.Error.HttpStatusCode);
+            }
+
+            return Results.Ok(new ResendVerificationEmailResultDto("If this email is registered, a verification email has been sent."));
         }
 
-        return Results.Ok(new ResendVerificationEmailResultDto("If this email is registered, a verification email has been sent."));
+        return app;
     }
 }

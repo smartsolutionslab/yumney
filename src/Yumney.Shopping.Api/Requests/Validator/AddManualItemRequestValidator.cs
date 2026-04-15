@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests;
+namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests.Validator;
 
 public sealed class AddManualItemRequestValidator : AbstractValidator<AddManualItemRequest>
 {

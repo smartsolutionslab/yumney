@@ -1,6 +1,7 @@
 using FluentAssertions;
 using FluentValidation.TestHelper;
 using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
+using SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests;
