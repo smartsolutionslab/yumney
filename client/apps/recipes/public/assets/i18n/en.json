@@ -180,6 +180,11 @@
     }
   },
   "units": {
+    "group": {
+      "volume": "Volume",
+      "weight": "Weight",
+      "count": "Count & Misc"
+    },
     "ml": "ml",
     "cl": "cl",
     "dl": "dl",
@@ -204,11 +209,6 @@
     "drop": "drop",
     "sprig": "sprig",
     "stalk": "stalk",
-    "sheet": "sheet",
-    "group": {
-      "volume": "Volume",
-      "weight": "Weight",
-      "count": "Count / Other"
-    }
+    "sheet": "sheet"
   }
 }

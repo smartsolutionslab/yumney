@@ -180,6 +180,11 @@
     }
   },
   "units": {
+    "group": {
+      "volume": "Volumen",
+      "weight": "Gewicht",
+      "count": "St�ck & Sonstiges"
+    },
     "ml": "ml",
     "cl": "cl",
     "dl": "dl",
@@ -192,7 +197,7 @@
     "kg": "kg",
     "oz": "oz",
     "lb": "lb",
-    "piece": "Stück",
+    "piece": "St�ck",
     "slice": "Scheibe",
     "pinch": "Prise",
     "bunch": "Bund",
@@ -200,15 +205,10 @@
     "can": "Dose",
     "pack": "Packung",
     "handful": "Handvoll",
-    "dash": "Schuss",
+    "dash": "Spritzer",
     "drop": "Tropfen",
     "sprig": "Zweig",
     "stalk": "Stange",
-    "sheet": "Blatt",
-    "group": {
-      "volume": "Volumen",
-      "weight": "Gewicht",
-      "count": "Anzahl / Sonstiges"
-    }
+    "sheet": "Blatt"
   }
 }

@@ -244,7 +244,36 @@
       "errors": {
         "notFound": "Einkaufsliste nicht gefunden.",
         "generic": "Einkaufsliste konnte nicht geladen werden. Bitte versuche es später erneut."
-      }
+      },
+      "checkAll": "Alle abhaken",
+      "reset": "Zurücksetzen",
+      "allDone": "Alles erledigt!",
+      "allDoneMessage": "Alles auf deiner Liste ist abgehakt."
+    },
+    "title": "Einkaufsliste",
+    "loading": "Wird geladen...",
+    "empty": "Deine Einkaufsliste ist leer. Füge Artikel hinzu oder plane Mahlzeiten.",
+    "addPlaceholder": "Artikel hinzufügen...",
+    "export": "Liste exportieren",
+    "remove": "Artikel entfernen",
+    "checked": "erledigt",
+    "retry": "Erneut versuchen",
+    "errors": {
+      "addFailed": "Artikel konnte nicht hinzugefügt werden.",
+      "removeFailed": "Artikel konnte nicht entfernt werden.",
+      "exportFailed": "Liste konnte nicht exportiert werden.",
+      "loadFailed": "Einkaufsliste konnte nicht geladen werden."
+    },
+    "category": {
+      "produce": "Obst & Gemüse",
+      "dairy": "Milchprodukte",
+      "meat-fish": "Fleisch & Fisch",
+      "bakery": "Backwaren",
+      "frozen": "Tiefkühl",
+      "beverages": "Getränke",
+      "pantry": "Vorratskammer",
+      "household": "Haushalt",
+      "other": "Sonstiges"
     }
   },
   "dashboard": {
@@ -364,6 +393,11 @@
     }
   },
   "units": {
+    "group": {
+      "volume": "Volumen",
+      "weight": "Gewicht",
+      "count": "St�ck & Sonstiges"
+    },
     "ml": "ml",
     "cl": "cl",
     "dl": "dl",
@@ -376,7 +410,7 @@
     "kg": "kg",
     "oz": "oz",
     "lb": "lb",
-    "piece": "Stück",
+    "piece": "St�ck",
     "slice": "Scheibe",
     "pinch": "Prise",
     "bunch": "Bund",
@@ -384,16 +418,11 @@
     "can": "Dose",
     "pack": "Packung",
     "handful": "Handvoll",
-    "dash": "Schuss",
+    "dash": "Spritzer",
     "drop": "Tropfen",
     "sprig": "Zweig",
     "stalk": "Stange",
-    "sheet": "Blatt",
-    "group": {
-      "volume": "Volumen",
-      "weight": "Gewicht",
-      "count": "Anzahl / Sonstiges"
-    }
+    "sheet": "Blatt"
   },
   "camera": {
     "capture": "Aufnehmen",

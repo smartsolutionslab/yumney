@@ -244,7 +244,36 @@
       "errors": {
         "notFound": "Shopping list not found.",
         "generic": "Failed to load shopping list. Please try again later."
-      }
+      },
+      "checkAll": "Check all",
+      "reset": "Reset",
+      "allDone": "All done!",
+      "allDoneMessage": "Everything on your list is checked off."
+    },
+    "title": "Shopping List",
+    "loading": "Loading...",
+    "empty": "Your shopping list is empty. Add items or plan meals.",
+    "addPlaceholder": "Add an item...",
+    "export": "Export list",
+    "remove": "Remove item",
+    "checked": "checked",
+    "retry": "Retry",
+    "errors": {
+      "addFailed": "Failed to add item.",
+      "removeFailed": "Failed to remove item.",
+      "exportFailed": "Failed to export list.",
+      "loadFailed": "Failed to load shopping list."
+    },
+    "category": {
+      "produce": "Produce",
+      "dairy": "Dairy",
+      "meat-fish": "Meat & Fish",
+      "bakery": "Bakery",
+      "frozen": "Frozen",
+      "beverages": "Beverages",
+      "pantry": "Pantry",
+      "household": "Household",
+      "other": "Other"
     }
   },
   "dashboard": {
@@ -364,6 +393,11 @@
     }
   },
   "units": {
+    "group": {
+      "volume": "Volume",
+      "weight": "Weight",
+      "count": "Count & Misc"
+    },
     "ml": "ml",
     "cl": "cl",
     "dl": "dl",
@@ -388,12 +422,7 @@
     "drop": "drop",
     "sprig": "sprig",
     "stalk": "stalk",
-    "sheet": "sheet",
-    "group": {
-      "volume": "Volume",
-      "weight": "Weight",
-      "count": "Count / Other"
-    }
+    "sheet": "sheet"
   },
   "camera": {
     "capture": "Capture",
