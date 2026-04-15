@@ -16,8 +16,7 @@ public sealed class GetPlannedRecipesQueryHandler(
         var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
-        if (plan is null)
-            return new WeeklyPlannedRecipesDto(week.Value, []);
+        if (plan is null) return new WeeklyPlannedRecipesDto(week.Value, []);
 
         var recipes = plan.Slots
             .Where(s => s.ContentType == SlotContentType.Recipe && s.RecipeIdentifier.HasValue)

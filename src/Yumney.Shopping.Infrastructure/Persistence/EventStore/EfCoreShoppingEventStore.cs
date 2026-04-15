@@ -144,7 +144,7 @@ public sealed partial class EfCoreShoppingEventStore(
         }
         else
         {
-            context.Set<StoredSnapshot>().Add(new StoredSnapshot
+            context.Set<StoredSnapshot>().Add(new()
             {
                 AggregateId = ledger.Identifier,
                 State = stateJson,
@@ -173,8 +173,7 @@ public sealed partial class EfCoreShoppingEventStore(
 
     private static IDomainEvent? DeserializeEvent(StoredEvent stored)
     {
-        if (!eventTypeMap.TryGetValue(stored.EventType, out var type))
-            return null;
+        if (!eventTypeMap.TryGetValue(stored.EventType, out var type)) return null;
 
         return JsonSerializer.Deserialize(stored.EventData, type, jsonOptions) as IDomainEvent;
     }
