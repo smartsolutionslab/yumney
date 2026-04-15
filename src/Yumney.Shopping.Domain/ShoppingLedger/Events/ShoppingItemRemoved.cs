@@ -7,4 +7,4 @@ public sealed record ShoppingItemRemoved(
     ItemName ItemName,
     Amount Quantity,
     Unit? Unit,
-    string? Reason) : DomainEvent;
+    RemovalReason? Reason) : DomainEvent;

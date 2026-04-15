@@ -81,7 +81,7 @@ public class ShoppingLedgerTests
         ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
         ledger.MarkBought(N("Milk"), Q(2, "L"));
 
-        ledger.RemoveItem(N("Milk"), Q(1, "L"), "spoiled");
+        ledger.RemoveItem(N("Milk"), Q(1, "L"), RemovalReason.From("spoiled"));
 
         var item = ledger.Items.Values.First();
         item.Removed.Should().Be(1);

@@ -26,6 +26,7 @@ public sealed partial class EfCoreShoppingEventStore(
             new ItemNameJsonConverter(),
             new AmountJsonConverter(),
             new UnitJsonConverter(),
+            new RemovalReasonJsonConverter(),
         },
     };
 

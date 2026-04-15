@@ -10,4 +10,4 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 public sealed record RemoveShoppingItemCommand(
     ItemName ItemName,
     Quantity? Quantity,
-    string? Reason) : ICommand<Result>;
+    RemovalReason? Reason) : ICommand<Result>;
