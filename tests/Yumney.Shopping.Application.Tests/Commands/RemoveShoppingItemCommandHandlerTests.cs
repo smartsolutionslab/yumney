@@ -29,7 +29,7 @@ public class RemoveShoppingItemCommandHandlerTests
         ledger.MarkCommitted();
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>()).Returns(ledger);
 
-        var command = new RemoveShoppingItemCommand(ItemName.From("Eggs"), 6, "pc", "not needed");
+        var command = new RemoveShoppingItemCommand(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), Unit.From("pc")), "not needed");
 
         var result = await handler.HandleAsync(command);
 
@@ -42,7 +42,7 @@ public class RemoveShoppingItemCommandHandlerTests
     {
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
 
-        var command = new RemoveShoppingItemCommand(ItemName.From("Eggs"), null, null, null);
+        var command = new RemoveShoppingItemCommand(ItemName.From("Eggs"), null, null);
 
         var result = await handler.HandleAsync(command);
 
@@ -58,7 +58,7 @@ public class RemoveShoppingItemCommandHandlerTests
         ledger.MarkCommitted();
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>()).Returns(ledger);
 
-        var command = new RemoveShoppingItemCommand(ItemName.From("Milk"), null, null, null);
+        var command = new RemoveShoppingItemCommand(ItemName.From("Milk"), null, null);
 
         var result = await handler.HandleAsync(command);
 

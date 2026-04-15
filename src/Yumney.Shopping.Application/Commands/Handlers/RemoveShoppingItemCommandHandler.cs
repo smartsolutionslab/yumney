@@ -11,18 +11,23 @@ public sealed class RemoveShoppingItemCommandHandler(
 {
     public async Task<Result> HandleAsync(RemoveShoppingItemCommand command, CancellationToken cancellationToken = default)
     {
-        var (itemName, quantityOverride, unit, reason) = command;
+        var (itemName, explicitQuantity, reason) = command;
         var ownerId = currentUser.UserId;
 
         var ledger = await eventStore.LoadAsync(ownerId, cancellationToken);
         if (ledger is null) return Result.Success();
 
-        var name = itemName.Value;
-        var amount = Amount.From(quantityOverride ?? DefaultQuantityResolver.Resolve(name).Amount);
-        ledger.RemoveItem(itemName, Quantity.Of(amount, Unit.FromNullable(unit)), reason);
+        var quantity = explicitQuantity ?? ResolveDefaultQuantity(itemName.Value);
+        ledger.RemoveItem(itemName, quantity, reason);
 
         await eventStore.SaveAsync(ledger, cancellationToken);
 
         return Result.Success();
+    }
+
+    private static Quantity ResolveDefaultQuantity(string itemName)
+    {
+        var defaultQty = DefaultQuantityResolver.Resolve(itemName);
+        return Quantity.Of(Amount.From(defaultQty.Amount), Unit.FromNullable(defaultQty.Unit));
     }
 }

@@ -30,7 +30,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
-        var command = new AddManualItemCommand(ItemName.From("Potatoes"), 2, "kg");
+        var command = new AddManualItemCommand(ItemName.From("Potatoes"), Quantity.Of(Amount.From(2), Unit.From("kg")));
 
         var result = await handler.HandleAsync(command);
 
@@ -47,7 +47,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
-        var command = new AddManualItemCommand(ItemName.From("Milk"), null, null);
+        var command = new AddManualItemCommand(ItemName.From("Milk"), null);
 
         var result = await handler.HandleAsync(command);
 
@@ -63,7 +63,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
-        var command = new AddManualItemCommand(ItemName.From("Chicken"), 500, "g");
+        var command = new AddManualItemCommand(ItemName.From("Chicken"), Quantity.Of(Amount.From(500), Unit.From("g")));
 
         var result = await handler.HandleAsync(command);
 
@@ -77,7 +77,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns((ShoppingLedger?)null);
 
-        var command = new AddManualItemCommand(ItemName.From("Salt"), null, null);
+        var command = new AddManualItemCommand(ItemName.From("Salt"), null);
 
         var result = await handler.HandleAsync(command);
 
@@ -92,7 +92,7 @@ public class AddManualItemCommandHandlerTests
         eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>())
             .Returns(existingLedger);
 
-        var command = new AddManualItemCommand(ItemName.From("Bread"), null, null);
+        var command = new AddManualItemCommand(ItemName.From("Bread"), null);
 
         var result = await handler.HandleAsync(command);
 
