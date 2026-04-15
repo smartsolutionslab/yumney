@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
