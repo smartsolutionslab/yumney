@@ -39,7 +39,11 @@ public sealed class ShoppingLedger
         };
     }
 
-    public static ShoppingLedger FromEvents(ShoppingLedgerIdentifier identifier, OwnerIdentifier ownerId, IEnumerable<IDomainEvent> events, int startVersion = 0)
+    public static ShoppingLedger FromEvents(
+        ShoppingLedgerIdentifier identifier,
+        OwnerIdentifier ownerId,
+        IEnumerable<IDomainEvent> events,
+        int startVersion = 0)
     {
         var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId, Version = startVersion };
         foreach (var @event in events)
@@ -135,17 +139,21 @@ public sealed class ShoppingLedger
         switch (@event)
         {
             case ShoppingItemAdded e:
-                GetOrCreateItem(e.ItemName, e.Unit).OnList += e.Quantity;
+                var addedItem = GetOrCreateItem(e.ItemName, e.Unit);
+                addedItem.OnList = Amount.From(addedItem.OnList + e.Quantity);
                 if (IsInShoppingMode) PendingChangesCount++;
                 break;
             case ShoppingItemBought e:
-                GetOrCreateItem(e.ItemName, e.Unit).Bought += e.Quantity;
+                var boughtItem = GetOrCreateItem(e.ItemName, e.Unit);
+                boughtItem.Bought = Amount.From(boughtItem.Bought + e.Quantity);
                 break;
             case ShoppingItemConsumed e:
-                GetOrCreateItem(e.ItemName, e.Unit).Consumed += e.Quantity;
+                var consumedItem = GetOrCreateItem(e.ItemName, e.Unit);
+                consumedItem.Consumed = Amount.From(consumedItem.Consumed + e.Quantity);
                 break;
             case ShoppingItemRemoved e:
-                GetOrCreateItem(e.ItemName, e.Unit).Removed += e.Quantity;
+                var removedItem = GetOrCreateItem(e.ItemName, e.Unit);
+                removedItem.Removed = Amount.From(removedItem.Removed + e.Quantity);
                 if (IsInShoppingMode) PendingChangesCount++;
                 break;
             case ShoppingItemQuantityAdjusted e:
@@ -154,11 +162,11 @@ public sealed class ShoppingLedger
                 break;
             case ShoppingItemUndoBought e:
                 var undoItem = GetOrCreateItem(e.ItemName, e.Unit);
-                undoItem.Bought = Math.Max(0, undoItem.Bought - e.Quantity);
+                undoItem.Bought = Amount.From(Math.Max(0, undoItem.Bought - e.Quantity));
                 break;
             case ShoppingItemAddedAsAtHome e:
                 var atHomeItem = GetOrCreateItem(e.ItemName, e.Unit);
-                atHomeItem.Bought += e.Quantity;
+                atHomeItem.Bought = Amount.From(atHomeItem.Bought + e.Quantity);
                 break;
             case ShoppingModeStarted e:
                 IsInShoppingMode = true;

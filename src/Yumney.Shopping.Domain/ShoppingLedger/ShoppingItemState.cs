@@ -13,19 +13,19 @@ public sealed class ShoppingItemState
 
     public Unit? Unit { get; init; }
 
-    public decimal OnList { get; set; }
+    public Amount OnList { get; set; } = Amount.From(0);
 
-    public decimal Bought { get; set; }
+    public Amount Bought { get; set; } = Amount.From(0);
 
-    public decimal Consumed { get; set; }
+    public Amount Consumed { get; set; } = Amount.From(0);
 
-    public decimal Removed { get; set; }
+    public Amount Removed { get; set; } = Amount.From(0);
 
-    public decimal AtHome => Math.Max(0, Bought - Consumed - Removed);
+    public Amount AtHome => Amount.From(Math.Max(0, Bought.Value - Consumed.Value - Removed.Value));
 
-    public decimal Remaining => OnList - Bought;
+    public decimal Remaining => OnList.Value - Bought.Value;
 
-    public bool IsBought => Bought > 0;
+    public bool IsBought => Bought.Value > 0;
 
     /// <summary>
     /// Gets the grouping key: item name + unit (case-insensitive).
