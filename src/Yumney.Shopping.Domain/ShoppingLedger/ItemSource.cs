@@ -20,9 +20,9 @@ public sealed record ItemSource : IValueObject<string>
 
     public static ItemSource From(string value) => new(value);
 
-    public static ItemSource Manual => new(ItemSources.Manual);
+    public static ItemSource Manual => From("manual");
 
-    public static ItemSource MealPlan => new(ItemSources.MealPlan);
+    public static ItemSource MealPlan => From("meal-plan");
 
     public static implicit operator string(ItemSource obj) => obj.Value;
 }

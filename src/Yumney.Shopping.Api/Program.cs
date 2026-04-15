@@ -7,9 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddYumneyDefaults();
 
-builder.Services.AddShoppingApi();
-builder.Services.AddShoppingApplication();
-builder.Services.AddShoppingInfrastructure(builder.Configuration);
+builder.Services
+    .AddShoppingApi()
+    .AddShoppingApplication()
+    .AddShoppingInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

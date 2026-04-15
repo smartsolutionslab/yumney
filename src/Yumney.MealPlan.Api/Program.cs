@@ -7,9 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddYumneyDefaults();
 
-builder.Services.AddMealPlanApi();
-builder.Services.AddMealPlanApplication();
-builder.Services.AddMealPlanInfrastructure(builder.Configuration);
+builder.Services
+    .AddMealPlanApi()
+    .AddMealPlanApplication()
+    .AddMealPlanInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

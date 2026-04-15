@@ -36,7 +36,7 @@ public sealed partial class AddManualItemCommandHandler(
             quantity.Amount,
             quantity.Unit?.Value,
             category.Value,
-            ItemSources.Manual,
+            ItemSource.Manual.Value,
             ledger.Identifier);
     }
 
