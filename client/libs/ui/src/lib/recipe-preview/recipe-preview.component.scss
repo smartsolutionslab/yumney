@@ -136,7 +136,6 @@
   background: var(--yn-glass-bg);
   backdrop-filter: blur(var(--yn-glass-blur-soft));
   -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
-  overflow: hidden;
   transition:
     border-color var(--yn-duration-fast) var(--yn-ease-glass),
     box-shadow var(--yn-duration-fast) var(--yn-ease-glass);
@@ -151,7 +150,7 @@
   flex: 1 1 auto;
   min-width: 0;
   border: none;
-  border-radius: 0;
+  border-radius: var(--yn-radius-input) 0 0 var(--yn-radius-input);
   background: transparent;
   box-shadow: none;
   min-height: 2.5rem;
