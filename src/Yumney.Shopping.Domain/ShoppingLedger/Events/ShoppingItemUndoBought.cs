@@ -1,4 +1,5 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 
@@ -6,6 +7,6 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 /// Raised when a bought item is reverted to unbought.
 /// </summary>
 public sealed record ShoppingItemUndoBought(
-    string ItemName,
-    decimal Quantity,
-    string? Unit) : DomainEvent;
+    ItemName ItemName,
+    Amount Quantity,
+    Unit? Unit) : DomainEvent;

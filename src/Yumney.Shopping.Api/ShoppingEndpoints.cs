@@ -91,6 +91,7 @@ public static class ShoppingEndpoints
                 ShoppingListIdentifier.From(identifier),
                 ShoppingListItemIdentifier.From(itemId),
                 request.IsChecked);
+
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToNoContent();
         }
@@ -110,6 +111,7 @@ public static class ShoppingEndpoints
             var command = new CheckOffAllItemsCommand(
                 ShoppingListIdentifier.From(identifier),
                 request.IsChecked);
+
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToNoContent();
         }
@@ -131,6 +133,7 @@ public static class ShoppingEndpoints
 
             var (itemName, quantity, unit) = request.ToValueObjects();
             var command = new AddManualItemCommand(itemName, quantity, unit);
+
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.IsSuccess
                 ? Results.Created($"/shopping-lists/items/{result.Value.LedgerIdentifier}", result.Value)
@@ -154,6 +157,7 @@ public static class ShoppingEndpoints
 
             var (itemName, quantity, unit, reason) = request.ToValueObjects();
             var command = new RemoveShoppingItemCommand(itemName, quantity, unit, reason);
+
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToNoContent();
         }
@@ -208,8 +212,7 @@ public static class ShoppingEndpoints
             CancellationToken cancellationToken)
         {
             var result = await handler.HandleAsync(new ExportShoppingListQuery(), cancellationToken);
-            if (result.IsFailure)
-                return result.ToOk();
+            if (result.IsFailure) return result.ToOk();
 
             return Results.Text(result.Value, MediaTypes.TextPlain);
         }

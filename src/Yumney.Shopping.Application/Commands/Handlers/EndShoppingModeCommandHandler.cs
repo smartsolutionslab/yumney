@@ -11,8 +11,7 @@ public sealed class EndShoppingModeCommandHandler(
     public async Task<Result> HandleAsync(EndShoppingModeCommand command, CancellationToken cancellationToken = default)
     {
         var ledger = await eventStore.LoadAsync(currentUser.UserId, cancellationToken);
-        if (ledger is null)
-            return Result.Success();
+        if (ledger is null) return Result.Success();
 
         ledger.EndShoppingMode(command.AcceptPendingChanges);
 

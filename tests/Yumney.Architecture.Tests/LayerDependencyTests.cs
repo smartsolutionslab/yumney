@@ -116,7 +116,7 @@ public class LayerDependencyTests
     [InlineData("Shopping")]
     [InlineData("Users")]
     [InlineData("MealPlan")]
-    public void ApiRequests_ShouldNotDependOn_Domain(string module)
+    public void ApiRequests_MayDependOn_Domain_ForVoConversion(string module)
     {
         var apiAssembly = GetAssembly($"Yumney.{module}.Api");
 
@@ -124,10 +124,10 @@ public class LayerDependencyTests
             .That()
             .ResideInNamespace($"SmartSolutionsLab.Yumney.{module}.Api.Requests")
             .ShouldNot()
-            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{module}.Domain")
+            .HaveDependencyOn($"SmartSolutionsLab.Yumney.{module}.Infrastructure")
             .GetResult();
 
-        result.IsSuccessful.Should().BeTrue($"{module}.Api.Requests must not depend on {module}.Domain");
+        result.IsSuccessful.Should().BeTrue($"{module}.Api.Requests must not depend on {module}.Infrastructure");
     }
 
     [Theory]

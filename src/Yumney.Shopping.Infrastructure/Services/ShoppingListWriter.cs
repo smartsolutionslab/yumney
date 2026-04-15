@@ -1,5 +1,6 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Services;
 
@@ -15,7 +16,7 @@ public sealed class ShoppingListWriter(IShoppingEventStore eventStore) : IShoppi
 
         foreach (var item in items)
         {
-            ledger.AddItem(item.ItemName, item.Quantity, item.Unit, item.Source);
+            ledger.AddItem(ItemName.From(item.ItemName), Amount.From(item.Quantity), Unit.FromNullable(item.Unit), item.Source);
         }
 
         await eventStore.SaveAsync(ledger, cancellationToken);

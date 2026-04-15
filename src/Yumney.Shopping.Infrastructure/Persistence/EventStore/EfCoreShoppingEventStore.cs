@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Converters;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
@@ -20,6 +21,12 @@ public sealed partial class EfCoreShoppingEventStore(
     private static readonly JsonSerializerOptions jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters =
+        {
+            new ItemNameJsonConverter(),
+            new AmountJsonConverter(),
+            new UnitJsonConverter(),
+        },
     };
 
     private static readonly Dictionary<string, Type> eventTypeMap = new()

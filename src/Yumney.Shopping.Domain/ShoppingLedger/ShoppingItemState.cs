@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 
 /// <summary>
@@ -7,9 +9,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 #pragma warning disable SA1600
 public sealed class ShoppingItemState
 {
-    public string ItemName { get; init; } = default!;
+    public ItemName ItemName { get; init; } = default!;
 
-    public string? Unit { get; init; }
+    public Unit? Unit { get; init; }
 
     public decimal OnList { get; set; }
 
@@ -28,5 +30,5 @@ public sealed class ShoppingItemState
     /// <summary>
     /// Gets the grouping key: item name + unit (case-insensitive).
     /// </summary>
-    public string GroupKey => $"{ItemName.ToLowerInvariant()}|{Unit ?? string.Empty}";
+    public string GroupKey => $"{ItemName.Value.ToLowerInvariant()}|{Unit?.Value ?? string.Empty}";
 }

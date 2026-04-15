@@ -27,7 +27,7 @@ public sealed partial class AddManualItemCommandHandler(
         var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
             ?? ShoppingLedger.Create(ownerId);
 
-        ledger.AddItem(name, resolved.Quantity, resolved.Unit, ItemSources.Manual);
+        ledger.AddItem(itemName, Amount.From(resolved.Quantity), Unit.FromNullable(resolved.Unit), ItemSources.Manual);
 
         await eventStore.SaveAsync(ledger, cancellationToken);
 
@@ -42,8 +42,7 @@ public sealed partial class AddManualItemCommandHandler(
 
     private static (decimal Quantity, string? Unit) ResolveQuantity(string itemName, decimal? explicitQuantity, string? explicitUnit)
     {
-        if (explicitQuantity.HasValue)
-            return (explicitQuantity.Value, explicitUnit);
+        if (explicitQuantity.HasValue) return (explicitQuantity.Value, explicitUnit);
 
         var defaultQty = DefaultQuantityResolver.Resolve(itemName);
         return (defaultQty.Amount, defaultQty.Unit);

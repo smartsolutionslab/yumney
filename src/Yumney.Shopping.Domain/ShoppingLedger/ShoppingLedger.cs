@@ -1,6 +1,7 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 
@@ -92,47 +93,40 @@ public sealed class ShoppingLedger
         return ledger;
     }
 
-    public void AddItem(string itemName, decimal quantity, string? unit, string source)
+    public void AddItem(ItemName itemName, Amount quantity, Unit? unit, string source)
     {
-        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         Ensure.That(source).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemAdded(itemName, quantity, unit, source));
     }
 
-    public void MarkBought(string itemName, decimal quantity, string? unit)
+    public void MarkBought(ItemName itemName, Amount quantity, Unit? unit)
     {
-        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemBought(itemName, quantity, unit));
     }
 
-    public void MarkConsumed(string itemName, decimal quantity, string? unit, string source)
+    public void MarkConsumed(ItemName itemName, Amount quantity, Unit? unit, string source)
     {
-        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         Ensure.That(source).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemConsumed(itemName, quantity, unit, source));
     }
 
-    public void RemoveItem(string itemName, decimal quantity, string? unit, string? reason = null)
+    public void RemoveItem(ItemName itemName, Amount quantity, Unit? unit, string? reason = null)
     {
-        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemRemoved(itemName, quantity, unit, reason));
     }
 
-    public void AdjustQuantity(string itemName, decimal newQuantity, string? unit)
+    public void AdjustQuantity(ItemName itemName, Amount newQuantity, Unit? unit)
     {
-        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemQuantityAdjusted(itemName, newQuantity, unit));
     }
 
-    public void UndoBought(string itemName, decimal quantity, string? unit)
+    public void UndoBought(ItemName itemName, Amount quantity, Unit? unit)
     {
-        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemUndoBought(itemName, quantity, unit));
     }
 
-    public void AddAsAtHome(string itemName, decimal quantity, string? unit)
+    public void AddAsAtHome(ItemName itemName, Amount quantity, Unit? unit)
     {
-        Ensure.That(itemName).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemAddedAsAtHome(itemName, quantity, unit));
     }
 
@@ -203,9 +197,9 @@ public sealed class ShoppingLedger
         }
     }
 
-    private ShoppingItemState GetOrCreateItem(string itemName, string? unit)
+    private ShoppingItemState GetOrCreateItem(ItemName itemName, Unit? unit)
     {
-        var key = $"{itemName.ToLowerInvariant()}|{unit ?? string.Empty}";
+        var key = $"{itemName.Value.ToLowerInvariant()}|{unit?.Value ?? string.Empty}";
         if (!items.TryGetValue(key, out var item))
         {
             item = new ShoppingItemState { ItemName = itemName, Unit = unit };

@@ -42,7 +42,6 @@ public sealed class ExportShoppingListQueryHandler(
     };
 #pragma warning restore SA1311
 
-    /// <inheritdoc />
     public async Task<Result<string>> HandleAsync(ExportShoppingListQuery query, CancellationToken cancellationToken = default)
     {
         var list = await readModel.GetByOwnerAsync(currentUser.UserId, cancellationToken: cancellationToken);
