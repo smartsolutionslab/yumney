@@ -18,6 +18,8 @@
           class="hero-image"
           loading="eager"
           fetchpriority="high"
+          width="800"
+          height="450"
         />
         <div class="hero-overlay">
           <h1 class="hero-title">{{ recipe.title }}</h1>
@@ -127,7 +129,7 @@
     <section class="ingredients-section">
       <h2>{{ t('recipes.detail.ingredients') }}</h2>
       <ul class="ingredients-list">
-        @for (ingredient of scaledIngredients(); track $index) {
+        @for (ingredient of scaledIngredients(); track ingredient.name) {
           <li>
             @if (ingredient.amount) {
               <span class="ingredient-amount">{{ ingredient.amount }}</span>

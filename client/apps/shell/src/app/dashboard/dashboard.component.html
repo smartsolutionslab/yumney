@@ -140,18 +140,22 @@
   }
 
   @if (cameraActive()) {
-    <yn-camera-capture
-      (capturedReady)="onCameraCaptured($event)"
-      (cancelled)="onCameraCancelled()"
-      (fallbackRequested)="onCameraFallback()"
-    />
+    @defer {
+      <yn-camera-capture
+        (capturedReady)="onCameraCaptured($event)"
+        (cancelled)="onCameraCancelled()"
+        (fallbackRequested)="onCameraFallback()"
+      />
+    }
   }
 
   @if (scannerActive()) {
-    <yn-ingredient-scanner
-      (ingredientsConfirmed)="onIngredientsConfirmed($event)"
-      (cancelled)="onScannerCancelled()"
-    />
+    @defer {
+      <yn-ingredient-scanner
+        (ingredientsConfirmed)="onIngredientsConfirmed($event)"
+        (cancelled)="onScannerCancelled()"
+      />
+    }
   }
 
   @if (recognizedIngredients(); as ingredients) {
