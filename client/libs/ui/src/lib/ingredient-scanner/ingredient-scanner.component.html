@@ -41,7 +41,11 @@
         {{ t('scanner.scan') }}
       }
     </button>
-    <button class="control-btn flip-btn" (click)="onToggleFacing()" [attr.aria-label]="t('scanner.flipCamera')">
+    <button
+      class="control-btn flip-btn"
+      (click)="onToggleFacing()"
+      [attr.aria-label]="t('scanner.flipCamera')"
+    >
       <lucide-icon name="refresh-cw" [size]="20" />
     </button>
   </div>

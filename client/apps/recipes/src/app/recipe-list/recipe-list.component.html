@@ -98,11 +98,7 @@
   @if (recipes().length > 0) {
     <div class="recipe-grid">
       @for (recipe of recipes(); track recipe.identifier) {
-        <yn-recipe-card
-          #recipeCard
-          [recipe]="recipe"
-          (toggleFavorite)="onToggleFavorite($event)"
-        />
+        <yn-recipe-card #recipeCard [recipe]="recipe" (toggleFavorite)="onToggleFavorite($event)" />
       }
     </div>
   }

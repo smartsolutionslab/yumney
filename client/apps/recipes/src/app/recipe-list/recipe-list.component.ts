@@ -98,11 +98,7 @@ export class RecipeListComponent implements OnInit {
   @HostListener('document:click', ['$event.target'])
   onDocumentClick(target: EventTarget | null): void {
     const dropdown = this.sortDropdown()?.nativeElement;
-    if (
-      this.sortMenuOpen() &&
-      target instanceof Node &&
-      !dropdown?.contains(target)
-    ) {
+    if (this.sortMenuOpen() && target instanceof Node && !dropdown?.contains(target)) {
       this.sortMenuOpen.set(false);
     }
   }
