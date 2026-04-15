@@ -15,26 +15,27 @@ public sealed record UpdateRecipeRequest(
     string? ImageUrl,
     List<string>? Tags = null)
 {
-    public (
-        RecipeTitle Title,
-        IReadOnlyList<SaveRecipeIngredientItem> Ingredients,
-        IReadOnlyList<SaveRecipeStepItem> Steps,
-        RecipeDescription? Description,
-        Servings? Servings,
-        TimingInfo? Timing,
-        Difficulty? Difficulty,
-        ImageUrl? ImageUrl,
-        IReadOnlyList<RecipeTag>? Tags) ToValueObjects() =>
-    (
-        RecipeTitle.From(Title),
-        Ingredients.MapToRecipeIngredientItems().ToList(),
-        Steps.MapToRecipeStepItems().ToList(),
-        RecipeDescription.FromNullable(Description),
-        Domain.Recipe.Servings.FromNullable(Servings),
-        TimingInfo.FromNullable(
+    public void Deconstruct(
+        out RecipeTitle title,
+        out IReadOnlyList<SaveRecipeIngredientItem> ingredients,
+        out IReadOnlyList<SaveRecipeStepItem> steps,
+        out RecipeDescription? description,
+        out Servings? servings,
+        out TimingInfo? timing,
+        out Difficulty? difficulty,
+        out ImageUrl? imageUrl,
+        out IReadOnlyList<RecipeTag>? tags)
+    {
+        title = RecipeTitle.From(Title);
+        ingredients = Ingredients.MapToRecipeIngredientItems().ToList();
+        steps = Steps.MapToRecipeStepItems().ToList();
+        description = RecipeDescription.FromNullable(Description);
+        servings = Domain.Recipe.Servings.FromNullable(Servings);
+        timing = TimingInfo.FromNullable(
             PreparationTime.FromNullable(PrepTimeMinutes),
-            CookingTime.FromNullable(CookTimeMinutes)),
-        Domain.Recipe.Difficulty.FromNullable(Difficulty),
-        Domain.Recipe.ImageUrl.FromNullable(ImageUrl),
-        Tags?.Select(t => RecipeTag.From(t)).ToList());
+            CookingTime.FromNullable(CookTimeMinutes));
+        difficulty = Domain.Recipe.Difficulty.FromNullable(Difficulty);
+        imageUrl = Domain.Recipe.ImageUrl.FromNullable(ImageUrl);
+        tags = Tags?.Select(t => RecipeTag.From(t)).ToList();
+    }
 }

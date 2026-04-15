@@ -17,33 +17,6 @@ public sealed record SaveRecipeRequest(
     string? SourceUrl = null,
     List<string>? Tags = null)
 {
-    public (
-        RecipeTitle Title,
-        IReadOnlyList<SaveRecipeIngredientItem> Ingredients,
-        IReadOnlyList<SaveRecipeStepItem> Steps,
-        RecipeDescription? Description,
-        Servings? Servings,
-        TimingInfo? Timing,
-        Difficulty? Difficulty,
-        ImageUrl? ImageUrl,
-        RecipeLanguage? Language,
-        RecipeUrl? SourceUrl,
-        IReadOnlyList<RecipeTag>? Tags) ToValueObjects() =>
-    (
-        RecipeTitle.From(Title),
-        Ingredients.MapToRecipeIngredientItems().ToList(),
-        Steps.MapToRecipeStepItems().ToList(),
-        RecipeDescription.FromNullable(Description),
-        Domain.Recipe.Servings.FromNullable(Servings),
-        TimingInfo.FromNullable(
-            PreparationTime.FromNullable(PrepTimeMinutes),
-            CookingTime.FromNullable(CookTimeMinutes)),
-        Domain.Recipe.Difficulty.FromNullable(Difficulty),
-        Domain.Recipe.ImageUrl.FromNullable(ImageUrl),
-        RecipeLanguage.FromNullable(Language),
-        RecipeUrl.FromNullable(SourceUrl),
-        Tags?.Select(t => RecipeTag.From(t)).ToList());
-
     public void Deconstruct(
         out RecipeTitle title,
         out IReadOnlyList<SaveRecipeIngredientItem> ingredients,
@@ -57,7 +30,18 @@ public sealed record SaveRecipeRequest(
         out RecipeUrl? sourceUrl,
         out IReadOnlyList<RecipeTag>? tags)
     {
-        (title, ingredients, steps, description, servings, timing, difficulty, imageUrl, language, sourceUrl, tags) =
-            ToValueObjects();
+        title = RecipeTitle.From(Title);
+        ingredients = Ingredients.MapToRecipeIngredientItems().ToList();
+        steps = Steps.MapToRecipeStepItems().ToList();
+        description = RecipeDescription.FromNullable(Description);
+        servings = Domain.Recipe.Servings.FromNullable(Servings);
+        timing = TimingInfo.FromNullable(
+            PreparationTime.FromNullable(PrepTimeMinutes),
+            CookingTime.FromNullable(CookTimeMinutes));
+        difficulty = Domain.Recipe.Difficulty.FromNullable(Difficulty);
+        imageUrl = Domain.Recipe.ImageUrl.FromNullable(ImageUrl);
+        language = RecipeLanguage.FromNullable(Language);
+        sourceUrl = RecipeUrl.FromNullable(SourceUrl);
+        tags = Tags?.Select(t => RecipeTag.From(t)).ToList();
     }
 }

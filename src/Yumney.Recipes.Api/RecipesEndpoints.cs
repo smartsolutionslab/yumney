@@ -146,7 +146,7 @@ public static partial class RecipesEndpoints
             var validation = await validator.ValidateAsync(request, cancellationToken);
             if (validation.HasFailed()) return validation.ToValidationProblem();
 
-            var (title, ingredients, steps, description, servings, timing, difficulty, imageUrl, tags) = request.ToValueObjects();
+            var (title, ingredients, steps, description, servings, timing, difficulty, imageUrl, tags) = request;
             var command = new UpdateRecipeCommand(RecipeIdentifier.From(identifier), title, ingredients, steps, description, servings, timing, difficulty, imageUrl, tags);
 
             var result = await handler.HandleAsync(command, cancellationToken);
