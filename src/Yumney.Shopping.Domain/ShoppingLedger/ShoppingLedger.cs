@@ -15,7 +15,7 @@ public sealed class ShoppingLedger
     private readonly List<IDomainEvent> uncommittedEvents = [];
     private readonly Dictionary<string, ShoppingItemState> items = new(StringComparer.OrdinalIgnoreCase);
 
-    public Guid Id { get; private set; }
+    public ShoppingLedgerIdentifier Identifier { get; private set; } = default!;
 
     public string OwnerId { get; private set; } = default!;
 
@@ -39,7 +39,7 @@ public sealed class ShoppingLedger
     {
         return new ShoppingLedger
         {
-            Id = Guid.CreateVersion7(),
+            Identifier = ShoppingLedgerIdentifier.CreateNew(),
             OwnerId = ownerId,
         };
     }
@@ -52,9 +52,9 @@ public sealed class ShoppingLedger
     /// <param name="events">The domain events to replay.</param>
     /// <param name="startVersion">The starting version (default 0).</param>
     /// <returns>The hydrated aggregate.</returns>
-    public static ShoppingLedger FromEvents(Guid id, string ownerId, IEnumerable<IDomainEvent> events, int startVersion = 0)
+    public static ShoppingLedger FromEvents(ShoppingLedgerIdentifier identifier, string ownerId, IEnumerable<IDomainEvent> events, int startVersion = 0)
     {
-        var ledger = new ShoppingLedger { Id = id, OwnerId = ownerId, Version = startVersion };
+        var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId, Version = startVersion };
         foreach (var @event in events)
         {
             ledger.Apply(@event);
@@ -74,13 +74,13 @@ public sealed class ShoppingLedger
     /// <param name="eventsSinceSnapshot">Events to replay after the snapshot.</param>
     /// <returns>The hydrated aggregate.</returns>
     public static ShoppingLedger FromSnapshot(
-        Guid id,
+        ShoppingLedgerIdentifier identifier,
         string ownerId,
         Dictionary<string, ShoppingItemState> snapshotItems,
         int snapshotVersion,
         IEnumerable<IDomainEvent> eventsSinceSnapshot)
     {
-        var ledger = new ShoppingLedger { Id = id, OwnerId = ownerId, Version = snapshotVersion };
+        var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId, Version = snapshotVersion };
         foreach (var item in snapshotItems)
             ledger.items[item.Key] = item.Value;
 

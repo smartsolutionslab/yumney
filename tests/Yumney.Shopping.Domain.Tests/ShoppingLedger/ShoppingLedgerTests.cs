@@ -166,7 +166,7 @@ public class ShoppingLedgerTests
         original.MarkConsumed(N("Milk"), Q(1, "L"), "recipe:abc");
 
         var events = original.UncommittedEvents.ToList();
-        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, "user-123", events);
 
         rebuilt.Items.Should().HaveCount(1);
         var item = rebuilt.Items.Values.First();
@@ -189,7 +189,7 @@ public class ShoppingLedgerTests
         var newEvents = new[] { new ShoppingItemConsumed(N("Milk"), Amount.From(1), Unit.From("L"), "recipe:abc") };
 
         var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromSnapshot(
-            original.Id, "user-123", snapshotItems, 2, newEvents);
+            original.Identifier, "user-123", snapshotItems, 2, newEvents);
 
         rebuilt.Version.Should().Be(3);
         var item = rebuilt.Items.Values.First();
@@ -374,7 +374,7 @@ public class ShoppingLedgerTests
         original.AddItem(N("Eggs"), Q(6, "pc"), "manual");
 
         var events = original.UncommittedEvents.ToList();
-        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, "user-123", events);
 
         rebuilt.IsInShoppingMode.Should().BeTrue();
         rebuilt.ShoppingModeStartedAt.Should().NotBeNull();
@@ -390,7 +390,7 @@ public class ShoppingLedgerTests
         original.EndShoppingMode(acceptPendingChanges: true);
 
         var events = original.UncommittedEvents.ToList();
-        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, "user-123", events);
 
         rebuilt.IsInShoppingMode.Should().BeFalse();
         rebuilt.PendingChangesCount.Should().Be(0);
@@ -504,7 +504,7 @@ public class ShoppingLedgerTests
         original.UndoBought(N("Milk"), Q(2, "L"));
 
         var events = original.UncommittedEvents.ToList();
-        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, "user-123", events);
 
         rebuilt.Items.Values.First().Bought.Should().Be(0);
     }
@@ -516,7 +516,7 @@ public class ShoppingLedgerTests
         original.AddAsAtHome(N("Butter"), Q(250, "g"));
 
         var events = original.UncommittedEvents.ToList();
-        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
+        var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, "user-123", events);
 
         rebuilt.Items.Values.First().AtHome.Should().Be(250);
     }
