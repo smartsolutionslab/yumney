@@ -19,6 +19,7 @@ describe('ChatHintService', () => {
           { path: 'shopping', component: DummyComponent },
           { path: 'meal-planner', component: DummyComponent },
           { path: 'account', component: DummyComponent },
+          { path: '**', component: DummyComponent },
         ]),
       ],
     });

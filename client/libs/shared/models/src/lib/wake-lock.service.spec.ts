@@ -5,6 +5,7 @@ interface FakeSentinel {
   released: boolean;
   release: ReturnType<typeof vi.fn>;
   addEventListener: ReturnType<typeof vi.fn>;
+  removeEventListener: ReturnType<typeof vi.fn>;
   triggerRelease(): void;
 }
 
@@ -16,6 +17,7 @@ function createFakeSentinel(): FakeSentinel {
     addEventListener: vi.fn((_type: string, handler: () => void) => {
       releaseHandler = handler;
     }),
+    removeEventListener: vi.fn(),
     triggerRelease() {
       releaseHandler?.();
     },
