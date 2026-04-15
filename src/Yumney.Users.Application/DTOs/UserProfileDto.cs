@@ -6,10 +6,3 @@ public sealed record UserProfileDto(
     string PreferredUnitSystem,
     int DefaultServings,
     DietaryProfileDto DietaryProfile);
-
-public sealed record DietaryProfileDto(
-    string? DietaryType,
-    IReadOnlyList<string> Restrictions,
-    int? MinVeggieMeals,
-    int? MaxRedMeatMeals,
-    string? CookingEffort);

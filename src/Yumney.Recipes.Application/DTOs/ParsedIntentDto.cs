@@ -4,5 +4,3 @@ public sealed record ParsedIntentDto(
     string Intent,
     Dictionary<string, string> Entities,
     string? Clarification);
-
-public sealed record ParseIntentRequestDto(string Message, string? Context);

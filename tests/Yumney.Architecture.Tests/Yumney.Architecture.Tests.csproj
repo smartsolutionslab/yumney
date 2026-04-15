@@ -18,6 +18,10 @@
     <ProjectReference Include="..\..\src\Yumney.Users.Application\Yumney.Users.Application.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Users.Infrastructure\Yumney.Users.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Users.Api\Yumney.Users.Api.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.MealPlan.Domain\Yumney.MealPlan.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.MealPlan.Application\Yumney.MealPlan.Application.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.MealPlan.Infrastructure\Yumney.MealPlan.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.MealPlan.Api\Yumney.MealPlan.Api.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.CQRS\Yumney.Shared.CQRS.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Events.InProcess\Yumney.Shared.Events.InProcess.csproj" />
   </ItemGroup>

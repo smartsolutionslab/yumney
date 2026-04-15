@@ -1,10 +1,5 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/Yumney.MealPlan.Api/Yumney.MealPlan.Api.csproj" />
-    <Project Path="src/Yumney.MealPlan.Application/Yumney.MealPlan.Application.csproj" />
-    <Project Path="src/Yumney.MealPlan.Domain/Yumney.MealPlan.Domain.csproj" />
-    <Project Path="src/Yumney.MealPlan.Infrastructure/Yumney.MealPlan.Infrastructure.csproj" />
-  </Folder>
+  <Folder Name="/src/" />
   <Folder Name="/src/Host/">
     <Project Path="src/Yumney.AppHost/Yumney.AppHost.csproj" />
     <Project Path="src/Yumney.Gateway/Yumney.Gateway.csproj" />
@@ -20,6 +15,12 @@
     <Project Path="src/Yumney.Shared.Guards/Yumney.Shared.Guards.csproj" />
     <Project Path="src/Yumney.Shared.Persistence/Yumney.Shared.Persistence.csproj" />
     <Project Path="src/Yumney.Shared.Web/Yumney.Shared.Web.csproj" />
+  </Folder>
+  <Folder Name="/src/MealPlan/">
+    <Project Path="src/Yumney.MealPlan.Api/Yumney.MealPlan.Api.csproj" />
+    <Project Path="src/Yumney.MealPlan.Application/Yumney.MealPlan.Application.csproj" />
+    <Project Path="src/Yumney.MealPlan.Domain/Yumney.MealPlan.Domain.csproj" />
+    <Project Path="src/Yumney.MealPlan.Infrastructure/Yumney.MealPlan.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/src/Recipes/">
     <Project Path="src/Yumney.Recipes.Domain/Yumney.Recipes.Domain.csproj" />
@@ -40,14 +41,15 @@
     <Project Path="src/Yumney.Users.Infrastructure/Yumney.Users.Infrastructure.csproj" />
     <Project Path="src/Yumney.Users.Api/Yumney.Users.Api.csproj" />
   </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/Yumney.MealPlan.Application.Tests/Yumney.MealPlan.Application.Tests.csproj" />
-    <Project Path="tests/Yumney.MealPlan.Domain.Tests/Yumney.MealPlan.Domain.Tests.csproj" />
-  </Folder>
+  <Folder Name="/tests/" />
   <Folder Name="/tests/Shared/">
     <Project Path="tests/Yumney.Shared.Tests/Yumney.Shared.Tests.csproj" />
     <Project Path="tests/Yumney.Shared.Guards.Tests/Yumney.Shared.Guards.Tests.csproj" />
     <Project Path="tests/Yumney.Shared.Events.Tests/Yumney.Shared.Events.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/MealPlan/">
+    <Project Path="tests/Yumney.MealPlan.Application.Tests/Yumney.MealPlan.Application.Tests.csproj" />
+    <Project Path="tests/Yumney.MealPlan.Domain.Tests/Yumney.MealPlan.Domain.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Recipes/">
     <Project Path="tests/Yumney.Recipes.Domain.Tests/Yumney.Recipes.Domain.Tests.csproj" />
