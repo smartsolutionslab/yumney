@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { shareReplay, tap } from 'rxjs/operators';
 import { AuthService } from '@yumney/shared/auth';
 import { API_ENDPOINTS } from './api-endpoints';
 import type { ImportRecipeRequest } from './import-recipe-request';
@@ -19,6 +20,7 @@ import type { FavoriteState } from './favorite-state';
 export class RecipeApiService {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
+  private recipeCache = new Map<string, Observable<RecipeDetail>>();
 
   importRecipe(request: ImportRecipeRequest): Observable<ImportRecipeResponse> {
     return this.http.post<ImportRecipeResponse>(API_ENDPOINTS.recipes.import, request);
@@ -154,15 +156,31 @@ export class RecipeApiService {
   }
 
   updateRecipe(identifier: string, request: UpdateRecipeRequest): Observable<RecipeDetail> {
-    return this.http.put<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier), request);
+    return this.http.put<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier), request).pipe(
+      tap(() => this.invalidateRecipeCache(identifier)),
+    );
   }
 
   deleteRecipe(identifier: string): Observable<void> {
-    return this.http.delete<void>(API_ENDPOINTS.recipes.byIdentifier(identifier));
+    return this.http.delete<void>(API_ENDPOINTS.recipes.byIdentifier(identifier)).pipe(
+      tap(() => this.invalidateRecipeCache(identifier)),
+    );
   }
 
   getRecipeById(identifier: string): Observable<RecipeDetail> {
-    return this.http.get<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier));
+    if (!this.recipeCache.has(identifier)) {
+      this.recipeCache.set(
+        identifier,
+        this.http.get<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier)).pipe(
+          shareReplay(1),
+        ),
+      );
+    }
+    return this.recipeCache.get(identifier)!;
+  }
+
+  invalidateRecipeCache(identifier: string): void {
+    this.recipeCache.delete(identifier);
   }
 
   getRecipes(params: GetRecipesParams = {}): Observable<RecipeListResponse> {

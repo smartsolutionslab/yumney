@@ -44,14 +44,9 @@ export const appConfig: ApplicationConfig = {
     }),
     {
       provide: APP_INITIALIZER,
-      useFactory: (lang: LanguageService) => () => lang.initialize(),
-      deps: [LanguageService],
-      multi: true,
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (theme: ThemeService) => () => theme.initialize(),
-      deps: [ThemeService],
+      useFactory: (lang: LanguageService, theme: ThemeService) => () =>
+        Promise.all([lang.initialize(), theme.initialize()]),
+      deps: [LanguageService, ThemeService],
       multi: true,
     },
   ],
