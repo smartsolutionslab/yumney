@@ -9,15 +9,15 @@ public sealed class SwapMealSlotsCommandHandler(
     IWeeklyPlanRepository plans,
     ICurrentUser currentUser) : ICommandHandler<SwapMealSlotsCommand, Result<WeeklyPlanDto>>
 {
-    /// <inheritdoc />
     public async Task<Result<WeeklyPlanDto>> HandleAsync(SwapMealSlotsCommand command, CancellationToken cancellationToken = default)
     {
+        var (year, weekNumber, sourceDay, targetDay, mealType) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(command.Year, command.WeekNumber);
+        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 
-        plan.SwapSlots(command.SourceDay, command.TargetDay, command.MealType);
+        plan.SwapSlots(sourceDay, targetDay, mealType);
 
         await plans.SaveChangesAsync(cancellationToken);
 

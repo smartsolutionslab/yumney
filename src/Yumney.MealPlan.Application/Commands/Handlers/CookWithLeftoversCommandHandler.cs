@@ -12,29 +12,30 @@ public sealed class CookWithLeftoversCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(CookWithLeftoversCommand command, CancellationToken cancellationToken = default)
     {
-        Ensure.That(command.TotalServings).IsPositive();
-        Ensure.That(command.EatServings).IsPositive();
-        Ensure.That(command.RecipeTitle).IsNotNullOrWhiteSpace();
+        var (year, weekNumber, cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType) = command;
+        Ensure.That(totalServings).IsPositive();
+        Ensure.That(eatServings).IsPositive();
+        Ensure.That(recipeTitle).IsNotNullOrWhiteSpace();
 
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(command.Year, command.WeekNumber);
-        var leftoverServings = command.TotalServings - command.EatServings;
+        var week = WeekIdentifier.From(year, weekNumber);
+        var leftoverServings = totalServings - eatServings;
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
         if (plan is null)
         {
             plan = WeeklyPlan.Create(owner, week);
-            plan.AssignRecipe(command.CookDay, command.RecipeIdentifier, command.RecipeTitle, command.MealType, command.TotalServings);
+            plan.AssignRecipe(cookDay, recipeIdentifier, recipeTitle, mealType, totalServings);
             if (leftoverServings > 0)
-                plan.SetLeftover(command.LeftoverDay, command.CookDay, command.MealType, command.RecipeTitle, command.MealType, leftoverServings);
+                plan.SetLeftover(leftoverDay, cookDay, mealType, recipeTitle, mealType, leftoverServings);
             await plans.AddAsync(plan, cancellationToken);
         }
         else
         {
             plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
-            plan.AssignRecipe(command.CookDay, command.RecipeIdentifier, command.RecipeTitle, command.MealType, command.TotalServings);
+            plan.AssignRecipe(cookDay, recipeIdentifier, recipeTitle, mealType, totalServings);
             if (leftoverServings > 0)
-                plan.SetLeftover(command.LeftoverDay, command.CookDay, command.MealType, command.RecipeTitle, command.MealType, leftoverServings);
+                plan.SetLeftover(leftoverDay, cookDay, mealType, recipeTitle, mealType, leftoverServings);
             await plans.SaveChangesAsync(cancellationToken);
         }
 

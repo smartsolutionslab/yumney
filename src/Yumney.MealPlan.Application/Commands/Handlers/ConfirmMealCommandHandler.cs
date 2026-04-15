@@ -9,24 +9,24 @@ public sealed class ConfirmMealCommandHandler(
     IWeeklyPlanRepository plans,
     ICurrentUser currentUser) : ICommandHandler<ConfirmMealCommand, Result<WeeklyPlanDto>>
 {
-    /// <inheritdoc />
     public async Task<Result<WeeklyPlanDto>> HandleAsync(ConfirmMealCommand command, CancellationToken cancellationToken = default)
     {
+        var (year, weekNumber, day, mealType, newState) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(command.Year, command.WeekNumber);
+        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 
-        switch (command.NewState)
+        switch (newState)
         {
             case MealState.Cooked:
-                plan.MarkAsCooked(command.Day, command.MealType);
+                plan.MarkAsCooked(day, mealType);
                 break;
             case MealState.Skipped:
-                plan.MarkAsSkipped(command.Day, command.MealType);
+                plan.MarkAsSkipped(day, mealType);
                 break;
             case MealState.Planned:
-                plan.ResetToPlanned(command.Day, command.MealType);
+                plan.ResetToPlanned(day, mealType);
                 break;
         }
 

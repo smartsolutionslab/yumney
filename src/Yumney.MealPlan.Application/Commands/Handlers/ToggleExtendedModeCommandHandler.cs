@@ -11,21 +11,22 @@ public sealed class ToggleExtendedModeCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(ToggleExtendedModeCommand command, CancellationToken cancellationToken = default)
     {
+        var (year, weekNumber, enable) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(command.Year, command.WeekNumber);
+        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
         if (plan is null)
         {
             plan = WeeklyPlan.Create(owner, week);
-            if (command.Enable)
+            if (enable)
                 plan.EnableExtendedMode();
             await plans.AddAsync(plan, cancellationToken);
         }
         else
         {
             plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
-            if (command.Enable)
+            if (enable)
                 plan.EnableExtendedMode();
             else
                 plan.DisableExtendedMode();
