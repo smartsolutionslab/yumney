@@ -13,15 +13,17 @@ public sealed partial class UpdateUserProfileCommandHandler(
     /// <inheritdoc />
     public async Task<Result<UserProfileDto>> HandleAsync(UpdateUserProfileCommand command, CancellationToken cancellationToken = default)
     {
+        var (defaultServings, dietaryTypeValue, restrictionValues, minVeggieMeals, maxRedMeatMeals, cookingEffortValue) = command;
+
         var keycloakId = KeycloakUserId.From(currentUser.UserId);
         var profile = await profiles.GetByKeycloakUserIdAsync(keycloakId, cancellationToken);
 
-        profile.AdjustDefaultServingsTo(DefaultServings.From(command.DefaultServings));
+        profile.AdjustDefaultServingsTo(DefaultServings.From(defaultServings));
 
-        var dietaryType = command.DietaryType is not null ? DietaryType.From(command.DietaryType) : null;
-        var restrictions = command.Restrictions.Select(DietaryRestriction.From).ToList();
-        var balanceGoals = WeeklyBalanceGoals.From(command.MinVeggieMeals, command.MaxRedMeatMeals);
-        var cookingEffort = command.CookingEffort is not null ? CookingEffortPreference.From(command.CookingEffort) : null;
+        var dietaryType = dietaryTypeValue is not null ? DietaryType.From(dietaryTypeValue) : null;
+        var restrictions = restrictionValues.Select(DietaryRestriction.From).ToList();
+        var balanceGoals = WeeklyBalanceGoals.From(minVeggieMeals, maxRedMeatMeals);
+        var cookingEffort = cookingEffortValue is not null ? CookingEffortPreference.From(cookingEffortValue) : null;
 
         profile.UpdateDietaryProfile(DietaryProfile.From(dietaryType, restrictions, balanceGoals, cookingEffort));
 

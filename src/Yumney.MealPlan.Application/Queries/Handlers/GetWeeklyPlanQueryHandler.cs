@@ -11,8 +11,9 @@ public sealed class GetWeeklyPlanQueryHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(GetWeeklyPlanQuery query, CancellationToken cancellationToken = default)
     {
+        var (year, weekNumber) = query;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(query.Year, query.WeekNumber);
+        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
 

@@ -5,19 +5,15 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Queries.Handlers;
 
-/// <summary>
-/// Returns all recipes planned for a week (Recipe slots only).
-/// Leftover and Freetext slots are excluded — they don't contribute to shopping.
-/// </summary>
 public sealed class GetPlannedRecipesQueryHandler(
     IWeeklyPlanRepository plans,
     ICurrentUser currentUser) : IQueryHandler<GetPlannedRecipesQuery, Result<WeeklyPlannedRecipesDto>>
 {
-    /// <inheritdoc />
     public async Task<Result<WeeklyPlannedRecipesDto>> HandleAsync(GetPlannedRecipesQuery query, CancellationToken cancellationToken = default)
     {
+        var (year, weekNumber) = query;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(query.Year, query.WeekNumber);
+        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
         if (plan is null)
