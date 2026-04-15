@@ -933,17 +933,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/platform-browser-dynamic@npm:^21.2.7":
-  version: 21.2.7
-  resolution: "@angular/platform-browser-dynamic@npm:21.2.7"
+"@angular/platform-browser-dynamic@npm:21.2.2":
+  version: 21.2.2
+  resolution: "@angular/platform-browser-dynamic@npm:21.2.2"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/common": 21.2.7
-    "@angular/compiler": 21.2.7
-    "@angular/core": 21.2.7
-    "@angular/platform-browser": 21.2.7
-  checksum: 10c0/90172dad15019b997f66e058dae1817200eaf419d20ec50c4a6098d9fdc067d9fb0d659270e06c2dfc3e9d5c180d6c0fc9bc64cb614d3c95da88aedbb5b22159
+    "@angular/common": 21.2.2
+    "@angular/compiler": 21.2.2
+    "@angular/core": 21.2.2
+    "@angular/platform-browser": 21.2.2
+  checksum: 10c0/89be3d7d780bab2dec30b8bcb150db55ac817cad80808ccddc3155552dca62b8af9518f37ecc3dd299ba2e324b6f955fa0cc9accd6301998c5a9bc4ac5adfa43
   languageName: node
   linkType: hard
 
@@ -6048,7 +6048,7 @@ __metadata:
     "@angular/forms": "npm:21.2.2"
     "@angular/language-service": "npm:21.2.2"
     "@angular/platform-browser": "npm:21.2.2"
-    "@angular/platform-browser-dynamic": "npm:^21.2.7"
+    "@angular/platform-browser-dynamic": "npm:21.2.2"
     "@angular/platform-server": "npm:21.2.2"
     "@angular/router": "npm:21.2.2"
     "@angular/service-worker": "npm:21.2.2"
