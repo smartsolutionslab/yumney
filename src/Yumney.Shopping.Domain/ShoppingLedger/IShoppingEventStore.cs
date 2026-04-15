@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 
 /// <summary>
@@ -11,7 +13,7 @@ public interface IShoppingEventStore
     /// <param name="ownerId">The owner user identifier.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The hydrated aggregate, or null if none exists.</returns>
-    Task<ShoppingLedger?> LoadAsync(string ownerId, CancellationToken cancellationToken = default);
+    Task<ShoppingLedger?> LoadAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Append uncommitted events and optionally save a snapshot.

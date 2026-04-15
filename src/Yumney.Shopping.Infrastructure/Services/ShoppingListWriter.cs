@@ -11,8 +11,9 @@ public sealed class ShoppingListWriter(IShoppingEventStore eventStore) : IShoppi
         IReadOnlyList<ShoppingItemRequest> items,
         CancellationToken cancellationToken = default)
     {
-        var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
-                     ?? ShoppingLedger.Create(ownerId);
+        var owner = OwnerIdentifier.From(ownerId);
+        var ledger = await eventStore.LoadAsync(owner, cancellationToken)
+                     ?? ShoppingLedger.Create(owner);
 
         foreach (var item in items)
         {

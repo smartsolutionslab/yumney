@@ -5,11 +5,6 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 
-/// <summary>
-/// Event-sourced aggregate for a user's shopping list.
-/// State is rebuilt by replaying domain events.
-/// One instance per user, lives forever.
-/// </summary>
 public sealed class ShoppingLedger
 {
     private readonly List<IDomainEvent> uncommittedEvents = [];
@@ -17,7 +12,7 @@ public sealed class ShoppingLedger
 
     public ShoppingLedgerIdentifier Identifier { get; private set; } = default!;
 
-    public string OwnerId { get; private set; } = default!;
+    public OwnerIdentifier OwnerId { get; private set; } = default!;
 
     public int Version { get; private set; }
 
@@ -35,7 +30,7 @@ public sealed class ShoppingLedger
     {
     }
 
-    public static ShoppingLedger Create(string ownerId)
+    public static ShoppingLedger Create(OwnerIdentifier ownerId)
     {
         return new ShoppingLedger
         {
@@ -44,15 +39,7 @@ public sealed class ShoppingLedger
         };
     }
 
-    /// <summary>
-    /// Rebuild aggregate from persisted events (optionally starting from a snapshot).
-    /// </summary>
-    /// <param name="id">The aggregate identifier.</param>
-    /// <param name="ownerId">The owner user identifier.</param>
-    /// <param name="events">The domain events to replay.</param>
-    /// <param name="startVersion">The starting version (default 0).</param>
-    /// <returns>The hydrated aggregate.</returns>
-    public static ShoppingLedger FromEvents(ShoppingLedgerIdentifier identifier, string ownerId, IEnumerable<IDomainEvent> events, int startVersion = 0)
+    public static ShoppingLedger FromEvents(ShoppingLedgerIdentifier identifier, OwnerIdentifier ownerId, IEnumerable<IDomainEvent> events, int startVersion = 0)
     {
         var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId, Version = startVersion };
         foreach (var @event in events)
@@ -64,18 +51,9 @@ public sealed class ShoppingLedger
         return ledger;
     }
 
-    /// <summary>
-    /// Rebuild from snapshot state + events since snapshot.
-    /// </summary>
-    /// <param name="id">The aggregate identifier.</param>
-    /// <param name="ownerId">The owner user identifier.</param>
-    /// <param name="snapshotItems">The snapshot item state.</param>
-    /// <param name="snapshotVersion">The version at snapshot time.</param>
-    /// <param name="eventsSinceSnapshot">Events to replay after the snapshot.</param>
-    /// <returns>The hydrated aggregate.</returns>
     public static ShoppingLedger FromSnapshot(
         ShoppingLedgerIdentifier identifier,
-        string ownerId,
+        OwnerIdentifier ownerId,
         Dictionary<string, ShoppingItemState> snapshotItems,
         int snapshotVersion,
         IEnumerable<IDomainEvent> eventsSinceSnapshot)
