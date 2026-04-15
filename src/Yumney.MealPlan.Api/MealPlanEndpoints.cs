@@ -68,7 +68,7 @@ public static class MealPlanEndpoints
         group.MapPost("/{year:int}/w/{weekNumber:int}/generate-shopping-list", GenerateShoppingListAsync)
             .WithName("GenerateShoppingList")
             .WithTags("MealPlan")
-            .Produces<GenerateShoppingListResult>()
+            .Produces<GenerateShoppingListResultDto>()
             .ProducesProblem(StatusCodes.Status400BadRequest);
 
         return app;
@@ -200,7 +200,7 @@ public static class MealPlanEndpoints
     private static async Task<IResult> GenerateShoppingListAsync(
         int year,
         int weekNumber,
-        ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResult>> handler,
+        ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>> handler,
         CancellationToken cancellationToken)
     {
         var command = new GenerateShoppingListCommand(year, weekNumber);

@@ -164,11 +164,12 @@ public static class ShoppingEndpoints
 
     private static async Task<IResult> AddManualItemAsync(
         AddManualItemRequest request,
+        IValidator<AddManualItemRequest> validator,
         ICommandHandler<AddManualItemCommand, Result<AddedItemDto>> handler,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-            return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Item name is required.");
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
         var command = new AddManualItemCommand(ItemName.From(request.Name.Trim()), request.Quantity, request.Unit);
 
@@ -217,11 +218,12 @@ public static class ShoppingEndpoints
 
     private static async Task<IResult> RemoveItemAsync(
         RemoveItemRequest request,
+        IValidator<RemoveItemRequest> validator,
         ICommandHandler<RemoveShoppingItemCommand, Result> handler,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Name))
-            return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: "Item name is required.");
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
         var command = new RemoveShoppingItemCommand(ItemName.From(request.Name.Trim()), request.Quantity, request.Unit, request.Reason);
         var result = await handler.HandleAsync(command, cancellationToken);

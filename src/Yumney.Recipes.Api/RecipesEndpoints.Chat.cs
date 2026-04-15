@@ -1,3 +1,4 @@
+using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
@@ -11,19 +12,16 @@ namespace SmartSolutionsLab.Yumney.Recipes.Api;
 #pragma warning disable SA1601
 public static partial class RecipesEndpoints
 {
-#pragma warning disable SA1303
-    private const string emptyChatMessageError = "Message cannot be empty.";
-#pragma warning restore SA1303
-
     private static async Task<IResult> ChatAsync(
         ChatRequestDto request,
+        IValidator<ChatRequestDto> validator,
         ICommandHandler<ChatCommand, Result<ChatResponseDto>> handler,
         CancellationToken cancellationToken)
     {
-        var (message, history) = request;
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
-        if (string.IsNullOrWhiteSpace(message))
-            return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: emptyChatMessageError);
+        var (message, history) = request;
 
         var command = new ChatCommand(
             ChatMessageContent.From(message),
@@ -35,11 +33,12 @@ public static partial class RecipesEndpoints
 
     private static async Task<IResult> ParseIntentAsync(
         ParseIntentRequestDto request,
+        IValidator<ParseIntentRequestDto> validator,
         ICommandHandler<ParseIntentCommand, Result<ParsedIntentDto>> handler,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Message))
-            return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: emptyChatMessageError);
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
         var command = new ParseIntentCommand(request.Message, request.Context);
 
@@ -49,11 +48,12 @@ public static partial class RecipesEndpoints
 
     private static async Task<IResult> ImportFromTextAsync(
         ImportFromTextRequestDto request,
+        IValidator<ImportFromTextRequestDto> validator,
         ICommandHandler<ImportRecipeFromTextCommand, Result<ExtractedRecipeDto>> handler,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Text))
-            return Results.Problem(statusCode: StatusCodes.Status400BadRequest, detail: emptyChatMessageError);
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
 
         var command = new ImportRecipeFromTextCommand(request.Text);
 
