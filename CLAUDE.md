@@ -384,6 +384,99 @@ _logger.LogInformation($"Recipe {id} imported from {url}");
 | DELETE | 204 | 404 |
 | Validation | - | 422 |
 
+### Endpoint Code Organization
+
+Endpoints use **local static functions** colocated with their route mapping inside the `Map*Endpoints` method. Each route definition is immediately followed by its handler function.
+
+```csharp
+// ✅ REQUIRED — local function colocated with route
+public static IEndpointRouteBuilder MapRecipesEndpoints(this IEndpointRouteBuilder app)
+{
+    var group = app.MapGroup("/recipes");
+
+    group.MapPost("/", SaveRecipe)
+        .WithName("SaveRecipe")
+        .WithTags("Recipes")
+        .Produces<SavedRecipeDto>(StatusCodes.Status201Created);
+
+    static async Task<IResult> SaveRecipe(
+        SaveRecipeRequest request,
+        IValidator<SaveRecipeRequest> validator,
+        ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var validation = await validator.ValidateAsync(request, cancellationToken);
+        if (validation.HasFailed()) return validation.ToValidationProblem();
+
+        var (title, ingredients, steps, description, servings, timing, difficulty, imageUrl) = request;
+        var command = new SaveRecipeCommand(title, ingredients, steps, description, servings, timing, difficulty, imageUrl);
+        var result = await handler.HandleAsync(command, cancellationToken);
+        return result.ToCreated($"/api/v1/recipes/{result.Value.Identifier}");
+    }
+
+    // next route + handler ...
+
+    return app;
+}
+```
+
+```csharp
+// ❌ FORBIDDEN — separate private static methods at class level
+public static IEndpointRouteBuilder MapEndpoints(this IEndpointRouteBuilder app)
+{
+    app.MapPost("/", SaveAsync); // handler defined far away
+    return app;
+}
+private static async Task<IResult> SaveAsync(...) { ... } // disconnected from route
+```
+
+### Request DTO → Value Object Conversion
+
+Request records with **different arity** after VO conversion add a custom `Deconstruct` method that returns value objects directly. Endpoints destructure with `var (...) = request;`.
+
+```csharp
+// ✅ Deconstruct — when arity differs (e.g., PrepTime + CookTime → Timing)
+public sealed record SaveRecipeRequest(string Title, ..., int? PrepTimeMinutes, int? CookTimeMinutes, ...)
+{
+    public void Deconstruct(out RecipeTitle title, ..., out TimingInfo? timing, ...)
+    {
+        title = RecipeTitle.From(Title);
+        timing = TimingInfo.FromNullable(
+            PreparationTime.FromNullable(PrepTimeMinutes),
+            CookingTime.FromNullable(CookTimeMinutes));
+    }
+}
+
+// In endpoint:
+var (title, ingredients, steps, description, servings, timing, difficulty, imageUrl) = request;
+```
+
+Request records with **same arity** (no field merging) use `ToValueObjects()` to avoid ambiguity with the auto-generated `Deconstruct`.
+
+```csharp
+// ✅ ToValueObjects — when arity matches (same number of out params)
+public sealed record RegisterUserRequest(string Email, string Password, string DisplayName)
+{
+    public (Email Email, Password Password, DisplayName DisplayName) ToValueObjects() =>
+        (Email.From(Email), Password.From(Password), DisplayName.From(DisplayName));
+}
+
+// In endpoint:
+var (email, password, displayName) = request.ToValueObjects();
+```
+
+Request records that already use **domain types** (no VO conversion needed) use the auto-generated record `Deconstruct` directly.
+
+```csharp
+// ✅ Auto-generated Deconstruct — when request uses domain types
+public sealed record AssignRecipeRequest(DayOfWeek Day, Guid RecipeIdentifier, string RecipeTitle, MealType MealType);
+
+// In endpoint:
+var (day, recipeIdentifier, recipeTitle, mealType) = request;
+```
+
+Single-property requests keep `request.Property` access (C# doesn't support single-element destructuring).
+
 ## Git Workflow
 
 ### Branch Strategy
