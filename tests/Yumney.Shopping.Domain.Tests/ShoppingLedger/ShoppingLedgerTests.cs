@@ -25,7 +25,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        ledger.AddItem(N("Milk"), A(1), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(1, "L"), "manual");
 
         ledger.UncommittedEvents.Should().HaveCount(1);
         ledger.UncommittedEvents.First().Should().BeOfType<ShoppingItemAdded>();
@@ -38,7 +38,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        ledger.AddItem(N("Milk"), A(2), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
 
         var item = ledger.Items.Values.First();
         item.ItemName.Value.Should().Be("Milk");
@@ -50,9 +50,9 @@ public class ShoppingLedgerTests
     public void MarkBought_UpdatesBoughtQuantity()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(2), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
 
-        ledger.MarkBought(N("Milk"), A(2), U("L"));
+        ledger.MarkBought(N("Milk"), Q(2, "L"));
 
         var item = ledger.Items.Values.First();
         item.Bought.Should().Be(2);
@@ -64,10 +64,10 @@ public class ShoppingLedgerTests
     public void MarkConsumed_ReducesAtHome()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(2), U("L"), "manual");
-        ledger.MarkBought(N("Milk"), A(2), U("L"));
+        ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
+        ledger.MarkBought(N("Milk"), Q(2, "L"));
 
-        ledger.MarkConsumed(N("Milk"), A(1), U("L"), "recipe:abc");
+        ledger.MarkConsumed(N("Milk"), Q(1, "L"), "recipe:abc");
 
         var item = ledger.Items.Values.First();
         item.Consumed.Should().Be(1);
@@ -78,10 +78,10 @@ public class ShoppingLedgerTests
     public void RemoveItem_ReducesAtHome()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(2), U("L"), "manual");
-        ledger.MarkBought(N("Milk"), A(2), U("L"));
+        ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
+        ledger.MarkBought(N("Milk"), Q(2, "L"));
 
-        ledger.RemoveItem(N("Milk"), A(1), U("L"), "spoiled");
+        ledger.RemoveItem(N("Milk"), Q(1, "L"), "spoiled");
 
         var item = ledger.Items.Values.First();
         item.Removed.Should().Be(1);
@@ -92,9 +92,9 @@ public class ShoppingLedgerTests
     public void AdjustQuantity_OverridesOnList()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(2), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
 
-        ledger.AdjustQuantity(N("Milk"), A(5), U("L"));
+        ledger.AdjustQuantity(N("Milk"), Q(5, "L"));
 
         var item = ledger.Items.Values.First();
         item.OnList.Should().Be(5);
@@ -105,8 +105,8 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        ledger.AddItem(N("Milk"), A(1), U("L"), "manual");
-        ledger.AddItem(N("Milk"), A(2), U("L"), "recipe:abc");
+        ledger.AddItem(N("Milk"), Q(1, "L"), "manual");
+        ledger.AddItem(N("Milk"), Q(2, "L"), "recipe:abc");
 
         ledger.Items.Should().HaveCount(1);
         ledger.Items.Values.First().OnList.Should().Be(3);
@@ -117,8 +117,8 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        ledger.AddItem(N("Milk"), A(2), U("cups"), "manual");
-        ledger.AddItem(N("Milk"), A(500), U("ml"), "manual");
+        ledger.AddItem(N("Milk"), Q(2, "cups"), "manual");
+        ledger.AddItem(N("Milk"), Q(500, "ml"), "manual");
 
         ledger.Items.Should().HaveCount(2);
     }
@@ -128,8 +128,8 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        ledger.AddItem(N("milk"), A(1), U("L"), "manual");
-        ledger.AddItem(N("MILK"), A(1), U("L"), "manual");
+        ledger.AddItem(N("milk"), Q(1, "L"), "manual");
+        ledger.AddItem(N("MILK"), Q(1, "L"), "manual");
 
         ledger.Items.Should().HaveCount(1);
         ledger.Items.Values.First().OnList.Should().Be(2);
@@ -139,9 +139,9 @@ public class ShoppingLedgerTests
     public void AtHome_NeverNegative()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(1), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(1, "L"), "manual");
 
-        ledger.MarkConsumed(N("Milk"), A(5), U("L"), "manual");
+        ledger.MarkConsumed(N("Milk"), Q(5, "L"), "manual");
 
         ledger.Items.Values.First().AtHome.Should().Be(0);
     }
@@ -150,7 +150,7 @@ public class ShoppingLedgerTests
     public void MarkCommitted_ClearsUncommittedEvents()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(1), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(1, "L"), "manual");
 
         ledger.MarkCommitted();
 
@@ -161,9 +161,9 @@ public class ShoppingLedgerTests
     public void FromEvents_RebuildsSameState()
     {
         var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        original.AddItem(N("Milk"), A(2), U("L"), "manual");
-        original.MarkBought(N("Milk"), A(2), U("L"));
-        original.MarkConsumed(N("Milk"), A(1), U("L"), "recipe:abc");
+        original.AddItem(N("Milk"), Q(2, "L"), "manual");
+        original.MarkBought(N("Milk"), Q(2, "L"));
+        original.MarkConsumed(N("Milk"), Q(1, "L"), "recipe:abc");
 
         var events = original.UncommittedEvents.ToList();
         var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
@@ -181,12 +181,12 @@ public class ShoppingLedgerTests
     public void FromSnapshot_ContinuesFromSnapshotState()
     {
         var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        original.AddItem(N("Milk"), A(2), U("L"), "manual");
-        original.MarkBought(N("Milk"), A(2), U("L"));
+        original.AddItem(N("Milk"), Q(2, "L"), "manual");
+        original.MarkBought(N("Milk"), Q(2, "L"));
 
         var snapshotItems = original.Items.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-        var newEvents = new[] { new ShoppingItemConsumed(N("Milk"), A(1), U("L"), "recipe:abc") };
+        var newEvents = new[] { new ShoppingItemConsumed(N("Milk"), Amount.From(1), Unit.From("L"), "recipe:abc") };
 
         var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromSnapshot(
             original.Id, "user-123", snapshotItems, 2, newEvents);
@@ -201,9 +201,9 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        ledger.AddItem(N("A"), A(1), null, "manual");
-        ledger.AddItem(N("B"), A(1), null, "manual");
-        ledger.AddItem(N("C"), A(1), null, "manual");
+        ledger.AddItem(N("A"), Q(1), "manual");
+        ledger.AddItem(N("B"), Q(1), "manual");
+        ledger.AddItem(N("C"), Q(1), "manual");
 
         ledger.Version.Should().Be(3);
         ledger.UncommittedEvents.Should().HaveCount(3);
@@ -217,7 +217,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var act = () => ledger.AddItem(N(itemName!), A(1), U("L"), "manual");
+        var act = () => ledger.AddItem(N(itemName!), Q(1, "L"), "manual");
 
         act.Should().Throw<GuardException>();
     }
@@ -230,7 +230,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var act = () => ledger.AddItem(N("Milk"), A(1), U("L"), source!);
+        var act = () => ledger.AddItem(N("Milk"), Q(1, "L"), source!);
 
         act.Should().Throw<GuardException>();
     }
@@ -242,7 +242,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var act = () => ledger.MarkBought(N(itemName!), A(1), U("L"));
+        var act = () => ledger.MarkBought(N(itemName!), Q(1, "L"));
 
         act.Should().Throw<GuardException>();
     }
@@ -298,11 +298,11 @@ public class ShoppingLedgerTests
     public void AddItem_WhileInShoppingMode_IncrementsPendingChanges()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(1), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(1, "L"), "manual");
         ledger.StartShoppingMode();
 
-        ledger.AddItem(N("Eggs"), A(6), U("pc"), "manual");
-        ledger.AddItem(N("Bread"), A(1), U("pc"), "manual");
+        ledger.AddItem(N("Eggs"), Q(6, "pc"), "manual");
+        ledger.AddItem(N("Bread"), Q(1, "pc"), "manual");
 
         ledger.PendingChangesCount.Should().Be(2);
     }
@@ -312,7 +312,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
         ledger.StartShoppingMode();
-        ledger.AddItem(N("Eggs"), A(6), U("pc"), "manual");
+        ledger.AddItem(N("Eggs"), Q(6, "pc"), "manual");
 
         ledger.EndShoppingMode(acceptPendingChanges: false);
 
@@ -323,10 +323,10 @@ public class ShoppingLedgerTests
     public void RemoveItem_WhileInShoppingMode_IncrementsPendingChanges()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(2), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
         ledger.StartShoppingMode();
 
-        ledger.RemoveItem(N("Milk"), A(1), U("L"));
+        ledger.RemoveItem(N("Milk"), Q(1, "L"));
 
         ledger.PendingChangesCount.Should().Be(1);
     }
@@ -335,10 +335,10 @@ public class ShoppingLedgerTests
     public void AdjustQuantity_WhileInShoppingMode_IncrementsPendingChanges()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(2), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
         ledger.StartShoppingMode();
 
-        ledger.AdjustQuantity(N("Milk"), A(5), U("L"));
+        ledger.AdjustQuantity(N("Milk"), Q(5, "L"));
 
         ledger.PendingChangesCount.Should().Be(1);
     }
@@ -347,10 +347,10 @@ public class ShoppingLedgerTests
     public void MarkBought_WhileInShoppingMode_DoesNotIncrementPendingChanges()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(2), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
         ledger.StartShoppingMode();
 
-        ledger.MarkBought(N("Milk"), A(2), U("L"));
+        ledger.MarkBought(N("Milk"), Q(2, "L"));
 
         ledger.PendingChangesCount.Should().Be(0);
     }
@@ -360,7 +360,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        ledger.AddItem(N("Milk"), A(1), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(1, "L"), "manual");
 
         ledger.PendingChangesCount.Should().Be(0);
     }
@@ -369,9 +369,9 @@ public class ShoppingLedgerTests
     public void FromEvents_RebuildShoppingModeState()
     {
         var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        original.AddItem(N("Milk"), A(1), U("L"), "manual");
+        original.AddItem(N("Milk"), Q(1, "L"), "manual");
         original.StartShoppingMode();
-        original.AddItem(N("Eggs"), A(6), U("pc"), "manual");
+        original.AddItem(N("Eggs"), Q(6, "pc"), "manual");
 
         var events = original.UncommittedEvents.ToList();
         var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
@@ -386,7 +386,7 @@ public class ShoppingLedgerTests
     {
         var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
         original.StartShoppingMode();
-        original.AddItem(N("Eggs"), A(6), U("pc"), "manual");
+        original.AddItem(N("Eggs"), Q(6, "pc"), "manual");
         original.EndShoppingMode(acceptPendingChanges: true);
 
         var events = original.UncommittedEvents.ToList();
@@ -425,10 +425,10 @@ public class ShoppingLedgerTests
     public void UndoBought_ReversesBoughtQuantity()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(2), U("L"), "manual");
-        ledger.MarkBought(N("Milk"), A(2), U("L"));
+        ledger.AddItem(N("Milk"), Q(2, "L"), "manual");
+        ledger.MarkBought(N("Milk"), Q(2, "L"));
 
-        ledger.UndoBought(N("Milk"), A(2), U("L"));
+        ledger.UndoBought(N("Milk"), Q(2, "L"));
 
         var item = ledger.Items.Values.First();
         item.Bought.Should().Be(0);
@@ -439,10 +439,10 @@ public class ShoppingLedgerTests
     public void UndoBought_PartialUndo()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(3), U("L"), "manual");
-        ledger.MarkBought(N("Milk"), A(3), U("L"));
+        ledger.AddItem(N("Milk"), Q(3, "L"), "manual");
+        ledger.MarkBought(N("Milk"), Q(3, "L"));
 
-        ledger.UndoBought(N("Milk"), A(1), U("L"));
+        ledger.UndoBought(N("Milk"), Q(1, "L"));
 
         ledger.Items.Values.First().Bought.Should().Be(2);
     }
@@ -451,9 +451,9 @@ public class ShoppingLedgerTests
     public void UndoBought_NeverNegative()
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        ledger.AddItem(N("Milk"), A(1), U("L"), "manual");
+        ledger.AddItem(N("Milk"), Q(1, "L"), "manual");
 
-        ledger.UndoBought(N("Milk"), A(5), U("L"));
+        ledger.UndoBought(N("Milk"), Q(5, "L"));
 
         ledger.Items.Values.First().Bought.Should().Be(0);
     }
@@ -465,7 +465,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var act = () => ledger.UndoBought(N(itemName!), A(1), U("L"));
+        var act = () => ledger.UndoBought(N(itemName!), Q(1, "L"));
 
         act.Should().Throw<GuardException>();
     }
@@ -475,7 +475,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        ledger.AddAsAtHome(N("Butter"), A(250), U("g"));
+        ledger.AddAsAtHome(N("Butter"), Q(250, "g"));
 
         var item = ledger.Items.Values.First();
         item.Bought.Should().Be(250);
@@ -490,7 +490,7 @@ public class ShoppingLedgerTests
     {
         var ledger = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
 
-        var act = () => ledger.AddAsAtHome(N(itemName!), A(1), U("pc"));
+        var act = () => ledger.AddAsAtHome(N(itemName!), Q(1, "pc"));
 
         act.Should().Throw<GuardException>();
     }
@@ -499,9 +499,9 @@ public class ShoppingLedgerTests
     public void FromEvents_RebuildsUndoBoughtState()
     {
         var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        original.AddItem(N("Milk"), A(2), U("L"), "manual");
-        original.MarkBought(N("Milk"), A(2), U("L"));
-        original.UndoBought(N("Milk"), A(2), U("L"));
+        original.AddItem(N("Milk"), Q(2, "L"), "manual");
+        original.MarkBought(N("Milk"), Q(2, "L"));
+        original.UndoBought(N("Milk"), Q(2, "L"));
 
         var events = original.UncommittedEvents.ToList();
         var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
@@ -513,7 +513,7 @@ public class ShoppingLedgerTests
     public void FromEvents_RebuildsAddAsAtHomeState()
     {
         var original = Domain.ShoppingLedger.ShoppingLedger.Create("user-123");
-        original.AddAsAtHome(N("Butter"), A(250), U("g"));
+        original.AddAsAtHome(N("Butter"), Q(250, "g"));
 
         var events = original.UncommittedEvents.ToList();
         var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Id, "user-123", events);
@@ -523,7 +523,6 @@ public class ShoppingLedgerTests
 
     private static ItemName N(string name) => ItemName.From(name);
 
-    private static Amount A(decimal amount) => Amount.From(amount);
-
-    private static Unit U(string unit) => Unit.From(unit);
+    private static Quantity Q(decimal amount, string? unit = null) =>
+        Quantity.Of(Amount.From(amount), Unit.FromNullable(unit));
 }

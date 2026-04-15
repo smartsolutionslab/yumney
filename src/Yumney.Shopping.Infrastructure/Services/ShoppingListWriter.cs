@@ -16,7 +16,7 @@ public sealed class ShoppingListWriter(IShoppingEventStore eventStore) : IShoppi
 
         foreach (var item in items)
         {
-            ledger.AddItem(ItemName.From(item.ItemName), Amount.From(item.Quantity), Unit.FromNullable(item.Unit), item.Source);
+            ledger.AddItem(ItemName.From(item.ItemName), Quantity.Of(Amount.From(item.Quantity), Unit.FromNullable(item.Unit)), item.Source);
         }
 
         await eventStore.SaveAsync(ledger, cancellationToken);
