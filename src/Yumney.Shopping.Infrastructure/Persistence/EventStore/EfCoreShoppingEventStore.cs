@@ -72,10 +72,11 @@ public sealed partial class EfCoreShoppingEventStore(
         if (snapshot is not null)
         {
             var snapshotItems = JsonSerializer.Deserialize<Dictionary<string, ShoppingItemState>>(snapshot.State, jsonOptions) ?? [];
-            return ShoppingLedger.FromSnapshot(aggregateId, ownerId, snapshotItems, snapshot.Version, events);
+            var identifier = ShoppingLedgerIdentifier.From(aggregateId);
+            return ShoppingLedger.FromSnapshot(identifier, ownerId, snapshotItems, snapshot.Version, events);
         }
 
-        return ShoppingLedger.FromEvents(aggregateId, ownerId, events);
+        return ShoppingLedger.FromEvents(ShoppingLedgerIdentifier.From(aggregateId), ownerId, events);
     }
 
     public async Task SaveAsync(ShoppingLedger ledger, CancellationToken cancellationToken = default)
@@ -85,13 +86,13 @@ public sealed partial class EfCoreShoppingEventStore(
             return;
 
         var existingMetadata = await context.Set<AggregateMetadata>()
-            .FirstOrDefaultAsync(m => m.AggregateId == ledger.Id, cancellationToken);
+            .FirstOrDefaultAsync(m => m.AggregateId == ledger.Identifier, cancellationToken);
 
         if (existingMetadata is null)
         {
             context.Set<AggregateMetadata>().Add(new AggregateMetadata
             {
-                AggregateId = ledger.Id,
+                AggregateId = ledger.Identifier,
                 OwnerId = ledger.OwnerId,
             });
         }
@@ -104,7 +105,7 @@ public sealed partial class EfCoreShoppingEventStore(
             context.Set<StoredEvent>().Add(new StoredEvent
             {
                 Id = Guid.CreateVersion7(),
-                AggregateId = ledger.Id,
+                AggregateId = ledger.Identifier,
                 EventType = @event.GetType().Name,
                 EventData = JsonSerializer.Serialize(@event, @event.GetType(), jsonOptions),
                 Version = baseVersion + i + 1,
@@ -129,7 +130,7 @@ public sealed partial class EfCoreShoppingEventStore(
     private async Task SaveSnapshotAsync(ShoppingLedger ledger, CancellationToken cancellationToken)
     {
         var existing = await context.Set<StoredSnapshot>()
-            .FirstOrDefaultAsync(s => s.AggregateId == ledger.Id, cancellationToken);
+            .FirstOrDefaultAsync(s => s.AggregateId == ledger.Identifier, cancellationToken);
 
         var stateJson = JsonSerializer.Serialize(ledger.Items, jsonOptions);
 
@@ -143,7 +144,7 @@ public sealed partial class EfCoreShoppingEventStore(
         {
             context.Set<StoredSnapshot>().Add(new StoredSnapshot
             {
-                AggregateId = ledger.Id,
+                AggregateId = ledger.Identifier,
                 State = stateJson,
                 Version = ledger.Version,
                 CreatedAt = DateTime.UtcNow,

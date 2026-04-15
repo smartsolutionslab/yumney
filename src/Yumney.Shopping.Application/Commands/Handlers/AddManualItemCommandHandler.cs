@@ -37,7 +37,7 @@ public sealed partial class AddManualItemCommandHandler(
             quantity.Unit?.Value,
             category.Value,
             ItemSources.Manual,
-            ledger.Id);
+            ledger.Identifier);
     }
 
     private static Quantity ResolveDefaultQuantity(string itemName)
