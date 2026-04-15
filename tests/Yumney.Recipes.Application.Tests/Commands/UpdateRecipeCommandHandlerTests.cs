@@ -318,7 +318,7 @@ public class UpdateRecipeCommandHandlerTests
         return new UpdateRecipeCommand(
             identifier,
             RecipeTitle.From("Updated Pasta"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.From("g")))],
+            [new SaveRecipeIngredientItem(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.Gram))],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Cook pasta"))]);
     }
 
@@ -327,7 +327,7 @@ public class UpdateRecipeCommandHandlerTests
         return new UpdateRecipeCommand(
             identifier,
             RecipeTitle.From("New Title"),
-            [new SaveRecipeIngredientItem(IngredientName.From("Butter"), Quantity.Of(Amount.From(200), Unit.From("g")))],
+            [new SaveRecipeIngredientItem(IngredientName.From("Butter"), Quantity.Of(Amount.From(200), Unit.Gram))],
             [new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Melt butter"))],
             RecipeDescription.From("New description"),
             Servings.From(6),
