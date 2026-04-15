@@ -93,19 +93,65 @@ public static partial class RecipesEndpoints
             .ProducesProblem(StatusCodes.Status502BadGateway)
             .RequireRateLimiting("RecipeImport");
 
-        group.MapPost("/", SaveAsync)
+        group.MapPost("/", Save)
             .WithName("SaveRecipe")
             .WithTags("Recipes")
             .Produces<SavedRecipeDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{identifier:guid}", UpdateAsync)
+        static async Task<IResult> Save(
+            SaveRecipeRequest request,
+            IValidator<SaveRecipeRequest> validator,
+            ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>> handler,
+            CancellationToken cancellationToken)
+        {
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (validation.HasFailed()) return validation.ToValidationProblem();
+
+            var (title, ingredients, steps, description, servings, timing, difficulty, imageUrl, language, sourceUrl, tags) = request;
+
+            var command = new SaveRecipeCommand(
+                title,
+                ingredients,
+                steps,
+                description,
+                servings,
+                timing,
+                difficulty,
+                imageUrl,
+                language,
+                sourceUrl,
+                tags);
+
+            var result = await handler.HandleAsync(command, cancellationToken);
+
+            return result.ToCreated($"/api/v1/recipes/{result.Value.Identifier}");
+        }
+
+        group.MapPut("/{identifier:guid}", Update)
             .WithName("UpdateRecipe")
             .WithTags("Recipes")
             .Produces<RecipeDetailDto>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound);
+
+        static async Task<IResult> Update(
+            Guid identifier,
+            UpdateRecipeRequest request,
+            IValidator<UpdateRecipeRequest> validator,
+            ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>> handler,
+            CancellationToken cancellationToken)
+        {
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (validation.HasFailed()) return validation.ToValidationProblem();
+
+            var (title, ingredients, steps, description, servings, timing, difficulty, imageUrl, tags) = request.ToValueObjects();
+            var command = new UpdateRecipeCommand(RecipeIdentifier.From(identifier), title, ingredients, steps, description, servings, timing, difficulty, imageUrl, tags);
+
+            var result = await handler.HandleAsync(command, cancellationToken);
+            return result.ToOk();
+        }
 
         group.MapDelete("/{identifier:guid}", DeleteAsync)
             .WithName("DeleteRecipe")
@@ -146,67 +192,11 @@ public static partial class RecipesEndpoints
         return result.ToOk();
     }
 
-    private static async Task<IResult> SaveAsync(
-        SaveRecipeRequest request,
-        IValidator<SaveRecipeRequest> validator,
-        ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>> handler,
-        CancellationToken cancellationToken)
-    {
-        var validation = await validator.ValidateAsync(request, cancellationToken);
-        if (validation.HasFailed()) return validation.ToValidationProblem();
-
-        var command = new SaveRecipeCommand(
-            RecipeTitle.From(request.Title),
-            request.Ingredients.MapToRecipeIngredientItems().ToList(),
-            request.Steps.MapToRecipeStepItems().ToList(),
-            RecipeDescription.FromNullable(request.Description),
-            Servings.FromNullable(request.Servings),
-            TimingInfo.FromNullable(PreparationTime.FromNullable(request.PrepTimeMinutes), CookingTime.FromNullable(request.CookTimeMinutes)),
-            Difficulty.FromNullable(request.Difficulty),
-            ImageUrl.FromNullable(request.ImageUrl),
-            RecipeLanguage.FromNullable(request.Language),
-            RecipeUrl.FromNullable(request.SourceUrl),
-            request.Tags?.Select(t => RecipeTag.From(t)).ToList());
-
-        var result = await handler.HandleAsync(command, cancellationToken);
-
-        return result.ToCreated($"/api/v1/recipes/{result.Value.Identifier}");
-    }
-
     private static async Task<IResult> GetByIdAsync(Guid identifier, IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler, CancellationToken cancellationToken)
     {
         var query = new GetRecipeByIdQuery(RecipeIdentifier.From(identifier));
 
         var result = await handler.HandleAsync(query, cancellationToken);
-        return result.ToOk();
-    }
-
-    private static async Task<IResult> UpdateAsync(
-        Guid identifier,
-        UpdateRecipeRequest request,
-        IValidator<UpdateRecipeRequest> validator,
-        ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>> handler,
-        CancellationToken cancellationToken)
-    {
-        var validation = await validator.ValidateAsync(request, cancellationToken);
-        if (validation.HasFailed()) return validation.ToValidationProblem();
-
-        var (title, description, ingredients, steps, servings, prepTimeMinutes, cookTimeMinutes, difficulty, imageUrl,
-            tags) = request;
-
-        var command = new UpdateRecipeCommand(
-            RecipeIdentifier.From(identifier),
-            RecipeTitle.From(title),
-            ingredients.MapToRecipeIngredientItems().ToList(),
-            steps.Select(s => s.ToCommandItem()).ToList(),
-            RecipeDescription.FromNullable(description),
-            Servings.FromNullable(servings),
-            TimingInfo.FromNullable(PreparationTime.FromNullable(prepTimeMinutes), CookingTime.FromNullable(cookTimeMinutes)),
-            Difficulty.FromNullable(difficulty),
-            ImageUrl.FromNullable(imageUrl),
-            tags?.Select(t => RecipeTag.From(t)).ToList());
-
-        var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToOk();
     }
 

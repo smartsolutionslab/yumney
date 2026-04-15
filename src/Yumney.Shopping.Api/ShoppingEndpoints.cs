@@ -171,7 +171,8 @@ public static class ShoppingEndpoints
         var validation = await validator.ValidateAsync(request, cancellationToken);
         if (validation.HasFailed()) return validation.ToValidationProblem();
 
-        var command = new AddManualItemCommand(ItemName.From(request.Name.Trim()), request.Quantity, request.Unit);
+        var (itemName, quantity, unit) = request.ToValueObjects();
+        var command = new AddManualItemCommand(itemName, quantity, unit);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.IsSuccess
@@ -225,7 +226,8 @@ public static class ShoppingEndpoints
         var validation = await validator.ValidateAsync(request, cancellationToken);
         if (validation.HasFailed()) return validation.ToValidationProblem();
 
-        var command = new RemoveShoppingItemCommand(ItemName.From(request.Name.Trim()), request.Quantity, request.Unit, request.Reason);
+        var (itemName, quantity, unit, reason) = request.ToValueObjects();
+        var command = new RemoveShoppingItemCommand(itemName, quantity, unit, reason);
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToNoContent();
     }
