@@ -24,10 +24,10 @@ public class RemoveShoppingItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_ExistingLedger_RemovesAndSaves()
     {
-        var ledger = ShoppingLedger.Create("user-123");
+        var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
         ledger.AddItem(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), Unit.From("pc")), "manual");
         ledger.MarkCommitted();
-        eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>()).Returns(ledger);
+        eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
         var command = new RemoveShoppingItemCommand(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), Unit.From("pc")), RemovalReason.From("not needed"));
 
@@ -40,7 +40,7 @@ public class RemoveShoppingItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_NoLedger_ReturnsSuccess()
     {
-        eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
+        eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
 
         var command = new RemoveShoppingItemCommand(ItemName.From("Eggs"), null, null);
 
@@ -53,10 +53,10 @@ public class RemoveShoppingItemCommandHandlerTests
     [Fact]
     public async Task HandleAsync_WithoutQuantity_UsesDefaultQuantity()
     {
-        var ledger = ShoppingLedger.Create("user-123");
+        var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
         ledger.AddItem(ItemName.From("Milk"), Quantity.Of(Amount.From(2), Unit.From("L")), "manual");
         ledger.MarkCommitted();
-        eventStore.LoadAsync("user-123", Arg.Any<CancellationToken>()).Returns(ledger);
+        eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
         var command = new RemoveShoppingItemCommand(ItemName.From("Milk"), null, null);
 

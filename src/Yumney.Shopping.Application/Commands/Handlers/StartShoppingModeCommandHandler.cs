@@ -1,6 +1,7 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
@@ -10,8 +11,9 @@ public sealed class StartShoppingModeCommandHandler(
 {
     public async Task<Result> HandleAsync(StartShoppingModeCommand command, CancellationToken cancellationToken = default)
     {
-        var ledger = await eventStore.LoadAsync(currentUser.UserId, cancellationToken)
-            ?? ShoppingLedger.Create(currentUser.UserId);
+        var ownerId = OwnerIdentifier.From(currentUser.UserId);
+        var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
+            ?? ShoppingLedger.Create(ownerId);
 
         ledger.StartShoppingMode();
 

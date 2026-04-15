@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Converters;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
@@ -44,11 +45,12 @@ public sealed partial class EfCoreShoppingEventStore(
     };
 #pragma warning restore SA1311
 
-    public async Task<ShoppingLedger?> LoadAsync(string ownerId, CancellationToken cancellationToken = default)
+    public async Task<ShoppingLedger?> LoadAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default)
     {
+        var ownerIdValue = ownerId.Value;
         var metadata = await context.Set<AggregateMetadata>()
             .AsNoTracking()
-            .FirstOrDefaultAsync(m => m.OwnerId == ownerId, cancellationToken);
+            .FirstOrDefaultAsync(m => m.OwnerId == ownerIdValue, cancellationToken);
 
         if (metadata is null)
             return null;

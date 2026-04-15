@@ -17,7 +17,7 @@ public sealed partial class AddManualItemCommandHandler(
     {
         var (itemName, explicitQuantity) = command;
         var name = itemName.Value;
-        var ownerId = currentUser.UserId;
+        var ownerId = OwnerIdentifier.From(currentUser.UserId);
 
         LogAddManualItem(ownerId, name);
 

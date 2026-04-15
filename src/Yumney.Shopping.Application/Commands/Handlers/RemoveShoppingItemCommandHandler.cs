@@ -12,7 +12,7 @@ public sealed class RemoveShoppingItemCommandHandler(
     public async Task<Result> HandleAsync(RemoveShoppingItemCommand command, CancellationToken cancellationToken = default)
     {
         var (itemName, explicitQuantity, reason) = command;
-        var ownerId = currentUser.UserId;
+        var ownerId = OwnerIdentifier.From(currentUser.UserId);
 
         var ledger = await eventStore.LoadAsync(ownerId, cancellationToken);
         if (ledger is null) return Result.Success();
