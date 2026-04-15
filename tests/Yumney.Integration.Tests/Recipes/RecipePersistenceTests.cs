@@ -117,7 +117,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
     {
         var recipe = RecipeFactory.Lasagne(owner.Value);
         await fixture.SeedRecipesAsync(recipe);
-        var paging = PagingOptions.Of(Page.From(1), PageSize.From(20));
+        var paging = PagingOptions.From(1, 20);
         var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
 
         await using var readContext = await fixture.CreateRecipesDbContextAsync();
@@ -139,7 +139,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
             var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
             loaded.Update(
                 RecipeTitle.From("Updated Tomato Soup"),
-                [Ingredient.Create(IngredientName.From("Cherry tomatoes"), Quantity.Of(Amount.From(800), Unit.From("g")))],
+                [Ingredient.Create(IngredientName.From("Cherry tomatoes"), Quantity.Of(Amount.From(800), Unit.Gram))],
                 [Step.Create(StepNumber.From(1), StepDescription.From("Roast cherry tomatoes"))],
                 RecipeDescription.From("Updated description"),
                 Servings.From(2));

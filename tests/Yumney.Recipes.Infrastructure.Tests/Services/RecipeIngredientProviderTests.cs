@@ -23,8 +23,8 @@ public class RecipeIngredientProviderTests
         var recipeId = Guid.NewGuid();
         SetupRecipe(
             [
-                Ingredient.Create(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(500m), Unit.From("g"))),
-                Ingredient.Create(IngredientName.From("Tomato Sauce"), Quantity.Of(Amount.From(200m), Unit.From("ml"))),
+                Ingredient.Create(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(500m), Unit.Gram)),
+                Ingredient.Create(IngredientName.From("Tomato Sauce"), Quantity.Of(Amount.From(200m), Unit.Milliliter)),
             ],
             Servings.From(4));
 
@@ -58,7 +58,7 @@ public class RecipeIngredientProviderTests
     {
         var recipeId = Guid.NewGuid();
         SetupRecipe(
-            [Ingredient.Create(IngredientName.From("Water"), Quantity.Of(Amount.From(500m), Unit.From("ml")))]);
+            [Ingredient.Create(IngredientName.From("Water"), Quantity.Of(Amount.From(500m), Unit.Milliliter))]);
 
         var result = await provider.GetIngredientsAsync(recipeId);
 
