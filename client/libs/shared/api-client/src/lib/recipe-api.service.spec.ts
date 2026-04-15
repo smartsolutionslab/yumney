@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { AuthService } from '@yumney/shared/auth';
 import {
   RecipeApiService,
   ImportRecipeRequest,
@@ -51,7 +52,11 @@ describe('RecipeApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: { gatewayUrl: () => '' } },
+      ],
     });
 
     service = TestBed.inject(RecipeApiService);
