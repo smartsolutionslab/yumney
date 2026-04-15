@@ -7,4 +7,4 @@ public sealed record ShoppingItemConsumed(
     ItemName ItemName,
     Amount Quantity,
     Unit? Unit,
-    string Source) : DomainEvent;
+    ItemSource Source) : DomainEvent;

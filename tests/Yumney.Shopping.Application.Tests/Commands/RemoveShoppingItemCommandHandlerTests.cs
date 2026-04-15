@@ -25,7 +25,7 @@ public class RemoveShoppingItemCommandHandlerTests
     public async Task HandleAsync_ExistingLedger_RemovesAndSaves()
     {
         var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-        ledger.AddItem(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), Unit.From("pc")), "manual");
+        ledger.AddItem(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), Unit.From("pc")), ItemSource.Manual);
         ledger.MarkCommitted();
         eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
@@ -54,7 +54,7 @@ public class RemoveShoppingItemCommandHandlerTests
     public async Task HandleAsync_WithoutQuantity_UsesDefaultQuantity()
     {
         var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-        ledger.AddItem(ItemName.From("Milk"), Quantity.Of(Amount.From(2), Unit.From("L")), "manual");
+        ledger.AddItem(ItemName.From("Milk"), Quantity.Of(Amount.From(2), Unit.From("L")), ItemSource.Manual);
         ledger.MarkCommitted();
         eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 

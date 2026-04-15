@@ -71,9 +71,8 @@ public sealed class ShoppingLedger
         return ledger;
     }
 
-    public void AddItem(ItemName itemName, Quantity quantity, string source)
+    public void AddItem(ItemName itemName, Quantity quantity, ItemSource source)
     {
-        Ensure.That(source).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemAdded(itemName, quantity.Amount, quantity.Unit, source));
     }
 
@@ -82,9 +81,8 @@ public sealed class ShoppingLedger
         RaiseEvent(new ShoppingItemBought(itemName, quantity.Amount, quantity.Unit));
     }
 
-    public void MarkConsumed(ItemName itemName, Quantity quantity, string source)
+    public void MarkConsumed(ItemName itemName, Quantity quantity, ItemSource source)
     {
-        Ensure.That(source).IsNotNullOrWhiteSpace();
         RaiseEvent(new ShoppingItemConsumed(itemName, quantity.Amount, quantity.Unit, source));
     }
 

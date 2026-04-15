@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
@@ -18,13 +19,14 @@ public class EventSerializationTests
             new AmountJsonConverter(),
             new UnitJsonConverter(),
             new RemovalReasonJsonConverter(),
+            new ItemSourceJsonConverter(),
         },
     };
 
     [Fact]
     public void ShoppingItemAdded_RoundTrip_PreservesValues()
     {
-        var original = new ShoppingItemAdded(ItemName.From("Milk"), Amount.From(2.5m), Unit.From("L"), "manual");
+        var original = new ShoppingItemAdded(ItemName.From("Milk"), Amount.From(2.5m), Unit.From("L"), ItemSource.Manual);
 
         var json = JsonSerializer.Serialize(original, JsonOptions);
         var deserialized = JsonSerializer.Deserialize<ShoppingItemAdded>(json, JsonOptions)!;
@@ -32,13 +34,13 @@ public class EventSerializationTests
         deserialized.ItemName.Value.Should().Be("Milk");
         deserialized.Quantity.Value.Should().Be(2.5m);
         deserialized.Unit!.Value.Should().Be("L");
-        deserialized.Source.Should().Be("manual");
+        deserialized.Source.Value.Should().Be("manual");
     }
 
     [Fact]
     public void ShoppingItemAdded_SerializesAsFlatJson()
     {
-        var @event = new ShoppingItemAdded(ItemName.From("Eggs"), Amount.From(6), Unit.From("pc"), "recipe:abc");
+        var @event = new ShoppingItemAdded(ItemName.From("Eggs"), Amount.From(6), Unit.From("pc"), ItemSource.From("recipe:abc"));
 
         var json = JsonSerializer.Serialize(@event, JsonOptions);
 
@@ -146,6 +148,15 @@ public class EventSerializationTests
         }
 
         public override void Write(Utf8JsonWriter writer, RemovalReason value, JsonSerializerOptions options) =>
+            writer.WriteStringValue(value.Value);
+    }
+
+    private sealed class ItemSourceJsonConverter : JsonConverter<ItemSource>
+    {
+        public override ItemSource Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+            ItemSource.From(reader.GetString()!);
+
+        public override void Write(Utf8JsonWriter writer, ItemSource value, JsonSerializerOptions options) =>
             writer.WriteStringValue(value.Value);
     }
 }

@@ -27,7 +27,7 @@ public sealed partial class AddManualItemCommandHandler(
         var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
             ?? ShoppingLedger.Create(ownerId);
 
-        ledger.AddItem(itemName, quantity, ItemSources.Manual);
+        ledger.AddItem(itemName, quantity, ItemSource.Manual);
 
         await eventStore.SaveAsync(ledger, cancellationToken);
 

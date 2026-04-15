@@ -28,6 +28,7 @@ public sealed partial class EfCoreShoppingEventStore(
             new AmountJsonConverter(),
             new UnitJsonConverter(),
             new RemovalReasonJsonConverter(),
+            new ItemSourceJsonConverter(),
         },
     };
 
@@ -84,8 +85,7 @@ public sealed partial class EfCoreShoppingEventStore(
     public async Task SaveAsync(ShoppingLedger ledger, CancellationToken cancellationToken = default)
     {
         var uncommitted = ledger.UncommittedEvents.ToList();
-        if (uncommitted.Count == 0)
-            return;
+        if (uncommitted.Count == 0) return;
 
         var existingMetadata = await context.Set<AggregateMetadata>()
             .FirstOrDefaultAsync(m => m.AggregateId == ledger.Identifier, cancellationToken);
