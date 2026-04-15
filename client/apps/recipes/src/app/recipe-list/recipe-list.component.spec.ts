@@ -6,6 +6,15 @@ import { RecipeListComponent } from './recipe-list.component';
 import { RecipeApiService, RecipeListResponse } from '@yumney/shared/api-client';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 
+vi.mock('@yumney/ui', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@yumney/ui')>();
+  return {
+    ...actual,
+    staggerFadeIn: vi.fn(),
+    prefersReducedMotion: vi.fn(() => true),
+  };
+});
+
 let intersectionCallback: IntersectionObserverCallback;
 
 class MockIntersectionObserver implements IntersectionObserver {
@@ -164,7 +173,7 @@ describe('RecipeListComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const cards = fixture.nativeElement.querySelectorAll('.recipe-card');
+    const cards = fixture.nativeElement.querySelectorAll('yn-recipe-card');
     expect(cards.length).toBe(2);
   }));
 
@@ -301,6 +310,8 @@ describe('RecipeListComponent', () => {
           difficulty: 'easy',
           imageUrl: null,
           createdAt: '2026-03-08T00:00:00Z',
+          tags: [],
+          isFavorite: false,
         },
       ],
       totalCount: 5,

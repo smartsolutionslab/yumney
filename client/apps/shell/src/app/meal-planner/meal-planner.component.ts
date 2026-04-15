@@ -19,6 +19,11 @@ import {
 import { UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 
+const WEEKS_PER_YEAR = 52;
+const MS_PER_DAY = 86_400_000;
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const JS_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 @Component({
   selector: 'yn-meal-planner',
   standalone: true,
@@ -45,7 +50,7 @@ export class MealPlannerComponent {
     () => `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}`,
   );
 
-  protected days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  protected days = DAY_NAMES;
 
   protected dinnerSlots = computed(() => {
     const p = this.plan();
@@ -63,7 +68,7 @@ export class MealPlannerComponent {
   protected onPreviousWeek(): void {
     if (this.weekNumber() <= 1) {
       this.year.update((y) => y - 1);
-      this.weekNumber.set(52);
+      this.weekNumber.set(WEEKS_PER_YEAR);
     } else {
       this.weekNumber.update((w) => w - 1);
     }
@@ -71,7 +76,7 @@ export class MealPlannerComponent {
   }
 
   protected onNextWeek(): void {
-    if (this.weekNumber() >= 52) {
+    if (this.weekNumber() >= WEEKS_PER_YEAR) {
       this.year.update((y) => y + 1);
       this.weekNumber.set(1);
     } else {
@@ -146,14 +151,13 @@ export class MealPlannerComponent {
   }
 
   protected isToday(dayName: string): boolean {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    return days[new Date().getDay()] === dayName;
+    return JS_DAY_NAMES[new Date().getDay()] === dayName;
   }
 
   private getCurrentWeek(): number {
     const now = new Date();
     const jan4 = new Date(now.getFullYear(), 0, 4);
-    const daysDiff = Math.floor((now.getTime() - jan4.getTime()) / 86400000);
+    const daysDiff = Math.floor((now.getTime() - jan4.getTime()) / MS_PER_DAY);
     return Math.ceil((daysDiff + jan4.getDay() + 1) / 7);
   }
 }

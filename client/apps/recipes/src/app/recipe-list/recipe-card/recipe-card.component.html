@@ -1,0 +1,39 @@
+<a class="recipe-card" [routerLink]="ROUTES.recipes.detail(recipe().identifier)" *transloco="let t">
+  @if (recipe().imageUrl) {
+    <img [src]="recipe().imageUrl" [alt]="recipe().title" class="recipe-image" loading="lazy" />
+  } @else {
+    <div class="recipe-image-placeholder"></div>
+  }
+  <div class="favorite-overlay">
+    <yn-favorite-button
+      [isFavorite]="recipe().isFavorite"
+      (toggled)="onToggleFavorite()"
+    />
+  </div>
+  <div class="recipe-info">
+    <h3 class="recipe-title">{{ recipe().title }}</h3>
+    @if (recipe().description) {
+      <p class="recipe-description">{{ recipe().description }}</p>
+    }
+    <div class="recipe-meta">
+      @if (recipe().servings) {
+        <span class="meta-item">{{
+          t('recipes.list.servings', { count: recipe().servings })
+        }}</span>
+      }
+      @if (recipe().prepTimeMinutes) {
+        <span class="meta-item">{{
+          t('recipes.list.prepTime', { minutes: recipe().prepTimeMinutes })
+        }}</span>
+      }
+      @if (recipe().cookTimeMinutes) {
+        <span class="meta-item">{{
+          t('recipes.list.cookTime', { minutes: recipe().cookTimeMinutes })
+        }}</span>
+      }
+      @if (recipe().difficulty) {
+        <span class="meta-item">{{ recipe().difficulty }}</span>
+      }
+    </div>
+  </div>
+</a>

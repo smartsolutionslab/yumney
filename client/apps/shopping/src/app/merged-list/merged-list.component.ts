@@ -60,6 +60,17 @@ export class MergedListComponent {
     }));
   });
 
+  protected categoryLabels = computed<Record<string, string>>(() => {
+    const groups = this.categoryGroups();
+    const labels: Record<string, string> = {};
+    for (const group of groups) {
+      const key = `shopping.category.${group.category}`;
+      const translated = this.transloco.translate(key);
+      labels[group.category] = translated !== key ? translated : group.category;
+    }
+    return labels;
+  });
+
   protected totalItems = computed(() => this.list()?.items.length ?? 0);
   protected boughtItems = computed(() => this.list()?.items.filter((i) => i.isBought).length ?? 0);
 
@@ -115,12 +126,6 @@ export class MergedListComponent {
 
   protected onRetry(): void {
     this.loadList();
-  }
-
-  protected getCategoryLabel(category: string): string {
-    const key = `shopping.category.${category}`;
-    const translated = this.transloco.translate(key);
-    return translated !== key ? translated : category;
   }
 
   private loadList(): void {
