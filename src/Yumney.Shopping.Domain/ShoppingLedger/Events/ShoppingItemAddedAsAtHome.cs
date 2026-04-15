@@ -1,4 +1,5 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 
@@ -6,6 +7,6 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 /// Raised when an item is added directly as "at home" (already purchased, forgot to track).
 /// </summary>
 public sealed record ShoppingItemAddedAsAtHome(
-    string ItemName,
-    decimal Quantity,
-    string? Unit) : DomainEvent;
+    ItemName ItemName,
+    Amount Quantity,
+    Unit? Unit) : DomainEvent;
