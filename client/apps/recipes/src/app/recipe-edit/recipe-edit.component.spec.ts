@@ -235,6 +235,7 @@ describe('RecipeEditComponent', () => {
     fixture.detectChanges();
     tick();
 
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
     component.onDiscard();
 
     expect(router.navigate).toHaveBeenCalledWith(['/recipes', 'abc-123']);

@@ -2,7 +2,7 @@
 // Each app's federation.config.js consumes the constants below so we keep
 // the shared package list and skip list in one place.
 
-const singleton = { singleton: true, strictVersion: true, requiredVersion: 'auto' };
+const singleton = { singleton: true, strictVersion: false, requiredVersion: 'auto' };
 
 const sharedPackages = {
   '@angular/core': singleton,

@@ -4,6 +4,7 @@ interface WakeLockSentinelLike {
   released: boolean;
   release(): Promise<void>;
   addEventListener(type: 'release', listener: () => void): void;
+  removeEventListener(type: 'release', listener: () => void): void;
 }
 
 interface WakeLockNavigator {
@@ -18,6 +19,8 @@ export class WakeLockService {
   private sentinel: WakeLockSentinelLike | null = null;
   private visibilityHandler: (() => void) | null = null;
 
+  private releaseListener: (() => void) | null = null;
+
   async acquire(): Promise<void> {
     if (!this.supported() || this.sentinel !== null) {
       return;
@@ -27,10 +30,12 @@ export class WakeLockService {
       const sentinel = await nav.wakeLock!.request('screen');
       this.sentinel = sentinel;
       this.active.set(true);
-      sentinel.addEventListener('release', () => {
+      this.releaseListener = () => {
         this.active.set(false);
         this.sentinel = null;
-      });
+        this.releaseListener = null;
+      };
+      sentinel.addEventListener('release', this.releaseListener);
       this.installVisibilityHandler();
     } catch {
       this.active.set(false);
@@ -39,6 +44,10 @@ export class WakeLockService {
 
   async release(): Promise<void> {
     if (this.sentinel) {
+      if (this.releaseListener) {
+        this.sentinel.removeEventListener('release', this.releaseListener);
+        this.releaseListener = null;
+      }
       try {
         await this.sentinel.release();
       } catch {
