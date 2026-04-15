@@ -15,37 +15,35 @@ public sealed partial class AddManualItemCommandHandler(
 {
     public async Task<Result<AddedItemDto>> HandleAsync(AddManualItemCommand command, CancellationToken cancellationToken = default)
     {
-        var (itemName, explicitQuantity, explicitUnit) = command;
+        var (itemName, explicitQuantity) = command;
         var name = itemName.Value;
         var ownerId = currentUser.UserId;
 
         LogAddManualItem(ownerId, name);
 
-        var resolved = ResolveQuantity(name, explicitQuantity, explicitUnit);
+        var quantity = explicitQuantity ?? ResolveDefaultQuantity(name);
         var category = IngredientCategoryResolver.Resolve(name) ?? IngredientCategory.Other;
 
         var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
             ?? ShoppingLedger.Create(ownerId);
 
-        ledger.AddItem(itemName, Quantity.Of(Amount.From(resolved.Quantity), Unit.FromNullable(resolved.Unit)), ItemSources.Manual);
+        ledger.AddItem(itemName, quantity, ItemSources.Manual);
 
         await eventStore.SaveAsync(ledger, cancellationToken);
 
         return new AddedItemDto(
             name,
-            resolved.Quantity,
-            resolved.Unit,
+            quantity.Amount,
+            quantity.Unit?.Value,
             category.Value,
             ItemSources.Manual,
             ledger.Id);
     }
 
-    private static (decimal Quantity, string? Unit) ResolveQuantity(string itemName, decimal? explicitQuantity, string? explicitUnit)
+    private static Quantity ResolveDefaultQuantity(string itemName)
     {
-        if (explicitQuantity.HasValue) return (explicitQuantity.Value, explicitUnit);
-
         var defaultQty = DefaultQuantityResolver.Resolve(itemName);
-        return (defaultQty.Amount, defaultQty.Unit);
+        return Quantity.Of(Amount.From(defaultQty.Amount), Unit.FromNullable(defaultQty.Unit));
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Adding manual item for owner {OwnerId}: {ItemName}")]

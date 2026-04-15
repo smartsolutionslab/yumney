@@ -7,5 +7,4 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 
 public sealed record AddManualItemCommand(
     ItemName ItemName,
-    decimal? Quantity,
-    string? Unit) : ICommand<Result<AddedItemDto>>;
+    Quantity? Quantity) : ICommand<Result<AddedItemDto>>;

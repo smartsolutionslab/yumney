@@ -9,6 +9,5 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 /// </summary>
 public sealed record RemoveShoppingItemCommand(
     ItemName ItemName,
-    decimal? Quantity,
-    string? Unit,
+    Quantity? Quantity,
     string? Reason) : ICommand<Result>;
