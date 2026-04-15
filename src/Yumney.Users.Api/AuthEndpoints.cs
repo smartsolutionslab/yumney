@@ -42,12 +42,8 @@ public static class AuthEndpoints
         var validation = await validator.ValidateAsync(request, cancellationToken);
         if (validation.HasFailed()) return validation.ToValidationProblem();
 
-        var (email, password, displayName) = request;
-
-        var command = new RegisterUserCommand(
-            Email.From(email),
-            Password.From(password),
-            DisplayName.From(displayName));
+        var (email, password, displayName) = request.ToValueObjects();
+        var command = new RegisterUserCommand(email, password, displayName);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToCreated("/api/v1/users/me");
