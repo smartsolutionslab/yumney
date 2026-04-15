@@ -93,41 +93,41 @@ public sealed class ShoppingLedger
         return ledger;
     }
 
-    public void AddItem(ItemName itemName, Amount quantity, Unit? unit, string source)
+    public void AddItem(ItemName itemName, Quantity quantity, string source)
     {
         Ensure.That(source).IsNotNullOrWhiteSpace();
-        RaiseEvent(new ShoppingItemAdded(itemName, quantity, unit, source));
+        RaiseEvent(new ShoppingItemAdded(itemName, quantity.Amount, quantity.Unit, source));
     }
 
-    public void MarkBought(ItemName itemName, Amount quantity, Unit? unit)
+    public void MarkBought(ItemName itemName, Quantity quantity)
     {
-        RaiseEvent(new ShoppingItemBought(itemName, quantity, unit));
+        RaiseEvent(new ShoppingItemBought(itemName, quantity.Amount, quantity.Unit));
     }
 
-    public void MarkConsumed(ItemName itemName, Amount quantity, Unit? unit, string source)
+    public void MarkConsumed(ItemName itemName, Quantity quantity, string source)
     {
         Ensure.That(source).IsNotNullOrWhiteSpace();
-        RaiseEvent(new ShoppingItemConsumed(itemName, quantity, unit, source));
+        RaiseEvent(new ShoppingItemConsumed(itemName, quantity.Amount, quantity.Unit, source));
     }
 
-    public void RemoveItem(ItemName itemName, Amount quantity, Unit? unit, string? reason = null)
+    public void RemoveItem(ItemName itemName, Quantity quantity, string? reason = null)
     {
-        RaiseEvent(new ShoppingItemRemoved(itemName, quantity, unit, reason));
+        RaiseEvent(new ShoppingItemRemoved(itemName, quantity.Amount, quantity.Unit, reason));
     }
 
-    public void AdjustQuantity(ItemName itemName, Amount newQuantity, Unit? unit)
+    public void AdjustQuantity(ItemName itemName, Quantity newQuantity)
     {
-        RaiseEvent(new ShoppingItemQuantityAdjusted(itemName, newQuantity, unit));
+        RaiseEvent(new ShoppingItemQuantityAdjusted(itemName, newQuantity.Amount, newQuantity.Unit));
     }
 
-    public void UndoBought(ItemName itemName, Amount quantity, Unit? unit)
+    public void UndoBought(ItemName itemName, Quantity quantity)
     {
-        RaiseEvent(new ShoppingItemUndoBought(itemName, quantity, unit));
+        RaiseEvent(new ShoppingItemUndoBought(itemName, quantity.Amount, quantity.Unit));
     }
 
-    public void AddAsAtHome(ItemName itemName, Amount quantity, Unit? unit)
+    public void AddAsAtHome(ItemName itemName, Quantity quantity)
     {
-        RaiseEvent(new ShoppingItemAddedAsAtHome(itemName, quantity, unit));
+        RaiseEvent(new ShoppingItemAddedAsAtHome(itemName, quantity.Amount, quantity.Unit));
     }
 
     public void StartShoppingMode()

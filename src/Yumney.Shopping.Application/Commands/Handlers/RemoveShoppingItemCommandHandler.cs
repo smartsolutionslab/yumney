@@ -18,8 +18,8 @@ public sealed class RemoveShoppingItemCommandHandler(
         if (ledger is null) return Result.Success();
 
         var name = itemName.Value;
-        var quantity = Amount.From(quantityOverride ?? DefaultQuantityResolver.Resolve(name).Amount);
-        ledger.RemoveItem(itemName, quantity, Unit.FromNullable(unit), reason);
+        var amount = Amount.From(quantityOverride ?? DefaultQuantityResolver.Resolve(name).Amount);
+        ledger.RemoveItem(itemName, Quantity.Of(amount, Unit.FromNullable(unit)), reason);
 
         await eventStore.SaveAsync(ledger, cancellationToken);
 
