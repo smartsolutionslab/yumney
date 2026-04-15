@@ -9,3 +9,17 @@
   width: 100%;
   min-height: 2.75rem;
 }
+
+// ── Layout overrides when placed inside action-buttons container ──
+:host-context(.action-buttons) {
+  width: 100%;
+  order: 1;
+}
+
+@media (min-width: 768px) {
+  :host-context(.action-buttons) {
+    width: auto;
+    min-width: 10rem;
+    order: 2;
+  }
+}

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, HostListener, input, output } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 
 export type RecipeDifficulty = 'easy' | 'medium' | 'hard';
@@ -33,6 +33,12 @@ export class FilterPanelComponent {
   value = input.required<RecipeFilterValue>();
   availableTags = input<string[]>([]);
   valueChange = output<RecipeFilterValue>();
+  closed = output<void>();
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.closed.emit();
+  }
 
   protected readonly difficultyOptions = DIFFICULTY_OPTIONS;
 

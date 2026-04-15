@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, HostListener, input, output } from '@angular/core';
 
 @Component({
   selector: 'yn-confirm-dialog',
@@ -13,6 +13,11 @@ export class ConfirmDialogComponent {
 
   confirmed = output<void>();
   cancelled = output<void>();
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.cancelled.emit();
+  }
 
   onConfirm(): void {
     this.confirmed.emit();

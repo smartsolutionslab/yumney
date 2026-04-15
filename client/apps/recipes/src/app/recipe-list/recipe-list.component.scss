@@ -111,6 +111,7 @@
 .search-input-wrapper {
   position: relative;
   flex: 1;
+  min-width: 0;
 }
 
 .filter-toggle {
@@ -248,87 +249,8 @@ yn-filter-panel {
   gap: var(--yn-space-7);
 }
 
-.recipe-card {
-  @include glass.glass-card;
+yn-recipe-card {
   display: block;
-  overflow: hidden;
-  position: relative;
-  transition:
-    box-shadow var(--yn-duration-normal) var(--yn-ease-glass),
-    transform var(--yn-duration-normal) var(--yn-ease-spring);
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-
-  &:hover {
-    box-shadow: var(--yn-elevation-2);
-    transform: translateY(-4px);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-
-    &:hover {
-      transform: none;
-    }
-  }
-}
-
-.favorite-overlay {
-  position: absolute;
-  top: var(--yn-space-3);
-  right: var(--yn-space-3);
-  z-index: 2;
-}
-
-.recipe-image {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: var(--yn-radius-card) var(--yn-radius-card) 0 0;
-}
-
-.recipe-image-placeholder {
-  width: 100%;
-  height: 180px;
-  background: linear-gradient(135deg, var(--yn-primary-light), var(--yn-primary-light-end));
-}
-
-.recipe-info {
-  padding: var(--yn-space-5);
-}
-
-.recipe-title {
-  margin: 0 0 var(--yn-space-1);
-  font-size: var(--yn-text-lg);
-  font-weight: var(--yn-font-semibold);
-  line-height: var(--yn-leading-snug);
-}
-
-.recipe-description {
-  margin: 0 0 var(--yn-space-4);
-  color: var(--yn-text-muted);
-  font-size: var(--yn-text-sm);
-  line-height: var(--yn-leading-snug);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.recipe-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--yn-space-3);
-}
-
-.meta-item {
-  font-size: var(--yn-text-sm);
-  color: var(--yn-text-light);
-  background: var(--yn-glass-bg);
-  border: 1px solid var(--yn-glass-border-subtle);
-  padding: var(--yn-space-1) var(--yn-space-3);
-  border-radius: var(--yn-radius-badge);
 }
 
 // ── Skeleton shimmer for infinite scroll loading ──

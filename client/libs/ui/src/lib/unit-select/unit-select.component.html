@@ -36,6 +36,7 @@
             role="option"
             class="unit-menu-item"
             [class.active]="selectedValue() === unit.value"
+            [class.focused]="focusedIndex() === flatUnits().indexOf(unit)"
             (click)="selectUnit(unit)"
           >
             {{ t(unit.labelKey) }}

@@ -20,6 +20,7 @@
 
 .cook-title {
   flex: 1;
+  min-width: 0;
   margin: 0;
   font-size: var(--yn-text-xl);
   font-weight: var(--yn-font-semibold);
@@ -125,7 +126,7 @@ yn-step-display {
   top: 0;
   right: 0;
   width: min(360px, 90vw);
-  height: 100vh;
+  height: 100dvh;
   padding: var(--yn-space-5);
   overflow-y: auto;
   border-left: 1px solid var(--yn-glass-border);
