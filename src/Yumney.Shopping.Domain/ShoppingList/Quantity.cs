@@ -10,6 +10,6 @@ public sealed record Quantity(Amount Amount, Unit? Unit) : IValueObject
         amount is not null ? new Quantity(amount, unit) : null;
 
     public override string ToString() => Unit is not null
-        ? $"{Amount} {Unit}"
+        ? $"{Amount} {Unit.Value}"
         : Amount.ToString();
 }
