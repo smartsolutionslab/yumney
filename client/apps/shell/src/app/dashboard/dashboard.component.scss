@@ -112,6 +112,7 @@
 
 .form-field {
   flex: 1;
+  min-width: 0;
 
   .field-error {
     font-size: var(--yn-text-sm);
@@ -208,7 +209,6 @@
   @include glass.glass-surface(1);
   border-radius: var(--yn-radius-card-lg);
   margin-bottom: var(--yn-space-6);
-  overflow: hidden;
 }
 
 .import-toggle {

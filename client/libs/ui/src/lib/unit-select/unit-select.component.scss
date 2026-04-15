@@ -55,6 +55,7 @@
 }
 
 .unit-clear {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,6 +66,14 @@
   line-height: var(--yn-leading-none);
   color: var(--yn-text-muted);
   flex-shrink: 0;
+  cursor: pointer;
+
+  // Expand touch target to 44px without changing visual size
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -0.625rem;
+  }
 
   &:hover {
     background: var(--yn-background-subtle);
@@ -115,6 +124,39 @@
   color: var(--yn-text-muted);
 }
 
+// ── Compact appearance when embedded in a compound input ──
+:host-context(.compound-unit) {
+  .unit-toggle {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    min-height: 2.5rem;
+    width: auto;
+    padding: 0 var(--yn-space-3);
+    color: var(--yn-text-secondary);
+    font-weight: var(--yn-font-medium);
+
+    &:hover:not(:disabled) {
+      border: none;
+      background: var(--yn-glass-bg-elevated);
+      color: var(--yn-text);
+    }
+
+    &:focus-visible,
+    &.open {
+      border: none;
+      box-shadow: none;
+      background: var(--yn-glass-bg-elevated);
+    }
+  }
+
+  .unit-placeholder {
+    font-size: var(--yn-text-sm);
+    color: var(--yn-text-muted);
+  }
+}
+
 .unit-menu-item {
   padding: 0.4375rem var(--yn-space-4);
   font-size: var(--yn-text-base);
@@ -123,6 +165,10 @@
   transition: background 0.1s;
 
   &:hover {
+    background: var(--yn-background-subtle);
+  }
+
+  &.focused {
     background: var(--yn-background-subtle);
   }
 

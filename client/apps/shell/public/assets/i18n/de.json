@@ -430,6 +430,7 @@
     "done": "Fertig ({{count}})",
     "deletePhoto": "Foto löschen",
     "useGallery": "Galerie verwenden",
+    "flipCamera": "Kamera wechseln",
     "guideHint": "Rezept im Rahmen zentrieren",
     "errors": {
       "notSupported": "Kamera wird auf diesem Gerät nicht unterstützt",
@@ -441,6 +442,7 @@
     "scan": "Scannen",
     "cancel": "Abbrechen",
     "removeIngredient": "Zutat entfernen",
+    "flipCamera": "Kamera wechseln",
     "useIngredients": "{{count}} Zutaten verwenden",
     "errors": {
       "notSupported": "Kamera wird auf diesem Gerät nicht unterstützt",

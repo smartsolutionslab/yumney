@@ -38,6 +38,13 @@ export class HeaderComponent {
     return `layout.header.language${lang[0].toUpperCase()}${lang.slice(1)}`;
   });
 
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.menuOpen()) {
+      this.menuOpen.set(false);
+    }
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (this.menuOpen() && !this.elementRef.nativeElement.contains(event.target)) {

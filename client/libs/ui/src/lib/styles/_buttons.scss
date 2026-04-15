@@ -164,8 +164,8 @@
 // ── Icon button (small square) ──
 .btn-icon {
   @extend %btn-base;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0;
   border: 1.5px solid var(--yn-border);
   border-radius: var(--yn-radius-md);

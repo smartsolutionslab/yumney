@@ -2,8 +2,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   padding: 0;
   border: 1px solid var(--yn-glass-border);
   border-radius: 50%;
@@ -37,11 +37,8 @@
     color: var(--yn-primary);
     border-color: var(--yn-primary);
 
-    ::ng-deep svg {
-      fill: currentColor;
-    }
-
     svg {
+      fill: currentColor;
       animation: heart-pop var(--yn-duration-normal) var(--yn-ease-spring);
     }
   }
