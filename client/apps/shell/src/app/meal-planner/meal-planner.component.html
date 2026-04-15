@@ -81,7 +81,13 @@
             </button>
           </div>
         } @else {
-          <div class="empty-slot" (click)="onSelectSlot(entry.day)">
+          <div
+            class="empty-slot"
+            tabindex="0"
+            role="button"
+            (click)="onSelectSlot(entry.day)"
+            (keydown.enter)="onSelectSlot(entry.day)"
+          >
             <lucide-icon name="plus" [size]="24" />
           </div>
         }
