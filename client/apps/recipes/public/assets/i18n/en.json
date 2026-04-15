@@ -71,6 +71,7 @@
       "back": "Back to Recipe",
       "loading": "Loading recipe...",
       "success": "Recipe \"{{title}}\" updated successfully!",
+      "discardConfirm": "You have unsaved changes. Discard them?",
       "errors": {
         "notFound": "Recipe not found.",
         "generic": "Failed to update recipe. Please try again later."

@@ -24,13 +24,19 @@ export class RecipeApiService {
     return this.http.post<ImportRecipeResponse>(API_ENDPOINTS.recipes.import, request);
   }
 
+  private static readonly SSE_TIMEOUT_MS = 60_000;
+
   importRecipeStream(url: string): Observable<ImportStreamEvent> {
     return new Observable((subscriber) => {
       const abortController = new AbortController();
+      const timeout = setTimeout(() => abortController.abort(), RecipeApiService.SSE_TIMEOUT_MS);
 
-      this.fetchSseStream(url, abortController, subscriber);
+      this.fetchSseStream(url, abortController, subscriber).finally(() => clearTimeout(timeout));
 
-      return () => abortController.abort();
+      return () => {
+        clearTimeout(timeout);
+        abortController.abort();
+      };
     });
   }
 
@@ -39,13 +45,8 @@ export class RecipeApiService {
     abortController: AbortController,
     subscriber: import('rxjs').Subscriber<ImportStreamEvent>,
   ): Promise<void> {
-    const headers: Record<string, string> = { Accept: 'text/event-stream' };
-    const token = this.auth.getAccessToken();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const signal = abortController.signal;
+    const headers = this.buildSseHeaders();
+    const { signal } = abortController;
 
     let response: Response;
     try {
@@ -62,50 +63,73 @@ export class RecipeApiService {
       return;
     }
 
-    const reader = response.body.getReader();
+    await this.readSseBody(response.body, abortController, subscriber);
+  }
+
+  private buildSseHeaders(): Record<string, string> {
+    const headers: Record<string, string> = { Accept: 'text/event-stream' };
+    const token = this.auth.getAccessToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  }
+
+  private async readSseBody(
+    body: ReadableStream<Uint8Array>,
+    abortController: AbortController,
+    subscriber: import('rxjs').Subscriber<ImportStreamEvent>,
+  ): Promise<void> {
+    const reader = body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
 
     try {
       while (true) {
         const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
+        if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
         buffer = lines.pop() ?? '';
 
-        let eventType: string | null = null;
-        for (const line of lines) {
-          if (line.startsWith('event: ')) {
-            eventType = line.slice(7).trim();
-          } else if (line.startsWith('data: ') && eventType) {
-            const data = line.slice(6);
-            const type = eventType as ImportStreamEvent['type'];
-
-            subscriber.next({ type, data });
-
-            if (type === 'done' || type === 'fail') {
-              await reader.cancel();
-              abortController.abort();
-              subscriber.complete();
-              return;
-            }
-
-            eventType = null;
-          }
+        const terminal = this.parseSseBuffer(lines, subscriber);
+        if (terminal) {
+          await reader.cancel();
+          abortController.abort();
+          subscriber.complete();
+          return;
         }
       }
 
       abortController.abort();
       subscriber.complete();
     } catch {
-      if (!signal.aborted) {
+      if (!abortController.signal.aborted) {
         subscriber.error(new Error('Connection lost'));
       }
     }
+  }
+
+  private parseSseBuffer(
+    lines: string[],
+    subscriber: import('rxjs').Subscriber<ImportStreamEvent>,
+  ): boolean {
+    let eventType: string | null = null;
+
+    for (const line of lines) {
+      if (line.startsWith('event: ')) {
+        eventType = line.slice(7).trim();
+      } else if (line.startsWith('data: ') && eventType) {
+        const type = eventType as ImportStreamEvent['type'];
+        subscriber.next({ type, data: line.slice(6) });
+
+        if (type === 'done' || type === 'fail') return true;
+        eventType = null;
+      }
+    }
+
+    return false;
   }
 
   importFromPhotos(photos: File[]): Observable<ImportRecipeResponse> {

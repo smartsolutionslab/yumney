@@ -54,10 +54,12 @@ export function toggleFavoriteInList<T extends Favoritable>(
   const idx = list.findIndex((r) => r.identifier === identifier);
   if (idx === -1) return;
 
-  const original = list[idx];
+  const originalFavorite = list[idx].isFavorite;
   state.update((items) => {
+    const i = items.findIndex((r) => r.identifier === identifier);
+    if (i === -1) return items;
     const next = [...items];
-    next[idx] = { ...original, isFavorite: !original.isFavorite };
+    next[i] = { ...next[i], isFavorite: !originalFavorite };
     return next;
   });
 
@@ -78,7 +80,7 @@ export function toggleFavoriteInList<T extends Favoritable>(
           const j = items.findIndex((r) => r.identifier === identifier);
           if (j === -1) return items;
           const next = [...items];
-          next[j] = { ...next[j], isFavorite: original.isFavorite };
+          next[j] = { ...next[j], isFavorite: originalFavorite };
           return next;
         });
       },

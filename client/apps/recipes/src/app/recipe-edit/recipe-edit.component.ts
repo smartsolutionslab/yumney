@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
 import {
   createAsyncState,
@@ -31,6 +31,7 @@ export class RecipeEditComponent implements OnInit {
   private router = inject(Router);
   private loadState = createAsyncState(inject(DestroyRef));
   private saveState = createAsyncState(inject(DestroyRef));
+  private transloco = inject(TranslocoService);
 
   recipeData = signal<ImportRecipeResponse | null>(null);
   isLoading = this.loadState.isLoading;
@@ -68,6 +69,8 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onDiscard(): void {
-    this.router.navigate([ROUTES.recipes.list, this.identifier()]);
+    if (window.confirm(this.transloco.translate('recipes.edit.discardConfirm'))) {
+      this.router.navigate([ROUTES.recipes.list, this.identifier()]);
+    }
   }
 }

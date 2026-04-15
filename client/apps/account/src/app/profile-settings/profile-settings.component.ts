@@ -54,6 +54,7 @@ export class ProfileSettingsComponent {
   }
 
   protected onSave(): void {
+    if (this.saving()) return;
     this.saving.set(true);
     this.saved.set(false);
     this.error.set(null);
