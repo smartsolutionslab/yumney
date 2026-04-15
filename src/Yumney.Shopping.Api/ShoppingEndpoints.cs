@@ -90,16 +90,8 @@ public static class ShoppingEndpoints
         var validation = await validator.ValidateAsync(request, cancellationToken);
         if (validation.HasFailed()) return validation.ToValidationProblem();
 
-        var (title, items, recipeReference) = request;
-
-        var command = new CreateShoppingListCommand(
-            ShoppingListTitle.From(title),
-            request.Items.Select(i => new ShoppingListItem(
-                ItemName.From(i.Name),
-                Quantity.FromNullable(
-                    Amount.FromNullable(i.Amount),
-                    Unit.FromNullable(i.Unit)))).ToList(),
-            RecipeReference.FromNullable(recipeReference));
+        var (title, items, recipeReference) = request.ToValueObjects();
+        var command = new CreateShoppingListCommand(title, items, recipeReference);
 
         var result = await handler.HandleAsync(command, cancellationToken);
         return result.ToCreated($"/api/v1/shopping-lists/{result.Value?.Identifier}");
