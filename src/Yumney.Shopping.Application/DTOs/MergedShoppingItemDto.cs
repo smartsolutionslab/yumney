@@ -8,10 +8,3 @@ public sealed record MergedShoppingItemDto(
     string Category,
     bool IsBought,
     IReadOnlyList<ItemSourceDto> Sources);
-
-public sealed record ItemSourceDto(
-    decimal Quantity,
-    string Source,
-    DateTime OccurredAt);
-
-public sealed record MergedShoppingListDto(IReadOnlyList<MergedShoppingItemDto> Items);

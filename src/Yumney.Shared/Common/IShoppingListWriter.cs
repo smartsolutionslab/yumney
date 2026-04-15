@@ -11,8 +11,3 @@ public interface IShoppingListWriter
         IReadOnlyList<ShoppingItemRequest> items,
         CancellationToken cancellationToken = default);
 }
-
-/// <summary>
-/// A single item to add to the shopping list.
-/// </summary>
-public sealed record ShoppingItemRequest(string ItemName, decimal Quantity, string? Unit, string Source);

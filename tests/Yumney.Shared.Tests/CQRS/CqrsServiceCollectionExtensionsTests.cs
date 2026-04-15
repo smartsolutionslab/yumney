@@ -65,26 +65,3 @@ public class CqrsServiceCollectionExtensionsTests
         result.Should().BeSameAs(services);
     }
 }
-
-public sealed record FakeCommand : ICommand<string>;
-
-public sealed record FakeQuery : IQuery<int>;
-
-public sealed record AbstractCommand : ICommand<string>;
-
-public sealed class FakeCommandHandler : ICommandHandler<FakeCommand, string>
-{
-    public Task<string> HandleAsync(FakeCommand command, CancellationToken cancellationToken = default)
-        => Task.FromResult("handled");
-}
-
-public sealed class FakeQueryHandler : IQueryHandler<FakeQuery, int>
-{
-    public Task<int> HandleAsync(FakeQuery query, CancellationToken cancellationToken = default)
-        => Task.FromResult(42);
-}
-
-public abstract class AbstractFakeCommandHandler : ICommandHandler<AbstractCommand, string>
-{
-    public abstract Task<string> HandleAsync(AbstractCommand command, CancellationToken cancellationToken = default);
-}

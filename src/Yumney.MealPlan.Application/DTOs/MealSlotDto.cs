@@ -12,5 +12,3 @@ public sealed record MealSlotDto(
     string? LeftoverSourceDay,
     string? LeftoverSourceMealType,
     bool IsEmpty);
-
-public sealed record WeeklyPlanDto(string Week, bool IsExtendedMode, IReadOnlyList<MealSlotDto> Slots);

@@ -8,7 +8,7 @@ public class LayerDependencyTests
 {
     private const string SharedNamespace = "SmartSolutionsLab.Yumney.Shared";
 
-    private static readonly string[] Modules = ["Recipes", "Shopping", "Users"];
+    private static readonly string[] Modules = ["Recipes", "Shopping", "Users", "MealPlan"];
 
     public static TheoryData<string, string> CrossModulePairs()
     {
@@ -29,6 +29,7 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
+    [InlineData("MealPlan")]
     public void Domain_ShouldNotDependOn_Application(string module)
     {
         var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
@@ -45,6 +46,7 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
+    [InlineData("MealPlan")]
     public void Domain_ShouldNotDependOn_Infrastructure(string module)
     {
         var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
@@ -61,6 +63,7 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
+    [InlineData("MealPlan")]
     public void Domain_ShouldNotDependOn_Api(string module)
     {
         var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
@@ -77,6 +80,7 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
+    [InlineData("MealPlan")]
     public void Application_ShouldNotDependOn_Infrastructure(string module)
     {
         var applicationAssembly = GetAssembly($"Yumney.{module}.Application");
@@ -93,6 +97,7 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
+    [InlineData("MealPlan")]
     public void Application_ShouldNotDependOn_Api(string module)
     {
         var applicationAssembly = GetAssembly($"Yumney.{module}.Application");
@@ -110,6 +115,7 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
+    [InlineData("MealPlan")]
     public void ApiRequests_ShouldNotDependOn_Domain(string module)
     {
         var apiAssembly = GetAssembly($"Yumney.{module}.Api");
@@ -128,6 +134,7 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
+    [InlineData("MealPlan")]
     public void ApiRequests_ShouldNotDependOn_Infrastructure(string module)
     {
         var apiAssembly = GetAssembly($"Yumney.{module}.Api");
@@ -160,6 +167,7 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
+    [InlineData("MealPlan")]
     public void Domain_ShouldNotDependOn_SharedCqrs(string module)
     {
         var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
@@ -176,6 +184,7 @@ public class LayerDependencyTests
     [InlineData("Recipes")]
     [InlineData("Shopping")]
     [InlineData("Users")]
+    [InlineData("MealPlan")]
     public void Domain_ShouldNotDependOn_SharedEvents(string module)
     {
         var domainAssembly = GetAssembly($"Yumney.{module}.Domain");

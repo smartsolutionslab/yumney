@@ -6,7 +6,3 @@ public sealed record SuggestionDto(
     string? ImageUrl,
     int? PrepTimeMinutes,
     string Reason);
-
-public sealed record SuggestionsResponseDto(
-    IReadOnlyList<SuggestionDto> Suggestions,
-    IReadOnlyList<string> QuickActions);
