@@ -156,7 +156,7 @@ public static class ShoppingEndpoints
             if (validation.HasFailed()) return validation.ToValidationProblem();
 
             var (itemName, quantity, unit, reason) = request.ToValueObjects();
-            var command = new RemoveShoppingItemCommand(itemName, Quantity.FromNullable(Amount.FromNullable(quantity), Unit.FromNullable(unit)), reason);
+            var command = new RemoveShoppingItemCommand(itemName, Quantity.FromNullable(Amount.FromNullable(quantity), Unit.FromNullable(unit)), RemovalReason.FromNullable(reason));
 
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToNoContent();

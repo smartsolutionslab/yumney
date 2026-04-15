@@ -17,6 +17,7 @@ public class EventSerializationTests
             new ItemNameJsonConverter(),
             new AmountJsonConverter(),
             new UnitJsonConverter(),
+            new RemovalReasonJsonConverter(),
         },
     };
 
@@ -75,12 +76,12 @@ public class EventSerializationTests
     [Fact]
     public void ShoppingItemRemoved_RoundTrip_PreservesReason()
     {
-        var original = new ShoppingItemRemoved(ItemName.From("Milk"), Amount.From(1), Unit.From("L"), "spoiled");
+        var original = new ShoppingItemRemoved(ItemName.From("Milk"), Amount.From(1), Unit.From("L"), RemovalReason.From("spoiled"));
 
         var json = JsonSerializer.Serialize(original, JsonOptions);
         var deserialized = JsonSerializer.Deserialize<ShoppingItemRemoved>(json, JsonOptions)!;
 
-        deserialized.Reason.Should().Be("spoiled");
+        deserialized.Reason!.Value.Should().Be("spoiled");
     }
 
     [Fact]
@@ -133,6 +134,18 @@ public class EventSerializationTests
         }
 
         public override void Write(Utf8JsonWriter writer, Unit value, JsonSerializerOptions options) =>
+            writer.WriteStringValue(value.Value);
+    }
+
+    private sealed class RemovalReasonJsonConverter : JsonConverter<RemovalReason>
+    {
+        public override RemovalReason? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var value = reader.GetString();
+            return value is not null ? RemovalReason.From(value) : null;
+        }
+
+        public override void Write(Utf8JsonWriter writer, RemovalReason value, JsonSerializerOptions options) =>
             writer.WriteStringValue(value.Value);
     }
 }

@@ -110,7 +110,7 @@ public sealed class ShoppingLedger
         RaiseEvent(new ShoppingItemConsumed(itemName, quantity.Amount, quantity.Unit, source));
     }
 
-    public void RemoveItem(ItemName itemName, Quantity quantity, string? reason = null)
+    public void RemoveItem(ItemName itemName, Quantity quantity, RemovalReason? reason = null)
     {
         RaiseEvent(new ShoppingItemRemoved(itemName, quantity.Amount, quantity.Unit, reason));
     }
