@@ -9,6 +9,8 @@ import {
   OnInit,
   DestroyRef,
   signal,
+  viewChild,
+  viewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
@@ -25,13 +27,13 @@ import {
 import { RouterLink } from '@angular/router';
 import {
   EMPTY_FILTER,
-  FavoriteButtonComponent,
   FilterPanelComponent,
   InfiniteScrollDirective,
   prefersReducedMotion,
   type RecipeFilterValue,
   staggerFadeIn,
 } from '@yumney/ui';
+import { RecipeCardComponent } from './recipe-card/recipe-card.component';
 
 @Component({
   selector: 'yn-recipe-list',
@@ -41,7 +43,7 @@ import {
     LucideAngularModule,
     InfiniteScrollDirective,
     FilterPanelComponent,
-    FavoriteButtonComponent,
+    RecipeCardComponent,
   ],
   templateUrl: './recipe-list.component.html',
   styleUrl: './recipe-list.component.scss',
@@ -79,35 +81,46 @@ export class RecipeListComponent implements OnInit {
 
   private recipeApi = inject(RecipeApiService);
   private destroyRef = inject(DestroyRef);
-  private elementRef = inject(ElementRef);
   private asyncState = createAsyncState(this.destroyRef);
   private searchSubject = new Subject<string>();
+  private loadRequestId = 0;
+
+  private sortDropdown = viewChild<ElementRef>('sortDropdown');
+  private recipeCards = viewChildren<ElementRef>('recipeCard');
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.sortMenuOpen()) {
+      this.sortMenuOpen.set(false);
+    }
+  }
 
   @HostListener('document:click', ['$event.target'])
   onDocumentClick(target: EventTarget | null): void {
+    const dropdown = this.sortDropdown()?.nativeElement;
     if (
       this.sortMenuOpen() &&
       target instanceof Node &&
-      !this.elementRef.nativeElement.querySelector('.sort-dropdown')?.contains(target)
+      !dropdown?.contains(target)
     ) {
       this.sortMenuOpen.set(false);
     }
   }
 
-  private hostEl = inject(ElementRef);
   private previousCardCount = 0;
 
   constructor() {
     effect(() => {
       const count = this.recipes().length;
       if (count > this.previousCardCount && !prefersReducedMotion()) {
+        const prev = this.previousCardCount;
+        this.previousCardCount = count;
         requestAnimationFrame(() => {
-          const cards = this.hostEl.nativeElement.querySelectorAll('.recipe-card');
-          const newCards = Array.from(cards).slice(this.previousCardCount);
+          const cards = this.recipeCards();
+          const newCards = cards.slice(prev).map((ref) => ref.nativeElement);
           if (newCards.length > 0) {
             staggerFadeIn(newCards as Element[]);
           }
-          this.previousCardCount = count;
         });
       } else {
         this.previousCardCount = count;
@@ -231,6 +244,7 @@ export class RecipeListComponent implements OnInit {
   });
 
   private loadRecipes(append: boolean): void {
+    const requestId = ++this.loadRequestId;
     const search = this.activeSearch();
     const f = this.filter();
     const params: GetRecipesParams = {
@@ -250,6 +264,7 @@ export class RecipeListComponent implements OnInit {
       this.recipeApi.getRecipes(params),
       ERROR_MAPS.recipes.list,
       (response) => {
+        if (requestId !== this.loadRequestId) return;
         this.totalCount.set(response.totalCount);
         if (append) {
           this.recipes.update((existing) => [...existing, ...response.items]);
