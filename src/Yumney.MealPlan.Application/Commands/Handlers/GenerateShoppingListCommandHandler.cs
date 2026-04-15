@@ -9,9 +9,9 @@ public sealed class GenerateShoppingListCommandHandler(
     IRecipeIngredientProvider ingredientProvider,
     IStaplesProvider staplesProvider,
     IShoppingListWriter shoppingListWriter,
-    ICurrentUser currentUser) : ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResult>>
+    ICurrentUser currentUser) : ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>>
 {
-    public async Task<Result<GenerateShoppingListResult>> HandleAsync(
+    public async Task<Result<GenerateShoppingListResultDto>> HandleAsync(
         GenerateShoppingListCommand command,
         CancellationToken cancellationToken = default)
     {
@@ -75,7 +75,7 @@ public sealed class GenerateShoppingListCommandHandler(
         if (itemsToAdd.Count > 0)
             await shoppingListWriter.AddItemsAsync(currentUser.UserId, itemsToAdd, cancellationToken);
 
-        return new GenerateShoppingListResult(itemsToAdd.Count, staplesSkipped);
+        return new GenerateShoppingListResultDto(itemsToAdd.Count, staplesSkipped);
     }
 
     private sealed class MergedItem(string name, decimal quantity, string? unit)
