@@ -11,22 +11,22 @@ public class ShoppingItemStateTests
     public void AtHome_BoughtMinusConsumedAndRemoved()
     {
         var state = CreateState();
-        state.Bought = 10;
-        state.Consumed = 3;
-        state.Removed = 2;
+        state.Bought = A(10);
+        state.Consumed = A(3);
+        state.Removed = A(2);
 
-        state.AtHome.Should().Be(5);
+        state.AtHome.Value.Should().Be(5);
     }
 
     [Fact]
     public void AtHome_NeverNegative()
     {
         var state = CreateState();
-        state.Bought = 1;
-        state.Consumed = 5;
-        state.Removed = 3;
+        state.Bought = A(1);
+        state.Consumed = A(5);
+        state.Removed = A(3);
 
-        state.AtHome.Should().Be(0);
+        state.AtHome.Value.Should().Be(0);
     }
 
     [Fact]
@@ -34,15 +34,15 @@ public class ShoppingItemStateTests
     {
         var state = CreateState();
 
-        state.AtHome.Should().Be(0);
+        state.AtHome.Value.Should().Be(0);
     }
 
     [Fact]
     public void Remaining_OnListMinusBought()
     {
         var state = CreateState();
-        state.OnList = 5;
-        state.Bought = 2;
+        state.OnList = A(5);
+        state.Bought = A(2);
 
         state.Remaining.Should().Be(3);
     }
@@ -51,8 +51,8 @@ public class ShoppingItemStateTests
     public void Remaining_CanBeNegative_WhenOverbought()
     {
         var state = CreateState();
-        state.OnList = 2;
-        state.Bought = 5;
+        state.OnList = A(2);
+        state.Bought = A(5);
 
         state.Remaining.Should().Be(-3);
     }
@@ -61,7 +61,7 @@ public class ShoppingItemStateTests
     public void IsBought_True_WhenBoughtPositive()
     {
         var state = CreateState();
-        state.Bought = 1;
+        state.Bought = A(1);
 
         state.IsBought.Should().BeTrue();
     }
@@ -97,6 +97,8 @@ public class ShoppingItemStateTests
 
         state.GroupKey.Should().Be("milk|");
     }
+
+    private static Amount A(decimal value) => Amount.From(value);
 
     private static ShoppingItemState CreateState(Unit? unit = null) =>
         new() { ItemName = ItemName.From("Milk"), Unit = unit };
