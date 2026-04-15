@@ -13,6 +13,9 @@ public sealed record CreateShoppingListRequest(
         ShoppingListTitle.From(Title),
         Items.Select(i => new CommandItem(
             ItemName.From(i.Name),
-            Quantity.FromNullable(Amount.FromNullable(i.Amount), Unit.FromNullable(i.Unit)))).ToList(),
+            Quantity.FromNullable(
+                Amount.FromNullable(i.Amount),
+                Unit.FromNullable(i.Unit))))
+            .ToList(),
         Domain.ShoppingList.RecipeReference.FromNullable(RecipeReference));
 }

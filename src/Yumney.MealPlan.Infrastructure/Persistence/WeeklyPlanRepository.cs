@@ -10,7 +10,6 @@ public sealed class WeeklyPlanRepository(MealPlanDbContext context) : IWeeklyPla
     private readonly DbSet<WeeklyPlan> plans = context.WeeklyPlans;
 #pragma warning restore SA1311
 
-    /// <inheritdoc />
     public async Task<WeeklyPlan?> FindByOwnerAndWeekAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
     {
         return await plans
@@ -19,7 +18,6 @@ public sealed class WeeklyPlanRepository(MealPlanDbContext context) : IWeeklyPla
             .FirstOrDefaultAsync(p => p.Owner == owner && p.Week == week, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<WeeklyPlan> GetByOwnerAndWeekAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
     {
         return await plans
@@ -28,14 +26,12 @@ public sealed class WeeklyPlanRepository(MealPlanDbContext context) : IWeeklyPla
             ?? throw new EntityNotFoundException(nameof(WeeklyPlan), $"{owner.Value}/{week.Value}");
     }
 
-    /// <inheritdoc />
     public async Task AddAsync(WeeklyPlan plan, CancellationToken cancellationToken = default)
     {
         await plans.AddAsync(plan, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         await context.SaveChangesAsync(cancellationToken);

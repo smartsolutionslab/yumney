@@ -5,9 +5,6 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 
-/// <summary>
-/// Confirm whether a meal was cooked or skipped.
-/// </summary>
 public sealed record ConfirmMealCommand(
     int Year,
     int WeekNumber,

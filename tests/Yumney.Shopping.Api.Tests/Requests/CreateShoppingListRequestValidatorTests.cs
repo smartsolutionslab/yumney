@@ -1,5 +1,6 @@
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
+using SmartSolutionsLab.Yumney.Shopping.Api.Requests.Validator;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Tests.Requests;

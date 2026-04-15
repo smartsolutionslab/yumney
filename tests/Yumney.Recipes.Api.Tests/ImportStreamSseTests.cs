@@ -222,12 +222,7 @@ public class ImportStreamSseTests
         var httpContext = new DefaultHttpContext();
         httpContext.Response.Body = body;
 
-        // Use reflection to invoke the private static method
-        var method = typeof(RecipesEndpoints).GetMethod(
-            "ImportStreamAsync",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
-
-        await (Task)method.Invoke(null, [httpContext, url, scraper, extraction, CancellationToken.None])!;
+        await RecipesEndpoints.ImportStreamAsync(httpContext, url, scraper, extraction, CancellationToken.None);
 
         body.Position = 0;
     }

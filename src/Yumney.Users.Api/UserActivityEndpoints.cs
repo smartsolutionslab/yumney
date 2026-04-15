@@ -12,39 +12,37 @@ public static class UserActivityEndpoints
     {
         var group = app.MapGroup("/users/me");
 
-        group.MapGet("/activity", GetRecentActivityAsync)
+        group.MapGet("/activity", GetRecentActivity)
             .RequireAuthorization()
             .WithName("GetRecentActivity")
             .WithTags("Users")
             .Produces<IReadOnlyList<UserActivityDto>>();
 
-        group.MapGet("/suggestions", GetSuggestionsAsync)
+        static async Task<IResult> GetRecentActivity(
+            IQueryHandler<GetRecentActivityQuery, Result<IReadOnlyList<UserActivityDto>>> handler,
+            int limit = 5,
+            CancellationToken cancellationToken = default)
+        {
+            var query = new GetRecentActivityQuery(limit);
+            var result = await handler.HandleAsync(query, cancellationToken);
+            return result.ToOk();
+        }
+
+        group.MapGet("/suggestions", GetSuggestions)
             .RequireAuthorization()
             .WithName("GetSuggestions")
             .WithTags("Users")
             .Produces<SuggestionsResponseDto>();
 
+        static async Task<IResult> GetSuggestions(
+            IQueryHandler<GetSuggestionsQuery, Result<SuggestionsResponseDto>> handler,
+            CancellationToken cancellationToken = default)
+        {
+            var query = new GetSuggestionsQuery();
+            var result = await handler.HandleAsync(query, cancellationToken);
+            return result.ToOk();
+        }
+
         return app;
-    }
-
-    private static async Task<IResult> GetRecentActivityAsync(
-        IQueryHandler<GetRecentActivityQuery, Result<IReadOnlyList<UserActivityDto>>> handler,
-        int limit = 5,
-        CancellationToken cancellationToken = default)
-    {
-        var query = new GetRecentActivityQuery(limit);
-
-        var result = await handler.HandleAsync(query, cancellationToken);
-        return result.ToOk();
-    }
-
-    private static async Task<IResult> GetSuggestionsAsync(
-        IQueryHandler<GetSuggestionsQuery, Result<SuggestionsResponseDto>> handler,
-        CancellationToken cancellationToken = default)
-    {
-        var query = new GetSuggestionsQuery();
-
-        var result = await handler.HandleAsync(query, cancellationToken);
-        return result.ToOk();
     }
 }

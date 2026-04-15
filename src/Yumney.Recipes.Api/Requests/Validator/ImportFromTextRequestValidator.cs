@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests;
+namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 
 public sealed class ImportFromTextRequestValidator : AbstractValidator<ImportFromTextRequestDto>
 {
