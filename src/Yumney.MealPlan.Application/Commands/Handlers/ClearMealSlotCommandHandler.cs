@@ -9,15 +9,15 @@ public sealed class ClearMealSlotCommandHandler(
     IWeeklyPlanRepository plans,
     ICurrentUser currentUser) : ICommandHandler<ClearMealSlotCommand, Result<WeeklyPlanDto>>
 {
-    /// <inheritdoc />
     public async Task<Result<WeeklyPlanDto>> HandleAsync(ClearMealSlotCommand command, CancellationToken cancellationToken = default)
     {
+        var (year, weekNumber, day, mealType) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(command.Year, command.WeekNumber);
+        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 
-        plan.ClearSlot(command.Day, command.MealType);
+        plan.ClearSlot(day, mealType);
 
         await plans.SaveChangesAsync(cancellationToken);
 

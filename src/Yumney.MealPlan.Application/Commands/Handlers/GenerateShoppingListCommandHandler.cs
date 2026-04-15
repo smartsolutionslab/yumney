@@ -15,8 +15,9 @@ public sealed class GenerateShoppingListCommandHandler(
         GenerateShoppingListCommand command,
         CancellationToken cancellationToken = default)
     {
+        var (year, weekNumber) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(command.Year, command.WeekNumber);
+        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
         if (plan is null)

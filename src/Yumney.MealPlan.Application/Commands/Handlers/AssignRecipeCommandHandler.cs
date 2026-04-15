@@ -11,20 +11,21 @@ public sealed class AssignRecipeCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(AssignRecipeCommand command, CancellationToken cancellationToken = default)
     {
+        var (year, weekNumber, day, recipeIdentifier, recipeTitle, mealType, servings) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(command.Year, command.WeekNumber);
+        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
         if (plan is null)
         {
             plan = WeeklyPlan.Create(owner, week);
-            plan.AssignRecipe(command.Day, command.RecipeIdentifier, command.RecipeTitle, command.MealType, command.Servings);
+            plan.AssignRecipe(day, recipeIdentifier, recipeTitle, mealType, servings);
             await plans.AddAsync(plan, cancellationToken);
         }
         else
         {
             plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
-            plan.AssignRecipe(command.Day, command.RecipeIdentifier, command.RecipeTitle, command.MealType, command.Servings);
+            plan.AssignRecipe(day, recipeIdentifier, recipeTitle, mealType, servings);
             await plans.SaveChangesAsync(cancellationToken);
         }
 

@@ -11,12 +11,13 @@ public sealed class AdjustSlotServingsCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(AdjustSlotServingsCommand command, CancellationToken cancellationToken = default)
     {
+        var (year, weekNumber, day, mealType, servings) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(command.Year, command.WeekNumber);
+        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 
-        plan.AdjustServings(command.Day, command.Servings, command.MealType);
+        plan.AdjustServings(day, servings, mealType);
         await plans.SaveChangesAsync(cancellationToken);
 
         return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
