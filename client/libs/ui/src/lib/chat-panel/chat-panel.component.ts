@@ -113,11 +113,13 @@ export class ChatPanelComponent implements AfterViewInit {
         next: (recipe) => {
           const reply = this.buildRecipeReply(recipe);
           this.state.addMessage({ role: 'assistant', content: reply });
-          this.lastSuggestions.set([{
-            recipeIdentifier: null,
-            title: recipe.title,
-            reason: 'Extracted from URL',
-          }]);
+          this.lastSuggestions.set([
+            {
+              recipeIdentifier: null,
+              title: recipe.title,
+              reason: 'Extracted from URL',
+            },
+          ]);
           this.lastAssistantMessage.set(reply);
           this.state.setThinking(false);
         },
@@ -133,11 +135,13 @@ export class ChatPanelComponent implements AfterViewInit {
         next: (recipe) => {
           const reply = this.buildRecipeReply(recipe);
           this.state.addMessage({ role: 'assistant', content: reply });
-          this.lastSuggestions.set([{
-            recipeIdentifier: null,
-            title: recipe.title,
-            reason: 'Extracted from text',
-          }]);
+          this.lastSuggestions.set([
+            {
+              recipeIdentifier: null,
+              title: recipe.title,
+              reason: 'Extracted from text',
+            },
+          ]);
           this.lastAssistantMessage.set(reply);
           this.state.setThinking(false);
         },
@@ -145,13 +149,14 @@ export class ChatPanelComponent implements AfterViewInit {
       });
   }
 
-  private buildRecipeReply(
-    recipe: { title: string; ingredients: unknown[]; steps: unknown[] },
-  ): string {
+  private buildRecipeReply(recipe: {
+    title: string;
+    ingredients: unknown[];
+    steps: unknown[];
+  }): string {
     const count = recipe.ingredients.length;
     const steps = recipe.steps.length;
-    return `I found a recipe: **${recipe.title}**\n`
-      + `${count} ingredients, ${steps} steps.`;
+    return `I found a recipe: **${recipe.title}**\n` + `${count} ingredients, ${steps} steps.`;
   }
 
   private handleError(err: { status?: number }): void {

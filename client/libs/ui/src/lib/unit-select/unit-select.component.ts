@@ -37,9 +37,7 @@ export class UnitSelectComponent implements ControlValueAccessor {
   isDisabled = signal(false);
   focusedIndex = signal(-1);
 
-  protected flatUnits = computed(() =>
-    this.unitGroups().flatMap((group) => group.units),
-  );
+  protected flatUnits = computed(() => this.unitGroups().flatMap((group) => group.units));
 
   private elementRef = inject(ElementRef);
   // eslint-disable-next-line @typescript-eslint/no-empty-function

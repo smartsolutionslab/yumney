@@ -5,10 +5,7 @@
     <div class="recipe-image-placeholder"></div>
   }
   <div class="favorite-overlay">
-    <yn-favorite-button
-      [isFavorite]="recipe().isFavorite"
-      (toggled)="onToggleFavorite()"
-    />
+    <yn-favorite-button [isFavorite]="recipe().isFavorite" (toggled)="onToggleFavorite()" />
   </div>
   <div class="recipe-info">
     <h3 class="recipe-title">{{ recipe().title }}</h3>

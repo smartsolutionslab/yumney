@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, HostListener, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  HostListener,
+  input,
+  output,
+} from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 
 export type RecipeDifficulty = 'easy' | 'medium' | 'hard';
