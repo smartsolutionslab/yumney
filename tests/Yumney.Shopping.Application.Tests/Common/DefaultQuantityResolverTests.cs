@@ -1,8 +1,9 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shopping.Application.Common;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
 
-namespace SmartSolutionsLab.Yumney.Shared.Tests.Common;
+namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Common;
 
 public class DefaultQuantityResolverTests
 {
@@ -15,8 +16,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be(unit);
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be(unit);
     }
 
     [Theory]
@@ -26,8 +27,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be("pc");
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be("pc");
     }
 
     [Theory]
@@ -37,8 +38,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be("g");
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be("g");
     }
 
     [Theory]
@@ -49,8 +50,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be("g");
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be("g");
     }
 
     [Theory]
@@ -62,8 +63,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be(unit);
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be(unit);
     }
 
     [Theory]
@@ -76,8 +77,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be(unit);
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be(unit);
     }
 
     [Theory]
@@ -87,8 +88,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be("pc");
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be("pc");
     }
 
     [Theory]
@@ -98,8 +99,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be("g");
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be("g");
     }
 
     [Theory]
@@ -112,8 +113,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be("g");
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be("g");
     }
 
     [Theory]
@@ -126,8 +127,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be(unit);
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be(unit);
     }
 
     [Theory]
@@ -139,8 +140,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be(unit);
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be(unit);
     }
 
     [Theory]
@@ -153,8 +154,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be(unit);
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be(unit);
     }
 
     [Fact]
@@ -162,7 +163,7 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve("toilet paper");
 
-        result.Should().Be(ResolvedQuantity.OnePiece);
+        result.Should().Be(DefaultQuantityResolver.OnePiece);
     }
 
     [Fact]
@@ -170,8 +171,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve("coconut milk", "liquid");
 
-        result.Amount.Should().Be(1);
-        result.Unit.Should().Be("L");
+        result.Amount.Value.Should().Be(1);
+        result.Unit!.Value.Should().Be("L");
     }
 
     [Fact]
@@ -179,7 +180,7 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve("mystery item", "unknown-category");
 
-        result.Should().Be(ResolvedQuantity.OnePiece);
+        result.Should().Be(DefaultQuantityResolver.OnePiece);
     }
 
     [Fact]
@@ -187,8 +188,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve("MILK");
 
-        result.Amount.Should().Be(1);
-        result.Unit.Should().Be("L");
+        result.Amount.Value.Should().Be(1);
+        result.Unit!.Value.Should().Be("L");
     }
 
     [Theory]
@@ -198,8 +199,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item);
 
-        result.Amount.Should().Be(amount);
-        result.Unit.Should().Be(unit);
+        result.Amount.Value.Should().Be(amount);
+        result.Unit!.Value.Should().Be(unit);
     }
 
     [Theory]
@@ -210,7 +211,7 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve(item!);
 
-        result.Should().Be(ResolvedQuantity.OnePiece);
+        result.Should().Be(DefaultQuantityResolver.OnePiece);
     }
 
     [Fact]
@@ -218,8 +219,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve("pasta");
 
-        result.Amount.Should().Be(500);
-        result.Unit.Should().Be("g");
+        result.Amount.Value.Should().Be(500);
+        result.Unit!.Value.Should().Be("g");
     }
 
     [Fact]
@@ -227,16 +228,8 @@ public class DefaultQuantityResolverTests
     {
         var result = DefaultQuantityResolver.Resolve("flour");
 
-        result.Amount.Should().Be(1);
-        result.Unit.Should().Be("kg");
-    }
-
-    [Fact]
-    public void ResolvedQuantity_ToString_FormatsCorrectly()
-    {
-        var qty = new ResolvedQuantity(1, "L");
-
-        qty.ToString().Should().Be("1 L");
+        result.Amount.Value.Should().Be(1);
+        result.Unit!.Value.Should().Be("kg");
     }
 
     [Fact]
@@ -245,6 +238,6 @@ public class DefaultQuantityResolverTests
         // "eggs" is a direct match, not a plural normalization
         var result = DefaultQuantityResolver.Resolve("eggs");
 
-        result.Amount.Should().Be(6);
+        result.Amount.Value.Should().Be(6);
     }
 }
