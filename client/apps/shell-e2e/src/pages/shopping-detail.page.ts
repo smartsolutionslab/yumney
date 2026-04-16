@@ -22,6 +22,6 @@ export class ShoppingDetailPage {
   }
 
   async goto(identifier: string): Promise<void> {
-    await this.page.goto(`/shopping/${identifier}`);
+    await this.page.goto(`/shopping/lists/${identifier}`);
   }
 }
