@@ -14,7 +14,7 @@ export const ROUTES = {
   mealPlanner: '/meal-planner',
   shopping: {
     list: '/shopping',
-    detail: (identifier: string) => `/shopping/${identifier}`,
+    detail: (identifier: string) => `/shopping/lists/${identifier}`,
     create: (recipeId: string) => `/shopping/create/${recipeId}`,
   },
 } as const;
