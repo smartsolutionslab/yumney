@@ -4,6 +4,12 @@ namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
 public sealed record RemoveItemRequest(string Name, decimal? Quantity = null, string? Unit = null, string? Reason = null)
 {
-    public (ItemName ItemName, decimal? Quantity, string? Unit, string? Reason) ToValueObjects() =>
-        (ItemName.From(Name.Trim()), Quantity, Unit, Reason);
+    public void Deconstruct(out ItemName itemName, out Quantity? quantity, out RemovalReason? reason)
+    {
+        itemName = ItemName.From(Name);
+        quantity = Shopping.Domain.ShoppingList.Quantity.FromNullable(
+            Amount.FromNullable(Quantity),
+            Shopping.Domain.ShoppingList.Unit.FromNullable(Unit));
+        reason = RemovalReason.FromNullable(Reason);
+    }
 }

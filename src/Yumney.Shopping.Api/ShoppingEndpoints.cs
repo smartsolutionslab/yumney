@@ -55,6 +55,7 @@ public static class ShoppingEndpoints
                 PagingOptions.From(page, pageSize),
                 SortingOptions<ShoppingListSortField>.Parse(sortBy, sortDirection, ShoppingListSortField.Date));
             var result = await handler.HandleAsync(query, cancellationToken);
+
             return result.ToOk();
         }
 
@@ -71,6 +72,7 @@ public static class ShoppingEndpoints
         {
             var query = new GetShoppingListByIdQuery(ShoppingListIdentifier.From(identifier));
             var result = await handler.HandleAsync(query, cancellationToken);
+
             return result.ToOk();
         }
 
@@ -131,8 +133,8 @@ public static class ShoppingEndpoints
             var validation = await validator.ValidateAsync(request, cancellationToken);
             if (validation.HasFailed()) return validation.ToValidationProblem();
 
-            var (itemName, quantity, unit) = request.ToValueObjects();
-            var command = new AddManualItemCommand(itemName, Quantity.FromNullable(Amount.FromNullable(quantity), Unit.FromNullable(unit)));
+            var (itemName, quantity) = request;
+            var command = new AddManualItemCommand(itemName, quantity);
 
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.IsSuccess
@@ -155,8 +157,8 @@ public static class ShoppingEndpoints
             var validation = await validator.ValidateAsync(request, cancellationToken);
             if (validation.HasFailed()) return validation.ToValidationProblem();
 
-            var (itemName, quantity, unit, reason) = request.ToValueObjects();
-            var command = new RemoveShoppingItemCommand(itemName, Quantity.FromNullable(Amount.FromNullable(quantity), Unit.FromNullable(unit)), RemovalReason.FromNullable(reason));
+            var (itemName, quantity, reason) = request;
+            var command = new RemoveShoppingItemCommand(itemName, quantity, reason);
 
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToNoContent();
@@ -199,6 +201,7 @@ public static class ShoppingEndpoints
             CancellationToken cancellationToken)
         {
             var result = await handler.HandleAsync(new EndShoppingModeCommand(request.AcceptPendingChanges), cancellationToken);
+
             return result.ToNoContent();
         }
 
@@ -212,8 +215,8 @@ public static class ShoppingEndpoints
             CancellationToken cancellationToken)
         {
             var result = await handler.HandleAsync(new ExportShoppingListQuery(), cancellationToken);
-            if (result.IsFailure) return result.ToOk();
 
+            if (result.IsFailure) return result.ToOk();
             return Results.Text(result.Value, MediaTypes.TextPlain);
         }
 
