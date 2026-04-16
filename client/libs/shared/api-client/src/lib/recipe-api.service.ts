@@ -156,24 +156,24 @@ export class RecipeApiService {
   }
 
   updateRecipe(identifier: string, request: UpdateRecipeRequest): Observable<RecipeDetail> {
-    return this.http.put<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier), request).pipe(
-      tap(() => this.invalidateRecipeCache(identifier)),
-    );
+    return this.http
+      .put<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier), request)
+      .pipe(tap(() => this.invalidateRecipeCache(identifier)));
   }
 
   deleteRecipe(identifier: string): Observable<void> {
-    return this.http.delete<void>(API_ENDPOINTS.recipes.byIdentifier(identifier)).pipe(
-      tap(() => this.invalidateRecipeCache(identifier)),
-    );
+    return this.http
+      .delete<void>(API_ENDPOINTS.recipes.byIdentifier(identifier))
+      .pipe(tap(() => this.invalidateRecipeCache(identifier)));
   }
 
   getRecipeById(identifier: string): Observable<RecipeDetail> {
     if (!this.recipeCache.has(identifier)) {
       this.recipeCache.set(
         identifier,
-        this.http.get<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier)).pipe(
-          shareReplay(1),
-        ),
+        this.http
+          .get<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier))
+          .pipe(shareReplay(1)),
       );
     }
     return this.recipeCache.get(identifier)!;
