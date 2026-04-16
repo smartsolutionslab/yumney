@@ -186,7 +186,7 @@ public class ShoppingLedgerTests
 
         var snapshotItems = original.Items.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-        var newEvents = new[] { new ShoppingItemConsumed(N("Milk"), Amount.From(1), Unit.From("L"), ItemSource.From("recipe:abc")) };
+        var newEvents = new[] { new ShoppingItemConsumed(N("Milk"), Q(1, "L"), ItemSource.From("recipe:abc")) };
 
         var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromSnapshot(
             original.Identifier, Owner("user-123"), snapshotItems, 2, newEvents);

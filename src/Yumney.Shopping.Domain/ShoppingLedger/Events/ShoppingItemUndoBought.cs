@@ -8,5 +8,4 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 /// </summary>
 public sealed record ShoppingItemUndoBought(
     ItemName ItemName,
-    Amount Quantity,
-    Unit? Unit) : DomainEvent;
+    Quantity Quantity) : DomainEvent;

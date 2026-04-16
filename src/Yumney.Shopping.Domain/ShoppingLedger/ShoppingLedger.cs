@@ -1,22 +1,14 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
-using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 
-public sealed class ShoppingLedger
+public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentifier>
 {
-    private readonly List<IDomainEvent> uncommittedEvents = [];
     private readonly Dictionary<string, ShoppingItemState> items = new(StringComparer.OrdinalIgnoreCase);
 
-    public ShoppingLedgerIdentifier Identifier { get; private set; } = default!;
-
     public OwnerIdentifier OwnerId { get; private set; } = default!;
-
-    public int Version { get; private set; }
-
-    public IReadOnlyCollection<IDomainEvent> UncommittedEvents => uncommittedEvents.AsReadOnly();
 
     public IReadOnlyDictionary<string, ShoppingItemState> Items => items;
 
@@ -28,6 +20,15 @@ public sealed class ShoppingLedger
 
     private ShoppingLedger()
     {
+        On<ShoppingItemAdded>(OnItemAdded);
+        On<ShoppingItemBought>(OnItemBought);
+        On<ShoppingItemConsumed>(OnItemConsumed);
+        On<ShoppingItemRemoved>(OnItemRemoved);
+        On<ShoppingItemQuantityAdjusted>(OnQuantityAdjusted);
+        On<ShoppingItemUndoBought>(OnUndoBought);
+        On<ShoppingItemAddedAsAtHome>(OnAddedAsAtHome);
+        On<ShoppingModeStarted>(OnShoppingModeStarted);
+        On<ShoppingModeEnded>(_ => OnShoppingModeEnded());
     }
 
     public static ShoppingLedger Create(OwnerIdentifier ownerId)
@@ -45,12 +46,8 @@ public sealed class ShoppingLedger
         IEnumerable<IDomainEvent> events,
         int startVersion = 0)
     {
-        var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId, Version = startVersion };
-        foreach (var @event in events)
-        {
-            ledger.Apply(@event);
-            ledger.Version++;
-        }
+        var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId };
+        ledger.LoadFromHistory(events, startVersion);
 
         return ledger;
     }
@@ -62,52 +59,50 @@ public sealed class ShoppingLedger
         int snapshotVersion,
         IEnumerable<IDomainEvent> eventsSinceSnapshot)
     {
-        var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId, Version = snapshotVersion };
+        var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId };
         foreach (var item in snapshotItems)
-            ledger.items[item.Key] = item.Value;
-
-        foreach (var @event in eventsSinceSnapshot)
         {
-            ledger.Apply(@event);
-            ledger.Version++;
+            ledger.items[item.Key] = item.Value;
         }
+
+        ledger.LoadFromHistory(eventsSinceSnapshot, snapshotVersion);
 
         return ledger;
     }
 
     public void AddItem(ItemName itemName, Quantity quantity, ItemSource source)
     {
-        RaiseEvent(new ShoppingItemAdded(itemName, quantity.Amount, quantity.Unit, source));
+        RaiseEvent(new ShoppingItemAdded(itemName, quantity, source));
     }
 
     public void MarkBought(ItemName itemName, Quantity quantity)
     {
-        RaiseEvent(new ShoppingItemBought(itemName, quantity.Amount, quantity.Unit));
+        RaiseEvent(new ShoppingItemBought(itemName, quantity));
     }
 
     public void MarkConsumed(ItemName itemName, Quantity quantity, ItemSource source)
     {
-        RaiseEvent(new ShoppingItemConsumed(itemName, quantity.Amount, quantity.Unit, source));
+        RaiseEvent(new ShoppingItemConsumed(itemName, quantity, source));
     }
 
     public void RemoveItem(ItemName itemName, Quantity quantity, RemovalReason? reason = null)
     {
-        RaiseEvent(new ShoppingItemRemoved(itemName, quantity.Amount, quantity.Unit, reason));
+        RaiseEvent(new ShoppingItemRemoved(itemName, quantity, reason));
     }
 
     public void AdjustQuantity(ItemName itemName, Quantity newQuantity)
     {
-        RaiseEvent(new ShoppingItemQuantityAdjusted(itemName, newQuantity.Amount, newQuantity.Unit));
+        RaiseEvent(new ShoppingItemQuantityAdjusted(itemName, newQuantity));
     }
 
     public void UndoBought(ItemName itemName, Quantity quantity)
     {
-        RaiseEvent(new ShoppingItemUndoBought(itemName, quantity.Amount, quantity.Unit));
+        RaiseEvent(new ShoppingItemUndoBought(itemName, quantity));
     }
 
     public void AddAsAtHome(ItemName itemName, Quantity quantity)
     {
-        RaiseEvent(new ShoppingItemAddedAsAtHome(itemName, quantity.Amount, quantity.Unit));
+        RaiseEvent(new ShoppingItemAddedAsAtHome(itemName, quantity));
     }
 
     public void StartShoppingMode()
@@ -122,74 +117,62 @@ public sealed class ShoppingLedger
         RaiseEvent(new ShoppingModeEnded(acceptPendingChanges));
     }
 
-    public void MarkCommitted()
+    private void OnItemAdded(ShoppingItemAdded e)
     {
-        uncommittedEvents.Clear();
+        UpdateItem(e.ItemName, e.Quantity.Unit, s => s with { OnList = Amount.From(s.OnList + e.Quantity.Amount) });
+        if (IsInShoppingMode) PendingChangesCount++;
     }
 
-    private void RaiseEvent(IDomainEvent @event)
+    private void OnItemBought(ShoppingItemBought e) =>
+        UpdateItem(e.ItemName, e.Quantity.Unit, s => s with { Bought = Amount.From(s.Bought + e.Quantity.Amount) });
+
+    private void OnItemConsumed(ShoppingItemConsumed e) =>
+        UpdateItem(e.ItemName, e.Quantity.Unit, s => s with { Consumed = Amount.From(s.Consumed + e.Quantity.Amount) });
+
+    private void OnItemRemoved(ShoppingItemRemoved e)
     {
-        Apply(@event);
-        uncommittedEvents.Add(@event);
-        Version++;
+        UpdateItem(e.ItemName, e.Quantity.Unit, s => s with { Removed = Amount.From(s.Removed + e.Quantity.Amount) });
+        if (IsInShoppingMode) PendingChangesCount++;
     }
 
-    private void Apply(IDomainEvent @event)
+    private void OnQuantityAdjusted(ShoppingItemQuantityAdjusted e)
     {
-        switch (@event)
+        UpdateItem(e.ItemName, e.NewQuantity.Unit, s => s with { OnList = e.NewQuantity.Amount });
+        if (IsInShoppingMode) PendingChangesCount++;
+    }
+
+    private void OnUndoBought(ShoppingItemUndoBought e) =>
+        UpdateItem(e.ItemName, e.Quantity.Unit, s => s with { Bought = Amount.From(Math.Max(0, s.Bought - e.Quantity.Amount)) });
+
+    private void OnAddedAsAtHome(ShoppingItemAddedAsAtHome e) =>
+        UpdateItem(e.ItemName, e.Quantity.Unit, s => s with { Bought = Amount.From(s.Bought + e.Quantity.Amount) });
+
+    private void OnShoppingModeStarted(ShoppingModeStarted e)
+    {
+        IsInShoppingMode = true;
+        ShoppingModeStartedAt = e.SnapshotTakenAt;
+        PendingChangesCount = 0;
+    }
+
+    private void OnShoppingModeEnded()
+    {
+        IsInShoppingMode = false;
+        ShoppingModeStartedAt = null;
+        PendingChangesCount = 0;
+    }
+
+#pragma warning disable SA1204
+    private static string KeyFor(ItemName itemName, Unit? unit) =>
+        $"{itemName.Value.ToLowerInvariant()}|{unit?.Value ?? string.Empty}";
+
+    private void UpdateItem(ItemName itemName, Unit? unit, Func<ShoppingItemState, ShoppingItemState> update)
+    {
+        var key = KeyFor(itemName, unit);
+        if (!items.TryGetValue(key, out var current))
         {
-            case ShoppingItemAdded e:
-                var addedItem = GetOrCreateItem(e.ItemName, e.Unit);
-                addedItem.OnList = Amount.From(addedItem.OnList + e.Quantity);
-                if (IsInShoppingMode) PendingChangesCount++;
-                break;
-            case ShoppingItemBought e:
-                var boughtItem = GetOrCreateItem(e.ItemName, e.Unit);
-                boughtItem.Bought = Amount.From(boughtItem.Bought + e.Quantity);
-                break;
-            case ShoppingItemConsumed e:
-                var consumedItem = GetOrCreateItem(e.ItemName, e.Unit);
-                consumedItem.Consumed = Amount.From(consumedItem.Consumed + e.Quantity);
-                break;
-            case ShoppingItemRemoved e:
-                var removedItem = GetOrCreateItem(e.ItemName, e.Unit);
-                removedItem.Removed = Amount.From(removedItem.Removed + e.Quantity);
-                if (IsInShoppingMode) PendingChangesCount++;
-                break;
-            case ShoppingItemQuantityAdjusted e:
-                GetOrCreateItem(e.ItemName, e.Unit).OnList = e.NewQuantity;
-                if (IsInShoppingMode) PendingChangesCount++;
-                break;
-            case ShoppingItemUndoBought e:
-                var undoItem = GetOrCreateItem(e.ItemName, e.Unit);
-                undoItem.Bought = Amount.From(Math.Max(0, undoItem.Bought - e.Quantity));
-                break;
-            case ShoppingItemAddedAsAtHome e:
-                var atHomeItem = GetOrCreateItem(e.ItemName, e.Unit);
-                atHomeItem.Bought = Amount.From(atHomeItem.Bought + e.Quantity);
-                break;
-            case ShoppingModeStarted e:
-                IsInShoppingMode = true;
-                ShoppingModeStartedAt = e.SnapshotTakenAt;
-                PendingChangesCount = 0;
-                break;
-            case ShoppingModeEnded:
-                IsInShoppingMode = false;
-                ShoppingModeStartedAt = null;
-                PendingChangesCount = 0;
-                break;
-        }
-    }
-
-    private ShoppingItemState GetOrCreateItem(ItemName itemName, Unit? unit)
-    {
-        var key = $"{itemName.Value.ToLowerInvariant()}|{unit?.Value ?? string.Empty}";
-        if (!items.TryGetValue(key, out var item))
-        {
-            item = new ShoppingItemState { ItemName = itemName, Unit = unit };
-            items[key] = item;
+            current = new ShoppingItemState { ItemName = itemName, Unit = unit };
         }
 
-        return item;
+        items[key] = update(current);
     }
 }

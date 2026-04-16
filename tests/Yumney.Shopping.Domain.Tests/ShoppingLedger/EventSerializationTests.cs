@@ -26,59 +26,58 @@ public class EventSerializationTests
     [Fact]
     public void ShoppingItemAdded_RoundTrip_PreservesValues()
     {
-        var original = new ShoppingItemAdded(ItemName.From("Milk"), Amount.From(2.5m), Unit.From("L"), ItemSource.Manual);
+        var original = new ShoppingItemAdded(
+            ItemName.From("Milk"),
+            Quantity.Of(Amount.From(2.5m), Unit.From("L")),
+            ItemSource.Manual);
 
         var json = JsonSerializer.Serialize(original, JsonOptions);
         var deserialized = JsonSerializer.Deserialize<ShoppingItemAdded>(json, JsonOptions)!;
 
         deserialized.ItemName.Value.Should().Be("Milk");
-        deserialized.Quantity.Value.Should().Be(2.5m);
-        deserialized.Unit!.Value.Should().Be("L");
+        deserialized.Quantity.Amount.Value.Should().Be(2.5m);
+        deserialized.Quantity.Unit!.Value.Should().Be("L");
         deserialized.Source.Value.Should().Be("manual");
     }
 
     [Fact]
-    public void ShoppingItemAdded_SerializesAsFlatJson()
+    public void ShoppingItemAdded_SerializesAsNestedQuantity()
     {
-        var @event = new ShoppingItemAdded(ItemName.From("Eggs"), Amount.From(6), Unit.From("pc"), ItemSource.From("recipe:abc"));
+        var @event = new ShoppingItemAdded(
+            ItemName.From("Eggs"),
+            Quantity.Of(Amount.From(6), Unit.From("pc")),
+            ItemSource.From("recipe:abc"));
 
         var json = JsonSerializer.Serialize(@event, JsonOptions);
 
         json.Should().Contain("\"itemName\":\"Eggs\"");
-        json.Should().Contain("\"quantity\":6");
+        json.Should().Contain("\"amount\":6");
         json.Should().Contain("\"unit\":\"pc\"");
         json.Should().Contain("\"source\":\"recipe:abc\"");
     }
 
     [Fact]
-    public void ShoppingItemAdded_DeserializesFromLegacyJson()
-    {
-        var legacyJson = """{"itemName":"Butter","quantity":250,"unit":"g","source":"manual"}""";
-
-        var deserialized = JsonSerializer.Deserialize<ShoppingItemAdded>(legacyJson, JsonOptions)!;
-
-        deserialized.ItemName.Value.Should().Be("Butter");
-        deserialized.Quantity.Value.Should().Be(250);
-        deserialized.Unit!.Value.Should().Be("g");
-    }
-
-    [Fact]
     public void ShoppingItemBought_WithNullUnit_RoundTrips()
     {
-        var original = new ShoppingItemBought(ItemName.From("Banana"), Amount.From(3), null);
+        var original = new ShoppingItemBought(
+            ItemName.From("Banana"),
+            Quantity.Of(Amount.From(3), null));
 
         var json = JsonSerializer.Serialize(original, JsonOptions);
         var deserialized = JsonSerializer.Deserialize<ShoppingItemBought>(json, JsonOptions)!;
 
         deserialized.ItemName.Value.Should().Be("Banana");
-        deserialized.Quantity.Value.Should().Be(3);
-        deserialized.Unit.Should().BeNull();
+        deserialized.Quantity.Amount.Value.Should().Be(3);
+        deserialized.Quantity.Unit.Should().BeNull();
     }
 
     [Fact]
     public void ShoppingItemRemoved_RoundTrip_PreservesReason()
     {
-        var original = new ShoppingItemRemoved(ItemName.From("Milk"), Amount.From(1), Unit.From("L"), RemovalReason.From("spoiled"));
+        var original = new ShoppingItemRemoved(
+            ItemName.From("Milk"),
+            Quantity.Of(Amount.From(1), Unit.From("L")),
+            RemovalReason.From("spoiled"));
 
         var json = JsonSerializer.Serialize(original, JsonOptions);
         var deserialized = JsonSerializer.Deserialize<ShoppingItemRemoved>(json, JsonOptions)!;
@@ -89,12 +88,15 @@ public class EventSerializationTests
     [Fact]
     public void ShoppingItemQuantityAdjusted_RoundTrip()
     {
-        var original = new ShoppingItemQuantityAdjusted(ItemName.From("Rice"), Amount.From(1.5m), Unit.From("kg"));
+        var original = new ShoppingItemQuantityAdjusted(
+            ItemName.From("Rice"),
+            Quantity.Of(Amount.From(1.5m), Unit.From("kg")));
 
         var json = JsonSerializer.Serialize(original, JsonOptions);
         var deserialized = JsonSerializer.Deserialize<ShoppingItemQuantityAdjusted>(json, JsonOptions)!;
 
-        deserialized.NewQuantity.Value.Should().Be(1.5m);
+        deserialized.NewQuantity.Amount.Value.Should().Be(1.5m);
+        deserialized.NewQuantity.Unit!.Value.Should().Be("kg");
     }
 
     [Fact]
