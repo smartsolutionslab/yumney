@@ -15,7 +15,6 @@ public sealed partial class UpdateUserProfileCommandHandler(
     {
         var (defaultServings, dietaryTypeValue, restrictionValues, minVeggieMeals, maxRedMeatMeals, cookingEffortValue) = command;
 
-
         var keycloakId = KeycloakUserId.From(currentUser.UserId);
         var profile = await profiles.GetByKeycloakUserIdAsync(keycloakId, cancellationToken);
 

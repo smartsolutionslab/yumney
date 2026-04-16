@@ -147,6 +147,8 @@ export class MergedListComponent {
   }
 
   private copyToClipboard(text: string): void {
-    navigator.clipboard.writeText(text).catch(() => {});
+    navigator.clipboard.writeText(text).catch(() => {
+      this.error.set(this.transloco.translate('shopping.errors.exportFailed'));
+    });
   }
 }
