@@ -147,6 +147,6 @@ export class MergedListComponent {
   }
 
   private copyToClipboard(text: string): void {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).catch(() => {});
   }
 }
