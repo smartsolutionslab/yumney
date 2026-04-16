@@ -1,5 +1,6 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shopping.Application.Common;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
@@ -17,17 +18,11 @@ public sealed class RemoveShoppingItemCommandHandler(
         var ledger = await eventStore.LoadAsync(ownerId, cancellationToken);
         if (ledger is null) return Result.Success();
 
-        var quantity = explicitQuantity ?? ResolveDefaultQuantity(itemName.Value);
+        var quantity = explicitQuantity ?? DefaultQuantityResolver.Resolve(itemName.Value);
         ledger.RemoveItem(itemName, quantity, reason);
 
         await eventStore.SaveAsync(ledger, cancellationToken);
 
         return Result.Success();
-    }
-
-    private static Quantity ResolveDefaultQuantity(string itemName)
-    {
-        var defaultQty = DefaultQuantityResolver.Resolve(itemName);
-        return Quantity.Of(Amount.From(defaultQty.Amount), Unit.FromNullable(defaultQty.Unit));
     }
 }

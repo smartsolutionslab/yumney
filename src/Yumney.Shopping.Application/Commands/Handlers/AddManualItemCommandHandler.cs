@@ -1,5 +1,6 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shopping.Application.Common;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -16,7 +17,7 @@ public sealed class AddManualItemCommandHandler(
         var name = itemName.Value;
         var ownerId = OwnerIdentifier.From(currentUser.UserId);
 
-        var quantity = explicitQuantity ?? ResolveDefaultQuantity(name);
+        var quantity = explicitQuantity ?? DefaultQuantityResolver.Resolve(name);
         var category = IngredientCategoryResolver.Resolve(name) ?? IngredientCategory.Other;
 
         var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
@@ -33,11 +34,5 @@ public sealed class AddManualItemCommandHandler(
             category.Value,
             ItemSource.Manual.Value,
             ledger.Identifier);
-    }
-
-    private static Quantity ResolveDefaultQuantity(string itemName)
-    {
-        var defaultQty = DefaultQuantityResolver.Resolve(itemName);
-        return Quantity.Of(Amount.From(defaultQty.Amount), Unit.FromNullable(defaultQty.Unit));
     }
 }
