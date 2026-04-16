@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
@@ -149,7 +150,7 @@ public static class ShoppingEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest);
 
         static async Task<IResult> RemoveItem(
-            RemoveItemRequest request,
+            [FromBody] RemoveItemRequest request,
             IValidator<RemoveItemRequest> validator,
             ICommandHandler<RemoveShoppingItemCommand, Result> handler,
             CancellationToken cancellationToken)
