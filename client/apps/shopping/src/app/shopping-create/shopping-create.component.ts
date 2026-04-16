@@ -101,7 +101,7 @@ export class ShoppingCreateComponent implements OnInit {
         recipeIdentifier: recipe.identifier,
       }),
       ERROR_MAPS.shopping.create,
-      (result) => this.router.navigate([ROUTES.shopping.list, result.identifier]),
+      (result) => this.router.navigateByUrl(ROUTES.shopping.detail(result.identifier)),
       (error) => this.serverError.set(error),
     );
   }

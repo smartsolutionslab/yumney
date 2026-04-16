@@ -187,12 +187,12 @@ describe('ShoppingCreateComponent', () => {
     tick();
 
     const router = TestBed.inject(Router);
-    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
     component.onCreateShoppingList();
     tick();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/shopping', 'list-123']);
+    expect(navigateSpy).toHaveBeenCalledWith('/shopping/lists/list-123');
     navigateSpy.mockRestore();
   }));
 

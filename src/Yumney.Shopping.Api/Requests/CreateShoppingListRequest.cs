@@ -6,7 +6,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 public sealed record CreateShoppingListRequest(
     string Title,
     List<ShoppingListItem> Items,
-    Guid? RecipeReference = null)
+    Guid? RecipeIdentifier = null)
 {
     public (ShoppingListTitle Title, IReadOnlyList<CommandItem> Items, RecipeReference? RecipeReference) ToValueObjects() =>
     (
@@ -17,5 +17,5 @@ public sealed record CreateShoppingListRequest(
                 Amount.FromNullable(i.Amount),
                 Unit.FromNullable(i.Unit))))
             .ToList(),
-        Domain.ShoppingList.RecipeReference.FromNullable(RecipeReference));
+        Domain.ShoppingList.RecipeReference.FromNullable(RecipeIdentifier));
 }
