@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SmartSolutionsLab.Yumney.MealPlan.Api.Requests;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
@@ -145,7 +146,7 @@ public static class MealPlanEndpoints
         static async Task<IResult> ClearSlot(
             int year,
             int weekNumber,
-            ClearSlotRequest request,
+            [FromBody] ClearSlotRequest request,
             ICommandHandler<ClearMealSlotCommand, Result<WeeklyPlanDto>> handler,
             CancellationToken cancellationToken)
         {
