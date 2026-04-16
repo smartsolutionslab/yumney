@@ -5,6 +5,5 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 
 public sealed record ShoppingItemRemoved(
     ItemName ItemName,
-    Amount Quantity,
-    Unit? Unit,
+    Quantity Quantity,
     RemovalReason? Reason) : DomainEvent;

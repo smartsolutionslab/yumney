@@ -10,10 +10,7 @@ public class ShoppingItemStateTests
     [Fact]
     public void AtHome_BoughtMinusConsumedAndRemoved()
     {
-        var state = CreateState();
-        state.Bought = A(10);
-        state.Consumed = A(3);
-        state.Removed = A(2);
+        var state = CreateState() with { Bought = A(10), Consumed = A(3), Removed = A(2) };
 
         state.AtHome.Value.Should().Be(5);
     }
@@ -21,10 +18,7 @@ public class ShoppingItemStateTests
     [Fact]
     public void AtHome_NeverNegative()
     {
-        var state = CreateState();
-        state.Bought = A(1);
-        state.Consumed = A(5);
-        state.Removed = A(3);
+        var state = CreateState() with { Bought = A(1), Consumed = A(5), Removed = A(3) };
 
         state.AtHome.Value.Should().Be(0);
     }
@@ -40,9 +34,7 @@ public class ShoppingItemStateTests
     [Fact]
     public void Remaining_OnListMinusBought()
     {
-        var state = CreateState();
-        state.OnList = A(5);
-        state.Bought = A(2);
+        var state = CreateState() with { OnList = A(5), Bought = A(2) };
 
         state.Remaining.Should().Be(3);
     }
@@ -50,9 +42,7 @@ public class ShoppingItemStateTests
     [Fact]
     public void Remaining_CanBeNegative_WhenOverbought()
     {
-        var state = CreateState();
-        state.OnList = A(2);
-        state.Bought = A(5);
+        var state = CreateState() with { OnList = A(2), Bought = A(5) };
 
         state.Remaining.Should().Be(-3);
     }
@@ -60,8 +50,7 @@ public class ShoppingItemStateTests
     [Fact]
     public void IsBought_True_WhenBoughtPositive()
     {
-        var state = CreateState();
-        state.Bought = A(1);
+        var state = CreateState() with { Bought = A(1) };
 
         state.IsBought.Should().BeTrue();
     }

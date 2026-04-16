@@ -21,11 +21,11 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
     public async Task HandleAsync(ShoppingItemAddedIntegrationEvent @event, CancellationToken cancellationToken = default)
     {
         var inner = @event.Inner;
-        var readItem = await FindOrCreateAsync(@event.OwnerId, inner.ItemName, inner.Unit?.Value, cancellationToken);
-        readItem.TotalQuantity += inner.Quantity;
+        var readItem = await FindOrCreateAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, cancellationToken);
+        readItem.TotalQuantity += inner.Quantity.Amount;
         readItem.LastUpdated = DateTime.UtcNow;
 
-        AppendSource(readItem, inner.Quantity, inner.Source);
+        AppendSource(readItem, inner.Quantity.Amount, inner.Source);
 
         await context.SaveChangesAsync(cancellationToken);
     }
@@ -34,7 +34,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
     public async Task HandleAsync(ShoppingItemBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
     {
         var inner = @event.Inner;
-        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Unit?.Value, cancellationToken);
+        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, cancellationToken);
         if (readItem is null) return;
 
         readItem.IsBought = true;
@@ -48,7 +48,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
     public async Task HandleAsync(ShoppingItemConsumedIntegrationEvent @event, CancellationToken cancellationToken = default)
     {
         var inner = @event.Inner;
-        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Unit?.Value, cancellationToken);
+        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, cancellationToken);
         if (readItem is null) return;
 
         readItem.LastUpdated = DateTime.UtcNow;
@@ -59,10 +59,10 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
     public async Task HandleAsync(ShoppingItemRemovedIntegrationEvent @event, CancellationToken cancellationToken = default)
     {
         var inner = @event.Inner;
-        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Unit?.Value, cancellationToken);
+        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, cancellationToken);
         if (readItem is null) return;
 
-        readItem.TotalQuantity = Math.Max(0, readItem.TotalQuantity - inner.Quantity);
+        readItem.TotalQuantity = Math.Max(0, readItem.TotalQuantity - inner.Quantity.Amount);
         readItem.LastUpdated = DateTime.UtcNow;
 
         if (readItem.TotalQuantity <= 0)
@@ -75,10 +75,10 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
     public async Task HandleAsync(ShoppingItemQuantityAdjustedIntegrationEvent @event, CancellationToken cancellationToken = default)
     {
         var inner = @event.Inner;
-        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Unit?.Value, cancellationToken);
+        var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.NewQuantity.Unit?.Value, cancellationToken);
         if (readItem is null) return;
 
-        readItem.TotalQuantity = inner.NewQuantity;
+        readItem.TotalQuantity = inner.NewQuantity.Amount;
         readItem.LastUpdated = DateTime.UtcNow;
 
         await context.SaveChangesAsync(cancellationToken);

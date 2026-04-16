@@ -5,6 +5,5 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 
 public sealed record ShoppingItemConsumed(
     ItemName ItemName,
-    Amount Quantity,
-    Unit? Unit,
+    Quantity Quantity,
     ItemSource Source) : DomainEvent;

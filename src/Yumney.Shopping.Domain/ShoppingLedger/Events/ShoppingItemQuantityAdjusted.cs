@@ -5,5 +5,4 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 
 public sealed record ShoppingItemQuantityAdjusted(
     ItemName ItemName,
-    Amount NewQuantity,
-    Unit? Unit) : DomainEvent;
+    Quantity NewQuantity) : DomainEvent;
