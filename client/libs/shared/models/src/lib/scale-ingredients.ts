@@ -16,7 +16,7 @@ export function scaleIngredients(
   originalServings: number,
   desiredServings: number,
 ): ScalableIngredient[] {
-  if (originalServings === desiredServings) {
+  if (originalServings <= 0 || originalServings === desiredServings) {
     return ingredients;
   }
   const ratio = desiredServings / originalServings;

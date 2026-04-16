@@ -106,25 +106,3 @@
   font-size: var(--yn-text-sm);
 }
 
-.loading,
-.error {
-  text-align: center;
-  padding: var(--yn-space-7);
-}
-
-.error {
-  color: var(--yn-danger);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--yn-space-3);
-}
-
-.retry-btn {
-  padding: var(--yn-space-2) var(--yn-space-4);
-  border: 1px solid var(--yn-danger);
-  border-radius: var(--yn-radius-button);
-  background: none;
-  color: var(--yn-danger);
-  cursor: pointer;
-}
