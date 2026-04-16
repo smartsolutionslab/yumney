@@ -6,10 +6,7 @@ public static class EnumExtensions
     public static TEnum? ParseNullable<TEnum>(this TEnum _, string? value)
         where TEnum : struct, Enum
     {
-        if (!value.HasValue())
-        {
-            return null;
-        }
+        if (!value.HasValue()) return null;
 
         return Enum.TryParse<TEnum>(value, ignoreCase: true, out var result) ? result : null;
     }
