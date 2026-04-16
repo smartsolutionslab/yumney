@@ -1,7 +1,6 @@
 using System.Globalization;
 using Aspire.Hosting.Azure;
 using Azure.Provisioning.AppContainers;
-using Scalar.Aspire;
 using SmartSolutionsLab.Yumney.AppHost;
 using SmartSolutionsLab.Yumney.AppHost.Options;
 
@@ -174,21 +173,6 @@ if (!options.DatabaseOnly)
 
     if (isRunMode)
     {
-        if (!options.E2ETests)
-        {
-            var keycloakRealmUrl = "http://localhost:8080/realms/yumney";
-            builder.AddScalarApiReference("scalar", scalarOptions => scalarOptions
-                    .WithTheme(ScalarTheme.Mars)
-                    .AddAuthorizationCodeFlow("keycloak", flow => flow
-                        .WithClientId("yumney-web")
-                        .WithAuthorizationUrl($"{keycloakRealmUrl}/protocol/openid-connect/auth")
-                        .WithTokenUrl($"{keycloakRealmUrl}/protocol/openid-connect/token")
-                        .WithSelectedScopes(["openid", "profile"])))
-                .WithApiReference(recipesApi)
-                .WithApiReference(shoppingApi)
-                .WithApiReference(usersApi);
-        }
-
         var addMfe = (string name, string script, int port) =>
             builder.AddJavaScriptApp(name, "../../client", script)
                 .WithYarn()

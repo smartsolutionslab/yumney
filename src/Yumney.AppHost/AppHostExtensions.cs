@@ -21,7 +21,8 @@ internal static class AppHostExtensions
             .WaitFor(keycloak)
             .WaitFor(migrationRunner)
             .WaitFor(redis)
-            .WaitFor(messaging);
+            .WaitFor(messaging)
+            .WithUrl("/scalar/v1", "Scalar");
     }
 
     public static IResourceBuilder<ProjectResource> WithLlmProvider(
