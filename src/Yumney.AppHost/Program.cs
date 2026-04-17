@@ -113,7 +113,10 @@ if (!options.DatabaseOnly)
     var mealplanApi = builder
         .AddProject<Projects.Yumney_MealPlan_Api>("mealplan-api")
         .WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
-        .AsYumneyApi(mealplanDb, keycloak, redis, messaging, migrationRunner);
+        .AsYumneyApi(mealplanDb, keycloak, redis, messaging, migrationRunner)
+        .WithReference(recipesApi)
+        .WithReference(shoppingApi)
+        .WithReference(usersApi);
 
     // ── Container Registry (GHCR for CI/CD) ──
 #pragma warning disable ASPIRECOMPUTE003
