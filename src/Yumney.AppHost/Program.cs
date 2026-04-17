@@ -209,7 +209,7 @@ if (!options.DatabaseOnly)
             .WithReference(keycloak)
             .WaitFor(keycloak);
     }
-    else
+    else if (!isRunMode)
     {
         var frontend = builder
             .AddDockerfile("yumney-frontend", "../../client", "docker/Dockerfile")
