@@ -16,7 +16,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { RecipeApiService, RecipeListItem, GetRecipesParams } from '@yumney/shared/api-client';
+import {
+  RecipeApiService,
+  MealPlanApiService,
+  RecipeListItem,
+  GetRecipesParams,
+} from '@yumney/shared/api-client';
 import {
   createAsyncState,
   ERROR_MAPS,
@@ -24,7 +29,7 @@ import {
   UI,
   toggleFavoriteInList,
 } from '@yumney/shared/models';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   EMPTY_FILTER,
   FilterPanelComponent,
@@ -80,10 +85,17 @@ export class RecipeListComponent implements OnInit {
   ];
 
   private recipeApi = inject(RecipeApiService);
+  private mealPlanApi = inject(MealPlanApiService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private asyncState = createAsyncState(this.destroyRef);
   private searchSubject = new Subject<string>();
   private loadRequestId = 0;
+
+  assignTo = signal<string | null>(null);
+  assignMode = computed(() => this.assignTo() !== null);
+  assigning = signal(false);
 
   private sortDropdown = viewChild<ElementRef>('sortDropdown');
   private recipeCards = viewChildren<ElementRef>('recipeCard');
@@ -156,6 +168,7 @@ export class RecipeListComponent implements OnInit {
   readonly sortOptions = RecipeListComponent.sortOptionList;
 
   ngOnInit(): void {
+    this.assignTo.set(this.route.snapshot.queryParamMap.get('assignTo'));
     this.loadRecipes(false);
 
     this.searchSubject
@@ -219,6 +232,33 @@ export class RecipeListComponent implements OnInit {
     toggleFavoriteInList(this.recipes, identifier, this.destroyRef, (id) =>
       this.recipeApi.toggleFavorite(id),
     );
+  }
+
+  onAssignRecipe(recipe: RecipeListItem): void {
+    const raw = this.assignTo();
+    if (!raw) return;
+
+    const match = raw.match(/^(\d{4})-W(\d{1,2})-(\w+)$/);
+    if (!match) return;
+
+    const [, yearStr, weekStr, day] = match;
+    this.assigning.set(true);
+
+    this.mealPlanApi
+      .assignRecipe(Number(yearStr), Number(weekStr), {
+        day,
+        recipeIdentifier: recipe.identifier,
+        recipeTitle: recipe.title,
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.router.navigate([ROUTES.mealPlanner]),
+        error: () => this.assigning.set(false),
+      });
+  }
+
+  onCancelAssign(): void {
+    this.router.navigate([ROUTES.mealPlanner]);
   }
 
   onFilterChange(value: RecipeFilterValue): void {
