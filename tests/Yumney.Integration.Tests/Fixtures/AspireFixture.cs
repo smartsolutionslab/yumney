@@ -24,7 +24,7 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 /// </summary>
 public sealed class AspireFixture : IAsyncLifetime
 {
-    private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(8);
 
     public static async Task CleanupAsync<TContext>(
         Func<Task<TContext>> contextFactory,
@@ -76,23 +76,20 @@ public sealed class AspireFixture : IAsyncLifetime
 
         try
         {
-            Console.WriteLine("[AspireFixture] Starting AppHost...");
             await app.StartAsync(cts.Token);
-            Console.WriteLine("[AspireFixture] AppHost started, waiting for APIs...");
 
             var apis = new[] { "recipes-api", "shopping-api", "users-api", "mealplan-api" };
             foreach (var api in apis)
             {
-                Console.WriteLine($"[AspireFixture] Waiting for {api}...");
                 await app.ResourceNotifications.WaitForResourceAsync(api, KnownResourceStates.Running, cts.Token);
-                Console.WriteLine($"[AspireFixture] {api} is running.");
             }
         }
-        catch (OperationCanceledException) when (cts.IsCancellationRequested)
+        catch (Exception ex) when (ex is OperationCanceledException or TaskCanceledException)
         {
             throw new TimeoutException(
                 $"Aspire AppHost did not start within {StartupTimeout.TotalMinutes} minutes. " +
-                "Check for port conflicts (docker ps) or stale containers.");
+                $"Check for port conflicts (docker ps) or stale containers. Inner: {ex.Message}",
+                ex);
         }
 
         RecipesApi = app.CreateHttpClient("recipes-api");
