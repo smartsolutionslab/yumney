@@ -78,6 +78,9 @@ public sealed class AspireFixture : IAsyncLifetime
         {
             await app.StartAsync(cts.Token);
 
+            await app.ResourceNotifications.WaitForResourceAsync(
+                "yumney-migrations", KnownResourceStates.Finished, cts.Token);
+
             var apis = new[] { "recipes-api", "shopping-api", "users-api", "mealplan-api" };
             foreach (var api in apis)
             {
