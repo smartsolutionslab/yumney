@@ -24,7 +24,7 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 /// </summary>
 public sealed class AspireFixture : IAsyncLifetime
 {
-    private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(3);
+    private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(5);
 
     public static async Task CleanupAsync<TContext>(
         Func<Task<TContext>> contextFactory,
@@ -55,6 +55,8 @@ public sealed class AspireFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        await CleanupStaleContainersAsync();
+
         var builder = await DistributedApplicationTestingBuilder
             .CreateAsync<Projects.Yumney_AppHost>(
             [
@@ -71,12 +73,27 @@ public sealed class AspireFixture : IAsyncLifetime
         app = await builder.BuildAsync();
 
         using var cts = new CancellationTokenSource(StartupTimeout);
-        await app.StartAsync(cts.Token);
 
-        await app.ResourceNotifications.WaitForResourceAsync("recipes-api", KnownResourceStates.Running, cts.Token);
-        await app.ResourceNotifications.WaitForResourceAsync("shopping-api", KnownResourceStates.Running, cts.Token);
-        await app.ResourceNotifications.WaitForResourceAsync("users-api", KnownResourceStates.Running, cts.Token);
-        await app.ResourceNotifications.WaitForResourceAsync("mealplan-api", KnownResourceStates.Running, cts.Token);
+        try
+        {
+            Console.WriteLine("[AspireFixture] Starting AppHost...");
+            await app.StartAsync(cts.Token);
+            Console.WriteLine("[AspireFixture] AppHost started, waiting for APIs...");
+
+            var apis = new[] { "recipes-api", "shopping-api", "users-api", "mealplan-api" };
+            foreach (var api in apis)
+            {
+                Console.WriteLine($"[AspireFixture] Waiting for {api}...");
+                await app.ResourceNotifications.WaitForResourceAsync(api, KnownResourceStates.Running, cts.Token);
+                Console.WriteLine($"[AspireFixture] {api} is running.");
+            }
+        }
+        catch (OperationCanceledException) when (cts.IsCancellationRequested)
+        {
+            throw new TimeoutException(
+                $"Aspire AppHost did not start within {StartupTimeout.TotalMinutes} minutes. " +
+                "Check for port conflicts (docker ps) or stale containers.");
+        }
 
         RecipesApi = app.CreateHttpClient("recipes-api");
         ShoppingApi = app.CreateHttpClient("shopping-api");
@@ -163,5 +180,46 @@ public sealed class AspireFixture : IAsyncLifetime
         var client = App.CreateHttpClient(resourceName);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         return client;
+    }
+
+    private static async Task CleanupStaleContainersAsync()
+    {
+        try
+        {
+            var process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "docker",
+                Arguments = "ps -aq --filter label=com.microsoft.developer.usvc-dev.build",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            });
+
+            if (process is null) return;
+
+            var output = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            var ids = output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (ids.Length == 0) return;
+
+            var rmProcess = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "docker",
+                Arguments = $"rm -f {string.Join(' ', ids)}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            });
+
+            if (rmProcess is not null)
+                await rmProcess.WaitForExitAsync();
+        }
+        catch
+        {
+            // Docker not available — safe to ignore
+        }
     }
 }

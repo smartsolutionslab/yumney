@@ -80,7 +80,8 @@ if (!options.DatabaseOnly)
             .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp")
             .WithLifetime(ContainerLifetime.Persistent);
     }
-    else
+
+    if (!isRunMode)
     {
         var keycloakDbHost = builder.AddParameter("KeycloakDbHost");
         keycloak
@@ -180,7 +181,7 @@ if (!options.DatabaseOnly)
     mealplanApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
     migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
-    if (isRunMode)
+    if (isRunMode && !options.E2ETests)
     {
         var addMfe = (string name, string script, int port) =>
             builder.AddJavaScriptApp(name, "../../client", script)
