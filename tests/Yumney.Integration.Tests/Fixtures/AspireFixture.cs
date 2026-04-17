@@ -79,12 +79,33 @@ public sealed class AspireFixture : IAsyncLifetime
             await app.StartAsync(cts.Token);
 
             await app.ResourceNotifications.WaitForResourceAsync(
+                "keycloak", KnownResourceStates.Running, cts.Token);
+            await app.ResourceNotifications.WaitForResourceAsync(
                 "yumney-migrations", KnownResourceStates.Finished, cts.Token);
 
             var apis = new[] { "recipes-api", "shopping-api", "users-api", "mealplan-api" };
             foreach (var api in apis)
             {
                 await app.ResourceNotifications.WaitForResourceAsync(api, KnownResourceStates.Running, cts.Token);
+            }
+
+            // Keycloak realm import may still be in progress after container is Running.
+            // Verify the token endpoint is reachable before proceeding.
+            var keycloakClient = app.CreateHttpClient("keycloak");
+            for (var i = 0; i < 30; i++)
+            {
+                try
+                {
+                    var probe = await keycloakClient.GetAsync(
+                        "/realms/yumney/.well-known/openid-configuration", cts.Token);
+                    if (probe.IsSuccessStatusCode) break;
+                }
+                catch
+                {
+                    // Not ready yet
+                }
+
+                await Task.Delay(1000, cts.Token);
             }
         }
         catch (Exception ex) when (ex is OperationCanceledException or TaskCanceledException)
