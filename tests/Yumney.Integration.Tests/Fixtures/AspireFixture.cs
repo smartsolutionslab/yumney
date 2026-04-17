@@ -1,3 +1,6 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
@@ -138,5 +141,27 @@ public sealed class AspireFixture : IAsyncLifetime
         await using var context = await CreateUsersDbContextAsync();
         context.AppUserProfiles.AddRange(profiles);
         await context.SaveChangesAsync();
+    }
+
+    public async Task<HttpClient> CreateAuthenticatedClientAsync(string resourceName)
+    {
+        var keycloakClient = App.CreateHttpClient("keycloak");
+        var tokenResponse = await keycloakClient.PostAsync(
+            "/realms/yumney/protocol/openid-connect/token",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "password",
+                ["client_id"] = "yumney-web",
+                ["username"] = "testuser",
+                ["password"] = "Test1234",
+            }));
+
+        tokenResponse.EnsureSuccessStatusCode();
+        var tokenJson = await tokenResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var accessToken = tokenJson.GetProperty("access_token").GetString()!;
+
+        var client = App.CreateHttpClient(resourceName);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        return client;
     }
 }
