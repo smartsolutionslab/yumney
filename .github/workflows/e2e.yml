@@ -79,58 +79,19 @@ jobs:
 
       - name: Start Aspire AppHost
         run: |
-          # Start Aspire detached (--no-build since we already built, --detach returns after startup)
-          aspire run \
-            --project src/Yumney.AppHost/Yumney.AppHost.csproj \
-            --no-build \
-            --detach \
-            --non-interactive \
-            --log-level Information \
-            > /tmp/aspire.log 2>&1 || true
-          echo "Aspire detach completed"
-          cat /tmp/aspire.log
+          aspire start --apphost src/Yumney.AppHost/Yumney.AppHost.csproj 2>&1 | tee /tmp/aspire.log
 
       - name: Wait for services to be ready
         run: |
-          # Wait up to 10 minutes for Gateway (Docker images may need to pull)
-          echo "Waiting for Gateway (port 5100)..."
-          GATEWAY_READY=false
-          for i in $(seq 1 120); do
-            if curl -sf http://localhost:5100/health > /dev/null 2>&1; then
-              echo "Gateway is ready after $((i * 5))s!"
-              GATEWAY_READY=true
-              break
-            fi
-            # Show Aspire log tail every 30s for debugging
-            if [ $((i % 6)) -eq 0 ]; then
-              echo "--- Aspire log (last 5 lines) at $((i * 5))s ---"
-              tail -5 /tmp/aspire.log 2>/dev/null || true
-            fi
-            sleep 5
-          done
-
-          if [ "$GATEWAY_READY" = false ]; then
-            echo "::warning::Gateway did not become ready within 10 minutes"
-            echo "--- Full Aspire log ---"
-            cat /tmp/aspire.log 2>/dev/null || true
-          fi
-
-          # Wait up to 5 minutes for Frontend
-          echo "Waiting for Frontend (port 4200)..."
-          for i in $(seq 1 60); do
-            if curl -sf http://localhost:4200 > /dev/null 2>&1; then
-              echo "Frontend is ready after $((i * 5))s!"
-              break
-            fi
-            if [ $i -eq 60 ]; then
-              echo "::warning::Frontend did not become ready within 5 minutes"
-            fi
-            sleep 5
-          done
+          echo "Waiting for Gateway..."
+          aspire wait yumney-gateway --timeout 600 2>&1 || true
+          echo "Waiting for Frontend shell..."
+          aspire wait shell --timeout 300 2>&1 || true
+          aspire describe 2>&1
 
       - name: Run backend integration tests
         continue-on-error: true
-        run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj --no-build
+        run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj
 
       - name: Run Playwright e2e tests
         continue-on-error: true
