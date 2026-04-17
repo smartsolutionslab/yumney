@@ -14,14 +14,11 @@ internal static class AppHostExtensions
     {
         return api
             .WithHttpEndpoint()
-            .WithReference(keycloak)
             .WithReference(database)
+            .WaitFor(migrationRunner)
+            .WithReference(keycloak)
             .WithReference(redis)
             .WithReference(messaging)
-            .WaitFor(keycloak)
-            .WaitFor(migrationRunner)
-            .WaitFor(redis)
-            .WaitFor(messaging)
             .WithUrl("/scalar/v1", "Scalar");
     }
 
