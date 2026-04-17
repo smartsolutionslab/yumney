@@ -9,6 +9,7 @@ public static class UsersEndpoints
         app.MapAuthEndpoints();
         app.MapUserActivityEndpoints();
         app.MapProfileEndpoints();
+        app.MapStaplesEndpoints();
 
         return app;
     }
