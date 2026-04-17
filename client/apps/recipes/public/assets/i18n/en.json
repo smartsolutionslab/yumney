@@ -22,6 +22,8 @@
   "recipes": {
     "list": {
       "title": "My Recipes",
+      "assignTitle": "Select a recipe",
+      "assign": "Assign to meal plan",
       "sortLabel": "Sort recipes",
       "sort": {
         "dateDesc": "Newest first",

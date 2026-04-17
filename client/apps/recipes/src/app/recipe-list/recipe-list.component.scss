@@ -20,6 +20,26 @@
   }
 }
 
+.assign-header {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-3);
+
+  .btn-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid var(--yn-glass-border);
+    border-radius: var(--yn-radius-circle);
+    background: var(--yn-glass-bg);
+    color: var(--yn-text);
+    cursor: pointer;
+  }
+}
+
 .sort-dropdown {
   position: relative;
 }

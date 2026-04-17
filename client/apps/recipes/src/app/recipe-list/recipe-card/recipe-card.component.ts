@@ -16,9 +16,17 @@ export class RecipeCardComponent {
   protected readonly ROUTES = ROUTES;
 
   recipe = input.required<RecipeListItem>();
+  assignMode = input(false);
   toggleFavorite = output<string>();
+  assign = output<RecipeListItem>();
 
   protected onToggleFavorite(): void {
     this.toggleFavorite.emit(this.recipe().identifier);
+  }
+
+  protected onAssign(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.assign.emit(this.recipe());
   }
 }

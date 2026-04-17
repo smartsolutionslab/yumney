@@ -1,6 +1,15 @@
 <div class="recipe-list-container" *transloco="let t">
   <div class="list-header">
-    <h1>{{ t('recipes.list.title') }}</h1>
+    @if (assignMode()) {
+      <div class="assign-header">
+        <button class="btn-back" (click)="onCancelAssign()">
+          <lucide-icon name="arrow-left" [size]="20" />
+        </button>
+        <h1>{{ t('recipes.list.assignTitle') }}</h1>
+      </div>
+    } @else {
+      <h1>{{ t('recipes.list.title') }}</h1>
+    }
     <div class="sort-dropdown" #sortDropdown>
       <button
         type="button"
@@ -98,7 +107,13 @@
   @if (recipes().length > 0) {
     <div class="recipe-grid">
       @for (recipe of recipes(); track recipe.identifier) {
-        <yn-recipe-card #recipeCard [recipe]="recipe" (toggleFavorite)="onToggleFavorite($event)" />
+        <yn-recipe-card
+          #recipeCard
+          [recipe]="recipe"
+          [assignMode]="assignMode()"
+          (toggleFavorite)="onToggleFavorite($event)"
+          (assign)="onAssignRecipe($event)"
+        />
       }
     </div>
   }
