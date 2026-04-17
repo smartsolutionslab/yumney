@@ -37,9 +37,12 @@ else
         .RunAsContainer(pg =>
         {
             pg.WithImageTag("16-alpine");
-            pg.WithDataVolume();
-            pg.WithLifetime(ContainerLifetime.Persistent);
-            if (!options.E2ETests) pg.WithPgAdmin();
+            if (!options.E2ETests)
+            {
+                pg.WithDataVolume();
+                pg.WithLifetime(ContainerLifetime.Persistent);
+                pg.WithPgAdmin();
+            }
         });
     recipesDb = postgres.AddDatabase("recipesdb");
     shoppingDb = postgres.AddDatabase("shoppingdb");
@@ -60,16 +63,16 @@ if (!options.DatabaseOnly)
         .WaitFor(usersDb)
         .WaitFor(mealplanDb);
 
-    // ── Infrastructure ── (data volumes only in dev — ACA breaks file permissions)
-    var redis = builder.AddRedis("redis", password: redisPassword).WithImageTag("alpine").WithLifetime(ContainerLifetime.Persistent);
-    var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithImageTag("4-management-alpine").WithManagementPlugin().WithLifetime(ContainerLifetime.Persistent);
-    var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword).WithLifetime(ContainerLifetime.Persistent);
+    // ── Infrastructure ── (persistent with data volumes for dev, ephemeral for E2E)
+    var redis = builder.AddRedis("redis", password: redisPassword).WithImageTag("alpine");
+    var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithImageTag("4-management-alpine").WithManagementPlugin();
+    var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
 
-    if (isRunMode)
+    if (isRunMode && !options.E2ETests)
     {
-        redis.WithDataVolume();
-        messaging.WithDataVolume();
-        keycloak.WithDataVolume();
+        redis.WithLifetime(ContainerLifetime.Persistent).WithDataVolume();
+        messaging.WithLifetime(ContainerLifetime.Persistent).WithDataVolume();
+        keycloak.WithLifetime(ContainerLifetime.Persistent).WithDataVolume();
     }
 
     keycloak.WithRealmImport("Realms");

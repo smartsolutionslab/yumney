@@ -35,21 +35,23 @@ public static class ExtractionServiceCollectionExtensions
                 break;
             case SemanticKernelOptions.ProviderOllama:
                 var ollamaEndpoint = GetOllamaEndpoint(configuration, skOptions);
-                kernelBuilder.AddOpenAIChatCompletion(modelId, new Uri(ollamaEndpoint), apiKey: null);
+                if (ollamaEndpoint is not null)
+                    kernelBuilder.AddOpenAIChatCompletion(modelId, new Uri(ollamaEndpoint), apiKey: null);
                 break;
             default:
-                kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
+                if (apiKey.HasValue())
+                    kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
                 break;
         }
 
         return services;
     }
 
-    private static string GetOllamaEndpoint(IConfiguration configuration, SemanticKernelOptions skOptions)
+    private static string? GetOllamaEndpoint(IConfiguration configuration, SemanticKernelOptions skOptions)
     {
-        return skOptions.Endpoint.HasValue()
-            ? skOptions.Endpoint
-            : configuration.GetConnectionString("ollama")
-              ?? throw new InvalidOperationException("Ollama endpoint not configured. Provide SemanticKernel:Endpoint or ConnectionStrings:ollama.");
+        if (skOptions.Endpoint.HasValue())
+            return skOptions.Endpoint;
+
+        return configuration.GetConnectionString("ollama");
     }
 }
