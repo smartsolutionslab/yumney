@@ -75,10 +75,10 @@ if (!options.DatabaseOnly)
 
     if (isRunMode && !options.E2ETests)
     {
-        var mailpit = builder.AddContainer("mailpit", "axllent/mailpit", "latest")
+        builder.AddContainer("mailpit", "axllent/mailpit", "latest")
             .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
-            .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp");
-        keycloak.WaitFor(mailpit);
+            .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp")
+            .WithLifetime(ContainerLifetime.Persistent);
     }
     else
     {
@@ -202,14 +202,7 @@ if (!options.DatabaseOnly)
             .WithReference(mealplanApi)
             .WithReference(shell)
             .WithReference(keycloak)
-            .WaitFor(recipesApi)
-            .WaitFor(shoppingApi)
-            .WaitFor(usersApi)
-            .WaitFor(mealplanApi)
-            .WaitFor(shell)
-            .WaitFor(recipesMfe)
-            .WaitFor(shoppingMfe)
-            .WaitFor(accountMfe);
+            .WaitFor(keycloak);
     }
     else
     {
