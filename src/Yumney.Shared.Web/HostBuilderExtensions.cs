@@ -163,20 +163,21 @@ public static class HostBuilderExtensions
 
         app.MapOpenApi();
 
-        // Scalar is safe to expose in all environments — the YARP gateway
-        // only routes /api/v1/*, so /scalar/v1 is unreachable from outside.
-        app.MapScalarApiReference(options =>
+        if (!app.Environment.IsProduction())
         {
-            options
-                .WithTitle("Yumney API")
-                .WithTheme(ScalarTheme.Saturn)
-                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-                .AddAuthorizationCodeFlow("keycloak", flow => flow
-                    .WithClientId(KeycloakDefaults.WebClientId)
-                    .WithAuthorizationUrl(KeycloakDefaults.AuthorizationUrl(app.Configuration))
-                    .WithTokenUrl(KeycloakDefaults.TokenUrl(app.Configuration))
-                    .WithSelectedScopes([KeycloakDefaults.ScopeOpenId, KeycloakDefaults.ScopeProfile]));
-        });
+            app.MapScalarApiReference(options =>
+            {
+                options
+                    .WithTitle("Yumney API")
+                    .WithTheme(ScalarTheme.Saturn)
+                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                    .AddAuthorizationCodeFlow("keycloak", flow => flow
+                        .WithClientId(KeycloakDefaults.WebClientId)
+                        .WithAuthorizationUrl(KeycloakDefaults.AuthorizationUrl(app.Configuration))
+                        .WithTokenUrl(KeycloakDefaults.TokenUrl(app.Configuration))
+                        .WithSelectedScopes([KeycloakDefaults.ScopeOpenId, KeycloakDefaults.ScopeProfile]));
+            });
+        }
 
         app.MapDefaultEndpoints();
 
