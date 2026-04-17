@@ -14,6 +14,7 @@ public static class ValidationExtensions
 
         return Results.ValidationProblem(
             result.ToDictionary(),
+            statusCode: StatusCodes.Status422UnprocessableEntity,
             extensions: BuildTraceExtensions());
     }
 
