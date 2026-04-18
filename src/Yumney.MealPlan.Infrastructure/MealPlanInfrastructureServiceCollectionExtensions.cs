@@ -30,9 +30,13 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
         services.AddScoped<IRecipeIngredientProvider, HttpRecipeIngredientProvider>();
         services.AddScoped<IShoppingListWriter, HttpShoppingListWriter>();
         services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
-        services.AddHttpClient("recipes-api", client => client.BaseAddress = new Uri("http://recipes-api"));
-        services.AddHttpClient("shopping-api", client => client.BaseAddress = new Uri("http://shopping-api"));
-        services.AddHttpClient("users-api", client => client.BaseAddress = new Uri("http://users-api"));
+        services.AddTransient<AuthTokenDelegatingHandler>();
+        services.AddHttpClient("recipes-api", client => client.BaseAddress = new Uri("http://recipes-api"))
+            .AddHttpMessageHandler<AuthTokenDelegatingHandler>();
+        services.AddHttpClient("shopping-api", client => client.BaseAddress = new Uri("http://shopping-api"))
+            .AddHttpMessageHandler<AuthTokenDelegatingHandler>();
+        services.AddHttpClient("users-api", client => client.BaseAddress = new Uri("http://users-api"))
+            .AddHttpMessageHandler<AuthTokenDelegatingHandler>();
         services.AddHealthChecks().AddDbContextCheck<MealPlanDbContext>("mealplandb");
 
         return services;
