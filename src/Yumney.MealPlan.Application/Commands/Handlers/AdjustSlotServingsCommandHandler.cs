@@ -15,7 +15,7 @@ public sealed class AdjustSlotServingsCommandHandler(IWeeklyPlanRepository plans
 
         var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 
-        plan.AdjustServings(day, SlotServings.From(servings), mealType);
+        plan.AdjustServings(day, servings, mealType);
         await plans.SaveChangesAsync(cancellationToken);
 
         return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());

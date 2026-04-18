@@ -89,7 +89,7 @@ public static class MealPlanEndpoints
         {
             var week = WeekIdentifier.From(year, weekNumber);
             var (day, mealType, servings) = request;
-            var command = new AdjustSlotServingsCommand(week, day, mealType, servings);
+            var command = new AdjustSlotServingsCommand(week, day, mealType, SlotServings.From(servings));
 
             var result = await handler.HandleAsync(command, cancellationToken);
 

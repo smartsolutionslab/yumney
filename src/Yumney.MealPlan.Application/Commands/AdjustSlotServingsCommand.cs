@@ -9,4 +9,4 @@ public sealed record AdjustSlotServingsCommand(
     WeekIdentifier Week,
     DayOfWeek Day,
     MealType MealType,
-    int Servings) : ICommand<Result<WeeklyPlanDto>>;
+    SlotServings Servings) : ICommand<Result<WeeklyPlanDto>>;

@@ -28,7 +28,7 @@ public class AdjustSlotServingsCommandHandlerTests
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
-        var command = new AdjustSlotServingsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, MealType.Dinner, 8);
+        var command = new AdjustSlotServingsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, MealType.Dinner, SlotServings.From(8));
 
         var result = await handler.HandleAsync(command);
 
@@ -43,7 +43,7 @@ public class AdjustSlotServingsCommandHandlerTests
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns<WeeklyPlan>(_ => throw new EntityNotFoundException(nameof(WeeklyPlan), "2026-W15"));
 
-        var command = new AdjustSlotServingsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, MealType.Dinner, 6);
+        var command = new AdjustSlotServingsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, MealType.Dinner, SlotServings.From(6));
 
         var act = () => handler.HandleAsync(command);
 
