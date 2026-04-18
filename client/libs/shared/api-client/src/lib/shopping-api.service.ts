@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { API_ENDPOINTS } from './api-endpoints';
 import type { CreateShoppingListRequest } from './create-shopping-list-request';
 import type { ShoppingListDetail } from './shopping-list-detail';
 import type { ShoppingListSummary } from './shopping-list-summary';
+import type { PagedResponse } from '@yumney/shared/models';
 import type {
   MergedShoppingList,
   AddItemRequest,
@@ -21,7 +22,9 @@ export class ShoppingApiService {
   }
 
   getShoppingLists(): Observable<ShoppingListSummary[]> {
-    return this.http.get<ShoppingListSummary[]>(API_ENDPOINTS.shoppingLists.base);
+    return this.http
+      .get<PagedResponse<ShoppingListSummary>>(API_ENDPOINTS.shoppingLists.base)
+      .pipe(map((response) => response.items));
   }
 
   getShoppingListById(identifier: string): Observable<ShoppingListDetail> {

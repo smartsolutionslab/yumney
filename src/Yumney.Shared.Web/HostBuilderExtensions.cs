@@ -31,6 +31,11 @@ public static class HostBuilderExtensions
         builder.AddRedisDistributedCache("redis");
         builder.AddRedisClient("redis");
 
+        builder.Services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        });
+
         builder.Services.Configure<HostOptions>(options =>
         {
             options.ShutdownTimeout = TimeSpan.FromSeconds(30);
