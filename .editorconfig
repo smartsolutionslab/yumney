@@ -33,8 +33,9 @@ dotnet_sort_system_directives_first = true
 csharp_using_directive_placement = outside_namespace
 csharp_new_line_before_open_brace = all
 
-# Braces: required, but allow single-line guard clauses (if + return/throw/continue/break)
-csharp_prefer_braces = when_multiline:warning
+# Braces: always required (guard clauses like "if (x) return;" are a documented exception in CLAUDE.md)
+# No built-in "except guard clauses" option exists — enforced via CLAUDE.md, not analyzer
+csharp_prefer_braces = true:silent
 
 # var: allowed when type is apparent, explicit type for built-in types and elsewhere
 csharp_style_var_for_built_in_types = false:suggestion
