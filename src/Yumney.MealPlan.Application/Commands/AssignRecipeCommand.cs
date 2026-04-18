@@ -10,4 +10,4 @@ public sealed record AssignRecipeCommand(
     DayOfWeek Day,
     SlotRecipeReference Recipe,
     MealType MealType = MealType.Dinner,
-    int? Servings = null) : ICommand<Result<WeeklyPlanDto>>;
+    SlotServings? Servings = null) : ICommand<Result<WeeklyPlanDto>>;

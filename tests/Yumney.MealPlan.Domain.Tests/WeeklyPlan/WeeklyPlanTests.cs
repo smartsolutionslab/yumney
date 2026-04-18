@@ -49,7 +49,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
 
-        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: 8);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: SlotServings.From(8));
 
         plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Value.Should().Be(8);
     }
@@ -490,7 +490,7 @@ public class WeeklyPlanTests
     public void SwapSlots_PreservesServings()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15), 4);
-        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: 8);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: SlotServings.From(8));
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 

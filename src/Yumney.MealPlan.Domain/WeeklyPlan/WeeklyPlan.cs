@@ -101,7 +101,7 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
     /// <param name="servings">Optional serving count override.</param>
     /// <returns></returns>
-    public WeeklyPlan AssignRecipe(DayOfWeek day, SlotRecipeReference recipe, MealType mealType = MealType.Dinner, int? servings = null)
+    public WeeklyPlan AssignRecipe(DayOfWeek day, SlotRecipeReference recipe, MealType mealType = MealType.Dinner, SlotServings? servings = null)
     {
         var slot = FindSlot(day, mealType);
         slot.AssignRecipe(recipe, servings);
@@ -132,7 +132,7 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="mealType">The meal type of this slot (defaults to Dinner).</param>
     /// <param name="servings">Optional serving count.</param>
     /// <returns></returns>
-    public WeeklyPlan SetLeftover(DayOfWeek day, DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, MealType mealType = MealType.Dinner, int? servings = null)
+    public WeeklyPlan SetLeftover(DayOfWeek day, DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, MealType mealType = MealType.Dinner, SlotServings? servings = null)
     {
         Ensure.That(sourceRecipeTitle).IsNotNullOrWhiteSpace();
         var slot = FindSlot(day, mealType);

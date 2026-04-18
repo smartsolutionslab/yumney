@@ -46,7 +46,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         };
     }
 
-    internal MealSlot AssignRecipe(SlotRecipeReference recipe, int? servings = null)
+    internal MealSlot AssignRecipe(SlotRecipeReference recipe, SlotServings? servings = null)
     {
         ContentType = SlotContentType.Recipe;
         Recipe = recipe;
@@ -54,9 +54,9 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         LeftoverLabel = null;
         LeftoverSourceDay = null;
         LeftoverSourceMealType = null;
-        if (servings.HasValue)
+        if (servings is not null)
         {
-            Servings = SlotServings.From(servings.Value);
+            Servings = servings;
         }
 
         return this;
@@ -73,7 +73,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         return this;
     }
 
-    internal MealSlot SetAsLeftover(DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, int? servings = null)
+    internal MealSlot SetAsLeftover(DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, SlotServings? servings = null)
     {
         ContentType = SlotContentType.Leftover;
         LeftoverSourceDay = sourceDay;
@@ -81,9 +81,9 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         LeftoverLabel = Domain.WeeklyPlan.LeftoverLabel.ForRecipe(sourceRecipeTitle);
         Recipe = null;
         FreetextLabel = null;
-        if (servings.HasValue)
+        if (servings is not null)
         {
-            Servings = SlotServings.From(servings.Value);
+            Servings = servings;
         }
 
         return this;

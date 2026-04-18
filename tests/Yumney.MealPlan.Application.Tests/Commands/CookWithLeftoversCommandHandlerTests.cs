@@ -27,7 +27,7 @@ public class CookWithLeftoversCommandHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Bolognese"), 8, 4, DayOfWeek.Wednesday);
+        var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Bolognese"), SlotServings.From(8), SlotServings.From(4), DayOfWeek.Wednesday);
 
         var result = await handler.HandleAsync(command);
 
@@ -49,7 +49,7 @@ public class CookWithLeftoversCommandHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), 4, 4, DayOfWeek.Tuesday);
+        var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), SlotServings.From(4), SlotServings.From(4), DayOfWeek.Tuesday);
 
         var result = await handler.HandleAsync(command);
 
@@ -59,12 +59,16 @@ public class CookWithLeftoversCommandHandlerTests
     }
 
     [Fact]
-    public async Task HandleAsync_InvalidServings_ThrowsGuardException()
+    public void CreateCommand_InvalidServings_ThrowsGuardException()
     {
-        var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), 0, 0, DayOfWeek.Tuesday);
+        var act = () => new CookWithLeftoversCommand(
+            WeekIdentifier.From(2026, 15),
+            DayOfWeek.Monday,
+            SlotRecipeReference.From(Guid.NewGuid(), "Pasta"),
+            SlotServings.From(0),
+            SlotServings.From(0),
+            DayOfWeek.Tuesday);
 
-        var act = () => handler.HandleAsync(command);
-
-        await act.Should().ThrowAsync<GuardException>();
+        act.Should().Throw<GuardException>();
     }
 }
