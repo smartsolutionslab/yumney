@@ -129,7 +129,10 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
     private void OnItemAdded(ShoppingItemAdded e)
     {
         UpdateItem(e.ItemName, e.Quantity.Unit, s => s with { OnList = Amount.From(s.OnList + e.Quantity.Amount) });
-        if (IsInShoppingMode) PendingChangesCount++;
+        if (IsInShoppingMode)
+        {
+            PendingChangesCount++;
+        }
     }
 
     private void OnItemBought(ShoppingItemBought e) =>
@@ -141,13 +144,19 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
     private void OnItemRemoved(ShoppingItemRemoved e)
     {
         UpdateItem(e.ItemName, e.Quantity.Unit, s => s with { Removed = Amount.From(s.Removed + e.Quantity.Amount) });
-        if (IsInShoppingMode) PendingChangesCount++;
+        if (IsInShoppingMode)
+        {
+            PendingChangesCount++;
+        }
     }
 
     private void OnQuantityAdjusted(ShoppingItemQuantityAdjusted e)
     {
         UpdateItem(e.ItemName, e.NewQuantity.Unit, s => s with { OnList = e.NewQuantity.Amount });
-        if (IsInShoppingMode) PendingChangesCount++;
+        if (IsInShoppingMode)
+        {
+            PendingChangesCount++;
+        }
     }
 
     private void OnUndoBought(ShoppingItemUndoBought e) =>
