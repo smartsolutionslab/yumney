@@ -81,7 +81,7 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         return recipe;
     }
 
-    public void Update(
+    public Recipe Update(
         RecipeTitle title,
         IReadOnlyList<Ingredient> ingredients,
         IReadOnlyList<Step> steps,
@@ -112,10 +112,12 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
         if (tags is not null) this.tags.AddRange(tags);
 
         AddDomainEvent(new RecipeUpdatedEvent(Id, title));
+        return this;
     }
 
-    public void MarkAsDeleted()
+    public Recipe MarkAsDeleted()
     {
         AddDomainEvent(new RecipeDeletedEvent(Id, Title, Owner));
+        return this;
     }
 }

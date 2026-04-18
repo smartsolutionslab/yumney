@@ -25,13 +25,15 @@ public sealed class ShoppingListItem : Entity<ShoppingListItemIdentifier>
         };
     }
 
-    public void Check()
+    public ShoppingListItem Check()
     {
         IsChecked = true;
+        return this;
     }
 
-    public void Uncheck()
+    public ShoppingListItem Uncheck()
     {
         IsChecked = false;
+        return this;
     }
 }

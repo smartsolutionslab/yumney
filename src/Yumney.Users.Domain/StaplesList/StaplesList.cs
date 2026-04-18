@@ -46,15 +46,17 @@ public sealed class StaplesList : AggregateRoot<StaplesListIdentifier>
         return list;
     }
 
-    public void AddItem(StapleItem item)
+    public StaplesList AddItem(StapleItem item)
     {
         if (!ContainsItem(item))
             items.Add(item);
+        return this;
     }
 
-    public void RemoveItem(StapleItem item)
+    public StaplesList RemoveItem(StapleItem item)
     {
         items.Remove(item);
+        return this;
     }
 
     public bool ContainsItem(StapleItem item) => items.Contains(item);

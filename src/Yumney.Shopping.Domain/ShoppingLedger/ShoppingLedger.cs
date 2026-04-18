@@ -70,51 +70,60 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
         return ledger;
     }
 
-    public void AddItem(ItemName itemName, Quantity quantity, ItemSource source)
+    public ShoppingLedger AddItem(ItemName itemName, Quantity quantity, ItemSource source)
     {
         RaiseEvent(new ShoppingItemAdded(itemName, quantity, source));
+        return this;
     }
 
-    public void MarkBought(ItemName itemName, Quantity quantity)
+    public ShoppingLedger MarkBought(ItemName itemName, Quantity quantity)
     {
         RaiseEvent(new ShoppingItemBought(itemName, quantity));
+        return this;
     }
 
-    public void MarkConsumed(ItemName itemName, Quantity quantity, ItemSource source)
+    public ShoppingLedger MarkConsumed(ItemName itemName, Quantity quantity, ItemSource source)
     {
         RaiseEvent(new ShoppingItemConsumed(itemName, quantity, source));
+        return this;
     }
 
-    public void RemoveItem(ItemName itemName, Quantity quantity, RemovalReason? reason = null)
+    public ShoppingLedger RemoveItem(ItemName itemName, Quantity quantity, RemovalReason? reason = null)
     {
         RaiseEvent(new ShoppingItemRemoved(itemName, quantity, reason));
+        return this;
     }
 
-    public void AdjustQuantity(ItemName itemName, Quantity newQuantity)
+    public ShoppingLedger AdjustQuantity(ItemName itemName, Quantity newQuantity)
     {
         RaiseEvent(new ShoppingItemQuantityAdjusted(itemName, newQuantity));
+        return this;
     }
 
-    public void UndoBought(ItemName itemName, Quantity quantity)
+    public ShoppingLedger UndoBought(ItemName itemName, Quantity quantity)
     {
         RaiseEvent(new ShoppingItemUndoBought(itemName, quantity));
+        return this;
     }
 
-    public void AddAsAtHome(ItemName itemName, Quantity quantity)
+    public ShoppingLedger AddAsAtHome(ItemName itemName, Quantity quantity)
     {
         RaiseEvent(new ShoppingItemAddedAsAtHome(itemName, quantity));
+        return this;
     }
 
-    public void StartShoppingMode()
+    public ShoppingLedger StartShoppingMode()
     {
-        if (IsInShoppingMode) return;
+        if (IsInShoppingMode) return this;
         RaiseEvent(new ShoppingModeStarted(DateTime.UtcNow));
+        return this;
     }
 
-    public void EndShoppingMode(bool acceptPendingChanges)
+    public ShoppingLedger EndShoppingMode(bool acceptPendingChanges)
     {
-        if (!IsInShoppingMode) return;
+        if (!IsInShoppingMode) return this;
         RaiseEvent(new ShoppingModeEnded(acceptPendingChanges));
+        return this;
     }
 
     private void OnItemAdded(ShoppingItemAdded e)
