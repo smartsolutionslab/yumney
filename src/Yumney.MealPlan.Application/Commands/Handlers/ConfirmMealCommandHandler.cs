@@ -5,9 +5,8 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
-public sealed class ConfirmMealCommandHandler(
-    IWeeklyPlanRepository plans,
-    ICurrentUser currentUser) : ICommandHandler<ConfirmMealCommand, Result<WeeklyPlanDto>>
+public sealed class ConfirmMealCommandHandler(IWeeklyPlanRepository plans, ICurrentUser currentUser)
+	: ICommandHandler<ConfirmMealCommand, Result<WeeklyPlanDto>>
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(ConfirmMealCommand command, CancellationToken cancellationToken = default)
     {

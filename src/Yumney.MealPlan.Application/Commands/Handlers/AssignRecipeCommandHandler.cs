@@ -5,9 +5,8 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
-public sealed class AssignRecipeCommandHandler(
-    IWeeklyPlanRepository plans,
-    ICurrentUser currentUser) : ICommandHandler<AssignRecipeCommand, Result<WeeklyPlanDto>>
+public sealed class AssignRecipeCommandHandler(IWeeklyPlanRepository plans, ICurrentUser currentUser)
+	: ICommandHandler<AssignRecipeCommand, Result<WeeklyPlanDto>>
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(AssignRecipeCommand command, CancellationToken cancellationToken = default)
     {

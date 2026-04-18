@@ -5,15 +5,12 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Services;
 
 public sealed class HttpStaplesProvider(IHttpClientFactory httpClientFactory) : IStaplesProvider
 {
-    public async Task<IReadOnlySet<string>> GetStapleNamesAsync(
-        string ownerId,
-        CancellationToken cancellationToken = default)
+    public async Task<IReadOnlySet<string>> GetStapleNamesAsync(string ownerId, CancellationToken cancellationToken = default)
     {
         var client = httpClientFactory.CreateClient("users-api");
-        var staples = await client.GetFromJsonAsync<List<string>>(
-            "/api/v1/users/staples",
-            cancellationToken);
+        var url = "/api/v1/users/staples";
+        List<string> staples = await client.GetFromJsonAsync<List<string>>(url, cancellationToken) ?? [];
 
-        return (staples ?? []).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return staples.ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 }

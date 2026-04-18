@@ -5,9 +5,8 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
-public sealed class ToggleExtendedModeCommandHandler(
-    IWeeklyPlanRepository plans,
-    ICurrentUser currentUser) : ICommandHandler<ToggleExtendedModeCommand, Result<WeeklyPlanDto>>
+public sealed class ToggleExtendedModeCommandHandler(IWeeklyPlanRepository plans, ICurrentUser currentUser)
+	: ICommandHandler<ToggleExtendedModeCommand, Result<WeeklyPlanDto>>
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(
         ToggleExtendedModeCommand command,
