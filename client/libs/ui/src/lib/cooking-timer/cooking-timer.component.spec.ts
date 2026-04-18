@@ -24,9 +24,7 @@ const mockTimer: CookingTimer = {
 };
 
 @Component({
-  template: `
-    <yn-cooking-timer [timer]="timer()" (cancel)="onCancel($event)" />
-  `,
+  template: ` <yn-cooking-timer [timer]="timer()" (cancel)="onCancel($event)" /> `,
   imports: [CookingTimerComponent],
 })
 class TestHostComponent {
