@@ -30,28 +30,33 @@ public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
         };
     }
 
-    public void SwitchLanguageTo(PreferredLanguage language)
+    public AppUserProfile SwitchLanguageTo(PreferredLanguage language)
     {
         PreferredLanguage = language;
+        return this;
     }
 
-    public void SwitchUnitSystemTo(PreferredUnitSystem unitSystem)
+    public AppUserProfile SwitchUnitSystemTo(PreferredUnitSystem unitSystem)
     {
         PreferredUnitSystem = unitSystem;
+        return this;
     }
 
-    public void RenameAs(DisplayName displayName)
+    public AppUserProfile RenameAs(DisplayName displayName)
     {
         DisplayName = displayName;
+        return this;
     }
 
-    public void AdjustDefaultServingsTo(DefaultServings defaultServings)
+    public AppUserProfile AdjustDefaultServingsTo(DefaultServings defaultServings)
     {
         DefaultServings = defaultServings;
+        return this;
     }
 
-    public void UpdateDietaryProfile(DietaryProfile dietaryProfile)
+    public AppUserProfile UpdateDietaryProfile(DietaryProfile dietaryProfile)
     {
         DietaryProfile = dietaryProfile;
+        return this;
     }
 }

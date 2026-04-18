@@ -46,7 +46,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         };
     }
 
-    internal void AssignRecipe(Guid recipeIdentifier, string recipeTitle, int? servings = null)
+    internal MealSlot AssignRecipe(Guid recipeIdentifier, string recipeTitle, int? servings = null)
     {
         ContentType = SlotContentType.Recipe;
         RecipeIdentifier = recipeIdentifier;
@@ -56,9 +56,10 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         LeftoverSourceMealType = null;
         if (servings.HasValue)
             Servings = servings.Value;
+        return this;
     }
 
-    internal void SetAsFreetext(string label)
+    internal MealSlot SetAsFreetext(string label)
     {
         ContentType = SlotContentType.Freetext;
         FreetextLabel = label;
@@ -66,9 +67,10 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         RecipeTitle = null;
         LeftoverSourceDay = null;
         LeftoverSourceMealType = null;
+        return this;
     }
 
-    internal void SetAsLeftover(DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, int? servings = null)
+    internal MealSlot SetAsLeftover(DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, int? servings = null)
     {
         ContentType = SlotContentType.Leftover;
         LeftoverSourceDay = sourceDay;
@@ -78,9 +80,10 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         FreetextLabel = null;
         if (servings.HasValue)
             Servings = servings.Value;
+        return this;
     }
 
-    internal void ClearSlot()
+    internal MealSlot ClearSlot()
     {
         ContentType = SlotContentType.Empty;
         RecipeIdentifier = null;
@@ -88,26 +91,31 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         FreetextLabel = null;
         LeftoverSourceDay = null;
         LeftoverSourceMealType = null;
+        return this;
     }
 
-    internal void AdjustServingsTo(int servings)
+    internal MealSlot AdjustServingsTo(int servings)
     {
         Servings = servings;
+        return this;
     }
 
-    internal void MarkAsCooked()
+    internal MealSlot MarkAsCooked()
     {
         State = MealState.Cooked;
+        return this;
     }
 
-    internal void MarkAsSkipped()
+    internal MealSlot MarkAsSkipped()
     {
         State = MealState.Skipped;
+        return this;
     }
 
-    internal void ResetToPlanned()
+    internal MealSlot ResetToPlanned()
     {
         State = MealState.Planned;
+        return this;
     }
 
     internal SlotSnapshot TakeSnapshot()
@@ -115,7 +123,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         return new SlotSnapshot(ContentType, RecipeIdentifier, RecipeTitle, Servings, FreetextLabel, LeftoverSourceDay, LeftoverSourceMealType, State);
     }
 
-    internal void RestoreFromSnapshot(SlotSnapshot snapshot)
+    internal MealSlot RestoreFromSnapshot(SlotSnapshot snapshot)
     {
         ContentType = snapshot.ContentType;
         RecipeIdentifier = snapshot.RecipeIdentifier;
@@ -125,6 +133,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         LeftoverSourceDay = snapshot.LeftoverSourceDay;
         LeftoverSourceMealType = snapshot.LeftoverSourceMealType;
         State = snapshot.State;
+        return this;
     }
 
     internal sealed record SlotSnapshot(

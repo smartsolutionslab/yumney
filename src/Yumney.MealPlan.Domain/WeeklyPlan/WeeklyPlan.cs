@@ -54,9 +54,10 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// Existing Dinner slots are preserved.
     /// </summary>
     /// <param name="defaultServings">Default servings for new slots.</param>
-    public void EnableExtendedMode(int defaultServings = 4)
+    /// <returns></returns>
+    public WeeklyPlan EnableExtendedMode(int defaultServings = 4)
     {
-        if (IsExtendedMode) return;
+        if (IsExtendedMode) return this;
 
         foreach (var day in allDays)
         {
@@ -67,15 +68,18 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
         }
 
         IsExtendedMode = true;
+        return this;
     }
 
     /// <summary>
     /// Disable extended mode — hides Breakfast and Lunch slots but preserves their data.
     /// Only Dinner slots are visible in default mode.
     /// </summary>
-    public void DisableExtendedMode()
+    /// <returns></returns>
+    public WeeklyPlan DisableExtendedMode()
     {
         IsExtendedMode = false;
+        return this;
     }
 
     /// <summary>
@@ -97,11 +101,13 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="recipeTitle">The recipe title for display.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
     /// <param name="servings">Optional serving count override.</param>
-    public void AssignRecipe(DayOfWeek day, Guid recipeIdentifier, string recipeTitle, MealType mealType = MealType.Dinner, int? servings = null)
+    /// <returns></returns>
+    public WeeklyPlan AssignRecipe(DayOfWeek day, Guid recipeIdentifier, string recipeTitle, MealType mealType = MealType.Dinner, int? servings = null)
     {
         Ensure.That(recipeTitle).IsNotNullOrWhiteSpace();
         var slot = FindSlot(day, mealType);
         slot.AssignRecipe(recipeIdentifier, recipeTitle, servings);
+        return this;
     }
 
     /// <summary>
@@ -110,11 +116,13 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="day">The day of the week.</param>
     /// <param name="label">The freetext label.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
-    public void SetFreetext(DayOfWeek day, string label, MealType mealType = MealType.Dinner)
+    /// <returns></returns>
+    public WeeklyPlan SetFreetext(DayOfWeek day, string label, MealType mealType = MealType.Dinner)
     {
         Ensure.That(label).IsNotNullOrWhiteSpace();
         var slot = FindSlot(day, mealType);
         slot.SetAsFreetext(label);
+        return this;
     }
 
     /// <summary>
@@ -126,11 +134,13 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="sourceRecipeTitle">The source recipe title for display.</param>
     /// <param name="mealType">The meal type of this slot (defaults to Dinner).</param>
     /// <param name="servings">Optional serving count.</param>
-    public void SetLeftover(DayOfWeek day, DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, MealType mealType = MealType.Dinner, int? servings = null)
+    /// <returns></returns>
+    public WeeklyPlan SetLeftover(DayOfWeek day, DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, MealType mealType = MealType.Dinner, int? servings = null)
     {
         Ensure.That(sourceRecipeTitle).IsNotNullOrWhiteSpace();
         var slot = FindSlot(day, mealType);
         slot.SetAsLeftover(sourceDay, sourceMealType, sourceRecipeTitle, servings);
+        return this;
     }
 
     /// <summary>
@@ -138,10 +148,12 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// </summary>
     /// <param name="day">The day of the week.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
-    public void ClearSlot(DayOfWeek day, MealType mealType = MealType.Dinner)
+    /// <returns></returns>
+    public WeeklyPlan ClearSlot(DayOfWeek day, MealType mealType = MealType.Dinner)
     {
         var slot = FindSlot(day, mealType);
         slot.ClearSlot();
+        return this;
     }
 
     /// <summary>
@@ -150,11 +162,13 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="day">The day of the week.</param>
     /// <param name="servings">The new serving count.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
-    public void AdjustServings(DayOfWeek day, int servings, MealType mealType = MealType.Dinner)
+    /// <returns></returns>
+    public WeeklyPlan AdjustServings(DayOfWeek day, int servings, MealType mealType = MealType.Dinner)
     {
         Ensure.That(servings).IsPositive();
         var slot = FindSlot(day, mealType);
         slot.AdjustServingsTo(servings);
+        return this;
     }
 
     /// <summary>
@@ -162,10 +176,12 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// </summary>
     /// <param name="day">The day of the week.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
-    public void MarkAsCooked(DayOfWeek day, MealType mealType = MealType.Dinner)
+    /// <returns></returns>
+    public WeeklyPlan MarkAsCooked(DayOfWeek day, MealType mealType = MealType.Dinner)
     {
         var slot = FindSlot(day, mealType);
         slot.MarkAsCooked();
+        return this;
     }
 
     /// <summary>
@@ -173,10 +189,12 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// </summary>
     /// <param name="day">The day of the week.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
-    public void MarkAsSkipped(DayOfWeek day, MealType mealType = MealType.Dinner)
+    /// <returns></returns>
+    public WeeklyPlan MarkAsSkipped(DayOfWeek day, MealType mealType = MealType.Dinner)
     {
         var slot = FindSlot(day, mealType);
         slot.MarkAsSkipped();
+        return this;
     }
 
     /// <summary>
@@ -184,10 +202,12 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// </summary>
     /// <param name="day">The day of the week.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
-    public void ResetToPlanned(DayOfWeek day, MealType mealType = MealType.Dinner)
+    /// <returns></returns>
+    public WeeklyPlan ResetToPlanned(DayOfWeek day, MealType mealType = MealType.Dinner)
     {
         var slot = FindSlot(day, mealType);
         slot.ResetToPlanned();
+        return this;
     }
 
     /// <summary>
@@ -208,7 +228,8 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="day1">First day.</param>
     /// <param name="day2">Second day.</param>
     /// <param name="mealType">The meal type to swap (defaults to Dinner).</param>
-    public void SwapSlots(DayOfWeek day1, DayOfWeek day2, MealType mealType = MealType.Dinner)
+    /// <returns></returns>
+    public WeeklyPlan SwapSlots(DayOfWeek day1, DayOfWeek day2, MealType mealType = MealType.Dinner)
     {
         var slot1 = FindSlot(day1, mealType);
         var slot2 = FindSlot(day2, mealType);
@@ -216,6 +237,7 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
         var snapshot1 = slot1.TakeSnapshot();
         slot1.RestoreFromSnapshot(slot2.TakeSnapshot());
         slot2.RestoreFromSnapshot(snapshot1);
+        return this;
     }
 
     private MealSlot FindSlot(DayOfWeek day, MealType mealType)

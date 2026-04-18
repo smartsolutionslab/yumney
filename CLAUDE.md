@@ -207,6 +207,31 @@ recipe.AdjustServingsTo(newServings);
 recipe.AddIngredient(name, quantity);
 ```
 
+### Domain Methods – Always Return a Value
+
+**RULE: Domain aggregate and entity methods MUST return a value. No `void` methods.**
+
+Aggregate methods return the aggregate itself (`this`) for fluent chaining.
+Entity `internal` methods return the entity itself (`this`).
+This makes handler code more expressive and enables method chaining.
+
+```csharp
+// ❌ FORBIDDEN – void methods on aggregates/entities
+public void AssignRecipe(DayOfWeek day, Guid recipeId, string title) { ... }
+public void CheckOffItem(ShoppingListItemIdentifier itemId) { ... }
+internal void MarkAsCooked() { State = MealState.Cooked; }
+
+// ✅ REQUIRED – return self for fluent chaining
+public WeeklyPlan AssignRecipe(DayOfWeek day, Guid recipeId, string title) { ... return this; }
+public ShoppingList CheckOffItem(ShoppingListItemIdentifier itemId) { ... return this; }
+internal MealSlot MarkAsCooked() { State = MealState.Cooked; return this; }
+```
+
+**Exceptions:**
+- `AggregateRoot` / `EventSourcedAggregate` base class infrastructure methods (`ClearDomainEvents`, `RaiseEvent`, `AddDomainEvent`) may remain `void`
+- Private event handlers in event-sourced aggregates (`OnItemAdded`, `OnItemBought`, etc.) may remain `void`
+- Repository methods (`AddAsync`, `SaveChangesAsync`) are infrastructure, not domain — `Task` return is fine
+
 ### Repository Naming
 
 Interface and class names contain "Repository", but variable names are ALWAYS the plural of the aggregate:
