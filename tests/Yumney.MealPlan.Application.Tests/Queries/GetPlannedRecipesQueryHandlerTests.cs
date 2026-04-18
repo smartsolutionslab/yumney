@@ -53,9 +53,9 @@ public class GetPlannedRecipesQueryHandlerTests
     public async Task HandleAsync_MultipleRecipes_AllReturned()
     {
         var plan = WeeklyPlan.Create(OwnerIdentifier.From("user-123"), WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: 4);
-        plan.AssignRecipe(DayOfWeek.Wednesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"), servings: 6);
-        plan.AssignRecipe(DayOfWeek.Friday, SlotRecipeReference.From(Guid.NewGuid(), "Fish"), servings: 2);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: SlotServings.From(4));
+        plan.AssignRecipe(DayOfWeek.Wednesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"), servings: SlotServings.From(6));
+        plan.AssignRecipe(DayOfWeek.Friday, SlotRecipeReference.From(Guid.NewGuid(), "Fish"), servings: SlotServings.From(2));
 
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
@@ -69,7 +69,7 @@ public class GetPlannedRecipesQueryHandlerTests
     public async Task HandleAsync_IncludesServingsPerSlot()
     {
         var plan = WeeklyPlan.Create(OwnerIdentifier.From("user-123"), WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: 8);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: SlotServings.From(8));
 
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);

@@ -13,7 +13,7 @@ public sealed record CookWithLeftoversCommand(
     WeekIdentifier Week,
     DayOfWeek CookDay,
     SlotRecipeReference Recipe,
-    int TotalServings,
-    int EatServings,
+    SlotServings TotalServings,
+    SlotServings EatServings,
     DayOfWeek LeftoverDay,
     MealType MealType = MealType.Dinner) : ICommand<Result<WeeklyPlanDto>>;

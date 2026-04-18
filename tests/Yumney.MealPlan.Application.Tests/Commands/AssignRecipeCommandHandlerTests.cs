@@ -47,7 +47,7 @@ public class AssignRecipeCommandHandlerTests
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(existing);
 
-        var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Wednesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"), Servings: 6);
+        var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Wednesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"), Servings: SlotServings.From(6));
 
         var result = await handler.HandleAsync(command);
 

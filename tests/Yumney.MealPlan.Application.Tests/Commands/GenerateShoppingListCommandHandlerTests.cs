@@ -173,7 +173,7 @@ public class GenerateShoppingListCommandHandlerTests
         var owner = OwnerIdentifier.From("user-123");
         var week = WeekIdentifier.From(2026, 15);
         var plan = WeeklyPlan.Create(owner, week);
-        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(recipeId, title), servings: servings);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(recipeId, title), servings: SlotServings.From(servings));
 
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
@@ -186,8 +186,8 @@ public class GenerateShoppingListCommandHandlerTests
         var owner = OwnerIdentifier.From("user-123");
         var week = WeekIdentifier.From(2026, 15);
         var plan = WeeklyPlan.Create(owner, week);
-        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(recipeA, titleA), servings: servingsA);
-        plan.AssignRecipe(DayOfWeek.Tuesday, SlotRecipeReference.From(recipeB, titleB), servings: servingsB);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(recipeA, titleA), servings: SlotServings.From(servingsA));
+        plan.AssignRecipe(DayOfWeek.Tuesday, SlotRecipeReference.From(recipeB, titleB), servings: SlotServings.From(servingsB));
 
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
