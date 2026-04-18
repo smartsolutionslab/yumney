@@ -10,6 +10,9 @@
 
     <!-- Versioning — overridden by CI via /p:Version -->
     <VersionPrefix>1.0.0</VersionPrefix>
+
+    <!-- Container image: Ubuntu chiseled (non-root, no shell, ~110MB vs ~220MB default) -->
+    <ContainerFamily>noble-chiseled-extra</ContainerFamily>
   </PropertyGroup>
 
   <ItemGroup>

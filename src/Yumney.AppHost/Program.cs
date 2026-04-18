@@ -79,7 +79,7 @@ if (!options.DatabaseOnly)
 
     if (isRunMode && !options.E2ETests)
     {
-        builder.AddContainer("mailpit", "axllent/mailpit", "latest")
+        builder.AddContainer("mailpit", "axllent/mailpit", "v1.22")
             .WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
             .WithEndpoint(port: 1025, targetPort: 1025, name: "smtp")
             .WithLifetime(ContainerLifetime.Persistent);
