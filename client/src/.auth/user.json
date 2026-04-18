@@ -1,0 +1,45 @@
+{
+  "cookies": [
+    {
+      "name": "AUTH_SESSION_ID",
+      "value": "cnNFY3pkWjByLUp5eE1Hcjg0TVB2T1hwLkkwY3pmbHBDUGhqMGZJQTlLQ0Y2OW1hUkxDRExmMFlaWnc3MXliWk1UMGZkVDdxUGM5elRQbkFBQWhnUjQ4dFdYMFlYNWIyYnkzWEVBbDJqWGdWTDR3",
+      "domain": "localhost",
+      "path": "/realms/yumney/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KC_AUTH_SESSION_HASH",
+      "value": "WrZZrFSU3k9xDKZfDweV8sfx2h5RSIuHO5cTvFmh0H8",
+      "domain": "localhost",
+      "path": "/realms/yumney/",
+      "expires": 1776451698.950341,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_IDENTITY",
+      "value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI5ZTUyYmIwNi1mNTg5LTQ3MjEtOTYwMS1jNmVlNjRmZTA0M2UifQ.eyJleHAiOjE3NzY0ODc2MzksImlhdCI6MTc3NjQ1MTYzOSwianRpIjoiYTc2ZDI1N2MtOTJjMC1lNzQ4LTc2YmQtYzc0OTg5ZjU3M2NmIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy95dW1uZXkiLCJzdWIiOiIwOTUwZDEyMC02N2JhLTQ2ZTAtYTM2NC1jOTM1YjliN2NjNjMiLCJ0eXAiOiJTZXJpYWxpemVkLUlEIiwic2lkIjoicnNFY3pkWjByLUp5eE1Hcjg0TVB2T1hwIiwic3RhdGVfY2hlY2tlciI6ImQ2dk50TVJyU1c4YlNpd3g2elRaWDRDR0JMeHNJVk9DUmtOQnF4T2RPLUEifQ.IHMOtfi0mcem1wYV18gLUxzToEVC6vxyHL0E3iFPBQdr6gp9NssYJvLJNaNDTCgBwKnyqQ1tsy_CLP9_BxoojQ",
+      "domain": "localhost",
+      "path": "/realms/yumney/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_SESSION",
+      "value": "WrZZrFSU3k9xDKZfDweV8sfx2h5RSIuHO5cTvFmh0H8",
+      "domain": "localhost",
+      "path": "/realms/yumney/",
+      "expires": 1776487639.363596,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": []
+}

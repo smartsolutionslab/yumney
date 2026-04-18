@@ -57,9 +57,7 @@ describe('DashboardApiService', () => {
         expect(result).toEqual(mockActivity);
       });
 
-      const req = httpTesting.expectOne(
-        (r) => r.url === API_ENDPOINTS.users.activity,
-      );
+      const req = httpTesting.expectOne((r) => r.url === API_ENDPOINTS.users.activity);
       expect(req.request.method).toBe('GET');
       expect(req.request.params.get('limit')).toBe('5');
       req.flush(mockActivity);
@@ -70,9 +68,7 @@ describe('DashboardApiService', () => {
         expect(result).toEqual(mockActivity);
       });
 
-      const req = httpTesting.expectOne(
-        (r) => r.url === API_ENDPOINTS.users.activity,
-      );
+      const req = httpTesting.expectOne((r) => r.url === API_ENDPOINTS.users.activity);
       expect(req.request.params.get('limit')).toBe('10');
       req.flush(mockActivity);
     });
@@ -82,9 +78,7 @@ describe('DashboardApiService', () => {
         expect(result).toEqual([]);
       });
 
-      const req = httpTesting.expectOne(
-        (r) => r.url === API_ENDPOINTS.users.activity,
-      );
+      const req = httpTesting.expectOne((r) => r.url === API_ENDPOINTS.users.activity);
       req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
     });
   });

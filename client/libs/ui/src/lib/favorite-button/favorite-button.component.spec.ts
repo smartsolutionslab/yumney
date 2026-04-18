@@ -14,9 +14,7 @@ const en = {
 };
 
 @Component({
-  template: `
-    <yn-favorite-button [isFavorite]="isFavorite()" (toggled)="onToggled()" />
-  `,
+  template: ` <yn-favorite-button [isFavorite]="isFavorite()" (toggled)="onToggled()" /> `,
   imports: [FavoriteButtonComponent],
 })
 class TestHostComponent {

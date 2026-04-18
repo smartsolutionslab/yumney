@@ -44,9 +44,7 @@ const mockUnitGroups: UnitGroupInfo[] = [
 ];
 
 @Component({
-  template: `
-    <yn-unit-select [unitGroups]="unitGroups()" [placeholder]="placeholder()" />
-  `,
+  template: ` <yn-unit-select [unitGroups]="unitGroups()" [placeholder]="placeholder()" /> `,
   imports: [UnitSelectComponent],
 })
 class TestHostComponent {
