@@ -9,11 +9,12 @@ public sealed class ToggleExtendedModeCommandHandler(
     IWeeklyPlanRepository plans,
     ICurrentUser currentUser) : ICommandHandler<ToggleExtendedModeCommand, Result<WeeklyPlanDto>>
 {
-    public async Task<Result<WeeklyPlanDto>> HandleAsync(ToggleExtendedModeCommand command, CancellationToken cancellationToken = default)
+    public async Task<Result<WeeklyPlanDto>> HandleAsync(
+        ToggleExtendedModeCommand command,
+        CancellationToken cancellationToken = default)
     {
-        var (year, weekNumber, enable) = command;
+        var (week, enable) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
         if (plan is null)

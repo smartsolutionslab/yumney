@@ -11,9 +11,8 @@ public sealed class GetPlannedRecipesQueryHandler(
 {
     public async Task<Result<WeeklyPlannedRecipesDto>> HandleAsync(GetPlannedRecipesQuery query, CancellationToken cancellationToken = default)
     {
-        var (year, weekNumber) = query;
+        var week = query.Week;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
         if (plan is null) return new WeeklyPlannedRecipesDto(week.Value, []);

@@ -11,9 +11,8 @@ public sealed class SwapMealSlotsCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(SwapMealSlotsCommand command, CancellationToken cancellationToken = default)
     {
-        var (year, weekNumber, sourceDay, targetDay, mealType) = command;
+        var (week, sourceDay, targetDay, mealType) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 

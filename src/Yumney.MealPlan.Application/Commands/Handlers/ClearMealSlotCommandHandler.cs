@@ -11,9 +11,8 @@ public sealed class ClearMealSlotCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(ClearMealSlotCommand command, CancellationToken cancellationToken = default)
     {
-        var (year, weekNumber, day, mealType) = command;
+        var (week, day, mealType) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 

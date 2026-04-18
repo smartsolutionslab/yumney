@@ -26,7 +26,7 @@ public class GetWeeklyPlanQueryHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var result = await handler.HandleAsync(new GetWeeklyPlanQuery(2026, 15));
+        var result = await handler.HandleAsync(new GetWeeklyPlanQuery(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Week.Should().Be("2026-W15");
@@ -45,7 +45,7 @@ public class GetWeeklyPlanQueryHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
-        var result = await handler.HandleAsync(new GetWeeklyPlanQuery(2026, 15));
+        var result = await handler.HandleAsync(new GetWeeklyPlanQuery(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Slots.Should().Contain(s => s.RecipeTitle == "Pasta");

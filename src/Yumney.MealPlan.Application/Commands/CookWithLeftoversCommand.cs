@@ -10,8 +10,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 /// Shopping list calculates for total servings, leftover slot generates no shopping items.
 /// </summary>
 public sealed record CookWithLeftoversCommand(
-    int Year,
-    int WeekNumber,
+    WeekIdentifier Week,
     DayOfWeek CookDay,
     Guid RecipeIdentifier,
     string RecipeTitle,

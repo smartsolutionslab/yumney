@@ -26,7 +26,7 @@ public class ToggleExtendedModeCommandHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var result = await handler.HandleAsync(new ToggleExtendedModeCommand(2026, 15, true));
+        var result = await handler.HandleAsync(new ToggleExtendedModeCommand(WeekIdentifier.From(2026, 15), true));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.IsExtendedMode.Should().BeTrue();
@@ -47,7 +47,7 @@ public class ToggleExtendedModeCommandHandlerTests
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(existing);
 
-        var result = await handler.HandleAsync(new ToggleExtendedModeCommand(2026, 15, false));
+        var result = await handler.HandleAsync(new ToggleExtendedModeCommand(WeekIdentifier.From(2026, 15), false));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.IsExtendedMode.Should().BeFalse();

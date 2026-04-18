@@ -6,8 +6,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 
 public sealed record AssignRecipeCommand(
-    int Year,
-    int WeekNumber,
+    WeekIdentifier Week,
     DayOfWeek Day,
     Guid RecipeIdentifier,
     string RecipeTitle,

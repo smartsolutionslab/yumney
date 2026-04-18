@@ -31,7 +31,7 @@ public class GenerateShoppingListCommandHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var result = await handler.HandleAsync(new GenerateShoppingListCommand(2026, 15));
+        var result = await handler.HandleAsync(new GenerateShoppingListCommand(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeFalse();
         result.Error!.Code.Should().Be("MEALPLAN_NOT_FOUND");
@@ -44,7 +44,7 @@ public class GenerateShoppingListCommandHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
-        var result = await handler.HandleAsync(new GenerateShoppingListCommand(2026, 15));
+        var result = await handler.HandleAsync(new GenerateShoppingListCommand(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeFalse();
         result.Error!.Code.Should().Be("MEALPLAN_NO_RECIPES");
@@ -63,7 +63,7 @@ public class GenerateShoppingListCommandHandlerTests
                 new("Tomatoes", 400m, "g", 4),
             });
 
-        var result = await handler.HandleAsync(new GenerateShoppingListCommand(2026, 15));
+        var result = await handler.HandleAsync(new GenerateShoppingListCommand(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.ItemsAdded.Should().Be(2);
@@ -85,7 +85,7 @@ public class GenerateShoppingListCommandHandlerTests
                 new("Spaghetti", 500m, "g", 4),
             });
 
-        var result = await handler.HandleAsync(new GenerateShoppingListCommand(2026, 15));
+        var result = await handler.HandleAsync(new GenerateShoppingListCommand(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeTrue();
         await shoppingListWriter.Received(1).AddItemsAsync(
@@ -113,7 +113,7 @@ public class GenerateShoppingListCommandHandlerTests
                 new("olive oil", 3m, "tbsp", 4),
             });
 
-        var result = await handler.HandleAsync(new GenerateShoppingListCommand(2026, 15));
+        var result = await handler.HandleAsync(new GenerateShoppingListCommand(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.ItemsAdded.Should().Be(1);
@@ -138,7 +138,7 @@ public class GenerateShoppingListCommandHandlerTests
                 new("Pepper", 0.5m, "tsp", 2),
             });
 
-        var result = await handler.HandleAsync(new GenerateShoppingListCommand(2026, 15));
+        var result = await handler.HandleAsync(new GenerateShoppingListCommand(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.ItemsAdded.Should().Be(1);
@@ -158,7 +158,7 @@ public class GenerateShoppingListCommandHandlerTests
                 new("Flour", 100m, "g", 2),
             });
 
-        var result = await handler.HandleAsync(new GenerateShoppingListCommand(2026, 15));
+        var result = await handler.HandleAsync(new GenerateShoppingListCommand(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.ItemsAdded.Should().Be(0);

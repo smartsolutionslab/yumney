@@ -26,7 +26,7 @@ public class GetPlannedRecipesQueryHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(2026, 15));
+        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(WeekIdentifier.From(2026, 15)));
 
         result.IsSuccess.Should().BeTrue();
         result.Value.Recipes.Should().BeEmpty();
@@ -43,7 +43,7 @@ public class GetPlannedRecipesQueryHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
-        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(2026, 15));
+        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(WeekIdentifier.From(2026, 15)));
 
         result.Value.Recipes.Should().HaveCount(1);
         result.Value.Recipes[0].RecipeTitle.Should().Be("Pasta");
@@ -60,7 +60,7 @@ public class GetPlannedRecipesQueryHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
-        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(2026, 15));
+        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(WeekIdentifier.From(2026, 15)));
 
         result.Value.Recipes.Should().HaveCount(3);
     }
@@ -74,7 +74,7 @@ public class GetPlannedRecipesQueryHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
-        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(2026, 15));
+        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(WeekIdentifier.From(2026, 15)));
 
         result.Value.Recipes[0].Servings.Should().Be(8);
     }
@@ -87,7 +87,7 @@ public class GetPlannedRecipesQueryHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
-        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(2026, 15));
+        var result = await handler.HandleAsync(new GetPlannedRecipesQuery(WeekIdentifier.From(2026, 15)));
 
         result.Value.Recipes.Should().BeEmpty();
     }
