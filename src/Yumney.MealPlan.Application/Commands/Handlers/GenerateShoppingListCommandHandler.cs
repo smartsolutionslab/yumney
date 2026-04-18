@@ -11,9 +11,7 @@ public sealed class GenerateShoppingListCommandHandler(
     IShoppingListWriter shoppingListWriter,
     ICurrentUser currentUser) : ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>>
 {
-    public async Task<Result<GenerateShoppingListResultDto>> HandleAsync(
-        GenerateShoppingListCommand command,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<GenerateShoppingListResultDto>> HandleAsync(GenerateShoppingListCommand command, CancellationToken cancellationToken = default)
     {
         var week = command.Week;
         var owner = currentUser.AsOwner();
@@ -25,8 +23,7 @@ public sealed class GenerateShoppingListCommandHandler(
             .Where(s => s.ContentType == SlotContentType.Recipe && s.Recipe is not null)
             .ToList();
 
-        if (recipeSlots.Count == 0)
-            return GenerateShoppingListErrors.NoRecipes;
+        if (recipeSlots.Count == 0) return GenerateShoppingListErrors.NoRecipes;
 
         // Fetch ingredients for all recipes
         var merged = new Dictionary<string, MergedItem>(StringComparer.OrdinalIgnoreCase);
@@ -34,8 +31,8 @@ public sealed class GenerateShoppingListCommandHandler(
         foreach (var slot in recipeSlots)
         {
             var ingredients = await ingredientProvider.GetIngredientsAsync(slot.Recipe!.RecipeIdentifier, cancellationToken);
-            var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? slot.Servings;
-            var scaleFactor = recipeServings > 0 ? (decimal)slot.Servings / recipeServings : 1m;
+            var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? slot.Servings.Value;
+            var scaleFactor = recipeServings > 0 ? (decimal)slot.Servings.Value / recipeServings : 1m;
 
             foreach (var ingredient in ingredients)
             {
@@ -71,8 +68,7 @@ public sealed class GenerateShoppingListCommandHandler(
             itemsToAdd.Add(new ShoppingItemRequest(item.Name, item.Quantity, item.Unit, "meal-plan"));
         }
 
-        if (itemsToAdd.Count > 0)
-            await shoppingListWriter.AddItemsAsync(currentUser.UserId, itemsToAdd, cancellationToken);
+        if (itemsToAdd.Count > 0) await shoppingListWriter.AddItemsAsync(currentUser.UserId, itemsToAdd, cancellationToken);
 
         return new GenerateShoppingListResultDto(itemsToAdd.Count, staplesSkipped);
     }

@@ -39,9 +39,9 @@ internal sealed class WeeklyPlanConfiguration : IEntityTypeConfiguration<WeeklyP
                 recipe.Property(r => r.RecipeIdentifier).HasColumnName("RecipeIdentifier");
                 recipe.Property(r => r.Title).HasColumnName("RecipeTitle").HasMaxLength(200);
             });
-            slot.Property(s => s.LeftoverLabel).HasMaxLength(200);
-            slot.Property(s => s.Servings).IsRequired();
-            slot.Property(s => s.FreetextLabel).HasMaxLength(200);
+            slot.Property(s => s.LeftoverLabel).HasConversion<LeftoverLabelConverter>().HasMaxLength(200);
+            slot.Property(s => s.Servings).HasConversion<SlotServingsConverter>().IsRequired();
+            slot.Property(s => s.FreetextLabel).HasConversion<FreetextLabelConverter>().HasMaxLength(200);
             slot.Property(s => s.LeftoverSourceDay).HasConversion<string>().HasMaxLength(10);
             slot.Property(s => s.LeftoverSourceMealType).HasConversion<string>().HasMaxLength(10);
         });

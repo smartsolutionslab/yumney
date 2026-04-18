@@ -115,9 +115,8 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="label">The freetext label.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
     /// <returns></returns>
-    public WeeklyPlan SetFreetext(DayOfWeek day, string label, MealType mealType = MealType.Dinner)
+    public WeeklyPlan SetFreetext(DayOfWeek day, FreetextLabel label, MealType mealType = MealType.Dinner)
     {
-        Ensure.That(label).IsNotNullOrWhiteSpace();
         var slot = FindSlot(day, mealType);
         slot.SetAsFreetext(label);
         return this;
@@ -161,9 +160,8 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// <param name="servings">The new serving count.</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
     /// <returns></returns>
-    public WeeklyPlan AdjustServings(DayOfWeek day, int servings, MealType mealType = MealType.Dinner)
+    public WeeklyPlan AdjustServings(DayOfWeek day, SlotServings servings, MealType mealType = MealType.Dinner)
     {
-        Ensure.That(servings).IsPositive();
         var slot = FindSlot(day, mealType);
         slot.AdjustServingsTo(servings);
         return this;

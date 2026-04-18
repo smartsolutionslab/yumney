@@ -27,7 +27,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15), 6);
 
-        plan.Slots.Should().OnlyContain(s => s.Servings == 6);
+        plan.Slots.Should().OnlyContain(s => s.Servings.Value == 6);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class WeeklyPlanTests
 
         plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: 8);
 
-        plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(8);
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Value.Should().Be(8);
     }
 
     [Fact]
@@ -323,11 +323,11 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
 
-        plan.SetFreetext(DayOfWeek.Monday, "Eating out");
+        plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From("Eating out"));
 
         var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
         monday.ContentType.Should().Be(SlotContentType.Freetext);
-        monday.FreetextLabel.Should().Be("Eating out");
+        monday.FreetextLabel!.Value.Should().Be("Eating out");
         monday.IsEmpty.Should().BeFalse();
         monday.Recipe.Should().BeNull();
     }
@@ -337,7 +337,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
 
-        var act = () => plan.SetFreetext(DayOfWeek.Monday, string.Empty);
+        var act = () => plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From(string.Empty));
 
         act.Should().Throw<GuardException>();
     }
@@ -354,7 +354,7 @@ public class WeeklyPlanTests
         wednesday.ContentType.Should().Be(SlotContentType.Leftover);
         wednesday.LeftoverSourceDay.Should().Be(DayOfWeek.Monday);
         wednesday.LeftoverSourceMealType.Should().Be(MealType.Dinner);
-        wednesday.LeftoverLabel.Should().Contain("Bolognese");
+        wednesday.LeftoverLabel!.Value.Should().Contain("Bolognese");
         wednesday.IsEmpty.Should().BeFalse();
     }
 
@@ -382,7 +382,7 @@ public class WeeklyPlanTests
     public void ClearSlot_ResetsContentTypeToEmpty()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.SetFreetext(DayOfWeek.Monday, "Pizza night");
+        plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From("Pizza night"));
 
         plan.ClearSlot(DayOfWeek.Monday);
 
@@ -396,7 +396,7 @@ public class WeeklyPlanTests
     public void AssignRecipe_ClearsFreetextAndLeftoverFields()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.SetFreetext(DayOfWeek.Monday, "Eating out");
+        plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From("Eating out"));
 
         plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
@@ -420,13 +420,13 @@ public class WeeklyPlanTests
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
         var recipeId = Guid.NewGuid();
         plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(recipeId, "Pasta"));
-        plan.SetFreetext(DayOfWeek.Tuesday, "Eating out");
+        plan.SetFreetext(DayOfWeek.Tuesday, FreetextLabel.From("Eating out"));
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 
         var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
         monday.ContentType.Should().Be(SlotContentType.Freetext);
-        monday.FreetextLabel.Should().Be("Eating out");
+        monday.FreetextLabel!.Value.Should().Be("Eating out");
         monday.Recipe.Should().BeNull();
 
         var tuesday = plan.Slots.First(s => s.Day == DayOfWeek.Tuesday);
@@ -457,12 +457,12 @@ public class WeeklyPlanTests
     public void SwapSlots_FreetextWithEmpty_MovesContent()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.SetFreetext(DayOfWeek.Monday, "Pizza order");
+        plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From("Pizza order"));
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 
         plan.Slots.First(s => s.Day == DayOfWeek.Monday).IsEmpty.Should().BeTrue();
-        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).FreetextLabel.Should().Be("Pizza order");
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).FreetextLabel!.Value.Should().Be("Pizza order");
     }
 
     [Fact]
@@ -471,9 +471,9 @@ public class WeeklyPlanTests
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15), 4);
         plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
-        plan.AdjustServings(DayOfWeek.Monday, 8);
+        plan.AdjustServings(DayOfWeek.Monday, SlotServings.From(8));
 
-        plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(8);
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Value.Should().Be(8);
     }
 
     [Fact]
@@ -481,9 +481,9 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15), 4);
 
-        plan.AdjustServings(DayOfWeek.Monday, 6);
+        plan.AdjustServings(DayOfWeek.Monday, SlotServings.From(6));
 
-        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Should().Be(4);
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Value.Should().Be(4);
     }
 
     [Fact]
@@ -494,8 +494,8 @@ public class WeeklyPlanTests
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 
-        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Should().Be(8);
-        plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(4);
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Value.Should().Be(8);
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Value.Should().Be(4);
     }
 
     [Theory]
@@ -505,7 +505,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
 
-        var act = () => plan.AdjustServings(DayOfWeek.Monday, servings);
+        var act = () => plan.AdjustServings(DayOfWeek.Monday, SlotServings.From(servings));
 
         act.Should().Throw<GuardException>();
     }
@@ -570,7 +570,7 @@ public class WeeklyPlanTests
     public void GetUnconfirmedPastMeals_ExcludesFreetextAndLeftover()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.SetFreetext(DayOfWeek.Monday, "Eating out");
+        plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From("Eating out"));
         plan.AssignRecipe(DayOfWeek.Tuesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"));
 
         var unconfirmed = plan.GetUnconfirmedPastMeals(DayOfWeek.Wednesday);
