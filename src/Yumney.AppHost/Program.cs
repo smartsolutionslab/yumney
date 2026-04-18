@@ -36,7 +36,7 @@ else
         .WithPasswordAuthentication(userName: postgresUser, password: postgresPassword)
         .RunAsContainer(pg =>
         {
-            pg.WithImageTag("16-alpine");
+            pg.WithImageTag("17-alpine");
             if (!options.E2ETests)
             {
                 pg.WithDataVolume();
