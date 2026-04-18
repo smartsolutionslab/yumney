@@ -14,11 +14,11 @@ public sealed class HttpShoppingListWriter(IHttpClientFactory httpClientFactory)
 
         foreach (var item in items)
         {
-            AddItemRequest request = new(item.ItemName, item.Quantity, item.Unit);
+            AddItemRequest request = new(ownerId, item.ItemName, item.Quantity, item.Unit, item.Source);
             var url = "/api/v1/shopping-lists/items";
             await client.PostAsJsonAsync(url, request, cancellationToken);
         }
     }
 
-    private sealed record AddItemRequest(string Name, decimal Quantity, string? Unit);
+    private sealed record AddItemRequest(string OwnerId, string Name, decimal Quantity, string? Unit, string Source);
 }
