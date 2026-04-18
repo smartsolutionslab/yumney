@@ -6,7 +6,6 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 
 public sealed record ClearMealSlotCommand(
-    int Year,
-    int WeekNumber,
+    WeekIdentifier Week,
     DayOfWeek Day,
     MealType MealType = MealType.Dinner) : ICommand<Result<WeeklyPlanDto>>;

@@ -28,7 +28,7 @@ public class SwapMealSlotsCommandHandlerTests
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
-        var command = new SwapMealSlotsCommand(2026, 15, DayOfWeek.Monday, DayOfWeek.Wednesday);
+        var command = new SwapMealSlotsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, DayOfWeek.Wednesday);
 
         var result = await handler.HandleAsync(command);
 
@@ -44,7 +44,7 @@ public class SwapMealSlotsCommandHandlerTests
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns<WeeklyPlan>(_ => throw new EntityNotFoundException(nameof(WeeklyPlan), "2026-W15"));
 
-        var command = new SwapMealSlotsCommand(2026, 15, DayOfWeek.Monday, DayOfWeek.Tuesday);
+        var command = new SwapMealSlotsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, DayOfWeek.Tuesday);
 
         var act = () => handler.HandleAsync(command);
 

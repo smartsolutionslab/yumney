@@ -26,7 +26,7 @@ public class AssignRecipeCommandHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var command = new AssignRecipeCommand(2026, 15, DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
 
         var result = await handler.HandleAsync(command);
 
@@ -47,7 +47,7 @@ public class AssignRecipeCommandHandlerTests
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(existing);
 
-        var command = new AssignRecipeCommand(2026, 15, DayOfWeek.Wednesday, Guid.NewGuid(), "Steak", Servings: 6);
+        var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Wednesday, Guid.NewGuid(), "Steak", Servings: 6);
 
         var result = await handler.HandleAsync(command);
 
@@ -62,7 +62,7 @@ public class AssignRecipeCommandHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var command = new AssignRecipeCommand(2026, 15, DayOfWeek.Friday, Guid.NewGuid(), "Fish");
+        var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Friday, Guid.NewGuid(), "Fish");
 
         var result = await handler.HandleAsync(command);
 
@@ -82,7 +82,7 @@ public class AssignRecipeCommandHandlerTests
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(existing);
 
-        var command = new AssignRecipeCommand(2026, 15, DayOfWeek.Monday, Guid.NewGuid(), "Pancakes", MealType.Breakfast);
+        var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, Guid.NewGuid(), "Pancakes", MealType.Breakfast);
 
         var result = await handler.HandleAsync(command);
 

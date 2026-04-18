@@ -15,13 +15,11 @@ public sealed class GenerateShoppingListCommandHandler(
         GenerateShoppingListCommand command,
         CancellationToken cancellationToken = default)
     {
-        var (year, weekNumber) = command;
+        var week = command.Week;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
-        if (plan is null)
-            return GenerateShoppingListErrors.NoPlanFound;
+        if (plan is null) return GenerateShoppingListErrors.NoPlanFound;
 
         var recipeSlots = plan.Slots
             .Where(s => s.ContentType == SlotContentType.Recipe && s.RecipeIdentifier.HasValue)

@@ -28,7 +28,7 @@ public class ClearMealSlotCommandHandlerTests
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 
-        var command = new ClearMealSlotCommand(2026, 15, DayOfWeek.Wednesday);
+        var command = new ClearMealSlotCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Wednesday);
 
         var result = await handler.HandleAsync(command);
 

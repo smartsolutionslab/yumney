@@ -12,13 +12,12 @@ public sealed class CookWithLeftoversCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(CookWithLeftoversCommand command, CancellationToken cancellationToken = default)
     {
-        var (year, weekNumber, cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType) = command;
+        var (week, cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType) = command;
         Ensure.That(totalServings).IsPositive();
         Ensure.That(eatServings).IsPositive();
         Ensure.That(recipeTitle).IsNotNullOrWhiteSpace();
 
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(year, weekNumber);
         var leftoverServings = totalServings - eatServings;
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);

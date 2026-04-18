@@ -11,9 +11,8 @@ public sealed class AssignRecipeCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(AssignRecipeCommand command, CancellationToken cancellationToken = default)
     {
-        var (year, weekNumber, day, recipeIdentifier, recipeTitle, mealType, servings) = command;
+        var (week, day, recipeIdentifier, recipeTitle, mealType, servings) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
         if (plan is null)

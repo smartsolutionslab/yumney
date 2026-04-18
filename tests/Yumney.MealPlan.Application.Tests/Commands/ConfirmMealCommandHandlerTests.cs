@@ -24,7 +24,7 @@ public class ConfirmMealCommandHandlerTests
     public async Task HandleAsync_MarkAsCooked_SetsSlotStateToCooked()
     {
         var plan = CreatePlanWithRecipe();
-        var command = new ConfirmMealCommand(2026, 15, DayOfWeek.Monday, MealType.Dinner, MealState.Cooked);
+        var command = new ConfirmMealCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, MealType.Dinner, MealState.Cooked);
 
         var result = await handler.HandleAsync(command);
 
@@ -38,7 +38,7 @@ public class ConfirmMealCommandHandlerTests
     public async Task HandleAsync_MarkAsSkipped_SetsSlotStateToSkipped()
     {
         var plan = CreatePlanWithRecipe();
-        var command = new ConfirmMealCommand(2026, 15, DayOfWeek.Monday, MealType.Dinner, MealState.Skipped);
+        var command = new ConfirmMealCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, MealType.Dinner, MealState.Skipped);
 
         var result = await handler.HandleAsync(command);
 
@@ -53,7 +53,7 @@ public class ConfirmMealCommandHandlerTests
         var plan = CreatePlanWithRecipe();
         plan.MarkAsCooked(DayOfWeek.Monday, MealType.Dinner);
 
-        var command = new ConfirmMealCommand(2026, 15, DayOfWeek.Monday, MealType.Dinner, MealState.Planned);
+        var command = new ConfirmMealCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, MealType.Dinner, MealState.Planned);
 
         var result = await handler.HandleAsync(command);
 

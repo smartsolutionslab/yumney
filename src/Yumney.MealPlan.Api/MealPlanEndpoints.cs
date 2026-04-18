@@ -3,6 +3,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Api.Requests;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries;
+using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
@@ -26,8 +27,8 @@ public static class MealPlanEndpoints
             IQueryHandler<GetWeeklyPlanQuery, Result<WeeklyPlanDto>> handler,
             CancellationToken cancellationToken)
         {
-            var query = new GetWeeklyPlanQuery(year, weekNumber);
-            var result = await handler.HandleAsync(query, cancellationToken);
+            var week = WeekIdentifier.From(year, weekNumber);
+            var result = await handler.HandleAsync(new GetWeeklyPlanQuery(week), cancellationToken);
 
             return result.ToOk();
         }
@@ -45,8 +46,9 @@ public static class MealPlanEndpoints
             ICommandHandler<AssignRecipeCommand, Result<WeeklyPlanDto>> handler,
             CancellationToken cancellationToken)
         {
+            var week = WeekIdentifier.From(year, weekNumber);
             var (day, recipeIdentifier, recipeTitle, mealType, servings) = request;
-            var command = new AssignRecipeCommand(year, weekNumber, day, recipeIdentifier, recipeTitle, mealType, servings);
+            var command = new AssignRecipeCommand(week, day, recipeIdentifier, recipeTitle, mealType, servings);
 
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToOk();
@@ -64,7 +66,8 @@ public static class MealPlanEndpoints
             ICommandHandler<ToggleExtendedModeCommand, Result<WeeklyPlanDto>> handler,
             CancellationToken cancellationToken)
         {
-            var command = new ToggleExtendedModeCommand(year, weekNumber, request.Enable);
+            var week = WeekIdentifier.From(year, weekNumber);
+            var command = new ToggleExtendedModeCommand(week, request.Enable);
 
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToOk();
@@ -83,8 +86,9 @@ public static class MealPlanEndpoints
             ICommandHandler<AdjustSlotServingsCommand, Result<WeeklyPlanDto>> handler,
             CancellationToken cancellationToken)
         {
+            var week = WeekIdentifier.From(year, weekNumber);
             var (day, mealType, servings) = request;
-            var command = new AdjustSlotServingsCommand(year, weekNumber, day, mealType, servings);
+            var command = new AdjustSlotServingsCommand(week, day, mealType, servings);
 
             var result = await handler.HandleAsync(command, cancellationToken);
 
@@ -135,8 +139,9 @@ public static class MealPlanEndpoints
             ICommandHandler<CookWithLeftoversCommand, Result<WeeklyPlanDto>> handler,
             CancellationToken cancellationToken)
         {
+            var week = WeekIdentifier.From(year, weekNumber);
             var (cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType) = request;
-            var command = new CookWithLeftoversCommand(year, weekNumber, cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType);
+            var command = new CookWithLeftoversCommand(week, cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType);
 
             var result = await handler.HandleAsync(command, cancellationToken);
 
@@ -150,8 +155,9 @@ public static class MealPlanEndpoints
             ICommandHandler<ClearMealSlotCommand, Result<WeeklyPlanDto>> handler,
             CancellationToken cancellationToken)
         {
+            var week = WeekIdentifier.From(year, weekNumber);
             var (day, mealType) = request;
-            var command = new ClearMealSlotCommand(year, weekNumber, day, mealType);
+            var command = new ClearMealSlotCommand(week, day, mealType);
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToOk();
         }
@@ -162,8 +168,8 @@ public static class MealPlanEndpoints
             IQueryHandler<GetPlannedRecipesQuery, Result<WeeklyPlannedRecipesDto>> handler,
             CancellationToken cancellationToken)
         {
-            var query = new GetPlannedRecipesQuery(year, weekNumber);
-            var result = await handler.HandleAsync(query, cancellationToken);
+            var week = WeekIdentifier.From(year, weekNumber);
+            var result = await handler.HandleAsync(new GetPlannedRecipesQuery(week), cancellationToken);
             return result.ToOk();
         }
 
@@ -174,8 +180,9 @@ public static class MealPlanEndpoints
             ICommandHandler<SwapMealSlotsCommand, Result<WeeklyPlanDto>> handler,
             CancellationToken cancellationToken)
         {
+            var week = WeekIdentifier.From(year, weekNumber);
             var (sourceDay, targetDay, mealType) = request;
-            var command = new SwapMealSlotsCommand(year, weekNumber, sourceDay, targetDay, mealType);
+            var command = new SwapMealSlotsCommand(week, sourceDay, targetDay, mealType);
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToOk();
         }
@@ -187,8 +194,9 @@ public static class MealPlanEndpoints
             ICommandHandler<ConfirmMealCommand, Result<WeeklyPlanDto>> handler,
             CancellationToken cancellationToken)
         {
+            var week = WeekIdentifier.From(year, weekNumber);
             var (day, mealType, state) = request;
-            var command = new ConfirmMealCommand(year, weekNumber, day, mealType, state);
+            var command = new ConfirmMealCommand(week, day, mealType, state);
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToOk();
         }
@@ -199,8 +207,8 @@ public static class MealPlanEndpoints
             ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>> handler,
             CancellationToken cancellationToken)
         {
-            var command = new GenerateShoppingListCommand(year, weekNumber);
-            var result = await handler.HandleAsync(command, cancellationToken);
+            var week = WeekIdentifier.From(year, weekNumber);
+            var result = await handler.HandleAsync(new GenerateShoppingListCommand(week), cancellationToken);
             return result.ToOk();
         }
     }

@@ -11,9 +11,8 @@ public sealed class ConfirmMealCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(ConfirmMealCommand command, CancellationToken cancellationToken = default)
     {
-        var (year, weekNumber, day, mealType, newState) = command;
+        var (week, day, mealType, newState) = command;
         var owner = currentUser.AsOwner();
-        var week = WeekIdentifier.From(year, weekNumber);
 
         var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 

@@ -27,7 +27,7 @@ public class CookWithLeftoversCommandHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var command = new CookWithLeftoversCommand(2026, 15, DayOfWeek.Monday, Guid.NewGuid(), "Bolognese", 8, 4, DayOfWeek.Wednesday);
+        var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, Guid.NewGuid(), "Bolognese", 8, 4, DayOfWeek.Wednesday);
 
         var result = await handler.HandleAsync(command);
 
@@ -49,7 +49,7 @@ public class CookWithLeftoversCommandHandlerTests
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns((WeeklyPlan?)null);
 
-        var command = new CookWithLeftoversCommand(2026, 15, DayOfWeek.Monday, Guid.NewGuid(), "Pasta", 4, 4, DayOfWeek.Tuesday);
+        var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, Guid.NewGuid(), "Pasta", 4, 4, DayOfWeek.Tuesday);
 
         var result = await handler.HandleAsync(command);
 
@@ -61,7 +61,7 @@ public class CookWithLeftoversCommandHandlerTests
     [Fact]
     public async Task HandleAsync_InvalidServings_ThrowsGuardException()
     {
-        var command = new CookWithLeftoversCommand(2026, 15, DayOfWeek.Monday, Guid.NewGuid(), "Pasta", 0, 0, DayOfWeek.Tuesday);
+        var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, Guid.NewGuid(), "Pasta", 0, 0, DayOfWeek.Tuesday);
 
         var act = () => handler.HandleAsync(command);
 
