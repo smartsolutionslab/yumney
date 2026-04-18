@@ -9,6 +9,7 @@ public sealed record MealSlotDto(
     string? RecipeTitle,
     int Servings,
     string? FreetextLabel,
+    string? LeftoverLabel,
     string? LeftoverSourceDay,
     string? LeftoverSourceMealType,
     bool IsEmpty);

@@ -12,8 +12,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 public sealed record CookWithLeftoversCommand(
     WeekIdentifier Week,
     DayOfWeek CookDay,
-    Guid RecipeIdentifier,
-    string RecipeTitle,
+    SlotRecipeReference Recipe,
     int TotalServings,
     int EatServings,
     DayOfWeek LeftoverDay,

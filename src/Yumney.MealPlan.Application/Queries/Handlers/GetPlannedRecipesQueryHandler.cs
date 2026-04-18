@@ -18,10 +18,10 @@ public sealed class GetPlannedRecipesQueryHandler(
         if (plan is null) return new WeeklyPlannedRecipesDto(week.Value, []);
 
         var recipes = plan.Slots
-            .Where(s => s.ContentType == SlotContentType.Recipe && s.RecipeIdentifier.HasValue)
+            .Where(s => s.ContentType == SlotContentType.Recipe && s.Recipe is not null)
             .Select(s => new PlannedRecipeDto(
-                s.RecipeIdentifier!.Value,
-                s.RecipeTitle!,
+                s.Recipe!.RecipeIdentifier,
+                s.Recipe.Title,
                 s.Servings,
                 s.Day.ToString(),
                 s.MealType.ToString()))

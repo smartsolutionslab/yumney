@@ -97,16 +97,14 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
     /// Assign a recipe to a specific slot.
     /// </summary>
     /// <param name="day">The day of the week.</param>
-    /// <param name="recipeIdentifier">The recipe identifier.</param>
-    /// <param name="recipeTitle">The recipe title for display.</param>
+    /// <param name="recipe">The recipe reference (identifier + title).</param>
     /// <param name="mealType">The meal type (defaults to Dinner).</param>
     /// <param name="servings">Optional serving count override.</param>
     /// <returns></returns>
-    public WeeklyPlan AssignRecipe(DayOfWeek day, Guid recipeIdentifier, string recipeTitle, MealType mealType = MealType.Dinner, int? servings = null)
+    public WeeklyPlan AssignRecipe(DayOfWeek day, SlotRecipeReference recipe, MealType mealType = MealType.Dinner, int? servings = null)
     {
-        Ensure.That(recipeTitle).IsNotNullOrWhiteSpace();
         var slot = FindSlot(day, mealType);
-        slot.AssignRecipe(recipeIdentifier, recipeTitle, servings);
+        slot.AssignRecipe(recipe, servings);
         return this;
     }
 
