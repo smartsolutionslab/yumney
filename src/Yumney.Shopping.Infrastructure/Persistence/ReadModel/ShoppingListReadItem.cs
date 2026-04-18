@@ -8,26 +8,26 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 /// </summary>
 public sealed class ShoppingListReadItem
 {
-    public Guid Id { get; set; }
+	public Guid Id { get; set; }
 
-    public string OwnerId { get; set; } = default!;
+	public string OwnerId { get; set; } = default!;
 
-    public string ItemName { get; set; } = default!;
+	public string ItemName { get; set; } = default!;
 
-    public decimal TotalQuantity { get; set; }
+	public decimal TotalQuantity { get; set; }
 
-    public string? Unit { get; set; }
+	public string? Unit { get; set; }
 
-    public string Category { get; set; } = IngredientCategory.Other.Value;
+	public string Category { get; set; } = IngredientCategory.Other.Value;
 
-    public bool IsBought { get; set; }
+	public bool IsBought { get; set; }
 
-    public DateTime? BoughtAt { get; set; }
+	public DateTime? BoughtAt { get; set; }
 
-    /// <summary>
-    /// Gets or sets the JSON-serialized list of sources (source label + quantity + timestamp).
-    /// </summary>
-    public string SourcesJson { get; set; } = "[]";
+	/// <summary>
+	/// Gets or sets the JSON-serialized list of sources (source label + quantity + timestamp).
+	/// </summary>
+	public string SourcesJson { get; set; } = "[]";
 
-    public DateTime LastUpdated { get; set; }
+	public DateTime LastUpdated { get; set; }
 }

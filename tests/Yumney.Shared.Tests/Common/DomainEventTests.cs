@@ -6,33 +6,33 @@ namespace SmartSolutionsLab.Yumney.Shared.Tests.Common;
 
 public class DomainEventTests
 {
-    private sealed record TestEvent() : DomainEvent;
+	private sealed record TestEvent() : DomainEvent;
 
-    [Fact]
-    public void OccurredOn_IsSetToUtcNow()
-    {
-        var before = DateTime.UtcNow;
+	[Fact]
+	public void OccurredOn_IsSetToUtcNow()
+	{
+		var before = DateTime.UtcNow;
 
-        var domainEvent = new TestEvent();
+		var domainEvent = new TestEvent();
 
-        var after = DateTime.UtcNow;
-        domainEvent.OccurredOn.Should().BeOnOrAfter(before);
-        domainEvent.OccurredOn.Should().BeOnOrBefore(after);
-    }
+		var after = DateTime.UtcNow;
+		domainEvent.OccurredOn.Should().BeOnOrAfter(before);
+		domainEvent.OccurredOn.Should().BeOnOrBefore(after);
+	}
 
-    [Fact]
-    public void OccurredOn_IsUtcKind()
-    {
-        var domainEvent = new TestEvent();
+	[Fact]
+	public void OccurredOn_IsUtcKind()
+	{
+		var domainEvent = new TestEvent();
 
-        domainEvent.OccurredOn.Kind.Should().Be(DateTimeKind.Utc);
-    }
+		domainEvent.OccurredOn.Kind.Should().Be(DateTimeKind.Utc);
+	}
 
-    [Fact]
-    public void ImplementsIDomainEvent()
-    {
-        var domainEvent = new TestEvent();
+	[Fact]
+	public void ImplementsIDomainEvent()
+	{
+		var domainEvent = new TestEvent();
 
-        domainEvent.Should().BeAssignableTo<IDomainEvent>();
-    }
+		domainEvent.Should().BeAssignableTo<IDomainEvent>();
+	}
 }

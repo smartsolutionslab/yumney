@@ -1,8 +1,8 @@
 namespace SmartSolutionsLab.Yumney.Users.Application.DTOs;
 
 public sealed record SuggestionDto(
-    Guid RecipeIdentifier,
-    string Title,
-    string? ImageUrl,
-    int? PrepTimeMinutes,
-    string Reason);
+	Guid RecipeIdentifier,
+	string Title,
+	string? ImageUrl,
+	int? PrepTimeMinutes,
+	string Reason);

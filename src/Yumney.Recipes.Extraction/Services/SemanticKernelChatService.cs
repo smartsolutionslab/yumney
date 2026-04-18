@@ -19,93 +19,93 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 #pragma warning disable SA1204
 #pragma warning disable SA1303
 public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepository recipes, ILogger<SemanticKernelChatService> logger)
-    : IChatService
+	: IChatService
 {
-    private const int maxRecipesToInclude = 20;
+	private const int maxRecipesToInclude = 20;
 
-    public async Task<Result<ChatResponseDto>> ChatAsync(
-        ChatMessageContent message,
-        IReadOnlyList<DomainChatHistoryEntry> history,
-        OwnerIdentifier owner,
-        CancellationToken cancellationToken = default)
-    {
-        using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("chat.message");
-        activity?.SetTag("chat.history_length", history.Count);
+	public async Task<Result<ChatResponseDto>> ChatAsync(
+		ChatMessageContent message,
+		IReadOnlyList<DomainChatHistoryEntry> history,
+		OwnerIdentifier owner,
+		CancellationToken cancellationToken = default)
+	{
+		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("chat.message");
+		activity?.SetTag("chat.history_length", history.Count);
 
-        var userRecipes = await LoadUserRecipeContextAsync(owner, cancellationToken);
+		var userRecipes = await LoadUserRecipeContextAsync(owner, cancellationToken);
 
-        var chatHistory = new ChatHistory();
-        chatHistory.AddSystemMessage(BuildSystemPrompt(userRecipes));
+		var chatHistory = new ChatHistory();
+		chatHistory.AddSystemMessage(BuildSystemPrompt(userRecipes));
 
-        foreach (var entry in history)
-        {
-            if (entry.Role == ChatRole.User)
-            {
-                chatHistory.AddUserMessage(entry.Content.Value);
-            }
-            else if (entry.Role == ChatRole.Assistant)
-            {
-                chatHistory.AddAssistantMessage(entry.Content.Value);
-            }
-        }
+		foreach (var entry in history)
+		{
+			if (entry.Role == ChatRole.User)
+			{
+				chatHistory.AddUserMessage(entry.Content.Value);
+			}
+			else if (entry.Role == ChatRole.Assistant)
+			{
+				chatHistory.AddAssistantMessage(entry.Content.Value);
+			}
+		}
 
-        chatHistory.AddUserMessage(message.Value);
+		chatHistory.AddUserMessage(message.Value);
 
-        var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
+		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
 
-        string reply;
-        try
-        {
-            var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
-            reply = result.Content ?? string.Empty;
-            activity?.SetTag("llm.response_length", reply.Length);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-            LogChatFailed(ex.Message);
-            return ImportRecipeErrors.ExtractionFailed;
-        }
+		string reply;
+		try
+		{
+			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
+			reply = result.Content ?? string.Empty;
+			activity?.SetTag("llm.response_length", reply.Length);
+		}
+		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+		{
+			throw;
+		}
+		catch (Exception ex)
+		{
+			activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+			LogChatFailed(ex.Message);
+			return ImportRecipeErrors.ExtractionFailed;
+		}
 
-        var suggestions = MatchRecipesByMention(reply, userRecipes);
+		var suggestions = MatchRecipesByMention(reply, userRecipes);
 
-        return new ChatResponseDto(reply, suggestions);
-    }
+		return new ChatResponseDto(reply, suggestions);
+	}
 
-    internal static List<ChatRecipeSuggestionDto> MatchRecipesByMention(
-        string reply,
-        IReadOnlyList<Recipe> userRecipes)
-    {
-        var suggestions = new List<ChatRecipeSuggestionDto>();
+	internal static List<ChatRecipeSuggestionDto> MatchRecipesByMention(
+		string reply,
+		IReadOnlyList<Recipe> userRecipes)
+	{
+		var suggestions = new List<ChatRecipeSuggestionDto>();
 
-        foreach (var recipe in userRecipes)
-        {
-            var title = recipe.Title.Value;
-            var pattern = $@"(?<!\w){Regex.Escape(title)}(?!\w)";
+		foreach (var recipe in userRecipes)
+		{
+			var title = recipe.Title.Value;
+			var pattern = $@"(?<!\w){Regex.Escape(title)}(?!\w)";
 
-            if (Regex.IsMatch(reply, pattern, RegexOptions.IgnoreCase))
-            {
-                suggestions.Add(new ChatRecipeSuggestionDto(
-                    recipe.Id.Value,
-                    title,
-                    Reason: null));
-            }
-        }
+			if (Regex.IsMatch(reply, pattern, RegexOptions.IgnoreCase))
+			{
+				suggestions.Add(new ChatRecipeSuggestionDto(
+					recipe.Id.Value,
+					title,
+					Reason: null));
+			}
+		}
 
-        return suggestions;
-    }
+		return suggestions;
+	}
 
-    private static string BuildSystemPrompt(IReadOnlyList<Recipe> userRecipes)
-    {
-        var recipeList = userRecipes.Count == 0
-            ? "(no recipes yet)"
-            : string.Join("\n", userRecipes.Select(r => $"- {r.Title.Value}"));
+	private static string BuildSystemPrompt(IReadOnlyList<Recipe> userRecipes)
+	{
+		var recipeList = userRecipes.Count == 0
+			? "(no recipes yet)"
+			: string.Join("\n", userRecipes.Select(r => $"- {r.Title.Value}"));
 
-        return $$"""
+		return $$"""
             You are a friendly, concise cooking assistant for the Yumney recipe app.
             Help the user discover recipes from their collection or suggest new ones.
             When suggesting recipes from their collection, mention the exact title in quotes.
@@ -117,34 +117,34 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
             If the user asks for something not in their collection, suggest a general recipe
             idea or recommend they import one from a website.
             """;
-    }
+	}
 
-    private async Task<IReadOnlyList<Recipe>> LoadUserRecipeContextAsync(OwnerIdentifier owner, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var paging = PagingOptions.Of(Page.From(1), PageSize.From(maxRecipesToInclude));
-            var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
+	private async Task<IReadOnlyList<Recipe>> LoadUserRecipeContextAsync(OwnerIdentifier owner, CancellationToken cancellationToken)
+	{
+		try
+		{
+			var paging = PagingOptions.Of(Page.From(1), PageSize.From(maxRecipesToInclude));
+			var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
 
-            var (items, _) = await recipes.GetByOwnerAsync(
-                owner,
-                paging,
-                sorting,
-                search: null,
-                filter: null,
-                cancellationToken: cancellationToken);
-            return items;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            LogRecipeContextLoadFailed(ex.Message);
-            return [];
-        }
-    }
+			var (items, _) = await recipes.GetByOwnerAsync(
+				owner,
+				paging,
+				sorting,
+				search: null,
+				filter: null,
+				cancellationToken: cancellationToken);
+			return items;
+		}
+		catch (Exception ex) when (ex is not OperationCanceledException)
+		{
+			LogRecipeContextLoadFailed(ex.Message);
+			return [];
+		}
+	}
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Chat LLM call failed: {Reason}")]
-    private partial void LogChatFailed(string reason);
+	[LoggerMessage(Level = LogLevel.Warning, Message = "Chat LLM call failed: {Reason}")]
+	private partial void LogChatFailed(string reason);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to load recipe context for chat: {Reason}")]
-    private partial void LogRecipeContextLoadFailed(string reason);
+	[LoggerMessage(Level = LogLevel.Warning, Message = "Failed to load recipe context for chat: {Reason}")]
+	private partial void LogRecipeContextLoadFailed(string reason);
 }

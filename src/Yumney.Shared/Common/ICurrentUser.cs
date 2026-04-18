@@ -2,15 +2,15 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public interface ICurrentUser
 {
-    string UserId { get; }
+	string UserId { get; }
 
-    string Email { get; }
+	string Email { get; }
 
-    string DisplayName { get; }
+	string DisplayName { get; }
 
-    IReadOnlyCollection<string> Roles { get; }
+	IReadOnlyCollection<string> Roles { get; }
 
-    bool IsAuthenticated { get; }
+	bool IsAuthenticated { get; }
 
-    bool IsInRole(string role);
+	bool IsInRole(string role);
 }

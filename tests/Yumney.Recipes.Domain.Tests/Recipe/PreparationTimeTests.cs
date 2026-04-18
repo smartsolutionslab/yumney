@@ -7,50 +7,50 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe;
 
 public class PreparationTimeTests
 {
-    [Fact]
-    public void Constructor_PositiveValue_CreatesInstance()
-    {
-        var prepTime = PreparationTime.From(30);
+	[Fact]
+	public void Constructor_PositiveValue_CreatesInstance()
+	{
+		var prepTime = PreparationTime.From(30);
 
-        prepTime.Value.Should().Be(30);
-    }
+		prepTime.Value.Should().Be(30);
+	}
 
-    [Fact]
-    public void Constructor_Zero_CreatesInstance()
-    {
-        var prepTime = PreparationTime.From(0);
+	[Fact]
+	public void Constructor_Zero_CreatesInstance()
+	{
+		var prepTime = PreparationTime.From(0);
 
-        prepTime.Value.Should().Be(0);
-    }
+		prepTime.Value.Should().Be(0);
+	}
 
-    [Fact]
-    public void Constructor_NegativeValue_ThrowsGuardException()
-    {
-        var act = () => PreparationTime.From(-1);
+	[Fact]
+	public void Constructor_NegativeValue_ThrowsGuardException()
+	{
+		var act = () => PreparationTime.From(-1);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void ToString_ReturnsStringValue()
-    {
-        var prepTime = PreparationTime.From(15);
+	[Fact]
+	public void ToString_ReturnsStringValue()
+	{
+		var prepTime = PreparationTime.From(15);
 
-        prepTime.ToString().Should().Be("15");
-    }
+		prepTime.ToString().Should().Be("15");
+	}
 
-    [Fact]
-    public void FromNullable_Null_ReturnsNull()
-    {
-        PreparationTime.FromNullable(null).Should().BeNull();
-    }
+	[Fact]
+	public void FromNullable_Null_ReturnsNull()
+	{
+		PreparationTime.FromNullable(null).Should().BeNull();
+	}
 
-    [Fact]
-    public void FromNullable_ValidValue_ReturnsInstance()
-    {
-        var result = PreparationTime.FromNullable(30);
+	[Fact]
+	public void FromNullable_ValidValue_ReturnsInstance()
+	{
+		var result = PreparationTime.FromNullable(30);
 
-        result.Should().NotBeNull();
-        result!.Value.Should().Be(30);
-    }
+		result.Should().NotBeNull();
+		result!.Value.Should().Be(30);
+	}
 }

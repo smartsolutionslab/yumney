@@ -11,75 +11,75 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 
 public class ParseIntentCommandHandlerTests
 {
-    private readonly IIntentParserService intentParser = Substitute.For<IIntentParserService>();
-    private readonly ParseIntentCommandHandler handler;
+	private readonly IIntentParserService intentParser = Substitute.For<IIntentParserService>();
+	private readonly ParseIntentCommandHandler handler;
 
-    public ParseIntentCommandHandlerTests()
-    {
-        handler = new ParseIntentCommandHandler(intentParser);
-    }
+	public ParseIntentCommandHandlerTests()
+	{
+		handler = new ParseIntentCommandHandler(intentParser);
+	}
 
-    [Fact]
-    public async Task HandleAsync_ValidMessage_ReturnsSuccess()
-    {
-        var expected = new ParsedIntentDto("add_to_list", new Dictionary<string, string> { ["item"] = "milk" }, null);
-        intentParser.ParseAsync("Add milk", null, Arg.Any<CancellationToken>())
-            .Returns(Result<ParsedIntentDto>.Success(expected));
+	[Fact]
+	public async Task HandleAsync_ValidMessage_ReturnsSuccess()
+	{
+		var expected = new ParsedIntentDto("add_to_list", new Dictionary<string, string> { ["item"] = "milk" }, null);
+		intentParser.ParseAsync("Add milk", null, Arg.Any<CancellationToken>())
+			.Returns(Result<ParsedIntentDto>.Success(expected));
 
-        var command = new ParseIntentCommand("Add milk", null);
+		var command = new ParseIntentCommand("Add milk", null);
 
-        var result = await handler.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Intent.Should().Be("add_to_list");
-        result.Value.Entities["item"].Should().Be("milk");
-    }
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Intent.Should().Be("add_to_list");
+		result.Value.Entities["item"].Should().Be("milk");
+	}
 
-    [Fact]
-    public async Task HandleAsync_WithPageContext_PassesContextToService()
-    {
-        var expected = new ParsedIntentDto("add_to_list", new Dictionary<string, string> { ["item"] = "milk" }, null);
-        intentParser.ParseAsync("Add milk", "shopping-list", Arg.Any<CancellationToken>())
-            .Returns(Result<ParsedIntentDto>.Success(expected));
+	[Fact]
+	public async Task HandleAsync_WithPageContext_PassesContextToService()
+	{
+		var expected = new ParsedIntentDto("add_to_list", new Dictionary<string, string> { ["item"] = "milk" }, null);
+		intentParser.ParseAsync("Add milk", "shopping-list", Arg.Any<CancellationToken>())
+			.Returns(Result<ParsedIntentDto>.Success(expected));
 
-        var command = new ParseIntentCommand("Add milk", "shopping-list");
+		var command = new ParseIntentCommand("Add milk", "shopping-list");
 
-        var result = await handler.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
-        result.IsSuccess.Should().BeTrue();
-        await intentParser.Received(1).ParseAsync("Add milk", "shopping-list", Arg.Any<CancellationToken>());
-    }
+		result.IsSuccess.Should().BeTrue();
+		await intentParser.Received(1).ParseAsync("Add milk", "shopping-list", Arg.Any<CancellationToken>());
+	}
 
-    [Fact]
-    public async Task HandleAsync_ServiceReturnsFailure_ReturnsFailure()
-    {
-        intentParser.ParseAsync("broken", null, Arg.Any<CancellationToken>())
-            .Returns(new ApiError("intent.parse.failed", "Failed", 502));
+	[Fact]
+	public async Task HandleAsync_ServiceReturnsFailure_ReturnsFailure()
+	{
+		intentParser.ParseAsync("broken", null, Arg.Any<CancellationToken>())
+			.Returns(new ApiError("intent.parse.failed", "Failed", 502));
 
-        var command = new ParseIntentCommand("broken", null);
+		var command = new ParseIntentCommand("broken", null);
 
-        var result = await handler.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
-        result.IsSuccess.Should().BeFalse();
-        result.Error!.Code.Should().Be("intent.parse.failed");
-    }
+		result.IsSuccess.Should().BeFalse();
+		result.Error!.Code.Should().Be("intent.parse.failed");
+	}
 
-    [Fact]
-    public async Task HandleAsync_AmbiguousInput_ReturnsClarification()
-    {
-        var expected = new ParsedIntentDto(
-            "general_chat",
-            new Dictionary<string, string>(),
-            "Search for pasta recipes or add pasta to your shopping list?");
-        intentParser.ParseAsync("pasta", null, Arg.Any<CancellationToken>())
-            .Returns(Result<ParsedIntentDto>.Success(expected));
+	[Fact]
+	public async Task HandleAsync_AmbiguousInput_ReturnsClarification()
+	{
+		var expected = new ParsedIntentDto(
+			"general_chat",
+			new Dictionary<string, string>(),
+			"Search for pasta recipes or add pasta to your shopping list?");
+		intentParser.ParseAsync("pasta", null, Arg.Any<CancellationToken>())
+			.Returns(Result<ParsedIntentDto>.Success(expected));
 
-        var command = new ParseIntentCommand("pasta", null);
+		var command = new ParseIntentCommand("pasta", null);
 
-        var result = await handler.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Intent.Should().Be("general_chat");
-        result.Value.Clarification.Should().NotBeNull();
-    }
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Intent.Should().Be("general_chat");
+		result.Value.Clarification.Should().NotBeNull();
+	}
 }

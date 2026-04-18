@@ -4,7 +4,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 
 public interface IShoppingEventStore
 {
-    Task<ShoppingLedger?> LoadAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default);
+	Task<ShoppingLedger?> LoadAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default);
 
-    Task SaveAsync(ShoppingLedger ledger, CancellationToken cancellationToken = default);
+	Task SaveAsync(ShoppingLedger ledger, CancellationToken cancellationToken = default);
 }

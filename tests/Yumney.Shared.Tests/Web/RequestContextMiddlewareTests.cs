@@ -10,44 +10,44 @@ namespace SmartSolutionsLab.Yumney.Shared.Tests.Web;
 
 public class RequestContextMiddlewareTests
 {
-    [Fact]
-    public async Task InvokeAsync_AuthenticatedUser_DelegatesDownstream()
-    {
-        var wasCalled = false;
-        var logger = Substitute.For<ILogger<RequestContextMiddleware>>();
-        RequestDelegate next = _ =>
-        {
-            wasCalled = true;
-            return Task.CompletedTask;
-        };
-        var middleware = new RequestContextMiddleware(next, logger);
+	[Fact]
+	public async Task InvokeAsync_AuthenticatedUser_DelegatesDownstream()
+	{
+		var wasCalled = false;
+		var logger = Substitute.For<ILogger<RequestContextMiddleware>>();
+		RequestDelegate next = _ =>
+		{
+			wasCalled = true;
+			return Task.CompletedTask;
+		};
+		var middleware = new RequestContextMiddleware(next, logger);
 
-        var context = new DefaultHttpContext();
-        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, "user-42") };
-        context.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "test"));
-        context.Items[CorrelationIdMiddleware.HeaderName] = "corr-abc";
+		var context = new DefaultHttpContext();
+		var claims = new[] { new Claim(ClaimTypes.NameIdentifier, "user-42") };
+		context.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "test"));
+		context.Items[CorrelationIdMiddleware.HeaderName] = "corr-abc";
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        wasCalled.Should().BeTrue();
-    }
+		wasCalled.Should().BeTrue();
+	}
 
-    [Fact]
-    public async Task InvokeAsync_AnonymousUser_DelegatesDownstream()
-    {
-        var wasCalled = false;
-        var logger = Substitute.For<ILogger<RequestContextMiddleware>>();
-        RequestDelegate next = _ =>
-        {
-            wasCalled = true;
-            return Task.CompletedTask;
-        };
-        var middleware = new RequestContextMiddleware(next, logger);
+	[Fact]
+	public async Task InvokeAsync_AnonymousUser_DelegatesDownstream()
+	{
+		var wasCalled = false;
+		var logger = Substitute.For<ILogger<RequestContextMiddleware>>();
+		RequestDelegate next = _ =>
+		{
+			wasCalled = true;
+			return Task.CompletedTask;
+		};
+		var middleware = new RequestContextMiddleware(next, logger);
 
-        var context = new DefaultHttpContext();
+		var context = new DefaultHttpContext();
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        wasCalled.Should().BeTrue();
-    }
+		wasCalled.Should().BeTrue();
+	}
 }

@@ -9,17 +9,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddYumneyDefaults();
 
 builder.Services
-    .AddMealPlanApi()
-    .AddMealPlanApplication()
-    .AddMealPlanInfrastructure(builder.Configuration)
-    .AddCqrsLoggingDecorators();
+	.AddMealPlanApi()
+	.AddMealPlanApplication()
+	.AddMealPlanInfrastructure(builder.Configuration)
+	.AddCqrsLoggingDecorators();
 
 var app = builder.Build();
 
 app.UseYumneyDefaults();
 
 app.MapGroup("/api/v1")
-    .RequireAuthorization()
-    .MapMealPlanEndpoints();
+	.RequireAuthorization()
+	.MapMealPlanEndpoints();
 
 app.Run();

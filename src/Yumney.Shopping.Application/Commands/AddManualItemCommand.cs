@@ -6,5 +6,5 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 
 public sealed record AddManualItemCommand(
-    ItemName ItemName,
-    Quantity? Quantity) : ICommand<Result<AddedItemDto>>;
+	ItemName ItemName,
+	Quantity? Quantity) : ICommand<Result<AddedItemDto>>;

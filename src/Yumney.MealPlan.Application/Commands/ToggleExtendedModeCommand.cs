@@ -6,5 +6,5 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 
 public sealed record ToggleExtendedModeCommand(
-    WeekIdentifier Week,
-    bool Enable) : ICommand<Result<WeeklyPlanDto>>;
+	WeekIdentifier Week,
+	bool Enable) : ICommand<Result<WeeklyPlanDto>>;

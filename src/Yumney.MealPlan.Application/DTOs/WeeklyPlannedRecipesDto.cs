@@ -4,5 +4,5 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 /// All recipes planned for a week — input for shopping list generation.
 /// </summary>
 public sealed record WeeklyPlannedRecipesDto(
-    string Week,
-    IReadOnlyList<PlannedRecipeDto> Recipes);
+	string Week,
+	IReadOnlyList<PlannedRecipeDto> Recipes);

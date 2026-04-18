@@ -6,124 +6,124 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 {
-    private readonly List<Ingredient> ingredients = [];
-    private readonly List<Step> steps = [];
-    private readonly List<RecipeTag> tags = [];
+	private readonly List<Ingredient> ingredients = [];
+	private readonly List<Step> steps = [];
+	private readonly List<RecipeTag> tags = [];
 
-    public RecipeTitle Title { get; private set; } = default!;
+	public RecipeTitle Title { get; private set; } = default!;
 
-    public RecipeDescription? Description { get; private set; }
+	public RecipeDescription? Description { get; private set; }
 
-    public Servings? Servings { get; private set; }
+	public Servings? Servings { get; private set; }
 
-    public TimingInfo? Timing { get; private set; }
+	public TimingInfo? Timing { get; private set; }
 
-    public Difficulty? Difficulty { get; private set; }
+	public Difficulty? Difficulty { get; private set; }
 
-    public ImageUrl? ImageUrl { get; private set; }
+	public ImageUrl? ImageUrl { get; private set; }
 
-    public RecipeLanguage? Language { get; private set; }
+	public RecipeLanguage? Language { get; private set; }
 
-    public RecipeUrl? SourceUrl { get; private set; }
+	public RecipeUrl? SourceUrl { get; private set; }
 
-    public OwnerIdentifier Owner { get; private set; } = default!;
+	public OwnerIdentifier Owner { get; private set; } = default!;
 
-    public DateTime CreatedAt { get; private set; }
+	public DateTime CreatedAt { get; private set; }
 
-    public IReadOnlyList<Ingredient> Ingredients => ingredients.AsReadOnly();
+	public IReadOnlyList<Ingredient> Ingredients => ingredients.AsReadOnly();
 
-    public IReadOnlyList<Step> Steps => steps.AsReadOnly();
+	public IReadOnlyList<Step> Steps => steps.AsReadOnly();
 
-    public IReadOnlyList<RecipeTag> Tags => tags.AsReadOnly();
+	public IReadOnlyList<RecipeTag> Tags => tags.AsReadOnly();
 
-    private Recipe()
-    {
-    }
+	private Recipe()
+	{
+	}
 
-    public static Recipe Create(
-        RecipeTitle title,
-        OwnerIdentifier owner,
-        IReadOnlyList<Ingredient> ingredients,
-        IReadOnlyList<Step> steps,
-        RecipeDescription? description = null,
-        Servings? servings = null,
-        TimingInfo? timing = null,
-        Difficulty? difficulty = null,
-        ImageUrl? imageUrl = null,
-        RecipeLanguage? language = null,
-        RecipeUrl? sourceUrl = null,
-        IReadOnlyList<RecipeTag>? tags = null)
-    {
-        Ensure.That(ingredients).IsNotEmpty();
-        Ensure.That(steps).IsNotEmpty();
+	public static Recipe Create(
+		RecipeTitle title,
+		OwnerIdentifier owner,
+		IReadOnlyList<Ingredient> ingredients,
+		IReadOnlyList<Step> steps,
+		RecipeDescription? description = null,
+		Servings? servings = null,
+		TimingInfo? timing = null,
+		Difficulty? difficulty = null,
+		ImageUrl? imageUrl = null,
+		RecipeLanguage? language = null,
+		RecipeUrl? sourceUrl = null,
+		IReadOnlyList<RecipeTag>? tags = null)
+	{
+		Ensure.That(ingredients).IsNotEmpty();
+		Ensure.That(steps).IsNotEmpty();
 
-        var recipe = new Recipe
-        {
-            Id = RecipeIdentifier.New(),
-            Title = title,
-            SourceUrl = sourceUrl,
-            Owner = owner,
-            Description = description,
-            Servings = servings,
-            Timing = timing,
-            Difficulty = difficulty,
-            ImageUrl = imageUrl,
-            Language = language,
-            CreatedAt = DateTime.UtcNow,
-        };
+		var recipe = new Recipe
+		{
+			Id = RecipeIdentifier.New(),
+			Title = title,
+			SourceUrl = sourceUrl,
+			Owner = owner,
+			Description = description,
+			Servings = servings,
+			Timing = timing,
+			Difficulty = difficulty,
+			ImageUrl = imageUrl,
+			Language = language,
+			CreatedAt = DateTime.UtcNow,
+		};
 
-        recipe.ingredients.AddRange(ingredients);
-        recipe.steps.AddRange(steps);
-        if (tags is not null)
-        {
-            recipe.tags.AddRange(tags);
-        }
+		recipe.ingredients.AddRange(ingredients);
+		recipe.steps.AddRange(steps);
+		if (tags is not null)
+		{
+			recipe.tags.AddRange(tags);
+		}
 
-        recipe.AddDomainEvent(new RecipeSavedEvent(recipe.Id, title));
+		recipe.AddDomainEvent(new RecipeSavedEvent(recipe.Id, title));
 
-        return recipe;
-    }
+		return recipe;
+	}
 
-    public Recipe Update(
-        RecipeTitle title,
-        IReadOnlyList<Ingredient> ingredients,
-        IReadOnlyList<Step> steps,
-        RecipeDescription? description = null,
-        Servings? servings = null,
-        TimingInfo? timing = null,
-        Difficulty? difficulty = null,
-        ImageUrl? imageUrl = null,
-        IReadOnlyList<RecipeTag>? tags = null)
-    {
-        Ensure.That(ingredients).IsNotEmpty();
-        Ensure.That(steps).IsNotEmpty();
+	public Recipe Update(
+		RecipeTitle title,
+		IReadOnlyList<Ingredient> ingredients,
+		IReadOnlyList<Step> steps,
+		RecipeDescription? description = null,
+		Servings? servings = null,
+		TimingInfo? timing = null,
+		Difficulty? difficulty = null,
+		ImageUrl? imageUrl = null,
+		IReadOnlyList<RecipeTag>? tags = null)
+	{
+		Ensure.That(ingredients).IsNotEmpty();
+		Ensure.That(steps).IsNotEmpty();
 
-        Title = title;
-        Description = description;
-        Servings = servings;
-        Timing = timing;
-        Difficulty = difficulty;
-        ImageUrl = imageUrl;
+		Title = title;
+		Description = description;
+		Servings = servings;
+		Timing = timing;
+		Difficulty = difficulty;
+		ImageUrl = imageUrl;
 
-        this.ingredients.Clear();
-        this.ingredients.AddRange(ingredients);
+		this.ingredients.Clear();
+		this.ingredients.AddRange(ingredients);
 
-        this.steps.Clear();
-        this.steps.AddRange(steps);
+		this.steps.Clear();
+		this.steps.AddRange(steps);
 
-        this.tags.Clear();
-        if (tags is not null)
-        {
-            this.tags.AddRange(tags);
-        }
+		this.tags.Clear();
+		if (tags is not null)
+		{
+			this.tags.AddRange(tags);
+		}
 
-        AddDomainEvent(new RecipeUpdatedEvent(Id, title));
-        return this;
-    }
+		AddDomainEvent(new RecipeUpdatedEvent(Id, title));
+		return this;
+	}
 
-    public Recipe MarkAsDeleted()
-    {
-        AddDomainEvent(new RecipeDeletedEvent(Id, Title, Owner));
-        return this;
-    }
+	public Recipe MarkAsDeleted()
+	{
+		AddDomainEvent(new RecipeDeletedEvent(Id, Title, Owner));
+		return this;
+	}
 }

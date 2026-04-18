@@ -10,18 +10,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddYumneyDefaults();
 
 builder.Services
-    .AddRecipesApi()
-    .AddRecipesApplication()
-    .AddRecipesInfrastructure(builder.Configuration)
-    .AddRecipeExtraction(builder.Configuration)
-    .AddCqrsLoggingDecorators();
+	.AddRecipesApi()
+	.AddRecipesApplication()
+	.AddRecipesInfrastructure(builder.Configuration)
+	.AddRecipeExtraction(builder.Configuration)
+	.AddCqrsLoggingDecorators();
 
 var app = builder.Build();
 
 app.UseYumneyDefaults();
 
 app.MapGroup("/api/v1")
-    .RequireAuthorization()
-    .MapRecipesEndpoints();
+	.RequireAuthorization()
+	.MapRecipesEndpoints();
 
 app.Run();

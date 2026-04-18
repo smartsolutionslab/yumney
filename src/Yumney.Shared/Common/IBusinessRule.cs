@@ -2,7 +2,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public interface IBusinessRule
 {
-    string Message { get; }
+	string Message { get; }
 
-    bool IsBroken();
+	bool IsBroken();
 }

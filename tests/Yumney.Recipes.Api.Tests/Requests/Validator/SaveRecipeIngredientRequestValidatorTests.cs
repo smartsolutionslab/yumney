@@ -9,128 +9,128 @@ namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests.Validator;
 
 public class SaveRecipeIngredientRequestValidatorTests
 {
-    private readonly SaveRecipeIngredientRequestValidator validator = new();
+	private readonly SaveRecipeIngredientRequestValidator validator = new();
 
-    [Fact]
-    public void Validate_ValidRequest_HasNoErrors()
-    {
-        var request = new SaveRecipeIngredientRequest("Flour", 500, "g");
+	[Fact]
+	public void Validate_ValidRequest_HasNoErrors()
+	{
+		var request = new SaveRecipeIngredientRequest("Flour", 500, "g");
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldNotHaveAnyValidationErrors();
-    }
+		result.ShouldNotHaveAnyValidationErrors();
+	}
 
-    [Fact]
-    public void Validate_NullAmountAndUnit_HasNoErrors()
-    {
-        var request = new SaveRecipeIngredientRequest("Salt", null, null);
+	[Fact]
+	public void Validate_NullAmountAndUnit_HasNoErrors()
+	{
+		var request = new SaveRecipeIngredientRequest("Salt", null, null);
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldNotHaveAnyValidationErrors();
-    }
+		result.ShouldNotHaveAnyValidationErrors();
+	}
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Validate_EmptyName_HasError(string? name)
-    {
-        var request = new SaveRecipeIngredientRequest(name!, 100, "g");
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void Validate_EmptyName_HasError(string? name)
+	{
+		var request = new SaveRecipeIngredientRequest(name!, 100, "g");
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.Name);
-    }
+		result.ShouldHaveValidationErrorFor(x => x.Name);
+	}
 
-    [Fact]
-    public void Validate_NameExceedsMaxLength_HasError()
-    {
-        var request = new SaveRecipeIngredientRequest(new string('a', IngredientName.MaxLength + 1), 100, "g");
+	[Fact]
+	public void Validate_NameExceedsMaxLength_HasError()
+	{
+		var request = new SaveRecipeIngredientRequest(new string('a', IngredientName.MaxLength + 1), 100, "g");
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.Name);
-    }
+		result.ShouldHaveValidationErrorFor(x => x.Name);
+	}
 
-    [Fact]
-    public void Validate_NameAtMaxLength_HasNoError()
-    {
-        var request = new SaveRecipeIngredientRequest(new string('a', IngredientName.MaxLength), 100, "g");
+	[Fact]
+	public void Validate_NameAtMaxLength_HasNoError()
+	{
+		var request = new SaveRecipeIngredientRequest(new string('a', IngredientName.MaxLength), 100, "g");
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Name);
-    }
+		result.ShouldNotHaveValidationErrorFor(x => x.Name);
+	}
 
-    [Fact]
-    public void Validate_NegativeAmount_HasError()
-    {
-        var request = new SaveRecipeIngredientRequest("Flour", -1, "g");
+	[Fact]
+	public void Validate_NegativeAmount_HasError()
+	{
+		var request = new SaveRecipeIngredientRequest("Flour", -1, "g");
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.Amount);
-    }
+		result.ShouldHaveValidationErrorFor(x => x.Amount);
+	}
 
-    [Fact]
-    public void Validate_ZeroAmount_HasNoError()
-    {
-        var request = new SaveRecipeIngredientRequest("Flour", 0, "g");
+	[Fact]
+	public void Validate_ZeroAmount_HasNoError()
+	{
+		var request = new SaveRecipeIngredientRequest("Flour", 0, "g");
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Amount);
-    }
+		result.ShouldNotHaveValidationErrorFor(x => x.Amount);
+	}
 
-    [Fact]
-    public void Validate_PositiveAmount_HasNoError()
-    {
-        var request = new SaveRecipeIngredientRequest("Flour", 500, "g");
+	[Fact]
+	public void Validate_PositiveAmount_HasNoError()
+	{
+		var request = new SaveRecipeIngredientRequest("Flour", 500, "g");
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Amount);
-    }
+		result.ShouldNotHaveValidationErrorFor(x => x.Amount);
+	}
 
-    [Fact]
-    public void Validate_NullAmount_HasNoError()
-    {
-        var request = new SaveRecipeIngredientRequest("Flour", null, "g");
+	[Fact]
+	public void Validate_NullAmount_HasNoError()
+	{
+		var request = new SaveRecipeIngredientRequest("Flour", null, "g");
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Amount);
-    }
+		result.ShouldNotHaveValidationErrorFor(x => x.Amount);
+	}
 
-    [Fact]
-    public void Validate_UnitExceedsMaxLength_HasError()
-    {
-        var request = new SaveRecipeIngredientRequest("Flour", 500, new string('a', Unit.MaxLength + 1));
+	[Fact]
+	public void Validate_UnitExceedsMaxLength_HasError()
+	{
+		var request = new SaveRecipeIngredientRequest("Flour", 500, new string('a', Unit.MaxLength + 1));
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.Unit);
-    }
+		result.ShouldHaveValidationErrorFor(x => x.Unit);
+	}
 
-    [Fact]
-    public void Validate_UnitAtMaxLength_HasNoError()
-    {
-        var request = new SaveRecipeIngredientRequest("Flour", 500, new string('a', Unit.MaxLength));
+	[Fact]
+	public void Validate_UnitAtMaxLength_HasNoError()
+	{
+		var request = new SaveRecipeIngredientRequest("Flour", 500, new string('a', Unit.MaxLength));
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Unit);
-    }
+		result.ShouldNotHaveValidationErrorFor(x => x.Unit);
+	}
 
-    [Fact]
-    public void Validate_NullUnit_HasNoError()
-    {
-        var request = new SaveRecipeIngredientRequest("Flour", 500, null);
+	[Fact]
+	public void Validate_NullUnit_HasNoError()
+	{
+		var request = new SaveRecipeIngredientRequest("Flour", 500, null);
 
-        var result = validator.TestValidate(request);
+		var result = validator.TestValidate(request);
 
-        result.ShouldNotHaveValidationErrorFor(x => x.Unit);
-    }
+		result.ShouldNotHaveValidationErrorFor(x => x.Unit);
+	}
 }

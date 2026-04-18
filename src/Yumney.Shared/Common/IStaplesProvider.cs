@@ -6,7 +6,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 /// </summary>
 public interface IStaplesProvider
 {
-    Task<IReadOnlySet<string>> GetStapleNamesAsync(
-        string ownerId,
-        CancellationToken cancellationToken = default);
+	Task<IReadOnlySet<string>> GetStapleNamesAsync(
+		string ownerId,
+		CancellationToken cancellationToken = default);
 }

@@ -6,8 +6,8 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 /// </summary>
 public interface IShoppingListWriter
 {
-    Task AddItemsAsync(
-        string ownerId,
-        IReadOnlyList<ShoppingItemRequest> items,
-        CancellationToken cancellationToken = default);
+	Task AddItemsAsync(
+		string ownerId,
+		IReadOnlyList<ShoppingItemRequest> items,
+		CancellationToken cancellationToken = default);
 }

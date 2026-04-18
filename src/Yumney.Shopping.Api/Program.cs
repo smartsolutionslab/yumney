@@ -9,17 +9,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddYumneyDefaults();
 
 builder.Services
-    .AddShoppingApi()
-    .AddShoppingApplication()
-    .AddShoppingInfrastructure(builder.Configuration)
-    .AddCqrsLoggingDecorators();
+	.AddShoppingApi()
+	.AddShoppingApplication()
+	.AddShoppingInfrastructure(builder.Configuration)
+	.AddCqrsLoggingDecorators();
 
 var app = builder.Build();
 
 app.UseYumneyDefaults();
 
 app.MapGroup("/api/v1")
-    .RequireAuthorization()
-    .MapShoppingEndpoints();
+	.RequireAuthorization()
+	.MapShoppingEndpoints();
 
 app.Run();

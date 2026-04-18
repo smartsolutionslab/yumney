@@ -13,110 +13,110 @@ namespace SmartSolutionsLab.Yumney.Shared.Tests.Web;
 
 public class GlobalExceptionHandlerMiddlewareTests
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
+	private static readonly JsonSerializerOptions JsonOptions = new()
+	{
+		PropertyNameCaseInsensitive = true,
+	};
 
-    private sealed class TestRule(string message) : IBusinessRule
-    {
-        public string Message => message;
+	private sealed class TestRule(string message) : IBusinessRule
+	{
+		public string Message => message;
 
-        public bool IsBroken() => true;
-    }
+		public bool IsBroken() => true;
+	}
 
-    [Fact]
-    public async Task InvokeAsync_NoException_PassesThrough()
-    {
-        var wasCalled = false;
-        var middleware = CreateMiddleware(_ =>
-        {
-            wasCalled = true;
-            return Task.CompletedTask;
-        });
-        var context = CreateHttpContext();
+	[Fact]
+	public async Task InvokeAsync_NoException_PassesThrough()
+	{
+		var wasCalled = false;
+		var middleware = CreateMiddleware(_ =>
+		{
+			wasCalled = true;
+			return Task.CompletedTask;
+		});
+		var context = CreateHttpContext();
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        wasCalled.Should().BeTrue();
-    }
+		wasCalled.Should().BeTrue();
+	}
 
-    [Fact]
-    public async Task InvokeAsync_GuardException_Returns400()
-    {
-        var middleware = CreateMiddleware(_ => throw new GuardException("param", "Invalid value"));
-        var context = CreateHttpContext();
+	[Fact]
+	public async Task InvokeAsync_GuardException_Returns400()
+	{
+		var middleware = CreateMiddleware(_ => throw new GuardException("param", "Invalid value"));
+		var context = CreateHttpContext();
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        context.Response.StatusCode.Should().Be(400);
-    }
+		context.Response.StatusCode.Should().Be(400);
+	}
 
-    [Fact]
-    public async Task InvokeAsync_GuardException_ReturnsProblemDetails()
-    {
-        var middleware = CreateMiddleware(_ => throw new GuardException("param", "Invalid value"));
-        var context = CreateHttpContext();
+	[Fact]
+	public async Task InvokeAsync_GuardException_ReturnsProblemDetails()
+	{
+		var middleware = CreateMiddleware(_ => throw new GuardException("param", "Invalid value"));
+		var context = CreateHttpContext();
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(body, JsonOptions);
+		context.Response.Body.Seek(0, SeekOrigin.Begin);
+		var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+		var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(body, JsonOptions);
 
-        problemDetails.Should().NotBeNull();
-        problemDetails!.Status.Should().Be(400);
-        problemDetails.Title.Should().Be("Validation Error");
-        problemDetails.Detail.Should().Be("Invalid value");
-    }
+		problemDetails.Should().NotBeNull();
+		problemDetails!.Status.Should().Be(400);
+		problemDetails.Title.Should().Be("Validation Error");
+		problemDetails.Detail.Should().Be("Invalid value");
+	}
 
-    [Fact]
-    public async Task InvokeAsync_BusinessRuleValidationException_Returns422()
-    {
-        var rule = new TestRule("Business rule violated");
-        var middleware = CreateMiddleware(_ => throw new BusinessRuleValidationException(rule));
-        var context = CreateHttpContext();
+	[Fact]
+	public async Task InvokeAsync_BusinessRuleValidationException_Returns422()
+	{
+		var rule = new TestRule("Business rule violated");
+		var middleware = CreateMiddleware(_ => throw new BusinessRuleValidationException(rule));
+		var context = CreateHttpContext();
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        context.Response.StatusCode.Should().Be(422);
-    }
+		context.Response.StatusCode.Should().Be(422);
+	}
 
-    [Fact]
-    public async Task InvokeAsync_UnhandledException_Returns500()
-    {
-        var middleware = CreateMiddleware(_ => throw new InvalidOperationException("Something broke"));
-        var context = CreateHttpContext();
+	[Fact]
+	public async Task InvokeAsync_UnhandledException_Returns500()
+	{
+		var middleware = CreateMiddleware(_ => throw new InvalidOperationException("Something broke"));
+		var context = CreateHttpContext();
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        context.Response.StatusCode.Should().Be(500);
-    }
+		context.Response.StatusCode.Should().Be(500);
+	}
 
-    [Fact]
-    public async Task InvokeAsync_UnhandledException_DoesNotLeakExceptionDetails()
-    {
-        var middleware = CreateMiddleware(_ => throw new InvalidOperationException("Secret internal error"));
-        var context = CreateHttpContext();
+	[Fact]
+	public async Task InvokeAsync_UnhandledException_DoesNotLeakExceptionDetails()
+	{
+		var middleware = CreateMiddleware(_ => throw new InvalidOperationException("Secret internal error"));
+		var context = CreateHttpContext();
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+		context.Response.Body.Seek(0, SeekOrigin.Begin);
+		var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
 
-        body.Should().NotContain("Secret internal error");
-    }
+		body.Should().NotContain("Secret internal error");
+	}
 
-    private static GlobalExceptionHandlerMiddleware CreateMiddleware(RequestDelegate next)
-    {
-        var logger = Substitute.For<ILogger<GlobalExceptionHandlerMiddleware>>();
-        return new GlobalExceptionHandlerMiddleware(next, logger);
-    }
+	private static GlobalExceptionHandlerMiddleware CreateMiddleware(RequestDelegate next)
+	{
+		var logger = Substitute.For<ILogger<GlobalExceptionHandlerMiddleware>>();
+		return new GlobalExceptionHandlerMiddleware(next, logger);
+	}
 
-    private static DefaultHttpContext CreateHttpContext()
-    {
-        var context = new DefaultHttpContext();
-        context.Response.Body = new MemoryStream();
-        return context;
-    }
+	private static DefaultHttpContext CreateHttpContext()
+	{
+		var context = new DefaultHttpContext();
+		context.Response.Body = new MemoryStream();
+		return context;
+	}
 }

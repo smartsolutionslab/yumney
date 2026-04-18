@@ -6,13 +6,13 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
 public sealed record UpdateRecipeCommand(
-    RecipeIdentifier Identifier,
-    RecipeTitle Title,
-    IReadOnlyList<SaveRecipeIngredientItem> Ingredients,
-    IReadOnlyList<SaveRecipeStepItem> Steps,
-    RecipeDescription? Description = null,
-    Servings? Servings = null,
-    TimingInfo? Timing = null,
-    Difficulty? Difficulty = null,
-    ImageUrl? ImageUrl = null,
-    IReadOnlyList<RecipeTag>? Tags = null) : ICommand<Result<RecipeDetailDto>>;
+	RecipeIdentifier Identifier,
+	RecipeTitle Title,
+	IReadOnlyList<SaveRecipeIngredientItem> Ingredients,
+	IReadOnlyList<SaveRecipeStepItem> Steps,
+	RecipeDescription? Description = null,
+	Servings? Servings = null,
+	TimingInfo? Timing = null,
+	Difficulty? Difficulty = null,
+	ImageUrl? ImageUrl = null,
+	IReadOnlyList<RecipeTag>? Tags = null) : ICommand<Result<RecipeDetailDto>>;

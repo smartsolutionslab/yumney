@@ -6,10 +6,10 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application;
 
 public static class ShoppingApplicationServiceCollectionExtensions
 {
-    public static IServiceCollection AddShoppingApplication(this IServiceCollection services)
-    {
-        services.AddHandlersFromAssemblyContaining<CreateShoppingListCommandHandler>();
+	public static IServiceCollection AddShoppingApplication(this IServiceCollection services)
+	{
+		services.AddHandlersFromAssemblyContaining<CreateShoppingListCommandHandler>();
 
-        return services;
-    }
+		return services;
+	}
 }

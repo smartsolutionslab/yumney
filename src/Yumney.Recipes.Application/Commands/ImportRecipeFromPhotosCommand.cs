@@ -5,4 +5,4 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
 public sealed record ImportRecipeFromPhotosCommand(
-    IReadOnlyList<PhotoData> Photos) : ICommand<Result<ExtractedRecipeDto>>;
+	IReadOnlyList<PhotoData> Photos) : ICommand<Result<ExtractedRecipeDto>>;

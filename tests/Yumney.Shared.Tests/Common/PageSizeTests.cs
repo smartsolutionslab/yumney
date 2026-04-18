@@ -7,51 +7,51 @@ namespace SmartSolutionsLab.Yumney.Shared.Tests.Common;
 
 public class PageSizeTests
 {
-    [Fact]
-    public void From_ValidSize_CreatesInstance()
-    {
-        var pageSize = PageSize.From(20);
+	[Fact]
+	public void From_ValidSize_CreatesInstance()
+	{
+		var pageSize = PageSize.From(20);
 
-        pageSize.Value.Should().Be(20);
-    }
+		pageSize.Value.Should().Be(20);
+	}
 
-    [Fact]
-    public void From_Zero_ThrowsGuardException()
-    {
-        var act = () => PageSize.From(0);
+	[Fact]
+	public void From_Zero_ThrowsGuardException()
+	{
+		var act = () => PageSize.From(0);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void From_Negative_ThrowsGuardException()
-    {
-        var act = () => PageSize.From(-1);
+	[Fact]
+	public void From_Negative_ThrowsGuardException()
+	{
+		var act = () => PageSize.From(-1);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void From_ExceedsMax_ThrowsGuardException()
-    {
-        var act = () => PageSize.From(101);
+	[Fact]
+	public void From_ExceedsMax_ThrowsGuardException()
+	{
+		var act = () => PageSize.From(101);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void From_AtMin_CreatesInstance()
-    {
-        var pageSize = PageSize.From(1);
+	[Fact]
+	public void From_AtMin_CreatesInstance()
+	{
+		var pageSize = PageSize.From(1);
 
-        pageSize.Value.Should().Be(1);
-    }
+		pageSize.Value.Should().Be(1);
+	}
 
-    [Fact]
-    public void From_AtMax_CreatesInstance()
-    {
-        var pageSize = PageSize.From(100);
+	[Fact]
+	public void From_AtMax_CreatesInstance()
+	{
+		var pageSize = PageSize.From(100);
 
-        pageSize.Value.Should().Be(100);
-    }
+		pageSize.Value.Should().Be(100);
+	}
 }

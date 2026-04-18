@@ -7,47 +7,47 @@ namespace SmartSolutionsLab.Yumney.Users.Domain.Tests.UserActivity;
 
 public class RecipeIdentifierSnapshotTests
 {
-    [Fact]
-    public void From_ValidGuid_CreatesInstance()
-    {
-        var guid = Guid.NewGuid();
-        var snapshot = RecipeIdentifierSnapshot.From(guid);
+	[Fact]
+	public void From_ValidGuid_CreatesInstance()
+	{
+		var guid = Guid.NewGuid();
+		var snapshot = RecipeIdentifierSnapshot.From(guid);
 
-        snapshot.Value.Should().Be(guid);
-    }
+		snapshot.Value.Should().Be(guid);
+	}
 
-    [Fact]
-    public void From_EmptyGuid_ThrowsGuardException()
-    {
-        var act = () => RecipeIdentifierSnapshot.From(Guid.Empty);
+	[Fact]
+	public void From_EmptyGuid_ThrowsGuardException()
+	{
+		var act = () => RecipeIdentifierSnapshot.From(Guid.Empty);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void FromNullable_Null_ReturnsNull()
-    {
-        var result = RecipeIdentifierSnapshot.FromNullable(null);
+	[Fact]
+	public void FromNullable_Null_ReturnsNull()
+	{
+		var result = RecipeIdentifierSnapshot.FromNullable(null);
 
-        result.Should().BeNull();
-    }
+		result.Should().BeNull();
+	}
 
-    [Fact]
-    public void FromNullable_ValidGuid_ReturnsInstance()
-    {
-        var guid = Guid.NewGuid();
-        var result = RecipeIdentifierSnapshot.FromNullable(guid);
+	[Fact]
+	public void FromNullable_ValidGuid_ReturnsInstance()
+	{
+		var guid = Guid.NewGuid();
+		var result = RecipeIdentifierSnapshot.FromNullable(guid);
 
-        result.Should().NotBeNull();
-        result!.Value.Should().Be(guid);
-    }
+		result.Should().NotBeNull();
+		result!.Value.Should().Be(guid);
+	}
 
-    [Fact]
-    public void ImplicitConversion_ReturnsGuid()
-    {
-        var guid = Guid.NewGuid();
-        Guid value = RecipeIdentifierSnapshot.From(guid);
+	[Fact]
+	public void ImplicitConversion_ReturnsGuid()
+	{
+		var guid = Guid.NewGuid();
+		Guid value = RecipeIdentifierSnapshot.From(guid);
 
-        value.Should().Be(guid);
-    }
+		value.Should().Be(guid);
+	}
 }

@@ -4,16 +4,16 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public sealed record ItemCount : IValueObject
 {
-    public int Value { get; }
+	public int Value { get; }
 
-    private ItemCount(int value)
-    {
-        Value = Ensure.That(value).IsNotNegative().AndReturn();
-    }
+	private ItemCount(int value)
+	{
+		Value = Ensure.That(value).IsNotNegative().AndReturn();
+	}
 
-    public static ItemCount From(int value) => new(value);
+	public static ItemCount From(int value) => new(value);
 
-    public static implicit operator int(ItemCount obj) => obj.Value;
+	public static implicit operator int(ItemCount obj) => obj.Value;
 
-    public override string ToString() => Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+	public override string ToString() => Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }

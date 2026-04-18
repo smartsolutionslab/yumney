@@ -6,5 +6,5 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 public interface IWebScraper
 {
-    Task<Result<ScrapedContent>> ScrapeAsync(RecipeUrl url, CancellationToken cancellationToken = default);
+	Task<Result<ScrapedContent>> ScrapeAsync(RecipeUrl url, CancellationToken cancellationToken = default);
 }

@@ -12,46 +12,46 @@ namespace SmartSolutionsLab.Yumney.Shared.CQRS.Decorators;
 /// </summary>
 internal static class ResultInspector
 {
-    private static readonly ConcurrentDictionary<Type, ResultAccessor?> cache = new();
+	private static readonly ConcurrentDictionary<Type, ResultAccessor?> cache = new();
 
-    public static bool IsFailure<TResult>(TResult result, out string? errorCode, out string? errorMessage)
-    {
-        errorCode = null;
-        errorMessage = null;
+	public static bool IsFailure<TResult>(TResult result, out string? errorCode, out string? errorMessage)
+	{
+		errorCode = null;
+		errorMessage = null;
 
-        if (result is null) return false;
+		if (result is null) return false;
 
-        var accessor = cache.GetOrAdd(typeof(TResult), static type =>
-        {
-            var isFailureProp = type.GetProperty("IsFailure", BindingFlags.Public | BindingFlags.Instance);
-            var errorProp = type.GetProperty("Error", BindingFlags.Public | BindingFlags.Instance);
+		var accessor = cache.GetOrAdd(typeof(TResult), static type =>
+		{
+			var isFailureProp = type.GetProperty("IsFailure", BindingFlags.Public | BindingFlags.Instance);
+			var errorProp = type.GetProperty("Error", BindingFlags.Public | BindingFlags.Instance);
 
-            if (isFailureProp is null || isFailureProp.PropertyType != typeof(bool) || errorProp is null)
-                return null;
+			if (isFailureProp is null || isFailureProp.PropertyType != typeof(bool) || errorProp is null)
+				return null;
 
-            var errorType = errorProp.PropertyType;
-            var codeProp = errorType.GetProperty("Code", BindingFlags.Public | BindingFlags.Instance);
-            var messageProp = errorType.GetProperty("Message", BindingFlags.Public | BindingFlags.Instance);
+			var errorType = errorProp.PropertyType;
+			var codeProp = errorType.GetProperty("Code", BindingFlags.Public | BindingFlags.Instance);
+			var messageProp = errorType.GetProperty("Message", BindingFlags.Public | BindingFlags.Instance);
 
-            return new ResultAccessor(isFailureProp, errorProp, codeProp, messageProp);
-        });
+			return new ResultAccessor(isFailureProp, errorProp, codeProp, messageProp);
+		});
 
-        if (accessor is null) return false;
+		if (accessor is null) return false;
 
-        var isFailure = (bool)accessor.IsFailure.GetValue(result)!;
-        if (!isFailure) return false;
+		var isFailure = (bool)accessor.IsFailure.GetValue(result)!;
+		if (!isFailure) return false;
 
-        var error = accessor.Error.GetValue(result);
-        if (error is null) return true;
+		var error = accessor.Error.GetValue(result);
+		if (error is null) return true;
 
-        errorCode = accessor.ErrorCode?.GetValue(error) as string;
-        errorMessage = accessor.ErrorMessage?.GetValue(error) as string;
-        return true;
-    }
+		errorCode = accessor.ErrorCode?.GetValue(error) as string;
+		errorMessage = accessor.ErrorMessage?.GetValue(error) as string;
+		return true;
+	}
 
-    private sealed record ResultAccessor(
-        PropertyInfo IsFailure,
-        PropertyInfo Error,
-        PropertyInfo? ErrorCode,
-        PropertyInfo? ErrorMessage);
+	private sealed record ResultAccessor(
+		PropertyInfo IsFailure,
+		PropertyInfo Error,
+		PropertyInfo? ErrorCode,
+		PropertyInfo? ErrorMessage);
 }

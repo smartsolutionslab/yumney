@@ -15,33 +15,33 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure;
 
 public static class UsersInfrastructureServiceCollectionExtensions
 {
-    public static IServiceCollection AddUsersInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddOptions<KeycloakOptions>()
-            .Bind(configuration.GetSection(KeycloakOptions.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
+	public static IServiceCollection AddUsersInfrastructure(this IServiceCollection services, IConfiguration configuration)
+	{
+		services.AddOptions<KeycloakOptions>()
+			.Bind(configuration.GetSection(KeycloakOptions.SectionName))
+			.ValidateDataAnnotations()
+			.ValidateOnStart();
 
-        services.AddDbContext<UsersDbContext>((sp, options) =>
-        {
-            var connectionString = configuration.GetConnectionString("usersdb");
-            options
-                .UseNpgsql(connectionString, x => x.MigrationsHistoryTable("__UsersMigrationsHistory").EnableRetryOnFailure())
-                .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
-        });
+		services.AddDbContext<UsersDbContext>((sp, options) =>
+		{
+			var connectionString = configuration.GetConnectionString("usersdb");
+			options
+				.UseNpgsql(connectionString, x => x.MigrationsHistoryTable("__UsersMigrationsHistory").EnableRetryOnFailure())
+				.AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
+		});
 
-        services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
-        services.AddScoped<IUserActivityRepository, UserActivityRepository>();
-        services.AddScoped<IStaplesListRepository, StaplesListRepository>();
-        services.AddScoped<IStaplesProvider, StaplesProvider>();
+		services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
+		services.AddScoped<IUserActivityRepository, UserActivityRepository>();
+		services.AddScoped<IStaplesListRepository, StaplesListRepository>();
+		services.AddScoped<IStaplesProvider, StaplesProvider>();
 
-        services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client =>
-        {
-            client.BaseAddress = new Uri("https+http://_http.keycloak");
-        }).AddStandardResilienceHandler();
+		services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client =>
+		{
+			client.BaseAddress = new Uri("https+http://_http.keycloak");
+		}).AddStandardResilienceHandler();
 
-        services.AddHealthChecks().AddDbContextCheck<UsersDbContext>("usersdb");
+		services.AddHealthChecks().AddDbContextCheck<UsersDbContext>("usersdb");
 
-        return services;
-    }
+		return services;
+	}
 }

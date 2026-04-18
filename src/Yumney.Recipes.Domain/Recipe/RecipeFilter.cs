@@ -6,16 +6,16 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 /// "must contain all" set, not "must contain any".
 /// </summary>
 public sealed record RecipeFilter(
-    IReadOnlyList<RecipeTag>? Tags = null,
-    Difficulty? Difficulty = null,
-    PreparationTime? MaxPrepTime = null,
-    CookingTime? MaxCookTime = null,
-    bool? FavoritesOnly = null)
+	IReadOnlyList<RecipeTag>? Tags = null,
+	Difficulty? Difficulty = null,
+	PreparationTime? MaxPrepTime = null,
+	CookingTime? MaxCookTime = null,
+	bool? FavoritesOnly = null)
 {
-    public bool IsEmpty =>
-        (Tags is null || Tags.Count == 0)
-        && Difficulty is null
-        && MaxPrepTime is null
-        && MaxCookTime is null
-        && FavoritesOnly is not true;
+	public bool IsEmpty =>
+		(Tags is null || Tags.Count == 0)
+		&& Difficulty is null
+		&& MaxPrepTime is null
+		&& MaxCookTime is null
+		&& FavoritesOnly is not true;
 }

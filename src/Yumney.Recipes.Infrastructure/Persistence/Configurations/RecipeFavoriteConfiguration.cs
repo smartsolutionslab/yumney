@@ -8,25 +8,25 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Configurat
 
 internal sealed class RecipeFavoriteConfiguration : IEntityTypeConfiguration<RecipeFavorite>
 {
-    public void Configure(EntityTypeBuilder<RecipeFavorite> entity)
-    {
-        entity.ToTable("RecipeFavorites");
-        entity.HasKey(e => e.Id);
-        entity.Property(e => e.Id)
-            .HasConversion<RecipeFavoriteIdentifierConverter>();
+	public void Configure(EntityTypeBuilder<RecipeFavorite> entity)
+	{
+		entity.ToTable("RecipeFavorites");
+		entity.HasKey(e => e.Id);
+		entity.Property(e => e.Id)
+			.HasConversion<RecipeFavoriteIdentifierConverter>();
 
-        entity.Property(e => e.RecipeIdentifier)
-            .HasConversion<RecipeIdentifierConverter>()
-            .IsRequired();
+		entity.Property(e => e.RecipeIdentifier)
+			.HasConversion<RecipeIdentifierConverter>()
+			.IsRequired();
 
-        entity.Property(e => e.Owner)
-            .HasConversion<RecipeOwnerIdentifierConverter>()
-            .HasMaxLength(OwnerIdentifier.MaxLength)
-            .IsRequired();
+		entity.Property(e => e.Owner)
+			.HasConversion<RecipeOwnerIdentifierConverter>()
+			.HasMaxLength(OwnerIdentifier.MaxLength)
+			.IsRequired();
 
-        entity.Property(e => e.FavoritedAt).IsRequired();
+		entity.Property(e => e.FavoritedAt).IsRequired();
 
-        entity.HasIndex(e => new { e.Owner, e.RecipeIdentifier }).IsUnique();
-        entity.Ignore(e => e.DomainEvents);
-    }
+		entity.HasIndex(e => new { e.Owner, e.RecipeIdentifier }).IsUnique();
+		entity.Ignore(e => e.DomainEvents);
+	}
 }

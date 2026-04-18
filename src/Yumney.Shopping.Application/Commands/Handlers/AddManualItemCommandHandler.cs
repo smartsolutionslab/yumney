@@ -8,31 +8,31 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
 public sealed class AddManualItemCommandHandler(
-    IShoppingEventStore eventStore,
-    ICurrentUser currentUser) : ICommandHandler<AddManualItemCommand, Result<AddedItemDto>>
+	IShoppingEventStore eventStore,
+	ICurrentUser currentUser) : ICommandHandler<AddManualItemCommand, Result<AddedItemDto>>
 {
-    public async Task<Result<AddedItemDto>> HandleAsync(AddManualItemCommand command, CancellationToken cancellationToken = default)
-    {
-        var (itemName, explicitQuantity) = command;
-        var name = itemName.Value;
-        var ownerId = OwnerIdentifier.From(currentUser.UserId);
+	public async Task<Result<AddedItemDto>> HandleAsync(AddManualItemCommand command, CancellationToken cancellationToken = default)
+	{
+		var (itemName, explicitQuantity) = command;
+		var name = itemName.Value;
+		var ownerId = OwnerIdentifier.From(currentUser.UserId);
 
-        var quantity = explicitQuantity ?? DefaultQuantityResolver.Resolve(name);
-        var category = IngredientCategoryResolver.Resolve(name) ?? IngredientCategory.Other;
+		var quantity = explicitQuantity ?? DefaultQuantityResolver.Resolve(name);
+		var category = IngredientCategoryResolver.Resolve(name) ?? IngredientCategory.Other;
 
-        var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
-            ?? ShoppingLedger.Create(ownerId);
+		var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
+			?? ShoppingLedger.Create(ownerId);
 
-        ledger.AddItem(itemName, quantity, ItemSource.Manual);
+		ledger.AddItem(itemName, quantity, ItemSource.Manual);
 
-        await eventStore.SaveAsync(ledger, cancellationToken);
+		await eventStore.SaveAsync(ledger, cancellationToken);
 
-        return new AddedItemDto(
-            name,
-            quantity.Amount,
-            quantity.Unit?.Value,
-            category.Value,
-            ItemSource.Manual.Value,
-            ledger.Identifier);
-    }
+		return new AddedItemDto(
+			name,
+			quantity.Amount,
+			quantity.Unit?.Value,
+			category.Value,
+			ItemSource.Manual.Value,
+			ledger.Identifier);
+	}
 }

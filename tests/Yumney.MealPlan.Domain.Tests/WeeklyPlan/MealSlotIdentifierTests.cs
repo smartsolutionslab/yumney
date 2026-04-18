@@ -7,38 +7,38 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Domain.Tests.WeeklyPlan;
 
 public class MealSlotIdentifierTests
 {
-    [Fact]
-    public void New_CreatesNonEmptyGuid()
-    {
-        var id = MealSlotIdentifier.New();
+	[Fact]
+	public void New_CreatesNonEmptyGuid()
+	{
+		var id = MealSlotIdentifier.New();
 
-        id.Value.Should().NotBe(Guid.Empty);
-    }
+		id.Value.Should().NotBe(Guid.Empty);
+	}
 
-    [Fact]
-    public void From_ValidGuid_CreatesInstance()
-    {
-        var guid = Guid.NewGuid();
-        var id = MealSlotIdentifier.From(guid);
+	[Fact]
+	public void From_ValidGuid_CreatesInstance()
+	{
+		var guid = Guid.NewGuid();
+		var id = MealSlotIdentifier.From(guid);
 
-        id.Value.Should().Be(guid);
-    }
+		id.Value.Should().Be(guid);
+	}
 
-    [Fact]
-    public void From_EmptyGuid_ThrowsGuardException()
-    {
-        var act = () => MealSlotIdentifier.From(Guid.Empty);
+	[Fact]
+	public void From_EmptyGuid_ThrowsGuardException()
+	{
+		var act = () => MealSlotIdentifier.From(Guid.Empty);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void Equality_SameGuid_AreEqual()
-    {
-        var guid = Guid.NewGuid();
-        var a = MealSlotIdentifier.From(guid);
-        var b = MealSlotIdentifier.From(guid);
+	[Fact]
+	public void Equality_SameGuid_AreEqual()
+	{
+		var guid = Guid.NewGuid();
+		var a = MealSlotIdentifier.From(guid);
+		var b = MealSlotIdentifier.From(guid);
 
-        a.Should().Be(b);
-    }
+		a.Should().Be(b);
+	}
 }

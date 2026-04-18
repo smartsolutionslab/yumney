@@ -5,20 +5,20 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 public sealed record StepDescription : IValueObject<string>
 {
-    public const int MaxLength = 2000;
+	public const int MaxLength = 2000;
 
-    public string Value { get; }
+	public string Value { get; }
 
-    private StepDescription(string value)
-    {
-        string validated = Ensure.That(value)
-            .IsNotNullOrWhiteSpace()
-            .HasMaxLength(MaxLength)
-            .AndReturn();
-        Value = validated.Trim();
-    }
+	private StepDescription(string value)
+	{
+		string validated = Ensure.That(value)
+			.IsNotNullOrWhiteSpace()
+			.HasMaxLength(MaxLength)
+			.AndReturn();
+		Value = validated.Trim();
+	}
 
-    public static StepDescription From(string value) => new(value);
+	public static StepDescription From(string value) => new(value);
 
-    public static implicit operator string(StepDescription obj) => obj.Value;
+	public static implicit operator string(StepDescription obj) => obj.Value;
 }

@@ -2,7 +2,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 public static class IntentParserPrompts
 {
-    public const string IntentJsonSchema = """
+	public const string IntentJsonSchema = """
         {
           "intent": "string (required, one of: add_to_list, remove_from_list, query_list, plan_meal, query_plan, swap_meals, search_recipe, what_can_i_cook, navigate, recipe_import, general_chat)",
           "entities": { "key": "value" },
@@ -10,7 +10,7 @@ public static class IntentParserPrompts
         }
         """;
 
-    public const string SystemPrompt = $$"""
+	public const string SystemPrompt = $$"""
         You are an intent parser for the Yumney recipe app. Classify the user's message
         into exactly one intent and extract relevant entities. The user may write in
         English or German — handle both languages equally.

@@ -6,13 +6,13 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 public sealed class RecognizeIngredientsCommandHandler(
-    IIngredientRecognitionService recognitionService)
-    : ICommandHandler<RecognizeIngredientsCommand, Result<RecognizedIngredientsResponseDto>>
+	IIngredientRecognitionService recognitionService)
+	: ICommandHandler<RecognizeIngredientsCommand, Result<RecognizedIngredientsResponseDto>>
 {
-    public async Task<Result<RecognizedIngredientsResponseDto>> HandleAsync(
-        RecognizeIngredientsCommand command,
-        CancellationToken cancellationToken = default)
-    {
-        return await recognitionService.RecognizeAsync(command.Photo, cancellationToken);
-    }
+	public async Task<Result<RecognizedIngredientsResponseDto>> HandleAsync(
+		RecognizeIngredientsCommand command,
+		CancellationToken cancellationToken = default)
+	{
+		return await recognitionService.RecognizeAsync(command.Photo, cancellationToken);
+	}
 }

@@ -25,174 +25,174 @@ namespace SmartSolutionsLab.Yumney.Shared.Web;
 
 public static class HostBuilderExtensions
 {
-    public static WebApplicationBuilder AddYumneyDefaults(this WebApplicationBuilder builder)
-    {
-        builder.AddServiceDefaults();
-        builder.AddRedisDistributedCache("redis");
-        builder.AddRedisClient("redis");
+	public static WebApplicationBuilder AddYumneyDefaults(this WebApplicationBuilder builder)
+	{
+		builder.AddServiceDefaults();
+		builder.AddRedisDistributedCache("redis");
+		builder.AddRedisClient("redis");
 
-        builder.Services.ConfigureHttpJsonOptions(options =>
-        {
-            options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
-        });
+		builder.Services.ConfigureHttpJsonOptions(options =>
+		{
+			options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+		});
 
-        builder.Services.Configure<HostOptions>(options =>
-        {
-            options.ShutdownTimeout = TimeSpan.FromSeconds(30);
-        });
+		builder.Services.Configure<HostOptions>(options =>
+		{
+			options.ShutdownTimeout = TimeSpan.FromSeconds(30);
+		});
 
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.Authority = KeycloakDefaults.RealmUrl(builder.Configuration);
-                options.Audience = KeycloakDefaults.Audience;
-                options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters.ValidateIssuer = false;
-            });
+		builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			.AddJwtBearer(options =>
+			{
+				options.Authority = KeycloakDefaults.RealmUrl(builder.Configuration);
+				options.Audience = KeycloakDefaults.Audience;
+				options.RequireHttpsMetadata = false;
+				options.TokenValidationParameters.ValidateIssuer = false;
+			});
 
-        builder.Services.AddAuthorization();
-        builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<ICurrentUser, CurrentUserProvider>();
+		builder.Services.AddAuthorization();
+		builder.Services.AddHttpContextAccessor();
+		builder.Services.AddScoped<ICurrentUser, CurrentUserProvider>();
 
-        // Domain events: dispatched in-process (same transaction boundary)
-        // Integration events: published via MassTransit/RabbitMQ (cross-instance)
-        // MassTransit registration overrides InProcessEventBus for IEventBus (last-wins in DI)
-        builder.Services.AddInProcessEventBus();
-        builder.Services.AddMassTransitEventBus(builder.Configuration);
+		// Domain events: dispatched in-process (same transaction boundary)
+		// Integration events: published via MassTransit/RabbitMQ (cross-instance)
+		// MassTransit registration overrides InProcessEventBus for IEventBus (last-wins in DI)
+		builder.Services.AddInProcessEventBus();
+		builder.Services.AddMassTransitEventBus(builder.Configuration);
 
-        builder.Services.AddScoped<DomainEventDispatchInterceptor>();
+		builder.Services.AddScoped<DomainEventDispatchInterceptor>();
 
-        var configuration = builder.Configuration;
+		var configuration = builder.Configuration;
 
-        builder.Services.AddOpenApi(options =>
-        {
-            options.AddDocumentTransformer((document, _, _) =>
-            {
-                document.Servers = [];
+		builder.Services.AddOpenApi(options =>
+		{
+			options.AddDocumentTransformer((document, _, _) =>
+			{
+				document.Servers = [];
 
-                var components = document.Components ?? new OpenApiComponents();
-                document.Components = components;
-                components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
-                components.SecuritySchemes["keycloak"] = new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.OAuth2,
-                    Flows = new OpenApiOAuthFlows
-                    {
-                        AuthorizationCode = new OpenApiOAuthFlow
-                        {
-                            AuthorizationUrl = new Uri(KeycloakDefaults.AuthorizationUrl(configuration)),
-                            TokenUrl = new Uri(KeycloakDefaults.TokenUrl(configuration)),
-                            Scopes = new Dictionary<string, string>
-                            {
-                                [KeycloakDefaults.ScopeOpenId] = "OpenID Connect",
-                                [KeycloakDefaults.ScopeProfile] = "User profile",
-                            },
-                        },
-                    },
-                };
+				var components = document.Components ?? new OpenApiComponents();
+				document.Components = components;
+				components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+				components.SecuritySchemes["keycloak"] = new OpenApiSecurityScheme
+				{
+					Type = SecuritySchemeType.OAuth2,
+					Flows = new OpenApiOAuthFlows
+					{
+						AuthorizationCode = new OpenApiOAuthFlow
+						{
+							AuthorizationUrl = new Uri(KeycloakDefaults.AuthorizationUrl(configuration)),
+							TokenUrl = new Uri(KeycloakDefaults.TokenUrl(configuration)),
+							Scopes = new Dictionary<string, string>
+							{
+								[KeycloakDefaults.ScopeOpenId] = "OpenID Connect",
+								[KeycloakDefaults.ScopeProfile] = "User profile",
+							},
+						},
+					},
+				};
 
-                document.Security ??= [];
-                document.Security.Add(new OpenApiSecurityRequirement
-                {
-                    [new OpenApiSecuritySchemeReference("keycloak", document)] = [KeycloakDefaults.ScopeOpenId, KeycloakDefaults.ScopeProfile],
-                });
+				document.Security ??= [];
+				document.Security.Add(new OpenApiSecurityRequirement
+				{
+					[new OpenApiSecuritySchemeReference("keycloak", document)] = [KeycloakDefaults.ScopeOpenId, KeycloakDefaults.ScopeProfile],
+				});
 
-                return Task.CompletedTask;
-            });
-        });
+				return Task.CompletedTask;
+			});
+		});
 
-        builder.Services.AddResponseCompression(options =>
-        {
-            options.EnableForHttps = true;
-            options.Providers.Add<BrotliCompressionProvider>();
-            options.Providers.Add<GzipCompressionProvider>();
-        });
-        builder.Services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
-        builder.Services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.SmallestSize);
+		builder.Services.AddResponseCompression(options =>
+		{
+			options.EnableForHttps = true;
+			options.Providers.Add<BrotliCompressionProvider>();
+			options.Providers.Add<GzipCompressionProvider>();
+		});
+		builder.Services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
+		builder.Services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.SmallestSize);
 
-        builder.Services.AddRateLimiter(options =>
-        {
-            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+		builder.Services.AddRateLimiter(options =>
+		{
+			options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            options.AddPolicy(RateLimitPolicies.RecipeImport, context =>
-            {
-                var userId = context.User?.FindFirstValue(KeycloakClaimTypes.Subject) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
-                return RedisRateLimitPartition.GetSlidingWindowRateLimiter(userId, _ => new RedisSlidingWindowRateLimiterOptions
-                {
-                    PermitLimit = 10,
-                    Window = TimeSpan.FromMinutes(1),
-                    ConnectionMultiplexerFactory = () => context.RequestServices.GetRequiredService<IConnectionMultiplexer>(),
-                });
-            });
+			options.AddPolicy(RateLimitPolicies.RecipeImport, context =>
+			{
+				var userId = context.User?.FindFirstValue(KeycloakClaimTypes.Subject) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+				return RedisRateLimitPartition.GetSlidingWindowRateLimiter(userId, _ => new RedisSlidingWindowRateLimiterOptions
+				{
+					PermitLimit = 10,
+					Window = TimeSpan.FromMinutes(1),
+					ConnectionMultiplexerFactory = () => context.RequestServices.GetRequiredService<IConnectionMultiplexer>(),
+				});
+			});
 
-            options.AddPolicy(RateLimitPolicies.GeneralApi, context =>
-            {
-                var userId = context.User?.FindFirstValue(KeycloakClaimTypes.Subject) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
-                return RedisRateLimitPartition.GetFixedWindowRateLimiter(userId, _ => new RedisFixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 60,
-                    Window = TimeSpan.FromMinutes(1),
-                    ConnectionMultiplexerFactory = () => context.RequestServices.GetRequiredService<IConnectionMultiplexer>(),
-                });
-            });
-        });
+			options.AddPolicy(RateLimitPolicies.GeneralApi, context =>
+			{
+				var userId = context.User?.FindFirstValue(KeycloakClaimTypes.Subject) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+				return RedisRateLimitPartition.GetFixedWindowRateLimiter(userId, _ => new RedisFixedWindowRateLimiterOptions
+				{
+					PermitLimit = 60,
+					Window = TimeSpan.FromMinutes(1),
+					ConnectionMultiplexerFactory = () => context.RequestServices.GetRequiredService<IConnectionMultiplexer>(),
+				});
+			});
+		});
 
-        builder.Services.AddHttpClient();
-        builder.Services.AddHealthChecks()
-            .AddCheck<HealthChecks.KeycloakHealthCheck>("keycloak", tags: ["ready"])
-            .AddCheck<HealthChecks.RedisHealthCheck>("redis", tags: ["ready"]);
+		builder.Services.AddHttpClient();
+		builder.Services.AddHealthChecks()
+			.AddCheck<HealthChecks.KeycloakHealthCheck>("keycloak", tags: ["ready"])
+			.AddCheck<HealthChecks.RedisHealthCheck>("redis", tags: ["ready"]);
 
-        return builder;
-    }
+		return builder;
+	}
 
-    public static WebApplication UseYumneyDefaults(this WebApplication app)
-    {
-        app.UseMiddleware<CorrelationIdMiddleware>();
-        app.UseMiddleware<RequestLoggingMiddleware>();
-        app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+	public static WebApplication UseYumneyDefaults(this WebApplication app)
+	{
+		app.UseMiddleware<CorrelationIdMiddleware>();
+		app.UseMiddleware<RequestLoggingMiddleware>();
+		app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseHsts();
-        }
+		if (!app.Environment.IsDevelopment())
+		{
+			app.UseHsts();
+		}
 
-        app.UseHttpsRedirection();
-        app.UseResponseCompression();
+		app.UseHttpsRedirection();
+		app.UseResponseCompression();
 
-        app.UseAuthentication()
-            .UseAuthorization();
+		app.UseAuthentication()
+			.UseAuthorization();
 
-        app.UseMiddleware<RequestContextMiddleware>();
+		app.UseMiddleware<RequestContextMiddleware>();
 
-        app.UseRateLimiter();
+		app.UseRateLimiter();
 
-        app.MapOpenApi();
+		app.MapOpenApi();
 
-        if (!app.Environment.IsProduction())
-        {
-            app.MapScalarApiReference(options =>
-            {
-                options
-                    .WithTitle("Yumney API")
-                    .WithTheme(ScalarTheme.Saturn)
-                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-                    .AddAuthorizationCodeFlow("keycloak", flow => flow
-                        .WithClientId(KeycloakDefaults.WebClientId)
-                        .WithAuthorizationUrl(KeycloakDefaults.AuthorizationUrl(app.Configuration))
-                        .WithTokenUrl(KeycloakDefaults.TokenUrl(app.Configuration))
-                        .WithSelectedScopes([KeycloakDefaults.ScopeOpenId, KeycloakDefaults.ScopeProfile]));
-            });
-        }
+		if (!app.Environment.IsProduction())
+		{
+			app.MapScalarApiReference(options =>
+			{
+				options
+					.WithTitle("Yumney API")
+					.WithTheme(ScalarTheme.Saturn)
+					.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+					.AddAuthorizationCodeFlow("keycloak", flow => flow
+						.WithClientId(KeycloakDefaults.WebClientId)
+						.WithAuthorizationUrl(KeycloakDefaults.AuthorizationUrl(app.Configuration))
+						.WithTokenUrl(KeycloakDefaults.TokenUrl(app.Configuration))
+						.WithSelectedScopes([KeycloakDefaults.ScopeOpenId, KeycloakDefaults.ScopeProfile]));
+			});
+		}
 
-        app.MapDefaultEndpoints();
+		app.MapDefaultEndpoints();
 
-        app.MapGet("/version", () => new
-        {
-            Version = typeof(HostBuilderExtensions).Assembly
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown",
-            Environment = app.Environment.EnvironmentName,
-        }).AllowAnonymous();
+		app.MapGet("/version", () => new
+		{
+			Version = typeof(HostBuilderExtensions).Assembly
+				.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown",
+			Environment = app.Environment.EnvironmentName,
+		}).AllowAnonymous();
 
-        return app;
-    }
+		return app;
+	}
 }

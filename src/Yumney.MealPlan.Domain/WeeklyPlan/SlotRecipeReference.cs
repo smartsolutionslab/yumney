@@ -8,19 +8,19 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 /// </summary>
 public sealed record SlotRecipeReference : IValueObject
 {
-    public Guid RecipeIdentifier { get; }
+	public Guid RecipeIdentifier { get; }
 
-    public string Title { get; }
+	public string Title { get; }
 
-    private SlotRecipeReference(Guid recipeIdentifier, string title)
-    {
-        Ensure.That(recipeIdentifier).IsNotEmpty();
-        string validated = Ensure.That(title).IsNotNullOrWhiteSpace().HasMaxLength(200).AndReturn();
-        RecipeIdentifier = recipeIdentifier;
-        Title = validated.Trim();
-    }
+	private SlotRecipeReference(Guid recipeIdentifier, string title)
+	{
+		Ensure.That(recipeIdentifier).IsNotEmpty();
+		string validated = Ensure.That(title).IsNotNullOrWhiteSpace().HasMaxLength(200).AndReturn();
+		RecipeIdentifier = recipeIdentifier;
+		Title = validated.Trim();
+	}
 
-    public static SlotRecipeReference From(Guid recipeIdentifier, string title) => new(recipeIdentifier, title);
+	public static SlotRecipeReference From(Guid recipeIdentifier, string title) => new(recipeIdentifier, title);
 
-    public override string ToString() => $"{Title} ({RecipeIdentifier})";
+	public override string ToString() => $"{Title} ({RecipeIdentifier})";
 }

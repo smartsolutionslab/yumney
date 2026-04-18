@@ -4,7 +4,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 public static class EventsDiagnostics
 {
-    public const string SourceName = "Yumney.Events";
+	public const string SourceName = "Yumney.Events";
 
-    public static readonly ActivitySource ActivitySource = new(SourceName);
+	public static readonly ActivitySource ActivitySource = new(SourceName);
 }

@@ -5,10 +5,10 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 
 public sealed class MealPlanDbContext(DbContextOptions<MealPlanDbContext> options) : DbContext(options)
 {
-    public DbSet<WeeklyPlan> WeeklyPlans => Set<WeeklyPlan>();
+	public DbSet<WeeklyPlan> WeeklyPlans => Set<WeeklyPlan>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(MealPlanDbContext).Assembly);
-    }
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+		modelBuilder.ApplyConfigurationsFromAssembly(typeof(MealPlanDbContext).Assembly);
+	}
 }

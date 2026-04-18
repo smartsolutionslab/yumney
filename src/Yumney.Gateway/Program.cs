@@ -8,36 +8,36 @@ builder.AddServiceDefaults();
 
 builder.Services.AddResponseCompression(options =>
 {
-    options.EnableForHttps = true;
-    options.Providers.Add<BrotliCompressionProvider>();
-    options.Providers.Add<GzipCompressionProvider>();
+	options.EnableForHttps = true;
+	options.Providers.Add<BrotliCompressionProvider>();
+	options.Providers.Add<GzipCompressionProvider>();
 });
 builder.Services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
 builder.Services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.SmallestSize);
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
-    {
-        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-            ?? ["http://localhost:4200"];
+	options.AddDefaultPolicy(policy =>
+	{
+		var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+			?? ["http://localhost:4200"];
 
-        policy.WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
-    });
+		policy.WithOrigins(allowedOrigins)
+			.AllowAnyMethod()
+			.AllowAnyHeader()
+			.AllowCredentials();
+	});
 });
 
 builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-    .AddServiceDiscoveryDestinationResolver();
+	.LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+	.AddServiceDiscoveryDestinationResolver();
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseHsts();
+	app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -45,6 +45,6 @@ app.UseResponseCompression();
 app.UseCors();
 
 app.MapDefaultEndpoints()
-    .MapReverseProxy();
+	.MapReverseProxy();
 
 app.Run();

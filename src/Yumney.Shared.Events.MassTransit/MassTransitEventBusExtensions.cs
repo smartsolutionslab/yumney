@@ -12,40 +12,40 @@ namespace SmartSolutionsLab.Yumney.Shared.Events.MassTransit;
 /// </summary>
 public static class MassTransitEventBusExtensions
 {
-    /// <summary>
-    /// Registers MassTransit with RabbitMQ as the integration event bus.
-    /// Domain events remain in-process via InProcessDomainEventDispatcher.
-    /// Integration events are published/consumed via RabbitMQ.
-    /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="configuration">The application configuration.</param>
-    /// <param name="assemblies">Assemblies to scan for IIntegrationEventHandler implementations.</param>
-    /// <returns>The service collection for chaining.</returns>
-    public static IServiceCollection AddMassTransitEventBus(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        params Assembly[] assemblies)
-    {
-        services.AddMassTransit(x =>
-        {
-            x.SetKebabCaseEndpointNameFormatter();
+	/// <summary>
+	/// Registers MassTransit with RabbitMQ as the integration event bus.
+	/// Domain events remain in-process via InProcessDomainEventDispatcher.
+	/// Integration events are published/consumed via RabbitMQ.
+	/// </summary>
+	/// <param name="services">The service collection.</param>
+	/// <param name="configuration">The application configuration.</param>
+	/// <param name="assemblies">Assemblies to scan for IIntegrationEventHandler implementations.</param>
+	/// <returns>The service collection for chaining.</returns>
+	public static IServiceCollection AddMassTransitEventBus(
+		this IServiceCollection services,
+		IConfiguration configuration,
+		params Assembly[] assemblies)
+	{
+		services.AddMassTransit(x =>
+		{
+			x.SetKebabCaseEndpointNameFormatter();
 
-            foreach (var assembly in assemblies)
-            {
-                x.AddConsumers(assembly);
-            }
+			foreach (var assembly in assemblies)
+			{
+				x.AddConsumers(assembly);
+			}
 
-            x.UsingRabbitMq((context, cfg) =>
-            {
-                var connectionString = configuration.GetConnectionString("messaging");
-                if (connectionString.HasValue()) cfg.Host(connectionString);
+			x.UsingRabbitMq((context, cfg) =>
+			{
+				var connectionString = configuration.GetConnectionString("messaging");
+				if (connectionString.HasValue()) cfg.Host(connectionString);
 
-                cfg.ConfigureEndpoints(context);
-            });
-        });
+				cfg.ConfigureEndpoints(context);
+			});
+		});
 
-        services.AddScoped<IEventBus, MassTransitEventBus>();
+		services.AddScoped<IEventBus, MassTransitEventBus>();
 
-        return services;
-    }
+		return services;
+	}
 }

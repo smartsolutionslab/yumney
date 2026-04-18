@@ -7,70 +7,70 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.Tests.ShoppingList;
 
 public class RecipeReferenceTests
 {
-    [Fact]
-    public void From_ValidGuid_CreatesInstance()
-    {
-        var guid = Guid.NewGuid();
+	[Fact]
+	public void From_ValidGuid_CreatesInstance()
+	{
+		var guid = Guid.NewGuid();
 
-        var reference = RecipeReference.From(guid);
+		var reference = RecipeReference.From(guid);
 
-        reference.Value.Should().Be(guid);
-    }
+		reference.Value.Should().Be(guid);
+	}
 
-    [Fact]
-    public void From_EmptyGuid_ThrowsGuardException()
-    {
-        var act = () => RecipeReference.From(Guid.Empty);
+	[Fact]
+	public void From_EmptyGuid_ThrowsGuardException()
+	{
+		var act = () => RecipeReference.From(Guid.Empty);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void ToString_ReturnsGuidString()
-    {
-        var guid = Guid.NewGuid();
+	[Fact]
+	public void ToString_ReturnsGuidString()
+	{
+		var guid = Guid.NewGuid();
 
-        var reference = RecipeReference.From(guid);
+		var reference = RecipeReference.From(guid);
 
-        reference.ToString().Should().Be(guid.ToString());
-    }
+		reference.ToString().Should().Be(guid.ToString());
+	}
 
-    [Fact]
-    public void FromNullable_WithValue_ReturnsInstance()
-    {
-        var guid = Guid.NewGuid();
+	[Fact]
+	public void FromNullable_WithValue_ReturnsInstance()
+	{
+		var guid = Guid.NewGuid();
 
-        var reference = RecipeReference.FromNullable(guid);
+		var reference = RecipeReference.FromNullable(guid);
 
-        reference.Should().NotBeNull();
-        reference!.Value.Should().Be(guid);
-    }
+		reference.Should().NotBeNull();
+		reference!.Value.Should().Be(guid);
+	}
 
-    [Fact]
-    public void FromNullable_WithNull_ReturnsNull()
-    {
-        var reference = RecipeReference.FromNullable(null);
+	[Fact]
+	public void FromNullable_WithNull_ReturnsNull()
+	{
+		var reference = RecipeReference.FromNullable(null);
 
-        reference.Should().BeNull();
-    }
+		reference.Should().BeNull();
+	}
 
-    [Fact]
-    public void Equality_SameValue_AreEqual()
-    {
-        var guid = Guid.NewGuid();
+	[Fact]
+	public void Equality_SameValue_AreEqual()
+	{
+		var guid = Guid.NewGuid();
 
-        var a = RecipeReference.From(guid);
-        var b = RecipeReference.From(guid);
+		var a = RecipeReference.From(guid);
+		var b = RecipeReference.From(guid);
 
-        a.Should().Be(b);
-    }
+		a.Should().Be(b);
+	}
 
-    [Fact]
-    public void Equality_DifferentValues_AreNotEqual()
-    {
-        var a = RecipeReference.New();
-        var b = RecipeReference.New();
+	[Fact]
+	public void Equality_DifferentValues_AreNotEqual()
+	{
+		var a = RecipeReference.New();
+		var b = RecipeReference.New();
 
-        a.Should().NotBe(b);
-    }
+		a.Should().NotBe(b);
+	}
 }

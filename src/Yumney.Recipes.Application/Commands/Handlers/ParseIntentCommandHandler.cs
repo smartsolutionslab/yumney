@@ -6,12 +6,12 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 public sealed class ParseIntentCommandHandler(
-    IIntentParserService intentParser) : ICommandHandler<ParseIntentCommand, Result<ParsedIntentDto>>
+	IIntentParserService intentParser) : ICommandHandler<ParseIntentCommand, Result<ParsedIntentDto>>
 {
-    public async Task<Result<ParsedIntentDto>> HandleAsync(ParseIntentCommand command, CancellationToken cancellationToken = default)
-    {
-        var (message, pageContext) = command;
+	public async Task<Result<ParsedIntentDto>> HandleAsync(ParseIntentCommand command, CancellationToken cancellationToken = default)
+	{
+		var (message, pageContext) = command;
 
-        return await intentParser.ParseAsync(message, pageContext, cancellationToken);
-    }
+		return await intentParser.ParseAsync(message, pageContext, cancellationToken);
+	}
 }

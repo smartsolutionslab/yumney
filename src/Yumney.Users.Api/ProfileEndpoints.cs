@@ -9,39 +9,39 @@ namespace SmartSolutionsLab.Yumney.Users.Api;
 
 public static class ProfileEndpoints
 {
-    public static IEndpointRouteBuilder MapProfileEndpoints(this IEndpointRouteBuilder app)
-    {
-        var group = app.MapGroup("/users/me/profile");
+	public static IEndpointRouteBuilder MapProfileEndpoints(this IEndpointRouteBuilder app)
+	{
+		var group = app.MapGroup("/users/me/profile");
 
-        group.MapGet("/", GetProfile)
-            .WithName("GetUserProfile")
-            .WithTags("Users")
-            .Produces<UserProfileDto>()
-            .ProducesProblem(StatusCodes.Status404NotFound);
+		group.MapGet("/", GetProfile)
+			.WithName("GetUserProfile")
+			.WithTags("Users")
+			.Produces<UserProfileDto>()
+			.ProducesProblem(StatusCodes.Status404NotFound);
 
-        static async Task<IResult> GetProfile(
-            IQueryHandler<GetUserProfileQuery, Result<UserProfileDto>> handler,
-            CancellationToken cancellationToken)
-        {
-            var result = await handler.HandleAsync(new GetUserProfileQuery(), cancellationToken);
-            return result.ToOk();
-        }
+		static async Task<IResult> GetProfile(
+			IQueryHandler<GetUserProfileQuery, Result<UserProfileDto>> handler,
+			CancellationToken cancellationToken)
+		{
+			var result = await handler.HandleAsync(new GetUserProfileQuery(), cancellationToken);
+			return result.ToOk();
+		}
 
-        group.MapPut("/", UpdateProfile)
-            .WithName("UpdateUserProfile")
-            .WithTags("Users")
-            .Produces<UserProfileDto>()
-            .ProducesValidationProblem();
+		group.MapPut("/", UpdateProfile)
+			.WithName("UpdateUserProfile")
+			.WithTags("Users")
+			.Produces<UserProfileDto>()
+			.ProducesValidationProblem();
 
-        static async Task<IResult> UpdateProfile(
-            UpdateUserProfileCommand command,
-            ICommandHandler<UpdateUserProfileCommand, Result<UserProfileDto>> handler,
-            CancellationToken cancellationToken)
-        {
-            var result = await handler.HandleAsync(command, cancellationToken);
-            return result.ToOk();
-        }
+		static async Task<IResult> UpdateProfile(
+			UpdateUserProfileCommand command,
+			ICommandHandler<UpdateUserProfileCommand, Result<UserProfileDto>> handler,
+			CancellationToken cancellationToken)
+		{
+			var result = await handler.HandleAsync(command, cancellationToken);
+			return result.ToOk();
+		}
 
-        return app;
-    }
+		return app;
+	}
 }

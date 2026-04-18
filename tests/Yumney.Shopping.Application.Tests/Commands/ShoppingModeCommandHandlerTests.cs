@@ -11,77 +11,77 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
 
 public class ShoppingModeCommandHandlerTests
 {
-    private readonly IShoppingEventStore eventStore = Substitute.For<IShoppingEventStore>();
-    private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
+	private readonly IShoppingEventStore eventStore = Substitute.For<IShoppingEventStore>();
+	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 
-    public ShoppingModeCommandHandlerTests()
-    {
-        currentUser.UserId.Returns("user-123");
-    }
+	public ShoppingModeCommandHandlerTests()
+	{
+		currentUser.UserId.Returns("user-123");
+	}
 
-    [Fact]
-    public async Task StartShoppingMode_WithExistingLedger_SavesEvent()
-    {
-        var handler = new StartShoppingModeCommandHandler(eventStore, currentUser);
-        var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-        eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
+	[Fact]
+	public async Task StartShoppingMode_WithExistingLedger_SavesEvent()
+	{
+		var handler = new StartShoppingModeCommandHandler(eventStore, currentUser);
+		var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
-        var result = await handler.HandleAsync(new StartShoppingModeCommand());
+		var result = await handler.HandleAsync(new StartShoppingModeCommand());
 
-        result.IsSuccess.Should().BeTrue();
-        await eventStore.Received(1).SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
-    }
+		result.IsSuccess.Should().BeTrue();
+		await eventStore.Received(1).SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
+	}
 
-    [Fact]
-    public async Task StartShoppingMode_NoLedgerExists_CreatesAndSaves()
-    {
-        var handler = new StartShoppingModeCommandHandler(eventStore, currentUser);
-        eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
+	[Fact]
+	public async Task StartShoppingMode_NoLedgerExists_CreatesAndSaves()
+	{
+		var handler = new StartShoppingModeCommandHandler(eventStore, currentUser);
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
 
-        var result = await handler.HandleAsync(new StartShoppingModeCommand());
+		var result = await handler.HandleAsync(new StartShoppingModeCommand());
 
-        result.IsSuccess.Should().BeTrue();
-        await eventStore.Received(1).SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
-    }
+		result.IsSuccess.Should().BeTrue();
+		await eventStore.Received(1).SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
+	}
 
-    [Fact]
-    public async Task EndShoppingMode_WithExistingLedger_SavesEvent()
-    {
-        var handler = new EndShoppingModeCommandHandler(eventStore, currentUser);
-        var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-        ledger.StartShoppingMode();
-        ledger.MarkCommitted();
-        eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
+	[Fact]
+	public async Task EndShoppingMode_WithExistingLedger_SavesEvent()
+	{
+		var handler = new EndShoppingModeCommandHandler(eventStore, currentUser);
+		var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
+		ledger.StartShoppingMode();
+		ledger.MarkCommitted();
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
-        var result = await handler.HandleAsync(new EndShoppingModeCommand(true));
+		var result = await handler.HandleAsync(new EndShoppingModeCommand(true));
 
-        result.IsSuccess.Should().BeTrue();
-        await eventStore.Received(1).SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
-    }
+		result.IsSuccess.Should().BeTrue();
+		await eventStore.Received(1).SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
+	}
 
-    [Fact]
-    public async Task EndShoppingMode_NoLedger_ReturnsSuccess()
-    {
-        var handler = new EndShoppingModeCommandHandler(eventStore, currentUser);
-        eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
+	[Fact]
+	public async Task EndShoppingMode_NoLedger_ReturnsSuccess()
+	{
+		var handler = new EndShoppingModeCommandHandler(eventStore, currentUser);
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
 
-        var result = await handler.HandleAsync(new EndShoppingModeCommand(false));
+		var result = await handler.HandleAsync(new EndShoppingModeCommand(false));
 
-        result.IsSuccess.Should().BeTrue();
-        await eventStore.DidNotReceive().SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
-    }
+		result.IsSuccess.Should().BeTrue();
+		await eventStore.DidNotReceive().SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
+	}
 
-    [Fact]
-    public async Task EndShoppingMode_PassesAcceptFlag()
-    {
-        var handler = new EndShoppingModeCommandHandler(eventStore, currentUser);
-        var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-        ledger.StartShoppingMode();
-        ledger.MarkCommitted();
-        eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
+	[Fact]
+	public async Task EndShoppingMode_PassesAcceptFlag()
+	{
+		var handler = new EndShoppingModeCommandHandler(eventStore, currentUser);
+		var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
+		ledger.StartShoppingMode();
+		ledger.MarkCommitted();
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
-        await handler.HandleAsync(new EndShoppingModeCommand(AcceptPendingChanges: true));
+		await handler.HandleAsync(new EndShoppingModeCommand(AcceptPendingChanges: true));
 
-        ledger.IsInShoppingMode.Should().BeFalse();
-    }
+		ledger.IsInShoppingMode.Should().BeFalse();
+	}
 }

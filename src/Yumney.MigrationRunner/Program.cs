@@ -11,24 +11,24 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.AddServiceDefaults();
 
 builder.Services.AddDbContext<RecipesDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("recipesdb"),
-        x => x.MigrationsHistoryTable("__RecipesMigrationsHistory")));
+	options.UseNpgsql(
+		builder.Configuration.GetConnectionString("recipesdb"),
+		x => x.MigrationsHistoryTable("__RecipesMigrationsHistory")));
 
 builder.Services.AddDbContext<UsersDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("usersdb"),
-        x => x.MigrationsHistoryTable("__UsersMigrationsHistory")));
+	options.UseNpgsql(
+		builder.Configuration.GetConnectionString("usersdb"),
+		x => x.MigrationsHistoryTable("__UsersMigrationsHistory")));
 
 builder.Services.AddDbContext<ShoppingDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("shoppingdb"),
-        x => x.MigrationsHistoryTable("__ShoppingMigrationsHistory")));
+	options.UseNpgsql(
+		builder.Configuration.GetConnectionString("shoppingdb"),
+		x => x.MigrationsHistoryTable("__ShoppingMigrationsHistory")));
 
 builder.Services.AddDbContext<MealPlanDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("mealplandb"),
-        x => x.MigrationsHistoryTable("__MealPlanMigrationsHistory")));
+	options.UseNpgsql(
+		builder.Configuration.GetConnectionString("mealplandb"),
+		x => x.MigrationsHistoryTable("__MealPlanMigrationsHistory")));
 
 builder.Services.AddHostedService<MigrationWorker>();
 

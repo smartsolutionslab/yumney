@@ -5,9 +5,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 /// </summary>
 public enum ShoppingListSortField
 {
-    /// <summary>Sort by shopping list title.</summary>
-    Title,
+	/// <summary>Sort by shopping list title.</summary>
+	Title,
 
-    /// <summary>Sort by creation date.</summary>
-    Date,
+	/// <summary>Sort by creation date.</summary>
+	Date,
 }

@@ -8,28 +8,28 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 public sealed class ConfirmMealCommandHandler(IWeeklyPlanRepository plans, ICurrentUser currentUser)
 	: ICommandHandler<ConfirmMealCommand, Result<WeeklyPlanDto>>
 {
-    public async Task<Result<WeeklyPlanDto>> HandleAsync(ConfirmMealCommand command, CancellationToken cancellationToken = default)
-    {
-        var (week, day, mealType, newState) = command;
-        var owner = currentUser.AsOwner();
+	public async Task<Result<WeeklyPlanDto>> HandleAsync(ConfirmMealCommand command, CancellationToken cancellationToken = default)
+	{
+		var (week, day, mealType, newState) = command;
+		var owner = currentUser.AsOwner();
 
-        var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
+		var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 
-        switch (newState)
-        {
-            case MealState.Cooked:
-                plan.MarkAsCooked(day, mealType);
-                break;
-            case MealState.Skipped:
-                plan.MarkAsSkipped(day, mealType);
-                break;
-            case MealState.Planned:
-                plan.ResetToPlanned(day, mealType);
-                break;
-        }
+		switch (newState)
+		{
+			case MealState.Cooked:
+				plan.MarkAsCooked(day, mealType);
+				break;
+			case MealState.Skipped:
+				plan.MarkAsSkipped(day, mealType);
+				break;
+			case MealState.Planned:
+				plan.ResetToPlanned(day, mealType);
+				break;
+		}
 
-        await plans.SaveChangesAsync(cancellationToken);
+		await plans.SaveChangesAsync(cancellationToken);
 
-        return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
-    }
+		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
+	}
 }

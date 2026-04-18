@@ -8,11 +8,11 @@ namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
 public static class RecipesApiServiceCollectionExtensions
 {
-    public static IServiceCollection AddRecipesApi(this IServiceCollection services)
-    {
-        services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
-        services.AddValidatorsFromAssemblyContaining<PhotoDataValidator>();
+	public static IServiceCollection AddRecipesApi(this IServiceCollection services)
+	{
+		services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
+		services.AddValidatorsFromAssemblyContaining<PhotoDataValidator>();
 
-        return services;
-    }
+		return services;
+	}
 }

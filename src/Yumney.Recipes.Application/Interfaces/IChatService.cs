@@ -7,9 +7,9 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 public interface IChatService
 {
-    Task<Result<ChatResponseDto>> ChatAsync(
-        ChatMessageContent message,
-        IReadOnlyList<ChatHistoryEntry> history,
-        OwnerIdentifier owner,
-        CancellationToken cancellationToken = default);
+	Task<Result<ChatResponseDto>> ChatAsync(
+		ChatMessageContent message,
+		IReadOnlyList<ChatHistoryEntry> history,
+		OwnerIdentifier owner,
+		CancellationToken cancellationToken = default);
 }

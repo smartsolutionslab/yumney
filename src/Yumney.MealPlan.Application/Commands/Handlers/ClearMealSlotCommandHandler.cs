@@ -8,17 +8,17 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 public sealed class ClearMealSlotCommandHandler(IWeeklyPlanRepository plans, ICurrentUser currentUser)
 	: ICommandHandler<ClearMealSlotCommand, Result<WeeklyPlanDto>>
 {
-    public async Task<Result<WeeklyPlanDto>> HandleAsync(ClearMealSlotCommand command, CancellationToken cancellationToken = default)
-    {
-        var (week, day, mealType) = command;
-        var owner = currentUser.AsOwner();
+	public async Task<Result<WeeklyPlanDto>> HandleAsync(ClearMealSlotCommand command, CancellationToken cancellationToken = default)
+	{
+		var (week, day, mealType) = command;
+		var owner = currentUser.AsOwner();
 
-        var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
+		var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 
-        plan.ClearSlot(day, mealType);
+		plan.ClearSlot(day, mealType);
 
-        await plans.SaveChangesAsync(cancellationToken);
+		await plans.SaveChangesAsync(cancellationToken);
 
-        return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
-    }
+		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
+	}
 }

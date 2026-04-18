@@ -5,9 +5,9 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application;
 
 public static class MealPlanApplicationServiceCollectionExtensions
 {
-    public static IServiceCollection AddMealPlanApplication(this IServiceCollection services)
-    {
-        services.AddHandlersFromAssemblyContaining<Queries.Handlers.GetWeeklyPlanQueryHandler>();
-        return services;
-    }
+	public static IServiceCollection AddMealPlanApplication(this IServiceCollection services)
+	{
+		services.AddHandlersFromAssemblyContaining<Queries.Handlers.GetWeeklyPlanQueryHandler>();
+		return services;
+	}
 }

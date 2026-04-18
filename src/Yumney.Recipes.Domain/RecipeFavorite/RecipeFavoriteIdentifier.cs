@@ -5,16 +5,16 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 
 public sealed record RecipeFavoriteIdentifier : IValueObject
 {
-    public Guid Value { get; }
+	public Guid Value { get; }
 
-    private RecipeFavoriteIdentifier(Guid value)
-    {
-        Value = Ensure.That(value).IsNotEmpty().AndReturn();
-    }
+	private RecipeFavoriteIdentifier(Guid value)
+	{
+		Value = Ensure.That(value).IsNotEmpty().AndReturn();
+	}
 
-    public static RecipeFavoriteIdentifier New() => new(Guid.CreateVersion7());
+	public static RecipeFavoriteIdentifier New() => new(Guid.CreateVersion7());
 
-    public static RecipeFavoriteIdentifier From(Guid value) => new(value);
+	public static RecipeFavoriteIdentifier From(Guid value) => new(value);
 
-    public override string ToString() => Value.ToString();
+	public override string ToString() => Value.ToString();
 }

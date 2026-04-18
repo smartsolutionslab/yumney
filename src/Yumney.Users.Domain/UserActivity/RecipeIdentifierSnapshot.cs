@@ -9,17 +9,17 @@ namespace SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 /// </summary>
 public sealed record RecipeIdentifierSnapshot : IValueObject<Guid>
 {
-    public Guid Value { get; }
+	public Guid Value { get; }
 
-    private RecipeIdentifierSnapshot(Guid value)
-    {
-        Value = Ensure.That(value).IsNotEmpty().AndReturn();
-    }
+	private RecipeIdentifierSnapshot(Guid value)
+	{
+		Value = Ensure.That(value).IsNotEmpty().AndReturn();
+	}
 
-    public static RecipeIdentifierSnapshot From(Guid value) => new(value);
+	public static RecipeIdentifierSnapshot From(Guid value) => new(value);
 
-    public static RecipeIdentifierSnapshot? FromNullable(Guid? value) =>
-        !value.HasValue || value.Value == Guid.Empty ? null : new RecipeIdentifierSnapshot(value.Value);
+	public static RecipeIdentifierSnapshot? FromNullable(Guid? value) =>
+		!value.HasValue || value.Value == Guid.Empty ? null : new RecipeIdentifierSnapshot(value.Value);
 
-    public static implicit operator Guid(RecipeIdentifierSnapshot snapshot) => snapshot.Value;
+	public static implicit operator Guid(RecipeIdentifierSnapshot snapshot) => snapshot.Value;
 }

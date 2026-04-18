@@ -5,4 +5,4 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
 public sealed record RecognizeIngredientsCommand(PhotoData Photo)
-    : ICommand<Result<RecognizedIngredientsResponseDto>>;
+	: ICommand<Result<RecognizedIngredientsResponseDto>>;

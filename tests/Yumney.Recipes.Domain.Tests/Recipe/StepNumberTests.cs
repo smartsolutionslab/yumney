@@ -7,35 +7,35 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe;
 
 public class StepNumberTests
 {
-    [Fact]
-    public void Constructor_PositiveValue_CreatesInstance()
-    {
-        var stepNumber = StepNumber.From(1);
+	[Fact]
+	public void Constructor_PositiveValue_CreatesInstance()
+	{
+		var stepNumber = StepNumber.From(1);
 
-        stepNumber.Value.Should().Be(1);
-    }
+		stepNumber.Value.Should().Be(1);
+	}
 
-    [Fact]
-    public void Constructor_Zero_ThrowsGuardException()
-    {
-        var act = () => StepNumber.From(0);
+	[Fact]
+	public void Constructor_Zero_ThrowsGuardException()
+	{
+		var act = () => StepNumber.From(0);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void Constructor_NegativeValue_ThrowsGuardException()
-    {
-        var act = () => StepNumber.From(-1);
+	[Fact]
+	public void Constructor_NegativeValue_ThrowsGuardException()
+	{
+		var act = () => StepNumber.From(-1);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void ToString_ReturnsStringValue()
-    {
-        var stepNumber = StepNumber.From(3);
+	[Fact]
+	public void ToString_ReturnsStringValue()
+	{
+		var stepNumber = StepNumber.From(3);
 
-        stepNumber.ToString().Should().Be("3");
-    }
+		stepNumber.ToString().Should().Be("3");
+	}
 }

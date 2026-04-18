@@ -7,17 +7,17 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configura
 #pragma warning disable SA1649
 internal sealed class StoredEventConfiguration : IEntityTypeConfiguration<StoredEvent>
 {
-    public void Configure(EntityTypeBuilder<StoredEvent> entity)
-    {
-        entity.ToTable("ShoppingEvents");
-        entity.HasKey(e => e.Id);
-        entity.Property(e => e.AggregateId).IsRequired();
-        entity.Property(e => e.EventType).HasMaxLength(100).IsRequired();
-        entity.Property(e => e.EventData).IsRequired();
-        entity.Property(e => e.Version).IsRequired();
-        entity.Property(e => e.OccurredAt).IsRequired();
+	public void Configure(EntityTypeBuilder<StoredEvent> entity)
+	{
+		entity.ToTable("ShoppingEvents");
+		entity.HasKey(e => e.Id);
+		entity.Property(e => e.AggregateId).IsRequired();
+		entity.Property(e => e.EventType).HasMaxLength(100).IsRequired();
+		entity.Property(e => e.EventData).IsRequired();
+		entity.Property(e => e.Version).IsRequired();
+		entity.Property(e => e.OccurredAt).IsRequired();
 
-        entity.HasIndex(e => new { e.AggregateId, e.Version }).IsUnique();
-        entity.HasIndex(e => e.OccurredAt);
-    }
+		entity.HasIndex(e => new { e.AggregateId, e.Version }).IsUnique();
+		entity.HasIndex(e => e.OccurredAt);
+	}
 }

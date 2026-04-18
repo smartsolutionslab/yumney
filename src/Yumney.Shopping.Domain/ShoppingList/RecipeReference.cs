@@ -5,21 +5,21 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 public sealed record RecipeReference : IValueObject
 {
-    public Guid Value { get; }
+	public Guid Value { get; }
 
-    private RecipeReference(Guid value)
-    {
-        Value = Ensure.That(value).IsNotEmpty().AndReturn();
-    }
+	private RecipeReference(Guid value)
+	{
+		Value = Ensure.That(value).IsNotEmpty().AndReturn();
+	}
 
-    public static RecipeReference New() => new(Guid.CreateVersion7());
+	public static RecipeReference New() => new(Guid.CreateVersion7());
 
-    public static RecipeReference From(Guid value) => new(value);
+	public static RecipeReference From(Guid value) => new(value);
 
-    public static RecipeReference? FromNullable(Guid? value) =>
-        value.HasValue ? new RecipeReference(value.Value) : null;
+	public static RecipeReference? FromNullable(Guid? value) =>
+		value.HasValue ? new RecipeReference(value.Value) : null;
 
-    public static implicit operator Guid(RecipeReference obj) => obj.Value;
+	public static implicit operator Guid(RecipeReference obj) => obj.Value;
 
-    public override string ToString() => Value.ToString();
+	public override string ToString() => Value.ToString();
 }

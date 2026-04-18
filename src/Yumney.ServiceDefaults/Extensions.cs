@@ -12,80 +12,80 @@ namespace SmartSolutionsLab.Yumney.ServiceDefaults;
 
 public static class Extensions
 {
-    extension(IHostApplicationBuilder builder)
-    {
-        public IHostApplicationBuilder AddServiceDefaults()
-        {
-            builder.ConfigureOpenTelemetry();
-            builder.AddDefaultHealthChecks();
-            builder.Services.AddServiceDiscovery();
-            builder.Services.ConfigureHttpClientDefaults(http =>
-            {
-                http.AddStandardResilienceHandler();
-                http.AddServiceDiscovery();
-            });
+	extension(IHostApplicationBuilder builder)
+	{
+		public IHostApplicationBuilder AddServiceDefaults()
+		{
+			builder.ConfigureOpenTelemetry();
+			builder.AddDefaultHealthChecks();
+			builder.Services.AddServiceDiscovery();
+			builder.Services.ConfigureHttpClientDefaults(http =>
+			{
+				http.AddStandardResilienceHandler();
+				http.AddServiceDiscovery();
+			});
 
-            return builder;
-        }
+			return builder;
+		}
 
-        public IHostApplicationBuilder ConfigureOpenTelemetry()
-        {
-            builder.Logging.AddOpenTelemetry(logging =>
-            {
-                logging.IncludeFormattedMessage = true;
-                logging.IncludeScopes = true;
-            });
+		public IHostApplicationBuilder ConfigureOpenTelemetry()
+		{
+			builder.Logging.AddOpenTelemetry(logging =>
+			{
+				logging.IncludeFormattedMessage = true;
+				logging.IncludeScopes = true;
+			});
 
-            builder.Services.AddOpenTelemetry().WithMetrics(metrics =>
-                {
-                    metrics.AddAspNetCoreInstrumentation()
-                        .AddHttpClientInstrumentation()
-                        .AddRuntimeInstrumentation()
-                        .AddMeter("Yumney.*");
-                })
-                .WithTracing(tracing =>
-                {
-                    tracing.AddSource(builder.Environment.ApplicationName)
-                        .AddSource("Yumney.*")
-                        .AddSource("Microsoft.EntityFrameworkCore")
-                        .AddAspNetCoreInstrumentation()
-                        .AddHttpClientInstrumentation();
-                });
+			builder.Services.AddOpenTelemetry().WithMetrics(metrics =>
+				{
+					metrics.AddAspNetCoreInstrumentation()
+						.AddHttpClientInstrumentation()
+						.AddRuntimeInstrumentation()
+						.AddMeter("Yumney.*");
+				})
+				.WithTracing(tracing =>
+				{
+					tracing.AddSource(builder.Environment.ApplicationName)
+						.AddSource("Yumney.*")
+						.AddSource("Microsoft.EntityFrameworkCore")
+						.AddAspNetCoreInstrumentation()
+						.AddHttpClientInstrumentation();
+				});
 
-            builder.AddOpenTelemetryExporters();
+			builder.AddOpenTelemetryExporters();
 
-            return builder;
-        }
+			return builder;
+		}
 
-        public IHostApplicationBuilder AddDefaultHealthChecks()
-        {
-            builder.Services.AddHealthChecks()
-                .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+		public IHostApplicationBuilder AddDefaultHealthChecks()
+		{
+			builder.Services.AddHealthChecks()
+				.AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
 
-            return builder;
-        }
-    }
+			return builder;
+		}
+	}
 
-    public static WebApplication MapDefaultEndpoints(this WebApplication app)
-    {
-        app.MapHealthChecks("/health");
-        app.MapHealthChecks("/alive", new HealthCheckOptions
-        {
-            Predicate = r => r.Tags.Contains("live"),
-        });
+	public static WebApplication MapDefaultEndpoints(this WebApplication app)
+	{
+		app.MapHealthChecks("/health");
+		app.MapHealthChecks("/alive", new HealthCheckOptions
+		{
+			Predicate = r => r.Tags.Contains("live"),
+		});
 
-        return app;
-    }
+		return app;
+	}
 
-    private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
-    {
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+	private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
+	{
+		var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
-        if (useOtlpExporter)
-        {
-            builder.Services.AddOpenTelemetry().UseOtlpExporter();
-        }
+		if (useOtlpExporter)
+		{
+			builder.Services.AddOpenTelemetry().UseOtlpExporter();
+		}
 
-        return builder;
-    }
+		return builder;
+	}
 }

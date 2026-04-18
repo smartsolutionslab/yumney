@@ -6,12 +6,12 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Converter
 
 internal sealed class RemovalReasonJsonConverter : JsonConverter<RemovalReason>
 {
-    public override RemovalReason? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        var value = reader.GetString();
-        return value is not null ? RemovalReason.From(value) : null;
-    }
+	public override RemovalReason? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		var value = reader.GetString();
+		return value is not null ? RemovalReason.From(value) : null;
+	}
 
-    public override void Write(Utf8JsonWriter writer, RemovalReason value, JsonSerializerOptions options) =>
-        writer.WriteStringValue(value.Value);
+	public override void Write(Utf8JsonWriter writer, RemovalReason value, JsonSerializerOptions options) =>
+		writer.WriteStringValue(value.Value);
 }

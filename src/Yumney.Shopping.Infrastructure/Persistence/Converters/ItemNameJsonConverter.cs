@@ -6,9 +6,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Converter
 
 internal sealed class ItemNameJsonConverter : JsonConverter<ItemName>
 {
-    public override ItemName Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-        ItemName.From(reader.GetString()!);
+	public override ItemName Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+		ItemName.From(reader.GetString()!);
 
-    public override void Write(Utf8JsonWriter writer, ItemName value, JsonSerializerOptions options) =>
-        writer.WriteStringValue(value.Value);
+	public override void Write(Utf8JsonWriter writer, ItemName value, JsonSerializerOptions options) =>
+		writer.WriteStringValue(value.Value);
 }

@@ -6,10 +6,10 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application;
 
 public static class RecipesApplicationServiceCollectionExtensions
 {
-    public static IServiceCollection AddRecipesApplication(this IServiceCollection services)
-    {
-        services.AddHandlersFromAssemblyContaining<ImportRecipeCommandHandler>();
+	public static IServiceCollection AddRecipesApplication(this IServiceCollection services)
+	{
+		services.AddHandlersFromAssemblyContaining<ImportRecipeCommandHandler>();
 
-        return services;
-    }
+		return services;
+	}
 }

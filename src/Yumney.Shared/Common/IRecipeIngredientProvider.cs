@@ -6,7 +6,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 /// </summary>
 public interface IRecipeIngredientProvider
 {
-    Task<IReadOnlyList<RecipeIngredientInfo>> GetIngredientsAsync(
-        Guid recipeIdentifier,
-        CancellationToken cancellationToken = default);
+	Task<IReadOnlyList<RecipeIngredientInfo>> GetIngredientsAsync(
+		Guid recipeIdentifier,
+		CancellationToken cancellationToken = default);
 }

@@ -7,14 +7,14 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
 public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options)
 {
-    public DbSet<AppUserProfile> AppUserProfiles => Set<AppUserProfile>();
+	public DbSet<AppUserProfile> AppUserProfiles => Set<AppUserProfile>();
 
-    public DbSet<UserActivity> UserActivities => Set<UserActivity>();
+	public DbSet<UserActivity> UserActivities => Set<UserActivity>();
 
-    public DbSet<StaplesList> StaplesLists => Set<StaplesList>();
+	public DbSet<StaplesList> StaplesLists => Set<StaplesList>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(UsersDbContext).Assembly);
-    }
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+		modelBuilder.ApplyConfigurationsFromAssembly(typeof(UsersDbContext).Assembly);
+	}
 }

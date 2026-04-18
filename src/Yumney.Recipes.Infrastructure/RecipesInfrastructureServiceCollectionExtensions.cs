@@ -12,20 +12,20 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure;
 
 public static class RecipesInfrastructureServiceCollectionExtensions
 {
-    public static IServiceCollection AddRecipesInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddDbContext<RecipesDbContext>((sp, options) =>
-        {
-            var connectionString = configuration.GetConnectionString("recipesdb");
-            options.UseNpgsql(connectionString, x => x.MigrationsHistoryTable("__RecipesMigrationsHistory").EnableRetryOnFailure())
-                   .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
-        });
+	public static IServiceCollection AddRecipesInfrastructure(this IServiceCollection services, IConfiguration configuration)
+	{
+		services.AddDbContext<RecipesDbContext>((sp, options) =>
+		{
+			var connectionString = configuration.GetConnectionString("recipesdb");
+			options.UseNpgsql(connectionString, x => x.MigrationsHistoryTable("__RecipesMigrationsHistory").EnableRetryOnFailure())
+				   .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
+		});
 
-        services.AddScoped<IRecipeRepository, RecipeRepository>();
-        services.AddScoped<IRecipeFavoriteRepository, RecipeFavoriteRepository>();
-        services.AddScoped<IRecipeIngredientProvider, RecipeIngredientProvider>();
-        services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
+		services.AddScoped<IRecipeRepository, RecipeRepository>();
+		services.AddScoped<IRecipeFavoriteRepository, RecipeFavoriteRepository>();
+		services.AddScoped<IRecipeIngredientProvider, RecipeIngredientProvider>();
+		services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
 
-        return services;
-    }
+		return services;
+	}
 }

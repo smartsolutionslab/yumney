@@ -5,4 +5,4 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
 public sealed record ParseIntentCommand(string Message, string? PageContext)
-    : ICommand<Result<ParsedIntentDto>>;
+	: ICommand<Result<ParsedIntentDto>>;

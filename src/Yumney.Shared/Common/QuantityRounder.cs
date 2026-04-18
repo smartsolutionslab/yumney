@@ -6,22 +6,22 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 /// </summary>
 public static class QuantityRounder
 {
-    /// <summary>
-    /// Round a quantity up to the next practical purchase amount.
-    /// </summary>
-    /// <param name="quantity">The exact calculated quantity.</param>
-    /// <param name="unit">The unit (affects rounding strategy).</param>
-    /// <returns>The rounded display quantity and the original exact value.</returns>
-    public static RoundedQuantity RoundUp(decimal quantity, string? unit)
-    {
-        if (quantity <= 0)
-            return new RoundedQuantity(quantity, quantity);
+	/// <summary>
+	/// Round a quantity up to the next practical purchase amount.
+	/// </summary>
+	/// <param name="quantity">The exact calculated quantity.</param>
+	/// <param name="unit">The unit (affects rounding strategy).</param>
+	/// <returns>The rounded display quantity and the original exact value.</returns>
+	public static RoundedQuantity RoundUp(decimal quantity, string? unit)
+	{
+		if (quantity <= 0)
+			return new RoundedQuantity(quantity, quantity);
 
-        var rounded = Math.Ceiling(quantity);
+		var rounded = Math.Ceiling(quantity);
 
-        if (rounded == quantity)
-            return new RoundedQuantity(quantity, quantity);
+		if (rounded == quantity)
+			return new RoundedQuantity(quantity, quantity);
 
-        return new RoundedQuantity(rounded, quantity);
-    }
+		return new RoundedQuantity(rounded, quantity);
+	}
 }

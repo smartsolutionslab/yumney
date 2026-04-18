@@ -6,4 +6,4 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 
 public sealed record ChatCommand(ChatMessageContent Message, IReadOnlyList<ChatHistoryEntry> History)
-    : ICommand<Result<ChatResponseDto>>;
+	: ICommand<Result<ChatResponseDto>>;
