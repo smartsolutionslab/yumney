@@ -36,12 +36,12 @@ public class WeeklyPlanTests
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
         var recipeId = Guid.NewGuid();
 
-        plan.AssignRecipe(DayOfWeek.Monday, recipeId, "Spaghetti Bolognese");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(recipeId, "Spaghetti Bolognese"));
 
         var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
         monday.IsEmpty.Should().BeFalse();
-        monday.RecipeIdentifier.Should().Be(recipeId);
-        monday.RecipeTitle.Should().Be("Spaghetti Bolognese");
+        monday.Recipe!.RecipeIdentifier.Should().Be(recipeId);
+        monday.Recipe.Title.Should().Be("Spaghetti Bolognese");
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
 
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta", servings: 8);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: 8);
 
         plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(8);
     }
@@ -58,7 +58,7 @@ public class WeeklyPlanTests
     public void ClearSlot_RemovesRecipe()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Wednesday, Guid.NewGuid(), "Chicken");
+        plan.AssignRecipe(DayOfWeek.Wednesday, SlotRecipeReference.From(Guid.NewGuid(), "Chicken"));
 
         plan.ClearSlot(DayOfWeek.Wednesday);
 
@@ -71,25 +71,25 @@ public class WeeklyPlanTests
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
         var recipeA = Guid.NewGuid();
         var recipeB = Guid.NewGuid();
-        plan.AssignRecipe(DayOfWeek.Monday, recipeA, "Pasta");
-        plan.AssignRecipe(DayOfWeek.Friday, recipeB, "Steak");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(recipeA, "Pasta"));
+        plan.AssignRecipe(DayOfWeek.Friday, SlotRecipeReference.From(recipeB, "Steak"));
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Friday);
 
-        plan.Slots.First(s => s.Day == DayOfWeek.Monday).RecipeTitle.Should().Be("Steak");
-        plan.Slots.First(s => s.Day == DayOfWeek.Friday).RecipeTitle.Should().Be("Pasta");
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday).Recipe!.Title.Should().Be("Steak");
+        plan.Slots.First(s => s.Day == DayOfWeek.Friday).Recipe!.Title.Should().Be("Pasta");
     }
 
     [Fact]
     public void SwapSlots_WithOneEmpty_MovesRecipe()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 
         plan.Slots.First(s => s.Day == DayOfWeek.Monday).IsEmpty.Should().BeTrue();
-        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).RecipeTitle.Should().Be("Pasta");
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Recipe!.Title.Should().Be("Pasta");
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
 
-        var act = () => plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), string.Empty);
+        var act = () => plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), string.Empty));
 
         act.Should().Throw<GuardException>();
     }
@@ -124,14 +124,14 @@ public class WeeklyPlanTests
     public void AssignRecipe_OverwritesExistingRecipe()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
         var newRecipeId = Guid.NewGuid();
-        plan.AssignRecipe(DayOfWeek.Monday, newRecipeId, "Steak");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(newRecipeId, "Steak"));
 
         var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
-        monday.RecipeIdentifier.Should().Be(newRecipeId);
-        monday.RecipeTitle.Should().Be("Steak");
+        monday.Recipe!.RecipeIdentifier.Should().Be(newRecipeId);
+        monday.Recipe.Title.Should().Be("Steak");
     }
 
     [Fact]
@@ -202,11 +202,11 @@ public class WeeklyPlanTests
     public void EnableExtendedMode_PreservesDinnerRecipes()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
         plan.EnableExtendedMode();
 
-        plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Dinner).RecipeTitle.Should().Be("Pasta");
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Dinner).Recipe!.Title.Should().Be("Pasta");
     }
 
     [Fact]
@@ -238,12 +238,12 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
         plan.EnableExtendedMode();
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Cereal", MealType.Breakfast);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Cereal"), MealType.Breakfast);
 
         plan.DisableExtendedMode();
 
         plan.Slots.Should().HaveCount(21);
-        plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Breakfast).RecipeTitle.Should().Be("Cereal");
+        plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Breakfast).Recipe!.Title.Should().Be("Cereal");
     }
 
     [Fact]
@@ -252,9 +252,9 @@ public class WeeklyPlanTests
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
         plan.EnableExtendedMode();
 
-        plan.AssignRecipe(DayOfWeek.Tuesday, Guid.NewGuid(), "Pancakes", MealType.Breakfast);
+        plan.AssignRecipe(DayOfWeek.Tuesday, SlotRecipeReference.From(Guid.NewGuid(), "Pancakes"), MealType.Breakfast);
 
-        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).RecipeTitle.Should().Be("Pancakes");
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).Recipe!.Title.Should().Be("Pancakes");
     }
 
     [Fact]
@@ -279,7 +279,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
 
-        var act = () => plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Cereal", MealType.Breakfast);
+        var act = () => plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Cereal"), MealType.Breakfast);
 
         act.Should().Throw<EntityNotFoundException>();
     }
@@ -299,12 +299,12 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
         plan.EnableExtendedMode();
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pancakes", MealType.Breakfast);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pancakes"), MealType.Breakfast);
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday, MealType.Breakfast);
 
         plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Breakfast).IsEmpty.Should().BeTrue();
-        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).RecipeTitle.Should().Be("Pancakes");
+        plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).Recipe!.Title.Should().Be("Pancakes");
     }
 
     [Fact]
@@ -329,7 +329,7 @@ public class WeeklyPlanTests
         monday.ContentType.Should().Be(SlotContentType.Freetext);
         monday.FreetextLabel.Should().Be("Eating out");
         monday.IsEmpty.Should().BeFalse();
-        monday.RecipeIdentifier.Should().BeNull();
+        monday.Recipe.Should().BeNull();
     }
 
     [Fact]
@@ -346,7 +346,7 @@ public class WeeklyPlanTests
     public void SetLeftover_SetsContentTypeAndSource()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Bolognese");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Bolognese"));
 
         plan.SetLeftover(DayOfWeek.Wednesday, DayOfWeek.Monday, MealType.Dinner, "Bolognese");
 
@@ -354,7 +354,7 @@ public class WeeklyPlanTests
         wednesday.ContentType.Should().Be(SlotContentType.Leftover);
         wednesday.LeftoverSourceDay.Should().Be(DayOfWeek.Monday);
         wednesday.LeftoverSourceMealType.Should().Be(MealType.Dinner);
-        wednesday.RecipeTitle.Should().Contain("Bolognese");
+        wednesday.LeftoverLabel.Should().Contain("Bolognese");
         wednesday.IsEmpty.Should().BeFalse();
     }
 
@@ -373,7 +373,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
 
-        plan.AssignRecipe(DayOfWeek.Tuesday, Guid.NewGuid(), "Steak");
+        plan.AssignRecipe(DayOfWeek.Tuesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"));
 
         plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).ContentType.Should().Be(SlotContentType.Recipe);
     }
@@ -398,7 +398,7 @@ public class WeeklyPlanTests
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
         plan.SetFreetext(DayOfWeek.Monday, "Eating out");
 
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
         var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
         monday.ContentType.Should().Be(SlotContentType.Recipe);
@@ -419,7 +419,7 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
         var recipeId = Guid.NewGuid();
-        plan.AssignRecipe(DayOfWeek.Monday, recipeId, "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(recipeId, "Pasta"));
         plan.SetFreetext(DayOfWeek.Tuesday, "Eating out");
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
@@ -427,11 +427,11 @@ public class WeeklyPlanTests
         var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
         monday.ContentType.Should().Be(SlotContentType.Freetext);
         monday.FreetextLabel.Should().Be("Eating out");
-        monday.RecipeIdentifier.Should().BeNull();
+        monday.Recipe.Should().BeNull();
 
         var tuesday = plan.Slots.First(s => s.Day == DayOfWeek.Tuesday);
         tuesday.ContentType.Should().Be(SlotContentType.Recipe);
-        tuesday.RecipeIdentifier.Should().Be(recipeId);
+        tuesday.Recipe!.RecipeIdentifier.Should().Be(recipeId);
         tuesday.FreetextLabel.Should().BeNull();
     }
 
@@ -439,7 +439,7 @@ public class WeeklyPlanTests
     public void SwapSlots_RecipeWithLeftover_SwapsAllContent()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Bolognese");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Bolognese"));
         plan.SetLeftover(DayOfWeek.Wednesday, DayOfWeek.Monday, MealType.Dinner, "Bolognese");
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Wednesday);
@@ -450,7 +450,7 @@ public class WeeklyPlanTests
 
         var wednesday = plan.Slots.First(s => s.Day == DayOfWeek.Wednesday);
         wednesday.ContentType.Should().Be(SlotContentType.Recipe);
-        wednesday.RecipeTitle.Should().Be("Bolognese");
+        wednesday.Recipe!.Title.Should().Be("Bolognese");
     }
 
     [Fact]
@@ -469,7 +469,7 @@ public class WeeklyPlanTests
     public void AdjustServings_ChangesSlotServings()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15), 4);
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
         plan.AdjustServings(DayOfWeek.Monday, 8);
 
@@ -490,7 +490,7 @@ public class WeeklyPlanTests
     public void SwapSlots_PreservesServings()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15), 4);
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta", servings: 8);
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), servings: 8);
 
         plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 
@@ -514,7 +514,7 @@ public class WeeklyPlanTests
     public void MarkAsCooked_SetsState()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
         plan.MarkAsCooked(DayOfWeek.Monday);
 
@@ -525,7 +525,7 @@ public class WeeklyPlanTests
     public void MarkAsSkipped_SetsState()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
         plan.MarkAsSkipped(DayOfWeek.Monday);
 
@@ -536,7 +536,7 @@ public class WeeklyPlanTests
     public void ResetToPlanned_ResetsState()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
         plan.MarkAsCooked(DayOfWeek.Monday);
 
         plan.ResetToPlanned(DayOfWeek.Monday);
@@ -556,8 +556,8 @@ public class WeeklyPlanTests
     public void GetUnconfirmedPastMeals_ReturnsOnlyPlannedRecipesBeforeToday()
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
-        plan.AssignRecipe(DayOfWeek.Tuesday, Guid.NewGuid(), "Steak");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
+        plan.AssignRecipe(DayOfWeek.Tuesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"));
         plan.MarkAsCooked(DayOfWeek.Monday);
 
         var unconfirmed = plan.GetUnconfirmedPastMeals(DayOfWeek.Wednesday);
@@ -571,11 +571,11 @@ public class WeeklyPlanTests
     {
         var plan = Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, WeekIdentifier.From(2026, 15));
         plan.SetFreetext(DayOfWeek.Monday, "Eating out");
-        plan.AssignRecipe(DayOfWeek.Tuesday, Guid.NewGuid(), "Steak");
+        plan.AssignRecipe(DayOfWeek.Tuesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"));
 
         var unconfirmed = plan.GetUnconfirmedPastMeals(DayOfWeek.Wednesday);
 
         unconfirmed.Should().HaveCount(1);
-        unconfirmed[0].RecipeTitle.Should().Be("Steak");
+        unconfirmed[0].Recipe!.Title.Should().Be("Steak");
     }
 }

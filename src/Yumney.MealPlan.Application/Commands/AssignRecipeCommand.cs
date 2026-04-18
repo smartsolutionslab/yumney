@@ -8,7 +8,6 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 public sealed record AssignRecipeCommand(
     WeekIdentifier Week,
     DayOfWeek Day,
-    Guid RecipeIdentifier,
-    string RecipeTitle,
+    SlotRecipeReference Recipe,
     MealType MealType = MealType.Dinner,
     int? Servings = null) : ICommand<Result<WeeklyPlanDto>>;

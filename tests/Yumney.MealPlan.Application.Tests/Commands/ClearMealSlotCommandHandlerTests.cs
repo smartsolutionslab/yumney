@@ -24,7 +24,7 @@ public class ClearMealSlotCommandHandlerTests
     public async Task HandleAsync_ClearsSlotAndSaves()
     {
         var plan = WeeklyPlan.Create(OwnerIdentifier.From("user-123"), WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Wednesday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Wednesday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 

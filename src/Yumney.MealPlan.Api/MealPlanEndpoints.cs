@@ -48,7 +48,8 @@ public static class MealPlanEndpoints
         {
             var week = WeekIdentifier.From(year, weekNumber);
             var (day, recipeIdentifier, recipeTitle, mealType, servings) = request;
-            var command = new AssignRecipeCommand(week, day, recipeIdentifier, recipeTitle, mealType, servings);
+            var recipe = SlotRecipeReference.From(recipeIdentifier, recipeTitle);
+            var command = new AssignRecipeCommand(week, day, recipe, mealType, servings);
 
             var result = await handler.HandleAsync(command, cancellationToken);
             return result.ToOk();
@@ -141,7 +142,8 @@ public static class MealPlanEndpoints
         {
             var week = WeekIdentifier.From(year, weekNumber);
             var (cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType) = request;
-            var command = new CookWithLeftoversCommand(week, cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType);
+            var recipe = SlotRecipeReference.From(recipeIdentifier, recipeTitle);
+            var command = new CookWithLeftoversCommand(week, cookDay, recipe, totalServings, eatServings, leftoverDay, mealType);
 
             var result = await handler.HandleAsync(command, cancellationToken);
 

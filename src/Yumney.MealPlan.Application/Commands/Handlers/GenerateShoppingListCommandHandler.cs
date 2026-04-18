@@ -22,7 +22,7 @@ public sealed class GenerateShoppingListCommandHandler(
         if (plan is null) return GenerateShoppingListErrors.NoPlanFound;
 
         var recipeSlots = plan.Slots
-            .Where(s => s.ContentType == SlotContentType.Recipe && s.RecipeIdentifier.HasValue)
+            .Where(s => s.ContentType == SlotContentType.Recipe && s.Recipe is not null)
             .ToList();
 
         if (recipeSlots.Count == 0)
@@ -33,7 +33,7 @@ public sealed class GenerateShoppingListCommandHandler(
 
         foreach (var slot in recipeSlots)
         {
-            var ingredients = await ingredientProvider.GetIngredientsAsync(slot.RecipeIdentifier!.Value, cancellationToken);
+            var ingredients = await ingredientProvider.GetIngredientsAsync(slot.Recipe!.RecipeIdentifier, cancellationToken);
             var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? slot.Servings;
             var scaleFactor = recipeServings > 0 ? (decimal)slot.Servings / recipeServings : 1m;
 

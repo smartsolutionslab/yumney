@@ -12,10 +12,9 @@ public sealed class CookWithLeftoversCommandHandler(
 {
     public async Task<Result<WeeklyPlanDto>> HandleAsync(CookWithLeftoversCommand command, CancellationToken cancellationToken = default)
     {
-        var (week, cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType) = command;
+        var (week, cookDay, recipe, totalServings, eatServings, leftoverDay, mealType) = command;
         Ensure.That(totalServings).IsPositive();
         Ensure.That(eatServings).IsPositive();
-        Ensure.That(recipeTitle).IsNotNullOrWhiteSpace();
 
         var owner = currentUser.AsOwner();
         var leftoverServings = totalServings - eatServings;
@@ -24,17 +23,23 @@ public sealed class CookWithLeftoversCommandHandler(
         if (plan is null)
         {
             plan = WeeklyPlan.Create(owner, week);
-            plan.AssignRecipe(cookDay, recipeIdentifier, recipeTitle, mealType, totalServings);
+            plan.AssignRecipe(cookDay, recipe, mealType, totalServings);
             if (leftoverServings > 0)
-                plan.SetLeftover(leftoverDay, cookDay, mealType, recipeTitle, mealType, leftoverServings);
+            {
+                plan.SetLeftover(leftoverDay, cookDay, mealType, recipe.Title, mealType, leftoverServings);
+            }
+
             await plans.AddAsync(plan, cancellationToken);
         }
         else
         {
             plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
-            plan.AssignRecipe(cookDay, recipeIdentifier, recipeTitle, mealType, totalServings);
+            plan.AssignRecipe(cookDay, recipe, mealType, totalServings);
             if (leftoverServings > 0)
-                plan.SetLeftover(leftoverDay, cookDay, mealType, recipeTitle, mealType, leftoverServings);
+            {
+                plan.SetLeftover(leftoverDay, cookDay, mealType, recipe.Title, mealType, leftoverServings);
+            }
+
             await plans.SaveChangesAsync(cancellationToken);
         }
 

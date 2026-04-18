@@ -40,7 +40,7 @@ public class GetWeeklyPlanQueryHandlerTests
         var owner = OwnerIdentifier.From("user-123");
         var week = WeekIdentifier.From(2026, 15);
         var plan = WeeklyPlan.Create(owner, week);
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
 
         plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);

@@ -14,8 +14,9 @@ public sealed class HttpShoppingListWriter(IHttpClientFactory httpClientFactory)
 
         foreach (var item in items)
         {
-            var request = new AddItemRequest(item.ItemName, item.Quantity, item.Unit);
-            await client.PostAsJsonAsync("/api/v1/shopping-lists/items", request, cancellationToken);
+            AddItemRequest request = new(item.ItemName, item.Quantity, item.Unit);
+            var url = "/api/v1/shopping-lists/items";
+            await client.PostAsJsonAsync(url, request, cancellationToken);
         }
     }
 

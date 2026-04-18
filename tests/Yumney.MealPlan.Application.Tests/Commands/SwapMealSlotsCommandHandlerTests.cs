@@ -24,7 +24,7 @@ public class SwapMealSlotsCommandHandlerTests
     public async Task HandleAsync_SwapsAndSaves()
     {
         var plan = WeeklyPlan.Create(OwnerIdentifier.From("user-123"), WeekIdentifier.From(2026, 15));
-        plan.AssignRecipe(DayOfWeek.Monday, Guid.NewGuid(), "Pasta");
+        plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
         plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
             .Returns(plan);
 

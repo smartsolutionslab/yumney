@@ -11,10 +11,11 @@ public static class MealSlotMappingExtensions
             slot.MealType.ToString(),
             slot.ContentType.ToString(),
             slot.State.ToString(),
-            slot.RecipeIdentifier,
-            slot.RecipeTitle,
+            slot.Recipe?.RecipeIdentifier,
+            slot.Recipe?.Title,
             slot.Servings,
             slot.FreetextLabel,
+            slot.LeftoverLabel,
             slot.LeftoverSourceDay?.ToString(),
             slot.LeftoverSourceMealType?.ToString(),
             slot.IsEmpty);
