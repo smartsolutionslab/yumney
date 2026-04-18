@@ -32,7 +32,11 @@
     </div>
   </div>
 } @else {
-  <a class="recipe-card" [routerLink]="ROUTES.recipes.detail(recipe().identifier)" *transloco="let t">
+  <a
+    class="recipe-card"
+    [routerLink]="ROUTES.recipes.detail(recipe().identifier)"
+    *transloco="let t"
+  >
     @if (recipe().imageUrl) {
       <img
         [src]="recipe().imageUrl"
