@@ -12,27 +12,27 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 /// </summary>
 public sealed class RecipeFavorite : AggregateRoot<RecipeFavoriteIdentifier>
 {
-    public RecipeIdentifier RecipeIdentifier { get; private set; } = default!;
+	public RecipeIdentifier RecipeIdentifier { get; private set; } = default!;
 
-    public OwnerIdentifier Owner { get; private set; } = default!;
+	public OwnerIdentifier Owner { get; private set; } = default!;
 
-    public DateTime FavoritedAt { get; private set; }
+	public DateTime FavoritedAt { get; private set; }
 
-    private RecipeFavorite()
-    {
-    }
+	private RecipeFavorite()
+	{
+	}
 
-    public static RecipeFavorite Create(RecipeIdentifier recipeIdentifier, OwnerIdentifier owner)
-    {
-        Ensure.That(recipeIdentifier).IsNotNull();
-        Ensure.That(owner).IsNotNull();
+	public static RecipeFavorite Create(RecipeIdentifier recipeIdentifier, OwnerIdentifier owner)
+	{
+		Ensure.That(recipeIdentifier).IsNotNull();
+		Ensure.That(owner).IsNotNull();
 
-        return new RecipeFavorite
-        {
-            Id = RecipeFavoriteIdentifier.New(),
-            RecipeIdentifier = recipeIdentifier,
-            Owner = owner,
-            FavoritedAt = DateTime.UtcNow,
-        };
-    }
+		return new RecipeFavorite
+		{
+			Id = RecipeFavoriteIdentifier.New(),
+			RecipeIdentifier = recipeIdentifier,
+			Owner = owner,
+			FavoritedAt = DateTime.UtcNow,
+		};
+	}
 }

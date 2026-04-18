@@ -7,5 +7,5 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 /// Raised when an item is added directly as "at home" (already purchased, forgot to track).
 /// </summary>
 public sealed record ShoppingItemAddedAsAtHome(
-    ItemName ItemName,
-    Quantity Quantity) : DomainEvent;
+	ItemName ItemName,
+	Quantity Quantity) : DomainEvent;

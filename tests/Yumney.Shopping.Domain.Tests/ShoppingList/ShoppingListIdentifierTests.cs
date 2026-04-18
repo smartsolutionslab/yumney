@@ -7,31 +7,31 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.Tests.ShoppingList;
 
 public class ShoppingListIdentifierTests
 {
-    [Fact]
-    public void Constructor_ValidGuid_CreatesInstance()
-    {
-        var guid = Guid.NewGuid();
+	[Fact]
+	public void Constructor_ValidGuid_CreatesInstance()
+	{
+		var guid = Guid.NewGuid();
 
-        var identifier = ShoppingListIdentifier.From(guid);
+		var identifier = ShoppingListIdentifier.From(guid);
 
-        identifier.Value.Should().Be(guid);
-    }
+		identifier.Value.Should().Be(guid);
+	}
 
-    [Fact]
-    public void Constructor_EmptyGuid_ThrowsGuardException()
-    {
-        var act = () => ShoppingListIdentifier.From(Guid.Empty);
+	[Fact]
+	public void Constructor_EmptyGuid_ThrowsGuardException()
+	{
+		var act = () => ShoppingListIdentifier.From(Guid.Empty);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void ToString_ReturnsGuidString()
-    {
-        var guid = Guid.NewGuid();
+	[Fact]
+	public void ToString_ReturnsGuidString()
+	{
+		var guid = Guid.NewGuid();
 
-        var identifier = ShoppingListIdentifier.From(guid);
+		var identifier = ShoppingListIdentifier.From(guid);
 
-        identifier.ToString().Should().Be(guid.ToString());
-    }
+		identifier.ToString().Should().Be(guid.ToString());
+	}
 }

@@ -6,19 +6,19 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 public sealed record CookingTime : IValueObject<int>
 {
-    public int Value { get; }
+	public int Value { get; }
 
-    private CookingTime(int value)
-    {
-        Value = Ensure.That(value).IsNotNegative().AndReturn();
-    }
+	private CookingTime(int value)
+	{
+		Value = Ensure.That(value).IsNotNegative().AndReturn();
+	}
 
-    public static CookingTime From(int value) => new(value);
+	public static CookingTime From(int value) => new(value);
 
-    public static CookingTime? FromNullable(int? value) =>
-        value.HasValue ? new CookingTime(value.Value) : null;
+	public static CookingTime? FromNullable(int? value) =>
+		value.HasValue ? new CookingTime(value.Value) : null;
 
-    public static implicit operator int(CookingTime obj) => obj.Value;
+	public static implicit operator int(CookingTime obj) => obj.Value;
 
-    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
+	public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

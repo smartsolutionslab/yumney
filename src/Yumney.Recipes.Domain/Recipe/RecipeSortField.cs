@@ -5,9 +5,9 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 /// </summary>
 public enum RecipeSortField
 {
-    /// <summary>Sort by recipe name.</summary>
-    Name,
+	/// <summary>Sort by recipe name.</summary>
+	Name,
 
-    /// <summary>Sort by creation date.</summary>
-    Date,
+	/// <summary>Sort by creation date.</summary>
+	Date,
 }

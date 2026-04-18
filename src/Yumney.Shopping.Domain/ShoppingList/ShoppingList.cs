@@ -6,84 +6,84 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
 {
-    private readonly List<ShoppingListItem> items = [];
+	private readonly List<ShoppingListItem> items = [];
 
-    public ShoppingListTitle Title { get; private set; } = default!;
+	public ShoppingListTitle Title { get; private set; } = default!;
 
-    public OwnerIdentifier Owner { get; private set; } = default!;
+	public OwnerIdentifier Owner { get; private set; } = default!;
 
-    public RecipeReference? RecipeReference { get; private set; }
+	public RecipeReference? RecipeReference { get; private set; }
 
-    public DateTime CreatedAt { get; private set; }
+	public DateTime CreatedAt { get; private set; }
 
-    public IReadOnlyList<ShoppingListItem> Items => items.AsReadOnly();
+	public IReadOnlyList<ShoppingListItem> Items => items.AsReadOnly();
 
-    private ShoppingList()
-    {
-    }
+	private ShoppingList()
+	{
+	}
 
-    public static ShoppingList Create(
-        ShoppingListTitle title,
-        OwnerIdentifier owner,
-        IReadOnlyList<ShoppingListItem> items,
-        RecipeReference? recipeReference = null)
-    {
-        Ensure.That(items).IsNotEmpty();
+	public static ShoppingList Create(
+		ShoppingListTitle title,
+		OwnerIdentifier owner,
+		IReadOnlyList<ShoppingListItem> items,
+		RecipeReference? recipeReference = null)
+	{
+		Ensure.That(items).IsNotEmpty();
 
-        var shoppingList = new ShoppingList
-        {
-            Id = ShoppingListIdentifier.New(),
-            Title = title,
-            Owner = owner,
-            RecipeReference = recipeReference,
-            CreatedAt = DateTime.UtcNow,
-        };
+		var shoppingList = new ShoppingList
+		{
+			Id = ShoppingListIdentifier.New(),
+			Title = title,
+			Owner = owner,
+			RecipeReference = recipeReference,
+			CreatedAt = DateTime.UtcNow,
+		};
 
-        shoppingList.items.AddRange(items);
+		shoppingList.items.AddRange(items);
 
-        shoppingList.AddDomainEvent(new ShoppingListCreatedEvent(shoppingList.Id, title));
+		shoppingList.AddDomainEvent(new ShoppingListCreatedEvent(shoppingList.Id, title));
 
-        return shoppingList;
-    }
+		return shoppingList;
+	}
 
-    public ShoppingList CheckOffItem(ShoppingListItemIdentifier itemId)
-    {
-        var item = FindItem(itemId);
-        item.Check();
-        return this;
-    }
+	public ShoppingList CheckOffItem(ShoppingListItemIdentifier itemId)
+	{
+		var item = FindItem(itemId);
+		item.Check();
+		return this;
+	}
 
-    public ShoppingList UncheckItem(ShoppingListItemIdentifier itemId)
-    {
-        var item = FindItem(itemId);
-        item.Uncheck();
-        return this;
-    }
+	public ShoppingList UncheckItem(ShoppingListItemIdentifier itemId)
+	{
+		var item = FindItem(itemId);
+		item.Uncheck();
+		return this;
+	}
 
-    public ShoppingList CheckAllItems()
-    {
-        foreach (var item in items)
-        {
-            item.Check();
-        }
+	public ShoppingList CheckAllItems()
+	{
+		foreach (var item in items)
+		{
+			item.Check();
+		}
 
-        return this;
-    }
+		return this;
+	}
 
-    public ShoppingList UncheckAllItems()
-    {
-        foreach (var item in items)
-        {
-            item.Uncheck();
-        }
+	public ShoppingList UncheckAllItems()
+	{
+		foreach (var item in items)
+		{
+			item.Uncheck();
+		}
 
-        return this;
-    }
+		return this;
+	}
 
-    private ShoppingListItem FindItem(ShoppingListItemIdentifier itemId)
-    {
-        var item = items.FirstOrDefault(i => i.Id == itemId);
-        Ensure.That(item!).IsNotNull();
-        return item!;
-    }
+	private ShoppingListItem FindItem(ShoppingListItemIdentifier itemId)
+	{
+		var item = items.FirstOrDefault(i => i.Id == itemId);
+		Ensure.That(item!).IsNotNull();
+		return item!;
+	}
 }

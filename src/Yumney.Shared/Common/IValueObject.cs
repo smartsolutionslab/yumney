@@ -5,5 +5,5 @@ public interface IValueObject;
 
 public interface IValueObject<TPrimitive> : IValueObject
 {
-    TPrimitive Value { get; }
+	TPrimitive Value { get; }
 }

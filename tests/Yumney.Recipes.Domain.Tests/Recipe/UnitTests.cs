@@ -7,86 +7,86 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe;
 
 public class UnitTests
 {
-    [Fact]
-    public void Constructor_ValidUnit_CreatesInstance()
-    {
-        var unit = Unit.Gram;
+	[Fact]
+	public void Constructor_ValidUnit_CreatesInstance()
+	{
+		var unit = Unit.Gram;
 
-        unit.Value.Should().Be("g");
-    }
+		unit.Value.Should().Be("g");
+	}
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
-    {
-        var act = () => Unit.From(value!);
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
+	{
+		var act = () => Unit.From(value!);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void Constructor_TrimsWhitespace()
-    {
-        var unit = Unit.From("  ml  ");
+	[Fact]
+	public void Constructor_TrimsWhitespace()
+	{
+		var unit = Unit.From("  ml  ");
 
-        unit.Value.Should().Be("ml");
-    }
+		unit.Value.Should().Be("ml");
+	}
 
-    [Fact]
-    public void Constructor_ExceedsMaxLength_ThrowsGuardException()
-    {
-        var value = new string('a', 51);
+	[Fact]
+	public void Constructor_ExceedsMaxLength_ThrowsGuardException()
+	{
+		var value = new string('a', 51);
 
-        var act = () => Unit.From(value);
+		var act = () => Unit.From(value);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void Constructor_AtMaxLength_CreatesInstance()
-    {
-        var value = new string('a', 50);
+	[Fact]
+	public void Constructor_AtMaxLength_CreatesInstance()
+	{
+		var value = new string('a', 50);
 
-        var unit = Unit.From(value);
+		var unit = Unit.From(value);
 
-        unit.Value.Should().HaveLength(50);
-    }
+		unit.Value.Should().HaveLength(50);
+	}
 
-    [Fact]
-    public void Equality_SameValue_AreEqual()
-    {
-        var unit1 = Unit.Milliliter;
-        var unit2 = Unit.Milliliter;
+	[Fact]
+	public void Equality_SameValue_AreEqual()
+	{
+		var unit1 = Unit.Milliliter;
+		var unit2 = Unit.Milliliter;
 
-        unit1.Should().Be(unit2);
-    }
+		unit1.Should().Be(unit2);
+	}
 
-    [Fact]
-    public void Equality_DifferentValue_AreNotEqual()
-    {
-        var unit1 = Unit.Milliliter;
-        var unit2 = Unit.Gram;
+	[Fact]
+	public void Equality_DifferentValue_AreNotEqual()
+	{
+		var unit1 = Unit.Milliliter;
+		var unit2 = Unit.Gram;
 
-        unit1.Should().NotBe(unit2);
-    }
+		unit1.Should().NotBe(unit2);
+	}
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void FromNullable_NullOrWhitespace_ReturnsNull(string? value)
-    {
-        Unit.FromNullable(value).Should().BeNull();
-    }
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void FromNullable_NullOrWhitespace_ReturnsNull(string? value)
+	{
+		Unit.FromNullable(value).Should().BeNull();
+	}
 
-    [Fact]
-    public void FromNullable_ValidValue_ReturnsInstance()
-    {
-        var result = Unit.FromNullable("ml");
+	[Fact]
+	public void FromNullable_ValidValue_ReturnsInstance()
+	{
+		var result = Unit.FromNullable("ml");
 
-        result.Should().NotBeNull();
-        result!.Value.Should().Be("ml");
-    }
+		result.Should().NotBeNull();
+		result!.Value.Should().Be("ml");
+	}
 }

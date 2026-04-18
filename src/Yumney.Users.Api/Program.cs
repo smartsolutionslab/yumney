@@ -18,7 +18,7 @@ var app = builder.Build();
 app.UseYumneyDefaults();
 
 app.MapGroup("/api/v1")
-    .RequireAuthorization()
-    .MapUsersEndpoints();
+	.RequireAuthorization()
+	.MapUsersEndpoints();
 
 app.Run();

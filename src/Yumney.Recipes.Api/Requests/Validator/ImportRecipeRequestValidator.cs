@@ -6,10 +6,10 @@ namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 
 public sealed class ImportRecipeRequestValidator : AbstractValidator<ImportRecipeRequest>
 {
-    public ImportRecipeRequestValidator()
-    {
-        RuleFor(x => x.Url)
-            .NotEmpty()
-            .MustBeValidHttpUrl(RecipeUrl.MaxLength);
-    }
+	public ImportRecipeRequestValidator()
+	{
+		RuleFor(x => x.Url)
+			.NotEmpty()
+			.MustBeValidHttpUrl(RecipeUrl.MaxLength);
+	}
 }

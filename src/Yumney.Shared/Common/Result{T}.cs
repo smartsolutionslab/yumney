@@ -2,23 +2,23 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public sealed class Result<T> : Result
 {
-    private readonly T? value;
+	private readonly T? value;
 
-    public T Value => IsSuccess
-        ? value!
-        : throw new InvalidOperationException("Cannot access value of a failed result.");
+	public T Value => IsSuccess
+		? value!
+		: throw new InvalidOperationException("Cannot access value of a failed result.");
 
-    internal Result(T? value, bool isSuccess, ApiError? error)
-        : base(isSuccess, error)
-    {
-        this.value = value;
-    }
+	internal Result(T? value, bool isSuccess, ApiError? error)
+		: base(isSuccess, error)
+	{
+		this.value = value;
+	}
 
-    public static Result<T> Success(T value) => new(value, true, null);
+	public static Result<T> Success(T value) => new(value, true, null);
 
-    public static new Result<T> Failure(ApiError error) => new(default, false, error);
+	public static new Result<T> Failure(ApiError error) => new(default, false, error);
 
-    public static implicit operator Result<T>(T value) => Success(value);
+	public static implicit operator Result<T>(T value) => Success(value);
 
-    public static implicit operator Result<T>(ApiError error) => Failure(error);
+	public static implicit operator Result<T>(ApiError error) => Failure(error);
 }

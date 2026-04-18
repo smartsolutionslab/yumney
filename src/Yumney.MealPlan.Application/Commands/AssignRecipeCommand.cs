@@ -6,8 +6,8 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 
 public sealed record AssignRecipeCommand(
-    WeekIdentifier Week,
-    DayOfWeek Day,
-    SlotRecipeReference Recipe,
-    MealType MealType = MealType.Dinner,
-    SlotServings? Servings = null) : ICommand<Result<WeeklyPlanDto>>;
+	WeekIdentifier Week,
+	DayOfWeek Day,
+	SlotRecipeReference Recipe,
+	MealType MealType = MealType.Dinner,
+	SlotServings? Servings = null) : ICommand<Result<WeeklyPlanDto>>;

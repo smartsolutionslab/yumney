@@ -6,22 +6,22 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Queries.Handlers;
 
 public sealed class GetWeeklyPlanQueryHandler(
-    IWeeklyPlanRepository plans,
-    ICurrentUser currentUser) : IQueryHandler<GetWeeklyPlanQuery, Result<WeeklyPlanDto>>
+	IWeeklyPlanRepository plans,
+	ICurrentUser currentUser) : IQueryHandler<GetWeeklyPlanQuery, Result<WeeklyPlanDto>>
 {
-    public async Task<Result<WeeklyPlanDto>> HandleAsync(GetWeeklyPlanQuery query, CancellationToken cancellationToken = default)
-    {
-        var week = query.Week;
-        var owner = currentUser.AsOwner();
+	public async Task<Result<WeeklyPlanDto>> HandleAsync(GetWeeklyPlanQuery query, CancellationToken cancellationToken = default)
+	{
+		var week = query.Week;
+		var owner = currentUser.AsOwner();
 
-        var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
+		var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
 
-        if (plan is null)
-        {
-            var empty = WeeklyPlan.Create(owner, week);
-            return new WeeklyPlanDto(week.Value, false, empty.GetVisibleSlots().ToOrderedDtos());
-        }
+		if (plan is null)
+		{
+			var empty = WeeklyPlan.Create(owner, week);
+			return new WeeklyPlanDto(week.Value, false, empty.GetVisibleSlots().ToOrderedDtos());
+		}
 
-        return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
-    }
+		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
+	}
 }

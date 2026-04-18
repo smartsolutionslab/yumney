@@ -6,12 +6,12 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 
 public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options) : DbContext(options)
 {
-    public DbSet<Recipe> Recipes => Set<Recipe>();
+	public DbSet<Recipe> Recipes => Set<Recipe>();
 
-    public DbSet<RecipeFavorite> RecipeFavorites => Set<RecipeFavorite>();
+	public DbSet<RecipeFavorite> RecipeFavorites => Set<RecipeFavorite>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(RecipesDbContext).Assembly);
-    }
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+		modelBuilder.ApplyConfigurationsFromAssembly(typeof(RecipesDbContext).Assembly);
+	}
 }

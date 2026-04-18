@@ -10,59 +10,59 @@ namespace SmartSolutionsLab.Yumney.Shared.Tests.CQRS;
 
 public class CqrsLoggingDecoratorRegistrationTests
 {
-    [Fact]
-    public void AddCqrsLoggingDecorators_WrapsCommandHandler()
-    {
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddMetrics();
-        services.AddHandlersFromAssemblyContaining<FakeCommandHandler>();
+	[Fact]
+	public void AddCqrsLoggingDecorators_WrapsCommandHandler()
+	{
+		var services = new ServiceCollection();
+		services.AddLogging();
+		services.AddMetrics();
+		services.AddHandlersFromAssemblyContaining<FakeCommandHandler>();
 
-        services.AddCqrsLoggingDecorators();
+		services.AddCqrsLoggingDecorators();
 
-        var provider = services.BuildServiceProvider();
-        var handler = provider.GetRequiredService<ICommandHandler<FakeCommand, string>>();
-        handler.Should().BeOfType<LoggingCommandHandlerDecorator<FakeCommand, string>>();
-    }
+		var provider = services.BuildServiceProvider();
+		var handler = provider.GetRequiredService<ICommandHandler<FakeCommand, string>>();
+		handler.Should().BeOfType<LoggingCommandHandlerDecorator<FakeCommand, string>>();
+	}
 
-    [Fact]
-    public void AddCqrsLoggingDecorators_WrapsQueryHandler()
-    {
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddMetrics();
-        services.AddHandlersFromAssemblyContaining<FakeQueryHandler>();
+	[Fact]
+	public void AddCqrsLoggingDecorators_WrapsQueryHandler()
+	{
+		var services = new ServiceCollection();
+		services.AddLogging();
+		services.AddMetrics();
+		services.AddHandlersFromAssemblyContaining<FakeQueryHandler>();
 
-        services.AddCqrsLoggingDecorators();
+		services.AddCqrsLoggingDecorators();
 
-        var provider = services.BuildServiceProvider();
-        var handler = provider.GetRequiredService<IQueryHandler<FakeQuery, int>>();
-        handler.Should().BeOfType<LoggingQueryHandlerDecorator<FakeQuery, int>>();
-    }
+		var provider = services.BuildServiceProvider();
+		var handler = provider.GetRequiredService<IQueryHandler<FakeQuery, int>>();
+		handler.Should().BeOfType<LoggingQueryHandlerDecorator<FakeQuery, int>>();
+	}
 
-    [Fact]
-    public async Task AddCqrsLoggingDecorators_DecoratedHandlerStillDelegates()
-    {
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddMetrics();
-        services.AddHandlersFromAssemblyContaining<FakeCommandHandler>();
-        services.AddCqrsLoggingDecorators();
-        var provider = services.BuildServiceProvider();
+	[Fact]
+	public async Task AddCqrsLoggingDecorators_DecoratedHandlerStillDelegates()
+	{
+		var services = new ServiceCollection();
+		services.AddLogging();
+		services.AddMetrics();
+		services.AddHandlersFromAssemblyContaining<FakeCommandHandler>();
+		services.AddCqrsLoggingDecorators();
+		var provider = services.BuildServiceProvider();
 
-        var handler = provider.GetRequiredService<ICommandHandler<FakeCommand, string>>();
-        var result = await handler.HandleAsync(new FakeCommand());
+		var handler = provider.GetRequiredService<ICommandHandler<FakeCommand, string>>();
+		var result = await handler.HandleAsync(new FakeCommand());
 
-        result.Should().Be("handled");
-    }
+		result.Should().Be("handled");
+	}
 
-    [Fact]
-    public void AddCqrsLoggingDecorators_ReturnsSameServiceCollection()
-    {
-        var services = new ServiceCollection();
+	[Fact]
+	public void AddCqrsLoggingDecorators_ReturnsSameServiceCollection()
+	{
+		var services = new ServiceCollection();
 
-        var result = services.AddCqrsLoggingDecorators();
+		var result = services.AddCqrsLoggingDecorators();
 
-        result.Should().BeSameAs(services);
-    }
+		result.Should().BeSameAs(services);
+	}
 }

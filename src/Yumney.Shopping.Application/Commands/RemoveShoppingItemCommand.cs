@@ -8,6 +8,6 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 /// Remove an item from the shopping list (via chat command or UI).
 /// </summary>
 public sealed record RemoveShoppingItemCommand(
-    ItemName ItemName,
-    Quantity? Quantity,
-    RemovalReason? Reason) : ICommand<Result>;
+	ItemName ItemName,
+	Quantity? Quantity,
+	RemovalReason? Reason) : ICommand<Result>;

@@ -5,7 +5,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 public interface IIngredientRecognitionService
 {
-    Task<Result<RecognizedIngredientsResponseDto>> RecognizeAsync(
-        PhotoData photo,
-        CancellationToken cancellationToken = default);
+	Task<Result<RecognizedIngredientsResponseDto>> RecognizeAsync(
+		PhotoData photo,
+		CancellationToken cancellationToken = default);
 }

@@ -4,54 +4,54 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 
 public static class RecipeMappingExtensions
 {
-    extension(Recipe recipe)
-    {
-        public RecipeDetailDto ToDetailDto(bool isFavorite = false)
-        {
-            return new RecipeDetailDto(
-                recipe.Id.Value,
-                recipe.Title.Value,
-                recipe.Description?.Value,
-                recipe.Servings?.Value,
-                recipe.Timing?.Preparation?.Value,
-                recipe.Timing?.Cooking?.Value,
-                recipe.Difficulty?.Value,
-                recipe.ImageUrl?.Value,
-                recipe.Language?.Value,
-                recipe.SourceUrl?.Value,
-                recipe.CreatedAt,
-                recipe.Ingredients.Select(i => i.ToDto()).ToList(),
-                recipe.Steps.Select(s => s.ToDto()).ToList(),
-                recipe.Tags.Select(t => t.Value).ToList(),
-                isFavorite);
-        }
+	extension(Recipe recipe)
+	{
+		public RecipeDetailDto ToDetailDto(bool isFavorite = false)
+		{
+			return new RecipeDetailDto(
+				recipe.Id.Value,
+				recipe.Title.Value,
+				recipe.Description?.Value,
+				recipe.Servings?.Value,
+				recipe.Timing?.Preparation?.Value,
+				recipe.Timing?.Cooking?.Value,
+				recipe.Difficulty?.Value,
+				recipe.ImageUrl?.Value,
+				recipe.Language?.Value,
+				recipe.SourceUrl?.Value,
+				recipe.CreatedAt,
+				recipe.Ingredients.Select(i => i.ToDto()).ToList(),
+				recipe.Steps.Select(s => s.ToDto()).ToList(),
+				recipe.Tags.Select(t => t.Value).ToList(),
+				isFavorite);
+		}
 
-        public RecipeListItemDto ToListItemDto(bool isFavorite = false)
-        {
-            return new RecipeListItemDto(
-                recipe.Id.Value,
-                recipe.Title.Value,
-                recipe.Description?.Value,
-                recipe.Servings?.Value,
-                recipe.Timing?.Preparation?.Value,
-                recipe.Timing?.Cooking?.Value,
-                recipe.Difficulty?.Value,
-                recipe.ImageUrl?.Value,
-                recipe.CreatedAt,
-                recipe.Tags.Select(t => t.Value).ToList(),
-                isFavorite);
-        }
-    }
+		public RecipeListItemDto ToListItemDto(bool isFavorite = false)
+		{
+			return new RecipeListItemDto(
+				recipe.Id.Value,
+				recipe.Title.Value,
+				recipe.Description?.Value,
+				recipe.Servings?.Value,
+				recipe.Timing?.Preparation?.Value,
+				recipe.Timing?.Cooking?.Value,
+				recipe.Difficulty?.Value,
+				recipe.ImageUrl?.Value,
+				recipe.CreatedAt,
+				recipe.Tags.Select(t => t.Value).ToList(),
+				isFavorite);
+		}
+	}
 
-    public static RecipeIngredientDto ToDto(this Ingredient ingredient)
-    {
-        return new RecipeIngredientDto(
-            ingredient.Name.Value,
-            ingredient.Quantity?.Amount.Value,
-            ingredient.Quantity?.Unit?.Value);
-    }
+	public static RecipeIngredientDto ToDto(this Ingredient ingredient)
+	{
+		return new RecipeIngredientDto(
+			ingredient.Name.Value,
+			ingredient.Quantity?.Amount.Value,
+			ingredient.Quantity?.Unit?.Value);
+	}
 
-    public static RecipeStepDto ToDto(this Step step) => new(step.Number.Value, step.Description.Value);
+	public static RecipeStepDto ToDto(this Step step) => new(step.Number.Value, step.Description.Value);
 
-    public static SavedRecipeDto ToSavedDto(this Recipe recipe) => new(recipe.Id.Value, recipe.Title.Value, recipe.CreatedAt);
+	public static SavedRecipeDto ToSavedDto(this Recipe recipe) => new(recipe.Id.Value, recipe.Title.Value, recipe.CreatedAt);
 }

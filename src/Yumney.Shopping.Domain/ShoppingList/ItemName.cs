@@ -5,20 +5,20 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 public sealed record ItemName : IValueObject<string>
 {
-    public const int MaxLength = 200;
+	public const int MaxLength = 200;
 
-    public string Value { get; }
+	public string Value { get; }
 
-    private ItemName(string value)
-    {
-        string validated = Ensure.That(value)
-            .IsNotNullOrWhiteSpace()
-            .HasMaxLength(MaxLength)
-            .AndReturn();
-        Value = validated.Trim();
-    }
+	private ItemName(string value)
+	{
+		string validated = Ensure.That(value)
+			.IsNotNullOrWhiteSpace()
+			.HasMaxLength(MaxLength)
+			.AndReturn();
+		Value = validated.Trim();
+	}
 
-    public static ItemName From(string value) => new(value);
+	public static ItemName From(string value) => new(value);
 
-    public static implicit operator string(ItemName obj) => obj.Value;
+	public static implicit operator string(ItemName obj) => obj.Value;
 }

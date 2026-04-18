@@ -5,7 +5,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStor
 /// </summary>
 public sealed class AggregateMetadata
 {
-    public Guid AggregateId { get; set; }
+	public Guid AggregateId { get; set; }
 
-    public string OwnerId { get; set; } = default!;
+	public string OwnerId { get; set; } = default!;
 }

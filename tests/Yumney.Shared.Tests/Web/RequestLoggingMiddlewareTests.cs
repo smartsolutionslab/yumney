@@ -9,101 +9,101 @@ namespace SmartSolutionsLab.Yumney.Shared.Tests.Web;
 
 public class RequestLoggingMiddlewareTests
 {
-    [Fact]
-    public async Task InvokeAsync_SuccessResponse_DelegatesDownstream()
-    {
-        var wasCalled = false;
-        var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
-        RequestDelegate next = ctx =>
-        {
-            wasCalled = true;
-            ctx.Response.StatusCode = 200;
-            return Task.CompletedTask;
-        };
-        var middleware = new RequestLoggingMiddleware(next, logger);
+	[Fact]
+	public async Task InvokeAsync_SuccessResponse_DelegatesDownstream()
+	{
+		var wasCalled = false;
+		var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
+		RequestDelegate next = ctx =>
+		{
+			wasCalled = true;
+			ctx.Response.StatusCode = 200;
+			return Task.CompletedTask;
+		};
+		var middleware = new RequestLoggingMiddleware(next, logger);
 
-        await middleware.InvokeAsync(new DefaultHttpContext());
+		await middleware.InvokeAsync(new DefaultHttpContext());
 
-        wasCalled.Should().BeTrue();
-    }
+		wasCalled.Should().BeTrue();
+	}
 
-    [Fact]
-    public async Task InvokeAsync_HealthEndpoint_SkipsLogging()
-    {
-        var wasCalled = false;
-        var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
-        RequestDelegate next = _ =>
-        {
-            wasCalled = true;
-            return Task.CompletedTask;
-        };
-        var middleware = new RequestLoggingMiddleware(next, logger);
+	[Fact]
+	public async Task InvokeAsync_HealthEndpoint_SkipsLogging()
+	{
+		var wasCalled = false;
+		var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
+		RequestDelegate next = _ =>
+		{
+			wasCalled = true;
+			return Task.CompletedTask;
+		};
+		var middleware = new RequestLoggingMiddleware(next, logger);
 
-        var context = new DefaultHttpContext();
-        context.Request.Path = "/health";
+		var context = new DefaultHttpContext();
+		context.Request.Path = "/health";
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        wasCalled.Should().BeTrue();
-    }
+		wasCalled.Should().BeTrue();
+	}
 
-    [Fact]
-    public async Task InvokeAsync_AliveEndpoint_SkipsLogging()
-    {
-        var wasCalled = false;
-        var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
-        RequestDelegate next = _ =>
-        {
-            wasCalled = true;
-            return Task.CompletedTask;
-        };
-        var middleware = new RequestLoggingMiddleware(next, logger);
+	[Fact]
+	public async Task InvokeAsync_AliveEndpoint_SkipsLogging()
+	{
+		var wasCalled = false;
+		var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
+		RequestDelegate next = _ =>
+		{
+			wasCalled = true;
+			return Task.CompletedTask;
+		};
+		var middleware = new RequestLoggingMiddleware(next, logger);
 
-        var context = new DefaultHttpContext();
-        context.Request.Path = "/alive";
+		var context = new DefaultHttpContext();
+		context.Request.Path = "/alive";
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        wasCalled.Should().BeTrue();
-    }
+		wasCalled.Should().BeTrue();
+	}
 
-    [Fact]
-    public async Task InvokeAsync_404Response_DelegatesDownstream()
-    {
-        var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
-        RequestDelegate next = ctx =>
-        {
-            ctx.Response.StatusCode = 404;
-            return Task.CompletedTask;
-        };
-        var middleware = new RequestLoggingMiddleware(next, logger);
+	[Fact]
+	public async Task InvokeAsync_404Response_DelegatesDownstream()
+	{
+		var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
+		RequestDelegate next = ctx =>
+		{
+			ctx.Response.StatusCode = 404;
+			return Task.CompletedTask;
+		};
+		var middleware = new RequestLoggingMiddleware(next, logger);
 
-        var context = new DefaultHttpContext();
-        context.Request.Method = "GET";
-        context.Request.Path = "/api/v1/recipes/123";
+		var context = new DefaultHttpContext();
+		context.Request.Method = "GET";
+		context.Request.Path = "/api/v1/recipes/123";
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        context.Response.StatusCode.Should().Be(404);
-    }
+		context.Response.StatusCode.Should().Be(404);
+	}
 
-    [Fact]
-    public async Task InvokeAsync_500Response_DelegatesDownstream()
-    {
-        var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
-        RequestDelegate next = ctx =>
-        {
-            ctx.Response.StatusCode = 500;
-            return Task.CompletedTask;
-        };
-        var middleware = new RequestLoggingMiddleware(next, logger);
+	[Fact]
+	public async Task InvokeAsync_500Response_DelegatesDownstream()
+	{
+		var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
+		RequestDelegate next = ctx =>
+		{
+			ctx.Response.StatusCode = 500;
+			return Task.CompletedTask;
+		};
+		var middleware = new RequestLoggingMiddleware(next, logger);
 
-        var context = new DefaultHttpContext();
-        context.Request.Method = "POST";
-        context.Request.Path = "/api/v1/recipes";
+		var context = new DefaultHttpContext();
+		context.Request.Method = "POST";
+		context.Request.Path = "/api/v1/recipes";
 
-        await middleware.InvokeAsync(context);
+		await middleware.InvokeAsync(context);
 
-        context.Response.StatusCode.Should().Be(500);
-    }
+		context.Response.StatusCode.Should().Be(500);
+	}
 }

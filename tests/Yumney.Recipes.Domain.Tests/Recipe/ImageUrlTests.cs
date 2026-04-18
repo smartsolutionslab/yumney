@@ -7,112 +7,112 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe;
 
 public class ImageUrlTests
 {
-    [Theory]
-    [InlineData("http://example.com/image.jpg")]
-    [InlineData("https://example.com/image.jpg")]
-    public void Constructor_ValidUrl_CreatesInstance(string value)
-    {
-        var imageUrl = ImageUrl.From(value);
+	[Theory]
+	[InlineData("http://example.com/image.jpg")]
+	[InlineData("https://example.com/image.jpg")]
+	public void Constructor_ValidUrl_CreatesInstance(string value)
+	{
+		var imageUrl = ImageUrl.From(value);
 
-        imageUrl.Value.Should().Be(value);
-    }
+		imageUrl.Value.Should().Be(value);
+	}
 
-    [Fact]
-    public void Constructor_UrlWithQueryParams_CreatesInstance()
-    {
-        var value = "https://example.com/image.jpg?width=800";
+	[Fact]
+	public void Constructor_UrlWithQueryParams_CreatesInstance()
+	{
+		var value = "https://example.com/image.jpg?width=800";
 
-        var imageUrl = ImageUrl.From(value);
+		var imageUrl = ImageUrl.From(value);
 
-        imageUrl.Value.Should().Be(value);
-    }
+		imageUrl.Value.Should().Be(value);
+	}
 
-    [Fact]
-    public void Constructor_TrimsWhitespace()
-    {
-        var imageUrl = ImageUrl.From("  https://example.com/image.jpg  ");
+	[Fact]
+	public void Constructor_TrimsWhitespace()
+	{
+		var imageUrl = ImageUrl.From("  https://example.com/image.jpg  ");
 
-        imageUrl.Value.Should().Be("https://example.com/image.jpg");
-    }
+		imageUrl.Value.Should().Be("https://example.com/image.jpg");
+	}
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
-    {
-        var act = () => ImageUrl.From(value!);
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
+	{
+		var act = () => ImageUrl.From(value!);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Theory]
-    [InlineData("ftp://example.com/image.jpg")]
-    [InlineData("not-a-url")]
-    [InlineData("example.com/image.jpg")]
-    public void Constructor_InvalidFormat_ThrowsGuardException(string value)
-    {
-        var act = () => ImageUrl.From(value);
+	[Theory]
+	[InlineData("ftp://example.com/image.jpg")]
+	[InlineData("not-a-url")]
+	[InlineData("example.com/image.jpg")]
+	public void Constructor_InvalidFormat_ThrowsGuardException(string value)
+	{
+		var act = () => ImageUrl.From(value);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void Constructor_ExceedsMaxLength_ThrowsGuardException()
-    {
-        var path = new string('a', 2040);
-        var url = $"https://x.com/{path}";
+	[Fact]
+	public void Constructor_ExceedsMaxLength_ThrowsGuardException()
+	{
+		var path = new string('a', 2040);
+		var url = $"https://x.com/{path}";
 
-        var act = () => ImageUrl.From(url);
+		var act = () => ImageUrl.From(url);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void Constructor_AtMaxLength_CreatesInstance()
-    {
-        var prefix = "https://x.com/";
-        var path = new string('a', 2048 - prefix.Length);
-        var url = $"{prefix}{path}";
+	[Fact]
+	public void Constructor_AtMaxLength_CreatesInstance()
+	{
+		var prefix = "https://x.com/";
+		var path = new string('a', 2048 - prefix.Length);
+		var url = $"{prefix}{path}";
 
-        var result = ImageUrl.From(url);
+		var result = ImageUrl.From(url);
 
-        result.Value.Should().HaveLength(2048);
-    }
+		result.Value.Should().HaveLength(2048);
+	}
 
-    [Fact]
-    public void Equality_SameValue_AreEqual()
-    {
-        var url1 = ImageUrl.From("https://example.com/image.jpg");
-        var url2 = ImageUrl.From("https://example.com/image.jpg");
+	[Fact]
+	public void Equality_SameValue_AreEqual()
+	{
+		var url1 = ImageUrl.From("https://example.com/image.jpg");
+		var url2 = ImageUrl.From("https://example.com/image.jpg");
 
-        url1.Should().Be(url2);
-    }
+		url1.Should().Be(url2);
+	}
 
-    [Fact]
-    public void Equality_DifferentValue_AreNotEqual()
-    {
-        var url1 = ImageUrl.From("https://example.com/image1.jpg");
-        var url2 = ImageUrl.From("https://example.com/image2.jpg");
+	[Fact]
+	public void Equality_DifferentValue_AreNotEqual()
+	{
+		var url1 = ImageUrl.From("https://example.com/image1.jpg");
+		var url2 = ImageUrl.From("https://example.com/image2.jpg");
 
-        url1.Should().NotBe(url2);
-    }
+		url1.Should().NotBe(url2);
+	}
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void FromNullable_NullOrWhitespace_ReturnsNull(string? value)
-    {
-        ImageUrl.FromNullable(value).Should().BeNull();
-    }
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void FromNullable_NullOrWhitespace_ReturnsNull(string? value)
+	{
+		ImageUrl.FromNullable(value).Should().BeNull();
+	}
 
-    [Fact]
-    public void FromNullable_ValidValue_ReturnsInstance()
-    {
-        var result = ImageUrl.FromNullable("https://example.com/image.jpg");
+	[Fact]
+	public void FromNullable_ValidValue_ReturnsInstance()
+	{
+		var result = ImageUrl.FromNullable("https://example.com/image.jpg");
 
-        result.Should().NotBeNull();
-        result!.Value.Should().Be("https://example.com/image.jpg");
-    }
+		result.Should().NotBeNull();
+		result!.Value.Should().Be("https://example.com/image.jpg");
+	}
 }

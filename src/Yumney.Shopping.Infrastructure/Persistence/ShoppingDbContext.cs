@@ -7,18 +7,18 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 
 public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> options) : DbContext(options)
 {
-    public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
+	public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
 
-    public DbSet<StoredEvent> ShoppingEvents => Set<StoredEvent>();
+	public DbSet<StoredEvent> ShoppingEvents => Set<StoredEvent>();
 
-    public DbSet<StoredSnapshot> ShoppingSnapshots => Set<StoredSnapshot>();
+	public DbSet<StoredSnapshot> ShoppingSnapshots => Set<StoredSnapshot>();
 
-    public DbSet<AggregateMetadata> ShoppingAggregates => Set<AggregateMetadata>();
+	public DbSet<AggregateMetadata> ShoppingAggregates => Set<AggregateMetadata>();
 
-    public DbSet<ShoppingListReadItem> ShoppingListReadItems => Set<ShoppingListReadItem>();
+	public DbSet<ShoppingListReadItem> ShoppingListReadItems => Set<ShoppingListReadItem>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShoppingDbContext).Assembly);
-    }
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
+	{
+		modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShoppingDbContext).Assembly);
+	}
 }

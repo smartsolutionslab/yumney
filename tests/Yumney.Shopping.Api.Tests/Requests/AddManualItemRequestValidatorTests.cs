@@ -7,37 +7,37 @@ namespace SmartSolutionsLab.Yumney.Shopping.Api.Tests.Requests;
 
 public class AddManualItemRequestValidatorTests
 {
-    private readonly AddManualItemRequestValidator validator = new();
+	private readonly AddManualItemRequestValidator validator = new();
 
-    [Fact]
-    public void Validate_ValidRequest_IsValid()
-    {
-        var request = new AddManualItemRequest("Milk", 2, "L");
+	[Fact]
+	public void Validate_ValidRequest_IsValid()
+	{
+		var request = new AddManualItemRequest("Milk", 2, "L");
 
-        var result = validator.Validate(request);
+		var result = validator.Validate(request);
 
-        result.IsValid.Should().BeTrue();
-    }
+		result.IsValid.Should().BeTrue();
+	}
 
-    [Fact]
-    public void Validate_NameOnly_IsValid()
-    {
-        var request = new AddManualItemRequest("Milk");
+	[Fact]
+	public void Validate_NameOnly_IsValid()
+	{
+		var request = new AddManualItemRequest("Milk");
 
-        var result = validator.Validate(request);
+		var result = validator.Validate(request);
 
-        result.IsValid.Should().BeTrue();
-    }
+		result.IsValid.Should().BeTrue();
+	}
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    public void Validate_EmptyName_IsInvalid(string? name)
-    {
-        var request = new AddManualItemRequest(name!);
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	public void Validate_EmptyName_IsInvalid(string? name)
+	{
+		var request = new AddManualItemRequest(name!);
 
-        var result = validator.Validate(request);
+		var result = validator.Validate(request);
 
-        result.IsValid.Should().BeFalse();
-    }
+		result.IsValid.Should().BeFalse();
+	}
 }

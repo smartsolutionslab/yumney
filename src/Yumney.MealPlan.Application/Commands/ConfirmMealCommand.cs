@@ -6,7 +6,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 
 public sealed record ConfirmMealCommand(
-    WeekIdentifier Week,
-    DayOfWeek Day,
-    MealType MealType,
-    MealState NewState) : ICommand<Result<WeeklyPlanDto>>;
+	WeekIdentifier Week,
+	DayOfWeek Day,
+	MealType MealType,
+	MealState NewState) : ICommand<Result<WeeklyPlanDto>>;

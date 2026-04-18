@@ -11,128 +11,128 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 
 public class DeleteRecipeCommandHandlerTests
 {
-    private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
-    private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
-    private readonly DeleteRecipeCommandHandler handler;
+	private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
+	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
+	private readonly DeleteRecipeCommandHandler handler;
 
-    public DeleteRecipeCommandHandlerTests()
-    {
-        currentUser.UserId.Returns("user-123");
-        handler = new DeleteRecipeCommandHandler(recipes, currentUser);
-    }
+	public DeleteRecipeCommandHandlerTests()
+	{
+		currentUser.UserId.Returns("user-123");
+		handler = new DeleteRecipeCommandHandler(recipes, currentUser);
+	}
 
-    [Fact]
-    public async Task HandleAsync_ExistingRecipe_ReturnsSuccess()
-    {
-        var recipe = RecipeTestData.CreateRecipe();
-        var recipeId = recipe.Id;
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+	[Fact]
+	public async Task HandleAsync_ExistingRecipe_ReturnsSuccess()
+	{
+		var recipe = RecipeTestData.CreateRecipe();
+		var recipeId = recipe.Id;
+		recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var command = new DeleteRecipeCommand(recipeId);
+		var command = new DeleteRecipeCommand(recipeId);
 
-        var result = await handler.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
-        result.IsSuccess.Should().BeTrue();
-    }
+		result.IsSuccess.Should().BeTrue();
+	}
 
-    [Fact]
-    public async Task HandleAsync_RecipeNotFound_ThrowsEntityNotFoundException()
-    {
-        var recipeId = RecipeIdentifier.New();
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>())
-            .Returns<Recipe>(_ => throw new EntityNotFoundException(nameof(Recipe), recipeId.Value));
+	[Fact]
+	public async Task HandleAsync_RecipeNotFound_ThrowsEntityNotFoundException()
+	{
+		var recipeId = RecipeIdentifier.New();
+		recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>())
+			.Returns<Recipe>(_ => throw new EntityNotFoundException(nameof(Recipe), recipeId.Value));
 
-        var command = new DeleteRecipeCommand(recipeId);
+		var command = new DeleteRecipeCommand(recipeId);
 
-        var act = () => handler.HandleAsync(command);
+		var act = () => handler.HandleAsync(command);
 
-        await act.Should().ThrowAsync<EntityNotFoundException>();
-    }
+		await act.Should().ThrowAsync<EntityNotFoundException>();
+	}
 
-    [Fact]
-    public async Task HandleAsync_WrongOwner_ReturnsAccessDenied()
-    {
-        var recipe = RecipeTestData.CreateRecipe("other-user");
-        var recipeId = recipe.Id;
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+	[Fact]
+	public async Task HandleAsync_WrongOwner_ReturnsAccessDenied()
+	{
+		var recipe = RecipeTestData.CreateRecipe("other-user");
+		var recipeId = recipe.Id;
+		recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var command = new DeleteRecipeCommand(recipeId);
+		var command = new DeleteRecipeCommand(recipeId);
 
-        var result = await handler.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(DeleteRecipeErrors.AccessDenied);
-    }
+		result.IsFailure.Should().BeTrue();
+		result.Error.Should().Be(DeleteRecipeErrors.AccessDenied);
+	}
 
-    [Fact]
-    public async Task HandleAsync_ExistingRecipe_CallsMarkAsDeleted()
-    {
-        var recipe = RecipeTestData.CreateRecipe();
-        var recipeId = recipe.Id;
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+	[Fact]
+	public async Task HandleAsync_ExistingRecipe_CallsMarkAsDeleted()
+	{
+		var recipe = RecipeTestData.CreateRecipe();
+		var recipeId = recipe.Id;
+		recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var command = new DeleteRecipeCommand(recipeId);
+		var command = new DeleteRecipeCommand(recipeId);
 
-        await handler.HandleAsync(command);
+		await handler.HandleAsync(command);
 
-        recipe.DomainEvents.Should().ContainSingle(e => e is RecipeDeletedEvent);
-    }
+		recipe.DomainEvents.Should().ContainSingle(e => e is RecipeDeletedEvent);
+	}
 
-    [Fact]
-    public async Task HandleAsync_ExistingRecipe_CallsDeleteAsync()
-    {
-        var recipe = RecipeTestData.CreateRecipe();
-        var recipeId = recipe.Id;
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+	[Fact]
+	public async Task HandleAsync_ExistingRecipe_CallsDeleteAsync()
+	{
+		var recipe = RecipeTestData.CreateRecipe();
+		var recipeId = recipe.Id;
+		recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var command = new DeleteRecipeCommand(recipeId);
+		var command = new DeleteRecipeCommand(recipeId);
 
-        await handler.HandleAsync(command);
+		await handler.HandleAsync(command);
 
-        await recipes.Received(1).DeleteAsync(recipe, Arg.Any<CancellationToken>());
-    }
+		await recipes.Received(1).DeleteAsync(recipe, Arg.Any<CancellationToken>());
+	}
 
-    [Fact]
-    public async Task HandleAsync_RecipeNotFound_DoesNotCallDeleteAsync()
-    {
-        var recipeId = RecipeIdentifier.New();
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>())
-            .Returns<Recipe>(_ => throw new EntityNotFoundException(nameof(Recipe), recipeId.Value));
+	[Fact]
+	public async Task HandleAsync_RecipeNotFound_DoesNotCallDeleteAsync()
+	{
+		var recipeId = RecipeIdentifier.New();
+		recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>())
+			.Returns<Recipe>(_ => throw new EntityNotFoundException(nameof(Recipe), recipeId.Value));
 
-        var command = new DeleteRecipeCommand(recipeId);
+		var command = new DeleteRecipeCommand(recipeId);
 
-        try { await handler.HandleAsync(command); } catch (EntityNotFoundException) { }
+		try { await handler.HandleAsync(command); } catch (EntityNotFoundException) { }
 
-        await recipes.DidNotReceive().DeleteAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
-    }
+		await recipes.DidNotReceive().DeleteAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
+	}
 
-    [Fact]
-    public async Task HandleAsync_WrongOwner_DoesNotCallDeleteAsync()
-    {
-        var recipe = RecipeTestData.CreateRecipe("other-user");
-        var recipeId = recipe.Id;
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+	[Fact]
+	public async Task HandleAsync_WrongOwner_DoesNotCallDeleteAsync()
+	{
+		var recipe = RecipeTestData.CreateRecipe("other-user");
+		var recipeId = recipe.Id;
+		recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
 
-        var command = new DeleteRecipeCommand(recipeId);
+		var command = new DeleteRecipeCommand(recipeId);
 
-        await handler.HandleAsync(command);
+		await handler.HandleAsync(command);
 
-        await recipes.DidNotReceive().DeleteAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
-    }
+		await recipes.DidNotReceive().DeleteAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
+	}
 
-    [Fact]
-    public async Task HandleAsync_ForwardsCancellationToken()
-    {
-        var recipe = RecipeTestData.CreateRecipe();
-        var recipeId = recipe.Id;
-        recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
-        var cts = new CancellationTokenSource();
+	[Fact]
+	public async Task HandleAsync_ForwardsCancellationToken()
+	{
+		var recipe = RecipeTestData.CreateRecipe();
+		var recipeId = recipe.Id;
+		recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
+		var cts = new CancellationTokenSource();
 
-        var command = new DeleteRecipeCommand(recipeId);
+		var command = new DeleteRecipeCommand(recipeId);
 
-        await handler.HandleAsync(command, cts.Token);
+		await handler.HandleAsync(command, cts.Token);
 
-        await recipes.Received(1).GetByIdForUpdateAsync(recipeId, cts.Token);
-        await recipes.Received(1).DeleteAsync(recipe, cts.Token);
-    }
+		await recipes.Received(1).GetByIdForUpdateAsync(recipeId, cts.Token);
+		await recipes.Received(1).DeleteAsync(recipe, cts.Token);
+	}
 }

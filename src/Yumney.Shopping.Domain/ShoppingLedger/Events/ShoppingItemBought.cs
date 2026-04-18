@@ -4,5 +4,5 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 
 public sealed record ShoppingItemBought(
-    ItemName ItemName,
-    Quantity Quantity) : DomainEvent;
+	ItemName ItemName,
+	Quantity Quantity) : DomainEvent;

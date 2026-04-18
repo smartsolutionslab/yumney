@@ -7,28 +7,28 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Domain.Tests.WeeklyPlan;
 
 public class WeeklyPlanIdentifierTests
 {
-    [Fact]
-    public void New_CreatesNonEmptyGuid()
-    {
-        var id = WeeklyPlanIdentifier.New();
+	[Fact]
+	public void New_CreatesNonEmptyGuid()
+	{
+		var id = WeeklyPlanIdentifier.New();
 
-        id.Value.Should().NotBe(Guid.Empty);
-    }
+		id.Value.Should().NotBe(Guid.Empty);
+	}
 
-    [Fact]
-    public void From_ValidGuid_CreatesInstance()
-    {
-        var guid = Guid.NewGuid();
-        var id = WeeklyPlanIdentifier.From(guid);
+	[Fact]
+	public void From_ValidGuid_CreatesInstance()
+	{
+		var guid = Guid.NewGuid();
+		var id = WeeklyPlanIdentifier.From(guid);
 
-        id.Value.Should().Be(guid);
-    }
+		id.Value.Should().Be(guid);
+	}
 
-    [Fact]
-    public void From_EmptyGuid_ThrowsGuardException()
-    {
-        var act = () => WeeklyPlanIdentifier.From(Guid.Empty);
+	[Fact]
+	public void From_EmptyGuid_ThrowsGuardException()
+	{
+		var act = () => WeeklyPlanIdentifier.From(Guid.Empty);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 }

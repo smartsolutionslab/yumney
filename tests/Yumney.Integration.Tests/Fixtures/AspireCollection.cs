@@ -6,5 +6,5 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 #pragma warning disable CA1711 // xUnit convention requires Collection suffix
 public class AspireCollection : ICollectionFixture<AspireFixture>
 {
-    public const string Name = "Aspire";
+	public const string Name = "Aspire";
 }

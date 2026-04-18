@@ -6,12 +6,12 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 
 public sealed class GetMergedShoppingListQueryHandler(
-    IShoppingListReadModelRepository readModel,
-    ICurrentUser currentUser) : IQueryHandler<GetMergedShoppingListQuery, Result<MergedShoppingListDto>>
+	IShoppingListReadModelRepository readModel,
+	ICurrentUser currentUser) : IQueryHandler<GetMergedShoppingListQuery, Result<MergedShoppingListDto>>
 {
-    public async Task<Result<MergedShoppingListDto>> HandleAsync(GetMergedShoppingListQuery query, CancellationToken cancellationToken = default)
-    {
-        var ownerId = currentUser.UserId;
-        return await readModel.GetByOwnerAsync(ownerId, cancellationToken: cancellationToken);
-    }
+	public async Task<Result<MergedShoppingListDto>> HandleAsync(GetMergedShoppingListQuery query, CancellationToken cancellationToken = default)
+	{
+		var ownerId = currentUser.UserId;
+		return await readModel.GetByOwnerAsync(ownerId, cancellationToken: cancellationToken);
+	}
 }

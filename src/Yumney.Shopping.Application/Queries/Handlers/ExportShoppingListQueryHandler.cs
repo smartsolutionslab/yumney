@@ -11,67 +11,67 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 /// Only includes unbought items. Does not change any item state.
 /// </summary>
 public sealed class ExportShoppingListQueryHandler(
-    IShoppingListReadModelRepository readModel,
-    ICurrentUser currentUser) : IQueryHandler<ExportShoppingListQuery, Result<string>>
+	IShoppingListReadModelRepository readModel,
+	ICurrentUser currentUser) : IQueryHandler<ExportShoppingListQuery, Result<string>>
 {
 #pragma warning disable SA1311
-    private static readonly Dictionary<string, string> categoryEmojis = new()
-    {
-        ["produce"] = "\U0001F966",
-        ["dairy"] = "\U0001F95B",
-        ["meat-fish"] = "\U0001F969",
-        ["bakery"] = "\U0001F35E",
-        ["frozen"] = "\u2744\uFE0F",
-        ["beverages"] = "\U0001F964",
-        ["pantry"] = "\U0001F3E0",
-        ["household"] = "\U0001F9F9",
-        ["other"] = "\U0001F4E6",
-    };
+	private static readonly Dictionary<string, string> categoryEmojis = new()
+	{
+		["produce"] = "\U0001F966",
+		["dairy"] = "\U0001F95B",
+		["meat-fish"] = "\U0001F969",
+		["bakery"] = "\U0001F35E",
+		["frozen"] = "\u2744\uFE0F",
+		["beverages"] = "\U0001F964",
+		["pantry"] = "\U0001F3E0",
+		["household"] = "\U0001F9F9",
+		["other"] = "\U0001F4E6",
+	};
 
-    private static readonly Dictionary<string, string> categoryLabels = new()
-    {
-        ["produce"] = "Produce",
-        ["dairy"] = "Dairy",
-        ["meat-fish"] = "Meat & Fish",
-        ["bakery"] = "Bakery",
-        ["frozen"] = "Frozen",
-        ["beverages"] = "Beverages",
-        ["pantry"] = "Pantry",
-        ["household"] = "Household",
-        ["other"] = "Other",
-    };
+	private static readonly Dictionary<string, string> categoryLabels = new()
+	{
+		["produce"] = "Produce",
+		["dairy"] = "Dairy",
+		["meat-fish"] = "Meat & Fish",
+		["bakery"] = "Bakery",
+		["frozen"] = "Frozen",
+		["beverages"] = "Beverages",
+		["pantry"] = "Pantry",
+		["household"] = "Household",
+		["other"] = "Other",
+	};
 #pragma warning restore SA1311
 
-    public async Task<Result<string>> HandleAsync(ExportShoppingListQuery query, CancellationToken cancellationToken = default)
-    {
-        var list = await readModel.GetByOwnerAsync(currentUser.UserId, cancellationToken: cancellationToken);
+	public async Task<Result<string>> HandleAsync(ExportShoppingListQuery query, CancellationToken cancellationToken = default)
+	{
+		var list = await readModel.GetByOwnerAsync(currentUser.UserId, cancellationToken: cancellationToken);
 
-        var openItems = list.Items.Where(i => !i.IsBought).ToList();
-        if (openItems.Count == 0)
-            return string.Empty;
+		var openItems = list.Items.Where(i => !i.IsBought).ToList();
+		if (openItems.Count == 0)
+			return string.Empty;
 
-        var grouped = openItems
-            .GroupBy(i => i.Category)
-            .OrderBy(g => IngredientCategory.From(g.Key).DisplayOrder);
+		var grouped = openItems
+			.GroupBy(i => i.Category)
+			.OrderBy(g => IngredientCategory.From(g.Key).DisplayOrder);
 
-        var sb = new StringBuilder();
+		var sb = new StringBuilder();
 
-        foreach (var group in grouped)
-        {
-            var emoji = categoryEmojis.GetValueOrDefault(group.Key, "\U0001F4E6");
-            var label = categoryLabels.GetValueOrDefault(group.Key, "Other");
-            sb.AppendLine(CultureInfo.InvariantCulture, $"{emoji} {label}:");
+		foreach (var group in grouped)
+		{
+			var emoji = categoryEmojis.GetValueOrDefault(group.Key, "\U0001F4E6");
+			var label = categoryLabels.GetValueOrDefault(group.Key, "Other");
+			sb.AppendLine(CultureInfo.InvariantCulture, $"{emoji} {label}:");
 
-            foreach (var item in group)
-            {
-                var qty = QuantityRounder.RoundUp(item.TotalQuantity, item.Unit);
-                var unitSuffix = item.Unit is not null ? $" {item.Unit}" : string.Empty;
-                sb.AppendLine(CultureInfo.InvariantCulture, $"  \u2610 {qty.DisplayQuantity}{unitSuffix} {item.ItemName}");
-            }
+			foreach (var item in group)
+			{
+				var qty = QuantityRounder.RoundUp(item.TotalQuantity, item.Unit);
+				var unitSuffix = item.Unit is not null ? $" {item.Unit}" : string.Empty;
+				sb.AppendLine(CultureInfo.InvariantCulture, $"  \u2610 {qty.DisplayQuantity}{unitSuffix} {item.ItemName}");
+			}
 
-            sb.AppendLine();
-        }
+			sb.AppendLine();
+		}
 
-        return sb.ToString().TrimEnd();
-    }
+		return sb.ToString().TrimEnd();
+	}
 }

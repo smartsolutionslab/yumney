@@ -4,4 +4,4 @@ using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence.Converters;
 
 internal sealed class DietaryTypeConverter()
-    : ValueConverter<DietaryType, string>(v => v.Value, v => DietaryType.From(v));
+	: ValueConverter<DietaryType, string>(v => v.Value, v => DietaryType.From(v));

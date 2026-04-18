@@ -13,98 +13,98 @@ namespace SmartSolutionsLab.Yumney.MigrationRunner;
 /// Uses PostgreSQL advisory locks to prevent concurrent migration from multiple instances.
 /// </summary>
 public sealed partial class MigrationWorker(
-    IServiceProvider serviceProvider,
-    IHostApplicationLifetime lifetime,
-    ILogger<MigrationWorker> logger) : BackgroundService
+	IServiceProvider serviceProvider,
+	IHostApplicationLifetime lifetime,
+	ILogger<MigrationWorker> logger) : BackgroundService
 {
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        try
-        {
-            await ApplyMigrationsAsync<RecipesDbContext>("Recipes", stoppingToken);
-            await ApplyMigrationsAsync<UsersDbContext>("Users", stoppingToken);
-            await ApplyMigrationsAsync<ShoppingDbContext>("Shopping", stoppingToken);
-            await ApplyMigrationsAsync<MealPlanDbContext>("MealPlan", stoppingToken);
+	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+	{
+		try
+		{
+			await ApplyMigrationsAsync<RecipesDbContext>("Recipes", stoppingToken);
+			await ApplyMigrationsAsync<UsersDbContext>("Users", stoppingToken);
+			await ApplyMigrationsAsync<ShoppingDbContext>("Shopping", stoppingToken);
+			await ApplyMigrationsAsync<MealPlanDbContext>("MealPlan", stoppingToken);
 
-            LogAllMigrationsApplied(logger);
-        }
-        catch (Exception ex)
-        {
-            LogMigrationFailed(logger, ex);
-            Environment.ExitCode = 1;
-        }
+			LogAllMigrationsApplied(logger);
+		}
+		catch (Exception ex)
+		{
+			LogMigrationFailed(logger, ex);
+			Environment.ExitCode = 1;
+		}
 
-        lifetime.StopApplication();
-    }
+		lifetime.StopApplication();
+	}
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "All migrations applied successfully")]
-    private static partial void LogAllMigrationsApplied(ILogger logger);
+	[LoggerMessage(Level = LogLevel.Information, Message = "All migrations applied successfully")]
+	private static partial void LogAllMigrationsApplied(ILogger logger);
 
-    [LoggerMessage(Level = LogLevel.Critical, Message = "Migration failed")]
-    private static partial void LogMigrationFailed(ILogger logger, Exception ex);
+	[LoggerMessage(Level = LogLevel.Critical, Message = "Migration failed")]
+	private static partial void LogMigrationFailed(ILogger logger, Exception ex);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "{Module}: no pending migrations")]
-    private static partial void LogNoPendingMigrations(ILogger logger, string module);
+	[LoggerMessage(Level = LogLevel.Information, Message = "{Module}: no pending migrations")]
+	private static partial void LogNoPendingMigrations(ILogger logger, string module);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "{Module}: applying {Count} pending migration(s): {Migrations}")]
-    private static partial void LogApplyingMigrations(ILogger logger, string module, int count, string migrations);
+	[LoggerMessage(Level = LogLevel.Information, Message = "{Module}: applying {Count} pending migration(s): {Migrations}")]
+	private static partial void LogApplyingMigrations(ILogger logger, string module, int count, string migrations);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "{Module}: {Count} migration(s) now applied")]
-    private static partial void LogMigrationsApplied(ILogger logger, string module, int count);
+	[LoggerMessage(Level = LogLevel.Information, Message = "{Module}: {Count} migration(s) now applied")]
+	private static partial void LogMigrationsApplied(ILogger logger, string module, int count);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "{Module}: acquiring advisory lock {LockId}")]
-    private static partial void LogAcquiringLock(ILogger logger, string module, int lockId);
+	[LoggerMessage(Level = LogLevel.Information, Message = "{Module}: acquiring advisory lock {LockId}")]
+	private static partial void LogAcquiringLock(ILogger logger, string module, int lockId);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "{Module}: advisory lock released")]
-    private static partial void LogLockReleased(ILogger logger, string module);
+	[LoggerMessage(Level = LogLevel.Information, Message = "{Module}: advisory lock released")]
+	private static partial void LogLockReleased(ILogger logger, string module);
 
-    private static int GenerateLockId(string moduleName)
-    {
-        var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"yumney-migration-{moduleName}"));
-        return BitConverter.ToInt32(hash, 0);
-    }
+	private static int GenerateLockId(string moduleName)
+	{
+		var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"yumney-migration-{moduleName}"));
+		return BitConverter.ToInt32(hash, 0);
+	}
 
-    private async Task ApplyMigrationsAsync<TContext>(string moduleName, CancellationToken cancellationToken)
-        where TContext : DbContext
-    {
-        await using var scope = serviceProvider.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<TContext>();
+	private async Task ApplyMigrationsAsync<TContext>(string moduleName, CancellationToken cancellationToken)
+		where TContext : DbContext
+	{
+		await using var scope = serviceProvider.CreateAsyncScope();
+		var context = scope.ServiceProvider.GetRequiredService<TContext>();
 
-        var lockId = GenerateLockId(moduleName);
-        LogAcquiringLock(logger, moduleName, lockId);
+		var lockId = GenerateLockId(moduleName);
+		LogAcquiringLock(logger, moduleName, lockId);
 
-        var connection = context.Database.GetDbConnection();
-        await connection.OpenAsync(cancellationToken);
+		var connection = context.Database.GetDbConnection();
+		await connection.OpenAsync(cancellationToken);
 
-        try
-        {
-            await using var lockCmd = connection.CreateCommand();
-            lockCmd.CommandText = $"SELECT pg_advisory_lock({lockId})";
-            await lockCmd.ExecuteNonQueryAsync(cancellationToken);
+		try
+		{
+			await using var lockCmd = connection.CreateCommand();
+			lockCmd.CommandText = $"SELECT pg_advisory_lock({lockId})";
+			await lockCmd.ExecuteNonQueryAsync(cancellationToken);
 
-            var pending = (await context.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
+			var pending = (await context.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
 
-            if (pending.Count == 0)
-            {
-                LogNoPendingMigrations(logger, moduleName);
-                return;
-            }
+			if (pending.Count == 0)
+			{
+				LogNoPendingMigrations(logger, moduleName);
+				return;
+			}
 
-            var migrationNames = string.Join(", ", pending);
-            LogApplyingMigrations(logger, moduleName, pending.Count, migrationNames);
+			var migrationNames = string.Join(", ", pending);
+			LogApplyingMigrations(logger, moduleName, pending.Count, migrationNames);
 
-            await context.Database.MigrateAsync(cancellationToken);
+			await context.Database.MigrateAsync(cancellationToken);
 
-            var appliedCount = (await context.Database.GetAppliedMigrationsAsync(cancellationToken)).Count();
-            LogMigrationsApplied(logger, moduleName, appliedCount);
-        }
-        finally
-        {
-            await using var unlockCmd = connection.CreateCommand();
-            unlockCmd.CommandText = $"SELECT pg_advisory_unlock({lockId})";
-            await unlockCmd.ExecuteNonQueryAsync(CancellationToken.None);
+			var appliedCount = (await context.Database.GetAppliedMigrationsAsync(cancellationToken)).Count();
+			LogMigrationsApplied(logger, moduleName, appliedCount);
+		}
+		finally
+		{
+			await using var unlockCmd = connection.CreateCommand();
+			unlockCmd.CommandText = $"SELECT pg_advisory_unlock({lockId})";
+			await unlockCmd.ExecuteNonQueryAsync(CancellationToken.None);
 
-            LogLockReleased(logger, moduleName);
-        }
-    }
+			LogLockReleased(logger, moduleName);
+		}
+	}
 }

@@ -5,8 +5,8 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 public interface IIntentParserService
 {
-    Task<Result<ParsedIntentDto>> ParseAsync(
-        string userInput,
-        string? pageContext,
-        CancellationToken cancellationToken = default);
+	Task<Result<ParsedIntentDto>> ParseAsync(
+		string userInput,
+		string? pageContext,
+		CancellationToken cancellationToken = default);
 }

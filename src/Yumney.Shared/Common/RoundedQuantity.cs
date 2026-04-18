@@ -7,8 +7,8 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 /// <param name="ExactQuantity">The original calculated quantity.</param>
 public sealed record RoundedQuantity(decimal DisplayQuantity, decimal ExactQuantity)
 {
-    /// <summary>
-    /// Gets a value indicating whether the quantity was rounded.
-    /// </summary>
-    public bool WasRounded => DisplayQuantity != ExactQuantity;
+	/// <summary>
+	/// Gets a value indicating whether the quantity was rounded.
+	/// </summary>
+	public bool WasRounded => DisplayQuantity != ExactQuantity;
 }

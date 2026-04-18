@@ -7,5 +7,5 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 /// Raised when a bought item is reverted to unbought.
 /// </summary>
 public sealed record ShoppingItemUndoBought(
-    ItemName ItemName,
-    Quantity Quantity) : DomainEvent;
+	ItemName ItemName,
+	Quantity Quantity) : DomainEvent;

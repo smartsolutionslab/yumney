@@ -12,33 +12,33 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure;
 
 public static class MealPlanInfrastructureServiceCollectionExtensions
 {
-    public static IServiceCollection AddMealPlanInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddDbContext<MealPlanDbContext>((sp, options) =>
-        {
-            var connectionString = configuration.GetConnectionString("mealplandb");
-            Action<NpgsqlDbContextOptionsBuilder> contextOptions = builder => builder
-                .MigrationsHistoryTable("__MealPlanMigrationsHistory")
-                .EnableRetryOnFailure();
+	public static IServiceCollection AddMealPlanInfrastructure(this IServiceCollection services, IConfiguration configuration)
+	{
+		services.AddDbContext<MealPlanDbContext>((sp, options) =>
+		{
+			var connectionString = configuration.GetConnectionString("mealplandb");
+			Action<NpgsqlDbContextOptionsBuilder> contextOptions = builder => builder
+				.MigrationsHistoryTable("__MealPlanMigrationsHistory")
+				.EnableRetryOnFailure();
 
-            options
-                .UseNpgsql(connectionString, contextOptions)
-                .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
-        });
+			options
+				.UseNpgsql(connectionString, contextOptions)
+				.AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
+		});
 
-        services.AddScoped<IWeeklyPlanRepository, WeeklyPlanRepository>();
-        services.AddScoped<IRecipeIngredientProvider, HttpRecipeIngredientProvider>();
-        services.AddScoped<IShoppingListWriter, HttpShoppingListWriter>();
-        services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
-        services.AddTransient<AuthTokenDelegatingHandler>();
-        services.AddHttpClient("recipes-api", client => client.BaseAddress = new Uri("http://recipes-api"))
-            .AddHttpMessageHandler<AuthTokenDelegatingHandler>();
-        services.AddHttpClient("shopping-api", client => client.BaseAddress = new Uri("http://shopping-api"))
-            .AddHttpMessageHandler<AuthTokenDelegatingHandler>();
-        services.AddHttpClient("users-api", client => client.BaseAddress = new Uri("http://users-api"))
-            .AddHttpMessageHandler<AuthTokenDelegatingHandler>();
-        services.AddHealthChecks().AddDbContextCheck<MealPlanDbContext>("mealplandb");
+		services.AddScoped<IWeeklyPlanRepository, WeeklyPlanRepository>();
+		services.AddScoped<IRecipeIngredientProvider, HttpRecipeIngredientProvider>();
+		services.AddScoped<IShoppingListWriter, HttpShoppingListWriter>();
+		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
+		services.AddTransient<AuthTokenDelegatingHandler>();
+		services.AddHttpClient("recipes-api", client => client.BaseAddress = new Uri("http://recipes-api"))
+			.AddHttpMessageHandler<AuthTokenDelegatingHandler>();
+		services.AddHttpClient("shopping-api", client => client.BaseAddress = new Uri("http://shopping-api"))
+			.AddHttpMessageHandler<AuthTokenDelegatingHandler>();
+		services.AddHttpClient("users-api", client => client.BaseAddress = new Uri("http://users-api"))
+			.AddHttpMessageHandler<AuthTokenDelegatingHandler>();
+		services.AddHealthChecks().AddDbContextCheck<MealPlanDbContext>("mealplandb");
 
-        return services;
-    }
+		return services;
+	}
 }

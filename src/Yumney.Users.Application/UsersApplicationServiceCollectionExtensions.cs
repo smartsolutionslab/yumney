@@ -6,10 +6,10 @@ namespace SmartSolutionsLab.Yumney.Users.Application;
 
 public static class UsersApplicationServiceCollectionExtensions
 {
-    public static IServiceCollection AddUsersApplication(this IServiceCollection services)
-    {
-        services.AddHandlersFromAssemblyContaining<RegisterUserCommandHandler>();
+	public static IServiceCollection AddUsersApplication(this IServiceCollection services)
+	{
+		services.AddHandlersFromAssemblyContaining<RegisterUserCommandHandler>();
 
-        return services;
-    }
+		return services;
+	}
 }

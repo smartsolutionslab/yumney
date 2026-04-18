@@ -5,31 +5,31 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
 public sealed class CheckOffAllItemsCommandHandler(
-    IShoppingListRepository shoppingLists,
-    ICurrentUser currentUser)
-    : ICommandHandler<CheckOffAllItemsCommand, Result>
+	IShoppingListRepository shoppingLists,
+	ICurrentUser currentUser)
+	: ICommandHandler<CheckOffAllItemsCommand, Result>
 {
-    public async Task<Result> HandleAsync(CheckOffAllItemsCommand command, CancellationToken cancellationToken = default)
-    {
-        var (listIdentifier, isChecked) = command;
+	public async Task<Result> HandleAsync(CheckOffAllItemsCommand command, CancellationToken cancellationToken = default)
+	{
+		var (listIdentifier, isChecked) = command;
 
-        var shoppingList = await shoppingLists.GetByIdForUpdateAsync(listIdentifier, cancellationToken);
+		var shoppingList = await shoppingLists.GetByIdForUpdateAsync(listIdentifier, cancellationToken);
 
-        var owner = currentUser.AsOwner();
+		var owner = currentUser.AsOwner();
 
-        if (shoppingList.Owner != owner) return Result.Failure(CheckOffItemErrors.AccessDenied);
+		if (shoppingList.Owner != owner) return Result.Failure(CheckOffItemErrors.AccessDenied);
 
-        if (isChecked)
-        {
-            shoppingList.CheckAllItems();
-        }
-        else
-        {
-            shoppingList.UncheckAllItems();
-        }
+		if (isChecked)
+		{
+			shoppingList.CheckAllItems();
+		}
+		else
+		{
+			shoppingList.UncheckAllItems();
+		}
 
-        await shoppingLists.SaveChangesAsync(cancellationToken);
+		await shoppingLists.SaveChangesAsync(cancellationToken);
 
-        return Result.Success();
-    }
+		return Result.Success();
+	}
 }

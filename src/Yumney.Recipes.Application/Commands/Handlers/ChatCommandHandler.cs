@@ -6,14 +6,14 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 public sealed class ChatCommandHandler(
-    IChatService chatService,
-    ICurrentUser currentUser) : ICommandHandler<ChatCommand, Result<ChatResponseDto>>
+	IChatService chatService,
+	ICurrentUser currentUser) : ICommandHandler<ChatCommand, Result<ChatResponseDto>>
 {
-    public async Task<Result<ChatResponseDto>> HandleAsync(ChatCommand command, CancellationToken cancellationToken = default)
-    {
-        var (message, history) = command;
-        var owner = currentUser.AsOwner();
+	public async Task<Result<ChatResponseDto>> HandleAsync(ChatCommand command, CancellationToken cancellationToken = default)
+	{
+		var (message, history) = command;
+		var owner = currentUser.AsOwner();
 
-        return await chatService.ChatAsync(message, history, owner, cancellationToken);
-    }
+		return await chatService.ChatAsync(message, history, owner, cancellationToken);
+	}
 }

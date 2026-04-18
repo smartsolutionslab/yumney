@@ -9,49 +9,49 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction;
 
 public static class ExtractionServiceCollectionExtensions
 {
-    public static IServiceCollection AddRecipeExtraction(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddHttpClient<IWebScraper, WebScraper>(BrowserHttpClientDefaults.ConfigureHttpClient)
-            .ConfigurePrimaryHttpMessageHandler(BrowserHttpClientDefaults.CreateHandler)
-            .AddStandardResilienceHandler();
-        services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
-        services.AddScoped<IIngredientRecognitionService, SemanticKernelIngredientRecognitionService>();
-        services.AddScoped<IChatService, SemanticKernelChatService>();
-        services.AddScoped<IIntentParserService, SemanticKernelIntentParserService>();
-        services.AddScoped<IIngredientCategoryService, SemanticKernelIngredientCategoryService>();
+	public static IServiceCollection AddRecipeExtraction(this IServiceCollection services, IConfiguration configuration)
+	{
+		services.AddHttpClient<IWebScraper, WebScraper>(BrowserHttpClientDefaults.ConfigureHttpClient)
+			.ConfigurePrimaryHttpMessageHandler(BrowserHttpClientDefaults.CreateHandler)
+			.AddStandardResilienceHandler();
+		services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
+		services.AddScoped<IIngredientRecognitionService, SemanticKernelIngredientRecognitionService>();
+		services.AddScoped<IChatService, SemanticKernelChatService>();
+		services.AddScoped<IIntentParserService, SemanticKernelIntentParserService>();
+		services.AddScoped<IIngredientCategoryService, SemanticKernelIngredientCategoryService>();
 
-        var skOptions = configuration
-            .GetSection(SemanticKernelOptions.SectionName)
-            .Get<SemanticKernelOptions>() ?? new SemanticKernelOptions();
+		var skOptions = configuration
+			.GetSection(SemanticKernelOptions.SectionName)
+			.Get<SemanticKernelOptions>() ?? new SemanticKernelOptions();
 
-        var kernelBuilder = services.AddKernel();
+		var kernelBuilder = services.AddKernel();
 
-        var (provider, modelId, endpoint, apiKey) = skOptions;
+		var (provider, modelId, endpoint, apiKey) = skOptions;
 
-        switch (provider)
-        {
-            case SemanticKernelOptions.ProviderAzureOpenAI:
-                kernelBuilder.AddAzureOpenAIChatCompletion(modelId, endpoint, apiKey);
-                break;
-            case SemanticKernelOptions.ProviderOllama:
-                var ollamaEndpoint = GetOllamaEndpoint(configuration, skOptions);
-                if (ollamaEndpoint is not null)
-                    kernelBuilder.AddOpenAIChatCompletion(modelId, new Uri(ollamaEndpoint), apiKey: null);
-                break;
-            default:
-                if (apiKey.HasValue())
-                    kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
-                break;
-        }
+		switch (provider)
+		{
+			case SemanticKernelOptions.ProviderAzureOpenAI:
+				kernelBuilder.AddAzureOpenAIChatCompletion(modelId, endpoint, apiKey);
+				break;
+			case SemanticKernelOptions.ProviderOllama:
+				var ollamaEndpoint = GetOllamaEndpoint(configuration, skOptions);
+				if (ollamaEndpoint is not null)
+					kernelBuilder.AddOpenAIChatCompletion(modelId, new Uri(ollamaEndpoint), apiKey: null);
+				break;
+			default:
+				if (apiKey.HasValue())
+					kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
+				break;
+		}
 
-        return services;
-    }
+		return services;
+	}
 
-    private static string? GetOllamaEndpoint(IConfiguration configuration, SemanticKernelOptions skOptions)
-    {
-        if (skOptions.Endpoint.HasValue())
-            return skOptions.Endpoint;
+	private static string? GetOllamaEndpoint(IConfiguration configuration, SemanticKernelOptions skOptions)
+	{
+		if (skOptions.Endpoint.HasValue())
+			return skOptions.Endpoint;
 
-        return configuration.GetConnectionString("ollama");
-    }
+		return configuration.GetConnectionString("ollama");
+	}
 }

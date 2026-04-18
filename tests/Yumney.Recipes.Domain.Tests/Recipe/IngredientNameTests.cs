@@ -7,50 +7,50 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe;
 
 public class IngredientNameTests
 {
-    [Fact]
-    public void Constructor_ValidName_CreatesInstance()
-    {
-        var name = IngredientName.From("Spaghetti");
+	[Fact]
+	public void Constructor_ValidName_CreatesInstance()
+	{
+		var name = IngredientName.From("Spaghetti");
 
-        name.Value.Should().Be("Spaghetti");
-    }
+		name.Value.Should().Be("Spaghetti");
+	}
 
-    [Fact]
-    public void Constructor_TrimsWhitespace()
-    {
-        var name = IngredientName.From("  Flour  ");
+	[Fact]
+	public void Constructor_TrimsWhitespace()
+	{
+		var name = IngredientName.From("  Flour  ");
 
-        name.Value.Should().Be("Flour");
-    }
+		name.Value.Should().Be("Flour");
+	}
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
-    {
-        var act = () => IngredientName.From(value!);
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void Constructor_NullOrWhitespace_ThrowsGuardException(string? value)
+	{
+		var act = () => IngredientName.From(value!);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void Constructor_ExceedsMaxLength_ThrowsGuardException()
-    {
-        var value = new string('a', 201);
+	[Fact]
+	public void Constructor_ExceedsMaxLength_ThrowsGuardException()
+	{
+		var value = new string('a', 201);
 
-        var act = () => IngredientName.From(value);
+		var act = () => IngredientName.From(value);
 
-        act.Should().Throw<GuardException>();
-    }
+		act.Should().Throw<GuardException>();
+	}
 
-    [Fact]
-    public void Constructor_AtMaxLength_CreatesInstance()
-    {
-        var value = new string('a', 200);
+	[Fact]
+	public void Constructor_AtMaxLength_CreatesInstance()
+	{
+		var value = new string('a', 200);
 
-        var name = IngredientName.From(value);
+		var name = IngredientName.From(value);
 
-        name.Value.Should().HaveLength(200);
-    }
+		name.Value.Should().HaveLength(200);
+	}
 }

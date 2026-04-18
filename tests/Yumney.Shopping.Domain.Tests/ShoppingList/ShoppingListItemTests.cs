@@ -6,66 +6,66 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.Tests.ShoppingList;
 
 public class ShoppingListItemTests
 {
-    [Fact]
-    public void Create_WithAllFields_SetsProperties()
-    {
-        var name = ItemName.From("Flour");
-        var amount = Amount.From(500);
-        var unit = Unit.Gram;
+	[Fact]
+	public void Create_WithAllFields_SetsProperties()
+	{
+		var name = ItemName.From("Flour");
+		var amount = Amount.From(500);
+		var unit = Unit.Gram;
 
-        var item = ShoppingListItem.Create(name, Quantity.Of(amount, unit));
+		var item = ShoppingListItem.Create(name, Quantity.Of(amount, unit));
 
-        item.Id.Should().NotBeNull();
-        item.Name.Should().Be(name);
-        item.Quantity.Should().NotBeNull();
-        item.Quantity!.Amount.Should().Be(amount);
-        item.Quantity.Unit.Should().Be(unit);
-    }
+		item.Id.Should().NotBeNull();
+		item.Name.Should().Be(name);
+		item.Quantity.Should().NotBeNull();
+		item.Quantity!.Amount.Should().Be(amount);
+		item.Quantity.Unit.Should().Be(unit);
+	}
 
-    [Fact]
-    public void Create_WithoutAmount_AmountIsNull()
-    {
-        var item = ShoppingListItem.Create(ItemName.From("Salt"), null);
+	[Fact]
+	public void Create_WithoutAmount_AmountIsNull()
+	{
+		var item = ShoppingListItem.Create(ItemName.From("Salt"), null);
 
-        item.Quantity.Should().BeNull();
-    }
+		item.Quantity.Should().BeNull();
+	}
 
-    [Fact]
-    public void Create_WithoutUnit_UnitIsNull()
-    {
-        var item = ShoppingListItem.Create(ItemName.From("Eggs"), Quantity.Of(Amount.From(3), null));
+	[Fact]
+	public void Create_WithoutUnit_UnitIsNull()
+	{
+		var item = ShoppingListItem.Create(ItemName.From("Eggs"), Quantity.Of(Amount.From(3), null));
 
-        item.Quantity.Should().NotBeNull();
-        item.Quantity!.Unit.Should().BeNull();
-        item.Quantity.Amount.Value.Should().Be(3);
-    }
+		item.Quantity.Should().NotBeNull();
+		item.Quantity!.Unit.Should().BeNull();
+		item.Quantity.Amount.Value.Should().Be(3);
+	}
 
-    [Fact]
-    public void Create_SetsIsCheckedToFalse()
-    {
-        var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram));
+	[Fact]
+	public void Create_SetsIsCheckedToFalse()
+	{
+		var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram));
 
-        item.IsChecked.Should().BeFalse();
-    }
+		item.IsChecked.Should().BeFalse();
+	}
 
-    [Fact]
-    public void Check_SetsIsCheckedToTrue()
-    {
-        var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram));
+	[Fact]
+	public void Check_SetsIsCheckedToTrue()
+	{
+		var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram));
 
-        item.Check();
+		item.Check();
 
-        item.IsChecked.Should().BeTrue();
-    }
+		item.IsChecked.Should().BeTrue();
+	}
 
-    [Fact]
-    public void Uncheck_SetsIsCheckedToFalse()
-    {
-        var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram));
-        item.Check();
+	[Fact]
+	public void Uncheck_SetsIsCheckedToFalse()
+	{
+		var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram));
+		item.Check();
 
-        item.Uncheck();
+		item.Uncheck();
 
-        item.IsChecked.Should().BeFalse();
-    }
+		item.IsChecked.Should().BeFalse();
+	}
 }

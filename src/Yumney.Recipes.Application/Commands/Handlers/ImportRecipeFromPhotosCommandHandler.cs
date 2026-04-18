@@ -6,12 +6,12 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 public sealed class ImportRecipeFromPhotosCommandHandler(IRecipeExtractionService extractionService)
-    : ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>>
+	: ICommandHandler<ImportRecipeFromPhotosCommand, Result<ExtractedRecipeDto>>
 {
-    public async Task<Result<ExtractedRecipeDto>> HandleAsync(ImportRecipeFromPhotosCommand command, CancellationToken cancellationToken = default)
-    {
-        var photos = command.Photos;
+	public async Task<Result<ExtractedRecipeDto>> HandleAsync(ImportRecipeFromPhotosCommand command, CancellationToken cancellationToken = default)
+	{
+		var photos = command.Photos;
 
-        return await extractionService.ExtractFromPhotosAsync(photos, cancellationToken);
-    }
+		return await extractionService.ExtractFromPhotosAsync(photos, cancellationToken);
+	}
 }

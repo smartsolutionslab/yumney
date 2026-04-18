@@ -6,21 +6,21 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 public sealed class ImportRecipeFromTextCommandHandler(
-    IRecipeExtractionService extraction)
-    : ICommandHandler<ImportRecipeFromTextCommand, Result<ExtractedRecipeDto>>
+	IRecipeExtractionService extraction)
+	: ICommandHandler<ImportRecipeFromTextCommand, Result<ExtractedRecipeDto>>
 {
-    public async Task<Result<ExtractedRecipeDto>> HandleAsync(ImportRecipeFromTextCommand command, CancellationToken cancellationToken = default)
-    {
-        var text = command.RecipeText;
+	public async Task<Result<ExtractedRecipeDto>> HandleAsync(ImportRecipeFromTextCommand command, CancellationToken cancellationToken = default)
+	{
+		var text = command.RecipeText;
 
-        var content = new ScrapedContent(text, SourceUrl: string.Empty);
-        var extractResult = await extraction.ExtractAsync(content, cancellationToken);
+		var content = new ScrapedContent(text, SourceUrl: string.Empty);
+		var extractResult = await extraction.ExtractAsync(content, cancellationToken);
 
-        if (extractResult.IsFailure)
-        {
-            return extractResult.Error!;
-        }
+		if (extractResult.IsFailure)
+		{
+			return extractResult.Error!;
+		}
 
-        return extractResult;
-    }
+		return extractResult;
+	}
 }
