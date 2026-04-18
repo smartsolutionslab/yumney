@@ -4,9 +4,6 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
-/// <summary>
-/// Identifies a specific week by ISO year and week number.
-/// </summary>
 public sealed record WeekIdentifier : IValueObject<string>
 {
     public int Year { get; }
@@ -33,13 +30,10 @@ public sealed record WeekIdentifier : IValueObject<string>
         var year = date.Year;
         if (week == 1 && date.Month == 12) year++;
         if (week >= 52 && date.Month == 1) year--;
+
         return new WeekIdentifier(year, week);
     }
 
-    /// <summary>
-    /// Gets the current week identifier.
-    /// </summary>
-    /// <returns>The week identifier for today.</returns>
     public static WeekIdentifier Current() => FromDate(DateOnly.FromDateTime(DateTime.UtcNow));
 
     public static implicit operator string(WeekIdentifier obj) => obj.Value;
