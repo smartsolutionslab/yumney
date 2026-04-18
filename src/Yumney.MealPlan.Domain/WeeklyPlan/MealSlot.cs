@@ -16,11 +16,11 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
 
     public SlotRecipeReference? Recipe { get; private set; }
 
-    public int Servings { get; private set; }
+    public SlotServings Servings { get; private set; } = default!;
 
-    public string? FreetextLabel { get; private set; }
+    public FreetextLabel? FreetextLabel { get; private set; }
 
-    public string? LeftoverLabel { get; private set; }
+    public LeftoverLabel? LeftoverLabel { get; private set; }
 
     public DayOfWeek? LeftoverSourceDay { get; private set; }
 
@@ -42,7 +42,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
             Day = day,
             MealType = mealType,
             ContentType = SlotContentType.Empty,
-            Servings = defaultServings,
+            Servings = SlotServings.From(defaultServings),
         };
     }
 
@@ -56,13 +56,13 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         LeftoverSourceMealType = null;
         if (servings.HasValue)
         {
-            Servings = servings.Value;
+            Servings = SlotServings.From(servings.Value);
         }
 
         return this;
     }
 
-    internal MealSlot SetAsFreetext(string label)
+    internal MealSlot SetAsFreetext(FreetextLabel label)
     {
         ContentType = SlotContentType.Freetext;
         FreetextLabel = label;
@@ -78,12 +78,12 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         ContentType = SlotContentType.Leftover;
         LeftoverSourceDay = sourceDay;
         LeftoverSourceMealType = sourceMealType;
-        LeftoverLabel = $"Leftovers: {sourceRecipeTitle}";
+        LeftoverLabel = Domain.WeeklyPlan.LeftoverLabel.ForRecipe(sourceRecipeTitle);
         Recipe = null;
         FreetextLabel = null;
         if (servings.HasValue)
         {
-            Servings = servings.Value;
+            Servings = SlotServings.From(servings.Value);
         }
 
         return this;
@@ -100,7 +100,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
         return this;
     }
 
-    internal MealSlot AdjustServingsTo(int servings)
+    internal MealSlot AdjustServingsTo(SlotServings servings)
     {
         Servings = servings;
         return this;
@@ -145,9 +145,9 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
     internal sealed record SlotSnapshot(
         SlotContentType ContentType,
         SlotRecipeReference? Recipe,
-        int Servings,
-        string? FreetextLabel,
-        string? LeftoverLabel,
+        SlotServings Servings,
+        FreetextLabel? FreetextLabel,
+        LeftoverLabel? LeftoverLabel,
         DayOfWeek? LeftoverSourceDay,
         MealType? LeftoverSourceMealType,
         MealState State);

@@ -22,7 +22,7 @@ public sealed class GetPlannedRecipesQueryHandler(
             .Select(s => new PlannedRecipeDto(
                 s.Recipe!.RecipeIdentifier,
                 s.Recipe.Title,
-                s.Servings,
+                s.Servings.Value,
                 s.Day.ToString(),
                 s.MealType.ToString()))
             .ToList();

@@ -13,9 +13,9 @@ public static class MealSlotMappingExtensions
             slot.State.ToString(),
             slot.Recipe?.RecipeIdentifier,
             slot.Recipe?.Title,
-            slot.Servings,
-            slot.FreetextLabel,
-            slot.LeftoverLabel,
+            slot.Servings.Value,
+            slot.FreetextLabel?.Value,
+            slot.LeftoverLabel?.Value,
             slot.LeftoverSourceDay?.ToString(),
             slot.LeftoverSourceMealType?.ToString(),
             slot.IsEmpty);
