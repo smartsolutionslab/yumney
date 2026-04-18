@@ -332,9 +332,63 @@ public RecipeTitle(string value)
 ### Backend
 - `.editorconfig` + `dotnet format` + StyleCop.Analyzers
 - File-scoped namespaces
-- `var` when type is apparent, explicit type otherwise
-- Braces required for multi-line blocks; single-line `if` with `return` may omit braces
 - Max 120 chars per line
+
+#### Braces – ALWAYS required, except short guard clauses
+
+`for`, `foreach`, `while`, `using`, `lock` — **always require braces**, no exceptions.
+
+`if` — braces required, **except** single-line guard clauses that exit immediately:
+
+```csharp
+// ✅ ALLOWED – short guard clause on one line, exits immediately
+if (plan is null) return this;
+if (!IsValid) throw new InvalidOperationException();
+if (items.Count == 0) continue;
+if (IsExtendedMode) return this;
+
+// ✅ REQUIRED – braces on if with body logic
+if (servings.HasValue)
+{
+    Servings = servings.Value;
+}
+
+// ❌ FORBIDDEN – multi-statement or non-exit without braces
+if (condition)
+    DoSomething();
+
+// ❌ FORBIDDEN – foreach/for without braces
+foreach (var item in items)
+    item.Check();
+
+// ✅ REQUIRED
+foreach (var item in items)
+{
+    item.Check();
+}
+```
+
+#### Type declarations – `var` vs explicit type
+
+`var` is allowed when the type is apparent from the right-hand side.
+**Explicit type is REQUIRED for collection initializations with `[]`:**
+
+```csharp
+// ❌ FORBIDDEN – var with collection expression, type is hidden
+var items = new[] { "a", "b" };
+var slots = new List<MealSlot>();
+var tags = new[] { tag1, tag2 };
+
+// ✅ REQUIRED – explicit type with [] collection expressions
+List<MealSlot> slots = [];
+List<string> items = ["a", "b"];
+Dictionary<string, int> counts = [];
+
+// ✅ ALLOWED – var when type is apparent from right-hand side
+var plan = WeeklyPlan.Create(owner, week);
+var result = await handler.HandleAsync(command);
+var slot = FindSlot(day, mealType);
+```
 
 ### Frontend
 - ESLint + @angular-eslint + Prettier
