@@ -28,8 +28,15 @@ public sealed record WeekIdentifier : IValueObject<string>
         var cal = CultureInfo.InvariantCulture.Calendar;
         var week = cal.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue), CalendarWeekRule.FirstFourDayWeek, System.DayOfWeek.Monday);
         var year = date.Year;
-        if (week == 1 && date.Month == 12) year++;
-        if (week >= 52 && date.Month == 1) year--;
+        if (week == 1 && date.Month == 12)
+        {
+            year++;
+        }
+
+        if (week >= 52 && date.Month == 1)
+        {
+            year--;
+        }
 
         return new WeekIdentifier(year, week);
     }

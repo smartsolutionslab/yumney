@@ -12,7 +12,10 @@ public sealed class DomainEventDispatchInterceptor(IDomainEventDispatcher dispat
         int result,
         CancellationToken cancellationToken = default)
     {
-        if (eventData.Context is not null) await DispatchDomainEventsAsync(eventData.Context, cancellationToken);
+        if (eventData.Context is not null)
+        {
+            await DispatchDomainEventsAsync(eventData.Context, cancellationToken);
+        }
 
         return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }
