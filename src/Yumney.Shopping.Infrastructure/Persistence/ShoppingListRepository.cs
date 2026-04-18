@@ -46,9 +46,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
         SortingOptions<ShoppingListSortField> sorting,
         CancellationToken cancellationToken = default)
     {
-        var query = shoppingLists
-            .AsNoTracking()
-            .Where(l => l.Owner == owner);
+        var query = shoppingLists.AsNoTracking().Where(l => l.Owner == owner);
 
         query = ApplySorting(query, sorting);
 

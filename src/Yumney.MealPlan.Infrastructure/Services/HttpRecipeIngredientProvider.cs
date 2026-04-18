@@ -10,21 +10,17 @@ public sealed class HttpRecipeIngredientProvider(IHttpClientFactory httpClientFa
         CancellationToken cancellationToken = default)
     {
         var client = httpClientFactory.CreateClient("recipes-api");
-        var response = await client.GetFromJsonAsync<RecipeResponse>(
-            $"/api/v1/recipes/{recipeIdentifier}",
-            cancellationToken);
+        var url = $"/api/v1/recipes/{recipeIdentifier}";
+        var response = await client.GetFromJsonAsync<RecipeResponse>(url, cancellationToken);
 
-        if (response is null)
-            return [];
+        if (response is null) return [];
 
         return response.Ingredients
             .Select(i => new RecipeIngredientInfo(i.Name, i.Amount, i.Unit, response.Servings))
             .ToList();
     }
 
-    private sealed record RecipeResponse(
-        int? Servings,
-        IReadOnlyList<IngredientResponse> Ingredients);
+    private sealed record RecipeResponse(int? Servings, IReadOnlyList<IngredientResponse> Ingredients);
 
     private sealed record IngredientResponse(string Name, decimal? Amount, string? Unit);
 }
