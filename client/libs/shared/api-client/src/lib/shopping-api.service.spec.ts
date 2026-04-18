@@ -71,14 +71,14 @@ describe('ShoppingApiService', () => {
   });
 
   describe('getShoppingLists', () => {
-    it('should GET /api/v1/shopping-lists', () => {
+    it('should GET /api/v1/shopping-lists and extract items from paged response', () => {
       service.getShoppingLists().subscribe((result) => {
         expect(result).toEqual(mockSummaries);
       });
 
       const req = httpTesting.expectOne('/api/v1/shopping-lists');
       expect(req.request.method).toBe('GET');
-      req.flush(mockSummaries);
+      req.flush({ items: mockSummaries, totalCount: 2, page: 1, pageSize: 20 });
     });
   });
 
