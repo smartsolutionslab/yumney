@@ -24,15 +24,16 @@ public static class MassTransitEventBusExtensions
 	public static IServiceCollection AddMassTransitEventBus(
 		this IServiceCollection services,
 		IConfiguration configuration,
-		params Assembly[] assemblies)
+		params Assembly[] eventHandlerAssemblies)
 	{
 		services.AddMassTransit(x =>
 		{
 			x.SetKebabCaseEndpointNameFormatter();
 
-			foreach (var assembly in assemblies)
+			foreach (var assembly in eventHandlerAssemblies)
 			{
 				x.AddConsumers(assembly);
+				RegisterIntegrationEventConsumers(x, assembly);
 			}
 
 			x.UsingRabbitMq((context, cfg) =>
@@ -47,5 +48,22 @@ public static class MassTransitEventBusExtensions
 		services.AddScoped<IEventBus, MassTransitEventBus>();
 
 		return services;
+	}
+
+	private static void RegisterIntegrationEventConsumers(IRegistrationConfigurator configurator, Assembly assembly)
+	{
+		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
+		var consumerType = typeof(IntegrationEventConsumer<>);
+
+		var eventTypes = assembly.GetTypes()
+			.SelectMany(t => t.GetInterfaces())
+			.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
+			.Select(i => i.GetGenericArguments()[0])
+			.Distinct();
+
+		foreach (var eventType in eventTypes)
+		{
+			configurator.AddConsumer(consumerType.MakeGenericType(eventType));
+		}
 	}
 }
