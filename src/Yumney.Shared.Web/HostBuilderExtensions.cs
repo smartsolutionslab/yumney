@@ -25,7 +25,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Web;
 
 public static class HostBuilderExtensions
 {
-	public static WebApplicationBuilder AddYumneyDefaults(this WebApplicationBuilder builder)
+	public static WebApplicationBuilder AddYumneyDefaults(this WebApplicationBuilder builder, params Assembly[] eventHandlerAssemblies)
 	{
 		builder.AddServiceDefaults();
 		builder.AddRedisDistributedCache("redis");
@@ -58,7 +58,7 @@ public static class HostBuilderExtensions
 		// Integration events: published via MassTransit/RabbitMQ (cross-instance)
 		// MassTransit registration overrides InProcessEventBus for IEventBus (last-wins in DI)
 		builder.Services.AddInProcessEventBus();
-		builder.Services.AddMassTransitEventBus(builder.Configuration);
+		builder.Services.AddMassTransitEventBus(builder.Configuration, eventHandlerAssemblies);
 
 		builder.Services.AddScoped<DomainEventDispatchInterceptor>();
 
