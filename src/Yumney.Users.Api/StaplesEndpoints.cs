@@ -21,7 +21,7 @@ public static class StaplesEndpoints
 			CancellationToken cancellationToken)
 		{
 			var staples = await staplesProvider.GetStapleNamesAsync(currentUser.UserId, cancellationToken);
-			return Results.Ok(staples.ToList());
+			return Results.Ok(staples);
 		}
 	}
 }
