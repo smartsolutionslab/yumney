@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 
@@ -14,8 +13,6 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
 	public DbSet<StoredSnapshot> ShoppingSnapshots => Set<StoredSnapshot>();
 
 	public DbSet<AggregateMetadata> ShoppingAggregates => Set<AggregateMetadata>();
-
-	public DbSet<ShoppingListReadItem> ShoppingListReadItems => Set<ShoppingListReadItem>();
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{

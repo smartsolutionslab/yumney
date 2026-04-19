@@ -6,7 +6,7 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 
-public sealed class ShoppingListReadModelRepository(ShoppingDbContext context) : IShoppingListReadModelRepository
+public sealed class ShoppingListReadModelRepository(ShoppingReadDbContext context) : IShoppingListReadModelRepository
 {
 	/// <inheritdoc />
 	public async Task<MergedShoppingListDto> GetByOwnerAsync(string ownerId, bool includePastBought = false, CancellationToken cancellationToken = default)
@@ -14,7 +14,6 @@ public sealed class ShoppingListReadModelRepository(ShoppingDbContext context) :
 		var today = DateTime.UtcNow.Date;
 
 		var query = context.ShoppingListReadItems
-			.AsNoTracking()
 			.Where(r => r.OwnerId == ownerId);
 
 		if (!includePastBought)
