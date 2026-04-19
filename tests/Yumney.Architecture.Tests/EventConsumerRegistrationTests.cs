@@ -49,6 +49,6 @@ public class EventConsumerRegistrationTests
 			.ToList();
 
 		eventTypes.Should().NotBeEmpty("Shopping.Infrastructure must have integration event handlers");
-		eventTypes.Should().HaveCountGreaterOrEqualTo(5, "all shopping event types should be handled");
+		eventTypes.Should().HaveCountGreaterThanOrEqualTo(5, "all shopping event types should be handled");
 	}
 }
