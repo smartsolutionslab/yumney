@@ -6,7 +6,7 @@ using SmartSolutionsLab.Yumney.Shopping.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddYumneyDefaults();
+builder.AddYumneyDefaults(typeof(ShoppingInfrastructureServiceCollectionExtensions).Assembly);
 
 builder.Services
 	.AddShoppingApi()
