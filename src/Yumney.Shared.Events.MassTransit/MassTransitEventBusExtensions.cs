@@ -19,7 +19,7 @@ public static class MassTransitEventBusExtensions
 	/// </summary>
 	/// <param name="services">The service collection.</param>
 	/// <param name="configuration">The application configuration.</param>
-	/// <param name="assemblies">Assemblies to scan for IIntegrationEventHandler implementations.</param>
+	/// <param name="eventHandlerAssemblies">Assemblies to scan for IIntegrationEventHandler implementations.</param>
 	/// <returns>The service collection for chaining.</returns>
 	public static IServiceCollection AddMassTransitEventBus(
 		this IServiceCollection services,
