@@ -52,6 +52,7 @@ public static partial class RecipesEndpoints
 		string url,
 		IWebScraper scraper,
 		IRecipeExtractionService extraction,
+		ILogger<Program> logger,
 		CancellationToken cancellationToken)
 	{
 		httpContext.Response.ContentType = MediaTypes.TextEventStream;
@@ -106,8 +107,9 @@ public static partial class RecipesEndpoints
 		{
 			return;
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
+			logger.LogError(ex, "Recipe extraction failed while streaming from {Url}", url);
 			await WriteSseEventAsync(SseEvent.Fail, ImportStreaming.ExtractionFailedMessage);
 			return;
 		}

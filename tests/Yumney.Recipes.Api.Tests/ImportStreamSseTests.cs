@@ -2,6 +2,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
@@ -222,7 +224,7 @@ public class ImportStreamSseTests
 		var httpContext = new DefaultHttpContext();
 		httpContext.Response.Body = body;
 
-		await RecipesEndpoints.ImportStreamAsync(httpContext, url, scraper, extraction, CancellationToken.None);
+		await RecipesEndpoints.ImportStreamAsync(httpContext, url, scraper, extraction, NullLogger<Program>.Instance, CancellationToken.None);
 
 		body.Position = 0;
 	}
