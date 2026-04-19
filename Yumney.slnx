@@ -1,5 +1,7 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/Yumney.Shared.Events.Wolverine/Yumney.Shared.Events.Wolverine.csproj" />
+  </Folder>
   <Folder Name="/src/Host/">
     <Project Path="src/Yumney.AppHost/Yumney.AppHost.csproj" />
     <Project Path="src/Yumney.Gateway/Yumney.Gateway.csproj" />
@@ -11,7 +13,6 @@
     <Project Path="src/Yumney.Shared.CQRS/Yumney.Shared.CQRS.csproj" />
     <Project Path="src/Yumney.Shared.Events/Yumney.Shared.Events.csproj" />
     <Project Path="src/Yumney.Shared.Events.InProcess/Yumney.Shared.Events.InProcess.csproj" />
-    <Project Path="src/Yumney.Shared.Events.MassTransit/Yumney.Shared.Events.MassTransit.csproj" />
     <Project Path="src/Yumney.Shared.Guards/Yumney.Shared.Guards.csproj" />
     <Project Path="src/Yumney.Shared.Persistence/Yumney.Shared.Persistence.csproj" />
     <Project Path="src/Yumney.Shared.Web/Yumney.Shared.Web.csproj" />

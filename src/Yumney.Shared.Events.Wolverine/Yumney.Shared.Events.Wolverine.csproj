@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>SmartSolutionsLab.Yumney.Shared.Events.MassTransit</RootNamespace>
+    <RootNamespace>SmartSolutionsLab.Yumney.Shared.Events.Wolverine</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MassTransit.RabbitMQ" />
+    <PackageReference Include="WolverineFx.RabbitMQ" />
   </ItemGroup>
 
 </Project>
