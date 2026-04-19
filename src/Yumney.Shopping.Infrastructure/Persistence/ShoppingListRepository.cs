@@ -4,22 +4,21 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 
-public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppingListRepository
+public sealed class ShoppingListRepository(ShoppingDbContext writeContext, ShoppingReadDbContext readContext) : IShoppingListRepository
 {
-	private readonly DbSet<ShoppingList> shoppingLists = context.ShoppingLists;
+	private readonly DbSet<ShoppingList> shoppingLists = writeContext.ShoppingLists;
 
 	public async Task AddAsync(ShoppingList shoppingList, CancellationToken cancellationToken = default)
 	{
 		await shoppingLists.AddAsync(shoppingList, cancellationToken);
-		await context.SaveChangesAsync(cancellationToken);
+		await writeContext.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task<ShoppingList> GetByIdAsync(
 		ShoppingListIdentifier identifier,
 		CancellationToken cancellationToken = default)
 	{
-		return await shoppingLists
-			.AsNoTracking()
+		return await readContext.ShoppingLists
 			.Include(l => l.Items)
 			.FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
@@ -37,7 +36,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
 
 	public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
 	{
-		await context.SaveChangesAsync(cancellationToken);
+		await writeContext.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task<(IReadOnlyList<ShoppingListSummary> Items, ItemCount TotalCount)> GetByOwnerAsync(
@@ -46,7 +45,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext context) : IShoppin
 		SortingOptions<ShoppingListSortField> sorting,
 		CancellationToken cancellationToken = default)
 	{
-		var query = shoppingLists.AsNoTracking().Where(l => l.Owner == owner);
+		var query = readContext.ShoppingLists.Where(l => l.Owner == owner);
 
 		query = ApplySorting(query, sorting);
 

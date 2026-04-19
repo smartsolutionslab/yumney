@@ -19,16 +19,21 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 {
 	public static IServiceCollection AddShoppingInfrastructure(this IServiceCollection services, IConfiguration configuration)
 	{
+		var connectionString = configuration.GetConnectionString("shoppingdb");
+		Action<NpgsqlDbContextOptionsBuilder> contextOptions = builder => builder
+			.MigrationsHistoryTable("__ShoppingMigrationsHistory")
+			.EnableRetryOnFailure();
+
 		services.AddDbContext<ShoppingDbContext>((sp, options) =>
 		{
-			var connectionString = configuration.GetConnectionString("shoppingdb");
-			Action<NpgsqlDbContextOptionsBuilder> contextOptions = builder => builder
-				.MigrationsHistoryTable("__ShoppingMigrationsHistory")
-				.EnableRetryOnFailure();
-
 			options
 				.UseNpgsql(connectionString, contextOptions)
 				.AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
+		});
+
+		services.AddDbContext<ShoppingReadDbContext>(options =>
+		{
+			options.UseNpgsql(connectionString, contextOptions);
 		});
 
 		services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
