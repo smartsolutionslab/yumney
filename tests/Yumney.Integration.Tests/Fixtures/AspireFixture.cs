@@ -159,6 +159,14 @@ public sealed class AspireFixture : IAsyncLifetime
 		return new ShoppingDbContext(optionsBuilder.Options);
 	}
 
+	public async Task<ShoppingReadDbContext> CreateShoppingReadDbContextAsync()
+	{
+		var connectionString = await App.GetConnectionStringAsync("shoppingdb");
+		var optionsBuilder = new DbContextOptionsBuilder<ShoppingReadDbContext>();
+		optionsBuilder.UseNpgsql(connectionString, x => x.EnableRetryOnFailure());
+		return new ShoppingReadDbContext(optionsBuilder.Options);
+	}
+
 	public async Task SeedShoppingListsAsync(params ShoppingList[] shoppingLists)
 	{
 		await using var context = await CreateShoppingDbContextAsync();
