@@ -1,6 +1,6 @@
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.MassTransit;
+using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Architecture.Tests;
@@ -10,10 +10,10 @@ public class EventConsumerRegistrationTests
 	private static readonly string[] InfrastructureModules = ["Recipes", "Shopping", "Users", "MealPlan"];
 
 	[Fact]
-	public void AllIntegrationEventHandlers_HaveMatchingConsumerType()
+	public void AllIntegrationEventHandlers_HaveMatchingHandlerType()
 	{
 		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
-		var consumerType = typeof(IntegrationEventConsumer<>);
+		var handlerType = typeof(IntegrationEventConsumer<>);
 
 		foreach (var module in InfrastructureModules)
 		{
@@ -28,15 +28,15 @@ public class EventConsumerRegistrationTests
 
 			foreach (var eventType in eventTypes)
 			{
-				var closedConsumer = consumerType.MakeGenericType(eventType);
-				closedConsumer.Should().NotBeNull(
-					$"IntegrationEventConsumer<{eventType.Name}> must be constructable for handler in {module}.Infrastructure");
+				var closedHandler = handlerType.MakeGenericType(eventType);
+				closedHandler.Should().NotBeNull(
+					$"IntegrationEventHandler<{eventType.Name}> must be constructable for handler in {module}.Infrastructure");
 			}
 		}
 	}
 
 	[Fact]
-	public void RegisterIntegrationEventConsumers_DiscoversAllHandlers_InShoppingInfrastructure()
+	public void RegisterIntegrationEventHandlers_DiscoversAllHandlers_InShoppingInfrastructure()
 	{
 		var assembly = typeof(SmartSolutionsLab.Yumney.Shopping.Infrastructure.ShoppingInfrastructureServiceCollectionExtensions).Assembly;
 		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);

@@ -24,7 +24,7 @@
     <ProjectReference Include="..\..\src\Yumney.MealPlan.Api\Yumney.MealPlan.Api.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.CQRS\Yumney.Shared.CQRS.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Events\Yumney.Shared.Events.csproj" />
-    <ProjectReference Include="..\..\src\Yumney.Shared.Events.MassTransit\Yumney.Shared.Events.MassTransit.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.Events.Wolverine\Yumney.Shared.Events.Wolverine.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Events.InProcess\Yumney.Shared.Events.InProcess.csproj" />
   </ItemGroup>
 

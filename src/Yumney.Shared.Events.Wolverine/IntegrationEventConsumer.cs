@@ -1,21 +1,21 @@
-using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Events;
 
-namespace SmartSolutionsLab.Yumney.Shared.Events.MassTransit;
+namespace SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 
 /// <summary>
-/// Generic MassTransit consumer that delegates to IIntegrationEventHandler&lt;TEvent&gt; implementations.
+/// Generic Wolverine handler that delegates to IIntegrationEventHandler&lt;TEvent&gt; implementations.
+/// Wolverine discovers this via convention (public Handle method).
 /// </summary>
-/// <typeparam name="TEvent">The integration event type to consume.</typeparam>
+/// <typeparam name="TEvent">The integration event type to handle.</typeparam>
 #pragma warning disable SA1601
 public sealed partial class IntegrationEventConsumer<TEvent>(
 	IServiceProvider serviceProvider,
-	ILogger<IntegrationEventConsumer<TEvent>> logger) : IConsumer<TEvent>
+	ILogger<IntegrationEventConsumer<TEvent>> logger)
 	where TEvent : class, IIntegrationEvent
 {
-	public async Task Consume(ConsumeContext<TEvent> context)
+	public async Task HandleAsync(TEvent message, CancellationToken cancellationToken)
 	{
 		var handlers = serviceProvider.GetServices<IIntegrationEventHandler<TEvent>>();
 
@@ -23,7 +23,7 @@ public sealed partial class IntegrationEventConsumer<TEvent>(
 		{
 			LogHandlingEvent(typeof(TEvent).Name, handler.GetType().Name);
 
-			await handler.HandleAsync(context.Message, context.CancellationToken);
+			await handler.HandleAsync(message, cancellationToken);
 		}
 	}
 

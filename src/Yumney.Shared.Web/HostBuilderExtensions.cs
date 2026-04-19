@@ -15,7 +15,7 @@ using Scalar.AspNetCore;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.MassTransit;
+using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Web.Middleware;
 using SmartSolutionsLab.Yumney.Shared.Web.Services;
@@ -55,10 +55,10 @@ public static class HostBuilderExtensions
 		builder.Services.AddScoped<ICurrentUser, CurrentUserProvider>();
 
 		// Domain events: dispatched in-process (same transaction boundary)
-		// Integration events: published via MassTransit/RabbitMQ (cross-instance)
-		// MassTransit registration overrides InProcessEventBus for IEventBus (last-wins in DI)
+		// Integration events: published via Wolverine/RabbitMQ (cross-instance)
+		// Wolverine registration overrides InProcessEventBus for IEventBus (last-wins in DI)
 		builder.Services.AddInProcessEventBus();
-		builder.Services.AddMassTransitEventBus(builder.Configuration, eventHandlerAssemblies);
+		builder.AddWolverineEventBus(eventHandlerAssemblies);
 
 		builder.Services.AddScoped<DomainEventDispatchInterceptor>();
 
