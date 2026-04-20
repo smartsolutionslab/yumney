@@ -5,30 +5,26 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
+using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class SwapMealSlotsCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
-	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly SwapMealSlotsCommandHandler handler;
 
 	public SwapMealSlotsCommandHandlerTests()
 	{
-		currentUser.UserId.Returns("user-123");
-		handler = new SwapMealSlotsCommandHandler(plans, currentUser);
+		handler = new SwapMealSlotsCommandHandler(plans, CreateCurrentUser());
 	}
 
 	[Fact]
 	public async Task HandleAsync_SwapsAndSaves()
 	{
-		var plan = WeeklyPlan.Create(OwnerIdentifier.From("user-123"), WeekIdentifier.From(2026, 15));
-		plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
-		plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
+		CreatePlanWithRecipe(plans);
 
-		var command = new SwapMealSlotsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, DayOfWeek.Wednesday);
+		var command = new SwapMealSlotsCommand(TestWeek, DayOfWeek.Monday, DayOfWeek.Wednesday);
 
 		var result = await handler.HandleAsync(command);
 
@@ -44,7 +40,7 @@ public class SwapMealSlotsCommandHandlerTests
 		plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns<WeeklyPlan>(_ => throw new EntityNotFoundException(nameof(WeeklyPlan), "2026-W15"));
 
-		var command = new SwapMealSlotsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, DayOfWeek.Tuesday);
+		var command = new SwapMealSlotsCommand(TestWeek, DayOfWeek.Monday, DayOfWeek.Tuesday);
 
 		var act = () => handler.HandleAsync(command);
 

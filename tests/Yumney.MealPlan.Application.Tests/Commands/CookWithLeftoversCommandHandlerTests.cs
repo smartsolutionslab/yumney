@@ -6,19 +6,18 @@ using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using Xunit;
+using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class CookWithLeftoversCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
-	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly CookWithLeftoversCommandHandler handler;
 
 	public CookWithLeftoversCommandHandlerTests()
 	{
-		currentUser.UserId.Returns("user-123");
-		handler = new CookWithLeftoversCommandHandler(plans, currentUser);
+		handler = new CookWithLeftoversCommandHandler(plans, CreateCurrentUser());
 	}
 
 	[Fact]
@@ -27,7 +26,7 @@ public class CookWithLeftoversCommandHandlerTests
 		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
-		var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Bolognese"), SlotServings.From(8), SlotServings.From(4), DayOfWeek.Wednesday);
+		var command = new CookWithLeftoversCommand(TestWeek, DayOfWeek.Monday, Recipe("Bolognese"), SlotServings.From(8), SlotServings.From(4), DayOfWeek.Wednesday);
 
 		var result = await handler.HandleAsync(command);
 
@@ -49,7 +48,7 @@ public class CookWithLeftoversCommandHandlerTests
 		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
-		var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), SlotServings.From(4), SlotServings.From(4), DayOfWeek.Tuesday);
+		var command = new CookWithLeftoversCommand(TestWeek, DayOfWeek.Monday, Recipe(), SlotServings.From(4), SlotServings.From(4), DayOfWeek.Tuesday);
 
 		var result = await handler.HandleAsync(command);
 
@@ -62,9 +61,9 @@ public class CookWithLeftoversCommandHandlerTests
 	public void CreateCommand_InvalidServings_ThrowsGuardException()
 	{
 		var act = () => new CookWithLeftoversCommand(
-			WeekIdentifier.From(2026, 15),
+			TestWeek,
 			DayOfWeek.Monday,
-			SlotRecipeReference.From(Guid.NewGuid(), "Pasta"),
+			Recipe(),
 			SlotServings.From(0),
 			SlotServings.From(0),
 			DayOfWeek.Tuesday);

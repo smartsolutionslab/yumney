@@ -5,30 +5,26 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
+using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class AdjustSlotServingsCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
-	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly AdjustSlotServingsCommandHandler handler;
 
 	public AdjustSlotServingsCommandHandlerTests()
 	{
-		currentUser.UserId.Returns("user-123");
-		handler = new AdjustSlotServingsCommandHandler(plans, currentUser);
+		handler = new AdjustSlotServingsCommandHandler(plans, CreateCurrentUser());
 	}
 
 	[Fact]
 	public async Task HandleAsync_AdjustsServingsAndSaves()
 	{
-		var plan = WeeklyPlan.Create(OwnerIdentifier.From("user-123"), WeekIdentifier.From(2026, 15));
-		plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
-		plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
+		CreatePlanWithRecipe(plans);
 
-		var command = new AdjustSlotServingsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, MealType.Dinner, SlotServings.From(8));
+		var command = new AdjustSlotServingsCommand(TestWeek, DayOfWeek.Monday, MealType.Dinner, SlotServings.From(8));
 
 		var result = await handler.HandleAsync(command);
 
@@ -43,7 +39,7 @@ public class AdjustSlotServingsCommandHandlerTests
 		plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns<WeeklyPlan>(_ => throw new EntityNotFoundException(nameof(WeeklyPlan), "2026-W15"));
 
-		var command = new AdjustSlotServingsCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, MealType.Dinner, SlotServings.From(6));
+		var command = new AdjustSlotServingsCommand(TestWeek, DayOfWeek.Monday, MealType.Dinner, SlotServings.From(6));
 
 		var act = () => handler.HandleAsync(command);
 

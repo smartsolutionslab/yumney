@@ -5,19 +5,18 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
+using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class AssignRecipeCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
-	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly AssignRecipeCommandHandler handler;
 
 	public AssignRecipeCommandHandlerTests()
 	{
-		currentUser.UserId.Returns("user-123");
-		handler = new AssignRecipeCommandHandler(plans, currentUser);
+		handler = new AssignRecipeCommandHandler(plans, CreateCurrentUser());
 	}
 
 	[Fact]
@@ -26,7 +25,7 @@ public class AssignRecipeCommandHandlerTests
 		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
-		var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
+		var command = new AssignRecipeCommand(TestWeek, DayOfWeek.Monday, Recipe());
 
 		var result = await handler.HandleAsync(command);
 
@@ -38,14 +37,12 @@ public class AssignRecipeCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_PlanExists_UpdatesExisting()
 	{
-		var owner = OwnerIdentifier.From("user-123");
-		var week = WeekIdentifier.From(2026, 15);
-		var existing = WeeklyPlan.Create(owner, week);
+		var existing = CreatePlan();
 
 		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existing);
 
-		var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Wednesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"), Servings: SlotServings.From(6));
+		var command = new AssignRecipeCommand(TestWeek, DayOfWeek.Wednesday, Recipe("Steak"), Servings: SlotServings.From(6));
 
 		var result = await handler.HandleAsync(command);
 
@@ -60,7 +57,7 @@ public class AssignRecipeCommandHandlerTests
 		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
-		var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Friday, SlotRecipeReference.From(Guid.NewGuid(), "Fish"));
+		var command = new AssignRecipeCommand(TestWeek, DayOfWeek.Friday, Recipe("Fish"));
 
 		var result = await handler.HandleAsync(command);
 
@@ -70,15 +67,13 @@ public class AssignRecipeCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_WithBreakfastMealType_AssignsToBreakfastSlot()
 	{
-		var owner = OwnerIdentifier.From("user-123");
-		var week = WeekIdentifier.From(2026, 15);
-		var existing = WeeklyPlan.Create(owner, week);
+		var existing = CreatePlan();
 		existing.EnableExtendedMode();
 
 		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existing);
 
-		var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pancakes"), MealType.Breakfast);
+		var command = new AssignRecipeCommand(TestWeek, DayOfWeek.Monday, Recipe("Pancakes"), MealType.Breakfast);
 
 		var result = await handler.HandleAsync(command);
 

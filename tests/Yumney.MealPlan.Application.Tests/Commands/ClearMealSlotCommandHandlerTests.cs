@@ -3,32 +3,27 @@ using NSubstitute;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
+using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class ClearMealSlotCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
-	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly ClearMealSlotCommandHandler handler;
 
 	public ClearMealSlotCommandHandlerTests()
 	{
-		currentUser.UserId.Returns("user-123");
-		handler = new ClearMealSlotCommandHandler(plans, currentUser);
+		handler = new ClearMealSlotCommandHandler(plans, CreateCurrentUser());
 	}
 
 	[Fact]
 	public async Task HandleAsync_ClearsSlotAndSaves()
 	{
-		var plan = WeeklyPlan.Create(OwnerIdentifier.From("user-123"), WeekIdentifier.From(2026, 15));
-		plan.AssignRecipe(DayOfWeek.Wednesday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
-		plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
+		CreatePlanWithRecipe(plans, DayOfWeek.Wednesday);
 
-		var command = new ClearMealSlotCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Wednesday);
+		var command = new ClearMealSlotCommand(TestWeek, DayOfWeek.Wednesday);
 
 		var result = await handler.HandleAsync(command);
 

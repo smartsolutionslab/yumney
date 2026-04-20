@@ -5,19 +5,18 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
+using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class ToggleExtendedModeCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
-	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly ToggleExtendedModeCommandHandler handler;
 
 	public ToggleExtendedModeCommandHandlerTests()
 	{
-		currentUser.UserId.Returns("user-123");
-		handler = new ToggleExtendedModeCommandHandler(plans, currentUser);
+		handler = new ToggleExtendedModeCommandHandler(plans, CreateCurrentUser());
 	}
 
 	[Fact]
@@ -26,7 +25,7 @@ public class ToggleExtendedModeCommandHandlerTests
 		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
-		var result = await handler.HandleAsync(new ToggleExtendedModeCommand(WeekIdentifier.From(2026, 15), true));
+		var result = await handler.HandleAsync(new ToggleExtendedModeCommand(TestWeek, true));
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.IsExtendedMode.Should().BeTrue();
@@ -37,15 +36,13 @@ public class ToggleExtendedModeCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_DisableExisting_Returns7Slots()
 	{
-		var owner = OwnerIdentifier.From("user-123");
-		var week = WeekIdentifier.From(2026, 15);
-		var existing = WeeklyPlan.Create(owner, week);
+		var existing = CreatePlan();
 		existing.EnableExtendedMode();
 
 		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existing);
 
-		var result = await handler.HandleAsync(new ToggleExtendedModeCommand(WeekIdentifier.From(2026, 15), false));
+		var result = await handler.HandleAsync(new ToggleExtendedModeCommand(TestWeek, false));
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.IsExtendedMode.Should().BeFalse();
