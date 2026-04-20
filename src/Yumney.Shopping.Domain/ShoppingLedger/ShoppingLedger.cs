@@ -44,7 +44,7 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
 		ShoppingLedgerIdentifier identifier,
 		OwnerIdentifier ownerId,
 		IEnumerable<IDomainEvent> events,
-		int startVersion = 0)
+		AggregateVersion? startVersion = null)
 	{
 		var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId };
 		ledger.LoadFromHistory(events, startVersion);
@@ -56,7 +56,7 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
 		ShoppingLedgerIdentifier identifier,
 		OwnerIdentifier ownerId,
 		Dictionary<string, ShoppingItemState> snapshotItems,
-		int snapshotVersion,
+		AggregateVersion snapshotVersion,
 		IEnumerable<IDomainEvent> eventsSinceSnapshot)
 	{
 		var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId };

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
@@ -18,7 +19,7 @@ public class ShoppingLedgerTests
 
 		ledger.OwnerId.Should().Be(owner);
 		ledger.Items.Should().BeEmpty();
-		ledger.Version.Should().Be(0);
+		ledger.Version.Should().Be(AggregateVersion.Zero());
 		ledger.UncommittedEvents.Should().BeEmpty();
 	}
 
@@ -31,7 +32,7 @@ public class ShoppingLedgerTests
 
 		ledger.UncommittedEvents.Should().HaveCount(1);
 		ledger.UncommittedEvents.First().Should().BeOfType<ShoppingItemAdded>();
-		ledger.Version.Should().Be(1);
+		ledger.Version.Should().Be(AggregateVersion.From(1));
 		ledger.Items.Should().HaveCount(1);
 	}
 
@@ -196,7 +197,7 @@ public class ShoppingLedgerTests
 		item.Bought.Should().Be(quantity.Amount);
 		item.Consumed.Should().Be(consumedQuantity.Amount);
 		item.AtHome.Should().Be(consumedQuantity.Amount);
-		rebuilt.Version.Should().Be(3);
+		rebuilt.Version.Should().Be(AggregateVersion.From(3));
 	}
 
 	[Fact]
@@ -215,9 +216,9 @@ public class ShoppingLedgerTests
 		var newEvents = new[] { new ShoppingItemConsumed(milk, consumedQuantity, ItemSource.From("recipe:abc")) };
 
 		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromSnapshot(
-			original.Identifier, owner, snapshotItems, 2, newEvents);
+			original.Identifier, owner, snapshotItems, AggregateVersion.From(2), newEvents);
 
-		rebuilt.Version.Should().Be(3);
+		rebuilt.Version.Should().Be(AggregateVersion.From(3));
 		var item = rebuilt.Items.Values.First();
 		item.AtHome.Should().Be(consumedQuantity.Amount);
 	}
@@ -231,7 +232,7 @@ public class ShoppingLedgerTests
 		ledger.AddItem(N("B"), Q(1), ItemSource.Manual);
 		ledger.AddItem(N("C"), Q(1), ItemSource.Manual);
 
-		ledger.Version.Should().Be(3);
+		ledger.Version.Should().Be(AggregateVersion.From(3));
 		ledger.UncommittedEvents.Should().HaveCount(3);
 	}
 

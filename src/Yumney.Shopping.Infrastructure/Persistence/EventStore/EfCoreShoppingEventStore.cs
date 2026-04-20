@@ -63,6 +63,7 @@ public sealed partial class EfCoreShoppingEventStore(
 			.FirstOrDefaultAsync(s => s.AggregateId == aggregateId, cancellationToken);
 
 		var startVersion = snapshot?.Version ?? 0;
+		var domainStartVersion = AggregateVersion.From(startVersion);
 
 		var storedEvents = await context.Set<StoredEvent>()
 			.AsNoTracking()
@@ -76,7 +77,7 @@ public sealed partial class EfCoreShoppingEventStore(
 		{
 			var snapshotItems = JsonSerializer.Deserialize<Dictionary<string, ShoppingItemState>>(snapshot.State, jsonOptions) ?? [];
 			var identifier = ShoppingLedgerIdentifier.From(aggregateId);
-			return ShoppingLedger.FromSnapshot(identifier, ownerId, snapshotItems, snapshot.Version, events);
+			return ShoppingLedger.FromSnapshot(identifier, ownerId, snapshotItems, domainStartVersion, events);
 		}
 
 		return ShoppingLedger.FromEvents(ShoppingLedgerIdentifier.From(aggregateId), ownerId, events);
