@@ -172,9 +172,10 @@ public static class ShoppingEndpoints
 
 		static async Task<IResult> GetMerged(
 			IQueryHandler<GetMergedShoppingListQuery, Result<MergedShoppingListDto>> handler,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			bool includePastBought = false)
 		{
-			var result = await handler.HandleAsync(new GetMergedShoppingListQuery(), cancellationToken);
+			var result = await handler.HandleAsync(new GetMergedShoppingListQuery(includePastBought), cancellationToken);
 			return result.ToOk();
 		}
 

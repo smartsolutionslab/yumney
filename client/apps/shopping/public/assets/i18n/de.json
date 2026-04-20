@@ -83,6 +83,10 @@
       "pantry": "Vorratskammer",
       "household": "Haushalt",
       "other": "Sonstiges"
+    },
+    "history": {
+      "toggle": "Heutige Einkäufe anzeigen",
+      "empty": "Heute noch nichts gekauft."
     }
   },
   "common": {

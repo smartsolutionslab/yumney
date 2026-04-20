@@ -39,6 +39,7 @@ export class MergedListComponent {
   protected loading = signal(false);
   protected error = signal<string | null>(null);
   protected newItemName = signal('');
+  protected showPastPurchases = signal(false);
 
   protected categoryGroups = computed<CategoryGroup[]>(() => {
     const l = this.list();
@@ -138,11 +139,16 @@ export class MergedListComponent {
     this.loadList();
   }
 
+  protected onTogglePastPurchases(): void {
+    this.showPastPurchases.update((v) => !v);
+    this.loadList();
+  }
+
   private loadList(): void {
     this.loading.set(true);
     this.error.set(null);
     this.api
-      .getMergedList()
+      .getMergedList(this.showPastPurchases())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (list) => {

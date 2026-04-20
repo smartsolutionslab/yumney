@@ -48,8 +48,9 @@ export class ShoppingApiService {
     });
   }
 
-  getMergedList(): Observable<MergedShoppingList> {
-    return this.http.get<MergedShoppingList>(API_ENDPOINTS.shoppingLists.merged);
+  getMergedList(includePastBought = false): Observable<MergedShoppingList> {
+    const params = includePastBought ? { includePastBought: true } : undefined;
+    return this.http.get<MergedShoppingList>(API_ENDPOINTS.shoppingLists.merged, { params });
   }
 
   addItem(request: AddItemRequest): Observable<AddedItem> {
