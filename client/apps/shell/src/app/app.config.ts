@@ -19,6 +19,7 @@ import {
   UI,
   SUPPORTED_LANGUAGES,
   DEFAULT_LANGUAGE,
+  globalErrorInterceptor,
 } from '@yumney/shared/models';
 
 export const appConfig: ApplicationConfig = {
@@ -27,7 +28,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
     provideYumneyIcons(),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, globalErrorInterceptor])),
     provideAuth(),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
