@@ -12,6 +12,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { ShoppingApiService, type MergedShoppingList, type MergedShoppingItem } from '../api';
 import { TranslocoService } from '@jsverse/transloco';
+import { ToastService } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 
 interface CategoryGroup {
@@ -32,6 +33,7 @@ export class MergedListComponent {
   private api = inject(ShoppingApiService);
   private destroyRef = inject(DestroyRef);
   private transloco = inject(TranslocoService);
+  private toasts = inject(ToastService);
 
   protected list = signal<MergedShoppingList | null>(null);
   protected loading = signal(false);
@@ -104,8 +106,20 @@ export class MergedListComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (text) => {
+          if (text.trim().length === 0) {
+            this.toasts.info('shopping.export.nothing');
+            return;
+          }
+
           if (navigator.share) {
-            navigator.share({ text }).catch(() => this.copyToClipboard(text));
+            navigator
+              .share({ text })
+              .then(() => this.toasts.success('shopping.export.shared'))
+              .catch((err: unknown) => {
+                // AbortError = user dismissed share sheet; do not fall back.
+                if (err instanceof DOMException && err.name === 'AbortError') return;
+                this.copyToClipboard(text);
+              });
           } else {
             this.copyToClipboard(text);
           }
@@ -143,8 +157,11 @@ export class MergedListComponent {
   }
 
   private copyToClipboard(text: string): void {
-    navigator.clipboard.writeText(text).catch(() => {
-      this.error.set(this.transloco.translate('shopping.errors.exportFailed'));
-    });
+    navigator.clipboard
+      .writeText(text)
+      .then(() => this.toasts.success('shopping.export.copied'))
+      .catch(() => {
+        this.error.set(this.transloco.translate('shopping.errors.exportFailed'));
+      });
   }
 }
