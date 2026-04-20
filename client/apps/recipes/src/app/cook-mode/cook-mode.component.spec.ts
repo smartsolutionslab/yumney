@@ -3,7 +3,7 @@ import { provideRouter, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { CookModeComponent } from './cook-mode.component';
-import { RecipeApiService, type RecipeDetail } from '@yumney/shared/api-client';
+import { RecipeApiService, type RecipeDetail } from '../api';
 import {
   VoiceService,
   WakeLockService,

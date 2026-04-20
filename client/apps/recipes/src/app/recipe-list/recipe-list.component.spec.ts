@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { RecipeListComponent } from './recipe-list.component';
-import { RecipeApiService, RecipeListResponse } from '@yumney/shared/api-client';
+import { RecipeApiService, RecipeListResponse } from '../api';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 
 vi.mock('@yumney/ui', async (importOriginal) => {

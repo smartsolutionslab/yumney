@@ -6,7 +6,7 @@ import {
   UserProfileApiService,
   type UserProfile,
   type UpdateProfileRequest,
-} from '@yumney/shared/api-client';
+} from '../api';
 import { UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 

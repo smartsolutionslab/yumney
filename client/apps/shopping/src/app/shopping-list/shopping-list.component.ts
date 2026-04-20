@@ -9,7 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ShoppingApiService, ShoppingListSummary } from '@yumney/shared/api-client';
+import { ShoppingApiService, ShoppingListSummary } from '../api';
 import { createAsyncState, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
 import { LoadingSpinnerComponent } from '@yumney/ui';
 

@@ -14,7 +14,7 @@ import {
   ShoppingApiService,
   type MergedShoppingList,
   type MergedShoppingItem,
-} from '@yumney/shared/api-client';
+} from '../api';
 import { TranslocoService } from '@jsverse/transloco';
 import { AsyncStateComponent } from '@yumney/ui';
 

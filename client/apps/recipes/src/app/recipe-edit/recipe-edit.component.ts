@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse } from '../api';
 import {
   createAsyncState,
   mapToUpdateRecipeRequest,

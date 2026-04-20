@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { RecipeApiService, type RecipeDetail } from '@yumney/shared/api-client';
+import { RecipeApiService, type RecipeDetail } from '../api';
 import {
   CookingTimerService,
   createAsyncState,

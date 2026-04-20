@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
+import { RecipeApiService, RecipeDetail } from '../api';
 import {
   createAsyncState,
   scaleIngredients,

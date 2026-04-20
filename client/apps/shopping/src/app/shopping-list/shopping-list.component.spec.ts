@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { of, throwError, Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ShoppingListComponent } from './shopping-list.component';
-import { ShoppingApiService, ShoppingListSummary } from '@yumney/shared/api-client';
+import { ShoppingApiService, ShoppingListSummary } from '../api';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const mockLists: ShoppingListSummary[] = [

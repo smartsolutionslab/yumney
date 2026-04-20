@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError, EMPTY } from 'rxjs';
 import { RecipeDetailComponent } from './recipe-detail.component';
-import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
+import { RecipeApiService, RecipeDetail } from '../api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 

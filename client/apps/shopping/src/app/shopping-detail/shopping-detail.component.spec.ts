@@ -4,7 +4,7 @@ import { provideRouter, ActivatedRoute } from '@angular/router';
 import { of, throwError, Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ShoppingDetailComponent } from './shopping-detail.component';
-import { ShoppingApiService, ShoppingListDetail } from '@yumney/shared/api-client';
+import { ShoppingApiService, ShoppingListDetail } from '../api';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const mockDetail: ShoppingListDetail = {

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { MergedListComponent } from './merged-list.component';
-import { ShoppingApiService, type MergedShoppingList } from '@yumney/shared/api-client';
+import { ShoppingApiService, type MergedShoppingList } from '../api';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 import { provideYumneyIcons } from '@yumney/ui';
 
