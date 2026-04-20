@@ -8,7 +8,7 @@ public abstract class EventSourcedAggregate<TId>
 
 	public TId Identifier { get; protected set; } = default!;
 
-	public int Version { get; protected set; }
+	public AggregateVersion Version { get; protected set; } = AggregateVersion.Zero();
 
 	public IReadOnlyCollection<IDomainEvent> UncommittedEvents => uncommittedEvents.AsReadOnly();
 
@@ -27,17 +27,17 @@ public abstract class EventSourcedAggregate<TId>
 	{
 		Apply(@event);
 		uncommittedEvents.Add(@event);
-		Version++;
+		Version = Version.Increment();
 	}
 
 	// Replays events without buffering them as uncommitted — use from rehydration factories.
-	protected void LoadFromHistory(IEnumerable<IDomainEvent> events, int startVersion = 0)
+	protected void LoadFromHistory(IEnumerable<IDomainEvent> events, AggregateVersion? startVersion = null)
 	{
-		Version = startVersion;
+		Version = startVersion ?? AggregateVersion.Zero();
 		foreach (var @event in events)
 		{
 			Apply(@event);
-			Version++;
+			Version = Version.Increment();
 		}
 	}
 

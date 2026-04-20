@@ -184,8 +184,7 @@ public class WebScraperTests
 		var httpClient = CreateHttpClient("<html><body>content</body></html>");
 		var sut = new WebScraper(httpClient, CreateOptions(), logger);
 
-		var act = () => sut.ScrapeAsync(
-			RecipeUrl.From("https://example.com/recipe"), cts.Token);
+		var act = () => sut.ScrapeAsync(RecipeUrl.From("https://example.com/recipe"), cts.Token);
 
 		await act.Should().ThrowAsync<OperationCanceledException>();
 	}
@@ -282,10 +281,7 @@ public class WebScraperTests
 				Content = new StringContent(content),
 			};
 
-			if (!response.IsSuccessStatusCode)
-			{
-				throw new HttpRequestException("Request failed", null, statusCode);
-			}
+			if (!response.IsSuccessStatusCode) throw new HttpRequestException("Request failed", null, statusCode);
 
 			return Task.FromResult(response);
 		}
@@ -293,8 +289,7 @@ public class WebScraperTests
 
 	private sealed class TimeoutHandler : HttpMessageHandler
 	{
-		protected override Task<HttpResponseMessage> SendAsync(
-			HttpRequestMessage request, CancellationToken cancellationToken)
+		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 		{
 			throw new TaskCanceledException("The request timed out.");
 		}
