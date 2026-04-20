@@ -61,7 +61,7 @@ public class ImportRecipeFromTextCommandHandlerTests
 		await handler.HandleAsync(command);
 
 		await extraction.Received(1).ExtractAsync(
-			Arg.Is<ScrapedContent>(c => c.CleanedText == recipeText && c.SourceUrl == string.Empty),
+			Arg.Is<ScrapedContent>(c => c.CleanedText == recipeText && c.SourceUrl == null),
 			Arg.Any<CancellationToken>());
 	}
 }
