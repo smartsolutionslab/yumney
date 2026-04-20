@@ -9,6 +9,8 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 /// <summary>
 /// Async projection handler — rebuilds the read model from shopping events.
 /// Subscribes to integration events published by the event store.
+/// See PROFILING.md alongside this file for the expected query budget per
+/// event and how to snapshot it with QueryCountingInterceptor.
 /// </summary>
 public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 	: IIntegrationEventHandler<ShoppingItemAddedIntegrationEvent>,
@@ -18,79 +20,102 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 	  IIntegrationEventHandler<ShoppingItemQuantityAdjustedIntegrationEvent>
 {
 	/// <inheritdoc />
-	public async Task HandleAsync(ShoppingItemAddedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemAddedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var readItem = await FindOrCreateAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, cancellationToken);
-		readItem.TotalQuantity += inner.Quantity.Amount;
-		readItem.LastUpdated = DateTime.UtcNow;
 
-		AppendSource(readItem, inner.Quantity.Amount, inner.Source);
+		Action<ShoppingListReadItem> mutate = readItem =>
+		{
+			readItem.TotalQuantity += inner.Quantity.Amount;
+			AppendSource(readItem, inner.Quantity.Amount, inner.Source);
+		};
 
-		await context.SaveChangesAsync(cancellationToken);
+		return UpsertAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, mutate, cancellationToken);
 	}
 
 	/// <inheritdoc />
-	public async Task HandleAsync(ShoppingItemBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, cancellationToken);
-		if (readItem is null) return;
 
-		readItem.IsBought = true;
-		readItem.BoughtAt = DateTime.UtcNow;
-		readItem.LastUpdated = DateTime.UtcNow;
+		Action<ShoppingListReadItem> mutate = readItem =>
+		{
+			readItem.IsBought = true;
+			readItem.BoughtAt = DateTime.UtcNow;
+		};
 
-		await context.SaveChangesAsync(cancellationToken);
+		return UpdateAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, mutate, cancellationToken);
 	}
 
 	/// <inheritdoc />
-	public async Task HandleAsync(ShoppingItemConsumedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemConsumedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, cancellationToken);
-		if (readItem is null) return;
-
-		readItem.LastUpdated = DateTime.UtcNow;
-		await context.SaveChangesAsync(cancellationToken);
+		return UpdateAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, _ => { }, cancellationToken);
 	}
 
 	/// <inheritdoc />
-	public async Task HandleAsync(ShoppingItemRemovedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemRemovedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, cancellationToken);
-		if (readItem is null) return;
 
-		readItem.TotalQuantity = Math.Max(0, readItem.TotalQuantity - inner.Quantity.Amount);
-		readItem.LastUpdated = DateTime.UtcNow;
+		Action<ShoppingListReadItem> mutate = readItem =>
+		{
+			readItem.TotalQuantity = Math.Max(0, readItem.TotalQuantity - inner.Quantity.Amount);
+			if (readItem.TotalQuantity <= 0)
+			{
+				context.Set<ShoppingListReadItem>().Remove(readItem);
+			}
+		};
 
-		if (readItem.TotalQuantity <= 0)
-			context.Set<ShoppingListReadItem>().Remove(readItem);
-
-		await context.SaveChangesAsync(cancellationToken);
+		return UpdateAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, mutate, cancellationToken);
 	}
 
 	/// <inheritdoc />
-	public async Task HandleAsync(ShoppingItemQuantityAdjustedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemQuantityAdjustedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var readItem = await FindAsync(@event.OwnerId, inner.ItemName, inner.NewQuantity.Unit?.Value, cancellationToken);
+
+		Action<ShoppingListReadItem> mutate = readItem =>
+		{
+			readItem.TotalQuantity = inner.NewQuantity.Amount;
+		};
+
+		return UpdateAsync(@event.OwnerId, inner.ItemName, inner.NewQuantity.Unit?.Value, mutate, cancellationToken);
+	}
+
+	private async Task UpdateAsync(
+		string ownerId,
+		string itemName,
+		string? unit,
+		Action<ShoppingListReadItem> mutate,
+		CancellationToken cancellationToken)
+	{
+		var readItem = await FindAsync(ownerId, itemName, unit, cancellationToken);
 		if (readItem is null) return;
 
-		readItem.TotalQuantity = inner.NewQuantity.Amount;
+		mutate(readItem);
 		readItem.LastUpdated = DateTime.UtcNow;
-
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	private async Task<ShoppingListReadItem> FindOrCreateAsync(string ownerId, string itemName, string? unit, CancellationToken cancellationToken)
+	private async Task UpsertAsync(
+		string ownerId,
+		string itemName,
+		string? unit,
+		Action<ShoppingListReadItem> mutate,
+		CancellationToken cancellationToken)
 	{
-		var existing = await FindAsync(ownerId, itemName, unit, cancellationToken);
-		if (existing is not null) return existing;
+		var readItem = await FindAsync(ownerId, itemName, unit, cancellationToken)
+			?? Create(ownerId, itemName, unit);
+		mutate(readItem);
+		readItem.LastUpdated = DateTime.UtcNow;
+		await context.SaveChangesAsync(cancellationToken);
+	}
 
+	private ShoppingListReadItem Create(string ownerId, string itemName, string? unit)
+	{
 		var category = IngredientCategoryResolver.Resolve(itemName) ?? IngredientCategory.Other;
-
 		var readItem = new ShoppingListReadItem
 		{
 			Id = Guid.CreateVersion7(),
