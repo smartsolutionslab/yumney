@@ -1,6 +1,6 @@
+using System.Reflection;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Architecture.Tests;
@@ -10,45 +10,63 @@ public class EventConsumerRegistrationTests
 	private static readonly string[] InfrastructureModules = ["Recipes", "Shopping", "Users", "MealPlan"];
 
 	[Fact]
-	public void AllIntegrationEventHandlers_HaveMatchingHandlerType()
+	public void EveryIntegrationEvent_HasAtLeastOneHandler()
 	{
+		var assemblies = InfrastructureModules
+			.Select(m => Assembly.Load($"Yumney.{m}.Infrastructure"))
+			.ToList();
+
+		var integrationEventType = typeof(IIntegrationEvent);
 		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
-		var handlerType = typeof(IntegrationEventConsumer<>);
 
-		foreach (var module in InfrastructureModules)
-		{
-			var assembly = System.Reflection.Assembly.Load($"Yumney.{module}.Infrastructure");
+		var integrationEvents = assemblies
+			.SelectMany(a => a.GetTypes())
+			.Where(t => integrationEventType.IsAssignableFrom(t) && t is { IsClass: true, IsAbstract: false })
+			.ToList();
 
-			var eventTypes = assembly.GetTypes()
-				.SelectMany(t => t.GetInterfaces())
-				.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
-				.Select(i => i.GetGenericArguments()[0])
-				.Distinct()
-				.ToList();
+		var handledEventTypes = assemblies
+			.SelectMany(a => a.GetTypes())
+			.SelectMany(t => t.GetInterfaces())
+			.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
+			.Select(i => i.GetGenericArguments()[0])
+			.ToHashSet();
 
-			foreach (var eventType in eventTypes)
-			{
-				var closedHandler = handlerType.MakeGenericType(eventType);
-				closedHandler.Should().NotBeNull(
-					$"IntegrationEventHandler<{eventType.Name}> must be constructable for handler in {module}.Infrastructure");
-			}
-		}
+		integrationEvents.Should().NotBeEmpty("at least one integration event must exist across modules");
+
+		var missing = integrationEvents
+			.Where(e => !handledEventTypes.Contains(e))
+			.Select(e => e.FullName)
+			.ToList();
+
+		missing.Should().BeEmpty(
+			"every IIntegrationEvent must have at least one IIntegrationEventHandler<T> implementation. " +
+			"Events without handlers will silently drop at runtime.");
 	}
 
 	[Fact]
-	public void RegisterIntegrationEventHandlers_DiscoversAllHandlers_InShoppingInfrastructure()
+	public void EveryIntegrationEventHandler_HandlesAKnownIntegrationEvent()
 	{
-		var assembly = typeof(SmartSolutionsLab.Yumney.Shopping.Infrastructure.ShoppingInfrastructureServiceCollectionExtensions).Assembly;
+		var assemblies = InfrastructureModules
+			.Select(m => Assembly.Load($"Yumney.{m}.Infrastructure"))
+			.ToList();
+
+		var integrationEventType = typeof(IIntegrationEvent);
 		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
 
-		var eventTypes = assembly.GetTypes()
+		var handlerEventTargets = assemblies
+			.SelectMany(a => a.GetTypes())
 			.SelectMany(t => t.GetInterfaces())
 			.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
 			.Select(i => i.GetGenericArguments()[0])
 			.Distinct()
 			.ToList();
 
-		eventTypes.Should().NotBeEmpty("Shopping.Infrastructure must have integration event handlers");
-		eventTypes.Should().HaveCountGreaterThanOrEqualTo(5, "all shopping event types should be handled");
+		var nonEventHandlerTargets = handlerEventTargets
+			.Where(t => !integrationEventType.IsAssignableFrom(t))
+			.Select(t => t.FullName)
+			.ToList();
+
+		nonEventHandlerTargets.Should().BeEmpty(
+			"every IIntegrationEventHandler<T> must target a type implementing IIntegrationEvent");
 	}
 }
