@@ -1,5 +1,6 @@
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Recipes.Api;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests;
@@ -70,7 +71,7 @@ public class RecipeFilterParserTests
 		var result = RecipeFilterParser.Build(null, "easy", null, null);
 
 		result.Should().NotBeNull();
-		result!.Difficulty!.Value.Should().Be("easy");
+		result!.Difficulty.Should().Be(Difficulty.From("easy"));
 	}
 
 	[Fact]
@@ -79,7 +80,7 @@ public class RecipeFilterParserTests
 		var result = RecipeFilterParser.Build(null, null, 30, null);
 
 		result.Should().NotBeNull();
-		result!.MaxPrepTime!.Value.Should().Be(30);
+		result!.MaxPrepTime.Should().Be(PreparationTime.From(30));
 	}
 
 	[Fact]
@@ -88,7 +89,7 @@ public class RecipeFilterParserTests
 		var result = RecipeFilterParser.Build(null, null, null, 45);
 
 		result.Should().NotBeNull();
-		result!.MaxCookTime!.Value.Should().Be(45);
+		result!.MaxCookTime.Should().Be(CookingTime.From(45));
 	}
 
 	[Fact]
@@ -115,9 +116,9 @@ public class RecipeFilterParserTests
 
 		result.Should().NotBeNull();
 		result!.Tags.Should().ContainSingle(t => t.Value == "vegan");
-		result.Difficulty!.Value.Should().Be("medium");
-		result.MaxPrepTime!.Value.Should().Be(20);
-		result.MaxCookTime!.Value.Should().Be(40);
+		result.Difficulty.Should().Be(Difficulty.From("medium"));
+		result.MaxPrepTime.Should().Be(PreparationTime.From(20));
+		result.MaxCookTime.Should().Be(CookingTime.From(40));
 		result.FavoritesOnly.Should().BeTrue();
 	}
 }

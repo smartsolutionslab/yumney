@@ -36,7 +36,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, SearchTerm.From("lasagne"));
 
-		totalCount.Value.Should().Be(1);
+		totalCount.Should().Be(ItemCount.From(1));
 		items.Should().ContainSingle(r => r.Title.Value == "Classic Lasagne");
 	}
 
@@ -97,7 +97,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, SearchTerm.From("butter"));
 
-		totalCount.Value.Should().Be(2);
+		totalCount.Should().Be(ItemCount.From(2));
 		items.Select(r => r.Title.Value).Should()
 			.Contain("Classic Lasagne")
 			.And.Contain("Chocolate Fudge Cake");
@@ -112,7 +112,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, SearchTerm.From("sushi"));
 
-		totalCount.Value.Should().Be(0);
+		totalCount.Should().Be(ItemCount.From(0));
 		items.Should().BeEmpty();
 	}
 
@@ -125,7 +125,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting);
 
-		totalCount.Value.Should().Be(3);
+		totalCount.Should().Be(ItemCount.From(3));
 		items.Should().HaveCount(3);
 	}
 
@@ -139,7 +139,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			otherOwner, DefaultPaging, DefaultSorting, SearchTerm.From("lasagne"));
 
-		totalCount.Value.Should().Be(0);
+		totalCount.Should().Be(ItemCount.From(0));
 		items.Should().BeEmpty();
 	}
 
@@ -154,7 +154,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
 			owner, paging, DefaultSorting);
 
 		items.Should().HaveCount(2);
-		totalCount.Value.Should().Be(3);
+		totalCount.Should().Be(ItemCount.From(3));
 	}
 
 	[Fact]
@@ -180,7 +180,7 @@ public class RecipeSearchTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, SearchTerm.From("tomato"));
 
-		totalCount.Value.Should().BeGreaterThanOrEqualTo(2);
+		((int)totalCount).Should().BeGreaterThanOrEqualTo(2);
 		items.Select(r => r.Title.Value).Should()
 			.Contain("Roasted Tomato Soup")
 			.And.Contain("Classic Lasagne");

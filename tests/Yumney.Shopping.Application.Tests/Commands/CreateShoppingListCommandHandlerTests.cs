@@ -90,7 +90,7 @@ public class CreateShoppingListCommandHandlerTests
 		await handler.HandleAsync(command);
 
 		capturedList.Should().NotBeNull();
-		capturedList!.Owner.Value.Should().Be("specific-user-id");
+		capturedList!.Owner.Should().Be(OwnerIdentifier.From("specific-user-id"));
 	}
 
 	[Fact]

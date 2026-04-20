@@ -253,7 +253,7 @@ public class RecipeTests
 		recipe.Update(RecipeTitle.From("Updated"), newIngredients, [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
 
 		recipe.Ingredients.Should().HaveCount(1);
-		recipe.Ingredients[0].Name.Value.Should().Be("Butter");
+		recipe.Ingredients[0].Name.Should().Be(IngredientName.From("Butter"));
 	}
 
 	[Fact]
@@ -273,7 +273,7 @@ public class RecipeTests
 		recipe.Update(RecipeTitle.From("Updated"), [Ingredient.Create(IngredientName.From("Flour"), null)], newSteps);
 
 		recipe.Steps.Should().HaveCount(1);
-		recipe.Steps[0].Description.Value.Should().Be("New only step");
+		recipe.Steps[0].Description.Should().Be(StepDescription.From("New only step"));
 	}
 
 	[Fact]
@@ -467,8 +467,8 @@ public class RecipeTests
 		var recipe = CreateValidRecipe(tags: tags);
 
 		recipe.Tags.Should().HaveCount(2);
-		recipe.Tags[0].Value.Should().Be("italian");
-		recipe.Tags[1].Value.Should().Be("pasta");
+		recipe.Tags[0].Should().Be(RecipeTag.From("italian"));
+		recipe.Tags[1].Should().Be(RecipeTag.From("pasta"));
 	}
 
 	[Fact]
@@ -490,7 +490,7 @@ public class RecipeTests
 			[Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
 			tags: [RecipeTag.From("new-tag")]);
 
-		recipe.Tags.Should().ContainSingle().Which.Value.Should().Be("new-tag");
+		recipe.Tags.Should().ContainSingle().Which.Should().Be(RecipeTag.From("new-tag"));
 	}
 
 	[Fact]

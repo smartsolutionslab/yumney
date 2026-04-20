@@ -37,13 +37,13 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 			.FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
 		saved.Should().NotBeNull();
-		saved!.Title.Value.Should().Be("Classic Lasagne");
+		saved!.Title.Should().Be(RecipeTitle.From("Classic Lasagne"));
 		saved.Description!.Value.Should().Contain("Bolognese");
-		saved.Servings!.Value.Should().Be(6);
+		saved.Servings.Should().Be(Servings.From(6));
 		saved.Ingredients.Should().HaveCount(10);
-		saved.Ingredients.Select(i => i.Name.Value).Should().Contain("Mozzarella");
+		saved.Ingredients.Select(i => i.Name).Should().Contain(IngredientName.From("Mozzarella"));
 		saved.Steps.Should().HaveCount(5);
-		saved.Steps.First(s => s.Number.Value == 1).Description.Value
+		saved.Steps.First(s => s.Number == StepNumber.From(1)).Description.Value
 			.Should().Contain("Brown the ground beef");
 	}
 
@@ -57,7 +57,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(readContext);
 		var loaded = await recipes.GetByIdAsync(recipe.Id);
 
-		loaded.Title.Value.Should().Be("Roasted Tomato Soup");
+		loaded.Title.Should().Be(RecipeTitle.From("Roasted Tomato Soup"));
 		loaded.Ingredients.Should().NotBeEmpty();
 		loaded.Steps.Should().NotBeEmpty();
 	}
@@ -152,11 +152,11 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 			.Include(r => r.Steps)
 			.FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
-		updated!.Title.Value.Should().Be("Updated Tomato Soup");
-		updated.Description!.Value.Should().Be("Updated description");
-		updated.Servings!.Value.Should().Be(2);
+		updated!.Title.Should().Be(RecipeTitle.From("Updated Tomato Soup"));
+		updated.Description.Should().Be(RecipeDescription.From("Updated description"));
+		updated.Servings.Should().Be(Servings.From(2));
 		updated.Ingredients.Should().ContainSingle();
-		updated.Ingredients[0].Name.Value.Should().Be("Cherry tomatoes");
+		updated.Ingredients[0].Name.Should().Be(IngredientName.From("Cherry tomatoes"));
 		updated.Steps.Should().ContainSingle();
 	}
 

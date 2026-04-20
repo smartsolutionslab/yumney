@@ -40,9 +40,9 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
 			.FirstOrDefaultAsync(l => l.Id == list.Id);
 
 		saved.Should().NotBeNull();
-		saved!.Title.Value.Should().Be("Weekly Groceries");
+		saved!.Title.Should().Be(ShoppingListTitle.From("Weekly Groceries"));
 		saved.Items.Should().HaveCount(4);
-		saved.Items.Select(i => i.Name.Value).Should().Contain("Milk");
+		saved.Items.Select(i => i.Name).Should().Contain(ItemName.From("Milk"));
 		saved.RecipeReference.Should().BeNull();
 	}
 
@@ -76,7 +76,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
 		var shoppingLists = new ShoppingListRepository(writeContext, readContext);
 		var loaded = await shoppingLists.GetByIdAsync(list.Id);
 
-		loaded.Title.Value.Should().Be("Party Supplies");
+		loaded.Title.Should().Be(ShoppingListTitle.From("Party Supplies"));
 		loaded.Items.Should().NotBeEmpty();
 	}
 
@@ -149,7 +149,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
 		var (items, _) = await shoppingLists2.GetByOwnerAsync(owner, DefaultPaging, DefaultSorting);
 
 		items.Should().ContainSingle();
-		items[0].Title.Value.Should().Be("Weekly Groceries");
+		items[0].Title.Should().Be(ShoppingListTitle.From("Weekly Groceries"));
 	}
 
 	[Fact]
@@ -168,7 +168,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
 		var (items, totalCount) = await shoppingLists.GetByOwnerAsync(owner, smallPage, DefaultSorting);
 
 		items.Should().HaveCount(2);
-		totalCount.Value.Should().Be(3);
+		totalCount.Should().Be(ItemCount.From(3));
 	}
 
 	[Fact]
@@ -233,7 +233,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
 		var (items, totalCount) = await shoppingLists.GetByOwnerAsync(loneOwner, DefaultPaging, DefaultSorting);
 
 		items.Should().BeEmpty();
-		totalCount.Value.Should().Be(0);
+		totalCount.Should().Be(ItemCount.From(0));
 	}
 
 	[Fact]

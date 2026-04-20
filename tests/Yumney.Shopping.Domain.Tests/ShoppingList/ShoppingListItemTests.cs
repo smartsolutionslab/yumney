@@ -37,7 +37,7 @@ public class ShoppingListItemTests
 
 		item.Quantity.Should().NotBeNull();
 		item.Quantity!.Unit.Should().BeNull();
-		item.Quantity.Amount.Value.Should().Be(3);
+		item.Quantity.Amount.Should().Be(Amount.From(3));
 	}
 
 	[Fact]

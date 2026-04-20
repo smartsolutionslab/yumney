@@ -122,8 +122,8 @@ public class SaveRecipeCommandHandlerTests
 
 		capturedRecipe.Should().NotBeNull();
 		capturedRecipe!.Ingredients.Should().HaveCount(2);
-		capturedRecipe.Ingredients[0].Name.Value.Should().Be("Flour");
-		capturedRecipe.Ingredients[1].Name.Value.Should().Be("Sugar");
+		capturedRecipe.Ingredients[0].Name.Should().Be(IngredientName.From("Flour"));
+		capturedRecipe.Ingredients[1].Name.Should().Be(IngredientName.From("Sugar"));
 		capturedRecipe.Ingredients[1].Quantity!.Unit.Should().BeNull();
 	}
 
@@ -146,8 +146,8 @@ public class SaveRecipeCommandHandlerTests
 
 		capturedRecipe.Should().NotBeNull();
 		capturedRecipe!.Steps.Should().HaveCount(2);
-		capturedRecipe.Steps[0].Description.Value.Should().Be("Preheat oven");
-		capturedRecipe.Steps[1].Description.Value.Should().Be("Mix ingredients");
+		capturedRecipe.Steps[0].Description.Should().Be(StepDescription.From("Preheat oven"));
+		capturedRecipe.Steps[1].Description.Should().Be(StepDescription.From("Mix ingredients"));
 	}
 
 	[Fact]
@@ -155,7 +155,7 @@ public class SaveRecipeCommandHandlerTests
 	{
 		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-		capturedRecipe.Description!.Value.Should().Be("A test recipe");
+		capturedRecipe.Description.Should().Be(RecipeDescription.From("A test recipe"));
 	}
 
 	[Fact]
@@ -163,7 +163,7 @@ public class SaveRecipeCommandHandlerTests
 	{
 		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-		capturedRecipe.Servings!.Value.Should().Be(4);
+		capturedRecipe.Servings.Should().Be(Servings.From(4));
 	}
 
 	[Fact]
@@ -171,7 +171,7 @@ public class SaveRecipeCommandHandlerTests
 	{
 		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-		capturedRecipe.Timing?.Preparation!.Value.Should().Be(10);
+		capturedRecipe.Timing?.Preparation.Should().Be(PreparationTime.From(10));
 	}
 
 	[Fact]
@@ -179,7 +179,7 @@ public class SaveRecipeCommandHandlerTests
 	{
 		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-		capturedRecipe.Timing?.Cooking!.Value.Should().Be(20);
+		capturedRecipe.Timing?.Cooking.Should().Be(CookingTime.From(20));
 	}
 
 	[Fact]
@@ -187,7 +187,7 @@ public class SaveRecipeCommandHandlerTests
 	{
 		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-		capturedRecipe.Difficulty!.Value.Should().Be("easy");
+		capturedRecipe.Difficulty.Should().Be(Difficulty.From("easy"));
 	}
 
 	[Fact]
@@ -195,7 +195,7 @@ public class SaveRecipeCommandHandlerTests
 	{
 		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
 
-		capturedRecipe.ImageUrl!.Value.Should().Be("https://example.com/image.jpg");
+		capturedRecipe.ImageUrl.Should().Be(ImageUrl.From("https://example.com/image.jpg"));
 	}
 
 	[Fact]
