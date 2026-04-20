@@ -8,7 +8,7 @@ namespace SmartSolutionsLab.Yumney.Users.Application.Commands.Handlers;
 
 public sealed class RegisterUserCommandHandler(
 	IKeycloakAdminService keycloakAdmin,
-	IAppUserProfileRepository users) : ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>
+	IUsersUnitOfWork unitOfWork) : ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>
 {
 	public async Task<Result<RegisterUserResultDto>> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken = default)
 	{
@@ -21,7 +21,8 @@ public sealed class RegisterUserCommandHandler(
 		var keycloakUserId = keycloakResult.Value;
 
 		var profile = AppUserProfile.Create(keycloakUserId, displayName);
-		await users.AddAsync(profile, cancellationToken);
+		await unitOfWork.Profiles.AddAsync(profile, cancellationToken);
+		await unitOfWork.SaveChangesAsync(cancellationToken);
 
 		return new RegisterUserResultDto("Registration successful. Please check your email to verify your account.");
 	}

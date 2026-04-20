@@ -12,13 +12,15 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
 public class CreateShoppingListCommandHandlerTests
 {
 	private readonly IShoppingListRepository shoppingLists = Substitute.For<IShoppingListRepository>();
+	private readonly IShoppingUnitOfWork unitOfWork = Substitute.For<IShoppingUnitOfWork>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly CreateShoppingListCommandHandler handler;
 
 	public CreateShoppingListCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new CreateShoppingListCommandHandler(shoppingLists, currentUser);
+		unitOfWork.ShoppingLists.Returns(shoppingLists);
+		handler = new CreateShoppingListCommandHandler(unitOfWork, currentUser);
 	}
 
 	[Fact]

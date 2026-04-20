@@ -27,6 +27,7 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 		});
 
 		services.AddScoped<IWeeklyPlanRepository, WeeklyPlanRepository>();
+		services.AddScoped<IMealPlanUnitOfWork, MealPlanUnitOfWork>();
 		services.AddScoped<IRecipeIngredientProvider, HttpRecipeIngredientProvider>();
 		services.AddScoped<IShoppingListWriter, HttpShoppingListWriter>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();

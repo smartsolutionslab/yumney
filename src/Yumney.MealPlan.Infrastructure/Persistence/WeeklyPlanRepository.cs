@@ -36,11 +36,5 @@ public sealed class WeeklyPlanRepository(MealPlanDbContext context) : IWeeklyPla
 	public async Task AddAsync(WeeklyPlan plan, CancellationToken cancellationToken = default)
 	{
 		await plans.AddAsync(plan, cancellationToken);
-		await context.SaveChangesAsync(cancellationToken);
-	}
-
-	public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-	{
-		await context.SaveChangesAsync(cancellationToken);
 	}
 }

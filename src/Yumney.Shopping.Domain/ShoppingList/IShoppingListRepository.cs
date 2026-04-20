@@ -17,6 +17,4 @@ public interface IShoppingListRepository
 		PagingOptions paging,
 		SortingOptions<ShoppingListSortField> sorting,
 		CancellationToken cancellationToken = default);
-
-	Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

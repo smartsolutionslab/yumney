@@ -22,7 +22,5 @@ public interface IRecipeRepository
 		RecipeFilter? filter = null,
 		CancellationToken cancellationToken = default);
 
-	Task UpdateAsync(Recipe recipe, CancellationToken cancellationToken = default);
-
-	Task DeleteAsync(Recipe recipe, CancellationToken cancellationToken = default);
+	void Remove(Recipe recipe);
 }

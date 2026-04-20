@@ -6,7 +6,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 public sealed class UpdateRecipeCommandHandler(
-	IRecipeRepository recipes,
+	IRecipesUnitOfWork unitOfWork,
 	ICurrentUser currentUser)
 	: ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>>
 {
@@ -17,7 +17,7 @@ public sealed class UpdateRecipeCommandHandler(
 
 		var owner = currentUser.AsOwner();
 
-		var recipe = await recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
+		var recipe = await unitOfWork.Recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
 		if (recipe.Owner != owner)
 		{
@@ -38,7 +38,7 @@ public sealed class UpdateRecipeCommandHandler(
 			imageUrl,
 			tags);
 
-		await recipes.UpdateAsync(recipe, cancellationToken);
+		await unitOfWork.SaveChangesAsync(cancellationToken);
 
 		return recipe.ToDetailDto();
 	}

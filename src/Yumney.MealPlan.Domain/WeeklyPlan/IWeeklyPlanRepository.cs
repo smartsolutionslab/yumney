@@ -30,6 +30,4 @@ public interface IWeeklyPlanRepository
 	Task<WeeklyPlan> GetByOwnerAndWeekAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default);
 
 	Task AddAsync(WeeklyPlan plan, CancellationToken cancellationToken = default);
-
-	Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -6,9 +6,8 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
-public sealed class RemoveShoppingItemCommandHandler(
-	IShoppingEventStore eventStore,
-	ICurrentUser currentUser) : ICommandHandler<RemoveShoppingItemCommand, Result>
+public sealed class RemoveShoppingItemCommandHandler(IShoppingEventStore eventStore, ICurrentUser currentUser)
+	: ICommandHandler<RemoveShoppingItemCommand, Result>
 {
 	public async Task<Result> HandleAsync(RemoveShoppingItemCommand command, CancellationToken cancellationToken = default)
 	{

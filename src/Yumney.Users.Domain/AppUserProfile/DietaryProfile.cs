@@ -44,6 +44,7 @@ public sealed record DietaryProfile : IValueObject
 	public bool Equals(DietaryProfile? other)
 	{
 		if (other is null) return false;
+
 		return DietaryType == other.DietaryType
 			&& Restrictions.SequenceEqual(other.Restrictions)
 			&& BalanceGoals == other.BalanceGoals
@@ -55,7 +56,10 @@ public sealed record DietaryProfile : IValueObject
 		HashCode hash = default;
 		hash.Add(DietaryType);
 		foreach (var restriction in Restrictions)
+		{
 			hash.Add(restriction);
+		}
+
 		hash.Add(BalanceGoals);
 		hash.Add(CookingEffort);
 		return hash.ToHashCode();

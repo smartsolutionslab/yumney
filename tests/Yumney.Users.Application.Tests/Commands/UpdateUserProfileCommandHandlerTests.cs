@@ -11,13 +11,15 @@ namespace SmartSolutionsLab.Yumney.Users.Application.Tests.Commands;
 public class UpdateUserProfileCommandHandlerTests
 {
 	private readonly IAppUserProfileRepository profiles = Substitute.For<IAppUserProfileRepository>();
+	private readonly IUsersUnitOfWork unitOfWork = Substitute.For<IUsersUnitOfWork>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly UpdateUserProfileCommandHandler handler;
 
 	public UpdateUserProfileCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("kc-user-123");
-		handler = new UpdateUserProfileCommandHandler(profiles, currentUser);
+		unitOfWork.Profiles.Returns(profiles);
+		handler = new UpdateUserProfileCommandHandler(unitOfWork, currentUser);
 	}
 
 	[Fact]
@@ -30,7 +32,7 @@ public class UpdateUserProfileCommandHandlerTests
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.DefaultServings.Should().Be(6);
-		await profiles.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+		await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
 	}
 
 	[Fact]

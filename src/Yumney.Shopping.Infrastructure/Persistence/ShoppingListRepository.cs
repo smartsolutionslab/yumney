@@ -11,7 +11,6 @@ public sealed class ShoppingListRepository(ShoppingDbContext writeContext, Shopp
 	public async Task AddAsync(ShoppingList shoppingList, CancellationToken cancellationToken = default)
 	{
 		await shoppingLists.AddAsync(shoppingList, cancellationToken);
-		await writeContext.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task<ShoppingList> GetByIdAsync(
@@ -32,11 +31,6 @@ public sealed class ShoppingListRepository(ShoppingDbContext writeContext, Shopp
 			.Include(l => l.Items)
 			.FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
-	}
-
-	public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-	{
-		await writeContext.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task<(IReadOnlyList<ShoppingListSummary> Items, ItemCount TotalCount)> GetByOwnerAsync(

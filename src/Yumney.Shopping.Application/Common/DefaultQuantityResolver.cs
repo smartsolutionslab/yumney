@@ -25,15 +25,21 @@ public static class DefaultQuantityResolver
 	public static Quantity Resolve(string itemName, string? category = null)
 	{
 		if (string.IsNullOrWhiteSpace(itemName))
+		{
 			return OnePiece;
+		}
 
 		var normalized = Normalize(itemName);
 
 		if (itemDefaults.TryGetValue(normalized, out var itemDefault))
+		{
 			return itemDefault;
+		}
 
 		if (category is not null && categoryDefaults.TryGetValue(category, out var categoryDefault))
+		{
 			return categoryDefault;
+		}
 
 		return OnePiece;
 	}
@@ -50,8 +56,7 @@ public static class DefaultQuantityResolver
 		if (trimmed.Length > 3 && trimmed.EndsWith('s') && !trimmed.EndsWith("ss", StringComparison.Ordinal))
 		{
 			var singular = trimmed[..^1];
-			if (itemDefaults.ContainsKey(singular))
-				return singular;
+			if (itemDefaults.ContainsKey(singular)) return singular;
 		}
 
 		return trimmed;
@@ -134,7 +139,9 @@ public static class DefaultQuantityResolver
 	private static void AddWithAliases(Dictionary<string, Quantity> dict, Quantity quantity, params string[] names)
 	{
 		foreach (var name in names)
+		{
 			dict.TryAdd(name, quantity);
+		}
 	}
 }
 #pragma warning restore SA1311

@@ -5,7 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
-public sealed class ConfirmMealCommandHandler(IWeeklyPlanRepository plans, ICurrentUser currentUser)
+public sealed class ConfirmMealCommandHandler(IMealPlanUnitOfWork unitOfWork, ICurrentUser currentUser)
 	: ICommandHandler<ConfirmMealCommand, Result<WeeklyPlanDto>>
 {
 	public async Task<Result<WeeklyPlanDto>> HandleAsync(ConfirmMealCommand command, CancellationToken cancellationToken = default)
@@ -13,7 +13,7 @@ public sealed class ConfirmMealCommandHandler(IWeeklyPlanRepository plans, ICurr
 		var (week, day, mealType, newState) = command;
 		var owner = currentUser.AsOwner();
 
-		var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
+		var plan = await unitOfWork.Plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 
 		switch (newState)
 		{
@@ -28,7 +28,7 @@ public sealed class ConfirmMealCommandHandler(IWeeklyPlanRepository plans, ICurr
 				break;
 		}
 
-		await plans.SaveChangesAsync(cancellationToken);
+		await unitOfWork.SaveChangesAsync(cancellationToken);
 
 		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
 	}

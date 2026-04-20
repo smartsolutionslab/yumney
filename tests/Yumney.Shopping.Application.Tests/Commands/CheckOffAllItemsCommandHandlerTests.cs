@@ -11,13 +11,15 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
 public class CheckOffAllItemsCommandHandlerTests
 {
 	private readonly IShoppingListRepository shoppingLists = Substitute.For<IShoppingListRepository>();
+	private readonly IShoppingUnitOfWork unitOfWork = Substitute.For<IShoppingUnitOfWork>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly CheckOffAllItemsCommandHandler handler;
 
 	public CheckOffAllItemsCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new CheckOffAllItemsCommandHandler(shoppingLists, currentUser);
+		unitOfWork.ShoppingLists.Returns(shoppingLists);
+		handler = new CheckOffAllItemsCommandHandler(unitOfWork, currentUser);
 	}
 
 	[Fact]
@@ -104,7 +106,7 @@ public class CheckOffAllItemsCommandHandlerTests
 
 		await handler.HandleAsync(command);
 
-		await shoppingLists.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+		await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
@@ -118,6 +120,6 @@ public class CheckOffAllItemsCommandHandlerTests
 		await handler.HandleAsync(command, cts.Token);
 
 		await shoppingLists.Received(1).GetByIdForUpdateAsync(list.Id, cts.Token);
-		await shoppingLists.Received(1).SaveChangesAsync(cts.Token);
+		await unitOfWork.Received(1).SaveChangesAsync(cts.Token);
 	}
 }

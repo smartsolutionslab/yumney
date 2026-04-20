@@ -5,9 +5,8 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
-public sealed class EndShoppingModeCommandHandler(
-	IShoppingEventStore eventStore,
-	ICurrentUser currentUser) : ICommandHandler<EndShoppingModeCommand, Result>
+public sealed class EndShoppingModeCommandHandler(IShoppingEventStore eventStore, ICurrentUser currentUser)
+	: ICommandHandler<EndShoppingModeCommand, Result>
 {
 	public async Task<Result> HandleAsync(EndShoppingModeCommand command, CancellationToken cancellationToken = default)
 	{

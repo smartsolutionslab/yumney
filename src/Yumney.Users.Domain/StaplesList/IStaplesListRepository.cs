@@ -8,6 +8,4 @@ public interface IStaplesListRepository
 	Task<StaplesList> GetByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
 
 	Task AddAsync(StaplesList staplesList, CancellationToken cancellationToken = default);
-
-	Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -5,7 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 public sealed class DeleteRecipeCommandHandler(
-	IRecipeRepository recipes,
+	IRecipesUnitOfWork unitOfWork,
 	ICurrentUser currentUser)
 	: ICommandHandler<DeleteRecipeCommand, Result>
 {
@@ -14,7 +14,7 @@ public sealed class DeleteRecipeCommandHandler(
 		var identifier = command.Identifier;
 		var owner = currentUser.AsOwner();
 
-		var recipe = await recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
+		var recipe = await unitOfWork.Recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
 		if (recipe.Owner != owner)
 		{
@@ -23,7 +23,8 @@ public sealed class DeleteRecipeCommandHandler(
 
 		recipe.MarkAsDeleted();
 
-		await recipes.DeleteAsync(recipe, cancellationToken);
+		unitOfWork.Recipes.Remove(recipe);
+		await unitOfWork.SaveChangesAsync(cancellationToken);
 
 		return Result.Success();
 	}

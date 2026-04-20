@@ -32,6 +32,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
 		{
 			var shoppingLists = new ShoppingListRepository(writeContext, readDbContext);
 			await shoppingLists.AddAsync(list);
+			await writeContext.SaveChangesAsync();
 		}
 
 		await using var readContext = await fixture.CreateShoppingDbContextAsync();
@@ -56,6 +57,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
 		{
 			var shoppingLists = new ShoppingListRepository(writeContext, readDbContext);
 			await shoppingLists.AddAsync(list);
+			await writeContext.SaveChangesAsync();
 		}
 
 		await using var readContext = await fixture.CreateShoppingDbContextAsync();
@@ -119,7 +121,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
 			var shoppingLists = new ShoppingListRepository(writeContext, readDbContext);
 			var loaded = await shoppingLists.GetByIdForUpdateAsync(list.Id);
 			loaded.CheckOffItem(itemId);
-			await shoppingLists.SaveChangesAsync();
+			await writeContext.SaveChangesAsync();
 		}
 
 		await using var writeContext2 = await fixture.CreateShoppingDbContextAsync();
@@ -141,6 +143,7 @@ public class ShoppingListPersistenceTests(AspireFixture fixture) : IAsyncLifetim
 			var shoppingLists = new ShoppingListRepository(writeContext, readDbContext);
 			await shoppingLists.AddAsync(ShoppingListFactory.WeeklyGroceries(owner.Value));
 			await shoppingLists.AddAsync(ShoppingListFactory.PartySupplies(otherOwner.Value));
+			await writeContext.SaveChangesAsync();
 		}
 
 		await using var writeContext2 = await fixture.CreateShoppingDbContextAsync();

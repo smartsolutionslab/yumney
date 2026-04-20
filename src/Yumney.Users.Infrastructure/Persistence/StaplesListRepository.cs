@@ -27,11 +27,5 @@ public sealed class StaplesListRepository(UsersDbContext context) : IStaplesList
 	public async Task AddAsync(StaplesList staplesList, CancellationToken cancellationToken = default)
 	{
 		await staplesLists.AddAsync(staplesList, cancellationToken);
-		await context.SaveChangesAsync(cancellationToken);
-	}
-
-	public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-	{
-		await context.SaveChangesAsync(cancellationToken);
 	}
 }

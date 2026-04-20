@@ -6,7 +6,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 public sealed class SaveRecipeCommandHandler(
-	IRecipeRepository recipes,
+	IRecipesUnitOfWork unitOfWork,
 	ICurrentUser currentUser)
 	: ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>>
 {
@@ -17,7 +17,7 @@ public sealed class SaveRecipeCommandHandler(
 
 		var owner = currentUser.AsOwner();
 
-		if (sourceUrl is not null && await recipes.ExistsBySourceUrlAsync(sourceUrl, owner, cancellationToken))
+		if (sourceUrl is not null && await unitOfWork.Recipes.ExistsBySourceUrlAsync(sourceUrl, owner, cancellationToken))
 		{
 			return SaveRecipeErrors.AlreadyImported;
 		}
@@ -39,7 +39,8 @@ public sealed class SaveRecipeCommandHandler(
 			sourceUrl,
 			tags);
 
-		await recipes.AddAsync(recipe, cancellationToken);
+		await unitOfWork.Recipes.AddAsync(recipe, cancellationToken);
+		await unitOfWork.SaveChangesAsync(cancellationToken);
 
 		return recipe.ToSavedDto();
 	}

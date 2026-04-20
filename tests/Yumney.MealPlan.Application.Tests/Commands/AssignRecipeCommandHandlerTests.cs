@@ -12,11 +12,13 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 public class AssignRecipeCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
+	private readonly IMealPlanUnitOfWork unitOfWork = Substitute.For<IMealPlanUnitOfWork>();
 	private readonly AssignRecipeCommandHandler handler;
 
 	public AssignRecipeCommandHandlerTests()
 	{
-		handler = new AssignRecipeCommandHandler(plans, CreateCurrentUser());
+		unitOfWork.Plans.Returns(plans);
+		handler = new AssignRecipeCommandHandler(unitOfWork, CreateCurrentUser());
 	}
 
 	[Fact]
@@ -47,7 +49,7 @@ public class AssignRecipeCommandHandlerTests
 		var result = await handler.HandleAsync(command);
 
 		result.IsSuccess.Should().BeTrue();
-		await plans.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+		await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
 		await plans.DidNotReceive().AddAsync(Arg.Any<WeeklyPlan>(), Arg.Any<CancellationToken>());
 	}
 
