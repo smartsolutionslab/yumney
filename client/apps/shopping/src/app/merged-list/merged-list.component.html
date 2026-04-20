@@ -2,7 +2,11 @@
   <div class="list-header">
     <h1>{{ t('shopping.title') }}</h1>
     <div class="list-actions">
-      <button class="export-btn" (click)="onExport()" [attr.aria-label]="t('shopping.export')">
+      <button
+        class="export-btn"
+        (click)="onExport()"
+        [attr.aria-label]="t('shopping.export.button')"
+      >
         <lucide-icon name="share" [size]="18" />
       </button>
     </div>

@@ -12,7 +12,12 @@ const en = {
     loading: 'Loading...',
     empty: 'Empty list',
     addPlaceholder: 'Add item...',
-    export: 'Export',
+    export: {
+      button: 'Export list',
+      copied: 'Copied to clipboard',
+      shared: 'Shared',
+      nothing: 'Nothing to export',
+    },
     remove: 'Remove',
     checked: 'checked',
     retry: 'Retry',
