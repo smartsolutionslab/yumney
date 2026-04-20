@@ -56,8 +56,17 @@ public sealed class GenerateShoppingListCommandHandler(
 			}
 		}
 
-		// Filter out staples
-		var staples = await staplesProvider.GetStapleNamesAsync(currentUser.UserId, cancellationToken);
+		(int staplesSkipped, List<ShoppingItemRequest> itemsToAdd) = await FilterOutStaplesAsync(owner, merged, cancellationToken);
+
+		return new GenerateShoppingListResultDto(itemsToAdd.Count, staplesSkipped);
+	}
+
+	private async Task<(int StaplesSkipped, List<ShoppingItemRequest> ItemsToAdd)> FilterOutStaplesAsync(
+		OwnerIdentifier owner,
+		Dictionary<string, MergedItem> merged,
+		CancellationToken cancellationToken = default)
+	{
+		var staples = await staplesProvider.GetStapleNamesAsync(owner, cancellationToken);
 		var staplesSkipped = 0;
 		var itemsToAdd = new List<ShoppingItemRequest>();
 
@@ -74,10 +83,10 @@ public sealed class GenerateShoppingListCommandHandler(
 
 		if (itemsToAdd.Count > 0)
 		{
-			await shoppingListWriter.AddItemsAsync(currentUser.UserId, itemsToAdd, cancellationToken);
+			await shoppingListWriter.AddItemsAsync(owner, itemsToAdd, cancellationToken);
 		}
 
-		return new GenerateShoppingListResultDto(itemsToAdd.Count, staplesSkipped);
+		return (staplesSkipped, itemsToAdd);
 	}
 
 	private sealed record MergedItem(string Name, decimal Quantity, string? Unit)

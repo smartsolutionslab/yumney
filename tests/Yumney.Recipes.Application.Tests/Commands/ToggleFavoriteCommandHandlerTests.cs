@@ -13,13 +13,16 @@ public class ToggleFavoriteCommandHandlerTests
 {
 	private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
 	private readonly IRecipeFavoriteRepository favorites = Substitute.For<IRecipeFavoriteRepository>();
+	private readonly IRecipesUnitOfWork unitOfWork = Substitute.For<IRecipesUnitOfWork>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly ToggleFavoriteCommandHandler handler;
 
 	public ToggleFavoriteCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new ToggleFavoriteCommandHandler(recipes, favorites, currentUser);
+		unitOfWork.Recipes.Returns(recipes);
+		unitOfWork.Favorites.Returns(favorites);
+		handler = new ToggleFavoriteCommandHandler(unitOfWork, currentUser);
 	}
 
 	[Fact]

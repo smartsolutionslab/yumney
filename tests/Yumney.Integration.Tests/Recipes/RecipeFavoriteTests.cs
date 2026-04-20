@@ -47,6 +47,7 @@ public class RecipeFavoriteTests(AspireFixture fixture) : IAsyncLifetime
 		var favorites = new RecipeFavoriteRepository(context);
 
 		await favorites.AddAsync(RecipeFavorite.Create(lasagne.Id, owner));
+		await context.SaveChangesAsync();
 		var result = await favorites.IsFavoritedAsync(owner, lasagne.Id);
 
 		result.Should().BeTrue();
@@ -59,6 +60,7 @@ public class RecipeFavoriteTests(AspireFixture fixture) : IAsyncLifetime
 		var favorites = new RecipeFavoriteRepository(context);
 
 		await favorites.AddAsync(RecipeFavorite.Create(lasagne.Id, owner));
+		await context.SaveChangesAsync();
 		await favorites.RemoveAsync(owner, lasagne.Id);
 		var result = await favorites.IsFavoritedAsync(owner, lasagne.Id);
 
@@ -72,6 +74,7 @@ public class RecipeFavoriteTests(AspireFixture fixture) : IAsyncLifetime
 		var favorites = new RecipeFavoriteRepository(context);
 
 		await favorites.AddAsync(RecipeFavorite.Create(lasagne.Id, owner));
+		await context.SaveChangesAsync();
 		var ids = await favorites.GetFavoritedIdsAsync(owner, [lasagne.Id, soup.Id]);
 
 		ids.Should().Contain(lasagne.Id.Value);
@@ -86,6 +89,7 @@ public class RecipeFavoriteTests(AspireFixture fixture) : IAsyncLifetime
 		var favorites = new RecipeFavoriteRepository(context);
 
 		await favorites.AddAsync(RecipeFavorite.Create(lasagne.Id, owner));
+		await context.SaveChangesAsync();
 
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner,

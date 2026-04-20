@@ -35,7 +35,6 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
 	public async Task AddAsync(RecipeFavorite favorite, CancellationToken cancellationToken = default)
 	{
 		await favorites.AddAsync(favorite, cancellationToken);
-		await context.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task RemoveAsync(OwnerIdentifier owner, RecipeIdentifier recipeIdentifier, CancellationToken cancellationToken = default)

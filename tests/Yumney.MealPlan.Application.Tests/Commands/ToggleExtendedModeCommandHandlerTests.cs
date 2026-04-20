@@ -12,11 +12,13 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 public class ToggleExtendedModeCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
+	private readonly IMealPlanUnitOfWork unitOfWork = Substitute.For<IMealPlanUnitOfWork>();
 	private readonly ToggleExtendedModeCommandHandler handler;
 
 	public ToggleExtendedModeCommandHandlerTests()
 	{
-		handler = new ToggleExtendedModeCommandHandler(plans, CreateCurrentUser());
+		unitOfWork.Plans.Returns(plans);
+		handler = new ToggleExtendedModeCommandHandler(unitOfWork, CreateCurrentUser());
 	}
 
 	[Fact]

@@ -11,11 +11,13 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 public class ClearMealSlotCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
+	private readonly IMealPlanUnitOfWork unitOfWork = Substitute.For<IMealPlanUnitOfWork>();
 	private readonly ClearMealSlotCommandHandler handler;
 
 	public ClearMealSlotCommandHandlerTests()
 	{
-		handler = new ClearMealSlotCommandHandler(plans, CreateCurrentUser());
+		unitOfWork.Plans.Returns(plans);
+		handler = new ClearMealSlotCommandHandler(unitOfWork, CreateCurrentUser());
 	}
 
 	[Fact]
@@ -29,6 +31,6 @@ public class ClearMealSlotCommandHandlerTests
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Slots.First(s => s.Day == "Wednesday").IsEmpty.Should().BeTrue();
-		await plans.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+		await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
 	}
 }

@@ -8,11 +8,4 @@ public interface IAppUserProfileRepository
 	Task<AppUserProfile> GetByKeycloakUserIdAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default);
 
 	Task AddAsync(AppUserProfile profile, CancellationToken cancellationToken = default);
-
-	/// <summary>
-	/// Save changes to a tracked profile.
-	/// </summary>
-	/// <param name="cancellationToken">Cancellation token.</param>
-	/// <returns>A task representing the async operation.</returns>
-	Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

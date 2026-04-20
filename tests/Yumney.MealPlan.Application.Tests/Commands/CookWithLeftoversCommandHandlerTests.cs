@@ -13,11 +13,13 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 public class CookWithLeftoversCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
+	private readonly IMealPlanUnitOfWork unitOfWork = Substitute.For<IMealPlanUnitOfWork>();
 	private readonly CookWithLeftoversCommandHandler handler;
 
 	public CookWithLeftoversCommandHandlerTests()
 	{
-		handler = new CookWithLeftoversCommandHandler(plans, CreateCurrentUser());
+		unitOfWork.Plans.Returns(plans);
+		handler = new CookWithLeftoversCommandHandler(unitOfWork, CreateCurrentUser());
 	}
 
 	[Fact]

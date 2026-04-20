@@ -17,12 +17,14 @@ public class RegisterUserCommandHandlerTests
 
 	private readonly IKeycloakAdminService keycloakAdmin = Substitute.For<IKeycloakAdminService>();
 	private readonly IAppUserProfileRepository users = Substitute.For<IAppUserProfileRepository>();
+	private readonly IUsersUnitOfWork unitOfWork = Substitute.For<IUsersUnitOfWork>();
 
 	private readonly RegisterUserCommandHandler sut;
 
 	public RegisterUserCommandHandlerTests()
 	{
-		sut = new RegisterUserCommandHandler(keycloakAdmin, users);
+		unitOfWork.Profiles.Returns(users);
+		sut = new RegisterUserCommandHandler(keycloakAdmin, unitOfWork);
 	}
 
 	[Fact]

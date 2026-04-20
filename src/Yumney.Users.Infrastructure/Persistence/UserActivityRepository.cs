@@ -10,7 +10,6 @@ public sealed class UserActivityRepository(UsersDbContext context) : IUserActivi
 	public async Task AddAsync(UserActivity activity, CancellationToken cancellationToken = default)
 	{
 		await activities.AddAsync(activity, cancellationToken);
-		await context.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task<IReadOnlyList<UserActivity>> GetRecentAsync(

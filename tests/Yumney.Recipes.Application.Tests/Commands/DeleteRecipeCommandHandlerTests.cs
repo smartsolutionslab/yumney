@@ -12,13 +12,15 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 public class DeleteRecipeCommandHandlerTests
 {
 	private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
+	private readonly IRecipesUnitOfWork unitOfWork = Substitute.For<IRecipesUnitOfWork>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly DeleteRecipeCommandHandler handler;
 
 	public DeleteRecipeCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new DeleteRecipeCommandHandler(recipes, currentUser);
+		unitOfWork.Recipes.Returns(recipes);
+		handler = new DeleteRecipeCommandHandler(unitOfWork, currentUser);
 	}
 
 	[Fact]
@@ -89,7 +91,8 @@ public class DeleteRecipeCommandHandlerTests
 
 		await handler.HandleAsync(command);
 
-		await recipes.Received(1).DeleteAsync(recipe, Arg.Any<CancellationToken>());
+		recipes.Received(1).Remove(recipe);
+		await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
@@ -103,7 +106,8 @@ public class DeleteRecipeCommandHandlerTests
 
 		try { await handler.HandleAsync(command); } catch (EntityNotFoundException) { }
 
-		await recipes.DidNotReceive().DeleteAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
+		recipes.DidNotReceive().Remove(Arg.Any<Recipe>());
+		await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
@@ -117,7 +121,8 @@ public class DeleteRecipeCommandHandlerTests
 
 		await handler.HandleAsync(command);
 
-		await recipes.DidNotReceive().DeleteAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
+		recipes.DidNotReceive().Remove(Arg.Any<Recipe>());
+		await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
@@ -133,6 +138,7 @@ public class DeleteRecipeCommandHandlerTests
 		await handler.HandleAsync(command, cts.Token);
 
 		await recipes.Received(1).GetByIdForUpdateAsync(recipeId, cts.Token);
-		await recipes.Received(1).DeleteAsync(recipe, cts.Token);
+		recipes.Received(1).Remove(recipe);
+		await unitOfWork.Received(1).SaveChangesAsync(cts.Token);
 	}
 }

@@ -7,9 +7,8 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
-public sealed class AddManualItemCommandHandler(
-	IShoppingEventStore eventStore,
-	ICurrentUser currentUser) : ICommandHandler<AddManualItemCommand, Result<AddedItemDto>>
+public sealed class AddManualItemCommandHandler(IShoppingEventStore eventStore, ICurrentUser currentUser)
+	: ICommandHandler<AddManualItemCommand, Result<AddedItemDto>>
 {
 	public async Task<Result<AddedItemDto>> HandleAsync(AddManualItemCommand command, CancellationToken cancellationToken = default)
 	{
@@ -20,8 +19,7 @@ public sealed class AddManualItemCommandHandler(
 		var quantity = explicitQuantity ?? DefaultQuantityResolver.Resolve(name);
 		var category = IngredientCategoryResolver.Resolve(name) ?? IngredientCategory.Other;
 
-		var ledger = await eventStore.LoadAsync(ownerId, cancellationToken)
-			?? ShoppingLedger.Create(ownerId);
+		var ledger = await eventStore.LoadAsync(ownerId, cancellationToken) ?? ShoppingLedger.Create(ownerId);
 
 		ledger.AddItem(itemName, quantity, ItemSource.Manual);
 

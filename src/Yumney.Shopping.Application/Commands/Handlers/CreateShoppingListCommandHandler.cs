@@ -5,9 +5,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
-public sealed class CreateShoppingListCommandHandler(
-	IShoppingListRepository shoppingLists,
-	ICurrentUser currentUser)
+public sealed class CreateShoppingListCommandHandler(IShoppingUnitOfWork unitOfWork, ICurrentUser currentUser)
 	: ICommandHandler<CreateShoppingListCommand, Result<ShoppingListDetailDto>>
 {
 	public async Task<Result<ShoppingListDetailDto>> HandleAsync(CreateShoppingListCommand command, CancellationToken cancellationToken = default)
@@ -21,7 +19,8 @@ public sealed class CreateShoppingListCommandHandler(
 			.ToList();
 		var shoppingList = ShoppingList.Create(title, owner, items, recipeReference);
 
-		await shoppingLists.AddAsync(shoppingList, cancellationToken);
+		await unitOfWork.ShoppingLists.AddAsync(shoppingList, cancellationToken);
+		await unitOfWork.SaveChangesAsync(cancellationToken);
 
 		return shoppingList.ToDetailDto();
 	}

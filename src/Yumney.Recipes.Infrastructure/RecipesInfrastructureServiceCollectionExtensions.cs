@@ -23,6 +23,7 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 
 		services.AddScoped<IRecipeRepository, RecipeRepository>();
 		services.AddScoped<IRecipeFavoriteRepository, RecipeFavoriteRepository>();
+		services.AddScoped<IRecipesUnitOfWork, RecipesUnitOfWork>();
 		services.AddScoped<IRecipeIngredientProvider, RecipeIngredientProvider>();
 		services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
 

@@ -11,13 +11,15 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 public class SaveRecipeCommandHandlerTests
 {
 	private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
+	private readonly IRecipesUnitOfWork unitOfWork = Substitute.For<IRecipesUnitOfWork>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly SaveRecipeCommandHandler handler;
 
 	public SaveRecipeCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new SaveRecipeCommandHandler(recipes, currentUser);
+		unitOfWork.Recipes.Returns(recipes);
+		handler = new SaveRecipeCommandHandler(unitOfWork, currentUser);
 	}
 
 	[Fact]

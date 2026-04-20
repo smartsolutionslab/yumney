@@ -4,4 +4,4 @@ using SmartSolutionsLab.Yumney.Users.Application.DTOs;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Queries;
 
-public sealed record GetSuggestionsQuery() : IQuery<Result<SuggestionsResponseDto>>;
+public sealed record GetSuggestionsQuery : IQuery<Result<SuggestionsResponseDto>>;

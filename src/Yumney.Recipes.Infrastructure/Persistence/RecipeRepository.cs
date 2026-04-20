@@ -11,7 +11,6 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 	public async Task AddAsync(Recipe recipe, CancellationToken cancellationToken = default)
 	{
 		await recipes.AddAsync(recipe, cancellationToken);
-		await context.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task<Recipe> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
@@ -42,15 +41,9 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 		return await recipes.AnyAsync(r => r.SourceUrl == sourceUrl && r.Owner == owner, cancellationToken);
 	}
 
-	public async Task UpdateAsync(Recipe recipe, CancellationToken cancellationToken = default)
-	{
-		await context.SaveChangesAsync(cancellationToken);
-	}
-
-	public async Task DeleteAsync(Recipe recipe, CancellationToken cancellationToken = default)
+	public void Remove(Recipe recipe)
 	{
 		context.Recipes.Remove(recipe);
-		await context.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task<(IReadOnlyList<Recipe> Items, ItemCount TotalCount)> GetByOwnerAsync(

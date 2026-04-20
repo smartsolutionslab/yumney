@@ -72,7 +72,11 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		var users = new AppUserProfileRepository(writeContext);
 		var profile2 = CreateProfile(DisplayName.From("User Two"));
 
-		var act = async () => await users.AddAsync(profile2);
+		var act = async () =>
+		{
+			await users.AddAsync(profile2);
+			await writeContext.SaveChangesAsync();
+		};
 
 		await act.Should().ThrowAsync<DbUpdateException>();
 	}

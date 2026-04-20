@@ -12,13 +12,15 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
 public class UpdateRecipeCommandHandlerTests
 {
 	private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
+	private readonly IRecipesUnitOfWork unitOfWork = Substitute.For<IRecipesUnitOfWork>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly UpdateRecipeCommandHandler handler;
 
 	public UpdateRecipeCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new UpdateRecipeCommandHandler(recipes, currentUser);
+		unitOfWork.Recipes.Returns(recipes);
+		handler = new UpdateRecipeCommandHandler(unitOfWork, currentUser);
 	}
 
 	[Fact]
@@ -121,7 +123,7 @@ public class UpdateRecipeCommandHandlerTests
 
 		try { await handler.HandleAsync(command); } catch (EntityNotFoundException) { }
 
-		await recipes.DidNotReceive().UpdateAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
+		await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
@@ -134,7 +136,7 @@ public class UpdateRecipeCommandHandlerTests
 
 		await handler.HandleAsync(command);
 
-		await recipes.DidNotReceive().UpdateAsync(Arg.Any<Recipe>(), Arg.Any<CancellationToken>());
+		await unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
@@ -148,7 +150,7 @@ public class UpdateRecipeCommandHandlerTests
 
 		await handler.HandleAsync(command);
 
-		await recipes.Received(1).UpdateAsync(recipe, Arg.Any<CancellationToken>());
+		await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
@@ -248,7 +250,7 @@ public class UpdateRecipeCommandHandlerTests
 
 		await handler.HandleAsync(command, cts.Token);
 
-		await recipes.Received(1).UpdateAsync(recipe, cts.Token);
+		await unitOfWork.Received(1).SaveChangesAsync(cts.Token);
 	}
 
 	[Fact]

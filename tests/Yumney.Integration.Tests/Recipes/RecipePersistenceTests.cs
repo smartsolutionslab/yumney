@@ -28,6 +28,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		{
 			var recipes = new RecipeRepository(writeContext);
 			await recipes.AddAsync(recipe);
+			await writeContext.SaveChangesAsync();
 		}
 
 		await using var readContext = await fixture.CreateRecipesDbContextAsync();
@@ -148,7 +149,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 				[Step.Create(StepNumber.From(1), StepDescription.From("Roast cherry tomatoes"))],
 				updatedDescription,
 				updatedServings);
-			await recipes.UpdateAsync(loaded);
+			await updateContext.SaveChangesAsync();
 		}
 
 		await using var readContext = await fixture.CreateRecipesDbContextAsync();
@@ -175,7 +176,8 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		{
 			var recipes = new RecipeRepository(deleteContext);
 			var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
-			await recipes.DeleteAsync(loaded);
+			recipes.Remove(loaded);
+			await deleteContext.SaveChangesAsync();
 		}
 
 		await using var readContext = await fixture.CreateRecipesDbContextAsync();

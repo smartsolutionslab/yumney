@@ -33,6 +33,7 @@ public static class UsersInfrastructureServiceCollectionExtensions
 		services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
 		services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 		services.AddScoped<IStaplesListRepository, StaplesListRepository>();
+		services.AddScoped<IUsersUnitOfWork, UsersUnitOfWork>();
 		services.AddScoped<IStaplesProvider, StaplesProvider>();
 
 		services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client =>
