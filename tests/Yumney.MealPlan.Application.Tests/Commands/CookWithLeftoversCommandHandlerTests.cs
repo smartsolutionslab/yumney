@@ -24,7 +24,7 @@ public class CookWithLeftoversCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_Cook8Eat4_CreatesRecipeAndLeftover()
 	{
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
 		var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Bolognese"), SlotServings.From(8), SlotServings.From(4), DayOfWeek.Wednesday);
@@ -46,7 +46,7 @@ public class CookWithLeftoversCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_NoLeftoverWhenEqual_OnlyRecipe()
 	{
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
 		var command = new CookWithLeftoversCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"), SlotServings.From(4), SlotServings.From(4), DayOfWeek.Tuesday);

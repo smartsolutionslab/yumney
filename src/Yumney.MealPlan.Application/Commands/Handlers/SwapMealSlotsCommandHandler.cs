@@ -14,7 +14,6 @@ public sealed class SwapMealSlotsCommandHandler(IWeeklyPlanRepository plans, ICu
 		var owner = currentUser.AsOwner();
 
 		var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
-
 		plan.SwapSlots(sourceDay, targetDay, mealType);
 
 		await plans.SaveChangesAsync(cancellationToken);

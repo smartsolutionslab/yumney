@@ -18,6 +18,13 @@ public sealed class WeeklyPlanRepository(MealPlanDbContext context) : IWeeklyPla
 			.FirstOrDefaultAsync(p => p.Owner == owner && p.Week == week, cancellationToken);
 	}
 
+	public async Task<WeeklyPlan?> FindForUpdateAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
+	{
+		return await plans
+			.Include(p => p.Slots)
+			.FirstOrDefaultAsync(p => p.Owner == owner && p.Week == week, cancellationToken);
+	}
+
 	public async Task<WeeklyPlan> GetByOwnerAndWeekAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
 	{
 		return await plans

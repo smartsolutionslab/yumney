@@ -5,9 +5,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Services;
 
 public sealed class HttpRecipeIngredientProvider(IHttpClientFactory httpClientFactory) : IRecipeIngredientProvider
 {
-	public async Task<IReadOnlyList<RecipeIngredientInfo>> GetIngredientsAsync(
-		Guid recipeIdentifier,
-		CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<RecipeIngredientInfo>> GetIngredientsAsync(Guid recipeIdentifier, CancellationToken cancellationToken = default)
 	{
 		var client = httpClientFactory.CreateClient("recipes-api");
 		var url = $"/api/v1/recipes/{recipeIdentifier}";
@@ -16,7 +14,11 @@ public sealed class HttpRecipeIngredientProvider(IHttpClientFactory httpClientFa
 		if (response is null) return [];
 
 		return response.Ingredients
-			.Select(i => new RecipeIngredientInfo(i.Name, i.Amount, i.Unit, response.Servings))
+			.Select(ingredient =>
+			{
+				(string name, decimal? amount, string? unit) = ingredient;
+				return new RecipeIngredientInfo(name, amount, unit, response.Servings);
+			})
 			.ToList();
 	}
 

@@ -1,26 +1,23 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
-using SmartSolutionsLab.Yumney.Shared.Guards;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
-/// <summary>
-/// A reference to a recipe assigned to a meal slot, carrying the identifier and display title.
-/// </summary>
 public sealed record SlotRecipeReference : IValueObject
 {
-	public Guid RecipeIdentifier { get; }
+	public SlotRecipeIdentifier RecipeIdentifier { get; }
 
-	public string Title { get; }
+	public SlotRecipeTitle Title { get; }
 
-	private SlotRecipeReference(Guid recipeIdentifier, string title)
+	private SlotRecipeReference(SlotRecipeIdentifier recipeIdentifier, SlotRecipeTitle title)
 	{
-		Ensure.That(recipeIdentifier).IsNotEmpty();
-		string validated = Ensure.That(title).IsNotNullOrWhiteSpace().HasMaxLength(200).AndReturn();
 		RecipeIdentifier = recipeIdentifier;
-		Title = validated.Trim();
+		Title = title;
 	}
 
-	public static SlotRecipeReference From(Guid recipeIdentifier, string title) => new(recipeIdentifier, title);
+	public static SlotRecipeReference From(SlotRecipeIdentifier recipeIdentifier, SlotRecipeTitle title) => new(recipeIdentifier, title);
+
+	public static SlotRecipeReference From(Guid recipeIdentifier, string title) =>
+		From(SlotRecipeIdentifier.From(recipeIdentifier), SlotRecipeTitle.From(title));
 
 	public override string ToString() => $"{Title} ({RecipeIdentifier})";
 }

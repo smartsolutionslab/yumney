@@ -17,7 +17,7 @@ public class GetSuggestionsQueryHandlerTests
 	public GetSuggestionsQueryHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
+		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<ActivityLimit>(), Arg.Any<CancellationToken>())
 			.Returns([]);
 		handler = new GetSuggestionsQueryHandler(activities, currentUser);
 	}
@@ -52,7 +52,7 @@ public class GetSuggestionsQueryHandlerTests
 		var recentImport = UserActivity.Record(
 			OwnerIdentifier.From("user-123"),
 			ActivityType.RecipeImported);
-		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
+		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<ActivityLimit>(), Arg.Any<CancellationToken>())
 			.Returns([recentImport]);
 
 		var result = await handler.HandleAsync(new GetSuggestionsQuery());
@@ -66,7 +66,7 @@ public class GetSuggestionsQueryHandlerTests
 		var recentImport = UserActivity.Record(
 			OwnerIdentifier.From("user-123"),
 			ActivityType.RecipeImported);
-		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
+		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<ActivityLimit>(), Arg.Any<CancellationToken>())
 			.Returns([recentImport]);
 
 		var result = await handler.HandleAsync(new GetSuggestionsQuery());
@@ -80,7 +80,7 @@ public class GetSuggestionsQueryHandlerTests
 		var recentImport = UserActivity.Record(
 			OwnerIdentifier.From("user-123"),
 			ActivityType.RecipeImported);
-		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
+		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<ActivityLimit>(), Arg.Any<CancellationToken>())
 			.Returns([recentImport]);
 
 		var result = await handler.HandleAsync(new GetSuggestionsQuery());
@@ -94,7 +94,7 @@ public class GetSuggestionsQueryHandlerTests
 		var oldView = UserActivity.Record(
 			OwnerIdentifier.From("user-123"),
 			ActivityType.RecipeViewed);
-		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
+		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<ActivityLimit>(), Arg.Any<CancellationToken>())
 			.Returns([oldView]);
 
 		var result = await handler.HandleAsync(new GetSuggestionsQuery());
@@ -117,7 +117,7 @@ public class GetSuggestionsQueryHandlerTests
 
 		await activities.Received(1).GetRecentAsync(
 			Arg.Any<OwnerIdentifier>(),
-			10,
+			ActivityLimit.From(10),
 			Arg.Any<CancellationToken>());
 	}
 }

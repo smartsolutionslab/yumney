@@ -8,17 +8,16 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 public sealed class ToggleExtendedModeCommandHandler(IWeeklyPlanRepository plans, ICurrentUser currentUser)
 	: ICommandHandler<ToggleExtendedModeCommand, Result<WeeklyPlanDto>>
 {
-	public async Task<Result<WeeklyPlanDto>> HandleAsync(
-		ToggleExtendedModeCommand command,
-		CancellationToken cancellationToken = default)
+	public async Task<Result<WeeklyPlanDto>> HandleAsync(ToggleExtendedModeCommand command, CancellationToken cancellationToken = default)
 	{
 		var (week, enable) = command;
 		var owner = currentUser.AsOwner();
 
-		var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
+		var plan = await plans.FindForUpdateAsync(owner, week, cancellationToken);
 		if (plan is null)
 		{
 			plan = WeeklyPlan.Create(owner, week);
+
 			if (enable)
 			{
 				plan.EnableExtendedMode();
@@ -28,7 +27,6 @@ public sealed class ToggleExtendedModeCommandHandler(IWeeklyPlanRepository plans
 		}
 		else
 		{
-			plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
 			if (enable)
 			{
 				plan.EnableExtendedMode();

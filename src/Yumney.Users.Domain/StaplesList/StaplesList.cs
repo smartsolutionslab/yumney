@@ -42,20 +42,24 @@ public sealed class StaplesList : AggregateRoot<StaplesListIdentifier>
 	{
 		var list = Create(owner);
 		foreach (var item in defaultItems)
+		{
 			list.items.Add(item);
+		}
+
 		return list;
 	}
 
 	public StaplesList AddItem(StapleItem item)
 	{
-		if (!ContainsItem(item))
-			items.Add(item);
+		if (!ContainsItem(item)) items.Add(item);
+
 		return this;
 	}
 
 	public StaplesList RemoveItem(StapleItem item)
 	{
 		items.Remove(item);
+
 		return this;
 	}
 

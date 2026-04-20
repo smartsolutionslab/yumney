@@ -15,14 +15,14 @@ public sealed class UserActivityRepository(UsersDbContext context) : IUserActivi
 
 	public async Task<IReadOnlyList<UserActivity>> GetRecentAsync(
 		OwnerIdentifier owner,
-		int limit = 5,
+		ActivityLimit limit,
 		CancellationToken cancellationToken = default)
 	{
 		return await activities
 			.AsNoTracking()
 			.Where(a => a.Owner == owner)
 			.OrderByDescending(a => a.OccurredAt)
-			.Take(limit)
+			.Take(limit.Value)
 			.ToListAsync(cancellationToken);
 	}
 }

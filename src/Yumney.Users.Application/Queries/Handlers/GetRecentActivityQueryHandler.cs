@@ -5,9 +5,7 @@ using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Queries.Handlers;
 
-public sealed class GetRecentActivityQueryHandler(
-	IUserActivityRepository activities,
-	ICurrentUser currentUser)
+public sealed class GetRecentActivityQueryHandler(IUserActivityRepository activities, ICurrentUser currentUser)
 	: IQueryHandler<GetRecentActivityQuery, Result<IReadOnlyList<UserActivityDto>>>
 {
 	public async Task<Result<IReadOnlyList<UserActivityDto>>> HandleAsync(GetRecentActivityQuery query, CancellationToken cancellationToken = default)

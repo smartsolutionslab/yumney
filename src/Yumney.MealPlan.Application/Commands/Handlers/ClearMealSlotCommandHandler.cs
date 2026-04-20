@@ -14,7 +14,6 @@ public sealed class ClearMealSlotCommandHandler(IWeeklyPlanRepository plans, ICu
 		var owner = currentUser.AsOwner();
 
 		var plan = await plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
-
 		plan.ClearSlot(day, mealType);
 
 		await plans.SaveChangesAsync(cancellationToken);

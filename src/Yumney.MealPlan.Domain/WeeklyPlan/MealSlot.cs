@@ -2,10 +2,6 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
-/// <summary>
-/// A single meal slot within a weekly plan.
-/// Supports four content types: Empty, Recipe, Leftover, Freetext.
-/// </summary>
 public sealed class MealSlot : Entity<MealSlotIdentifier>
 {
 	public DayOfWeek Day { get; private set; }
@@ -34,7 +30,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
 	{
 	}
 
-	internal static MealSlot Create(DayOfWeek day, MealType mealType, int defaultServings)
+	internal static MealSlot Create(DayOfWeek day, MealType mealType, SlotServings defaultServings)
 	{
 		return new MealSlot
 		{
@@ -42,7 +38,7 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
 			Day = day,
 			MealType = mealType,
 			ContentType = SlotContentType.Empty,
-			Servings = SlotServings.From(defaultServings),
+			Servings = defaultServings,
 		};
 	}
 
@@ -73,12 +69,16 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
 		return this;
 	}
 
-	internal MealSlot SetAsLeftover(DayOfWeek sourceDay, MealType sourceMealType, string sourceRecipeTitle, SlotServings? servings = null)
+	internal MealSlot SetAsLeftover(
+		DayOfWeek sourceDay,
+		MealType sourceMealType,
+		SlotRecipeTitle sourceRecipeTitle,
+		SlotServings? servings = null)
 	{
 		ContentType = SlotContentType.Leftover;
 		LeftoverSourceDay = sourceDay;
 		LeftoverSourceMealType = sourceMealType;
-		LeftoverLabel = Domain.WeeklyPlan.LeftoverLabel.ForRecipe(sourceRecipeTitle);
+		LeftoverLabel = LeftoverLabel.ForRecipe(sourceRecipeTitle);
 		Recipe = null;
 		FreetextLabel = null;
 		if (servings is not null)
@@ -126,7 +126,15 @@ public sealed class MealSlot : Entity<MealSlotIdentifier>
 
 	internal SlotSnapshot TakeSnapshot()
 	{
-		return new SlotSnapshot(ContentType, Recipe, Servings, FreetextLabel, LeftoverLabel, LeftoverSourceDay, LeftoverSourceMealType, State);
+		return new SlotSnapshot(
+			ContentType,
+			Recipe,
+			Servings,
+			FreetextLabel,
+			LeftoverLabel,
+			LeftoverSourceDay,
+			LeftoverSourceMealType,
+			State);
 	}
 
 	internal MealSlot RestoreFromSnapshot(SlotSnapshot snapshot)

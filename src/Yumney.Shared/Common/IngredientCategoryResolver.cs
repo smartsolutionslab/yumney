@@ -120,6 +120,8 @@ public static class IngredientCategoryResolver
 	private static void Add(Dictionary<string, IngredientCategory> dict, IngredientCategory category, params string[] names)
 	{
 		foreach (var name in names)
+		{
 			dict.TryAdd(name, category);
+		}
 	}
 }

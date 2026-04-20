@@ -6,6 +6,6 @@ public interface IUserActivityRepository
 
 	Task<IReadOnlyList<UserActivity>> GetRecentAsync(
 		OwnerIdentifier owner,
-		int limit = 5,
+		ActivityLimit limit,
 		CancellationToken cancellationToken = default);
 }

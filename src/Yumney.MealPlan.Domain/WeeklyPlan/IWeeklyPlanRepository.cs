@@ -1,8 +1,5 @@
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
-/// <summary>
-/// Repository for weekly meal plans.
-/// </summary>
 public interface IWeeklyPlanRepository
 {
 	/// <summary>
@@ -15,6 +12,15 @@ public interface IWeeklyPlanRepository
 	Task<WeeklyPlan?> FindByOwnerAndWeekAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default);
 
 	/// <summary>
+	/// Find a tracked plan for updates. Returns null if none exists.
+	/// </summary>
+	/// <param name="owner">The owner identifier.</param>
+	/// <param name="week">The week identifier.</param>
+	/// <param name="cancellationToken">Cancellation token.</param>
+	/// <returns>The tracked weekly plan, or null.</returns>
+	Task<WeeklyPlan?> FindForUpdateAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default);
+
+	/// <summary>
 	/// Get a tracked plan for updates. Throws if not found.
 	/// </summary>
 	/// <param name="owner">The owner identifier.</param>
@@ -23,18 +29,7 @@ public interface IWeeklyPlanRepository
 	/// <returns>The tracked weekly plan.</returns>
 	Task<WeeklyPlan> GetByOwnerAndWeekAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default);
 
-	/// <summary>
-	/// Add a new weekly plan.
-	/// </summary>
-	/// <param name="plan">The plan to add.</param>
-	/// <param name="cancellationToken">Cancellation token.</param>
-	/// <returns>A task representing the async operation.</returns>
 	Task AddAsync(WeeklyPlan plan, CancellationToken cancellationToken = default);
 
-	/// <summary>
-	/// Save changes to a tracked plan.
-	/// </summary>
-	/// <param name="cancellationToken">Cancellation token.</param>
-	/// <returns>A task representing the async operation.</returns>
 	Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
