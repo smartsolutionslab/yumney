@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { MergedListComponent } from './merged-list.component';
 import { ShoppingApiService, type MergedShoppingList } from '../api';
-import { setupTranslocoTesting } from '@yumney/shared/models';
+import { setupTranslocoTesting, ToastService } from '@yumney/shared/models';
 import { provideYumneyIcons } from '@yumney/ui';
 
 const en = {
@@ -128,5 +128,96 @@ describe('MergedListComponent', () => {
   it('should show progress when items exist', () => {
     expect(fixture.nativeElement.querySelector('.progress-bar')).toBeTruthy();
     expect(fixture.nativeElement.textContent).toContain('0 / 2');
+  });
+
+  describe('export', () => {
+    let toasts: ToastService;
+    let shareSpy: ReturnType<typeof vi.fn>;
+    let writeTextSpy: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      toasts = TestBed.inject(ToastService);
+      toasts.clear();
+
+      shareSpy = vi.fn().mockResolvedValue(undefined);
+      writeTextSpy = vi.fn().mockResolvedValue(undefined);
+
+      vi.stubGlobal('navigator', {
+        share: shareSpy,
+        clipboard: { writeText: writeTextSpy },
+      });
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('shows info toast when server returns no items', async () => {
+      apiMock.exportList.mockReturnValue(of(''));
+
+      fixture.componentInstance['onExport']();
+      await Promise.resolve();
+
+      expect(shareSpy).not.toHaveBeenCalled();
+      expect(writeTextSpy).not.toHaveBeenCalled();
+      expect(toasts.toasts()).toHaveLength(1);
+      expect(toasts.toasts()[0]).toMatchObject({
+        kind: 'info',
+        messageKey: 'shopping.export.nothing',
+      });
+    });
+
+    it('uses Web Share API when available and toasts shared on success', async () => {
+      fixture.componentInstance['onExport']();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(shareSpy).toHaveBeenCalledWith({ text: 'Shopping list text' });
+      expect(toasts.toasts()[0]).toMatchObject({
+        kind: 'success',
+        messageKey: 'shopping.export.shared',
+      });
+    });
+
+    it('falls back to clipboard when Web Share API is unavailable', async () => {
+      vi.stubGlobal('navigator', { clipboard: { writeText: writeTextSpy } });
+
+      fixture.componentInstance['onExport']();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(writeTextSpy).toHaveBeenCalledWith('Shopping list text');
+      expect(toasts.toasts()[0]).toMatchObject({
+        kind: 'success',
+        messageKey: 'shopping.export.copied',
+      });
+    });
+
+    it('does not fall back to clipboard when user aborts the share sheet', async () => {
+      const abort = new DOMException('Share canceled', 'AbortError');
+      shareSpy.mockRejectedValue(abort);
+
+      fixture.componentInstance['onExport']();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(writeTextSpy).not.toHaveBeenCalled();
+      expect(toasts.toasts()).toHaveLength(0);
+    });
+
+    it('falls back to clipboard when share fails for a non-abort reason', async () => {
+      shareSpy.mockRejectedValue(new Error('denied'));
+
+      fixture.componentInstance['onExport']();
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(writeTextSpy).toHaveBeenCalledWith('Shopping list text');
+      expect(toasts.toasts()[0]).toMatchObject({
+        kind: 'success',
+        messageKey: 'shopping.export.copied',
+      });
+    });
   });
 });
