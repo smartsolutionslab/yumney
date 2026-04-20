@@ -109,11 +109,13 @@ public class SaveRecipeCommandHandlerTests
 		Recipe? capturedRecipe = null;
 		await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
 
+		var flour = IngredientName.From("Flour");
+		var sugar = IngredientName.From("Sugar");
 		var command = new SaveRecipeCommand(
 			RecipeTitle.From("Test"),
 			[
-				new SaveRecipeIngredientItem(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-				new SaveRecipeIngredientItem(IngredientName.From("Sugar"), Quantity.Of(Amount.From(100), null)),
+				new SaveRecipeIngredientItem(flour, Quantity.Of(Amount.From(500), Unit.Gram)),
+				new SaveRecipeIngredientItem(sugar, Quantity.Of(Amount.From(100), null)),
 			],
 			[new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))],
 			SourceUrl: RecipeUrl.From("https://example.com/recipe"));
@@ -122,8 +124,8 @@ public class SaveRecipeCommandHandlerTests
 
 		capturedRecipe.Should().NotBeNull();
 		capturedRecipe!.Ingredients.Should().HaveCount(2);
-		capturedRecipe.Ingredients[0].Name.Should().Be(IngredientName.From("Flour"));
-		capturedRecipe.Ingredients[1].Name.Should().Be(IngredientName.From("Sugar"));
+		capturedRecipe.Ingredients[0].Name.Should().Be(flour);
+		capturedRecipe.Ingredients[1].Name.Should().Be(sugar);
 		capturedRecipe.Ingredients[1].Quantity!.Unit.Should().BeNull();
 	}
 
@@ -133,12 +135,14 @@ public class SaveRecipeCommandHandlerTests
 		Recipe? capturedRecipe = null;
 		await recipes.AddAsync(Arg.Do<Recipe>(r => capturedRecipe = r), Arg.Any<CancellationToken>());
 
+		var preheatOven = StepDescription.From("Preheat oven");
+		var mixIngredients = StepDescription.From("Mix ingredients");
 		var command = new SaveRecipeCommand(
 			RecipeTitle.From("Test"),
 			[new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
 			[
-				new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Preheat oven")),
-				new SaveRecipeStepItem(StepNumber.From(2), StepDescription.From("Mix ingredients")),
+				new SaveRecipeStepItem(StepNumber.From(1), preheatOven),
+				new SaveRecipeStepItem(StepNumber.From(2), mixIngredients),
 			],
 			SourceUrl: RecipeUrl.From("https://example.com/recipe"));
 
@@ -146,56 +150,76 @@ public class SaveRecipeCommandHandlerTests
 
 		capturedRecipe.Should().NotBeNull();
 		capturedRecipe!.Steps.Should().HaveCount(2);
-		capturedRecipe.Steps[0].Description.Should().Be(StepDescription.From("Preheat oven"));
-		capturedRecipe.Steps[1].Description.Should().Be(StepDescription.From("Mix ingredients"));
+		capturedRecipe.Steps[0].Description.Should().Be(preheatOven);
+		capturedRecipe.Steps[1].Description.Should().Be(mixIngredients);
 	}
 
 	[Fact]
 	public async Task HandleAsync_WithDescription_PassesDescriptionThrough()
 	{
-		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+		var description = RecipeDescription.From("A test recipe");
+		var command = CreateCommandWithOptionalField(description: description);
 
-		capturedRecipe.Description.Should().Be(RecipeDescription.From("A test recipe"));
+		var capturedRecipe = await CaptureSavedRecipeAsync(command);
+
+		capturedRecipe.Description.Should().Be(description);
 	}
 
 	[Fact]
 	public async Task HandleAsync_WithServings_PassesServingsThrough()
 	{
-		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+		var servings = Servings.From(4);
+		var command = CreateCommandWithOptionalField(servings: servings);
 
-		capturedRecipe.Servings.Should().Be(Servings.From(4));
+		var capturedRecipe = await CaptureSavedRecipeAsync(command);
+
+		capturedRecipe.Servings.Should().Be(servings);
 	}
 
 	[Fact]
 	public async Task HandleAsync_WithPreparationTime_PassesPreparationTimeThrough()
 	{
-		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+		var preparationTime = PreparationTime.From(10);
+		var command = CreateCommandWithOptionalField(
+			timing: TimingInfo.Of(preparationTime, CookingTime.From(20)));
 
-		capturedRecipe.Timing?.Preparation.Should().Be(PreparationTime.From(10));
+		var capturedRecipe = await CaptureSavedRecipeAsync(command);
+
+		capturedRecipe.Timing?.Preparation.Should().Be(preparationTime);
 	}
 
 	[Fact]
 	public async Task HandleAsync_WithCookingTime_PassesCookingTimeThrough()
 	{
-		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+		var cookingTime = CookingTime.From(20);
+		var command = CreateCommandWithOptionalField(
+			timing: TimingInfo.Of(PreparationTime.From(10), cookingTime));
 
-		capturedRecipe.Timing?.Cooking.Should().Be(CookingTime.From(20));
+		var capturedRecipe = await CaptureSavedRecipeAsync(command);
+
+		capturedRecipe.Timing?.Cooking.Should().Be(cookingTime);
 	}
 
 	[Fact]
 	public async Task HandleAsync_WithDifficulty_PassesDifficultyThrough()
 	{
-		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+		var difficulty = Difficulty.From("easy");
+		var command = CreateCommandWithOptionalField(difficulty: difficulty);
 
-		capturedRecipe.Difficulty.Should().Be(Difficulty.From("easy"));
+		var capturedRecipe = await CaptureSavedRecipeAsync(command);
+
+		capturedRecipe.Difficulty.Should().Be(difficulty);
 	}
 
 	[Fact]
 	public async Task HandleAsync_WithImageUrl_PassesImageUrlThrough()
 	{
-		var capturedRecipe = await CaptureSavedRecipeAsync(CreateCommandWithAllOptionalFields());
+		var imageUrl = ImageUrl.From("https://example.com/image.jpg");
+		var command = CreateCommandWithOptionalField(imageUrl: imageUrl);
 
-		capturedRecipe.ImageUrl.Should().Be(ImageUrl.From("https://example.com/image.jpg"));
+		var capturedRecipe = await CaptureSavedRecipeAsync(command);
+
+		capturedRecipe.ImageUrl.Should().Be(imageUrl);
 	}
 
 	[Fact]
@@ -290,17 +314,22 @@ public class SaveRecipeCommandHandlerTests
 			SourceUrl: RecipeUrl.From("https://example.com/recipe"));
 	}
 
-	private static SaveRecipeCommand CreateCommandWithAllOptionalFields()
+	private static SaveRecipeCommand CreateCommandWithOptionalField(
+		RecipeDescription? description = null,
+		Servings? servings = null,
+		TimingInfo? timing = null,
+		Difficulty? difficulty = null,
+		ImageUrl? imageUrl = null)
 	{
 		return new SaveRecipeCommand(
 			RecipeTitle.From("Test"),
 			[new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
 			[new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))],
-			RecipeDescription.From("A test recipe"),
-			Servings.From(4),
-			TimingInfo.Of(PreparationTime.From(10), CookingTime.From(20)),
-			Difficulty.From("easy"),
-			ImageUrl.From("https://example.com/image.jpg"),
+			description,
+			servings,
+			timing,
+			difficulty,
+			imageUrl,
 			SourceUrl: RecipeUrl.From("https://example.com/recipe"));
 	}
 

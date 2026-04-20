@@ -133,16 +133,21 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		var recipe = RecipeFactory.TomatoSoup(owner.Value);
 		await fixture.SeedRecipesAsync(recipe);
 
+		var updatedTitle = RecipeTitle.From("Updated Tomato Soup");
+		var updatedDescription = RecipeDescription.From("Updated description");
+		var updatedServings = Servings.From(2);
+		var ingredientName = IngredientName.From("Cherry tomatoes");
+
 		await using (var updateContext = await fixture.CreateRecipesDbContextAsync())
 		{
 			var recipes = new RecipeRepository(updateContext);
 			var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
 			loaded.Update(
-				RecipeTitle.From("Updated Tomato Soup"),
-				[Ingredient.Create(IngredientName.From("Cherry tomatoes"), Quantity.Of(Amount.From(800), Unit.Gram))],
+				updatedTitle,
+				[Ingredient.Create(ingredientName, Quantity.Of(Amount.From(800), Unit.Gram))],
 				[Step.Create(StepNumber.From(1), StepDescription.From("Roast cherry tomatoes"))],
-				RecipeDescription.From("Updated description"),
-				Servings.From(2));
+				updatedDescription,
+				updatedServings);
 			await recipes.UpdateAsync(loaded);
 		}
 
@@ -152,11 +157,11 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 			.Include(r => r.Steps)
 			.FirstOrDefaultAsync(r => r.Id == recipe.Id);
 
-		updated!.Title.Should().Be(RecipeTitle.From("Updated Tomato Soup"));
-		updated.Description.Should().Be(RecipeDescription.From("Updated description"));
-		updated.Servings.Should().Be(Servings.From(2));
+		updated!.Title.Should().Be(updatedTitle);
+		updated.Description.Should().Be(updatedDescription);
+		updated.Servings.Should().Be(updatedServings);
 		updated.Ingredients.Should().ContainSingle();
-		updated.Ingredients[0].Name.Should().Be(IngredientName.From("Cherry tomatoes"));
+		updated.Ingredients[0].Name.Should().Be(ingredientName);
 		updated.Steps.Should().ContainSingle();
 	}
 
