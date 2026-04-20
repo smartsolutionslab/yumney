@@ -36,11 +36,17 @@ public static class ExtractionServiceCollectionExtensions
 			case SemanticKernelOptions.ProviderOllama:
 				var ollamaEndpoint = GetOllamaEndpoint(configuration, skOptions);
 				if (ollamaEndpoint is not null)
+				{
 					kernelBuilder.AddOpenAIChatCompletion(modelId, new Uri(ollamaEndpoint), apiKey: null);
+				}
+
 				break;
 			default:
 				if (apiKey.HasValue())
+				{
 					kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
+				}
+
 				break;
 		}
 
