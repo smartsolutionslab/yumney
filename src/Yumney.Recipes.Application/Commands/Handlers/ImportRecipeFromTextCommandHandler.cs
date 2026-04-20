@@ -13,7 +13,7 @@ public sealed class ImportRecipeFromTextCommandHandler(
 	{
 		var text = command.RecipeText;
 
-		var content = new ScrapedContent(text, SourceUrl: string.Empty);
+		var content = new ScrapedContent(text, SourceUrl: null);
 		var extractResult = await extraction.ExtractAsync(content, cancellationToken);
 
 		if (extractResult.IsFailure)

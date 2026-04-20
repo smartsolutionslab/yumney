@@ -24,7 +24,8 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
 	public async Task<Result<ExtractedRecipeDto>> ExtractAsync(ScrapedContent content, CancellationToken cancellationToken = default)
 	{
-		var (cleanedText, sourceUrl) = content;
+		var cleanedText = content.CleanedText;
+		var sourceUrl = content.SourceUrl?.Value ?? string.Empty;
 
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.url");
 		activity?.SetTag("extract.source", sourceUrl);
