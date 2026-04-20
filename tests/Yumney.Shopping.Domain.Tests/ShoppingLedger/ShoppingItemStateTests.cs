@@ -12,7 +12,7 @@ public class ShoppingItemStateTests
 	{
 		var state = CreateState() with { Bought = A(10), Consumed = A(3), Removed = A(2) };
 
-		state.AtHome.Value.Should().Be(5);
+		state.AtHome.Should().Be(A(5));
 	}
 
 	[Fact]
@@ -20,7 +20,7 @@ public class ShoppingItemStateTests
 	{
 		var state = CreateState() with { Bought = A(1), Consumed = A(5), Removed = A(3) };
 
-		state.AtHome.Value.Should().Be(0);
+		state.AtHome.Should().Be(A(0));
 	}
 
 	[Fact]
@@ -28,7 +28,7 @@ public class ShoppingItemStateTests
 	{
 		var state = CreateState();
 
-		state.AtHome.Value.Should().Be(0);
+		state.AtHome.Should().Be(A(0));
 	}
 
 	[Fact]

@@ -549,7 +549,7 @@ public class ShoppingLedgerTests
 		var events = original.UncommittedEvents.ToList();
 		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, owner, events);
 
-		rebuilt.Items.Values.First().Bought.Value.Should().Be(0);
+		rebuilt.Items.Values.First().Bought.Should().Be(Amount.From(0));
 	}
 
 	[Fact]
