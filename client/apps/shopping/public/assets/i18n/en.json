@@ -79,5 +79,14 @@
       "household": "Household",
       "other": "Other"
     }
+  },
+  "common": {
+    "toast": {
+      "dismiss": "Dismiss"
+    },
+    "errors": {
+      "networkUnavailable": "We can't reach the server. Check your connection and try again.",
+      "serviceUnavailable": "The service is temporarily unavailable. Please try again in a moment."
+    }
   }
 }
