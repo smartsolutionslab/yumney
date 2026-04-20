@@ -9,11 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import {
-  ShoppingApiService,
-  ShoppingListDetail,
-  ShoppingListItemResponse,
-} from '../api';
+import { ShoppingApiService, ShoppingListDetail, ShoppingListItemResponse } from '../api';
 import {
   createAsyncState,
   ERROR_MAPS,

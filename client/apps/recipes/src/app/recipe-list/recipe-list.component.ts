@@ -14,11 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  RecipeApiService,
-  RecipeListItem,
-  GetRecipesParams,
-} from '../api';
+import { RecipeApiService, RecipeListItem, GetRecipesParams } from '../api';
 import {
   createAsyncState,
   ERROR_MAPS,

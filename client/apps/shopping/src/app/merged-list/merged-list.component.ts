@@ -10,11 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  ShoppingApiService,
-  type MergedShoppingList,
-  type MergedShoppingItem,
-} from '../api';
+import { ShoppingApiService, type MergedShoppingList, type MergedShoppingItem } from '../api';
 import { TranslocoService } from '@jsverse/transloco';
 import { AsyncStateComponent } from '@yumney/ui';
 

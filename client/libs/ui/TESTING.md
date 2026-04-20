@@ -20,7 +20,7 @@ component needs to prove.
 - Catch regressions that unit specs miss: focus handling, click-
   outside, escape key, ARIA role wiring, visible state transitions.
 - Run interactively with `yarn storybook` — results appear in the
-  *Interactions* panel of each story.
+  _Interactions_ panel of each story.
 
 ### Pattern
 
@@ -83,19 +83,19 @@ function in a browser and fail CI on any failed `expect`.
 
 ## Current coverage
 
-| Component | Unit spec | Interaction test |
-|---|---|---|
-| ConfirmDialog | ✅ | ✅ (confirm / cancel / escape) |
-| FavoriteButton | ✅ | — |
-| SubmitButton | ✅ | — |
-| LoadingSpinner | ✅ | — |
-| UnitSelect | ✅ | — |
-| FormField | ✅ | — |
-| SortMenu | ✅ | — |
-| ToastHost | — | — |
-| FilterPanel | — | — |
-| AsyncState | — | — |
-| … | varies | — |
+| Component      | Unit spec | Interaction test               |
+| -------------- | --------- | ------------------------------ |
+| ConfirmDialog  | ✅        | ✅ (confirm / cancel / escape) |
+| FavoriteButton | ✅        | —                              |
+| SubmitButton   | ✅        | —                              |
+| LoadingSpinner | ✅        | —                              |
+| UnitSelect     | ✅        | —                              |
+| FormField      | ✅        | —                              |
+| SortMenu       | ✅        | —                              |
+| ToastHost      | —         | —                              |
+| FilterPanel    | —         | —                              |
+| AsyncState     | —         | —                              |
+| …              | varies    | —                              |
 
 Interaction tests are introduced component-by-component as new
 behaviour lands; ConfirmDialog is the reference implementation.
