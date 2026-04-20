@@ -5,9 +5,8 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Queries.Handlers;
 
-public sealed class GetPlannedRecipesQueryHandler(
-	IWeeklyPlanRepository plans,
-	ICurrentUser currentUser) : IQueryHandler<GetPlannedRecipesQuery, Result<WeeklyPlannedRecipesDto>>
+public sealed class GetPlannedRecipesQueryHandler(IWeeklyPlanRepository plans, ICurrentUser currentUser)
+	: IQueryHandler<GetPlannedRecipesQuery, Result<WeeklyPlannedRecipesDto>>
 {
 	public async Task<Result<WeeklyPlannedRecipesDto>> HandleAsync(GetPlannedRecipesQuery query, CancellationToken cancellationToken = default)
 	{

@@ -178,6 +178,7 @@ public static partial class RecipesEndpoints
 			{
 				var photoData = await LoadPhotoDataAsync(file, cancellationToken);
 				var validation = await validator.ValidateAsync(photoData, cancellationToken);
+
 				if (validation.HasFailed()) return validation.ToValidationProblem();
 
 				photoDataList.Add(photoData);
