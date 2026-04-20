@@ -498,5 +498,14 @@
       "clearFailed": "Slot konnte nicht geleert werden.",
       "generateFailed": "Einkaufsliste konnte nicht erstellt werden."
     }
+  },
+  "common": {
+    "toast": {
+      "dismiss": "Schließen"
+    },
+    "errors": {
+      "networkUnavailable": "Der Server ist nicht erreichbar. Bitte prüfe deine Verbindung und versuche es erneut.",
+      "serviceUnavailable": "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuche es gleich erneut."
+    }
   }
 }

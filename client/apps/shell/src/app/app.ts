@@ -1,7 +1,12 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { RouterModule } from '@angular/router';
-import { ChatPanelComponent, CommandFabComponent, HeaderComponent } from '@yumney/ui';
+import {
+  ChatPanelComponent,
+  CommandFabComponent,
+  HeaderComponent,
+  ToastHostComponent,
+} from '@yumney/ui';
 import { OfflineIndicatorComponent } from './layout/offline-indicator/offline-indicator.component';
 import { filter } from 'rxjs';
 
@@ -12,6 +17,7 @@ import { filter } from 'rxjs';
     ChatPanelComponent,
     CommandFabComponent,
     OfflineIndicatorComponent,
+    ToastHostComponent,
   ],
   selector: 'yn-root',
   templateUrl: './app.html',

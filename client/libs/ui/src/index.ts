@@ -27,6 +27,7 @@ export { ChatPanelComponent } from './lib/chat-panel/chat-panel.component';
 export { CommandFabComponent } from './lib/command-fab/command-fab.component';
 export { ShareToastComponent } from './lib/share-toast/share-toast.component';
 export { IngredientsToastComponent } from './lib/ingredients-toast/ingredients-toast.component';
+export { ToastHostComponent } from './lib/toast-host/toast-host.component';
 export {
   FilterPanelComponent,
   type RecipeFilterValue,
