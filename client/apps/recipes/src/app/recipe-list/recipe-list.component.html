@@ -1,8 +1,8 @@
 <div class="recipe-list-container" *transloco="let t">
   <div class="list-header">
-    @if (assignMode()) {
+    @if (assignment.assignMode()) {
       <div class="assign-header">
-        <button class="btn-back" (click)="onCancelAssign()">
+        <button class="btn-back" (click)="assignment.cancel()">
           <lucide-icon name="arrow-left" [size]="20" />
         </button>
         <h1>{{ t('recipes.list.assignTitle') }}</h1>
@@ -10,34 +10,12 @@
     } @else {
       <h1>{{ t('recipes.list.title') }}</h1>
     }
-    <div class="sort-dropdown" #sortDropdown>
-      <button
-        type="button"
-        class="sort-toggle"
-        (click)="toggleSortMenu()"
-        [attr.aria-label]="t('recipes.list.sortLabel')"
-        [attr.aria-expanded]="sortMenuOpen()"
-      >
-        {{ t(currentSortLabel()) }}
-        <span class="sort-chevron" [class.open]="sortMenuOpen()"
-          ><lucide-icon name="chevron-down" [size]="18"
-        /></span>
-      </button>
-      @if (sortMenuOpen()) {
-        <ul class="sort-menu" role="listbox">
-          @for (option of sortOptions; track option.value) {
-            <li
-              role="option"
-              class="sort-menu-item"
-              [class.active]="currentSort() === option.value"
-              (click)="onSortSelect(option.value)"
-            >
-              {{ t(option.labelKey) }}
-            </li>
-          }
-        </ul>
-      }
-    </div>
+    <yn-sort-menu
+      [currentValue]="currentSort()"
+      [options]="sortOptions"
+      [ariaLabel]="t('recipes.list.sortLabel')"
+      (sortSelect)="onSortSelect($event)"
+    />
   </div>
 
   <div class="search-bar">
@@ -110,9 +88,9 @@
         <yn-recipe-card
           #recipeCard
           [recipe]="recipe"
-          [assignMode]="assignMode()"
+          [assignMode]="assignment.assignMode()"
           (toggleFavorite)="onToggleFavorite($event)"
-          (assign)="onAssignRecipe($event)"
+          (assign)="assignment.assign($event)"
         />
       }
     </div>

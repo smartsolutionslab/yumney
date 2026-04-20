@@ -4,12 +4,10 @@ import {
   computed,
   effect,
   ElementRef,
-  HostListener,
   inject,
   OnInit,
   DestroyRef,
   signal,
-  viewChild,
   viewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -18,7 +16,6 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   RecipeApiService,
-  MealPlanApiService,
   RecipeListItem,
   GetRecipesParams,
 } from '@yumney/shared/api-client';
@@ -29,7 +26,7 @@ import {
   UI,
   toggleFavoriteInList,
 } from '@yumney/shared/models';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
   EMPTY_FILTER,
   FilterPanelComponent,
@@ -39,6 +36,13 @@ import {
   staggerFadeIn,
 } from '@yumney/ui';
 import { RecipeCardComponent } from './recipe-card/recipe-card.component';
+import { SortMenuComponent, SortMenuOption } from './sort-menu/sort-menu.component';
+import { RecipeAssignmentService } from './recipe-assignment.service';
+
+interface SortOption extends SortMenuOption {
+  by: 'Name' | 'Date';
+  dir: 'Ascending' | 'Descending';
+}
 
 @Component({
   selector: 'yn-recipe-list',
@@ -49,7 +53,9 @@ import { RecipeCardComponent } from './recipe-card/recipe-card.component';
     InfiniteScrollDirective,
     FilterPanelComponent,
     RecipeCardComponent,
+    SortMenuComponent,
   ],
+  providers: [RecipeAssignmentService],
   templateUrl: './recipe-list.component.html',
   styleUrl: './recipe-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,65 +63,56 @@ import { RecipeCardComponent } from './recipe-card/recipe-card.component';
 export class RecipeListComponent implements OnInit {
   protected readonly ROUTES = ROUTES;
 
-  private static readonly sortOptionList = [
-    {
-      value: 'date-desc',
-      by: 'Date' as const,
-      dir: 'Descending' as const,
-      labelKey: 'recipes.list.sort.dateDesc',
-    },
-    {
-      value: 'date-asc',
-      by: 'Date' as const,
-      dir: 'Ascending' as const,
-      labelKey: 'recipes.list.sort.dateAsc',
-    },
-    {
-      value: 'name-asc',
-      by: 'Name' as const,
-      dir: 'Ascending' as const,
-      labelKey: 'recipes.list.sort.nameAsc',
-    },
-    {
-      value: 'name-desc',
-      by: 'Name' as const,
-      dir: 'Descending' as const,
-      labelKey: 'recipes.list.sort.nameDesc',
-    },
+  private static readonly sortOptionList: readonly SortOption[] = [
+    { value: 'date-desc', by: 'Date', dir: 'Descending', labelKey: 'recipes.list.sort.dateDesc' },
+    { value: 'date-asc', by: 'Date', dir: 'Ascending', labelKey: 'recipes.list.sort.dateAsc' },
+    { value: 'name-asc', by: 'Name', dir: 'Ascending', labelKey: 'recipes.list.sort.nameAsc' },
+    { value: 'name-desc', by: 'Name', dir: 'Descending', labelKey: 'recipes.list.sort.nameDesc' },
   ];
 
   private recipeApi = inject(RecipeApiService);
-  private mealPlanApi = inject(MealPlanApiService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private asyncState = createAsyncState(this.destroyRef);
   private searchSubject = new Subject<string>();
   private loadRequestId = 0;
-
-  assignTo = signal<string | null>(null);
-  assignMode = computed(() => this.assignTo() !== null);
-  assigning = signal(false);
-
-  private sortDropdown = viewChild<ElementRef>('sortDropdown');
+  private previousCardCount = 0;
   private recipeCards = viewChildren<ElementRef>('recipeCard');
 
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
-    if (this.sortMenuOpen()) {
-      this.sortMenuOpen.set(false);
-    }
-  }
+  protected assignment = inject(RecipeAssignmentService);
 
-  @HostListener('document:click', ['$event.target'])
-  onDocumentClick(target: EventTarget | null): void {
-    const dropdown = this.sortDropdown()?.nativeElement;
-    if (this.sortMenuOpen() && target instanceof Node && !dropdown?.contains(target)) {
-      this.sortMenuOpen.set(false);
-    }
-  }
+  recipes = signal<RecipeListItem[]>([]);
+  totalCount = signal(0);
+  currentPage = signal(1);
+  pageSize = signal(UI.DEFAULT_PAGE_SIZE);
+  sortBy = signal<'Name' | 'Date'>('Date');
+  sortDirection = signal<'Ascending' | 'Descending'>('Descending');
+  isLoading = this.asyncState.isLoading;
+  serverError = this.asyncState.serverError;
+  searchQuery = signal('');
+  activeSearch = signal('');
+  filter = signal<RecipeFilterValue>({ ...EMPTY_FILTER });
+  filterPanelOpen = signal(false);
+  availableTags = signal<string[]>([]);
 
-  private previousCardCount = 0;
+  hasMore = computed(() => this.recipes().length < this.totalCount());
+
+  currentSort = computed(() => {
+    const by = this.sortBy().toLowerCase();
+    const dir = this.sortDirection() === 'Ascending' ? 'asc' : 'desc';
+    return `${by}-${dir}`;
+  });
+
+  readonly sortOptions = RecipeListComponent.sortOptionList;
+
+  filterActiveCount = computed(() => {
+    const f = this.filter();
+    let count = f.tags.length;
+    if (f.difficulty !== null) count += 1;
+    if (f.maxPrepTime !== null) count += 1;
+    if (f.maxCookTime !== null) count += 1;
+    if (f.favoritesOnly) count += 1;
+    return count;
+  });
 
   constructor() {
     effect(() => {
@@ -136,49 +133,15 @@ export class RecipeListComponent implements OnInit {
     });
   }
 
-  recipes = signal<RecipeListItem[]>([]);
-  totalCount = signal(0);
-  currentPage = signal(1);
-  pageSize = signal(UI.DEFAULT_PAGE_SIZE);
-  sortBy = signal<'Name' | 'Date'>('Date');
-  sortDirection = signal<'Ascending' | 'Descending'>('Descending');
-  isLoading = this.asyncState.isLoading;
-  serverError = this.asyncState.serverError;
-  searchQuery = signal('');
-  activeSearch = signal('');
-  filter = signal<RecipeFilterValue>({ ...EMPTY_FILTER });
-  filterPanelOpen = signal(false);
-  availableTags = signal<string[]>([]);
-
-  hasMore = computed(() => this.recipes().length < this.totalCount());
-  sortMenuOpen = signal(false);
-
-  currentSort = computed(() => {
-    const by = this.sortBy().toLowerCase();
-    const dir = this.sortDirection() === 'Ascending' ? 'asc' : 'desc';
-    return `${by}-${dir}`;
-  });
-
-  currentSortLabel = computed(
-    () =>
-      RecipeListComponent.sortOptionList.find((o) => o.value === this.currentSort())?.labelKey ??
-      'recipes.list.sort.dateDesc',
-  );
-
-  readonly sortOptions = RecipeListComponent.sortOptionList;
-
   ngOnInit(): void {
-    this.assignTo.set(this.route.snapshot.queryParamMap.get('assignTo'));
+    this.assignment.initFromRoute();
     this.loadRecipes(false);
 
     this.searchSubject
       .pipe(debounceTime(UI.SEARCH_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         this.activeSearch.set(value.trim());
-        this.currentPage.set(1);
-        this.recipes.set([]);
-        this.totalCount.set(0);
-        this.loadRecipes(false);
+        this.resetAndReload();
       });
   }
 
@@ -191,32 +154,15 @@ export class RecipeListComponent implements OnInit {
   onSearchClear(): void {
     this.searchQuery.set('');
     this.activeSearch.set('');
-    this.currentPage.set(1);
-    this.recipes.set([]);
-    this.totalCount.set(0);
-    this.loadRecipes(false);
-  }
-
-  toggleSortMenu(): void {
-    this.sortMenuOpen.update((open) => !open);
-  }
-
-  closeSortMenu(): void {
-    this.sortMenuOpen.set(false);
+    this.resetAndReload();
   }
 
   onSortSelect(value: string): void {
     const option = RecipeListComponent.sortOptionList.find((o) => o.value === value);
-    if (!option) {
-      return;
-    }
-    this.sortMenuOpen.set(false);
+    if (!option) return;
     this.sortBy.set(option.by);
     this.sortDirection.set(option.dir);
-    this.currentPage.set(1);
-    this.recipes.set([]);
-    this.totalCount.set(0);
-    this.loadRecipes(false);
+    this.resetAndReload();
   }
 
   onLoadMore(): void {
@@ -234,50 +180,17 @@ export class RecipeListComponent implements OnInit {
     );
   }
 
-  onAssignRecipe(recipe: RecipeListItem): void {
-    const raw = this.assignTo();
-    if (!raw) return;
-
-    const match = raw.match(/^(\d{4})-W(\d{1,2})-(\w+)$/);
-    if (!match) return;
-
-    const [, yearStr, weekStr, day] = match;
-    this.assigning.set(true);
-
-    this.mealPlanApi
-      .assignRecipe(Number(yearStr), Number(weekStr), {
-        day,
-        recipeIdentifier: recipe.identifier,
-        recipeTitle: recipe.title,
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.router.navigate([ROUTES.mealPlanner]),
-        error: () => this.assigning.set(false),
-      });
-  }
-
-  onCancelAssign(): void {
-    this.router.navigate([ROUTES.mealPlanner]);
-  }
-
   onFilterChange(value: RecipeFilterValue): void {
     this.filter.set(value);
+    this.resetAndReload();
+  }
+
+  private resetAndReload(): void {
     this.currentPage.set(1);
     this.recipes.set([]);
     this.totalCount.set(0);
     this.loadRecipes(false);
   }
-
-  filterActiveCount = computed(() => {
-    const f = this.filter();
-    let count = f.tags.length;
-    if (f.difficulty !== null) count += 1;
-    if (f.maxPrepTime !== null) count += 1;
-    if (f.maxCookTime !== null) count += 1;
-    if (f.favoritesOnly) count += 1;
-    return count;
-  });
 
   private loadRecipes(append: boolean): void {
     const requestId = ++this.loadRequestId;
