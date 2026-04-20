@@ -11,6 +11,7 @@ import { provideTransloco } from '@jsverse/transloco';
 import { authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { TranslocoHttpLoader } from './transloco-loader';
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from './language-code';
+import { globalErrorInterceptor } from './global-error.interceptor';
 
 export function createMfeAppConfig(routes: Routes, extra: Provider[] = []): ApplicationConfig {
   return {
@@ -18,7 +19,7 @@ export function createMfeAppConfig(routes: Routes, extra: Provider[] = []): Appl
       provideBrowserGlobalErrorListeners(),
       provideZoneChangeDetection({ eventCoalescing: true }),
       provideRouter(routes),
-      provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+      provideHttpClient(withFetch(), withInterceptors([authInterceptor, globalErrorInterceptor])),
       provideAuth(),
       provideTransloco({
         config: {
