@@ -245,15 +245,16 @@ public class RecipeTests
 			Ingredient.Create(IngredientName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram)),
 		]);
 
+		var butterName = IngredientName.From("Butter");
 		List<Ingredient> newIngredients =
 		[
-			Ingredient.Create(IngredientName.From("Butter"), Quantity.Of(Amount.From(100), Unit.Gram)),
+			Ingredient.Create(butterName, Quantity.Of(Amount.From(100), Unit.Gram)),
 		];
 
 		recipe.Update(RecipeTitle.From("Updated"), newIngredients, [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
 
 		recipe.Ingredients.Should().HaveCount(1);
-		recipe.Ingredients[0].Name.Should().Be(IngredientName.From("Butter"));
+		recipe.Ingredients[0].Name.Should().Be(butterName);
 	}
 
 	[Fact]
@@ -265,15 +266,16 @@ public class RecipeTests
 			Step.Create(StepNumber.From(2), StepDescription.From("Step two")),
 		]);
 
+		var newDescription = StepDescription.From("New only step");
 		List<Step> newSteps =
 		[
-			Step.Create(StepNumber.From(1), StepDescription.From("New only step")),
+			Step.Create(StepNumber.From(1), newDescription),
 		];
 
 		recipe.Update(RecipeTitle.From("Updated"), [Ingredient.Create(IngredientName.From("Flour"), null)], newSteps);
 
 		recipe.Steps.Should().HaveCount(1);
-		recipe.Steps[0].Description.Should().Be(StepDescription.From("New only step"));
+		recipe.Steps[0].Description.Should().Be(newDescription);
 	}
 
 	[Fact]
@@ -462,13 +464,15 @@ public class RecipeTests
 	[Fact]
 	public void Create_WithTags_SetsTags()
 	{
-		List<RecipeTag> tags = [RecipeTag.From("italian"), RecipeTag.From("pasta")];
+		var italianTag = RecipeTag.From("italian");
+		var pastaTag = RecipeTag.From("pasta");
+		List<RecipeTag> tags = [italianTag, pastaTag];
 
 		var recipe = CreateValidRecipe(tags: tags);
 
 		recipe.Tags.Should().HaveCount(2);
-		recipe.Tags[0].Should().Be(RecipeTag.From("italian"));
-		recipe.Tags[1].Should().Be(RecipeTag.From("pasta"));
+		recipe.Tags[0].Should().Be(italianTag);
+		recipe.Tags[1].Should().Be(pastaTag);
 	}
 
 	[Fact]
@@ -484,13 +488,14 @@ public class RecipeTests
 	{
 		var recipe = CreateValidRecipe(tags: [RecipeTag.From("old-tag")]);
 
+		var newTag = RecipeTag.From("new-tag");
 		recipe.Update(
 			RecipeTitle.From("Updated"),
 			[Ingredient.Create(IngredientName.From("Flour"), null)],
 			[Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
-			tags: [RecipeTag.From("new-tag")]);
+			tags: [newTag]);
 
-		recipe.Tags.Should().ContainSingle().Which.Should().Be(RecipeTag.From("new-tag"));
+		recipe.Tags.Should().ContainSingle().Which.Should().Be(newTag);
 	}
 
 	[Fact]

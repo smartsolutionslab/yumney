@@ -12,9 +12,11 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void Create_ValidOwner_ReturnsEmptyLedger()
 	{
-		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
+		var owner = Owner("user-123");
 
-		ledger.OwnerId.Should().Be(Owner("user-123"));
+		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
+
+		ledger.OwnerId.Should().Be(owner);
 		ledger.Items.Should().BeEmpty();
 		ledger.Version.Should().Be(0);
 		ledger.UncommittedEvents.Should().BeEmpty();
@@ -36,77 +38,91 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void AddItem_UpdatesItemState()
 	{
+		var milk = N("Milk");
+		var quantity = Q(2, "L");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
 
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
+		ledger.AddItem(milk, quantity, ItemSource.Manual);
 
 		var item = ledger.Items.Values.First();
-		item.ItemName.Should().Be(N("Milk"));
-		item.OnList.Should().Be(Amount.From(2));
-		item.Unit.Should().Be(Unit.From("L"));
+		item.ItemName.Should().Be(milk);
+		item.OnList.Should().Be(quantity.Amount);
+		item.Unit.Should().Be(quantity.Unit);
 	}
 
 	[Fact]
 	public void MarkBought_UpdatesBoughtQuantity()
 	{
+		var milk = N("Milk");
+		var quantity = Q(2, "L");
+		var expectedAmount = Amount.From(2);
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
+		ledger.AddItem(milk, quantity, ItemSource.Manual);
 
-		ledger.MarkBought(N("Milk"), Q(2, "L"));
+		ledger.MarkBought(milk, quantity);
 
 		var item = ledger.Items.Values.First();
-		item.Bought.Should().Be(Amount.From(2));
+		item.Bought.Should().Be(expectedAmount);
 		item.IsBought.Should().BeTrue();
-		item.AtHome.Should().Be(Amount.From(2));
+		item.AtHome.Should().Be(expectedAmount);
 	}
 
 	[Fact]
 	public void MarkConsumed_ReducesAtHome()
 	{
+		var milk = N("Milk");
+		var quantity = Q(2, "L");
+		var consumedQuantity = Q(1, "L");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
-		ledger.MarkBought(N("Milk"), Q(2, "L"));
+		ledger.AddItem(milk, quantity, ItemSource.Manual);
+		ledger.MarkBought(milk, quantity);
 
-		ledger.MarkConsumed(N("Milk"), Q(1, "L"), ItemSource.From("recipe:abc"));
+		ledger.MarkConsumed(milk, consumedQuantity, ItemSource.From("recipe:abc"));
 
 		var item = ledger.Items.Values.First();
-		item.Consumed.Should().Be(Amount.From(1));
+		item.Consumed.Should().Be(consumedQuantity.Amount);
 		item.AtHome.Should().Be(Amount.From(1));
 	}
 
 	[Fact]
 	public void RemoveItem_ReducesAtHome()
 	{
+		var milk = N("Milk");
+		var quantity = Q(2, "L");
+		var removeQuantity = Q(1, "L");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
-		ledger.MarkBought(N("Milk"), Q(2, "L"));
+		ledger.AddItem(milk, quantity, ItemSource.Manual);
+		ledger.MarkBought(milk, quantity);
 
-		ledger.RemoveItem(N("Milk"), Q(1, "L"), RemovalReason.From("spoiled"));
+		ledger.RemoveItem(milk, removeQuantity, RemovalReason.From("spoiled"));
 
 		var item = ledger.Items.Values.First();
-		item.Removed.Should().Be(Amount.From(1));
+		item.Removed.Should().Be(removeQuantity.Amount);
 		item.AtHome.Should().Be(Amount.From(1));
 	}
 
 	[Fact]
 	public void AdjustQuantity_OverridesOnList()
 	{
+		var milk = N("Milk");
+		var adjustedQuantity = Q(5, "L");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
+		ledger.AddItem(milk, Q(2, "L"), ItemSource.Manual);
 
-		ledger.AdjustQuantity(N("Milk"), Q(5, "L"));
+		ledger.AdjustQuantity(milk, adjustedQuantity);
 
 		var item = ledger.Items.Values.First();
-		item.OnList.Should().Be(Amount.From(5));
+		item.OnList.Should().Be(adjustedQuantity.Amount);
 	}
 
 	[Fact]
 	public void MultipleAdds_SameItem_SumsQuantity()
 	{
+		var milk = N("Milk");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
 
-		ledger.AddItem(N("Milk"), Q(1, "L"), ItemSource.Manual);
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.From("recipe:abc"));
+		ledger.AddItem(milk, Q(1, "L"), ItemSource.Manual);
+		ledger.AddItem(milk, Q(2, "L"), ItemSource.From("recipe:abc"));
 
 		ledger.Items.Should().HaveCount(1);
 		ledger.Items.Values.First().OnList.Should().Be(Amount.From(3));
@@ -126,13 +142,15 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void CaseInsensitiveMerge()
 	{
+		var quantity = Q(1, "L");
+		var expectedSum = Amount.From(2);
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
 
-		ledger.AddItem(N("milk"), Q(1, "L"), ItemSource.Manual);
-		ledger.AddItem(N("MILK"), Q(1, "L"), ItemSource.Manual);
+		ledger.AddItem(N("milk"), quantity, ItemSource.Manual);
+		ledger.AddItem(N("MILK"), quantity, ItemSource.Manual);
 
 		ledger.Items.Should().HaveCount(1);
-		ledger.Items.Values.First().OnList.Should().Be(Amount.From(2));
+		ledger.Items.Values.First().OnList.Should().Be(expectedSum);
 	}
 
 	[Fact]
@@ -160,40 +178,48 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void FromEvents_RebuildsSameState()
 	{
-		var original = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		original.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
-		original.MarkBought(N("Milk"), Q(2, "L"));
-		original.MarkConsumed(N("Milk"), Q(1, "L"), ItemSource.From("recipe:abc"));
+		var owner = Owner("user-123");
+		var milk = N("Milk");
+		var quantity = Q(2, "L");
+		var consumedQuantity = Q(1, "L");
+		var original = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
+		original.AddItem(milk, quantity, ItemSource.Manual);
+		original.MarkBought(milk, quantity);
+		original.MarkConsumed(milk, consumedQuantity, ItemSource.From("recipe:abc"));
 
 		var events = original.UncommittedEvents.ToList();
-		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, Owner("user-123"), events);
+		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, owner, events);
 
 		rebuilt.Items.Should().HaveCount(1);
 		var item = rebuilt.Items.Values.First();
-		item.OnList.Should().Be(Amount.From(2));
-		item.Bought.Should().Be(Amount.From(2));
-		item.Consumed.Should().Be(Amount.From(1));
-		item.AtHome.Should().Be(Amount.From(1));
+		item.OnList.Should().Be(quantity.Amount);
+		item.Bought.Should().Be(quantity.Amount);
+		item.Consumed.Should().Be(consumedQuantity.Amount);
+		item.AtHome.Should().Be(consumedQuantity.Amount);
 		rebuilt.Version.Should().Be(3);
 	}
 
 	[Fact]
 	public void FromSnapshot_ContinuesFromSnapshotState()
 	{
-		var original = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		original.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
-		original.MarkBought(N("Milk"), Q(2, "L"));
+		var owner = Owner("user-123");
+		var milk = N("Milk");
+		var quantity = Q(2, "L");
+		var consumedQuantity = Q(1, "L");
+		var original = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
+		original.AddItem(milk, quantity, ItemSource.Manual);
+		original.MarkBought(milk, quantity);
 
 		var snapshotItems = original.Items.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-		var newEvents = new[] { new ShoppingItemConsumed(N("Milk"), Q(1, "L"), ItemSource.From("recipe:abc")) };
+		var newEvents = new[] { new ShoppingItemConsumed(milk, consumedQuantity, ItemSource.From("recipe:abc")) };
 
 		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromSnapshot(
-			original.Identifier, Owner("user-123"), snapshotItems, 2, newEvents);
+			original.Identifier, owner, snapshotItems, 2, newEvents);
 
 		rebuilt.Version.Should().Be(3);
 		var item = rebuilt.Items.Values.First();
-		item.AtHome.Should().Be(Amount.From(1));
+		item.AtHome.Should().Be(consumedQuantity.Amount);
 	}
 
 	[Fact]
@@ -322,11 +348,12 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void RemoveItem_WhileInShoppingMode_IncrementsPendingChanges()
 	{
+		var milk = N("Milk");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
+		ledger.AddItem(milk, Q(2, "L"), ItemSource.Manual);
 		ledger.StartShoppingMode();
 
-		ledger.RemoveItem(N("Milk"), Q(1, "L"));
+		ledger.RemoveItem(milk, Q(1, "L"));
 
 		ledger.PendingChangesCount.Should().Be(1);
 	}
@@ -334,11 +361,12 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void AdjustQuantity_WhileInShoppingMode_IncrementsPendingChanges()
 	{
+		var milk = N("Milk");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
+		ledger.AddItem(milk, Q(2, "L"), ItemSource.Manual);
 		ledger.StartShoppingMode();
 
-		ledger.AdjustQuantity(N("Milk"), Q(5, "L"));
+		ledger.AdjustQuantity(milk, Q(5, "L"));
 
 		ledger.PendingChangesCount.Should().Be(1);
 	}
@@ -346,11 +374,13 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void MarkBought_WhileInShoppingMode_DoesNotIncrementPendingChanges()
 	{
+		var milk = N("Milk");
+		var quantity = Q(2, "L");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
+		ledger.AddItem(milk, quantity, ItemSource.Manual);
 		ledger.StartShoppingMode();
 
-		ledger.MarkBought(N("Milk"), Q(2, "L"));
+		ledger.MarkBought(milk, quantity);
 
 		ledger.PendingChangesCount.Should().Be(0);
 	}
@@ -368,13 +398,14 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void FromEvents_RebuildShoppingModeState()
 	{
-		var original = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
+		var owner = Owner("user-123");
+		var original = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
 		original.AddItem(N("Milk"), Q(1, "L"), ItemSource.Manual);
 		original.StartShoppingMode();
 		original.AddItem(N("Eggs"), Q(6, "pc"), ItemSource.Manual);
 
 		var events = original.UncommittedEvents.ToList();
-		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, Owner("user-123"), events);
+		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, owner, events);
 
 		rebuilt.IsInShoppingMode.Should().BeTrue();
 		rebuilt.ShoppingModeStartedAt.Should().NotBeNull();
@@ -384,13 +415,14 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void FromEvents_RebuildEndedShoppingMode()
 	{
-		var original = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
+		var owner = Owner("user-123");
+		var original = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
 		original.StartShoppingMode();
 		original.AddItem(N("Eggs"), Q(6, "pc"), ItemSource.Manual);
 		original.EndShoppingMode(acceptPendingChanges: true);
 
 		var events = original.UncommittedEvents.ToList();
-		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, Owner("user-123"), events);
+		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, owner, events);
 
 		rebuilt.IsInShoppingMode.Should().BeFalse();
 		rebuilt.PendingChangesCount.Should().Be(0);
@@ -424,11 +456,13 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void UndoBought_ReversesBoughtQuantity()
 	{
+		var milk = N("Milk");
+		var quantity = Q(2, "L");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
-		ledger.MarkBought(N("Milk"), Q(2, "L"));
+		ledger.AddItem(milk, quantity, ItemSource.Manual);
+		ledger.MarkBought(milk, quantity);
 
-		ledger.UndoBought(N("Milk"), Q(2, "L"));
+		ledger.UndoBought(milk, quantity);
 
 		var item = ledger.Items.Values.First();
 		item.Bought.Should().Be(Amount.From(0));
@@ -438,11 +472,14 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void UndoBought_PartialUndo()
 	{
+		var milk = N("Milk");
+		var quantity = Q(3, "L");
+		var undoQuantity = Q(1, "L");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(3, "L"), ItemSource.Manual);
-		ledger.MarkBought(N("Milk"), Q(3, "L"));
+		ledger.AddItem(milk, quantity, ItemSource.Manual);
+		ledger.MarkBought(milk, quantity);
 
-		ledger.UndoBought(N("Milk"), Q(1, "L"));
+		ledger.UndoBought(milk, undoQuantity);
 
 		ledger.Items.Values.First().Bought.Should().Be(Amount.From(2));
 	}
@@ -450,10 +487,11 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void UndoBought_NeverNegative()
 	{
+		var milk = N("Milk");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		ledger.AddItem(N("Milk"), Q(1, "L"), ItemSource.Manual);
+		ledger.AddItem(milk, Q(1, "L"), ItemSource.Manual);
 
-		ledger.UndoBought(N("Milk"), Q(5, "L"));
+		ledger.UndoBought(milk, Q(5, "L"));
 
 		ledger.Items.Values.First().Bought.Should().Be(Amount.From(0));
 	}
@@ -473,14 +511,16 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void AddAsAtHome_AddsDirectlyToBought()
 	{
+		var butter = N("Butter");
+		var quantity = Q(250, "g");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
 
-		ledger.AddAsAtHome(N("Butter"), Q(250, "g"));
+		ledger.AddAsAtHome(butter, quantity);
 
 		var item = ledger.Items.Values.First();
-		item.Bought.Should().Be(Amount.From(250));
+		item.Bought.Should().Be(quantity.Amount);
 		item.OnList.Should().Be(Amount.From(0));
-		item.AtHome.Should().Be(Amount.From(250));
+		item.AtHome.Should().Be(quantity.Amount);
 	}
 
 	[Theory]
@@ -498,13 +538,16 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void FromEvents_RebuildsUndoBoughtState()
 	{
-		var original = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		original.AddItem(N("Milk"), Q(2, "L"), ItemSource.Manual);
-		original.MarkBought(N("Milk"), Q(2, "L"));
-		original.UndoBought(N("Milk"), Q(2, "L"));
+		var owner = Owner("user-123");
+		var milk = N("Milk");
+		var quantity = Q(2, "L");
+		var original = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
+		original.AddItem(milk, quantity, ItemSource.Manual);
+		original.MarkBought(milk, quantity);
+		original.UndoBought(milk, quantity);
 
 		var events = original.UncommittedEvents.ToList();
-		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, Owner("user-123"), events);
+		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, owner, events);
 
 		rebuilt.Items.Values.First().Bought.Value.Should().Be(0);
 	}
@@ -512,13 +555,16 @@ public class ShoppingLedgerTests
 	[Fact]
 	public void FromEvents_RebuildsAddAsAtHomeState()
 	{
-		var original = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
-		original.AddAsAtHome(N("Butter"), Q(250, "g"));
+		var owner = Owner("user-123");
+		var butter = N("Butter");
+		var quantity = Q(250, "g");
+		var original = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
+		original.AddAsAtHome(butter, quantity);
 
 		var events = original.UncommittedEvents.ToList();
-		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, Owner("user-123"), events);
+		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, owner, events);
 
-		rebuilt.Items.Values.First().AtHome.Should().Be(Amount.From(250));
+		rebuilt.Items.Values.First().AtHome.Should().Be(quantity.Amount);
 	}
 
 	private static ItemName N(string name) => ItemName.From(name);

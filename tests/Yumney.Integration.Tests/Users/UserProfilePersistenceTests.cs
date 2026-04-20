@@ -21,6 +21,8 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 	[Fact]
 	public async Task AddAsync_NewProfile_PersistsWithDefaultPreferences()
 	{
+		var expectedLanguage = PreferredLanguage.From("en");
+		var expectedUnitSystem = PreferredUnitSystem.From("metric");
 		var profile = CreateProfile();
 		await fixture.SeedUserProfilesAsync(profile);
 
@@ -30,14 +32,15 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
 		saved.Should().NotBeNull();
 		saved!.KeycloakUserId.Should().Be(keycloakId);
-		saved.PreferredLanguage.Should().Be(PreferredLanguage.From("en"));
-		saved.PreferredUnitSystem.Should().Be(PreferredUnitSystem.From("metric"));
+		saved.PreferredLanguage.Should().Be(expectedLanguage);
+		saved.PreferredUnitSystem.Should().Be(expectedUnitSystem);
 	}
 
 	[Fact]
 	public async Task FindByKeycloakUserIdAsync_ExistingProfile_ReturnsProfile()
 	{
-		var profile = CreateProfile();
+		var displayName = DisplayName.From("Test User");
+		var profile = CreateProfile(displayName);
 		await fixture.SeedUserProfilesAsync(profile);
 
 		await using var readContext = await fixture.CreateUsersDbContextAsync();
@@ -45,7 +48,7 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		var loaded = await users.FindByKeycloakUserIdAsync(keycloakId);
 
 		loaded.Should().NotBeNull();
-		loaded!.DisplayName.Should().Be(DisplayName.From("Test User"));
+		loaded!.DisplayName.Should().Be(displayName);
 	}
 
 	[Fact]
@@ -62,12 +65,12 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 	[Fact]
 	public async Task AddAsync_DuplicateKeycloakUserId_ThrowsException()
 	{
-		var profile1 = CreateProfile("User One");
+		var profile1 = CreateProfile(DisplayName.From("User One"));
 		await fixture.SeedUserProfilesAsync(profile1);
 
 		await using var writeContext = await fixture.CreateUsersDbContextAsync();
 		var users = new AppUserProfileRepository(writeContext);
-		var profile2 = CreateProfile("User Two");
+		var profile2 = CreateProfile(DisplayName.From("User Two"));
 
 		var act = async () => await users.AddAsync(profile2);
 
@@ -77,18 +80,19 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 	[Fact]
 	public async Task AddAsync_PreservesDisplayName()
 	{
-		var profile = CreateProfile("Jane Doe");
+		var displayName = DisplayName.From("Jane Doe");
+		var profile = CreateProfile(displayName);
 		await fixture.SeedUserProfilesAsync(profile);
 
 		await using var readContext = await fixture.CreateUsersDbContextAsync();
 		var saved = await readContext.AppUserProfiles
 			.FirstOrDefaultAsync(p => p.Id == profile.Id);
 
-		saved!.DisplayName.Should().Be(DisplayName.From("Jane Doe"));
+		saved!.DisplayName.Should().Be(displayName);
 	}
 
-	private AppUserProfile CreateProfile(string? displayName = null)
+	private AppUserProfile CreateProfile(DisplayName? displayName = null)
 	{
-		return AppUserProfile.Create(keycloakId, DisplayName.From(displayName ?? "Test User"));
+		return AppUserProfile.Create(keycloakId, displayName ?? DisplayName.From("Test User"));
 	}
 }
