@@ -1,0 +1,28 @@
+<div class="sort-dropdown" #dropdown *transloco="let t">
+  <button
+    type="button"
+    class="sort-toggle"
+    (click)="toggle()"
+    [attr.aria-label]="ariaLabel()"
+    [attr.aria-expanded]="open()"
+  >
+    {{ t(currentLabelKey()) }}
+    <span class="sort-chevron" [class.open]="open()"
+      ><lucide-icon name="chevron-down" [size]="18"
+    /></span>
+  </button>
+  @if (open()) {
+    <ul class="sort-menu" role="listbox">
+      @for (option of options(); track option.value) {
+        <li
+          role="option"
+          class="sort-menu-item"
+          [class.active]="currentValue() === option.value"
+          (click)="select(option.value)"
+        >
+          {{ t(option.labelKey) }}
+        </li>
+      }
+    </ul>
+  }
+</div>

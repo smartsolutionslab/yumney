@@ -460,10 +460,10 @@ describe('RecipeListComponent', () => {
     const dropdown = fixture.nativeElement.querySelector('.sort-dropdown');
     expect(dropdown).toBeTruthy();
 
-    const toggle = dropdown.querySelector('.sort-toggle');
+    const toggle = dropdown.querySelector('.sort-toggle') as HTMLButtonElement;
     expect(toggle).toBeTruthy();
 
-    component.sortMenuOpen.set(true);
+    toggle.click();
     fixture.detectChanges();
 
     const items = fixture.nativeElement.querySelectorAll('.sort-menu-item');
