@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
@@ -47,6 +48,7 @@ public static class WolverineEventBusExtensions
 		});
 
 		builder.Services.AddScoped<IEventBus, WolverineEventBus>();
+		builder.Services.TryAddScoped<IInboxStore, NoOpInboxStore>();
 
 		return builder;
 	}
