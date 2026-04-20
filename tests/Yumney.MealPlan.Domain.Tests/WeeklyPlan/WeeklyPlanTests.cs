@@ -37,8 +37,8 @@ public class WeeklyPlanTests
 
 		var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
 		monday.IsEmpty.Should().BeFalse();
-		monday.Recipe!.RecipeIdentifier.Value.Should().Be(recipeId);
-		monday.Recipe.Title.Value.Should().Be("Spaghetti Bolognese");
+		monday.Recipe!.RecipeIdentifier.Should().Be(SlotRecipeIdentifier.From(recipeId));
+		monday.Recipe.Title.Should().Be(SlotRecipeTitle.From("Spaghetti Bolognese"));
 	}
 
 	[Fact]
@@ -48,7 +48,7 @@ public class WeeklyPlanTests
 
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe(), servings: SlotServings.From(8));
 
-		plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Value.Should().Be(8);
+		plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(SlotServings.From(8));
 	}
 
 	[Fact]
@@ -71,8 +71,8 @@ public class WeeklyPlanTests
 
 		plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Friday);
 
-		plan.Slots.First(s => s.Day == DayOfWeek.Monday).Recipe!.Title.Value.Should().Be("Steak");
-		plan.Slots.First(s => s.Day == DayOfWeek.Friday).Recipe!.Title.Value.Should().Be("Pasta");
+		plan.Slots.First(s => s.Day == DayOfWeek.Monday).Recipe!.Title.Should().Be(SlotRecipeTitle.From("Steak"));
+		plan.Slots.First(s => s.Day == DayOfWeek.Friday).Recipe!.Title.Should().Be(SlotRecipeTitle.From("Pasta"));
 	}
 
 	[Fact]
@@ -84,7 +84,7 @@ public class WeeklyPlanTests
 		plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 
 		plan.Slots.First(s => s.Day == DayOfWeek.Monday).IsEmpty.Should().BeTrue();
-		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Recipe!.Title.Value.Should().Be("Pasta");
+		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Recipe!.Title.Should().Be(SlotRecipeTitle.From("Pasta"));
 	}
 
 	[Fact]
@@ -125,8 +125,8 @@ public class WeeklyPlanTests
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe(newRecipeId, "Steak"));
 
 		var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
-		monday.Recipe!.RecipeIdentifier.Value.Should().Be(newRecipeId);
-		monday.Recipe.Title.Value.Should().Be("Steak");
+		monday.Recipe!.RecipeIdentifier.Should().Be(SlotRecipeIdentifier.From(newRecipeId));
+		monday.Recipe.Title.Should().Be(SlotRecipeTitle.From("Steak"));
 	}
 
 	[Fact]
@@ -199,7 +199,7 @@ public class WeeklyPlanTests
 
 		plan.EnableExtendedMode();
 
-		plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Dinner).Recipe!.Title.Value.Should().Be("Pasta");
+		plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Dinner).Recipe!.Title.Should().Be(SlotRecipeTitle.From("Pasta"));
 	}
 
 	[Fact]
@@ -233,7 +233,7 @@ public class WeeklyPlanTests
 		plan.DisableExtendedMode();
 
 		plan.Slots.Should().HaveCount(21);
-		plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Breakfast).Recipe!.Title.Value.Should().Be("Cereal");
+		plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Breakfast).Recipe!.Title.Should().Be(SlotRecipeTitle.From("Cereal"));
 	}
 
 	[Fact]
@@ -243,7 +243,7 @@ public class WeeklyPlanTests
 
 		plan.AssignRecipe(DayOfWeek.Tuesday, Recipe("Pancakes"), MealType.Breakfast);
 
-		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).Recipe!.Title.Value.Should().Be("Pancakes");
+		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).Recipe!.Title.Should().Be(SlotRecipeTitle.From("Pancakes"));
 	}
 
 	[Fact]
@@ -291,7 +291,7 @@ public class WeeklyPlanTests
 		plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday, MealType.Breakfast);
 
 		plan.Slots.First(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Breakfast).IsEmpty.Should().BeTrue();
-		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).Recipe!.Title.Value.Should().Be("Pancakes");
+		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday && s.MealType == MealType.Breakfast).Recipe!.Title.Should().Be(SlotRecipeTitle.From("Pancakes"));
 	}
 
 	[Fact]
@@ -314,7 +314,7 @@ public class WeeklyPlanTests
 
 		var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
 		monday.ContentType.Should().Be(SlotContentType.Freetext);
-		monday.FreetextLabel!.Value.Should().Be("Eating out");
+		monday.FreetextLabel.Should().Be(FreetextLabel.From("Eating out"));
 		monday.IsEmpty.Should().BeFalse();
 		monday.Recipe.Should().BeNull();
 	}
@@ -413,12 +413,12 @@ public class WeeklyPlanTests
 
 		var monday = plan.Slots.First(s => s.Day == DayOfWeek.Monday);
 		monday.ContentType.Should().Be(SlotContentType.Freetext);
-		monday.FreetextLabel!.Value.Should().Be("Eating out");
+		monday.FreetextLabel.Should().Be(FreetextLabel.From("Eating out"));
 		monday.Recipe.Should().BeNull();
 
 		var tuesday = plan.Slots.First(s => s.Day == DayOfWeek.Tuesday);
 		tuesday.ContentType.Should().Be(SlotContentType.Recipe);
-		tuesday.Recipe!.RecipeIdentifier.Value.Should().Be(recipeId);
+		tuesday.Recipe!.RecipeIdentifier.Should().Be(SlotRecipeIdentifier.From(recipeId));
 		tuesday.FreetextLabel.Should().BeNull();
 	}
 
@@ -437,7 +437,7 @@ public class WeeklyPlanTests
 
 		var wednesday = plan.Slots.First(s => s.Day == DayOfWeek.Wednesday);
 		wednesday.ContentType.Should().Be(SlotContentType.Recipe);
-		wednesday.Recipe!.Title.Value.Should().Be("Bolognese");
+		wednesday.Recipe!.Title.Should().Be(SlotRecipeTitle.From("Bolognese"));
 	}
 
 	[Fact]
@@ -449,7 +449,7 @@ public class WeeklyPlanTests
 		plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 
 		plan.Slots.First(s => s.Day == DayOfWeek.Monday).IsEmpty.Should().BeTrue();
-		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).FreetextLabel!.Value.Should().Be("Pizza order");
+		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).FreetextLabel.Should().Be(FreetextLabel.From("Pizza order"));
 	}
 
 	[Fact]
@@ -460,7 +460,7 @@ public class WeeklyPlanTests
 
 		plan.AdjustServings(DayOfWeek.Monday, SlotServings.From(8));
 
-		plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Value.Should().Be(8);
+		plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(SlotServings.From(8));
 	}
 
 	[Fact]
@@ -470,7 +470,7 @@ public class WeeklyPlanTests
 
 		plan.AdjustServings(DayOfWeek.Monday, SlotServings.From(6));
 
-		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Value.Should().Be(4);
+		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Should().Be(SlotServings.From(4));
 	}
 
 	[Fact]
@@ -481,8 +481,8 @@ public class WeeklyPlanTests
 
 		plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 
-		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Value.Should().Be(8);
-		plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Value.Should().Be(4);
+		plan.Slots.First(s => s.Day == DayOfWeek.Tuesday).Servings.Should().Be(SlotServings.From(8));
+		plan.Slots.First(s => s.Day == DayOfWeek.Monday).Servings.Should().Be(SlotServings.From(4));
 	}
 
 	[Theory]
@@ -563,7 +563,7 @@ public class WeeklyPlanTests
 		var unconfirmed = plan.GetUnconfirmedPastMeals(DayOfWeek.Wednesday);
 
 		unconfirmed.Should().HaveCount(1);
-		unconfirmed[0].Recipe!.Title.Value.Should().Be("Steak");
+		unconfirmed[0].Recipe!.Title.Should().Be(SlotRecipeTitle.From("Steak"));
 	}
 
 	private static readonly OwnerIdentifier TestOwner = OwnerIdentifier.From("user-123");

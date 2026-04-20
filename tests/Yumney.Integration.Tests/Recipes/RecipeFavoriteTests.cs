@@ -94,7 +94,7 @@ public class RecipeFavoriteTests(AspireFixture fixture) : IAsyncLifetime
 			search: null,
 			filter: new RecipeFilter(FavoritesOnly: true));
 
-		totalCount.Value.Should().Be(1);
+		totalCount.Should().Be(ItemCount.From(1));
 		items.Should().ContainSingle(r => r.Id == lasagne.Id);
 	}
 
@@ -111,6 +111,6 @@ public class RecipeFavoriteTests(AspireFixture fixture) : IAsyncLifetime
 			search: null,
 			filter: new RecipeFilter(FavoritesOnly: false));
 
-		totalCount.Value.Should().Be(2);
+		totalCount.Should().Be(ItemCount.From(2));
 	}
 }

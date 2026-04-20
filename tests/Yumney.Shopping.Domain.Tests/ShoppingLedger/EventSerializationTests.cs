@@ -34,10 +34,10 @@ public class EventSerializationTests
 		var json = JsonSerializer.Serialize(original, JsonOptions);
 		var deserialized = JsonSerializer.Deserialize<ShoppingItemAdded>(json, JsonOptions)!;
 
-		deserialized.ItemName.Value.Should().Be("Milk");
-		deserialized.Quantity.Amount.Value.Should().Be(2.5m);
-		deserialized.Quantity.Unit!.Value.Should().Be("L");
-		deserialized.Source.Value.Should().Be("manual");
+		deserialized.ItemName.Should().Be(ItemName.From("Milk"));
+		deserialized.Quantity.Amount.Should().Be(Amount.From(2.5m));
+		deserialized.Quantity.Unit.Should().Be(Unit.From("L"));
+		deserialized.Source.Should().Be(ItemSource.Manual);
 	}
 
 	[Fact]
@@ -66,8 +66,8 @@ public class EventSerializationTests
 		var json = JsonSerializer.Serialize(original, JsonOptions);
 		var deserialized = JsonSerializer.Deserialize<ShoppingItemBought>(json, JsonOptions)!;
 
-		deserialized.ItemName.Value.Should().Be("Banana");
-		deserialized.Quantity.Amount.Value.Should().Be(3);
+		deserialized.ItemName.Should().Be(ItemName.From("Banana"));
+		deserialized.Quantity.Amount.Should().Be(Amount.From(3));
 		deserialized.Quantity.Unit.Should().BeNull();
 	}
 
@@ -82,7 +82,7 @@ public class EventSerializationTests
 		var json = JsonSerializer.Serialize(original, JsonOptions);
 		var deserialized = JsonSerializer.Deserialize<ShoppingItemRemoved>(json, JsonOptions)!;
 
-		deserialized.Reason!.Value.Should().Be("spoiled");
+		deserialized.Reason.Should().Be(RemovalReason.From("spoiled"));
 	}
 
 	[Fact]
@@ -95,8 +95,8 @@ public class EventSerializationTests
 		var json = JsonSerializer.Serialize(original, JsonOptions);
 		var deserialized = JsonSerializer.Deserialize<ShoppingItemQuantityAdjusted>(json, JsonOptions)!;
 
-		deserialized.NewQuantity.Amount.Value.Should().Be(1.5m);
-		deserialized.NewQuantity.Unit!.Value.Should().Be("kg");
+		deserialized.NewQuantity.Amount.Should().Be(Amount.From(1.5m));
+		deserialized.NewQuantity.Unit.Should().Be(Unit.From("kg"));
 	}
 
 	[Fact]

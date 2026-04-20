@@ -58,7 +58,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Value.Should().Be(1);
+		totalCount.Should().Be(ItemCount.From(1));
 		items.Should().ContainSingle(r => r.Title.Value == "Quick Vegan Salad");
 	}
 
@@ -105,7 +105,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Value.Should().Be(2);
+		totalCount.Should().Be(ItemCount.From(2));
 		items.Select(r => r.Title.Value).Should()
 			.Contain("Quick Vegan Salad")
 			.And.Contain("Vegan Curry");
@@ -121,7 +121,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Value.Should().Be(1);
+		totalCount.Should().Be(ItemCount.From(1));
 		items.Should().ContainSingle(r => r.Title.Value == "Quick Vegan Salad");
 	}
 
@@ -139,7 +139,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Value.Should().Be(1);
+		totalCount.Should().Be(ItemCount.From(1));
 		items.Should().ContainSingle(r => r.Title.Value == "Vegan Curry");
 	}
 
@@ -152,7 +152,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var (_, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: null);
 
-		totalCount.Value.Should().Be(4);
+		totalCount.Should().Be(ItemCount.From(4));
 	}
 
 	[Fact]
@@ -165,7 +165,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var (_, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Value.Should().Be(4);
+		totalCount.Should().Be(ItemCount.From(4));
 	}
 
 	[Fact]
@@ -178,7 +178,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, totalCount) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Value.Should().Be(0);
+		totalCount.Should().Be(ItemCount.From(0));
 		items.Should().BeEmpty();
 	}
 

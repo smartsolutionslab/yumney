@@ -29,9 +29,9 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 			.FirstOrDefaultAsync(p => p.Id == profile.Id);
 
 		saved.Should().NotBeNull();
-		saved!.KeycloakUserId.Value.Should().Be(keycloakId.Value);
-		saved.PreferredLanguage.Value.Should().Be("en");
-		saved.PreferredUnitSystem.Value.Should().Be("metric");
+		saved!.KeycloakUserId.Should().Be(keycloakId);
+		saved.PreferredLanguage.Should().Be(PreferredLanguage.From("en"));
+		saved.PreferredUnitSystem.Should().Be(PreferredUnitSystem.From("metric"));
 	}
 
 	[Fact]
@@ -45,7 +45,7 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		var loaded = await users.FindByKeycloakUserIdAsync(keycloakId);
 
 		loaded.Should().NotBeNull();
-		loaded!.DisplayName.Value.Should().Be("Test User");
+		loaded!.DisplayName.Should().Be(DisplayName.From("Test User"));
 	}
 
 	[Fact]
@@ -84,7 +84,7 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		var saved = await readContext.AppUserProfiles
 			.FirstOrDefaultAsync(p => p.Id == profile.Id);
 
-		saved!.DisplayName.Value.Should().Be("Jane Doe");
+		saved!.DisplayName.Should().Be(DisplayName.From("Jane Doe"));
 	}
 
 	private AppUserProfile CreateProfile(string? displayName = null)
