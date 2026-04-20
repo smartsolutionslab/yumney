@@ -19,7 +19,6 @@ public sealed class AddManualItemCommandHandler(IShoppingEventStore eventStore, 
 		var category = IngredientCategoryResolver.Resolve(itemName.Value) ?? IngredientCategory.Other;
 
 		var ledger = await eventStore.LoadAsync(ownerId, cancellationToken) ?? ShoppingLedger.Create(ownerId);
-
 		ledger.AddItem(itemName, quantity, ItemSource.Manual);
 
 		await eventStore.SaveAsync(ledger, cancellationToken);
