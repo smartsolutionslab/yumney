@@ -3,6 +3,16 @@
     <h1>{{ t('shopping.title') }}</h1>
     <div class="list-actions">
       <button
+        class="history-btn"
+        [class.active]="showPastPurchases()"
+        (click)="onTogglePastPurchases()"
+        [attr.aria-pressed]="showPastPurchases()"
+        [attr.aria-label]="t('shopping.history.toggle')"
+        [title]="t('shopping.history.toggle')"
+      >
+        <lucide-icon name="history" [size]="18" />
+      </button>
+      <button
         class="export-btn"
         (click)="onExport()"
         [attr.aria-label]="t('shopping.export.button')"

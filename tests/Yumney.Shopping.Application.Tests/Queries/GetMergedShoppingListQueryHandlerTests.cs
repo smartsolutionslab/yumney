@@ -60,4 +60,26 @@ public class GetMergedShoppingListQueryHandlerTests
 
 		await readModel.Received(1).GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>());
 	}
+
+	[Fact]
+	public async Task HandleAsync_DefaultQuery_HidesPastBoughtItems()
+	{
+		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+			.Returns(new MergedShoppingListDto([]));
+
+		await handler.HandleAsync(new GetMergedShoppingListQuery());
+
+		await readModel.Received(1).GetByOwnerAsync("user-123", false, Arg.Any<CancellationToken>());
+	}
+
+	[Fact]
+	public async Task HandleAsync_IncludePastBought_ForwardsToReadModel()
+	{
+		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+			.Returns(new MergedShoppingListDto([]));
+
+		await handler.HandleAsync(new GetMergedShoppingListQuery(IncludePastBought: true));
+
+		await readModel.Received(1).GetByOwnerAsync("user-123", true, Arg.Any<CancellationToken>());
+	}
 }

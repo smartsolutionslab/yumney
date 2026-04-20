@@ -83,6 +83,10 @@
       "pantry": "Pantry",
       "household": "Household",
       "other": "Other"
+    },
+    "history": {
+      "toggle": "Show today's purchases",
+      "empty": "No purchases yet today."
     }
   },
   "common": {

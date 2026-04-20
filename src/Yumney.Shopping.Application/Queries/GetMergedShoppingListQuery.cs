@@ -4,4 +4,4 @@ using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 
-public sealed record GetMergedShoppingListQuery : IQuery<Result<MergedShoppingListDto>>;
+public sealed record GetMergedShoppingListQuery(bool IncludePastBought = false) : IQuery<Result<MergedShoppingListDto>>;

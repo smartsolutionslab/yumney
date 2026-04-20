@@ -20,7 +20,8 @@
   }
 }
 
-.export-btn {
+.export-btn,
+.history-btn {
   @include glass.glass-surface(1);
   display: flex;
   align-items: center;
@@ -31,6 +32,16 @@
   border: 1px solid var(--yn-glass-border);
   cursor: pointer;
   color: var(--yn-text);
+}
+
+.history-btn.active {
+  border-color: var(--yn-primary);
+  color: var(--yn-primary);
+}
+
+.list-actions {
+  display: flex;
+  gap: var(--yn-space-2);
 }
 
 .progress-bar {

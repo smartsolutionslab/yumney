@@ -18,6 +18,10 @@ const en = {
       shared: 'Shared',
       nothing: 'Nothing to export',
     },
+    history: {
+      toggle: "Show today's purchases",
+      empty: 'No purchases yet today.',
+    },
     remove: 'Remove',
     checked: 'checked',
     retry: 'Retry',
@@ -98,6 +102,33 @@ describe('MergedListComponent', () => {
   it('should show add item input', () => {
     const input = fixture.nativeElement.querySelector('.add-input');
     expect(input).toBeTruthy();
+  });
+
+  describe('past-purchases toggle', () => {
+    it('requests active list (includePastBought=false) on load', () => {
+      expect(apiMock.getMergedList).toHaveBeenCalledWith(false);
+    });
+
+    it('toggles and reloads with includePastBought=true', () => {
+      apiMock.getMergedList.mockClear();
+      apiMock.getMergedList.mockReturnValue(of(mockList));
+
+      fixture.componentInstance['onTogglePastPurchases']();
+
+      expect(fixture.componentInstance['showPastPurchases']()).toBe(true);
+      expect(apiMock.getMergedList).toHaveBeenCalledWith(true);
+    });
+
+    it('toggling twice returns to the default view', () => {
+      fixture.componentInstance['onTogglePastPurchases']();
+      apiMock.getMergedList.mockClear();
+      apiMock.getMergedList.mockReturnValue(of(mockList));
+
+      fixture.componentInstance['onTogglePastPurchases']();
+
+      expect(fixture.componentInstance['showPastPurchases']()).toBe(false);
+      expect(apiMock.getMergedList).toHaveBeenCalledWith(false);
+    });
   });
 
   it('should call addItem when submitting', () => {
