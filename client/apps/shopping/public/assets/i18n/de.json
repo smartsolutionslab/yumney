@@ -58,7 +58,12 @@
     "loading": "Wird geladen...",
     "empty": "Deine Einkaufsliste ist leer. Füge Artikel hinzu oder plane Mahlzeiten.",
     "addPlaceholder": "Artikel hinzufügen...",
-    "export": "Liste exportieren",
+    "export": {
+      "button": "Liste exportieren",
+      "copied": "In Zwischenablage kopiert",
+      "shared": "Geteilt",
+      "nothing": "Nichts zu teilen — alle Artikel sind abgehakt."
+    },
     "remove": "Artikel entfernen",
     "checked": "erledigt",
     "retry": "Erneut versuchen",

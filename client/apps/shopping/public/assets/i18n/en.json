@@ -58,7 +58,12 @@
     "loading": "Loading...",
     "empty": "Your shopping list is empty. Add items or plan meals.",
     "addPlaceholder": "Add an item...",
-    "export": "Export list",
+    "export": {
+      "button": "Export list",
+      "copied": "Copied to clipboard",
+      "shared": "Shared",
+      "nothing": "Nothing to export — all items are checked off."
+    },
     "remove": "Remove item",
     "checked": "checked",
     "retry": "Retry",
