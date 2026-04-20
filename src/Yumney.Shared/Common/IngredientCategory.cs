@@ -9,17 +9,27 @@ public sealed record IngredientCategory : IValueObject<string>
 
 #pragma warning disable SA1202
 	private static readonly string[] allowedValues =
-		["produce", "dairy", "meat-fish", "bakery", "frozen", "beverages", "pantry", "household", "other"];
+	[
+		Produce!.Value,
+		Dairy!.Value,
+		MeatFish!.Value,
+		Bakery!.Value,
+		Frozen!.Value,
+		Beverages!.Value,
+		Pantry!.Value,
+		Household!.Value,
+		Other!.Value
+	];
 
-	public static readonly IngredientCategory Produce = new("produce");
-	public static readonly IngredientCategory Dairy = new("dairy");
-	public static readonly IngredientCategory MeatFish = new("meat-fish");
-	public static readonly IngredientCategory Bakery = new("bakery");
-	public static readonly IngredientCategory Frozen = new("frozen");
-	public static readonly IngredientCategory Beverages = new("beverages");
-	public static readonly IngredientCategory Pantry = new("pantry");
-	public static readonly IngredientCategory Household = new("household");
-	public static readonly IngredientCategory Other = new("other");
+	public static readonly IngredientCategory Produce = From("produce");
+	public static readonly IngredientCategory Dairy = From("dairy");
+	public static readonly IngredientCategory MeatFish = From("meat-fish");
+	public static readonly IngredientCategory Bakery = From("bakery");
+	public static readonly IngredientCategory Frozen = From("frozen");
+	public static readonly IngredientCategory Beverages = From("beverages");
+	public static readonly IngredientCategory Pantry = From("pantry");
+	public static readonly IngredientCategory Household = From("household");
+	public static readonly IngredientCategory Other = From("other");
 #pragma warning restore SA1202
 
 	public string Value { get; }

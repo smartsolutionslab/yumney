@@ -13,10 +13,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Persistence;
 public sealed class EfCoreInboxStore<TContext>(TContext context) : IInboxStore
 	where TContext : DbContext
 {
-	public async Task<bool> TryMarkProcessedAsync(
-		Guid messageId,
-		string consumerName,
-		CancellationToken cancellationToken = default)
+	public async Task<bool> TryMarkProcessedAsync(Guid messageId, string consumerName, CancellationToken cancellationToken = default)
 	{
 		var set = context.Set<InboxMessage>();
 		set.Add(new InboxMessage { MessageId = messageId, ConsumerName = consumerName });

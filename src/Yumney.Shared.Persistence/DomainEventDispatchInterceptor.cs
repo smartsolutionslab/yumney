@@ -7,10 +7,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Persistence;
 
 public sealed class DomainEventDispatchInterceptor(IDomainEventDispatcher dispatcher) : SaveChangesInterceptor
 {
-	public override async ValueTask<int> SavedChangesAsync(
-		SaveChangesCompletedEventData eventData,
-		int result,
-		CancellationToken cancellationToken = default)
+	public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
 	{
 		if (eventData.Context is not null)
 		{
