@@ -11,6 +11,7 @@
     "serve:account": "nx serve account",
     "serve:all": "nx run-many --target=serve --projects=shell,recipes,shopping,account --parallel=4",
     "generate:validation": "node scripts/generate-validation-constants.mjs",
+    "generate:api-types": "node scripts/generate-api-types.mjs",
     "build:all": "node scripts/generate-validation-constants.mjs && nx run-many --target=build --projects=shell,recipes,shopping,account --parallel=4 && node scripts/copy-remotes.mjs",
     "storybook": "nx storybook ui --compodoc=false",
     "storybook:build": "nx build-storybook ui --compodoc=false"
@@ -83,6 +84,7 @@
     "jsdom": "~28.1.0",
     "jsonc-eslint-parser": "^3.1.0",
     "nx": "22.6.5",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.3",
     "serve": "^14.2.6",
     "storybook": "^10.3.5",
