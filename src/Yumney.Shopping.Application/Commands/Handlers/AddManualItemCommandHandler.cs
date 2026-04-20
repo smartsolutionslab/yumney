@@ -13,11 +13,10 @@ public sealed class AddManualItemCommandHandler(IShoppingEventStore eventStore, 
 	public async Task<Result<AddedItemDto>> HandleAsync(AddManualItemCommand command, CancellationToken cancellationToken = default)
 	{
 		var (itemName, explicitQuantity) = command;
-		var name = itemName.Value;
 		var ownerId = OwnerIdentifier.From(currentUser.UserId);
 
-		var quantity = explicitQuantity ?? DefaultQuantityResolver.Resolve(name);
-		var category = IngredientCategoryResolver.Resolve(name) ?? IngredientCategory.Other;
+		var quantity = explicitQuantity ?? DefaultQuantityResolver.Resolve(itemName.Value);
+		var category = IngredientCategoryResolver.Resolve(itemName.Value) ?? IngredientCategory.Other;
 
 		var ledger = await eventStore.LoadAsync(ownerId, cancellationToken) ?? ShoppingLedger.Create(ownerId);
 
@@ -25,12 +24,6 @@ public sealed class AddManualItemCommandHandler(IShoppingEventStore eventStore, 
 
 		await eventStore.SaveAsync(ledger, cancellationToken);
 
-		return new AddedItemDto(
-			name,
-			quantity.Amount,
-			quantity.Unit?.Value,
-			category.Value,
-			ItemSource.Manual.Value,
-			ledger.Identifier);
+		return ledger.ToAddedItemDto(itemName, quantity, category, ItemSource.Manual);
 	}
 }
