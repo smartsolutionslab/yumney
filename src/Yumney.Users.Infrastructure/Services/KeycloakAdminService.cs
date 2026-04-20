@@ -225,9 +225,7 @@ public sealed partial class KeycloakAdminService(
 		}
 	}
 
-	private async Task<Result<KeycloakUserId>> HandleUserCreationResponseAsync(
-		HttpResponseMessage response,
-		CancellationToken cancellationToken)
+	private async Task<Result<KeycloakUserId>> HandleUserCreationResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken)
 	{
 		if (response.StatusCode == HttpStatusCode.Conflict) return RegistrationErrors.EmailAlreadyExists;
 

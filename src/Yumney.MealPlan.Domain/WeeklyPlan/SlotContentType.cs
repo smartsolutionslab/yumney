@@ -1,8 +1,5 @@
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
-/// <summary>
-/// Describes what kind of content occupies a meal slot.
-/// </summary>
 public enum SlotContentType
 {
 	/// <summary>The slot has no content assigned.</summary>

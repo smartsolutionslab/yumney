@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SmartSolutionsLab.Yumney.Users.Infrastructure;
+namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
 
 public sealed class KeycloakOptions
 {

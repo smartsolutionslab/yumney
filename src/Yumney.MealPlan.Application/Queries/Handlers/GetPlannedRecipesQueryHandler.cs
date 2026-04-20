@@ -20,8 +20,8 @@ public sealed class GetPlannedRecipesQueryHandler(
 		var recipes = plan.Slots
 			.Where(s => s.ContentType == SlotContentType.Recipe && s.Recipe is not null)
 			.Select(s => new PlannedRecipeDto(
-				s.Recipe!.RecipeIdentifier,
-				s.Recipe.Title,
+				s.Recipe!.RecipeIdentifier.Value,
+				s.Recipe.Title.Value,
 				s.Servings.Value,
 				s.Day.ToString(),
 				s.MealType.ToString()))

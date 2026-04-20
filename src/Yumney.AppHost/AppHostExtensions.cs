@@ -23,27 +23,27 @@ internal static class AppHostExtensions
 	}
 
 	public static IResourceBuilder<ProjectResource> WithLlmProvider(
-		this IResourceBuilder<ProjectResource> api,
-		IDistributedApplicationBuilder builder,
+		this IResourceBuilder<ProjectResource> builder,
+		IDistributedApplicationBuilder aspireBuilder,
 		AppHostOptions options)
 	{
 		if (options.E2ETests)
-			return api;
+			return builder;
 
 		if (options.UseOllama)
 		{
-			var ollama = builder.AddOllama("ollama").WithDataVolume();
-			api.WithReference(ollama).WaitFor(ollama);
+			var ollama = aspireBuilder.AddOllama("ollama").WithDataVolume();
+			builder.WithReference(ollama).WaitFor(ollama);
 		}
 		else
 		{
-			var apiKey = builder.AddParameter("OpenAiApiKey", secret: true);
-			api
+			var apiKey = aspireBuilder.AddParameter("OpenAiApiKey", secret: true);
+			builder
 				.WithEnvironment("SemanticKernel__Provider", "OpenAI")
 				.WithEnvironment("SemanticKernel__ModelId", options.OpenAiModelId)
 				.WithEnvironment("SemanticKernel__ApiKey", apiKey);
 		}
 
-		return api;
+		return builder;
 	}
 }

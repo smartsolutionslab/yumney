@@ -5,17 +5,15 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Services;
 
 public sealed class HttpShoppingListWriter(IHttpClientFactory httpClientFactory) : IShoppingListWriter
 {
-	public async Task AddItemsAsync(
-		string ownerId,
-		IReadOnlyList<ShoppingItemRequest> items,
-		CancellationToken cancellationToken = default)
+	public async Task AddItemsAsync(string ownerId, IReadOnlyList<ShoppingItemRequest> items, CancellationToken cancellationToken = default)
 	{
 		var client = httpClientFactory.CreateClient("shopping-api");
 
-		foreach (var item in items)
+		foreach (var (itemName, quantity, unit, source) in items)
 		{
-			AddItemRequest request = new(ownerId, item.ItemName, item.Quantity, item.Unit, item.Source);
+			AddItemRequest request = new(ownerId, itemName, quantity, unit, source);
 			var url = "/api/v1/shopping-lists/items";
+
 			await client.PostAsJsonAsync(url, request, cancellationToken);
 		}
 	}

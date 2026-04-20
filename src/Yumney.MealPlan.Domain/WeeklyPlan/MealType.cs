@@ -1,8 +1,5 @@
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
-/// <summary>
-/// Identifies the type of meal within a day.
-/// </summary>
 public enum MealType
 {
 	/// <summary>The main evening meal.</summary>

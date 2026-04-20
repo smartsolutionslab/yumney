@@ -36,8 +36,13 @@ internal sealed class WeeklyPlanConfiguration : IEntityTypeConfiguration<WeeklyP
 			slot.Property(s => s.State).HasConversion<string>().HasMaxLength(10).IsRequired();
 			slot.OwnsOne(s => s.Recipe, recipe =>
 			{
-				recipe.Property(r => r.RecipeIdentifier).HasColumnName("RecipeIdentifier");
-				recipe.Property(r => r.Title).HasColumnName("RecipeTitle").HasMaxLength(200);
+				recipe.Property(r => r.RecipeIdentifier)
+					.HasConversion(v => v.Value, v => SlotRecipeIdentifier.From(v))
+					.HasColumnName("RecipeIdentifier");
+				recipe.Property(r => r.Title)
+					.HasConversion(v => v.Value, v => SlotRecipeTitle.From(v))
+					.HasColumnName("RecipeTitle")
+					.HasMaxLength(SlotRecipeTitle.MaxLength);
 			});
 			slot.Property(s => s.LeftoverLabel).HasConversion<LeftoverLabelConverter>().HasMaxLength(200);
 			slot.Property(s => s.Servings).HasConversion<SlotServingsConverter>().IsRequired();

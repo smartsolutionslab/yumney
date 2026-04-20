@@ -15,8 +15,7 @@ public sealed record LeftoverLabel : IValueObject<string>
 
 	public static LeftoverLabel From(string value) => new(value);
 
-	public static LeftoverLabel ForRecipe(string sourceRecipeTitle) =>
-		new($"Leftovers: {sourceRecipeTitle}");
+	public static LeftoverLabel ForRecipe(string sourceRecipeTitle) => new($"Leftovers: {sourceRecipeTitle}");
 
 	public static implicit operator string(LeftoverLabel obj) => obj.Value;
 

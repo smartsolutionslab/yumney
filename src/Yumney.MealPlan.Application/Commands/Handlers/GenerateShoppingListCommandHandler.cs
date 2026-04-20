@@ -31,9 +31,12 @@ public sealed class GenerateShoppingListCommandHandler(
 
 		foreach (var slot in recipeSlots)
 		{
-			var ingredients = await ingredientProvider.GetIngredientsAsync(slot.Recipe!.RecipeIdentifier, cancellationToken);
-			var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? slot.Servings.Value;
-			var scaleFactor = recipeServings > 0 ? (decimal)slot.Servings.Value / recipeServings : 1m;
+			var recipe = slot.Recipe;
+			var servings = slot.Servings;
+
+			var ingredients = await ingredientProvider.GetIngredientsAsync(recipe!.RecipeIdentifier.Value, cancellationToken);
+			var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? servings.Value;
+			var scaleFactor = recipeServings > 0 ? (decimal)servings.Value / recipeServings : 1m;
 
 			foreach (var ingredient in ingredients)
 			{
@@ -58,28 +61,27 @@ public sealed class GenerateShoppingListCommandHandler(
 		var staplesSkipped = 0;
 		var itemsToAdd = new List<ShoppingItemRequest>();
 
-		foreach (var item in merged.Values)
+		foreach (var (name, quantity, unit) in merged.Values)
 		{
-			if (staples.Contains(item.Name.ToLowerInvariant()))
+			if (staples.Contains(name.ToLowerInvariant()))
 			{
 				staplesSkipped++;
 				continue;
 			}
 
-			itemsToAdd.Add(new ShoppingItemRequest(item.Name, item.Quantity, item.Unit, "meal-plan"));
+			itemsToAdd.Add(new ShoppingItemRequest(name, quantity, unit, "meal-plan"));
 		}
 
-		if (itemsToAdd.Count > 0) await shoppingListWriter.AddItemsAsync(currentUser.UserId, itemsToAdd, cancellationToken);
+		if (itemsToAdd.Count > 0)
+		{
+			await shoppingListWriter.AddItemsAsync(currentUser.UserId, itemsToAdd, cancellationToken);
+		}
 
 		return new GenerateShoppingListResultDto(itemsToAdd.Count, staplesSkipped);
 	}
 
-	private sealed class MergedItem(string name, decimal quantity, string? unit)
+	private sealed record MergedItem(string Name, decimal Quantity, string? Unit)
 	{
-		public string Name { get; } = name;
-
-		public decimal Quantity { get; set; } = quantity;
-
-		public string? Unit { get; } = unit;
+		public decimal Quantity { get; set; } = Quantity;
 	}
 }

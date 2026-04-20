@@ -23,7 +23,7 @@ public class ToggleExtendedModeCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_EnableNoPlan_CreatesExtended()
 	{
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
 		var result = await handler.HandleAsync(new ToggleExtendedModeCommand(WeekIdentifier.From(2026, 15), true));
@@ -42,9 +42,7 @@ public class ToggleExtendedModeCommandHandlerTests
 		var existing = WeeklyPlan.Create(owner, week);
 		existing.EnableExtendedMode();
 
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(existing);
-		plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existing);
 
 		var result = await handler.HandleAsync(new ToggleExtendedModeCommand(WeekIdentifier.From(2026, 15), false));

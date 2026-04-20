@@ -37,15 +37,15 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 		var chatHistory = new ChatHistory();
 		chatHistory.AddSystemMessage(BuildSystemPrompt(userRecipes));
 
-		foreach (var entry in history)
+		foreach (var (role, content) in history)
 		{
-			if (entry.Role == ChatRole.User)
+			if (role == ChatRole.User)
 			{
-				chatHistory.AddUserMessage(entry.Content.Value);
+				chatHistory.AddUserMessage(content.Value);
 			}
-			else if (entry.Role == ChatRole.Assistant)
+			else if (role == ChatRole.Assistant)
 			{
-				chatHistory.AddAssistantMessage(entry.Content.Value);
+				chatHistory.AddAssistantMessage(content.Value);
 			}
 		}
 

@@ -30,10 +30,10 @@ public class GetRecentActivityQueryHandlerTests
 			RecipeIdentifierSnapshot.From(Guid.NewGuid()),
 			RecipeTitleSnapshot.From("Test Recipe"));
 
-		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), 5, Arg.Any<CancellationToken>())
+		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<ActivityLimit>(), Arg.Any<CancellationToken>())
 			.Returns(new List<UserActivity> { activity });
 
-		var result = await handler.HandleAsync(new GetRecentActivityQuery());
+		var result = await handler.HandleAsync(new GetRecentActivityQuery(ActivityLimit.Default()));
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Should().HaveCount(1);
@@ -43,10 +43,10 @@ public class GetRecentActivityQueryHandlerTests
 	[Fact]
 	public async Task HandleAsync_EmptyList_ReturnsEmpty()
 	{
-		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), 5, Arg.Any<CancellationToken>())
+		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<ActivityLimit>(), Arg.Any<CancellationToken>())
 			.Returns(new List<UserActivity>());
 
-		var result = await handler.HandleAsync(new GetRecentActivityQuery());
+		var result = await handler.HandleAsync(new GetRecentActivityQuery(ActivityLimit.Default()));
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Should().BeEmpty();
@@ -55,10 +55,11 @@ public class GetRecentActivityQueryHandlerTests
 	[Fact]
 	public async Task HandleAsync_RespectsLimit()
 	{
-		var query = new GetRecentActivityQuery(Limit: 10);
+		var limit = ActivityLimit.From(10);
+		var query = new GetRecentActivityQuery(Limit: limit);
 
 		await handler.HandleAsync(query);
 
-		await activities.Received(1).GetRecentAsync(Arg.Any<OwnerIdentifier>(), 10, Arg.Any<CancellationToken>());
+		await activities.Received(1).GetRecentAsync(Arg.Any<OwnerIdentifier>(), limit, Arg.Any<CancellationToken>());
 	}
 }

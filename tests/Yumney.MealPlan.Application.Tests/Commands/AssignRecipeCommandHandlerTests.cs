@@ -23,7 +23,7 @@ public class AssignRecipeCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_NoPlanExists_CreatesNewPlanAndAssigns()
 	{
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
 		var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pasta"));
@@ -42,9 +42,7 @@ public class AssignRecipeCommandHandlerTests
 		var week = WeekIdentifier.From(2026, 15);
 		var existing = WeeklyPlan.Create(owner, week);
 
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(existing);
-		plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existing);
 
 		var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Wednesday, SlotRecipeReference.From(Guid.NewGuid(), "Steak"), Servings: SlotServings.From(6));
@@ -59,7 +57,7 @@ public class AssignRecipeCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_ReturnsCorrectWeekInDto()
 	{
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((WeeklyPlan?)null);
 
 		var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Friday, SlotRecipeReference.From(Guid.NewGuid(), "Fish"));
@@ -77,9 +75,7 @@ public class AssignRecipeCommandHandlerTests
 		var existing = WeeklyPlan.Create(owner, week);
 		existing.EnableExtendedMode();
 
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(existing);
-		plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
+		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existing);
 
 		var command = new AssignRecipeCommand(WeekIdentifier.From(2026, 15), DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), "Pancakes"), MealType.Breakfast);

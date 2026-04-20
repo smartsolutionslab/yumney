@@ -5,16 +5,13 @@ using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Queries.Handlers;
 
-public sealed class GetSuggestionsQueryHandler(
-	IUserActivityRepository activities, ICurrentUser currentUser)
+public sealed class GetSuggestionsQueryHandler(IUserActivityRepository activities, ICurrentUser currentUser)
 	: IQueryHandler<GetSuggestionsQuery, Result<SuggestionsResponseDto>>
 {
 	public async Task<Result<SuggestionsResponseDto>> HandleAsync(GetSuggestionsQuery query, CancellationToken cancellationToken = default)
 	{
 		var owner = currentUser.AsOwner();
-
-		var recentActivities = await activities.GetRecentAsync(owner, 10, cancellationToken);
-
+		var recentActivities = await activities.GetRecentAsync(owner, ActivityLimit.From(10), cancellationToken);
 		var quickActions = BuildQuickActions(recentActivities);
 
 		return Result.Success(new SuggestionsResponseDto(Suggestions: [], QuickActions: quickActions));

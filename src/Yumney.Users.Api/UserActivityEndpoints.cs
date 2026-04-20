@@ -3,6 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Users.Application.DTOs;
 using SmartSolutionsLab.Yumney.Users.Application.Queries;
+using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 
 namespace SmartSolutionsLab.Yumney.Users.Api;
 
@@ -23,7 +24,7 @@ public static class UserActivityEndpoints
 			int limit = 5,
 			CancellationToken cancellationToken = default)
 		{
-			var query = new GetRecentActivityQuery(limit);
+			var query = new GetRecentActivityQuery(ActivityLimit.From(limit));
 			var result = await handler.HandleAsync(query, cancellationToken);
 			return result.ToOk();
 		}
