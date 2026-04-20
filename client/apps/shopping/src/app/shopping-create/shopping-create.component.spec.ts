@@ -3,12 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ShoppingCreateComponent } from './shopping-create.component';
-import {
-  RecipeApiService,
-  RecipeDetail,
-  ShoppingApiService,
-  ShoppingListDetail,
-} from '../api';
+import { RecipeApiService, RecipeDetail, ShoppingApiService, ShoppingListDetail } from '../api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 

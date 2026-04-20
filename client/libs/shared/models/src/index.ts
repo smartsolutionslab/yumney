@@ -37,5 +37,10 @@ export { ChatHintService } from './lib/chat-hint.service';
 export { VoiceService, type VoiceCommand } from './lib/voice.service';
 export { WakeLockService } from './lib/wake-lock.service';
 export { CookingTimerService, type CookingTimer } from './lib/cooking-timer.service';
-export { ToastService, type Toast, type ToastKind, type ShowToastOptions } from './lib/toast.service';
+export {
+  ToastService,
+  type Toast,
+  type ToastKind,
+  type ShowToastOptions,
+} from './lib/toast.service';
 export { globalErrorInterceptor } from './lib/global-error.interceptor';

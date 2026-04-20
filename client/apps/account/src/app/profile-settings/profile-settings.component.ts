@@ -2,11 +2,7 @@ import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import {
-  UserProfileApiService,
-  type UserProfile,
-  type UpdateProfileRequest,
-} from '../api';
+import { UserProfileApiService, type UserProfile, type UpdateProfileRequest } from '../api';
 import { UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 
