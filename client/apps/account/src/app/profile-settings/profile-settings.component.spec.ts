@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { ProfileSettingsComponent } from './profile-settings.component';
-import { UserProfileApiService, type UserProfile } from '@yumney/shared/api-client';
+import { UserProfileApiService, type UserProfile } from '../api';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {

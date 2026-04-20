@@ -68,6 +68,27 @@ export default [
   },
   {
     files: [
+      'apps/recipes/src/**/*.ts',
+      'apps/shopping/src/**/*.ts',
+      'apps/account/src/**/*.ts',
+    ],
+    ignores: ['apps/*/src/app/api.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@yumney/shared/api-client',
+              message: 'Import from the MFE facade (./api or ../api, etc.) instead of @yumney/shared/api-client. Add any missing exports to the facade first.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
       '**/*.ts',
       '**/*.tsx',
       '**/*.cts',

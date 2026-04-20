@@ -8,7 +8,7 @@ import {
   RecipeDetail,
   ShoppingApiService,
   ShoppingListDetail,
-} from '@yumney/shared/api-client';
+} from '../api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 

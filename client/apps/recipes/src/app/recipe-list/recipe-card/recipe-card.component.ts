@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeListItem } from '@yumney/shared/api-client';
+import { RecipeListItem } from '../../api';
 import { ROUTES } from '@yumney/shared/models';
 import { FavoriteButtonComponent } from '@yumney/ui';
 

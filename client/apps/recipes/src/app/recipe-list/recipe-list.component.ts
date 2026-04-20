@@ -18,7 +18,7 @@ import {
   RecipeApiService,
   RecipeListItem,
   GetRecipesParams,
-} from '@yumney/shared/api-client';
+} from '../api';
 import {
   createAsyncState,
   ERROR_MAPS,

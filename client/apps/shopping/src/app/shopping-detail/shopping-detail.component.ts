@@ -13,7 +13,7 @@ import {
   ShoppingApiService,
   ShoppingListDetail,
   ShoppingListItemResponse,
-} from '@yumney/shared/api-client';
+} from '../api';
 import {
   createAsyncState,
   ERROR_MAPS,

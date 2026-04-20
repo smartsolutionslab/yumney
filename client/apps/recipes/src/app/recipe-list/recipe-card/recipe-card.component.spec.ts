@@ -4,7 +4,7 @@ import { Component, signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { RecipeCardComponent } from './recipe-card.component';
 import { setupTranslocoTesting } from '@yumney/shared/models';
-import type { RecipeListItem } from '@yumney/shared/api-client';
+import type { RecipeListItem } from '../../api';
 
 const en = {
   recipes: {

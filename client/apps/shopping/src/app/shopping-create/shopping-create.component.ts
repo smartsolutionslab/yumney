@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService, RecipeDetail } from '@yumney/shared/api-client';
-import { ShoppingApiService, CreateShoppingListItem } from '@yumney/shared/api-client';
+import { RecipeApiService, RecipeDetail } from '../api';
+import { ShoppingApiService, CreateShoppingListItem } from '../api';
 import { createAsyncState, ERROR_MAPS, ROUTES, VALIDATION } from '@yumney/shared/models';
 import { BackLinkComponent, LoadingSpinnerComponent } from '@yumney/ui';
 
