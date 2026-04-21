@@ -275,6 +275,23 @@ public class SemanticKernelRecipeExtractionServiceTests
 	}
 
 	[Fact]
+	public async Task ExtractAsync_SameContentTwice_UsesCacheAndCallsLlmOnce()
+	{
+		var fake = new FakeChatCompletionService(validRecipeJson);
+		var kernel = CreateKernel(fake);
+		var cache = new InMemoryExtractionResultCache();
+		var sut = new SemanticKernelRecipeExtractionService(kernel, cache, logger);
+		var content = new ScrapedContent("same cleaned text", RecipeUrl.From("https://example.com/r"));
+
+		var first = await sut.ExtractAsync(content);
+		var second = await sut.ExtractAsync(content);
+
+		first.IsSuccess.Should().BeTrue();
+		second.IsSuccess.Should().BeTrue();
+		fake.InvocationCount.Should().Be(1, "cache must suppress the second LLM call");
+	}
+
+	[Fact]
 	public async Task ExtractAsync_WithStructuredRecipe_SkipsLlmAndReturnsIt()
 	{
 		var fake = new FakeChatCompletionService("should-not-be-called");
@@ -321,21 +338,21 @@ public class SemanticKernelRecipeExtractionServiceTests
 	private SemanticKernelRecipeExtractionService CreateSut(FakeChatCompletionService fake)
 	{
 		var kernel = CreateKernel(fake);
-		return new SemanticKernelRecipeExtractionService(kernel, logger);
+		return new SemanticKernelRecipeExtractionService(kernel, new InMemoryExtractionResultCache(), logger);
 	}
 
 	private SemanticKernelRecipeExtractionService CreateSutWithException(Exception exception)
 	{
 		var fake = new FakeChatCompletionService(exception);
 		var kernel = CreateKernel(fake);
-		return new SemanticKernelRecipeExtractionService(kernel, logger);
+		return new SemanticKernelRecipeExtractionService(kernel, new InMemoryExtractionResultCache(), logger);
 	}
 
 	private SemanticKernelRecipeExtractionService CreateSutWithNullContent()
 	{
 		var fake = new FakeChatCompletionService();
 		var kernel = CreateKernel(fake);
-		return new SemanticKernelRecipeExtractionService(kernel, logger);
+		return new SemanticKernelRecipeExtractionService(kernel, new InMemoryExtractionResultCache(), logger);
 	}
 
 	private sealed class FakeChatCompletionService(

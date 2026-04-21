@@ -14,7 +14,10 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1311
-public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel, ILogger<SemanticKernelRecipeExtractionService> logger)
+public sealed partial class SemanticKernelRecipeExtractionService(
+	Kernel kernel,
+	IExtractionResultCache cache,
+	ILogger<SemanticKernelRecipeExtractionService> logger)
 	: IRecipeExtractionService
 {
 	private static readonly JsonSerializerOptions jsonOptions = new()
@@ -43,12 +46,29 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
 		var sanitized = ContentSanitizer.Sanitize(cleanedText);
 
+		var cacheKey = cache.ComputeKey(sanitized);
+		var cached = await cache.GetAsync(cacheKey, cancellationToken);
+		if (cached is not null)
+		{
+			activity?.SetTag("extract.cache", "hit");
+			activity?.SetStatus(ActivityStatusCode.Ok);
+			LogCacheHit(sourceUrl);
+			return cached;
+		}
+
+		activity?.SetTag("extract.cache", "miss");
+
 		var chatHistory = new ChatHistory();
 		chatHistory.AddSystemMessage(ExtractionPrompts.WebExtraction);
 		chatHistory.AddUserMessage(ExtractionPrompts.WrapInContentDelimiters(sanitized));
 
 		var result = await CallLlmAndParseAsync(chatHistory, sourceUrl, cancellationToken);
 		SetActivityResult(activity, result);
+
+		if (result.IsSuccess)
+		{
+			await cache.SetAsync(cacheKey, result.Value!, cancellationToken);
+		}
 
 		return result;
 	}
@@ -213,4 +233,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
 	[LoggerMessage(Level = LogLevel.Information, Message = "LLM response for {SourceUrl} was not valid JSON; retrying with a repair prompt")]
 	private partial void LogParseRetry(string sourceUrl);
+
+	[LoggerMessage(Level = LogLevel.Debug, Message = "Extraction cache hit for {SourceUrl}; skipping LLM")]
+	private partial void LogCacheHit(string sourceUrl);
 }

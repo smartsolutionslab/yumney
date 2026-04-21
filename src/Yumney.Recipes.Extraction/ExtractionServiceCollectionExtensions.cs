@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.SemanticKernel;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
@@ -14,6 +15,7 @@ public static class ExtractionServiceCollectionExtensions
 		services.AddHttpClient<IWebScraper, WebScraper>(BrowserHttpClientDefaults.ConfigureHttpClient)
 			.ConfigurePrimaryHttpMessageHandler(BrowserHttpClientDefaults.CreateHandler)
 			.AddStandardResilienceHandler();
+		services.TryAddSingleton<IExtractionResultCache, InMemoryExtractionResultCache>();
 		services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
 		services.AddScoped<IIngredientRecognitionService, SemanticKernelIngredientRecognitionService>();
 		services.AddScoped<IChatService, SemanticKernelChatService>();
