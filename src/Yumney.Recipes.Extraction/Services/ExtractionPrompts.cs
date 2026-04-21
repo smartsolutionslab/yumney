@@ -62,5 +62,12 @@ public static class ExtractionPrompts
         If no food ingredients are visible, respond with: { "ingredients": [] }
         """;
 
+	public const string JsonRepair = """
+        Your previous response could not be parsed as JSON matching the required schema.
+        Respond again with ONLY valid JSON matching the schema — no prose before or after,
+        no markdown fences, no trailing commas. If the content does not contain a recipe,
+        respond with { "error": "NO_RECIPE_FOUND" }.
+        """;
+
 	public static string WrapInContentDelimiters(string content) => $"<webpage_content>{content}</webpage_content>";
 }
