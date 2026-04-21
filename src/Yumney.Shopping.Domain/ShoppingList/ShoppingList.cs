@@ -80,6 +80,12 @@ public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
 		return this;
 	}
 
+	public ShoppingList ClearRecipeReference()
+	{
+		RecipeReference = null;
+		return this;
+	}
+
 	private ShoppingListItem FindItem(ShoppingListItemIdentifier itemId)
 	{
 		var item = items.FirstOrDefault(i => i.Id == itemId);

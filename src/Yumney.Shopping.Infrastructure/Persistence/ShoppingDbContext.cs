@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
@@ -14,8 +16,11 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
 
 	public DbSet<AggregateMetadata> ShoppingAggregates => Set<AggregateMetadata>();
 
+	public DbSet<InboxMessage> InboxMessages => Set<InboxMessage>();
+
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShoppingDbContext).Assembly);
+		modelBuilder.ApplyConfiguration(new InboxMessageConfiguration());
 	}
 }

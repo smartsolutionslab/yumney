@@ -17,4 +17,9 @@ public interface IShoppingListRepository
 		PagingOptions paging,
 		SortingOptions<ShoppingListSortField> sorting,
 		CancellationToken cancellationToken = default);
+
+	Task<IReadOnlyList<ShoppingList>> FindByRecipeReferenceAsync(
+		OwnerIdentifier owner,
+		RecipeReference recipeReference,
+		CancellationToken cancellationToken = default);
 }

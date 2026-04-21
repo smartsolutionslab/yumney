@@ -3,6 +3,8 @@ using NSubstitute;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Events;
 using Xunit;
 using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
@@ -12,12 +14,16 @@ public class ConfirmMealCommandHandlerTests
 {
 	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
 	private readonly IMealPlanUnitOfWork unitOfWork = Substitute.For<IMealPlanUnitOfWork>();
+	private readonly IRecipeIngredientProvider ingredientProvider = Substitute.For<IRecipeIngredientProvider>();
+	private readonly IEventBus eventBus = Substitute.For<IEventBus>();
 	private readonly ConfirmMealCommandHandler handler;
 
 	public ConfirmMealCommandHandlerTests()
 	{
 		unitOfWork.Plans.Returns(plans);
-		handler = new ConfirmMealCommandHandler(unitOfWork, CreateCurrentUser());
+		ingredientProvider.GetIngredientsAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>())
+			.Returns(Array.Empty<RecipeIngredientInfo>());
+		handler = new ConfirmMealCommandHandler(unitOfWork, CreateCurrentUser(), ingredientProvider, eventBus);
 	}
 
 	[Fact]
