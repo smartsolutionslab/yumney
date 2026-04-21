@@ -215,6 +215,24 @@ public sealed class AspireFixture : IAsyncLifetime
 
 	public async Task<HttpClient> CreateAuthenticatedClientAsync(string resourceName)
 	{
+		var accessToken = await GetTestUserAccessTokenAsync();
+		var client = App.CreateHttpClient(resourceName);
+		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+		return client;
+	}
+
+	public async Task<string> GetTestUserIdAsync()
+	{
+		var accessToken = await GetTestUserAccessTokenAsync();
+		var payload = accessToken.Split('.')[1];
+		var padded = payload.PadRight(payload.Length + ((4 - (payload.Length % 4)) % 4), '=');
+		var decoded = Convert.FromBase64String(padded.Replace('-', '+').Replace('_', '/'));
+		var claims = JsonSerializer.Deserialize<JsonElement>(decoded);
+		return claims.GetProperty("sub").GetString()!;
+	}
+
+	private async Task<string> GetTestUserAccessTokenAsync()
+	{
 		var keycloakClient = App.CreateHttpClient("keycloak");
 		var tokenResponse = await keycloakClient.PostAsync(
 			"/realms/yumney/protocol/openid-connect/token",
@@ -228,13 +246,10 @@ public sealed class AspireFixture : IAsyncLifetime
 
 		tokenResponse.EnsureSuccessStatusCode();
 		var tokenJson = await tokenResponse.Content.ReadFromJsonAsync<JsonElement>();
-		var accessToken = tokenJson.GetProperty("access_token").GetString()!;
-
-		var client = App.CreateHttpClient(resourceName);
-		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-		return client;
+		return tokenJson.GetProperty("access_token").GetString()!;
 	}
 
+#pragma warning disable SA1204
 	private static async Task CleanupStaleContainersAsync()
 	{
 		try
