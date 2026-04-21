@@ -2,8 +2,12 @@ name: Deploy
 
 on:
   push:
-    branches: [main, develop]
+    branches: [develop]
     tags: ['v*']
+
+concurrency:
+  group: deploy-${{ github.ref_type == 'tag' && 'production' || github.ref_name }}
+  cancel-in-progress: false
 
 permissions:
   id-token: write

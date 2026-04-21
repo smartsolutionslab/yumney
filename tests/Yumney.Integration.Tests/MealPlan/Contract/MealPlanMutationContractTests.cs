@@ -128,6 +128,10 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	[Fact]
 	public async Task ConfirmMeal_SlotExists_Returns200()
 	{
+		// Uses state=2 (Skipped) instead of 1 (Cooked) — Cooked triggers the
+		// cross-module ingredient lookup added in #280, which needs a real
+		// recipe. End-to-end Cooked propagation belongs in a dedicated
+		// cross-module test, not this contract test.
 		using var client = await fixture.CreateAuthenticatedClientAsync("mealplan-api");
 		var week = WeekPath(14);
 		await client.PostAsJsonAsync(week + "/slots", new
@@ -143,7 +147,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 		{
 			day = DayOfWeek.Wednesday,
 			mealType = 0,
-			state = 1,
+			state = 2,
 		});
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
