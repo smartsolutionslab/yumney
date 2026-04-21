@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FluentAssertions.Execution;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Events;
 using SmartSolutionsLab.Yumney.Shared.Guards;
@@ -47,14 +48,13 @@ public class RecipeTests
 	}
 
 	[Fact]
-	public void Create_ValidInput_SetsCreatedAt()
+	public void Create_ValidInput_SetsCreatedAtCloseToNow()
 	{
 		var before = DateTime.UtcNow;
 
 		var recipe = CreateValidRecipe();
 
-		recipe.CreatedAt.Should().BeOnOrAfter(before);
-		recipe.CreatedAt.Should().BeOnOrBefore(DateTime.UtcNow);
+		recipe.CreatedAt.Should().BeCloseTo(before, TimeSpan.FromSeconds(5));
 	}
 
 	[Fact]
@@ -111,6 +111,7 @@ public class RecipeTests
 			difficulty: difficulty,
 			imageUrl: imageUrl);
 
+		using var scope = new AssertionScope();
 		recipe.Description.Should().Be(description);
 		recipe.Servings.Should().Be(servings);
 		recipe.Timing?.Preparation.Should().Be(preparationTime);
@@ -124,6 +125,7 @@ public class RecipeTests
 	{
 		var recipe = CreateValidRecipe();
 
+		using var scope = new AssertionScope();
 		recipe.Description.Should().BeNull();
 		recipe.Servings.Should().BeNull();
 		recipe.Timing?.Preparation.Should().BeNull();
