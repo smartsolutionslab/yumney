@@ -89,6 +89,45 @@ public class StreamingJsonFieldDetectorTests
 	}
 
 	[Fact]
+	public void Consume_UnicodeEscape_Decoded()
+	{
+		var detector = new StreamingJsonFieldDetector();
+
+		var events = detector.Consume("""{"title":"Cr\u00e8me Br\u00fbl\u00e9e"}""").ToList();
+
+		events.Should().ContainSingle();
+		events[0].Value.Should().Be("Crème Brûlée");
+	}
+
+	[Fact]
+	public void Consume_UnicodeEscape_SplitAcrossChunks_WaitsForAllHexDigits()
+	{
+		var detector = new StreamingJsonFieldDetector();
+
+		// First chunk ends mid-escape; detector must not emit a garbled value.
+		var first = detector.Consume("""{"title":"Crème au \u00""").ToList();
+		var second = detector.Consume("""e9""").ToList();
+		var third = detector.Consume("""rapé"}""").ToList();
+
+		first.Should().BeEmpty();
+		second.Should().BeEmpty();
+		third.Should().ContainSingle();
+		third[0].Value.Should().Be("Crème au érapé");
+	}
+
+	[Fact]
+	public void Consume_MalformedUnicodeEscape_DoesNotEmit()
+	{
+		var detector = new StreamingJsonFieldDetector();
+
+		// Non-hex chars after \u → refuse to emit; caller keeps waiting (safer
+		// than returning garbage).
+		var events = detector.Consume("""{"title":"bad \uZZZZ value"}""").ToList();
+
+		events.Should().BeEmpty();
+	}
+
+	[Fact]
 	public void Consume_NonStringValue_Ignored()
 	{
 		var detector = new StreamingJsonFieldDetector();
