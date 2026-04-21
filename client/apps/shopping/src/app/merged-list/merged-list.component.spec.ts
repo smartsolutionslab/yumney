@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { MergedListComponent } from './merged-list.component';
 import { ShoppingApiService, type MergedShoppingList } from '../api';
 import { setupTranslocoTesting, ToastService } from '@yumney/shared/models';
@@ -147,6 +147,23 @@ describe('MergedListComponent', () => {
 
       const empty = fixture.nativeElement.querySelector('.empty-state');
       expect(empty?.textContent).not.toContain('No past purchases');
+    });
+
+    it('stale in-flight response is discarded when a newer request starts', () => {
+      const firstSubject = new Subject<MergedShoppingList>();
+      const secondResponse: MergedShoppingList = { items: [] };
+
+      apiMock.getMergedList.mockReturnValueOnce(firstSubject);
+      fixture.componentInstance['onTogglePastPurchases']();
+
+      apiMock.getMergedList.mockReturnValueOnce(of(secondResponse));
+      fixture.componentInstance['onTogglePastPurchases']();
+
+      // First (now stale) response arrives last; should be ignored.
+      firstSubject.next(mockList);
+      firstSubject.complete();
+
+      expect(fixture.componentInstance['list']()).toEqual(secondResponse);
     });
   });
 

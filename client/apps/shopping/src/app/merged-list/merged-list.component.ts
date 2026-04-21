@@ -41,6 +41,8 @@ export class MergedListComponent {
   protected newItemName = signal('');
   protected showPastPurchases = signal(false);
 
+  private loadRequestId = 0;
+
   protected categoryGroups = computed<CategoryGroup[]>(() => {
     const l = this.list();
     if (!l) return [];
@@ -145,6 +147,7 @@ export class MergedListComponent {
   }
 
   private loadList(): void {
+    const requestId = ++this.loadRequestId;
     this.loading.set(true);
     this.error.set(null);
     this.api
@@ -152,10 +155,12 @@ export class MergedListComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (list) => {
+          if (requestId !== this.loadRequestId) return;
           this.list.set(list);
           this.loading.set(false);
         },
         error: () => {
+          if (requestId !== this.loadRequestId) return;
           this.error.set(this.transloco.translate('shopping.errors.loadFailed'));
           this.loading.set(false);
         },
