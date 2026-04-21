@@ -53,6 +53,16 @@ public sealed class ShoppingListRepository(ShoppingDbContext writeContext, Shopp
 		return (items, ItemCount.From(totalCount));
 	}
 
+	public async Task<IReadOnlyList<ShoppingList>> FindByRecipeReferenceAsync(
+		OwnerIdentifier owner,
+		RecipeReference recipeReference,
+		CancellationToken cancellationToken = default)
+	{
+		return await shoppingLists
+			.Where(l => l.Owner == owner && l.RecipeReference == recipeReference)
+			.ToListAsync(cancellationToken);
+	}
+
 	private static IQueryable<ShoppingList> ApplySorting(
 		IQueryable<ShoppingList> query,
 		SortingOptions<ShoppingListSortField> sorting)

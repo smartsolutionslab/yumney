@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Events;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Events;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
@@ -14,13 +15,14 @@ public class DeleteRecipeCommandHandlerTests
 	private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
 	private readonly IRecipesUnitOfWork unitOfWork = Substitute.For<IRecipesUnitOfWork>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
+	private readonly IEventBus eventBus = Substitute.For<IEventBus>();
 	private readonly DeleteRecipeCommandHandler handler;
 
 	public DeleteRecipeCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
 		unitOfWork.Recipes.Returns(recipes);
-		handler = new DeleteRecipeCommandHandler(unitOfWork, currentUser);
+		handler = new DeleteRecipeCommandHandler(unitOfWork, currentUser, eventBus);
 	}
 
 	[Fact]

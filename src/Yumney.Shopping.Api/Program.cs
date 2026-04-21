@@ -2,11 +2,14 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Shopping.Api;
 using SmartSolutionsLab.Yumney.Shopping.Application;
+using SmartSolutionsLab.Yumney.Shopping.Application.IntegrationEventHandlers;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddYumneyDefaults(typeof(ShoppingInfrastructureServiceCollectionExtensions).Assembly);
+builder.AddYumneyDefaults(
+	typeof(ShoppingInfrastructureServiceCollectionExtensions).Assembly,
+	typeof(RecipeDeletedHandler).Assembly);
 
 builder.Services
 	.AddShoppingApi()
