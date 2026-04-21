@@ -1,21 +1,55 @@
-using System.Text.RegularExpressions;
-
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
-#pragma warning disable SA1601
-public static partial class ContentSanitizer
-#pragma warning restore SA1601
+/// <summary>
+/// Prepares scraped page text for inclusion in an LLM prompt.
+/// The primary defence against prompt injection is
+/// <see cref="ExtractionPrompts.WrapInContentDelimiters"/> plus the
+/// system-prompt instruction to ignore non-recipe content. This
+/// sanitizer's job is to prevent the content from closing the
+/// delimiter tags early — everything else (including line breaks,
+/// which are meaningful structure for ingredient lists) stays.
+/// </summary>
+public static class ContentSanitizer
 {
+	/// <summary>
+	/// Escapes the <c>&lt;webpage_content&gt;</c> / <c>&lt;/webpage_content&gt;</c>
+	/// delimiters if they appear in the scraped text so a hostile page
+	/// cannot inject a fake closing tag followed by new instructions.
+	/// Collapses runs of more than two consecutive blank lines, which
+	/// are almost certainly layout artefacts rather than content.
+	/// </summary>
+	/// <param name="text">The cleaned page text.</param>
+	/// <returns>Sanitized text ready for wrapping in delimiters.</returns>
 	public static string Sanitize(string text)
 	{
-		var sanitized = InjectionPatterns().Replace(text, string.Empty);
-		sanitized = ExcessiveWhitespace().Replace(sanitized, " ");
-		return sanitized.Trim();
+		if (string.IsNullOrEmpty(text)) return string.Empty;
+
+		var escaped = text
+			.Replace("<webpage_content>", "<webpage_content_ESCAPED>", StringComparison.OrdinalIgnoreCase)
+			.Replace("</webpage_content>", "</webpage_content_ESCAPED>", StringComparison.OrdinalIgnoreCase);
+
+		return CollapseExcessiveBlankLines(escaped).Trim();
 	}
 
-	[GeneratedRegex(@"\s{2,}")]
-	private static partial Regex ExcessiveWhitespace();
+	private static string CollapseExcessiveBlankLines(string text)
+	{
+		var sb = new System.Text.StringBuilder(text.Length);
+		var blankRun = 0;
 
-	[GeneratedRegex(@"ignore previous instructions|ignore all instructions|disregard previous|system:|assistant:|<\|im_start\|>|<\|im_end\|>|<\|endoftext\|>", RegexOptions.IgnoreCase)]
-	private static partial Regex InjectionPatterns();
+		foreach (var line in text.Split('\n'))
+		{
+			if (string.IsNullOrWhiteSpace(line))
+			{
+				blankRun++;
+				if (blankRun <= 2) sb.Append('\n');
+				continue;
+			}
+
+			blankRun = 0;
+			sb.Append(line.TrimEnd());
+			sb.Append('\n');
+		}
+
+		return sb.ToString();
+	}
 }
