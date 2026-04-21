@@ -63,6 +63,7 @@
   <Folder Name="/tests/Shopping/">
     <Project Path="tests/Yumney.Shopping.Domain.Tests/Yumney.Shopping.Domain.Tests.csproj" />
     <Project Path="tests/Yumney.Shopping.Application.Tests/Yumney.Shopping.Application.Tests.csproj" />
+    <Project Path="tests/Yumney.Shopping.Infrastructure.Tests/Yumney.Shopping.Infrastructure.Tests.csproj" />
     <Project Path="tests/Yumney.Shopping.Api.Tests/Yumney.Shopping.Api.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Users/">

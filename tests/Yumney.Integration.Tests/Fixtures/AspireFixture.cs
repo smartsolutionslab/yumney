@@ -10,6 +10,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 using Xunit;
@@ -165,6 +166,29 @@ public sealed class AspireFixture : IAsyncLifetime
 		var optionsBuilder = new DbContextOptionsBuilder<ShoppingReadDbContext>();
 		optionsBuilder.UseNpgsql(connectionString, x => x.EnableRetryOnFailure());
 		return new ShoppingReadDbContext(optionsBuilder.Options);
+	}
+
+	public async Task ResetShoppingEventStoreAsync(global::SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.OwnerIdentifier owner)
+	{
+		await using var context = await CreateShoppingDbContextAsync();
+		var aggregateIds = await context.Set<AggregateMetadata>()
+			.Where(m => m.OwnerId == owner.Value)
+			.Select(m => m.AggregateId)
+			.ToListAsync();
+
+		if (aggregateIds.Count == 0) return;
+
+		var events = await context.Set<StoredEvent>()
+			.Where(e => aggregateIds.Contains(e.AggregateId)).ToListAsync();
+		var snapshots = await context.Set<StoredSnapshot>()
+			.Where(s => aggregateIds.Contains(s.AggregateId)).ToListAsync();
+		var metadata = await context.Set<AggregateMetadata>()
+			.Where(m => aggregateIds.Contains(m.AggregateId)).ToListAsync();
+
+		context.RemoveRange(events);
+		context.RemoveRange(snapshots);
+		context.RemoveRange(metadata);
+		await context.SaveChangesAsync();
 	}
 
 	public async Task SeedShoppingListsAsync(params ShoppingList[] shoppingLists)
