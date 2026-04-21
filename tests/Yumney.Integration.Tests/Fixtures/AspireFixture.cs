@@ -11,6 +11,7 @@ using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 using Xunit;
@@ -188,6 +189,16 @@ public sealed class AspireFixture : IAsyncLifetime
 		context.RemoveRange(events);
 		context.RemoveRange(snapshots);
 		context.RemoveRange(metadata);
+		await context.SaveChangesAsync();
+	}
+
+	public async Task ResetShoppingReadModelAsync(string ownerId)
+	{
+		await using var context = await CreateShoppingDbContextAsync();
+		var items = await context.Set<ShoppingListReadItem>()
+			.Where(r => r.OwnerId == ownerId).ToListAsync();
+		if (items.Count == 0) return;
+		context.RemoveRange(items);
 		await context.SaveChangesAsync();
 	}
 
