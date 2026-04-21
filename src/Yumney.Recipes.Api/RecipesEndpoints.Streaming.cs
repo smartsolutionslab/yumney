@@ -26,6 +26,7 @@ public static partial class RecipesEndpoints
 	{
 		public const string Status = "status";
 		public const string Chunk = "chunk";
+		public const string Field = "field";
 		public const string Done = "done";
 		public const string Fail = "fail";
 	}
@@ -89,6 +90,7 @@ public static partial class RecipesEndpoints
 		await WriteSseEventAsync(SseEvent.Status, ImportStreaming.ExtractingStatusMessage);
 
 		var buffer = new StringBuilder();
+		var detector = new StreamingJsonFieldDetector();
 		try
 		{
 			await foreach (var chunk in extraction.StreamExtractAsync(scrapeResult.Value, cancellationToken))
@@ -101,6 +103,14 @@ public static partial class RecipesEndpoints
 
 				buffer.Append(chunk);
 				await WriteSseEventAsync(SseEvent.Chunk, chunk);
+
+				foreach (var (name, value) in detector.Consume(chunk))
+				{
+					// The field event is opt-in for the frontend — existing clients
+					// that subscribe only to chunk/done are unaffected.
+					var payload = JsonSerializer.Serialize(new { field = name, value });
+					await WriteSseEventAsync(SseEvent.Field, payload);
+				}
 			}
 		}
 		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
