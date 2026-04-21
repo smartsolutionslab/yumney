@@ -43,11 +43,23 @@ public class ExportShoppingListContractTests(AspireFixture fixture) : IAsyncLife
 			"/api/v1/shopping-lists/items",
 			new { name = "Strawberries", quantity = 500m, unit = "g" });
 
-		var response = await client.GetAsync(Endpoint);
+		// The shopping read-model projection is driven async by Wolverine, so
+		// the export may not see the new item immediately after the POST returns.
+		var deadline = DateTime.UtcNow.AddSeconds(15);
+		string body = string.Empty;
+		HttpResponseMessage? response = null;
+		while (DateTime.UtcNow < deadline)
+		{
+			response?.Dispose();
+			response = await client.GetAsync(Endpoint);
+			body = await response.Content.ReadAsStringAsync();
+			if (body.Contains("Strawberries", StringComparison.Ordinal)) break;
+			await Task.Delay(250);
+		}
 
-		response.StatusCode.Should().Be(HttpStatusCode.OK);
-		var body = await response.Content.ReadAsStringAsync();
+		response!.StatusCode.Should().Be(HttpStatusCode.OK);
 		body.Should().Contain("Strawberries");
+		response.Dispose();
 	}
 
 	[Fact]
