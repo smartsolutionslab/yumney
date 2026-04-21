@@ -19,8 +19,8 @@ const en = {
       nothing: 'Nothing to export',
     },
     history: {
-      toggle: "Show today's purchases",
-      empty: 'No purchases yet today.',
+      toggle: 'Show past purchases',
+      empty: 'No past purchases to show.',
     },
     remove: 'Remove',
     checked: 'checked',
@@ -128,6 +128,25 @@ describe('MergedListComponent', () => {
 
       expect(fixture.componentInstance['showPastPurchases']()).toBe(false);
       expect(apiMock.getMergedList).toHaveBeenCalledWith(false);
+    });
+
+    it('empty history shows the history-specific empty message', () => {
+      apiMock.getMergedList.mockReturnValue(of({ items: [] }));
+      fixture.componentInstance['showPastPurchases'].set(true);
+      fixture.componentInstance['loadList']();
+      fixture.detectChanges();
+
+      const empty = fixture.nativeElement.querySelector('.empty-state');
+      expect(empty?.textContent).toContain('No past purchases');
+    });
+
+    it('empty active list shows the default empty message', () => {
+      apiMock.getMergedList.mockReturnValue(of({ items: [] }));
+      fixture.componentInstance['loadList']();
+      fixture.detectChanges();
+
+      const empty = fixture.nativeElement.querySelector('.empty-state');
+      expect(empty?.textContent).not.toContain('No past purchases');
     });
   });
 
