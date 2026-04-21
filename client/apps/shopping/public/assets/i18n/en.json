@@ -85,8 +85,8 @@
       "other": "Other"
     },
     "history": {
-      "toggle": "Show today's purchases",
-      "empty": "No purchases yet today."
+      "toggle": "Show past purchases",
+      "empty": "No past purchases to show."
     }
   },
   "common": {

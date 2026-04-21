@@ -76,7 +76,7 @@
 
   @if (!loading() && totalItems() === 0) {
     <div class="empty-state">
-      <p>{{ t('shopping.empty') }}</p>
+      <p>{{ t(showPastPurchases() ? 'shopping.history.empty' : 'shopping.empty') }}</p>
     </div>
   }
 </div>

@@ -85,8 +85,8 @@
       "other": "Sonstiges"
     },
     "history": {
-      "toggle": "Heutige Einkäufe anzeigen",
-      "empty": "Heute noch nichts gekauft."
+      "toggle": "Frühere Einkäufe anzeigen",
+      "empty": "Keine früheren Einkäufe vorhanden."
     }
   },
   "common": {
