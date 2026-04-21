@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FluentAssertions.Execution;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
@@ -17,6 +18,7 @@ public class ShoppingLedgerTests
 
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
 
+		using var scope = new AssertionScope();
 		ledger.OwnerId.Should().Be(owner);
 		ledger.Items.Should().BeEmpty();
 		ledger.Version.Should().Be(AggregateVersion.Zero());

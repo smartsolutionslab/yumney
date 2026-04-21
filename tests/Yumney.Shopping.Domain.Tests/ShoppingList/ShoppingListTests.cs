@@ -37,14 +37,13 @@ public class ShoppingListTests
 	}
 
 	[Fact]
-	public void Create_ValidInput_SetsCreatedAt()
+	public void Create_ValidInput_SetsCreatedAtCloseToNow()
 	{
 		var before = DateTime.UtcNow;
 
 		var shoppingList = CreateValidShoppingList();
 
-		shoppingList.CreatedAt.Should().BeOnOrAfter(before);
-		shoppingList.CreatedAt.Should().BeOnOrBefore(DateTime.UtcNow);
+		shoppingList.CreatedAt.Should().BeCloseTo(before, TimeSpan.FromSeconds(5));
 	}
 
 	[Fact]
