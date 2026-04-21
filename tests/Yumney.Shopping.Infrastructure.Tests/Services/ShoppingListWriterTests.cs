@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Services;
@@ -78,5 +79,63 @@ public class ShoppingListWriterTests
 		await writer.AddItemsAsync(OwnerId, Array.Empty<ShoppingItemRequest>());
 
 		await eventStore.Received(1).SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
+	}
+
+	[Fact]
+	public async Task AddItemsAsync_SameNameDifferentUnits_CreatesSeparateLedgerEntries()
+	{
+		var existing = ShoppingLedger.Create(OwnerIdentifier.From(OwnerId));
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(existing);
+
+		await writer.AddItemsAsync(OwnerId, new[]
+		{
+			new ShoppingItemRequest("Milk", 1m, "l", "manual"),
+			new ShoppingItemRequest("Milk", 500m, "ml", "manual"),
+		});
+
+		existing.Items.Should().HaveCount(2);
+	}
+
+	[Fact]
+	public async Task AddItemsAsync_LargeBatch_AssignsOneEventPerItem()
+	{
+		var existing = ShoppingLedger.Create(OwnerIdentifier.From(OwnerId));
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(existing);
+		var items = Enumerable.Range(0, 50)
+			.Select(i => new ShoppingItemRequest($"Item{i}", 1m, "pc", "manual"))
+			.ToArray();
+
+		await writer.AddItemsAsync(OwnerId, items);
+
+		existing.UncommittedEvents.Should().HaveCount(50);
+	}
+
+	[Fact]
+	public async Task AddItemsAsync_CancelledToken_PropagatesToEventStore()
+	{
+		using var cts = new CancellationTokenSource();
+		cts.Cancel();
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+			.Returns(Task.FromCanceled<ShoppingLedger?>(cts.Token));
+
+		var act = () => writer.AddItemsAsync(
+			OwnerId,
+			new[] { new ShoppingItemRequest("Milk", 1m, "l", "manual") },
+			cts.Token);
+
+		await act.Should().ThrowAsync<OperationCanceledException>();
+	}
+
+	[Fact]
+	public async Task AddItemsAsync_EmptySourceString_ThrowsGuardException()
+	{
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+			.Returns(ShoppingLedger.Create(OwnerIdentifier.From(OwnerId)));
+
+		var act = () => writer.AddItemsAsync(
+			OwnerId,
+			new[] { new ShoppingItemRequest("Milk", 1m, "l", string.Empty) });
+
+		await act.Should().ThrowAsync<GuardException>();
 	}
 }
