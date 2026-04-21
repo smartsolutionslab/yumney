@@ -123,6 +123,24 @@ internal sealed class StreamingJsonFieldDetector
 			{
 				if (i + 1 >= json.Length) return (-1, string.Empty);
 				var escaped = json[i + 1];
+
+				if (escaped == 'u')
+				{
+					// Unicode escape: need 4 hex digits. If the stream hasn't
+					// delivered them yet, signal incomplete so the caller
+					// waits for the next chunk.
+					if (i + 5 >= json.Length) return (-1, string.Empty);
+					var hex = json.AsSpan(i + 2, 4);
+					if (!ushort.TryParse(hex, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out var code))
+					{
+						return (-1, string.Empty);
+					}
+
+					sb.Append((char)code);
+					i += 6;
+					continue;
+				}
+
 				sb.Append(escaped switch
 				{
 					'"' => '"',
@@ -133,7 +151,7 @@ internal sealed class StreamingJsonFieldDetector
 					't' => '\t',
 					'b' => '\b',
 					'f' => '\f',
-					_ => escaped, // Including \uXXXX — left as-is; good enough for SSE progressive rendering.
+					_ => escaped,
 				});
 				i += 2;
 				continue;

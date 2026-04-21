@@ -119,6 +119,29 @@ public class WebScraperTests
 	}
 
 	[Fact]
+	public async Task ScrapeAsync_SchemaOrgSelector_IsCaseInsensitive()
+	{
+		// Real-world markup varies; the `i` flag on the attribute selector
+		// must match regardless of attribute-value casing.
+		var html = """
+            <html><body>
+            <main><p>Main with ads</p></main>
+            <div ITEMTYPE="https://Schema.ORG/Recipe" ITEMSCOPE>
+              <p>Canonical recipe block</p>
+            </div>
+            </body></html>
+            """;
+		var httpClient = CreateHttpClient(html);
+		var sut = new WebScraper(httpClient, CreateOptions(), logger);
+
+		var result = await sut.ScrapeAsync(RecipeUrl.From("https://example.com/recipe"));
+
+		result.IsSuccess.Should().BeTrue();
+		result.Value.CleanedText.Should().Contain("Canonical recipe block");
+		result.Value.CleanedText.Should().NotContain("Main with ads");
+	}
+
+	[Fact]
 	public async Task ScrapeAsync_PrefersMainOverArticleOverBody()
 	{
 		var html = """
