@@ -180,6 +180,188 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 	}
 
 	[Fact]
+	public async Task SaveAsync_SecondLedgerForSameOwner_ViolatesUniqueOwnerIdConstraint()
+	{
+		var milk = ItemName.From("Milk");
+		var litre = Unit.From("l");
+
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			var first = ShoppingLedger.Create(owner)
+				.AddItem(milk, Quantity.Of(Amount.From(1), litre), Source);
+			await CreateStore(ctx).SaveAsync(first);
+		}
+
+		await using var ctx2 = await fixture.CreateShoppingDbContextAsync();
+		var second = ShoppingLedger.Create(owner)
+			.AddItem(milk, Quantity.Of(Amount.From(1), litre), Source);
+		var act = () => CreateStore(ctx2).SaveAsync(second);
+
+		await act.Should().ThrowAsync<DbUpdateException>();
+	}
+
+	[Fact]
+	public async Task SaveAsync_DuplicateAggregateVersion_ViolatesUniqueVersionConstraint()
+	{
+		var milk = ItemName.From("Milk");
+		var litre = Unit.From("l");
+		ShoppingLedger ledger;
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			ledger = ShoppingLedger.Create(owner)
+				.AddItem(milk, Quantity.Of(Amount.From(1), litre), Source);
+			await CreateStore(ctx).SaveAsync(ledger);
+		}
+
+		await using var verifyContext = await fixture.CreateShoppingDbContextAsync();
+		verifyContext.Set<StoredEvent>().Add(new StoredEvent
+		{
+			Id = Guid.CreateVersion7(),
+			AggregateId = ledger.Identifier,
+			EventType = nameof(ShoppingItemAdded),
+			EventData = "{}",
+			Version = 1,
+			OccurredAt = DateTime.UtcNow,
+		});
+		var act = () => verifyContext.SaveChangesAsync();
+
+		await act.Should().ThrowAsync<DbUpdateException>();
+	}
+
+	[Fact]
+	public async Task LoadAsync_OtherOwnerHasEvents_ReturnsNullForThisOwner()
+	{
+		var otherOwner = OwnerIdentifier.From($"evtstore-other-{Guid.NewGuid():N}");
+		try
+		{
+			await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+			{
+				var ledger = ShoppingLedger.Create(otherOwner)
+					.AddItem(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")), Source);
+				await CreateStore(ctx).SaveAsync(ledger);
+			}
+
+			await using var freshContext = await fixture.CreateShoppingDbContextAsync();
+			var loaded = await CreateStore(freshContext).LoadAsync(owner);
+
+			loaded.Should().BeNull();
+		}
+		finally
+		{
+			await fixture.ResetShoppingEventStoreAsync(otherOwner);
+		}
+	}
+
+	[Fact]
+	public async Task LoadAsync_UnknownEventTypeInStream_IsSkippedGracefully()
+	{
+		var milk = ItemName.From("Milk");
+		var litre = Unit.From("l");
+		ShoppingLedger ledger;
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			ledger = ShoppingLedger.Create(owner)
+				.AddItem(milk, Quantity.Of(Amount.From(2), litre), Source);
+			await CreateStore(ctx).SaveAsync(ledger);
+		}
+
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			ctx.Set<StoredEvent>().Add(new StoredEvent
+			{
+				Id = Guid.CreateVersion7(),
+				AggregateId = ledger.Identifier,
+				EventType = "SomeFutureEventType",
+				EventData = "{}",
+				Version = 2,
+				OccurredAt = DateTime.UtcNow,
+			});
+			await ctx.SaveChangesAsync();
+		}
+
+		await using var freshContext = await fixture.CreateShoppingDbContextAsync();
+		var loaded = await CreateStore(freshContext).LoadAsync(owner);
+
+		loaded.Should().NotBeNull();
+		loaded!.Items.Values.Single().OnList.Value.Should().Be(2m);
+	}
+
+	[Fact]
+	public async Task SaveAsync_MultipleEventTypes_PublishesIntegrationEventForEach()
+	{
+		var milk = ItemName.From("Milk");
+		var litre = Unit.From("l");
+		var oneLitre = Quantity.Of(Amount.From(1), litre);
+
+		await using var context = await fixture.CreateShoppingDbContextAsync();
+		var bus = Substitute.For<IEventBus>();
+		var store = CreateStore(context, bus);
+		var ledger = ShoppingLedger.Create(owner)
+			.AddItem(milk, oneLitre, Source)
+			.MarkBought(milk, oneLitre)
+			.MarkConsumed(milk, oneLitre, Source)
+			.AdjustQuantity(milk, Quantity.Of(Amount.From(3), litre))
+			.RemoveItem(milk, oneLitre);
+
+		await store.SaveAsync(ledger);
+
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemAddedIntegrationEvent>(), Arg.Any<CancellationToken>());
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemBoughtIntegrationEvent>(), Arg.Any<CancellationToken>());
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemConsumedIntegrationEvent>(), Arg.Any<CancellationToken>());
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemQuantityAdjustedIntegrationEvent>(), Arg.Any<CancellationToken>());
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemRemovedIntegrationEvent>(), Arg.Any<CancellationToken>());
+	}
+
+	[Fact]
+	public async Task SaveAsync_CrossesSnapshotIntervalTwice_OverwritesSnapshotRow()
+	{
+		var milk = ItemName.From("Milk");
+		var litre = Unit.From("l");
+		var ledger = ShoppingLedger.Create(owner);
+		for (var i = 0; i < 50; i++)
+		{
+			ledger.AddItem(milk, Quantity.Of(Amount.From(1), litre), Source);
+		}
+
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await CreateStore(ctx).SaveAsync(ledger);
+		}
+
+		for (var i = 0; i < 50; i++)
+		{
+			ledger.AddItem(milk, Quantity.Of(Amount.From(1), litre), Source);
+		}
+
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await CreateStore(ctx).SaveAsync(ledger);
+		}
+
+		await using var verifyContext = await fixture.CreateShoppingDbContextAsync();
+		var snapshots = await verifyContext.Set<StoredSnapshot>()
+			.Where(s => s.AggregateId == ledger.Identifier).ToListAsync();
+		snapshots.Should().ContainSingle();
+		snapshots[0].Version.Should().Be(100);
+	}
+
+	[Fact]
+	public async Task SaveAsync_CancelledToken_ThrowsOperationCanceled()
+	{
+		using var cts = new CancellationTokenSource();
+		cts.Cancel();
+
+		await using var context = await fixture.CreateShoppingDbContextAsync();
+		var store = CreateStore(context);
+		var ledger = ShoppingLedger.Create(owner)
+			.AddItem(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")), Source);
+
+		var act = () => store.SaveAsync(ledger, cts.Token);
+
+		await act.Should().ThrowAsync<OperationCanceledException>();
+	}
+
+	[Fact]
 	public async Task LoadAsync_WithSnapshot_UsesSnapshotAsBaseline()
 	{
 		var milk = ItemName.From("Milk");
