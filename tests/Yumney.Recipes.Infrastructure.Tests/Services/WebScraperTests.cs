@@ -90,6 +90,35 @@ public class WebScraperTests
 	}
 
 	[Fact]
+	public async Task ScrapeAsync_PrefersSchemaOrgRecipeOverMain()
+	{
+		// Arrange: page with ads/nav inside <main> and an itemtype="schema.org/Recipe" wrapper
+		// around the real recipe content — scraper must pick the Recipe region.
+		var html = """
+            <html><body>
+            <main>
+              <p>Sponsored content and banners</p>
+              <div itemtype="https://schema.org/Recipe" itemscope>
+                <h1>Real Recipe Title</h1>
+                <p>Ingredients and steps live here.</p>
+              </div>
+              <p>Comments section</p>
+            </main>
+            </body></html>
+            """;
+		var httpClient = CreateHttpClient(html);
+		var sut = new WebScraper(httpClient, CreateOptions(), logger);
+
+		var result = await sut.ScrapeAsync(RecipeUrl.From("https://example.com/recipe"));
+
+		result.IsSuccess.Should().BeTrue();
+		result.Value.CleanedText.Should().Contain("Real Recipe Title");
+		result.Value.CleanedText.Should().Contain("Ingredients and steps");
+		result.Value.CleanedText.Should().NotContain("Sponsored content");
+		result.Value.CleanedText.Should().NotContain("Comments section");
+	}
+
+	[Fact]
 	public async Task ScrapeAsync_PrefersMainOverArticleOverBody()
 	{
 		var html = """
