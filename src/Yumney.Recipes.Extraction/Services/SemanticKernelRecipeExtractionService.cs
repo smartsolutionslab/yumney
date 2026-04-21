@@ -125,13 +125,37 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
 		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
 
-		string response;
+		var firstResponse = await InvokeLlmAsync(chatCompletion, chatHistory, source, activity, cancellationToken);
+		if (firstResponse is null) return ImportRecipeErrors.ExtractionFailed;
+
+		var parsed = ParseResponse(firstResponse, source, quiet: true);
+		if (parsed.IsSuccess || IsNoRecipeFound(parsed)) return parsed;
+
+		// Parse failed. Ask the LLM to repair its previous response once.
+		LogParseRetry(source);
+		chatHistory.AddAssistantMessage(firstResponse);
+		chatHistory.AddUserMessage(ExtractionPrompts.JsonRepair);
+
+		var secondResponse = await InvokeLlmAsync(chatCompletion, chatHistory, source, activity, cancellationToken);
+		if (secondResponse is null) return ImportRecipeErrors.ExtractionFailed;
+
+		return ParseResponse(secondResponse, source, quiet: false);
+	}
+
+	private async Task<string?> InvokeLlmAsync(
+		IChatCompletionService chatCompletion,
+		ChatHistory chatHistory,
+		string source,
+		Activity? activity,
+		CancellationToken cancellationToken)
+	{
 		try
 		{
 			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
-			response = result.Content ?? string.Empty;
+			var response = result.Content ?? string.Empty;
 			activity?.SetTag("llm.response_length", response.Length);
 			activity?.SetTag("llm.model", result.ModelId);
+			return response;
 		}
 		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 		{
@@ -141,13 +165,16 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 		{
 			activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 			LogLlmCallFailed(source, ex.Message);
-			return ImportRecipeErrors.ExtractionFailed;
+			return null;
 		}
-
-		return ParseResponse(response, source);
 	}
 
-	private Result<ExtractedRecipeDto> ParseResponse(string response, string sourceUrl)
+#pragma warning disable SA1204
+	private static bool IsNoRecipeFound(Result<ExtractedRecipeDto> result)
+		=> result.IsFailure && result.Error == ImportRecipeErrors.NoRecipeFound;
+#pragma warning restore SA1204
+
+	private Result<ExtractedRecipeDto> ParseResponse(string response, string sourceUrl, bool quiet = false)
 	{
 		try
 		{
@@ -162,7 +189,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 			var recipe = JsonSerializer.Deserialize<ExtractedRecipeDto>(json, jsonOptions);
 			if (recipe is null)
 			{
-				LogParsingFailed(sourceUrl, "Deserialization returned null");
+				if (!quiet) LogParsingFailed(sourceUrl, "Deserialization returned null");
 				return ImportRecipeErrors.ExtractionFailed;
 			}
 
@@ -170,7 +197,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 		}
 		catch (JsonException ex)
 		{
-			LogParsingFailed(sourceUrl, ex.Message);
+			if (!quiet) LogParsingFailed(sourceUrl, ex.Message);
 			return ImportRecipeErrors.ExtractionFailed;
 		}
 	}
@@ -183,4 +210,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
 	[LoggerMessage(Level = LogLevel.Warning, Message = "Failed to parse LLM response for URL {SourceUrl}: {Reason}")]
 	private partial void LogParsingFailed(string sourceUrl, string reason);
+
+	[LoggerMessage(Level = LogLevel.Information, Message = "LLM response for {SourceUrl} was not valid JSON; retrying with a repair prompt")]
+	private partial void LogParseRetry(string sourceUrl);
 }

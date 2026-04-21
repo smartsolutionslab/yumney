@@ -233,6 +233,48 @@ public class SemanticKernelRecipeExtractionServiceTests
 	}
 
 	[Fact]
+	public async Task ExtractAsync_MalformedThenValidJson_RetriesAndSucceeds()
+	{
+		var fake = new FakeChatCompletionService(["I can't do JSON today, sorry.", validRecipeJson]);
+		var sut = CreateSut(fake);
+		var content = new ScrapedContent("text", RecipeUrl.From("https://example.com/r"));
+
+		var result = await sut.ExtractAsync(content);
+
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Title.Should().Be("Pasta Carbonara");
+		fake.InvocationCount.Should().Be(2);
+	}
+
+	[Fact]
+	public async Task ExtractAsync_MalformedTwice_ReturnsExtractionFailed()
+	{
+		var fake = new FakeChatCompletionService(["garbage 1", "garbage 2"]);
+		var sut = CreateSut(fake);
+		var content = new ScrapedContent("text", RecipeUrl.From("https://example.com/r"));
+
+		var result = await sut.ExtractAsync(content);
+
+		result.IsFailure.Should().BeTrue();
+		result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
+		fake.InvocationCount.Should().Be(2);
+	}
+
+	[Fact]
+	public async Task ExtractAsync_NoRecipeFound_DoesNotRetry()
+	{
+		var fake = new FakeChatCompletionService(["""{ "error": "NO_RECIPE_FOUND" }""", validRecipeJson]);
+		var sut = CreateSut(fake);
+		var content = new ScrapedContent("text", RecipeUrl.From("https://example.com/r"));
+
+		var result = await sut.ExtractAsync(content);
+
+		result.IsFailure.Should().BeTrue();
+		result.Error.Should().Be(ImportRecipeErrors.NoRecipeFound);
+		fake.InvocationCount.Should().Be(1);
+	}
+
+	[Fact]
 	public async Task ExtractAsync_WithStructuredRecipe_SkipsLlmAndReturnsIt()
 	{
 		var fake = new FakeChatCompletionService("should-not-be-called");
@@ -300,6 +342,8 @@ public class SemanticKernelRecipeExtractionServiceTests
 		string? response = null,
 		Exception? exception = null) : IChatCompletionService
 	{
+		private readonly Queue<string>? responseQueue;
+
 		public FakeChatCompletionService(string response)
 			: this(response, null)
 		{
@@ -310,7 +354,15 @@ public class SemanticKernelRecipeExtractionServiceTests
 		{
 		}
 
+		public FakeChatCompletionService(IEnumerable<string> responses)
+			: this(null, null)
+		{
+			responseQueue = new Queue<string>(responses);
+		}
+
 		public ChatHistory? CapturedHistory { get; private set; }
+
+		public int InvocationCount { get; private set; }
 
 		public IReadOnlyDictionary<string, object?> Attributes { get; } =
 			new Dictionary<string, object?>();
@@ -323,13 +375,18 @@ public class SemanticKernelRecipeExtractionServiceTests
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 			CapturedHistory = new ChatHistory(chatHistory);
+			InvocationCount++;
 
 			if (exception is not null)
 			{
 				throw exception;
 			}
 
-			IReadOnlyList<ChatMessageContent> result = [new(AuthorRole.Assistant, response)];
+			var content = responseQueue is not null && responseQueue.Count > 0
+				? responseQueue.Dequeue()
+				: response;
+
+			IReadOnlyList<ChatMessageContent> result = [new(AuthorRole.Assistant, content)];
 			return Task.FromResult(result);
 		}
 
