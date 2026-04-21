@@ -91,6 +91,23 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
 		return new ScrapedContent(cleanedText, url);
 	}
 
+	// Schema.org hints first: any element tagged as a Recipe (microdata
+	// itemtype or RDFa typeof) usually contains exactly the ingredient
+	// list and instructions. itemprop covers fragmented markup that
+	// doesn't wrap the whole recipe in a single container. Fall back to
+	// the largest semantic-content region, then the body.
+#pragma warning disable SA1311
+	private static readonly string[] contentSelectors =
+	[
+		"[itemtype*=\"schema.org/Recipe\" i]",
+		"[typeof*=\"Recipe\" i]",
+		"[itemprop*=\"recipe\" i]",
+		"main",
+		"article",
+		"body",
+	];
+#pragma warning restore SA1311
+
 	private static async Task<string> CleanHtmlAsync(string html, CancellationToken cancellationToken)
 	{
 		IConfiguration config = Configuration.Default;
@@ -102,11 +119,18 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
 			element.Remove();
 		}
 
-		var contentElement = document.QuerySelector("main")
-			?? document.QuerySelector("article")
-			?? document.QuerySelector("body");
+		foreach (var selector in contentSelectors)
+		{
+			var matches = document.QuerySelectorAll(selector);
+			if (matches.Length == 0) continue;
 
-		return contentElement?.TextContent.Trim() ?? string.Empty;
+			// Schema.org hints can surface multiple fragments (one per itemprop) —
+			// concatenate them in document order so nothing is lost.
+			var combined = string.Join("\n", matches.Select(m => m.TextContent.Trim())).Trim();
+			if (combined.Length > 0) return combined;
+		}
+
+		return string.Empty;
 	}
 
 	private static string TruncateAtWordBoundary(string text, int maxLength)
