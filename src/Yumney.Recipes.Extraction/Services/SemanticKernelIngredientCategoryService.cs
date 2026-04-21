@@ -7,9 +7,8 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
-public sealed partial class SemanticKernelIngredientCategoryService(
-	Kernel kernel,
-	ILogger<SemanticKernelIngredientCategoryService> logger) : IIngredientCategoryService
+public sealed partial class SemanticKernelIngredientCategoryService(Kernel kernel, ILogger<SemanticKernelIngredientCategoryService> logger)
+	: IIngredientCategoryService
 {
 #pragma warning disable SA1303
 	private const string systemPrompt = """
@@ -30,8 +29,7 @@ public sealed partial class SemanticKernelIngredientCategoryService(
 	public async Task<IngredientCategory> CategorizeAsync(string itemName, CancellationToken cancellationToken = default)
 	{
 		var staticResult = IngredientCategoryResolver.Resolve(itemName);
-		if (staticResult is not null)
-			return staticResult;
+		if (staticResult is not null) return staticResult;
 
 		try
 		{
