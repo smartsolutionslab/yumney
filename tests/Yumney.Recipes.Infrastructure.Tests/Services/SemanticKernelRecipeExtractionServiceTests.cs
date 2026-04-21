@@ -227,6 +227,24 @@ public class SemanticKernelRecipeExtractionServiceTests
 		userMessage.Should().EndWith("</webpage_content>");
 	}
 
+	[Fact]
+	public async Task ExtractAsync_WithStructuredRecipe_SkipsLlmAndReturnsIt()
+	{
+		var fake = new FakeChatCompletionService("should-not-be-called");
+		var sut = CreateSut(fake);
+		var structured = new ExtractedRecipeDto(
+			Title: "From JSON-LD",
+			Ingredients: [new ExtractedIngredientDto("flour", null, null)],
+			Steps: [new ExtractedStepDto(1, "bake")]);
+		var content = new ScrapedContent(string.Empty, RecipeUrl.From("https://example.com/r"), structured);
+
+		var result = await sut.ExtractAsync(content);
+
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Title.Should().Be("From JSON-LD");
+		fake.CapturedHistory.Should().BeNull("LLM must not be invoked when JSON-LD is available");
+	}
+
 	private static Kernel CreateKernel(IChatCompletionService chatCompletionService)
 	{
 		var builder = Kernel.CreateBuilder();

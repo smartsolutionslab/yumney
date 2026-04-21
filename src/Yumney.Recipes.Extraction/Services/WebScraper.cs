@@ -61,6 +61,16 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
 			return ImportRecipeErrors.ContentTooLarge;
 		}
 
+		var structured = JsonLdRecipeParser.TryParse(html);
+		if (structured is not null)
+		{
+			activity?.SetTag("scrape.source", "json-ld");
+			activity?.SetStatus(ActivityStatusCode.Ok);
+			LogJsonLdHit(url.Value);
+			return new ScrapedContent(string.Empty, url, structured);
+		}
+
+		activity?.SetTag("scrape.source", "text");
 		var cleanedText = await CleanHtmlAsync(html, cancellationToken);
 
 		if (!cleanedText.HasValue())
@@ -121,4 +131,7 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
 
 	[LoggerMessage(Level = LogLevel.Information, Message = "Content truncated for URL {SourceUrl}: {OriginalLength} chars truncated to {MaxLength}")]
 	private partial void LogContentTruncated(string sourceUrl, int originalLength, int maxLength);
+
+	[LoggerMessage(Level = LogLevel.Information, Message = "JSON-LD Recipe found for URL {SourceUrl}; skipping LLM extraction")]
+	private partial void LogJsonLdHit(string sourceUrl);
 }

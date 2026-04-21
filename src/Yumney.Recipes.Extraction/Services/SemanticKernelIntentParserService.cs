@@ -11,19 +11,15 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1311
-public sealed partial class SemanticKernelIntentParserService(
-	Kernel kernel,
-	ILogger<SemanticKernelIntentParserService> logger) : IIntentParserService
+public sealed partial class SemanticKernelIntentParserService(Kernel kernel, ILogger<SemanticKernelIntentParserService> logger)
+	: IIntentParserService
 {
 	private static readonly JsonSerializerOptions jsonOptions = new()
 	{
 		PropertyNameCaseInsensitive = true,
 	};
 
-	public async Task<Result<ParsedIntentDto>> ParseAsync(
-		string userInput,
-		string? pageContext,
-		CancellationToken cancellationToken = default)
+	public async Task<Result<ParsedIntentDto>> ParseAsync(string userInput, string? pageContext, CancellationToken cancellationToken = default)
 	{
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("intent.parse");
 		activity?.SetTag("intent.input_length", userInput.Length);
@@ -55,6 +51,7 @@ public sealed partial class SemanticKernelIntentParserService(
 		{
 			activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 			LogParseFailed(ex.Message);
+
 			return new ApiError("intent.parse.failed", "Failed to parse intent. Please try again.", 502);
 		}
 

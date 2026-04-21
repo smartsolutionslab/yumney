@@ -30,6 +30,15 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.url");
 		activity?.SetTag("extract.source", sourceUrl);
+
+		if (content.StructuredRecipe is not null)
+		{
+			activity?.SetTag("extract.strategy", "json-ld");
+			activity?.SetStatus(ActivityStatusCode.Ok);
+			return content.StructuredRecipe;
+		}
+
+		activity?.SetTag("extract.strategy", "llm");
 		activity?.SetTag("extract.content_length", cleanedText.Length);
 
 		var sanitized = ContentSanitizer.Sanitize(cleanedText);
@@ -71,6 +80,14 @@ public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel,
 		ScrapedContent content,
 		[System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
 	{
+		if (content.StructuredRecipe is not null)
+		{
+			// JSON-LD path: emit the final JSON in one chunk; the SSE endpoint
+			// treats the accumulated buffer as the completed payload.
+			yield return JsonSerializer.Serialize(content.StructuredRecipe, jsonOptions);
+			yield break;
+		}
+
 		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
 		var sanitized = ContentSanitizer.Sanitize(content.CleanedText);
 
