@@ -1,0 +1,28 @@
+{
+  "placeholder": {
+    "title": "Account Settings",
+    "message": "Account management features are coming soon."
+  },
+  "settings": {
+    "title": "Profile Settings",
+    "loading": "Loading profile…",
+    "retry": "Retry",
+    "household": "Household",
+    "defaultServings": "Default servings",
+    "dietary": "Dietary Preferences",
+    "dietaryType": "Dietary type",
+    "none": "None",
+    "restrictions": "Restrictions & allergies",
+    "cookingEffort": "Cooking effort",
+    "weeklyGoals": "Weekly Goals",
+    "minVeggie": "Min. veggie meals",
+    "maxMeat": "Max. red-meat meals",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved!",
+    "errors": {
+      "saveFailed": "Failed to save profile.",
+      "loadFailed": "Failed to load profile."
+    }
+  }
+}

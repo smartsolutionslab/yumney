@@ -1,0 +1,78 @@
+{
+  "list": {
+    "title": "Shopping Lists",
+    "loading": "Loading shopping lists...",
+    "itemCount": "{{count}} items",
+    "empty": {
+      "title": "No shopping lists yet",
+      "message": "Create a shopping list from any recipe to get started."
+    },
+    "errors": {
+      "generic": "Failed to load shopping lists. Please try again later."
+    }
+  },
+  "create": {
+    "title": "Create Shopping List",
+    "back": "Back to Recipe",
+    "listTitle": "List Title",
+    "ingredients": "Ingredients",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "submit": "Create Shopping List",
+    "creating": "Creating...",
+    "loading": "Loading recipe...",
+    "errors": {
+      "recipeNotFound": "Recipe not found.",
+      "generic": "Failed to load recipe. Please try again later.",
+      "createFailed": "Failed to create shopping list. Please try again."
+    }
+  },
+  "detail": {
+    "back": "Back to Shopping Lists",
+    "loading": "Loading shopping list...",
+    "viewRecipe": "View Recipe",
+    "checkAll": "Check all",
+    "reset": "Reset",
+    "errors": {
+      "notFound": "Shopping list not found.",
+      "generic": "Failed to load shopping list. Please try again later."
+    },
+    "allDone": "All done!",
+    "allDoneMessage": "Everything on your list is checked off."
+  },
+  "title": "Shopping List",
+  "loading": "Loading...",
+  "empty": "Your shopping list is empty. Add items or plan meals.",
+  "addPlaceholder": "Add an item...",
+  "addItem": "Add item",
+  "export": {
+    "button": "Export list",
+    "copied": "Copied to clipboard",
+    "shared": "Shared",
+    "nothing": "Nothing to export — all items are checked off."
+  },
+  "remove": "Remove item",
+  "checked": "checked",
+  "retry": "Retry",
+  "errors": {
+    "addFailed": "Failed to add item.",
+    "removeFailed": "Failed to remove item.",
+    "exportFailed": "Failed to export list.",
+    "loadFailed": "Failed to load shopping list."
+  },
+  "category": {
+    "produce": "Produce",
+    "dairy": "Dairy",
+    "meat-fish": "Meat & Fish",
+    "bakery": "Bakery",
+    "frozen": "Frozen",
+    "beverages": "Beverages",
+    "pantry": "Pantry",
+    "household": "Household",
+    "other": "Other"
+  },
+  "history": {
+    "toggle": "Show past purchases",
+    "empty": "No past purchases to show."
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "list": {
+    "title": "Meine Rezepte",
+    "assignTitle": "Rezept auswählen",
+    "back": "Zurück",
+    "assign": "Zum Essensplan hinzufügen",
+    "sortLabel": "Rezepte sortieren",
+    "sort": {
+      "dateDesc": "Neueste zuerst",
+      "dateAsc": "Älteste zuerst",
+      "nameAsc": "Name A-Z",
+      "nameDesc": "Name Z-A"
+    },
+    "servings": "{{count}} Portionen",
+    "prepTime": "Vorbereitung {{minutes}} Min.",
+    "cookTime": "Kochen {{minutes}} Min.",
+    "loading": "Rezepte werden geladen...",
+    "empty": {
+      "title": "Noch keine Rezepte",
+      "message": "Importiere dein erstes Rezept von einer beliebigen Website oder erstelle eines von Grund auf.",
+      "cta": "Rezept importieren"
+    },
+    "search": {
+      "placeholder": "Rezepte suchen...",
+      "label": "Rezepte suchen",
+      "noResults": "Keine Rezepte gefunden",
+      "noResultsMessage": "Keine Rezepte für \"{{query}}\" gefunden. Versuche einen anderen Suchbegriff.",
+      "clear": "Suche löschen"
+    },
+    "filter": {
+      "toggle": "Filter",
+      "title": "Rezepte filtern",
+      "clear": "Alle löschen",
+      "tags": "Tags",
+      "favorites": "Favoriten",
+      "favoritesOnly": "Nur Favoriten anzeigen",
+      "difficulty": "Schwierigkeit",
+      "difficultyOption": {
+        "easy": "Einfach",
+        "medium": "Mittel",
+        "hard": "Schwer"
+      },
+      "maxPrepTime": "Max. Vorbereitung",
+      "maxCookTime": "Max. Kochzeit",
+      "minutesPlaceholder": "Min."
+    },
+    "errors": {
+      "generic": "Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
+    }
+  },
+  "edit": {
+    "title": "Rezept bearbeiten",
+    "back": "Zurück zum Rezept",
+    "loading": "Rezept wird geladen...",
+    "success": "Rezept \"{{title}}\" erfolgreich aktualisiert!",
+    "discardConfirm": "Du hast ungespeicherte Änderungen. Verwerfen?",
+    "errors": {
+      "notFound": "Rezept nicht gefunden.",
+      "generic": "Rezept konnte nicht aktualisiert werden. Bitte versuche es später erneut."
+    }
+  },
+  "detail": {
+    "back": "Zurück zu Rezepten",
+    "servings": "{{count}} Portionen",
+    "prepTime": "Vorbereitung",
+    "cookTime": "Kochen",
+    "totalTime": "Gesamt",
+    "minutes": "{{minutes}} Min.",
+    "difficulty": "Schwierigkeit",
+    "ingredients": "Zutaten",
+    "steps": "Schritte",
+    "sourceUrl": "Originalrezept",
+    "actions": {
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "shoppingList": "Einkaufsliste",
+      "startCooking": "Kochmodus starten"
+    },
+    "loading": "Rezept wird geladen...",
+    "notFound": "Rezept nicht gefunden.",
+    "delete": {
+      "confirm": "Möchtest du \"{{title}}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden.",
+      "confirmButton": "Löschen",
+      "cancelButton": "Abbrechen",
+      "deleting": "Wird gelöscht...",
+      "success": "Rezept erfolgreich gelöscht.",
+      "errors": {
+        "notFound": "Rezept nicht gefunden.",
+        "generic": "Rezept konnte nicht gelöscht werden. Bitte versuche es später erneut."
+      }
+    },
+    "resetServings": "Zurücksetzen",
+    "a11y": {
+      "decreaseServings": "Portionen verringern",
+      "increaseServings": "Portionen erhöhen"
+    },
+    "errors": {
+      "generic": "Rezept konnte nicht geladen werden. Bitte versuche es später erneut."
+    }
+  },
+  "favorite": {
+    "addAriaLabel": "Zu Favoriten hinzufügen",
+    "removeAriaLabel": "Aus Favoriten entfernen"
+  },
+  "cook": {
+    "loading": "Rezept wird geladen...",
+    "exit": "Beenden",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "repeat": "Wiederholen",
+    "ingredients": "Zutaten",
+    "closePanel": "Zutaten-Panel schließen",
+    "mute": "Stumm",
+    "unmute": "Ton an",
+    "voiceToggle": "Sprachsteuerung umschalten",
+    "voiceListening": "Höre zu...",
+    "voiceTapToTalk": "Zum Sprechen tippen",
+    "stepProgress": "Schritt {{current}} von {{total}}",
+    "timer": {
+      "defaultName": "Timer",
+      "cancel": "Abbrechen",
+      "done": "Timer fertig"
+    },
+    "errors": {
+      "notFound": "Rezept nicht gefunden."
+    }
+  }
+}
