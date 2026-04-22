@@ -98,13 +98,71 @@ jobs:
         run: |
           aspire start --apphost src/Yumney.AppHost/Yumney.AppHost.csproj 2>&1 | tee /tmp/aspire.log
 
-      - name: Wait for services to be ready
+      - name: Wait for services to be ready (instrumented)
         run: |
-          echo "Waiting for Gateway..."
-          aspire wait yumney-gateway --timeout 600 2>&1 || true
-          echo "Waiting for Frontend shell..."
-          aspire wait shell --timeout 300 2>&1 || true
-          aspire describe 2>&1
+          set +e
+          mkdir -p /tmp/diag
+          START_TS=$(date +%s)
+          stamp() { echo "[+$(($(date +%s) - START_TS))s] $*"; }
+
+          stamp "=== initial aspire describe ==="
+          aspire describe 2>&1 | tee /tmp/diag/aspire-describe-initial.log
+
+          stamp "=== docker ps (initial) ==="
+          docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' 2>&1 | tee /tmp/diag/docker-ps-initial.log
+
+          poll() {
+            local name="$1" url="$2" timeout="$3"
+            local deadline=$(( $(date +%s) + timeout ))
+            local t0=$(date +%s)
+            stamp "poll-start $name $url (timeout ${timeout}s)"
+            while [ "$(date +%s)" -lt "$deadline" ]; do
+              local code
+              code=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 3 "$url" || echo 000)
+              if [ "$code" != "000" ] && [ "$code" -lt 500 ]; then
+                stamp "poll-ready $name after $(( $(date +%s) - t0 ))s (http $code)"
+                return 0
+              fi
+              sleep 2
+            done
+            stamp "poll-TIMEOUT $name after ${timeout}s"
+            return 1
+          }
+
+          # Probe the real endpoints in the background so they run in parallel.
+          poll gateway  http://localhost:5100/                 540 > /tmp/diag/poll-gateway.log 2>&1 &
+          poll shell    http://localhost:4200/                 540 > /tmp/diag/poll-shell.log 2>&1 &
+          poll keycloak http://localhost:8080/realms/master    540 > /tmp/diag/poll-keycloak.log 2>&1 &
+          wait
+
+          for f in /tmp/diag/poll-*.log; do
+            echo "--- $f ---"
+            cat "$f"
+          done
+
+          stamp "=== aspire describe (after polling) ==="
+          aspire describe 2>&1 | tee /tmp/diag/aspire-describe-final.log
+
+          stamp "=== docker ps (final) ==="
+          docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' 2>&1 | tee /tmp/diag/docker-ps-final.log
+
+          stamp "=== docker logs (last 200 lines per container) ==="
+          for c in $(docker ps -q); do
+            name=$(docker inspect --format '{{.Name}}' "$c" | sed 's#^/##')
+            docker logs --tail 200 "$c" > "/tmp/diag/docker-${name}.log" 2>&1 || true
+          done
+
+          stamp "=== Aspire CLI + resource logs copy ==="
+          if [ -d "$HOME/.aspire/logs" ]; then
+            cp -r "$HOME/.aspire/logs" /tmp/diag/aspire-cli-logs || true
+          fi
+
+          # Keep legacy aspire wait calls too for comparison, short timeout
+          stamp "=== legacy aspire wait (short timeout for comparison) ==="
+          aspire wait yumney-gateway --timeout 30 2>&1 || true
+          aspire wait shell --timeout 30 2>&1 || true
+
+          stamp "diagnostic step complete"
 
       - name: Run backend integration tests
         continue-on-error: true
@@ -133,7 +191,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: aspire-logs
-          path: /tmp/aspire.log
+          path: |
+            /tmp/aspire.log
+            /tmp/diag/
           retention-days: 7
 
       - name: Upload Playwright report
