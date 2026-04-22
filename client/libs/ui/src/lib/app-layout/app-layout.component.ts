@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { IS_STANDALONE } from '@yumney/shared/models';
+import { ChatStateService, IS_STANDALONE } from '@yumney/shared/models';
 import { HeaderComponent } from '../header/header.component';
 import { ChatPanelComponent } from '../chat-panel/chat-panel.component';
 
@@ -13,4 +13,5 @@ import { ChatPanelComponent } from '../chat-panel/chat-panel.component';
 })
 export class AppLayoutComponent {
   protected isStandalone = inject(IS_STANDALONE);
+  protected readonly chatState = inject(ChatStateService);
 }

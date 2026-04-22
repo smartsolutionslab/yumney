@@ -5,5 +5,7 @@
   <router-outlet />
 </main>
 @if (isStandalone) {
-  <yn-chat-panel />
+  @defer (when chatState.isOpen()) {
+    <yn-chat-panel />
+  }
 }

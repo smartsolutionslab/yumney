@@ -7,6 +7,7 @@ import {
   HeaderComponent,
   ToastHostComponent,
 } from '@yumney/ui';
+import { ChatStateService } from '@yumney/shared/models';
 import { OfflineIndicatorComponent } from './layout/offline-indicator/offline-indicator.component';
 import { filter } from 'rxjs';
 
@@ -26,6 +27,7 @@ import { filter } from 'rxjs';
 })
 export class App implements OnInit {
   private readonly swUpdate = inject(SwUpdate);
+  protected readonly chatState = inject(ChatStateService);
 
   ngOnInit(): void {
     if (!this.swUpdate.isEnabled) return;
