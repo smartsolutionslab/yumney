@@ -213,4 +213,82 @@ describe('MealPlannerComponent', () => {
       day: 'Monday',
     });
   });
+
+  it('should navigate to next week on left swipe (touch)', () => {
+    const initialCalls = apiMock.getWeeklyPlan.mock.calls.length;
+    const host: HTMLElement = fixture.nativeElement;
+
+    host.dispatchEvent(
+      new PointerEvent('pointerdown', { pointerType: 'touch', clientX: 300, clientY: 100 }),
+    );
+    host.dispatchEvent(
+      new PointerEvent('pointerup', { pointerType: 'touch', clientX: 200, clientY: 105 }),
+    );
+
+    expect(apiMock.getWeeklyPlan.mock.calls.length).toBeGreaterThan(initialCalls);
+  });
+
+  it('should navigate to previous week on right swipe (touch)', () => {
+    const initialCalls = apiMock.getWeeklyPlan.mock.calls.length;
+    const host: HTMLElement = fixture.nativeElement;
+
+    host.dispatchEvent(
+      new PointerEvent('pointerdown', { pointerType: 'touch', clientX: 100, clientY: 100 }),
+    );
+    host.dispatchEvent(
+      new PointerEvent('pointerup', { pointerType: 'touch', clientX: 220, clientY: 95 }),
+    );
+
+    expect(apiMock.getWeeklyPlan.mock.calls.length).toBeGreaterThan(initialCalls);
+  });
+
+  it('should ignore mouse drags — swipe is touch-only', () => {
+    const initialCalls = apiMock.getWeeklyPlan.mock.calls.length;
+    const host: HTMLElement = fixture.nativeElement;
+
+    host.dispatchEvent(
+      new PointerEvent('pointerdown', { pointerType: 'mouse', clientX: 300, clientY: 100 }),
+    );
+    host.dispatchEvent(
+      new PointerEvent('pointerup', { pointerType: 'mouse', clientX: 150, clientY: 100 }),
+    );
+
+    expect(apiMock.getWeeklyPlan.mock.calls.length).toBe(initialCalls);
+  });
+
+  it('should ignore mostly-vertical drags (treat as scroll, not swipe)', () => {
+    const initialCalls = apiMock.getWeeklyPlan.mock.calls.length;
+    const host: HTMLElement = fixture.nativeElement;
+
+    host.dispatchEvent(
+      new PointerEvent('pointerdown', { pointerType: 'touch', clientX: 200, clientY: 100 }),
+    );
+    host.dispatchEvent(
+      new PointerEvent('pointerup', { pointerType: 'touch', clientX: 260, clientY: 300 }),
+    );
+
+    expect(apiMock.getWeeklyPlan.mock.calls.length).toBe(initialCalls);
+  });
+
+  it('should render a clickable clear button for populated slots', () => {
+    const planWithRecipe = {
+      ...emptyPlan,
+      slots: emptyPlan.slots.map((s) =>
+        s.day === 'Monday'
+          ? { ...s, contentType: 'Recipe', recipeTitle: 'Pasta', isEmpty: false }
+          : s,
+      ),
+    };
+    apiMock.getWeeklyPlan.mockReturnValue(of(planWithRecipe));
+    fixture.componentInstance['loadPlan']();
+    fixture.detectChanges();
+
+    const clearBtn: HTMLButtonElement | null = fixture.nativeElement.querySelector('.clear-btn');
+    expect(clearBtn).toBeTruthy();
+    clearBtn!.click();
+
+    expect(apiMock.clearSlot).toHaveBeenCalledWith(expect.any(Number), expect.any(Number), {
+      day: 'Monday',
+    });
+  });
 });

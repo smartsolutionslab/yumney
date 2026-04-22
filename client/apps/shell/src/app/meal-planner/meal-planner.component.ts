@@ -2,6 +2,8 @@ import {
   Component,
   ChangeDetectionStrategy,
   DestroyRef,
+  ElementRef,
+  HostListener,
   inject,
   signal,
   computed,
@@ -21,6 +23,8 @@ import { AsyncStateComponent } from '@yumney/ui';
 
 const WEEKS_PER_YEAR = 52;
 const MS_PER_DAY = 86_400_000;
+const SWIPE_MIN_DX_PX = 60;
+const SWIPE_MAX_DY_RATIO = 0.5; // |dy| must be < 50% of |dx| to count as horizontal
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const JS_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -37,6 +41,7 @@ export class MealPlannerComponent {
   private destroyRef = inject(DestroyRef);
   private transloco = inject(TranslocoService);
   private router = inject(Router);
+  private host = inject(ElementRef<HTMLElement>);
 
   protected year = signal(new Date().getFullYear());
   protected weekNumber = signal(this.getCurrentWeek());
@@ -138,6 +143,7 @@ export class MealPlannerComponent {
         next: (plan) => {
           this.plan.set(plan);
           this.loading.set(false);
+          queueMicrotask(() => this.scrollTodayIntoView());
         },
         error: () => {
           this.error.set(this.transloco.translate('mealPlanner.errors.loadFailed'));
@@ -146,8 +152,39 @@ export class MealPlannerComponent {
       });
   }
 
+  private scrollTodayIntoView(): void {
+    const el = this.host.nativeElement.querySelector<HTMLElement>('.day-card.today');
+    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
   protected onRetry(): void {
     this.loadPlan();
+  }
+
+  private swipeStart: { x: number; y: number } | null = null;
+
+  @HostListener('pointerdown', ['$event'])
+  protected onSwipeStart(event: PointerEvent): void {
+    if (event.pointerType !== 'touch') return;
+    this.swipeStart = { x: event.clientX, y: event.clientY };
+  }
+
+  @HostListener('pointerup', ['$event'])
+  protected onSwipeEnd(event: PointerEvent): void {
+    const start = this.swipeStart;
+    this.swipeStart = null;
+    if (!start || event.pointerType !== 'touch') return;
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < SWIPE_MIN_DX_PX) return;
+    if (Math.abs(dy) > Math.abs(dx) * SWIPE_MAX_DY_RATIO) return;
+
+    if (dx < 0) {
+      this.onNextWeek();
+    } else {
+      this.onPreviousWeek();
+    }
   }
 
   protected isToday(dayName: string): boolean {
