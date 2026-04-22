@@ -43,4 +43,22 @@ public class KeycloakUserIdTests
 
 		id1.Should().NotBe(id2);
 	}
+
+	[Fact]
+	public void New_ReturnsInstanceWithVersion7Guid()
+	{
+		var id = KeycloakUserId.New();
+
+		Guid.TryParse(id.Value, out var parsed).Should().BeTrue();
+		parsed.Version.Should().Be(7);
+	}
+
+	[Fact]
+	public void New_EachCall_ReturnsDistinctValue()
+	{
+		var a = KeycloakUserId.New();
+		var b = KeycloakUserId.New();
+
+		a.Should().NotBe(b);
+	}
 }
