@@ -25,9 +25,27 @@
     transform: scale(1.02);
   }
 
+  // Keyboard-only focus indicator (mouse clicks don't trigger :focus-visible).
+  &:focus-visible {
+    outline: 2px solid var(--yn-primary);
+    outline-offset: 2px;
+  }
+
   &:active:not(:disabled) {
     transform: scale(0.96);
     transition-duration: 80ms;
+  }
+
+  // Touch devices (no hover): give tactile press feedback since hover styles
+  // are unreachable. Keep desktop hover styles intact.
+  @media (hover: none) {
+    &:hover:not(:disabled) {
+      transform: none;
+    }
+
+    &:active:not(:disabled) {
+      opacity: 0.8;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

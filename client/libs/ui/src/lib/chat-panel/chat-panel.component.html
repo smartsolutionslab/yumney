@@ -1,6 +1,12 @@
 @if (state.isOpen()) {
   <div class="chat-backdrop" (click)="onBackdropClick()"></div>
-  <div class="chat-panel" *transloco="let t" role="dialog" [attr.aria-label]="t('chat.title')">
+  <div
+    class="chat-panel"
+    *transloco="let t"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="t('chat.title')"
+  >
     <div class="chat-header">
       <h2>{{ t('chat.title') }}</h2>
       <div class="chat-header-actions">
