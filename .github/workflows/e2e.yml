@@ -179,11 +179,9 @@ jobs:
           stamp "diagnostic step complete"
 
       - name: Run backend integration tests
-        continue-on-error: true
         run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj
 
       - name: Run Playwright e2e tests
-        continue-on-error: true
         working-directory: client
         run: npx nx e2e shell-e2e
         env:
