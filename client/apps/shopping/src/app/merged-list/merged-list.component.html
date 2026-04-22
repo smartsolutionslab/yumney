@@ -37,7 +37,12 @@
       [placeholder]="t('shopping.addPlaceholder')"
       class="add-input"
     />
-    <button class="add-btn" (click)="onAddItem()" [disabled]="!newItemName().trim()">
+    <button
+      class="add-btn"
+      (click)="onAddItem()"
+      [disabled]="!newItemName().trim()"
+      [attr.aria-label]="t('shopping.addItem')"
+    >
       <lucide-icon name="plus" [size]="18" />
     </button>
   </div>

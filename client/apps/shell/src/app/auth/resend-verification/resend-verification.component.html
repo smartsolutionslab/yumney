@@ -4,7 +4,7 @@
     <p class="subtitle">{{ t('auth.resendVerification.subtitle') }}</p>
 
     @if (isSuccess()) {
-      <div class="success-message">
+      <div class="success-message" role="status" aria-live="polite">
         <h2>{{ t('auth.resendVerification.success.title') }}</h2>
         <p>{{ t('auth.resendVerification.success.message') }}</p>
       </div>
