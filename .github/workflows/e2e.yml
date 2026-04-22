@@ -219,4 +219,7 @@ jobs:
             client/test-results/
             client/apps/shell-e2e/playwright-report/
             client/dist/.playwright/
+          # The Nx playwright executor writes attachments under .playwright,
+          # which upload-artifact treats as a hidden dir and skips by default.
+          include-hidden-files: true
           retention-days: 14
