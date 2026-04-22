@@ -32,9 +32,7 @@ export function createMfeAppConfig(
   options: MfeAppConfigOptions | Provider[] = {},
 ): ApplicationConfig {
   // Back-compat: accept the old `Provider[]` second arg while call sites migrate.
-  const opts: MfeAppConfigOptions = Array.isArray(options)
-    ? { extraProviders: options }
-    : options;
+  const opts: MfeAppConfigOptions = Array.isArray(options) ? { extraProviders: options } : options;
 
   const providers: (Provider | EnvironmentProviders)[] = [
     provideBrowserGlobalErrorListeners(),
