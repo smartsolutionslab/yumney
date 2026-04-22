@@ -151,20 +151,30 @@ export class DashboardComponent implements OnInit {
     this.dashboardApi
       .getSuggestions()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((response) => {
-        this.suggestions.set(response);
-        this.quickActions.set(this.mapQuickActions(response.quickActions));
-        this.suggestionsLoading.set(false);
+      .subscribe({
+        next: (response) => {
+          this.suggestions.set(response);
+          this.quickActions.set(this.mapQuickActions(response.quickActions));
+          this.suggestionsLoading.set(false);
 
-        if (response.quickActions.length === 0 && response.suggestions.length === 0) {
+          if (response.quickActions.length === 0 && response.suggestions.length === 0) {
+            this.importSectionExpanded.set(true);
+          }
+        },
+        error: () => {
+          // Keep the loading spinner from spinning forever if the API fails.
+          this.suggestionsLoading.set(false);
           this.importSectionExpanded.set(true);
-        }
+        },
       });
 
     this.dashboardApi
       .getRecentActivity(5)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((activity) => this.recentActivity.set(activity));
+      .subscribe({
+        next: (activity) => this.recentActivity.set(activity),
+        error: () => this.recentActivity.set([]),
+      });
   }
 
   private mapQuickActions(keys: string[]): QuickAction[] {

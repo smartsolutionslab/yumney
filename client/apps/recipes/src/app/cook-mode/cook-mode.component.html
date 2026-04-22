@@ -86,9 +86,14 @@
 
     @if (ingredientsPanelOpen()) {
       @defer {
-        <aside class="ingredients-panel" role="dialog">
+        <aside
+          class="ingredients-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cook-mode-ingredients-title"
+        >
           <div class="panel-header">
-            <h2>{{ t('recipes.cook.ingredients') }}</h2>
+            <h2 id="cook-mode-ingredients-title">{{ t('recipes.cook.ingredients') }}</h2>
             <button
               type="button"
               class="panel-close"
