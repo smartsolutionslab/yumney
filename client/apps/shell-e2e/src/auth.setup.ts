@@ -5,6 +5,13 @@ const E2E_PASSWORD = process.env['E2E_PASSWORD'] ?? 'Test1234';
 
 const AUTH_STATE_PATH = 'src/.auth/user.json';
 
+// Cold-start budget: federation init + APP_INITIALIZER (Keycloak discovery +
+// language + theme) + vite on-demand compile of the /auth/* lazy chunk +
+// navigation to Keycloak + token exchange + return redirect. The global 30s
+// test timeout from playwright.config.ts is not enough on a CI runner that is
+// also running the full Aspire stack plus 4 Angular dev servers.
+setup.setTimeout(120_000);
+
 setup('authenticate via Keycloak', async ({ page }) => {
   // Capture token exchange responses
   page.on('response', (r) => {
