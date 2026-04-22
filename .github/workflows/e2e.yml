@@ -218,4 +218,5 @@ jobs:
           path: |
             client/test-results/
             client/apps/shell-e2e/playwright-report/
+            client/dist/.playwright/
           retention-days: 14
