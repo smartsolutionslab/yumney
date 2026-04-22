@@ -29,6 +29,6 @@ public sealed class PhotoDataValidator : AbstractValidator<PhotoData>
 	[
 		MediaTypes.ImageJpeg,
 		MediaTypes.ImagePng,
-		MediaTypes.ImageWebp,
+		MediaTypes.ImageWebp
 	];
 }

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
@@ -18,7 +20,9 @@ public static class RecipeFactory
 		var recipeIngredients = (ingredients ?? [("Default Ingredient", null, null)])
 			.Select(i => Ingredient.Create(
 				IngredientName.From(i.Name),
-				Quantity.FromNullable(Amount.FromNullable(i.Amount), Unit.FromNullable(i.Unit))))
+				Quantity.FromNullable(
+					Amount.FromNullable(i.Amount),
+					Unit.FromNullable(i.Unit))))
 			.ToList();
 
 		var recipeSteps = (steps ?? ["Default step"])
@@ -53,7 +57,7 @@ public static class RecipeFactory
 			("Flour", 50m, "g"),
 			("Milk", 500m, "ml"),
 			("Parmesan cheese", 100m, "g"),
-			("Mozzarella", 200m, "g"),
+			("Mozzarella", 200m, "g")
 		],
 		steps:
 		[
@@ -61,7 +65,7 @@ public static class RecipeFactory
 			"Add canned tomatoes and simmer for 30 minutes",
 			"Make bechamel: melt butter, add flour, gradually add milk",
 			"Layer lasagne sheets, Bolognese, and bechamel in a baking dish",
-			"Top with mozzarella and parmesan, bake at 180°C for 40 minutes",
+			"Top with mozzarella and parmesan, bake at 180°C for 40 minutes"
 		],
 		tags: ["italian", "pasta", "comfort-food"]);
 
@@ -77,14 +81,14 @@ public static class RecipeFactory
 			("Garlic", 4m, "cloves"),
 			("Olive oil", 3m, "tbsp"),
 			("Fresh basil", 10m, "leaves"),
-			("Heavy cream", 100m, "ml"),
+			("Heavy cream", 100m, "ml")
 		],
 		steps:
 		[
 			"Halve tomatoes and roast at 200°C for 25 minutes",
 			"Sauté onion and garlic until soft",
 			"Blend roasted tomatoes with onion mixture",
-			"Stir in cream and fresh basil, season to taste",
+			"Stir in cream and fresh basil, season to taste"
 		]);
 
 	public static Recipe ChocolateCake(string? owner = null) => Create(
@@ -99,13 +103,13 @@ public static class RecipeFactory
 			("Sugar", 300m, "g"),
 			("Eggs", 3m, null),
 			("Butter", 150m, "g"),
-			("Dark chocolate", 200m, "g"),
+			("Dark chocolate", 200m, "g")
 		],
 		steps:
 		[
 			"Mix dry ingredients together",
 			"Cream butter and sugar, add eggs",
 			"Fold in dry ingredients and melted chocolate",
-			"Bake at 170°C for 35 minutes",
+			"Bake at 170°C for 35 minutes"
 		]);
 }

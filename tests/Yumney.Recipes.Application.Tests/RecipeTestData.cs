@@ -45,7 +45,7 @@ internal static class RecipeTestData
 			OwnerIdentifier.From(ownerId),
 			[
 				Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500m), Unit.Gram)),
-				Ingredient.Create(IngredientName.From("Eggs"), null),
+				Ingredient.Create(IngredientName.From("Eggs"), null)
 			],
 			[Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
 	}
@@ -58,7 +58,7 @@ internal static class RecipeTestData
 			[Ingredient.Create(IngredientName.From("Flour"), null)],
 			[
 				Step.Create(StepNumber.From(1), StepDescription.From("Mix flour")),
-				Step.Create(StepNumber.From(2), StepDescription.From("Add eggs")),
+				Step.Create(StepNumber.From(2), StepDescription.From("Add eggs"))
 			]);
 	}
 }

@@ -1,13 +1,10 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace SmartSolutionsLab.Yumney.Shared.Common;
 
-/// <summary>
-/// Cross-module interface for writing items to the shopping ledger.
-/// Implemented by Shopping.Infrastructure, consumed by MealPlan.Application.
-/// </summary>
 public interface IShoppingListWriter
 {
-	Task AddItemsAsync(
-		string ownerId,
-		IReadOnlyList<ShoppingItemRequest> items,
-		CancellationToken cancellationToken = default);
+	Task AddItemsAsync(string ownerId, IReadOnlyList<ShoppingItemRequest> items, CancellationToken cancellationToken = default);
 }

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 /// <summary>
@@ -17,20 +20,17 @@ public static class IngredientCategoryResolver
 	/// <returns>The category if known, or null if the item is not recognized.</returns>
 	public static IngredientCategory? Resolve(string itemName)
 	{
-		if (string.IsNullOrWhiteSpace(itemName))
-			return null;
+		if (string.IsNullOrWhiteSpace(itemName)) return null;
 
 		var normalized = itemName.Trim().ToLowerInvariant();
 
-		if (itemCategories.TryGetValue(normalized, out var category))
-			return category;
+		if (itemCategories.TryGetValue(normalized, out var category)) return category;
 
 		// Basic English plural normalization
 		if (normalized.Length > 3 && normalized.EndsWith('s') && !normalized.EndsWith("ss", StringComparison.Ordinal))
 		{
 			var singular = normalized[..^1];
-			if (itemCategories.TryGetValue(singular, out var singularCategory))
-				return singularCategory;
+			if (itemCategories.TryGetValue(singular, out var singularCategory)) return singularCategory;
 		}
 
 		return null;
@@ -39,7 +39,7 @@ public static class IngredientCategoryResolver
 #pragma warning disable SA1117
 	private static Dictionary<string, IngredientCategory> BuildItemCategories()
 	{
-		var map = new Dictionary<string, IngredientCategory>(StringComparer.OrdinalIgnoreCase);
+		Dictionary<string, IngredientCategory> map = new(StringComparer.OrdinalIgnoreCase);
 
 		Add(map, IngredientCategory.Produce,
 			"onion", "zwiebel", "garlic", "knoblauch",

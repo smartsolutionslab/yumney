@@ -12,7 +12,7 @@ internal static class MealPlanTestFixture
 	public static WeeklyPlan CreatePlan() => WeeklyPlan.Create(TestOwner, TestWeek);
 
 	public static SlotRecipeReference Recipe(string title = "Pasta") =>
-		SlotRecipeReference.From(Guid.NewGuid(), title);
+		SlotRecipeReference.From(SlotRecipeIdentifier.New(), SlotRecipeTitle.From(title));
 
 	public static SlotRecipeReference Recipe(Guid id, string title) =>
 		SlotRecipeReference.From(id, title);

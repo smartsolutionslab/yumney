@@ -1,6 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
@@ -15,6 +22,7 @@ using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 using Xunit;
+using ShoppingDomain = SmartSolutionsLab.Yumney.Shopping.Domain;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 
@@ -28,9 +36,7 @@ public sealed class AspireFixture : IAsyncLifetime
 {
 	private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(8);
 
-	public static async Task CleanupAsync<TContext>(
-		Func<Task<TContext>> contextFactory,
-		Func<TContext, IQueryable<object>> query)
+	public static async Task CleanupAsync<TContext>(Func<Task<TContext>> contextFactory, Func<TContext, IQueryable<object>> query)
 		where TContext : DbContext
 	{
 		await using var context = await contextFactory();
@@ -59,16 +65,16 @@ public sealed class AspireFixture : IAsyncLifetime
 	{
 		await CleanupStaleContainersAsync();
 
-		var builder = await DistributedApplicationTestingBuilder
-			.CreateAsync<Projects.Yumney_AppHost>(
-			[
-				"Parameters:PostgresUser=testuser",
-				"Parameters:PostgresPassword=testpassword",
-				"Parameters:KeycloakPassword=testkeycloak",
-				"Parameters:MessagingPassword=testmessaging",
-				"Parameters:RedisPassword=testredis",
-				"E2ETests=true",
-			]);
+		string[] parameters =
+		[
+			"Parameters:PostgresUser=testuser",
+			"Parameters:PostgresPassword=testpassword",
+			"Parameters:KeycloakPassword=testkeycloak",
+			"Parameters:MessagingPassword=testmessaging",
+			"Parameters:RedisPassword=testredis",
+			"E2ETests=true"
+		];
+		var builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.Yumney_AppHost>(parameters);
 
 		builder.Services.ConfigureHttpClientDefaults(http => http.AddStandardResilienceHandler());
 
@@ -80,35 +86,17 @@ public sealed class AspireFixture : IAsyncLifetime
 		{
 			await app.StartAsync(cts.Token);
 
-			await app.ResourceNotifications.WaitForResourceAsync(
-				"keycloak", KnownResourceStates.Running, cts.Token);
-			await app.ResourceNotifications.WaitForResourceAsync(
-				"yumney-migrations", KnownResourceStates.Finished, cts.Token);
+			await app.ResourceNotifications.WaitForResourceAsync("keycloak", KnownResourceStates.Running, cts.Token);
+			await app.ResourceNotifications.WaitForResourceAsync("yumney-migrations", KnownResourceStates.Finished, cts.Token);
 
-			var apis = new[] { "recipes-api", "shopping-api", "users-api", "mealplan-api" };
-			foreach (var api in apis)
-			{
-				await app.ResourceNotifications.WaitForResourceAsync(api, KnownResourceStates.Running, cts.Token);
-			}
+			string[] apis = ["recipes-api", "shopping-api", "users-api", "mealplan-api"];
+			var apiTasks = apis.Select(api => app.ResourceNotifications.WaitForResourceAsync(api, KnownResourceStates.Running, cts.Token));
+
+			await Task.WhenAll(apiTasks);
 
 			// Keycloak realm import may still be in progress after container is Running.
 			// Verify the token endpoint is reachable before proceeding.
-			var keycloakClient = app.CreateHttpClient("keycloak");
-			for (var i = 0; i < 30; i++)
-			{
-				try
-				{
-					var probe = await keycloakClient.GetAsync(
-						"/realms/yumney/.well-known/openid-configuration", cts.Token);
-					if (probe.IsSuccessStatusCode) break;
-				}
-				catch
-				{
-					// Not ready yet
-				}
-
-				await Task.Delay(1000, cts.Token);
-			}
+			await VerifyKeycloak();
 		}
 		catch (Exception ex) when (ex is OperationCanceledException or TaskCanceledException)
 		{
@@ -122,14 +110,33 @@ public sealed class AspireFixture : IAsyncLifetime
 		ShoppingApi = app.CreateHttpClient("shopping-api");
 		UsersApi = app.CreateHttpClient("users-api");
 		MealPlanApi = app.CreateHttpClient("mealplan-api");
+
+		async Task VerifyKeycloak()
+		{
+			var keycloakClient = app.CreateHttpClient("keycloak");
+			for (var index = 0; index < 30; index++)
+			{
+				try
+				{
+					var probe = await keycloakClient.GetAsync("/realms/yumney/.well-known/openid-configuration", cts.Token);
+					if (probe.IsSuccessStatusCode) break;
+				}
+				catch
+				{
+					// Not ready yet
+				}
+
+				await Task.Delay(1000, cts.Token);
+			}
+		}
 	}
 
 	public async Task DisposeAsync()
 	{
-		RecipesApi?.Dispose();
-		ShoppingApi?.Dispose();
-		UsersApi?.Dispose();
-		MealPlanApi?.Dispose();
+		RecipesApi.Dispose();
+		ShoppingApi.Dispose();
+		UsersApi.Dispose();
+		MealPlanApi.Dispose();
 
 		if (app is not null)
 		{
@@ -169,7 +176,7 @@ public sealed class AspireFixture : IAsyncLifetime
 		return new ShoppingReadDbContext(optionsBuilder.Options);
 	}
 
-	public async Task ResetShoppingEventStoreAsync(global::SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.OwnerIdentifier owner)
+	public async Task ResetShoppingEventStoreAsync(ShoppingDomain.ShoppingList.OwnerIdentifier owner)
 	{
 		await using var context = await CreateShoppingDbContextAsync();
 		var aggregateIds = await context.Set<AggregateMetadata>()
@@ -180,11 +187,14 @@ public sealed class AspireFixture : IAsyncLifetime
 		if (aggregateIds.Count == 0) return;
 
 		var events = await context.Set<StoredEvent>()
-			.Where(e => aggregateIds.Contains(e.AggregateId)).ToListAsync();
+			.Where(e => aggregateIds.Contains(e.AggregateId))
+			.ToListAsync();
 		var snapshots = await context.Set<StoredSnapshot>()
-			.Where(s => aggregateIds.Contains(s.AggregateId)).ToListAsync();
+			.Where(s => aggregateIds.Contains(s.AggregateId))
+			.ToListAsync();
 		var metadata = await context.Set<AggregateMetadata>()
-			.Where(m => aggregateIds.Contains(m.AggregateId)).ToListAsync();
+			.Where(m => aggregateIds.Contains(m.AggregateId))
+			.ToListAsync();
 
 		context.RemoveRange(events);
 		context.RemoveRange(snapshots);
@@ -196,8 +206,11 @@ public sealed class AspireFixture : IAsyncLifetime
 	{
 		await using var context = await CreateShoppingDbContextAsync();
 		var items = await context.Set<ShoppingListReadItem>()
-			.Where(r => r.OwnerId == ownerId).ToListAsync();
+			.Where(r => r.OwnerId == ownerId)
+			.ToListAsync();
+
 		if (items.Count == 0) return;
+
 		context.RemoveRange(items);
 		await context.SaveChangesAsync();
 	}
@@ -206,6 +219,7 @@ public sealed class AspireFixture : IAsyncLifetime
 	{
 		await using var context = await CreateShoppingDbContextAsync();
 		context.ShoppingLists.AddRange(shoppingLists);
+
 		await context.SaveChangesAsync();
 	}
 
@@ -214,6 +228,7 @@ public sealed class AspireFixture : IAsyncLifetime
 		var connectionString = await App.GetConnectionStringAsync("usersdb");
 		var optionsBuilder = new DbContextOptionsBuilder<UsersDbContext>();
 		optionsBuilder.UseNpgsql(connectionString, x => x.EnableRetryOnFailure());
+
 		return new UsersDbContext(optionsBuilder.Options);
 	}
 
@@ -221,6 +236,7 @@ public sealed class AspireFixture : IAsyncLifetime
 	{
 		await using var context = await CreateUsersDbContextAsync();
 		context.AppUserProfiles.AddRange(profiles);
+
 		await context.SaveChangesAsync();
 	}
 
@@ -229,6 +245,7 @@ public sealed class AspireFixture : IAsyncLifetime
 		var accessToken = await GetTestUserAccessTokenAsync();
 		var client = App.CreateHttpClient(resourceName);
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
 		return client;
 	}
 
@@ -239,24 +256,25 @@ public sealed class AspireFixture : IAsyncLifetime
 		var padded = payload.PadRight(payload.Length + ((4 - (payload.Length % 4)) % 4), '=');
 		var decoded = Convert.FromBase64String(padded.Replace('-', '+').Replace('_', '/'));
 		var claims = JsonSerializer.Deserialize<JsonElement>(decoded);
+
 		return claims.GetProperty("sub").GetString()!;
 	}
 
 	private async Task<string> GetTestUserAccessTokenAsync()
 	{
 		var keycloakClient = App.CreateHttpClient("keycloak");
-		var tokenResponse = await keycloakClient.PostAsync(
-			"/realms/yumney/protocol/openid-connect/token",
-			new FormUrlEncodedContent(new Dictionary<string, string>
-			{
-				["grant_type"] = "password",
-				["client_id"] = "yumney-web",
-				["username"] = "testuser",
-				["password"] = "Test1234",
-			}));
+		Dictionary<string, string> valueCollection = new()
+		{
+			["grant_type"] = "password",
+			["client_id"] = "yumney-web",
+			["username"] = "testuser",
+			["password"] = "Test1234",
+		};
+		var tokenResponse = await keycloakClient.PostAsync("/realms/yumney/protocol/openid-connect/token", new FormUrlEncodedContent(valueCollection));
 
 		tokenResponse.EnsureSuccessStatusCode();
 		var tokenJson = await tokenResponse.Content.ReadFromJsonAsync<JsonElement>();
+
 		return tokenJson.GetProperty("access_token").GetString()!;
 	}
 
@@ -265,7 +283,7 @@ public sealed class AspireFixture : IAsyncLifetime
 	{
 		try
 		{
-			var process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+			var process = Process.Start(new ProcessStartInfo
 			{
 				FileName = "docker",
 				Arguments = "ps -aq --filter label=com.microsoft.developer.usvc-dev.build",
@@ -283,7 +301,7 @@ public sealed class AspireFixture : IAsyncLifetime
 			var ids = output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 			if (ids.Length == 0) return;
 
-			var rmProcess = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+			var rmProcess = Process.Start(new ProcessStartInfo
 			{
 				FileName = "docker",
 				Arguments = $"rm -f {string.Join(' ', ids)}",
@@ -293,8 +311,7 @@ public sealed class AspireFixture : IAsyncLifetime
 				CreateNoWindow = true,
 			});
 
-			if (rmProcess is not null)
-				await rmProcess.WaitForExitAsync();
+			if (rmProcess is not null) await rmProcess.WaitForExitAsync();
 		}
 		catch
 		{

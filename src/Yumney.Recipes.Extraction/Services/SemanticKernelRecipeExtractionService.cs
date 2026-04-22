@@ -1,6 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -73,7 +77,9 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 		return result;
 	}
 
-	public async Task<Result<ExtractedRecipeDto>> ExtractFromPhotosAsync(IReadOnlyList<PhotoData> photos, CancellationToken cancellationToken = default)
+	public async Task<Result<ExtractedRecipeDto>> ExtractFromPhotosAsync(
+		IReadOnlyList<PhotoData> photos,
+		CancellationToken cancellationToken = default)
 	{
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.photos");
 		activity?.SetTag("extract.photo_count", photos.Count);

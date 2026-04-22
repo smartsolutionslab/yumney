@@ -24,7 +24,7 @@ public class RecipeIngredientProviderTests
 		SetupRecipe(
 			[
 				Ingredient.Create(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(500m), Unit.Gram)),
-				Ingredient.Create(IngredientName.From("Tomato Sauce"), Quantity.Of(Amount.From(200m), Unit.Milliliter)),
+				Ingredient.Create(IngredientName.From("Tomato Sauce"), Quantity.Of(Amount.From(200m), Unit.Milliliter))
 			],
 			Servings.From(4));
 

@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +34,7 @@ public static class HostBuilderExtensions
 
 		builder.Services.ConfigureHttpJsonOptions(options =>
 		{
-			options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+			options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 		});
 
 		builder.Services.Configure<HostOptions>(options =>

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public abstract class EventSourcedAggregate<TId>

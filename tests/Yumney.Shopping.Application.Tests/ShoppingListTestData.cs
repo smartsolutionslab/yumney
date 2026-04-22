@@ -20,7 +20,7 @@ internal static class ShoppingListTestData
 			[
 				ShoppingListItem.Create(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.Liter)),
 				ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-				ShoppingListItem.Create(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), null)),
+				ShoppingListItem.Create(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), null))
 			]);
 	}
 

@@ -36,10 +36,9 @@ public class ExportShoppingListQueryHandlerTests
 	[Fact]
 	public async Task HandleAsync_AllBought_ReturnsEmptyString()
 	{
-		var items = new List<MergedShoppingItemDto>
-		{
-			new("Milk", 2, 2, "L", "dairy", true, []),
-		};
+		List<MergedShoppingItemDto> items = [
+			new("Milk", 2, 2, "L", "dairy", true, [])
+		];
 		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
 			.Returns(new MergedShoppingListDto(items));
 
@@ -74,11 +73,11 @@ public class ExportShoppingListQueryHandlerTests
 	[Fact]
 	public async Task HandleAsync_ExcludesBoughtItems()
 	{
-		var items = new List<MergedShoppingItemDto>
-		{
+		List<MergedShoppingItemDto> items =
+		[
 			new("Milk", 2, 2, "L", "dairy", true, []),
-			new("Eggs", 6, 6, "pc", "dairy", false, []),
-		};
+			new("Eggs", 6, 6, "pc", "dairy", false, [])
+		];
 		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
 			.Returns(new MergedShoppingListDto(items));
 
@@ -106,11 +105,11 @@ public class ExportShoppingListQueryHandlerTests
 	[Fact]
 	public async Task HandleAsync_OrderedByCategoryDisplayOrder()
 	{
-		var items = new List<MergedShoppingItemDto>
-		{
+		List<MergedShoppingItemDto> items =
+		[
 			new("Soap", 1, 1, "pc", "household", false, []),
-			new("Onion", 1, 1, "pc", "produce", false, []),
-		};
+			new("Onion", 1, 1, "pc", "produce", false, [])
+		];
 		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
 			.Returns(new MergedShoppingListDto(items));
 

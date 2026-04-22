@@ -10,7 +10,7 @@ public class UserActivityTests
 	public void Record_CreatesActivityWithCorrectProperties()
 	{
 		var owner = OwnerIdentifier.From("user-123");
-		var recipeId = RecipeIdentifierSnapshot.From(Guid.NewGuid());
+		var recipeId = RecipeIdentifierSnapshot.New();
 		var recipeTitle = RecipeTitleSnapshot.From("Pasta");
 
 		var activity = Domain.UserActivity.UserActivity.Record(

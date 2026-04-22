@@ -35,11 +35,7 @@ public sealed partial class KeycloakAdminService(
 	private static readonly TimeSpan tokenExpiryBuffer = TimeSpan.FromSeconds(30);
 	private static readonly string[] verifyEmailActions = ["VERIFY_EMAIL"];
 
-	public async Task<Result<KeycloakUserId>> CreateUserAsync(
-		Email email,
-		Password password,
-		DisplayName displayName,
-		CancellationToken cancellationToken = default)
+	public async Task<Result<KeycloakUserId>> CreateUserAsync(Email email, Password password, DisplayName displayName, CancellationToken cancellationToken = default)
 	{
 		using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.create_user");
 		activity?.SetTag("keycloak.email", email.Value);
@@ -53,6 +49,7 @@ public sealed partial class KeycloakAdminService(
 
 		var result = await CreateKeycloakUserAsync(email, password, displayName, token.Value, cancellationToken);
 		activity?.SetStatus(result.IsSuccess ? ActivityStatusCode.Ok : ActivityStatusCode.Error, result.Error?.Message);
+
 		return result;
 	}
 

@@ -1,6 +1,9 @@
+using System;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -33,7 +36,7 @@ public sealed partial class SemanticKernelIngredientRecognitionService(Kernel ke
 		ChatMessageContentItemCollection messageItems =
 		[
 			new TextContent("Identify the food ingredients in this image:"),
-			new ImageContent(photo.Content, photo.ContentType),
+			new ImageContent(photo.Content, photo.ContentType)
 		];
 		chatHistory.AddUserMessage(messageItems);
 

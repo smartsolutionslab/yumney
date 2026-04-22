@@ -76,7 +76,7 @@ public class ShoppingListWriterTests
 		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((ShoppingLedger?)null);
 
-		await writer.AddItemsAsync(OwnerId, Array.Empty<ShoppingItemRequest>());
+		await writer.AddItemsAsync(OwnerId, []);
 
 		await eventStore.Received(1).SaveAsync(Arg.Any<ShoppingLedger>(), Arg.Any<CancellationToken>());
 	}
@@ -87,11 +87,10 @@ public class ShoppingListWriterTests
 		var existing = ShoppingLedger.Create(OwnerIdentifier.From(OwnerId));
 		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(existing);
 
-		await writer.AddItemsAsync(OwnerId, new[]
-		{
+		await writer.AddItemsAsync(OwnerId, [
 			new ShoppingItemRequest("Milk", 1m, "l", "manual"),
-			new ShoppingItemRequest("Milk", 500m, "ml", "manual"),
-		});
+			new ShoppingItemRequest("Milk", 500m, "ml", "manual")
+		]);
 
 		existing.Items.Should().HaveCount(2);
 	}

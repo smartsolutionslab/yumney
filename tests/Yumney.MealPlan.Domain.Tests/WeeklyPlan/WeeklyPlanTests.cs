@@ -96,7 +96,7 @@ public class WeeklyPlanTests
 	{
 		var plan = CreatePlan();
 
-		var act = () => plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(Guid.NewGuid(), string.Empty));
+		var act = () => plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(SlotRecipeIdentifier.New(), SlotRecipeTitle.From(string.Empty)));
 
 		act.Should().Throw<GuardException>();
 	}
@@ -598,7 +598,7 @@ public class WeeklyPlanTests
 	}
 
 	private static SlotRecipeReference Recipe(string title = "Pasta") =>
-		SlotRecipeReference.From(Guid.NewGuid(), title);
+		SlotRecipeReference.From(SlotRecipeIdentifier.New(), SlotRecipeTitle.From(title));
 
 	private static SlotRecipeReference Recipe(Guid id, string title) =>
 		SlotRecipeReference.From(id, title);

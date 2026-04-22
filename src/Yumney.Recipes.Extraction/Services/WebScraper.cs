@@ -1,4 +1,8 @@
 using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using AngleSharp;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -104,7 +108,7 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
 		"[itemprop*=\"recipe\" i]",
 		"main",
 		"article",
-		"body",
+		"body"
 	];
 #pragma warning restore SA1311
 

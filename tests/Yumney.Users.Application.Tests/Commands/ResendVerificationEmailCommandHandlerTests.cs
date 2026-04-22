@@ -27,7 +27,7 @@ public class ResendVerificationEmailCommandHandlerTests
 	public async Task HandleAsync_ValidEmail_ReturnsSuccessAndSendsEmail()
 	{
 		var command = new ResendVerificationEmailCommand(TestEmail);
-		var keycloakUserId = KeycloakUserId.From(Guid.NewGuid().ToString());
+		var keycloakUserId = KeycloakUserId.New();
 
 		keycloakAdmin
 			.FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
@@ -111,7 +111,7 @@ public class ResendVerificationEmailCommandHandlerTests
 	public async Task HandleAsync_SendFailed_ReturnsFailure()
 	{
 		var command = new ResendVerificationEmailCommand(TestEmail);
-		var keycloakUserId = KeycloakUserId.From(Guid.NewGuid().ToString());
+		var keycloakUserId = KeycloakUserId.New();
 
 		keycloakAdmin
 			.FindUserByEmailAsync(command.Email, Arg.Any<CancellationToken>())
