@@ -153,7 +153,8 @@ export class MealPlannerComponent {
   }
 
   private scrollTodayIntoView(): void {
-    const el = this.host.nativeElement.querySelector<HTMLElement>('.day-card.today');
+    const host = this.host.nativeElement as HTMLElement;
+    const el = host.querySelector('.day-card.today') as HTMLElement | null;
     el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
