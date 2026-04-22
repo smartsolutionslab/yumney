@@ -4,5 +4,7 @@
   <router-outlet></router-outlet>
 </main>
 <yn-command-fab />
-<yn-chat-panel />
+@defer (when chatState.isOpen()) {
+  <yn-chat-panel />
+}
 <yn-toast-host />
