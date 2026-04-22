@@ -48,7 +48,7 @@ jobs:
         run: dotnet build Yumney.slnx --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test Yumney.slnx --no-build --configuration Release --filter "FullyQualifiedName!~Integration" --collect:"XPlat Code Coverage" --results-directory ./coverage
+        run: dotnet test Yumney.slnx --no-build --configuration Release --filter "FullyQualifiedName!~SmartSolutionsLab.Yumney.Integration.Tests" --collect:"XPlat Code Coverage" --results-directory ./coverage
 
       - name: Integration Tests
         run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj --no-build --configuration Release
