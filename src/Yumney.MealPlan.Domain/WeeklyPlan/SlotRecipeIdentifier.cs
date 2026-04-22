@@ -14,5 +14,7 @@ public sealed record SlotRecipeIdentifier : IValueObject
 
 	public static SlotRecipeIdentifier From(Guid value) => new(value);
 
+	public static SlotRecipeIdentifier New() => new(Guid.CreateVersion7());
+
 	public override string ToString() => Value.ToString();
 }

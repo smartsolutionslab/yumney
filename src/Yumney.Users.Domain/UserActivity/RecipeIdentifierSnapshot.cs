@@ -18,6 +18,8 @@ public sealed record RecipeIdentifierSnapshot : IValueObject<Guid>
 
 	public static RecipeIdentifierSnapshot From(Guid value) => new(value);
 
+	public static RecipeIdentifierSnapshot New() => new(Guid.CreateVersion7());
+
 	public static RecipeIdentifierSnapshot? FromNullable(Guid? value) =>
 		!value.HasValue || value.Value == Guid.Empty ? null : new RecipeIdentifierSnapshot(value.Value);
 

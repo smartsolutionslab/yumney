@@ -19,5 +19,7 @@ public sealed record KeycloakUserId : IValueObject<string>
 
 	public static KeycloakUserId From(string value) => new(value);
 
+	public static KeycloakUserId New() => new(Guid.CreateVersion7().ToString());
+
 	public static implicit operator string(KeycloakUserId obj) => obj.Value;
 }

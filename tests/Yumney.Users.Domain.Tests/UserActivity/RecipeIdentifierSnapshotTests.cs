@@ -43,6 +43,24 @@ public class RecipeIdentifierSnapshotTests
 	}
 
 	[Fact]
+	public void New_ReturnsInstanceWithVersion7Guid()
+	{
+		var snapshot = RecipeIdentifierSnapshot.New();
+
+		snapshot.Value.Should().NotBe(Guid.Empty);
+		snapshot.Value.Version.Should().Be(7);
+	}
+
+	[Fact]
+	public void New_EachCall_ReturnsDistinctGuid()
+	{
+		var a = RecipeIdentifierSnapshot.New();
+		var b = RecipeIdentifierSnapshot.New();
+
+		a.Value.Should().NotBe(b.Value);
+	}
+
+	[Fact]
 	public void ImplicitConversion_ReturnsGuid()
 	{
 		var guid = Guid.NewGuid();
