@@ -158,7 +158,10 @@
 }
 
 .unit-menu-item {
-  padding: 0.4375rem var(--yn-space-4);
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: var(--yn-space-2) var(--yn-space-4);
   font-size: var(--yn-text-base);
   cursor: pointer;
   white-space: nowrap;
