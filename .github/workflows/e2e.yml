@@ -7,6 +7,10 @@ on:
     branches: [develop]
   workflow_dispatch:
 
+concurrency:
+  group: e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   DOTNET_VERSION: '10.0.x'
   NODE_VERSION: '22'
@@ -66,9 +70,23 @@ jobs:
         working-directory: client
         run: yarn install --immutable
 
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('client/yarn.lock') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
       - name: Install Playwright browsers
         working-directory: client
-        run: npx playwright install chromium --with-deps
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium
+          else
+            npx playwright install chromium --with-deps
+          fi
 
       - name: Restore .NET packages
         run: dotnet restore Yumney.slnx
@@ -95,7 +113,7 @@ jobs:
       - name: Run Playwright e2e tests
         continue-on-error: true
         working-directory: client
-        run: npx nx e2e shell-e2e --skip-nx-cache
+        run: npx nx e2e shell-e2e
         env:
           BASE_URL: http://localhost:4200
           E2E_USER: testuser
