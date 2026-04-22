@@ -20,6 +20,18 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # Opt the AppHost into E2E mode — skips persistent volumes, pgAdmin,
+      # mailpit, and the LLM provider setup, so fewer containers need to come up.
+      E2ETests: 'true'
+      # Aspire parameters. Aspire reads Parameters__<Name> as the param value
+      # (the "__" is the configuration section separator). Values are local to
+      # this ephemeral runner — no production secrets involved.
+      Parameters__PostgresUser: yumney
+      Parameters__PostgresPassword: yumney-e2e
+      Parameters__KeycloakPassword: keycloak-e2e
+      Parameters__MessagingPassword: messaging-e2e
+      Parameters__RedisPassword: redis-e2e
 
     steps:
       - uses: actions/checkout@v6
@@ -118,8 +130,10 @@ jobs:
             stamp "poll-start $name $url (timeout ${timeout}s)"
             while [ "$(date +%s)" -lt "$deadline" ]; do
               local code
-              code=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 3 "$url" || echo 000)
-              if [ "$code" != "000" ] && [ "$code" -lt 500 ]; then
+              code=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 3 "$url" 2>/dev/null || echo 000)
+              # Treat the status as 3-digit; use base-10 arithmetic to avoid
+              # bash's leading-zero-octal interpretation. 000 = not ready.
+              if [ "${#code}" -eq 3 ] && [ "$((10#$code))" -ge 200 ] && [ "$((10#$code))" -lt 500 ]; then
                 stamp "poll-ready $name after $(( $(date +%s) - t0 ))s (http $code)"
                 return 0
               fi
