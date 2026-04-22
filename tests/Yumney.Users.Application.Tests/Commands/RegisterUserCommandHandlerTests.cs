@@ -31,7 +31,7 @@ public class RegisterUserCommandHandlerTests
 	public async Task HandleAsync_ValidCommand_ReturnsSuccessAndCreatesProfile()
 	{
 		var command = new RegisterUserCommand(TestEmail, TestPassword, TestDisplayName);
-		var keycloakUserId = KeycloakUserId.From(Guid.NewGuid().ToString());
+		var keycloakUserId = KeycloakUserId.New();
 
 		keycloakAdmin
 			.CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())

@@ -21,7 +21,7 @@ public sealed class CurrentUserProvider(IHttpContextAccessor httpContextAccessor
 	public IReadOnlyCollection<string> Roles => User?.FindAll(ClaimTypes.Role)
 		.Select(c => c.Value)
 		.ToArray()
-		?? Array.Empty<string>();
+		?? [];
 
 	public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 

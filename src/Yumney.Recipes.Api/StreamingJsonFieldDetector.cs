@@ -16,7 +16,7 @@ internal sealed class StreamingJsonFieldDetector
 		"description",
 		"language",
 		"difficulty",
-		"imageUrl",
+		"imageUrl"
 	];
 #pragma warning restore SA1311
 

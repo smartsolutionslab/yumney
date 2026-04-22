@@ -19,7 +19,7 @@ public sealed class ApplicationMetrics
 
 	public void RecordExecution(string handlerName, string commandType, string result, double durationMs)
 	{
-		var tags = new TagList
+		TagList tags = new()
 		{
 			{ "handler_name", handlerName },
 			{ "command_type", commandType },

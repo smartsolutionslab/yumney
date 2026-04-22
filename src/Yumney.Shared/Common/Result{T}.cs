@@ -1,3 +1,5 @@
+using System;
+
 namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public sealed class Result<T> : Result

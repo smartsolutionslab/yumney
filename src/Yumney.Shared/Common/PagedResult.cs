@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public sealed record PagedResult<T>(

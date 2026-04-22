@@ -27,7 +27,7 @@ public class GetRecentActivityQueryHandlerTests
 		var activity = UserActivity.Record(
 			owner,
 			ActivityType.From("recipe_imported"),
-			RecipeIdentifierSnapshot.From(Guid.NewGuid()),
+			RecipeIdentifierSnapshot.New(),
 			RecipeTitleSnapshot.From("Test Recipe"));
 
 		activities.GetRecentAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<ActivityLimit>(), Arg.Any<CancellationToken>())

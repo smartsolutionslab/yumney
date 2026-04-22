@@ -71,7 +71,7 @@ public class RecipeTests
 		List<Ingredient> ingredients =
 		[
 			Ingredient.Create(IngredientName.From("Spaghetti"), Quantity.Of(Amount.From(400), Unit.Gram)),
-			Ingredient.Create(IngredientName.From("Pancetta"), Quantity.Of(Amount.From(200), Unit.Gram)),
+			Ingredient.Create(IngredientName.From("Pancetta"), Quantity.Of(Amount.From(200), Unit.Gram))
 		];
 
 		var recipe = CreateValidRecipe(ingredients: ingredients);
@@ -85,7 +85,7 @@ public class RecipeTests
 		List<Step> steps =
 		[
 			Step.Create(StepNumber.From(1), StepDescription.From("Cook pasta")),
-			Step.Create(StepNumber.From(2), StepDescription.From("Fry pancetta")),
+			Step.Create(StepNumber.From(2), StepDescription.From("Fry pancetta"))
 		];
 
 		var recipe = CreateValidRecipe(steps: steps);
@@ -244,13 +244,13 @@ public class RecipeTests
 		var recipe = CreateValidRecipe(ingredients:
 		[
 			Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-			Ingredient.Create(IngredientName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram)),
+			Ingredient.Create(IngredientName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram))
 		]);
 
 		var butterName = IngredientName.From("Butter");
 		List<Ingredient> newIngredients =
 		[
-			Ingredient.Create(butterName, Quantity.Of(Amount.From(100), Unit.Gram)),
+			Ingredient.Create(butterName, Quantity.Of(Amount.From(100), Unit.Gram))
 		];
 
 		recipe.Update(RecipeTitle.From("Updated"), newIngredients, [Step.Create(StepNumber.From(1), StepDescription.From("Mix"))]);
@@ -265,13 +265,13 @@ public class RecipeTests
 		var recipe = CreateValidRecipe(steps:
 		[
 			Step.Create(StepNumber.From(1), StepDescription.From("Step one")),
-			Step.Create(StepNumber.From(2), StepDescription.From("Step two")),
+			Step.Create(StepNumber.From(2), StepDescription.From("Step two"))
 		]);
 
 		var newDescription = StepDescription.From("New only step");
 		List<Step> newSteps =
 		[
-			Step.Create(StepNumber.From(1), newDescription),
+			Step.Create(StepNumber.From(1), newDescription)
 		];
 
 		recipe.Update(RecipeTitle.From("Updated"), [Ingredient.Create(IngredientName.From("Flour"), null)], newSteps);
@@ -521,11 +521,11 @@ public class RecipeTests
 
 		List<Ingredient> newIngredients =
 		[
-			Ingredient.Create(IngredientName.From("Butter"), Quantity.Of(Amount.From(100), Unit.Gram)),
+			Ingredient.Create(IngredientName.From("Butter"), Quantity.Of(Amount.From(100), Unit.Gram))
 		];
 		List<Step> newSteps =
 		[
-			Step.Create(StepNumber.From(1), StepDescription.From("Melt butter")),
+			Step.Create(StepNumber.From(1), StepDescription.From("Melt butter"))
 		];
 
 		recipe.Update(

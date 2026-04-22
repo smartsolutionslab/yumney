@@ -4,8 +4,5 @@ public interface IUserActivityRepository
 {
 	Task AddAsync(UserActivity activity, CancellationToken cancellationToken = default);
 
-	Task<IReadOnlyList<UserActivity>> GetRecentAsync(
-		OwnerIdentifier owner,
-		ActivityLimit limit,
-		CancellationToken cancellationToken = default);
+	Task<IReadOnlyList<UserActivity>> GetRecentAsync(OwnerIdentifier owner, ActivityLimit limit, CancellationToken cancellationToken = default);
 }

@@ -198,7 +198,7 @@ public class EnsureTests
 	[Fact]
 	public void IsNotEmpty_Collection_NonEmptyCollection_DoesNotThrow()
 	{
-		IReadOnlyCollection<int> items = new[] { 1, 2, 3 };
+		IReadOnlyCollection<int> items = [1, 2, 3];
 
 		var act = () => Ensure.That(items).IsNotEmpty();
 
@@ -208,7 +208,7 @@ public class EnsureTests
 	[Fact]
 	public void IsNotEmpty_Collection_EmptyCollection_ThrowsGuardException()
 	{
-		IReadOnlyCollection<int> items = Array.Empty<int>();
+		IReadOnlyCollection<int> items = [];
 
 		var act = () => Ensure.That(items).IsNotEmpty();
 

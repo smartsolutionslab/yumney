@@ -117,7 +117,7 @@ public class SaveRecipeCommandHandlerTests
 			RecipeTitle.From("Test"),
 			[
 				new SaveRecipeIngredientItem(flour, Quantity.Of(Amount.From(500), Unit.Gram)),
-				new SaveRecipeIngredientItem(sugar, Quantity.Of(Amount.From(100), null)),
+				new SaveRecipeIngredientItem(sugar, Quantity.Of(Amount.From(100), null))
 			],
 			[new SaveRecipeStepItem(StepNumber.From(1), StepDescription.From("Mix"))],
 			SourceUrl: RecipeUrl.From("https://example.com/recipe"));
@@ -144,7 +144,7 @@ public class SaveRecipeCommandHandlerTests
 			[new SaveRecipeIngredientItem(IngredientName.From("Flour"), null)],
 			[
 				new SaveRecipeStepItem(StepNumber.From(1), preheatOven),
-				new SaveRecipeStepItem(StepNumber.From(2), mixIngredients),
+				new SaveRecipeStepItem(StepNumber.From(2), mixIngredients)
 			],
 			SourceUrl: RecipeUrl.From("https://example.com/recipe"));
 

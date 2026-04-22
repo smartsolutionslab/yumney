@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -57,9 +58,6 @@ public static class ExtractionServiceCollectionExtensions
 
 	private static string? GetOllamaEndpoint(IConfiguration configuration, SemanticKernelOptions skOptions)
 	{
-		if (skOptions.Endpoint.HasValue())
-			return skOptions.Endpoint;
-
-		return configuration.GetConnectionString("ollama");
+		return skOptions.Endpoint.HasValue() ? skOptions.Endpoint : configuration.GetConnectionString("ollama");
 	}
 }

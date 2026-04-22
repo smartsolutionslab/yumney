@@ -16,7 +16,7 @@ public sealed class StaplesList : AggregateRoot<StaplesListIdentifier>
 		StapleItem.From("butter"),
 		StapleItem.From("eggs"),
 		StapleItem.From("garlic"),
-		StapleItem.From("onion"),
+		StapleItem.From("onion")
 	];
 
 	private readonly List<StapleItem> items = [];

@@ -1,5 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -76,9 +81,7 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 		return new ChatResponseDto(reply, suggestions);
 	}
 
-	internal static List<ChatRecipeSuggestionDto> MatchRecipesByMention(
-		string reply,
-		IReadOnlyList<Recipe> userRecipes)
+	internal static List<ChatRecipeSuggestionDto> MatchRecipesByMention(string reply, IReadOnlyList<Recipe> userRecipes)
 	{
 		var suggestions = new List<ChatRecipeSuggestionDto>();
 

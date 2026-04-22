@@ -70,7 +70,7 @@ public class CreateShoppingListCommandHandlerTests
 				new ShoppingListItem(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.Liter)),
 				new ShoppingListItem(ItemName.From("Salt"), null),
 				new ShoppingListItem(ItemName.From("Pepper"), null),
-				new ShoppingListItem(ItemName.From("Vanilla"), Quantity.Of(Amount.From(1), Unit.Teaspoon)),
+				new ShoppingListItem(ItemName.From("Vanilla"), Quantity.Of(Amount.From(1), Unit.Teaspoon))
 			]);
 
 		var result = await handler.HandleAsync(command);
@@ -129,7 +129,7 @@ public class CreateShoppingListCommandHandlerTests
 			ShoppingListTitle.From("Test"),
 			[
 				new ShoppingListItem(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-				new ShoppingListItem(ItemName.From("Salt"), null),
+				new ShoppingListItem(ItemName.From("Salt"), null)
 			]);
 
 		var result = await handler.HandleAsync(command);
