@@ -23,7 +23,11 @@ describe('createAsyncState', () => {
     const onSuccess = vi.fn();
     const err = new HttpErrorResponse({ status: 404 });
 
-    state.execute(throwError(() => err), { 404: 'not-found', default: 'generic' }, onSuccess);
+    state.execute(
+      throwError(() => err),
+      { 404: 'not-found', default: 'generic' },
+      onSuccess,
+    );
 
     expect(state.isLoading()).toBe(false);
     expect(state.serverError()).toBe('not-found');
@@ -34,7 +38,11 @@ describe('createAsyncState', () => {
     const state = createAsyncState(noopDestroyRef);
     const err = new HttpErrorResponse({ status: 500 });
 
-    state.execute(throwError(() => err), { 404: 'not-found', default: 'generic' }, vi.fn());
+    state.execute(
+      throwError(() => err),
+      { 404: 'not-found', default: 'generic' },
+      vi.fn(),
+    );
 
     expect(state.serverError()).toBe('generic');
   });
@@ -45,7 +53,12 @@ describe('createAsyncState', () => {
     const onError = vi.fn();
     const err = new HttpErrorResponse({ status: 404 });
 
-    state.execute(throwError(() => err), { 404: 'not-found', default: 'generic' }, onSuccess, onError);
+    state.execute(
+      throwError(() => err),
+      { 404: 'not-found', default: 'generic' },
+      onSuccess,
+      onError,
+    );
 
     expect(onError).toHaveBeenCalledWith('not-found');
     expect(state.serverError()).toBeNull();
@@ -53,7 +66,11 @@ describe('createAsyncState', () => {
 
   it('clears serverError before a new request only when no onError handler is used', () => {
     const state = createAsyncState(noopDestroyRef);
-    state.execute(throwError(() => new HttpErrorResponse({ status: 500 })), { default: 'x' }, vi.fn());
+    state.execute(
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+      { default: 'x' },
+      vi.fn(),
+    );
     expect(state.serverError()).toBe('x');
 
     state.execute(of('ok'), { default: 'x' }, vi.fn());
