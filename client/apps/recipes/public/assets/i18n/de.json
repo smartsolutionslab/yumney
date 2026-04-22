@@ -23,6 +23,7 @@
     "list": {
       "title": "Meine Rezepte",
       "assignTitle": "Rezept auswählen",
+      "back": "Zurück",
       "assign": "Zum Essensplan hinzufügen",
       "sortLabel": "Rezepte sortieren",
       "sort": {
@@ -129,6 +130,7 @@
       "next": "Weiter",
       "repeat": "Wiederholen",
       "ingredients": "Zutaten",
+      "closePanel": "Zutaten-Panel schließen",
       "mute": "Stumm",
       "unmute": "Ton an",
       "voiceToggle": "Sprachsteuerung umschalten",

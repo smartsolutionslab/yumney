@@ -23,6 +23,7 @@
     "list": {
       "title": "My Recipes",
       "assignTitle": "Select a recipe",
+      "back": "Back",
       "assign": "Assign to meal plan",
       "sortLabel": "Sort recipes",
       "sort": {
@@ -129,6 +130,7 @@
       "next": "Next",
       "repeat": "Repeat",
       "ingredients": "Ingredients",
+      "closePanel": "Close ingredients panel",
       "mute": "Mute",
       "unmute": "Unmute",
       "voiceToggle": "Toggle voice control",

@@ -58,6 +58,7 @@
     "loading": "Loading...",
     "empty": "Your shopping list is empty. Add items or plan meals.",
     "addPlaceholder": "Add an item...",
+    "addItem": "Add item",
     "export": {
       "button": "Export list",
       "copied": "Copied to clipboard",

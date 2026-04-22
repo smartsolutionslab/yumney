@@ -7,7 +7,7 @@ import { TranslocoModule } from '@jsverse/transloco';
   imports: [TranslocoModule],
   template: `
     @if (loading()) {
-      <div class="loading">{{ loadingKey() | transloco }}</div>
+      <div class="loading" role="status" aria-live="polite">{{ loadingKey() | transloco }}</div>
     }
     @if (error(); as err) {
       <div class="error" role="alert">

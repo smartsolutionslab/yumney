@@ -2,7 +2,11 @@
   <div class="list-header">
     @if (assignment.assignMode()) {
       <div class="assign-header">
-        <button class="btn-back" (click)="assignment.cancel()">
+        <button
+          class="btn-back"
+          (click)="assignment.cancel()"
+          [attr.aria-label]="t('recipes.list.back')"
+        >
           <lucide-icon name="arrow-left" [size]="20" />
         </button>
         <h1>{{ t('recipes.list.assignTitle') }}</h1>
