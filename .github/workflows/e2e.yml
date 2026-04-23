@@ -182,14 +182,55 @@ jobs:
         continue-on-error: true
         run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj
 
+      - name: Fetch Keycloak token for E2E (direct container port)
+        # Bypass Aspire's DCP localhost proxy — every in-process HTTP client
+        # we've tried has failed against it. Docker maps Keycloak's 8080 to
+        # a random host port (shown in docker ps); hit that directly.
+        # curl from this workflow step reliably reaches the container.
+        run: |
+          set -e
+          kc=$(docker ps -q -f name=keycloak | head -1)
+          test -n "$kc" || { echo "keycloak container not found"; exit 1; }
+          kc_port=$(docker port "$kc" 8080/tcp | head -1 | sed -E 's/.*:([0-9]+)$/\1/')
+          test -n "$kc_port" || { echo "could not resolve keycloak host port"; exit 1; }
+          echo "keycloak mapped to host port $kc_port"
+
+          # Warm-up: first Keycloak request after startup takes 60-70s (JIT +
+          # realm metadata). Hit /realms/master first so the token endpoint
+          # afterwards is fast.
+          curl -sS --max-time 180 -o /dev/null \
+            "http://127.0.0.1:${kc_port}/realms/master" || true
+
+          for i in 1 2 3; do
+            echo "token attempt $i..."
+            response=$(curl -sS --max-time 180 \
+              -X POST "http://127.0.0.1:${kc_port}/realms/yumney/protocol/openid-connect/token" \
+              -H "Content-Type: application/x-www-form-urlencoded" \
+              -d "grant_type=password" \
+              -d "client_id=yumney-web" \
+              -d "username=testuser" \
+              -d "password=Test1234" \
+              -d "scope=openid profile email roles" \
+              -w "\n__HTTP_CODE__%{http_code}") || true
+            http_code=$(echo "$response" | sed -n 's/^__HTTP_CODE__//p')
+            body=$(echo "$response" | sed '/^__HTTP_CODE__/d')
+            if [ "$http_code" = "200" ]; then
+              echo "$body" > /tmp/e2e-tokens.json
+              echo "token fetch succeeded on attempt $i"
+              break
+            fi
+            echo "http=$http_code, body preview: $(echo "$body" | head -c 200)"
+            sleep 5
+          done
+          test -s /tmp/e2e-tokens.json
+
       - name: Run Playwright e2e tests
         continue-on-error: true
         working-directory: client
         run: npx nx e2e shell-e2e
         env:
           BASE_URL: http://localhost:4200
-          E2E_USER: testuser
-          E2E_PASSWORD: Test1234
+          E2E_TOKENS_FILE: /tmp/e2e-tokens.json
           CI: true
 
       - name: Stop Aspire
