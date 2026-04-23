@@ -31,7 +31,6 @@ export function createAuthConfig(
     tokenEndpoint: `${tokenBaseUrl}/realms/${realm}/protocol/openid-connect/token`,
     userinfoEndpoint: `${realmUrl}/protocol/openid-connect/userinfo`,
     logoutUrl: `${realmUrl}/protocol/openid-connect/logout`,
-    jwksUri: `${realmUrl}/protocol/openid-connect/certs`,
     requireHttps: false,
     strictDiscoveryDocumentValidation: false,
     skipIssuerCheck: true,
