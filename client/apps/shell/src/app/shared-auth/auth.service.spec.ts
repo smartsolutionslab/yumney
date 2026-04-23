@@ -108,6 +108,21 @@ describe('AuthService', () => {
       expect(service.isLoading()).toBe(false);
     });
 
+    it('should time out and continue when discovery document hangs indefinitely', async () => {
+      vi.useFakeTimers();
+      // The hang seen in CI: the promise never resolves or rejects.
+      oauthMock.loadDiscoveryDocument.mockReturnValue(new Promise(() => undefined));
+
+      const done = service.initialize();
+      // Race the 10s timeout built into initialize.
+      await vi.advanceTimersByTimeAsync(10_000);
+      await done;
+
+      expect(service.isLoading()).toBe(false);
+      expect(service.isAuthenticated()).toBe(false);
+      vi.useRealTimers();
+    });
+
     it('should not update currentUser when token is valid but claims are null', async () => {
       oauthMock.hasValidAccessToken.mockReturnValue(true);
       oauthMock.getIdentityClaims.mockReturnValue(null);

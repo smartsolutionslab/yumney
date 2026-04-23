@@ -11,6 +11,14 @@ const DEFAULT_CONFIG: AppConfig = {
   keycloakClientId: 'yumney-web',
 };
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   isLoading = signal(true);
@@ -36,46 +44,38 @@ export class AuthService {
   constructor(private oauthService: OAuthService) {}
 
   async initialize(): Promise<void> {
-    const g = globalThis as Record<string, unknown>;
-    const mark = (name: string) => {
-      g[`__ynAuth_${name}`] = Date.now();
-      console.log(`[auth] ${name}`);
-    };
-    mark('enter');
-
     const { keycloakUrl, keycloakRealm, keycloakClientId, gatewayUrl } = await this.loadAppConfig();
-    mark('afterLoadAppConfig');
-
     const authConfig = createAuthConfig(keycloakUrl, keycloakRealm, keycloakClientId, gatewayUrl);
 
     this.oauthService.configure(authConfig);
-    mark('afterConfigure');
-
     this.oauthService.setupAutomaticSilentRefresh();
-    mark('afterSetupSilentRefresh');
 
     this.oauthService.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.updateAuthState();
     });
-    mark('afterEventsSub');
 
     try {
-      await this.oauthService.loadDiscoveryDocument();
-      mark('afterLoadDiscoveryDocument');
+      // Race with a timeout: angular-oauth2-oidc's loadDiscoveryDocument is
+      // observed to hang indefinitely in CI (the HTTP fetch of the discovery
+      // document returns 200, but some downstream step — likely JWKS — never
+      // resolves or rejects). Without this, bootstrapApplication waits on
+      // this APP_INITIALIZER forever and <yn-root> never renders. 10s is a
+      // generous budget for the happy path; if we hit it, the app carries on
+      // unauthenticated and the user sees the login page instead of a blank
+      // screen.
+      await withTimeout(this.oauthService.loadDiscoveryDocument(), 10_000, 'loadDiscoveryDocument');
       // Override token endpoint to route through Gateway (avoids DCP port proxy 504s)
       if (gatewayUrl) {
         this.oauthService.tokenEndpoint = `${gatewayUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`;
       }
-      await this.oauthService.tryLogin();
-      mark('afterTryLogin');
+      await withTimeout(this.oauthService.tryLogin(), 10_000, 'tryLogin');
       this.updateAuthState();
     } catch (err) {
-      // Keycloak unreachable — app continues unauthenticated
-      mark('caughtError');
-      console.warn('[auth] caughtError details:', err);
+      // Keycloak unreachable or OIDC discovery stalled — app continues
+      // unauthenticated. Logging the cause helps future CI debugging.
+      console.warn('[auth] initialize failed:', err);
     } finally {
       this.isLoading.set(false);
-      mark('finally');
     }
   }
 
