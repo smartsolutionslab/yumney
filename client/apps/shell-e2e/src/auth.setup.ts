@@ -5,12 +5,14 @@ const E2E_PASSWORD = process.env['E2E_PASSWORD'] ?? 'Test1234';
 
 const AUTH_STATE_PATH = 'src/.auth/user.json';
 
-// Cold-start budget: federation init + APP_INITIALIZER (Keycloak discovery +
-// language + theme) + vite on-demand compile of the /auth/* lazy chunk +
-// navigation to Keycloak + token exchange + return redirect. The global 30s
-// test timeout from playwright.config.ts is not enough on a CI runner that is
-// also running the full Aspire stack plus 4 Angular dev servers.
-setup.setTimeout(120_000);
+// Cold-start budget: federation init + APP_INITIALIZER + vite on-demand
+// compile of the /auth/* lazy chunk + navigation to Keycloak + cold JVM
+// handling the first auth request + token exchange + return redirect. On
+// the CI runner (also running the full Aspire stack + 4 Angular dev servers),
+// Keycloak's first response to /realms/<realm>/protocol/openid-connect/auth
+// routinely takes 30-60s. The global 30s test timeout from playwright.config.ts
+// isn't enough; bump it to 240s for this single cold-path test.
+setup.setTimeout(240_000);
 
 setup('authenticate via Keycloak', async ({ page }) => {
   // Capture token exchange responses
@@ -45,14 +47,15 @@ setup('authenticate via Keycloak', async ({ page }) => {
   await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible({ timeout: 30_000 });
   await page.getByRole('button', { name: /sign in/i }).click();
 
-  // 3. Wait for and fill Keycloak form
-  await page.waitForURL('**/realms/**', { timeout: 15_000 });
+  // 3. Wait for and fill Keycloak form. First hit to the auth endpoint can
+  //    take 30-60s on a cold Keycloak JVM in CI; give it 90s headroom.
+  await page.waitForURL('**/realms/**', { timeout: 90_000 });
   await page.locator('#username').fill(E2E_USER);
   await page.locator('#password').fill(E2E_PASSWORD);
   await page.locator('#kc-login').click();
 
-  // 4. Wait for redirect — code exchange happens automatically
-  await page.waitForURL('http://localhost:4200/**', { timeout: 15_000 });
+  // 4. Wait for redirect — code exchange happens automatically.
+  await page.waitForURL('http://localhost:4200/**', { timeout: 30_000 });
   console.log('Redirect URL:', page.url().substring(0, 80) + '...');
 
   // 5. Wait for Angular to process the code exchange
