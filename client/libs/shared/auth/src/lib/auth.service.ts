@@ -55,23 +55,18 @@ export class AuthService {
     });
 
     try {
-      // Race with a timeout: angular-oauth2-oidc's loadDiscoveryDocument is
-      // observed to hang indefinitely in CI (the HTTP fetch of the discovery
-      // document returns 200, but some downstream step — likely JWKS — never
-      // resolves or rejects). Without this, bootstrapApplication waits on
-      // this APP_INITIALIZER forever and <yn-root> never renders. 10s is a
-      // generous budget for the happy path; if we hit it, the app carries on
-      // unauthenticated and the user sees the login page instead of a blank
-      // screen.
-      await withTimeout(this.oauthService.loadDiscoveryDocument(), 10_000, 'loadDiscoveryDocument');
-      // Override token endpoint to route through Gateway (avoids DCP port proxy 504s)
-      if (gatewayUrl) {
-        this.oauthService.tokenEndpoint = `${gatewayUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`;
-      }
+      // createAuthConfig already sets loginUrl / tokenEndpoint / userinfoEndpoint
+      // / logoutUrl / jwksUri deterministically from the Keycloak URL + realm,
+      // so we don't need the OIDC discovery document to run the flow. The
+      // previous loadDiscoveryDocument() call hung indefinitely in CI (HTTP
+      // fetch succeeded with 200, but something downstream — likely JWKS —
+      // never resolved), which stalled APP_INITIALIZER and blocked
+      // bootstrapApplication. tryLogin() also wrapped in a timeout as belt &
+      // suspenders in case the cookie-based session lookup hangs.
       await withTimeout(this.oauthService.tryLogin(), 10_000, 'tryLogin');
       this.updateAuthState();
     } catch (err) {
-      // Keycloak unreachable or OIDC discovery stalled — app continues
+      // Keycloak unreachable or tryLogin stalled — app continues
       // unauthenticated. Logging the cause helps future CI debugging.
       console.warn('[auth] initialize failed:', err);
     } finally {
