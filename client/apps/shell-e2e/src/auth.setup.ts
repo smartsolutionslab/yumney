@@ -15,10 +15,14 @@ const KEYCLOAK_REALM = 'yumney';
 const KEYCLOAK_CLIENT = 'yumney-web';
 const AUTH_STATE_PATH = 'src/.auth/user.json';
 
-setup.setTimeout(60_000);
+setup.setTimeout(180_000);
 
 setup('authenticate via Keycloak direct grant', async ({ page, request }) => {
   // 1. Obtain tokens directly (through the Gateway, not direct Keycloak).
+  //    The wait-for-services poll observed Keycloak's first 200 response
+  //    taking ~65s on a cold CI runner; the token endpoint is similarly
+  //    cold on first real hit. Give it 120s headroom so we don't give up
+  //    before Keycloak warms up.
   const tokenResponse = await request.post(
     `${GATEWAY_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`,
     {
@@ -29,7 +33,7 @@ setup('authenticate via Keycloak direct grant', async ({ page, request }) => {
         password: E2E_PASSWORD,
         scope: 'openid profile email roles',
       },
-      timeout: 30_000,
+      timeout: 120_000,
     },
   );
   expect(tokenResponse.ok(), `Keycloak token endpoint returned ${tokenResponse.status()}`).toBe(
