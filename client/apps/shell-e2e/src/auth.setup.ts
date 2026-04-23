@@ -46,6 +46,9 @@ setup('authenticate via Keycloak', async ({ page }) => {
     // Angular is stuck on. Without this the screenshot is a blank page.
     const diag = await page.evaluate(() => {
       const root = document.querySelector('yn-root');
+      const w = window as unknown as Record<string, unknown>;
+      // Timestamps written by main.ts / bootstrap.ts at each hop; absence
+      // tells us exactly where the chain stalled.
       return {
         url: window.location.href,
         readyState: document.readyState,
@@ -53,6 +56,11 @@ setup('authenticate via Keycloak', async ({ page }) => {
         rootChildren: root?.childElementCount ?? 0,
         bodyText: document.body.innerText.slice(0, 200),
         ngExists: Reflect.has(window, 'ng') ? 'yes' : 'no',
+        mainStart: w['__ynMainStart'],
+        federationReady: w['__ynFederationReady'],
+        bootstrapImported: w['__ynBootstrapImported'],
+        bootstrapCalled: w['__ynBootstrapCalled'],
+        bootstrapDone: w['__ynBootstrapDone'],
       };
     });
     console.log('DIAG', JSON.stringify(diag));
