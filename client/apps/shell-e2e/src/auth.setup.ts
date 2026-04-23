@@ -1,45 +1,28 @@
 import { test as setup, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 
-const E2E_USER = process.env['E2E_USER'] ?? 'testuser';
-const E2E_PASSWORD = process.env['E2E_PASSWORD'] ?? 'Test1234';
-// Route Keycloak traffic through the Yumney Gateway (YARP) rather than the
-// direct container port. Hitting localhost:8080 from either the browser or
-// Playwright's Node request context reliably hangs on CI — Aspire's DCP
-// localhost-proxy appears to drop that particular combination. Gateway port
-// 5100 is a plain ASP.NET endpoint that YARP then routes to the keycloak
-// service via Aspire service discovery (container-network hop), which works.
-// This also matches how the production Angular code routes token exchanges
-// (see AuthService.initialize overriding oauthService.tokenEndpoint).
-const GATEWAY_URL = process.env['GATEWAY_URL'] ?? 'http://localhost:5100';
-const KEYCLOAK_REALM = 'yumney';
-const KEYCLOAK_CLIENT = 'yumney-web';
 const AUTH_STATE_PATH = 'src/.auth/user.json';
+const TOKENS_FILE = process.env['E2E_TOKENS_FILE'];
 
-setup.setTimeout(180_000);
+setup.setTimeout(60_000);
 
-setup('authenticate via Keycloak direct grant', async ({ page, request }) => {
-  // 1. Obtain tokens directly (through the Gateway, not direct Keycloak).
-  //    The wait-for-services poll observed Keycloak's first 200 response
-  //    taking ~65s on a cold CI runner; the token endpoint is similarly
-  //    cold on first real hit. Give it 120s headroom so we don't give up
-  //    before Keycloak warms up.
-  const tokenResponse = await request.post(
-    `${GATEWAY_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`,
-    {
-      form: {
-        grant_type: 'password',
-        client_id: KEYCLOAK_CLIENT,
-        username: E2E_USER,
-        password: E2E_PASSWORD,
-        scope: 'openid profile email roles',
-      },
-      timeout: 120_000,
-    },
-  );
-  expect(tokenResponse.ok(), `Keycloak token endpoint returned ${tokenResponse.status()}`).toBe(
-    true,
-  );
-  const tokens = (await tokenResponse.json()) as {
+// The CI network (Aspire DCP + GitHub runner) has been a nightmare for any
+// in-process HTTP client trying to reach Keycloak: browser navigations abort
+// (net::ERR_ABORTED), Playwright's Node request context times out, YARP
+// routing returns 504. What DOES work is plain curl from the workflow shell,
+// which is why the poll-keycloak probe has returned 200 on every run.
+//
+// So we split responsibility: the e2e.yml workflow curls Keycloak's token
+// endpoint, writes the JSON to /tmp/e2e-tokens.json, and this test picks it up
+// and plants the tokens into sessionStorage in the keys angular-oauth2-oidc
+// reads on startup.
+setup('authenticate via pre-fetched Keycloak tokens', async ({ page }) => {
+  expect(
+    TOKENS_FILE,
+    'E2E_TOKENS_FILE env var must point at a JSON token dump',
+  ).toBeDefined();
+
+  const tokens = JSON.parse(readFileSync(TOKENS_FILE as string, 'utf8')) as {
     access_token: string;
     id_token: string;
     refresh_token?: string;
@@ -47,7 +30,7 @@ setup('authenticate via Keycloak direct grant', async ({ page, request }) => {
     scope?: string;
   };
 
-  // 2. Decode id_token claims for angular-oauth2-oidc's id_token_claims_obj.
+  // Decode id_token claims for angular-oauth2-oidc's id_token_claims_obj.
   const idClaims = decodeJwtPayload(tokens.id_token);
   const now = Date.now();
   const expiresAt = (now + tokens.expires_in * 1000).toString();
@@ -55,12 +38,9 @@ setup('authenticate via Keycloak direct grant', async ({ page, request }) => {
     typeof idClaims['exp'] === 'number' ? idClaims['exp'] * 1000 : now + tokens.expires_in * 1000
   ).toString();
 
-  // 3. Load the app shell once so we can write sessionStorage for its origin.
-  //    domcontentloaded is enough here — we're not interacting with the app,
-  //    just scribbling into its storage before the next test opens the page.
+  // Navigate to the origin once so sessionStorage is scoped correctly.
   await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
-  // 4. Plant the entries angular-oauth2-oidc reads on startup.
   await page.evaluate(
     ({ accessToken, idToken, refreshToken, expiresAt, idTokenExpiresAt, idClaims, scope }) => {
       const s = sessionStorage;
