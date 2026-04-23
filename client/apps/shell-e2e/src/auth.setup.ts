@@ -25,13 +25,39 @@ setup('authenticate via Keycloak', async ({ page }) => {
     if (msg.type() === 'error') console.log(`Console error: ${msg.text()}`);
   });
 
+  // Capture page errors (uncaught exceptions, promise rejections) which
+  // the 'console' listener misses.
+  page.on('pageerror', (err) => console.log(`PageError: ${err.message}`));
+  page.on('requestfailed', (req) =>
+    console.log(`RequestFailed: ${req.failure()?.errorText} ${req.url()}`),
+  );
+
   // 1. Go to login. Shell bootstrap chains federation init + APP_INITIALIZER
   //    (Keycloak discovery + language + theme) + vite on-demand compile of the
   //    /auth/* lazy chunk, all on the cold path in CI. `load` fires when bundles
   //    finish downloading, not when Angular has rendered, so we explicitly wait
   //    for content inside <yn-root> before asserting on the button.
   await page.goto('/auth/login', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  await page.locator('yn-root > *').first().waitFor({ timeout: 60_000 });
+
+  try {
+    await page.locator('yn-root > *').first().waitFor({ timeout: 60_000 });
+  } catch (err) {
+    // Dump the current DOM + key window globals so we can figure out what
+    // Angular is stuck on. Without this the screenshot is a blank page.
+    const diag = await page.evaluate(() => {
+      const root = document.querySelector('yn-root');
+      return {
+        url: window.location.href,
+        readyState: document.readyState,
+        rootOuter: root?.outerHTML?.slice(0, 500),
+        rootChildren: root?.childElementCount ?? 0,
+        bodyText: document.body.innerText.slice(0, 200),
+        ngExists: Reflect.has(window, 'ng') ? 'yes' : 'no',
+      };
+    });
+    console.log('DIAG', JSON.stringify(diag));
+    throw err;
+  }
 
   // 2. Click sign in
   await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible({ timeout: 30_000 });
