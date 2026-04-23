@@ -61,6 +61,15 @@ setup('authenticate via Keycloak', async ({ page }) => {
         bootstrapImported: w['__ynBootstrapImported'],
         bootstrapCalled: w['__ynBootstrapCalled'],
         bootstrapDone: w['__ynBootstrapDone'],
+        authEnter: w['__ynAuth_enter'],
+        authLoadAppConfig: w['__ynAuth_afterLoadAppConfig'],
+        authConfigure: w['__ynAuth_afterConfigure'],
+        authSilentRefresh: w['__ynAuth_afterSetupSilentRefresh'],
+        authEventsSub: w['__ynAuth_afterEventsSub'],
+        authLoadDiscovery: w['__ynAuth_afterLoadDiscoveryDocument'],
+        authTryLogin: w['__ynAuth_afterTryLogin'],
+        authCaught: w['__ynAuth_caughtError'],
+        authFinally: w['__ynAuth_finally'],
       };
     });
     console.log('DIAG', JSON.stringify(diag));
