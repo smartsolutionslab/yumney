@@ -2,74 +2,95 @@ import { test as setup, expect } from '@playwright/test';
 
 const E2E_USER = process.env['E2E_USER'] ?? 'testuser';
 const E2E_PASSWORD = process.env['E2E_PASSWORD'] ?? 'Test1234';
-
+const KEYCLOAK_URL = process.env['KEYCLOAK_URL'] ?? 'http://localhost:8080';
+const KEYCLOAK_REALM = 'yumney';
+const KEYCLOAK_CLIENT = 'yumney-web';
 const AUTH_STATE_PATH = 'src/.auth/user.json';
 
-// Cold-start budget: federation init + APP_INITIALIZER + vite on-demand
-// compile of the /auth/* lazy chunk + navigation to Keycloak + cold JVM
-// handling the first auth request + token exchange + return redirect. On
-// the CI runner (also running the full Aspire stack + 4 Angular dev servers),
-// Keycloak's first response to /realms/<realm>/protocol/openid-connect/auth
-// routinely takes 30-60s. The global 30s test timeout from playwright.config.ts
-// isn't enough; bump it to 240s for this single cold-path test.
-setup.setTimeout(240_000);
+setup.setTimeout(60_000);
 
-setup('authenticate via Keycloak', async ({ page }) => {
-  // Capture token exchange responses
-  page.on('response', (r) => {
-    if (r.url().includes('/token')) {
-      console.log(`Token response: ${r.status()} ${r.url()}`);
-    }
-  });
-
-  // Capture console errors
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') console.log(`Console error: ${msg.text()}`);
-  });
-
-  // Capture page errors (uncaught exceptions, promise rejections) which
-  // the 'console' listener misses.
-  page.on('pageerror', (err) => console.log(`PageError: ${err.message}`));
-  page.on('requestfailed', (req) =>
-    console.log(`RequestFailed: ${req.failure()?.errorText} ${req.url()}`),
+// Bypass the OIDC redirect flow entirely. Hit Keycloak's token endpoint
+// directly via password grant (the yumney-web test client has
+// directAccessGrantsEnabled=true) and plant the tokens into sessionStorage in
+// the shape angular-oauth2-oidc expects, then save the storageState for
+// downstream specs.
+//
+// Rationale: the full redirect-driven flow proved fragile inside Aspire's DCP
+// localhost proxy on GitHub runners — browser navigations to Keycloak were
+// silently aborted (net::ERR_ABORTED) and the Keycloak container never saw the
+// request. Since we're testing the authenticated app, not the OIDC protocol,
+// jumping straight to "already authenticated" is both simpler and robust.
+setup('authenticate via Keycloak direct grant', async ({ page, request }) => {
+  // 1. Obtain tokens directly.
+  const tokenResponse = await request.post(
+    `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`,
+    {
+      form: {
+        grant_type: 'password',
+        client_id: KEYCLOAK_CLIENT,
+        username: E2E_USER,
+        password: E2E_PASSWORD,
+        scope: 'openid profile email roles',
+      },
+      timeout: 30_000,
+    },
   );
+  expect(tokenResponse.ok(), `Keycloak token endpoint returned ${tokenResponse.status()}`).toBe(
+    true,
+  );
+  const tokens = (await tokenResponse.json()) as {
+    access_token: string;
+    id_token: string;
+    refresh_token?: string;
+    expires_in: number;
+    scope?: string;
+  };
 
-  // 1. Go to login. Shell bootstrap chains federation init + APP_INITIALIZER
-  //    (Keycloak discovery + language + theme) + vite on-demand compile of the
-  //    /auth/* lazy chunk, all on the cold path in CI. `load` fires when bundles
-  //    finish downloading, not when Angular has rendered, so we explicitly wait
-  //    for content inside <yn-root> before asserting on the button.
-  await page.goto('/auth/login', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  // 2. Decode id_token claims for angular-oauth2-oidc's id_token_claims_obj.
+  const idClaims = decodeJwtPayload(tokens.id_token);
+  const now = Date.now();
+  const expiresAt = (now + tokens.expires_in * 1000).toString();
+  const idTokenExpiresAt = (
+    typeof idClaims['exp'] === 'number' ? idClaims['exp'] * 1000 : now + tokens.expires_in * 1000
+  ).toString();
 
-  await page.locator('yn-root > *').first().waitFor({ timeout: 60_000 });
+  // 3. Load the app shell once so we can write sessionStorage for its origin.
+  //    domcontentloaded is enough here — we're not interacting with the app,
+  //    just scribbling into its storage before the next test opens the page.
+  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
-  // 2. Click sign in
-  await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible({ timeout: 30_000 });
-  await page.getByRole('button', { name: /sign in/i }).click();
-
-  // 3. Wait for and fill Keycloak form. First hit to the auth endpoint can
-  //    take 30-60s on a cold Keycloak JVM in CI; give it 90s headroom.
-  await page.waitForURL('**/realms/**', { timeout: 90_000 });
-  await page.locator('#username').fill(E2E_USER);
-  await page.locator('#password').fill(E2E_PASSWORD);
-  await page.locator('#kc-login').click();
-
-  // 4. Wait for redirect — code exchange happens automatically.
-  await page.waitForURL('http://localhost:4200/**', { timeout: 30_000 });
-  console.log('Redirect URL:', page.url().substring(0, 80) + '...');
-
-  // 5. Wait for Angular to process the code exchange
-  //    The APP_INITIALIZER should handle this before routing starts
-  await page.waitForTimeout(8000);
-  console.log('After wait:', page.url());
-
-  // Check what ended up in storage
-  const storageCheck = await page.evaluate(() => ({
-    ssToken: !!sessionStorage.getItem('access_token'),
-    lsToken: !!localStorage.getItem('access_token'),
-    ssKeys: Object.keys(sessionStorage).sort(),
-  }));
-  console.log('Storage:', JSON.stringify(storageCheck));
+  // 4. Plant the entries angular-oauth2-oidc reads on startup.
+  await page.evaluate(
+    ({ accessToken, idToken, refreshToken, expiresAt, idTokenExpiresAt, idClaims, scope }) => {
+      const s = sessionStorage;
+      s.setItem('access_token', accessToken);
+      s.setItem('access_token_stored_at', String(Date.now()));
+      s.setItem('expires_at', expiresAt);
+      s.setItem('id_token', idToken);
+      s.setItem('id_token_claims_obj', JSON.stringify(idClaims));
+      s.setItem('id_token_expires_at', idTokenExpiresAt);
+      s.setItem('id_token_stored_at', String(Date.now()));
+      if (refreshToken) s.setItem('refresh_token', refreshToken);
+      s.setItem('granted_scopes', JSON.stringify((scope ?? '').split(/\s+/).filter(Boolean)));
+    },
+    {
+      accessToken: tokens.access_token,
+      idToken: tokens.id_token,
+      refreshToken: tokens.refresh_token,
+      expiresAt,
+      idTokenExpiresAt,
+      idClaims,
+      scope: tokens.scope,
+    },
+  );
 
   await page.context().storageState({ path: AUTH_STATE_PATH });
 });
+
+function decodeJwtPayload(token: string): Record<string, unknown> {
+  const [, payload] = token.split('.');
+  if (!payload) return {};
+  const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+  return JSON.parse(Buffer.from(padded, 'base64').toString('utf8')) as Record<string, unknown>;
+}
