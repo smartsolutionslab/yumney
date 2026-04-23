@@ -36,28 +36,46 @@ export class AuthService {
   constructor(private oauthService: OAuthService) {}
 
   async initialize(): Promise<void> {
+    const g = globalThis as Record<string, unknown>;
+    const mark = (name: string) => {
+      g[`__ynAuth_${name}`] = Date.now();
+      console.log(`[auth] ${name}`);
+    };
+    mark('enter');
+
     const { keycloakUrl, keycloakRealm, keycloakClientId, gatewayUrl } = await this.loadAppConfig();
+    mark('afterLoadAppConfig');
+
     const authConfig = createAuthConfig(keycloakUrl, keycloakRealm, keycloakClientId, gatewayUrl);
 
     this.oauthService.configure(authConfig);
+    mark('afterConfigure');
+
     this.oauthService.setupAutomaticSilentRefresh();
+    mark('afterSetupSilentRefresh');
 
     this.oauthService.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.updateAuthState();
     });
+    mark('afterEventsSub');
 
     try {
       await this.oauthService.loadDiscoveryDocument();
+      mark('afterLoadDiscoveryDocument');
       // Override token endpoint to route through Gateway (avoids DCP port proxy 504s)
       if (gatewayUrl) {
         this.oauthService.tokenEndpoint = `${gatewayUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`;
       }
       await this.oauthService.tryLogin();
+      mark('afterTryLogin');
       this.updateAuthState();
-    } catch {
+    } catch (err) {
       // Keycloak unreachable — app continues unauthenticated
+      mark('caughtError');
+      console.warn('[auth] caughtError details:', err);
     } finally {
       this.isLoading.set(false);
+      mark('finally');
     }
   }
 
