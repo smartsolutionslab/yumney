@@ -2,28 +2,25 @@ import { test as setup, expect } from '@playwright/test';
 
 const E2E_USER = process.env['E2E_USER'] ?? 'testuser';
 const E2E_PASSWORD = process.env['E2E_PASSWORD'] ?? 'Test1234';
-const KEYCLOAK_URL = process.env['KEYCLOAK_URL'] ?? 'http://localhost:8080';
+// Route Keycloak traffic through the Yumney Gateway (YARP) rather than the
+// direct container port. Hitting localhost:8080 from either the browser or
+// Playwright's Node request context reliably hangs on CI — Aspire's DCP
+// localhost-proxy appears to drop that particular combination. Gateway port
+// 5100 is a plain ASP.NET endpoint that YARP then routes to the keycloak
+// service via Aspire service discovery (container-network hop), which works.
+// This also matches how the production Angular code routes token exchanges
+// (see AuthService.initialize overriding oauthService.tokenEndpoint).
+const GATEWAY_URL = process.env['GATEWAY_URL'] ?? 'http://localhost:5100';
 const KEYCLOAK_REALM = 'yumney';
 const KEYCLOAK_CLIENT = 'yumney-web';
 const AUTH_STATE_PATH = 'src/.auth/user.json';
 
 setup.setTimeout(60_000);
 
-// Bypass the OIDC redirect flow entirely. Hit Keycloak's token endpoint
-// directly via password grant (the yumney-web test client has
-// directAccessGrantsEnabled=true) and plant the tokens into sessionStorage in
-// the shape angular-oauth2-oidc expects, then save the storageState for
-// downstream specs.
-//
-// Rationale: the full redirect-driven flow proved fragile inside Aspire's DCP
-// localhost proxy on GitHub runners — browser navigations to Keycloak were
-// silently aborted (net::ERR_ABORTED) and the Keycloak container never saw the
-// request. Since we're testing the authenticated app, not the OIDC protocol,
-// jumping straight to "already authenticated" is both simpler and robust.
 setup('authenticate via Keycloak direct grant', async ({ page, request }) => {
-  // 1. Obtain tokens directly.
+  // 1. Obtain tokens directly (through the Gateway, not direct Keycloak).
   const tokenResponse = await request.post(
-    `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`,
+    `${GATEWAY_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`,
     {
       form: {
         grant_type: 'password',
