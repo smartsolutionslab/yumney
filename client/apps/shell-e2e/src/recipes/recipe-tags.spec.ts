@@ -9,11 +9,18 @@ test.describe('Recipe Tags (US-070)', () => {
   test.beforeAll(async ({ browser }) => {
     const page = await openAuthenticatedPage(browser);
 
-    // Create recipe with tags via API (authenticated session from storage state).
-    const response = await page.evaluate(async () => {
-      const res = await fetch('/api/v1/recipes', {
+    // Create recipe with tags via the API (through the Gateway — dev server
+    // on :4200 doesn't proxy /api/*). Storage-state provides the access token
+    // in localStorage.
+    const gatewayUrl = process.env['GATEWAY_URL'] ?? 'http://localhost:5100';
+    const response = await page.evaluate(async (gw) => {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(`${gw}/api/v1/recipes`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           title: 'E2E Tag Test Recipe',
           description: null,
@@ -27,8 +34,9 @@ test.describe('Recipe Tags (US-070)', () => {
           tags: ['italian', 'pasta', 'quick'],
         }),
       });
+      if (!res.ok) throw new Error(`tag recipe POST ${res.status}: ${await res.text()}`);
       return res.json();
-    });
+    }, gatewayUrl);
 
     recipeIdentifier = response.identifier;
     await page.context().close();
