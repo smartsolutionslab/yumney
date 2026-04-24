@@ -35,13 +35,15 @@ public class ProfileEndpointsContractTests(AspireFixture fixture) : IAsyncLifeti
 	public Task DisposeAsync() => CleanupProfileAsync();
 
 	[Fact]
-	public async Task GetProfile_NoProfileRow_Returns404()
+	public async Task GetProfile_NoProfileRow_JitProvisionsFromClaims()
 	{
 		using var client = await fixture.CreateAuthenticatedClientAsync("users-api");
 
 		var response = await client.GetAsync(Endpoint);
 
-		response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+		response.StatusCode.Should().Be(HttpStatusCode.OK);
+		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+		body.GetProperty("displayName").GetString().Should().NotBeNullOrWhiteSpace();
 	}
 
 	[Fact]

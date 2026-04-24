@@ -20,9 +20,15 @@ public static class ProfileEndpoints
 			.ProducesProblem(StatusCodes.Status404NotFound);
 
 		static async Task<IResult> GetProfile(
+			ICommandHandler<EnsureUserProfileCommand, Result> ensure,
 			IQueryHandler<GetUserProfileQuery, Result<UserProfileDto>> handler,
 			CancellationToken cancellationToken)
 		{
+			// Idempotent JIT-provisioning for Keycloak-authenticated users who
+			// have no AppUserProfile row yet (realm-seeded users, SSO, admin).
+			// Any failure cascades naturally to the query's 404.
+			await ensure.HandleAsync(new EnsureUserProfileCommand(), cancellationToken);
+
 			var result = await handler.HandleAsync(new GetUserProfileQuery(), cancellationToken);
 			return result.ToOk();
 		}
