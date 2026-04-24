@@ -1,5 +1,4 @@
-import { type Browser, type Page, expect } from '@playwright/test';
-import { DashboardPage } from '../pages/dashboard.page';
+import { type Browser, type Page } from '@playwright/test';
 import { SELECTORS } from './selectors';
 import { TIMEOUTS } from './timeouts';
 
@@ -31,7 +30,12 @@ export function uniqueTitle(prefix: string): string {
  */
 export async function openAuthenticatedPage(browser: Browser): Promise<Page> {
   const context = await browser.newContext({ storageState: STORAGE_STATE_PATH });
-  return context.newPage();
+  const page = await context.newPage();
+  // Navigate to the app so the page is on-origin — createTestRecipe uses
+  // relative-URL fetches against the gateway and needs localStorage tokens
+  // in scope.
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  return page;
 }
 
 export function uniqueEmail(prefix = 'e2e'): string {
@@ -57,49 +61,82 @@ export async function loginViaKeycloak(
 }
 
 /**
- * Create a basic recipe via the manual entry form and return its identifier.
+ * Create a test recipe via the API (POST /api/v1/recipes) and return its
+ * identifier. Runs inside the browser context so the request carries the
+ * auth headers angular-oauth2-oidc attaches on XHR/fetch. ~1s vs ~15-25s
+ * for the UI-form equivalent, and robust under parallel worker pressure
+ * where dev-server contention can bust the UI flow's 30s beforeAll budget.
+ *
+ * The page must be on the app origin (e.g. after page.goto('/')) so that
+ * relative-URL fetches hit the gateway and sessionStorage tokens are in
+ * scope for the interceptor.
  */
 export async function createTestRecipe(
   page: Page,
   title: string,
   options?: { ingredient?: string; step?: string; servings?: number },
 ): Promise<string> {
-  const dashboard = new DashboardPage(page);
-  await dashboard.createButton.click();
-
-  await page.locator('#title').fill(title);
-
-  const ingredientName = page.locator(`${SELECTORS.form.ingredients} input[type="text"]`).first();
-  await ingredientName.fill(options?.ingredient ?? 'Test Ingredient');
-
-  const stepDescription = page.locator(`${SELECTORS.form.steps} textarea`).first();
-  await stepDescription.fill(options?.step ?? 'Test Step');
-
-  if (options?.servings) {
-    const servingsInput = page.locator('#servings');
-    await servingsInput.clear();
-    await servingsInput.fill(String(options.servings));
+  // Make sure we're on the app origin for the fetch to target the gateway
+  // and to have access to localStorage tokens.
+  if (!page.url().startsWith(page.context().options?.baseURL ?? 'http://localhost:4200')) {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
   }
 
-  await page.getByRole('button', { name: /save/i }).click();
-  await expect(page.locator(SELECTORS.banners.success)).toBeVisible({
-    timeout: TIMEOUTS.long,
-  });
+  const ingredient = options?.ingredient ?? 'Test Ingredient';
+  const step = options?.step ?? 'Test Step';
+  const servings = options?.servings ?? 4;
 
-  await page.goto('/recipes');
-  await page.waitForTimeout(1000);
+  const identifier = await page.evaluate(
+    async ({ title, ingredient, step, servings }) => {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch('/api/v1/recipes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          title,
+          description: null,
+          ingredients: [{ name: ingredient, amount: 1, unit: 'piece' }],
+          steps: [{ number: 1, description: step }],
+          servings,
+          prepTimeMinutes: null,
+          cookTimeMinutes: null,
+          difficulty: null,
+          imageUrl: null,
+          tags: [],
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(`createTestRecipe failed: ${res.status} ${await res.text()}`);
+      }
+      const body = (await res.json()) as { identifier: string };
+      return body.identifier;
+    },
+    { title, ingredient, step, servings },
+  );
 
-  const card = page.locator(SELECTORS.recipe.card).filter({ hasText: title }).first();
-  const href = await card.getAttribute('href');
-  return href?.replace('/recipes/', '') ?? '';
+  return identifier;
 }
 
 /**
- * Delete a recipe by navigating to its detail page and confirming deletion.
+ * Delete a recipe via the API. Mirror of createTestRecipe for cleanup in
+ * afterAll blocks.
  */
 export async function deleteTestRecipe(page: Page, recipeIdentifier: string): Promise<void> {
-  await page.goto(`/recipes/${recipeIdentifier}`);
-  await page.locator(SELECTORS.recipe.deleteBtn).click();
-  await page.locator(SELECTORS.recipe.confirmDelete).click();
-  await page.waitForURL(/\/recipes$/, { timeout: TIMEOUTS.default });
+  if (!page.url().startsWith(page.context().options?.baseURL ?? 'http://localhost:4200')) {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+  }
+
+  await page.evaluate(async (id) => {
+    const token = localStorage.getItem('access_token');
+    const res = await fetch(`/api/v1/recipes/${id}`, {
+      method: 'DELETE',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok && res.status !== 404) {
+      throw new Error(`deleteTestRecipe failed: ${res.status} ${await res.text()}`);
+    }
+  }, recipeIdentifier);
 }
