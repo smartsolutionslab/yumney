@@ -1,15 +1,10 @@
 import { Injectable, signal, computed, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { AppConfig, createAuthConfig } from './auth-config';
+import { createAuthConfig } from './auth-config';
+import { AppConfigService } from './app-config.service';
 import { REMEMBER_ME_KEY } from './auth-storage.factory';
 import type { AuthUser } from './auth-user';
-
-const DEFAULT_CONFIG: AppConfig = {
-  keycloakUrl: 'http://localhost:8080',
-  keycloakRealm: 'yumney',
-  keycloakClientId: 'yumney-web',
-};
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout>;
@@ -40,11 +35,14 @@ export class AuthService {
   });
 
   private destroyRef = inject(DestroyRef);
+  private appConfig = inject(AppConfigService);
 
   constructor(private oauthService: OAuthService) {}
 
   async initialize(): Promise<void> {
-    const { keycloakUrl, keycloakRealm, keycloakClientId, gatewayUrl } = await this.loadAppConfig();
+    // AppConfigService is loaded via APP_INITIALIZER before this runs, so
+    // reading synchronously is safe.
+    const { keycloakUrl, keycloakRealm, keycloakClientId, gatewayUrl } = this.appConfig.get();
     const authConfig = createAuthConfig(keycloakUrl, keycloakRealm, keycloakClientId, gatewayUrl);
 
     this.oauthService.configure(authConfig);
@@ -96,18 +94,6 @@ export class AuthService {
 
   forgotPassword(): void {
     this.oauthService.initCodeFlow('', { kc_action: 'UPDATE_PASSWORD' });
-  }
-
-  private async loadAppConfig(): Promise<AppConfig> {
-    try {
-      const response = await fetch('/assets/config/app-config.json');
-      if (response.ok) {
-        return await response.json();
-      }
-    } catch {
-      // Config file unavailable — use defaults
-    }
-    return DEFAULT_CONFIG;
   }
 
   private updateAuthState(): void {
