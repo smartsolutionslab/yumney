@@ -3,6 +3,9 @@ import { RegisterPage } from '../pages/register.page';
 import { uniqueEmail } from '../helpers/test-data.helper';
 import { TIMEOUTS } from '../helpers/timeouts';
 
+// Pre-authentication flow — reset the storage state planted by auth.setup.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Register Page (US-001)', () => {
   let registerPage: RegisterPage;
 

@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { ResendVerificationPage } from '../pages/resend-verification.page';
 
+// Pre-authentication flow — reset the storage state planted by auth.setup.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Resend Verification Page', () => {
   let resendPage: ResendVerificationPage;
 

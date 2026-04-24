@@ -2,6 +2,11 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/login.page';
 import { TEST_USER } from '../helpers/test-data.helper';
 
+// Pre-authentication flow — override the default storageState (set by
+// auth.setup) so the auth guard doesn't redirect this test away from
+// /auth/login.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Login Page (US-002)', () => {
   let loginPage: LoginPage;
 
