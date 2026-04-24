@@ -178,10 +178,6 @@ jobs:
 
           stamp "diagnostic step complete"
 
-      - name: Run backend integration tests
-        continue-on-error: true
-        run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj
-
       - name: Fetch Keycloak token for E2E (direct container port)
         # Bypass Aspire's DCP localhost proxy — every in-process HTTP client
         # we've tried has failed against it. Docker maps Keycloak's 8080 to
@@ -223,6 +219,10 @@ jobs:
             sleep 5
           done
           test -s /tmp/e2e-tokens.json
+
+      - name: Run backend integration tests
+        continue-on-error: true
+        run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj
 
       - name: Run Playwright e2e tests
         continue-on-error: true
