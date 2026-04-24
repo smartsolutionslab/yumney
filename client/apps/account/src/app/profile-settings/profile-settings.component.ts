@@ -111,17 +111,8 @@ export class ProfileSettingsComponent {
           this.cookingEffort.set(profile.dietaryProfile.cookingEffort ?? '');
           this.loading.set(false);
         },
-        error: (err) => {
-          // DEBUG: include actual error details in the UI so Playwright page
-          // snapshots reveal status code / URL / message. Will be reverted
-          // once the profile-settings E2E cluster is fixed.
-          const detail =
-            err && typeof err === 'object'
-              ? `${err.status ?? '?'} ${err.statusText ?? ''} ${err.url ?? ''} ${err.message ?? ''}`.trim()
-              : String(err);
-          this.error.set(
-            `${this.transloco.translate('account.settings.errors.loadFailed')} [debug: ${detail}]`,
-          );
+        error: () => {
+          this.error.set(this.transloco.translate('account.settings.errors.loadFailed'));
           this.loading.set(false);
         },
       });
