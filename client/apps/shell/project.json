@@ -92,6 +92,9 @@
     },
     "serve-original": {
       "executor": "@angular/build:dev-server",
+      "options": {
+        "proxyConfig": "apps/shell/proxy.conf.json"
+      },
       "configurations": {
         "production": {
           "buildTarget": "shell:esbuild:production"
