@@ -1,6 +1,5 @@
-import { inject } from '@angular/core';
 import { HttpInterceptorFn } from '@angular/common/http';
-import { AppConfigService } from './app-config.service';
+import { getAppConfigGatewayUrl } from './app-config.service';
 
 /**
  * Rewrites relative `/api/*` URLs to absolute URLs on the Gateway so browser
@@ -8,16 +7,21 @@ import { AppConfigService } from './app-config.service';
  * YARP gateway directly. In production the frontend is served through the
  * gateway, so gatewayUrl is empty and URLs stay relative.
  *
- * Must run BEFORE authInterceptor so the Authorization header is added after
- * the final URL is resolved.
+ * Reads gatewayUrl via a module-level global (see app-config.service.ts)
+ * rather than injection — native federation bundles workspace libs per-MFE,
+ * so `inject(AppConfigService)` in an MFE resolves to a different class
+ * token than the one the shell populated, and DI lookup returns an empty
+ * instance. The global is federation-safe.
+ *
+ * Order matters: register this before authInterceptor so the Authorization
+ * header lands on the rewritten absolute URL.
  */
 export const apiBaseInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.url.startsWith('/api/') && !req.url.startsWith('/realms/')) {
     return next(req);
   }
 
-  const config = inject(AppConfigService);
-  const base = config.gatewayUrl;
+  const base = getAppConfigGatewayUrl();
   if (!base) return next(req);
 
   return next(req.clone({ url: `${base}${req.url}` }));
