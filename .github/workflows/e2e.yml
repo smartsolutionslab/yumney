@@ -220,6 +220,26 @@ jobs:
           done
           test -s /tmp/e2e-tokens.json
 
+      - name: Warm up API endpoints
+        # First call to each *.Api after Aspire startup pays a 5-15s JIT +
+        # EF-model-build cost. Playwright toBeVisible timeouts are 10s, so
+        # the first profile-settings test would fire before the response
+        # lands. Prewarm each API via the gateway with the test token.
+        run: |
+          set +e
+          token=$(python3 -c 'import json; print(json.load(open("/tmp/e2e-tokens.json"))["access_token"])')
+          for endpoint in \
+            "http://localhost:5100/api/v1/users/me/profile" \
+            "http://localhost:5100/api/v1/recipes?page=1&pageSize=1" \
+            "http://localhost:5100/api/v1/shopping-lists?page=1&pageSize=1" \
+            "http://localhost:5100/api/v1/meal-plans/current"; do
+            echo "warmup: $endpoint"
+            time curl -sk -o /dev/null -w "  status=%{http_code} time=%{time_total}s\n" \
+              --max-time 60 \
+              -H "Authorization: Bearer $token" \
+              "$endpoint"
+          done
+
       - name: Run backend integration tests
         continue-on-error: true
         run: dotnet test tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj
