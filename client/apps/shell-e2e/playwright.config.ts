@@ -23,11 +23,12 @@ export default defineConfig({
   // a minute on top of the original. Transient flakes still get a second
   // chance; systemic failures fail faster.
   retries: process.env['CI'] ? 1 : 0,
-  // File-level parallelism: each spec file runs on its own worker, tests
-  // inside a file run sequentially (preserves any beforeAll shared state).
-  // Cuts Playwright wall-time ~50% on a 2-vCPU CI runner.
-  fullyParallel: true,
-  workers: process.env['CI'] ? 2 : undefined,
+  // Serial runs. File-level parallelism was tried (#331) and broke the
+  // recipes + shopping suites — those specs share DB state across tests in
+  // a file via test.beforeAll, and two files running concurrently corrupted
+  // each other's fixtures. Revisit once those specs are refactored to use
+  // per-test fixtures.
+  workers: 1,
   reporter: process.env['CI']
     ? [
         ['html', { open: 'never' }],
