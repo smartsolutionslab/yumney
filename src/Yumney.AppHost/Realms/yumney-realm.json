@@ -2,6 +2,7 @@
   "realm": "yumney",
   "enabled": true,
   "sslRequired": "none",
+  "accessTokenLifespan": 3600,
   "registrationAllowed": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
