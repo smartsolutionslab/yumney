@@ -18,10 +18,7 @@ setup.setTimeout(60_000);
 // This test reads it and plants the tokens into sessionStorage in the keys
 // angular-oauth2-oidc reads on startup.
 setup('authenticate via pre-fetched Keycloak tokens', async ({ page }) => {
-  expect(
-    TOKENS_FILE,
-    'E2E_TOKENS_FILE env var must point at a JSON token dump',
-  ).toBeDefined();
+  expect(TOKENS_FILE, 'E2E_TOKENS_FILE env var must point at a JSON token dump').toBeDefined();
 
   const tokens = JSON.parse(readFileSync(TOKENS_FILE as string, 'utf8')) as {
     access_token: string;
