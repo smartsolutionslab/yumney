@@ -39,9 +39,15 @@ setup('authenticate via pre-fetched Keycloak tokens', async ({ page }) => {
   // Navigate to the origin once so sessionStorage is scoped correctly.
   await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
+  // Use localStorage, not sessionStorage. Playwright's storageState persists
+  // localStorage + cookies but NOT sessionStorage (tab-scoped), so anything
+  // we plant in sessionStorage here would be gone by the time downstream
+  // specs open the app. authStorageFactory routes to localStorage when
+  // yn_remember_me is 'true', so set that flag too.
   await page.evaluate(
     ({ accessToken, idToken, refreshToken, expiresAt, idTokenExpiresAt, idClaims, scope }) => {
-      const s = sessionStorage;
+      const s = localStorage;
+      s.setItem('yn_remember_me', 'true');
       s.setItem('access_token', accessToken);
       s.setItem('access_token_stored_at', String(Date.now()));
       s.setItem('expires_at', expiresAt);
