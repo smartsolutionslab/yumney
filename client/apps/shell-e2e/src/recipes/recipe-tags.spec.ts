@@ -1,16 +1,15 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { RecipeDetailPage } from '../pages/recipe-detail.page';
-import { loginViaKeycloak, deleteTestRecipe } from '../helpers/test-data.helper';
+import { openAuthenticatedPage, deleteTestRecipe } from '../helpers/test-data.helper';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Recipe Tags (US-070)', () => {
   let recipeIdentifier: string;
 
   test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
-    await loginViaKeycloak(page);
+    const page = await openAuthenticatedPage(browser);
 
-    // Create recipe with tags via API (authenticated session from loginViaKeycloak)
+    // Create recipe with tags via API (authenticated session from storage state).
     const response = await page.evaluate(async () => {
       const res = await fetch('/api/v1/recipes', {
         method: 'POST',
@@ -32,7 +31,7 @@ test.describe('Recipe Tags (US-070)', () => {
     });
 
     recipeIdentifier = response.identifier;
-    await page.close();
+    await page.context().close();
   });
 
   test('should display tags on recipe detail page', async ({ authenticatedPage }) => {
@@ -63,9 +62,8 @@ test.describe('Recipe Tags (US-070)', () => {
   test.afterAll(async ({ browser }) => {
     if (!recipeIdentifier) return;
 
-    const page = await browser.newPage();
-    await loginViaKeycloak(page);
+    const page = await openAuthenticatedPage(browser);
     await deleteTestRecipe(page, recipeIdentifier);
-    await page.close();
+    await page.context().close();
   });
 });

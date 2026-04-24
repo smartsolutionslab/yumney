@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/auth.fixture';
 import { RecipeDetailPage } from '../pages/recipe-detail.page';
 import {
   uniqueTitle,
-  loginViaKeycloak,
+  openAuthenticatedPage,
   createTestRecipe,
   deleteTestRecipe,
 } from '../helpers/test-data.helper';
@@ -12,10 +12,9 @@ test.describe('Recipe Detail (US-031, US-050, US-032, US-033)', () => {
   let recipeIdentifier: string;
 
   test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
-    await loginViaKeycloak(page);
+    const page = await openAuthenticatedPage(browser);
     recipeIdentifier = await createTestRecipe(page, uniqueTitle('E2E Detail Test'));
-    await page.close();
+    await page.context().close();
   });
 
   test('should display recipe title', async ({ authenticatedPage }) => {
@@ -102,13 +101,12 @@ test.describe('Servings Scaling (US-050)', () => {
   let recipeIdentifier: string;
 
   test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
-    await loginViaKeycloak(page);
+    const page = await openAuthenticatedPage(browser);
     recipeIdentifier = await createTestRecipe(page, uniqueTitle('E2E Scaling'), {
       ingredient: 'Flour',
       servings: 4,
     });
-    await page.close();
+    await page.context().close();
   });
 
   test('should display servings controls', async ({ authenticatedPage }) => {
@@ -159,9 +157,8 @@ test.describe('Servings Scaling (US-050)', () => {
   test.afterAll(async ({ browser }) => {
     if (!recipeIdentifier) return;
 
-    const page = await browser.newPage();
-    await loginViaKeycloak(page);
+    const page = await openAuthenticatedPage(browser);
     await deleteTestRecipe(page, recipeIdentifier);
-    await page.close();
+    await page.context().close();
   });
 });

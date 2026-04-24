@@ -1,7 +1,9 @@
-import { type Page, expect } from '@playwright/test';
+import { type Browser, type Page, expect } from '@playwright/test';
 import { DashboardPage } from '../pages/dashboard.page';
 import { SELECTORS } from './selectors';
 import { TIMEOUTS } from './timeouts';
+
+const STORAGE_STATE_PATH = 'src/.auth/user.json';
 
 /**
  * Test constants for E2E tests against the real system.
@@ -15,7 +17,21 @@ export const TEST_USER = {
 };
 
 export function uniqueTitle(prefix: string): string {
-  return `${prefix} ${Date.now()}`;
+  // Include a random suffix so two specs calling uniqueTitle in the same
+  // millisecond (possible with parallel workers) produce distinct values.
+  return `${prefix} ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/**
+ * Open an authenticated page in a fresh context that reuses the storageState
+ * planted by auth.setup. Use in beforeAll/afterAll blocks that need a short
+ * authenticated session for test data setup or cleanup — cheaper and more
+ * reliable than running `loginViaKeycloak` which replays the brittle UI
+ * redirect flow.
+ */
+export async function openAuthenticatedPage(browser: Browser): Promise<Page> {
+  const context = await browser.newContext({ storageState: STORAGE_STATE_PATH });
+  return context.newPage();
 }
 
 export function uniqueEmail(prefix = 'e2e'): string {
