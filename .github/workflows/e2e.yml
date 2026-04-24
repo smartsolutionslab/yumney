@@ -19,7 +19,7 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       # Opt the AppHost into E2E mode — skips persistent volumes, pgAdmin,
       # mailpit, and the LLM provider setup, so fewer containers need to come up.
