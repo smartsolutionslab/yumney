@@ -3,6 +3,7 @@ import { SELECTORS } from './selectors';
 import { TIMEOUTS } from './timeouts';
 
 const STORAGE_STATE_PATH = 'src/.auth/user.json';
+const GATEWAY_URL = process.env['GATEWAY_URL'] ?? 'http://localhost:5100';
 
 /**
  * Test constants for E2E tests against the real system.
@@ -62,34 +63,25 @@ export async function loginViaKeycloak(
 
 /**
  * Create a test recipe via the API (POST /api/v1/recipes) and return its
- * identifier. Runs inside the browser context so the request carries the
- * auth headers angular-oauth2-oidc attaches on XHR/fetch. ~1s vs ~15-25s
- * for the UI-form equivalent, and robust under parallel worker pressure
- * where dev-server contention can bust the UI flow's 30s beforeAll budget.
- *
- * The page must be on the app origin (e.g. after page.goto('/')) so that
- * relative-URL fetches hit the gateway and sessionStorage tokens are in
- * scope for the interceptor.
+ * identifier. Runs inside the browser context so localStorage tokens are in
+ * scope for the Authorization header. Targets the Gateway (:5100) directly,
+ * not the dev server (:4200) — the dev server doesn't proxy /api/* so
+ * relative fetches from there 404. ~1s vs ~15-25s for the UI-form
+ * equivalent, and robust under parallel worker pressure.
  */
 export async function createTestRecipe(
   page: Page,
   title: string,
   options?: { ingredient?: string; step?: string; servings?: number },
 ): Promise<string> {
-  // Make sure we're on the app origin for the fetch to target the gateway
-  // and to have access to localStorage tokens.
-  if (!page.url().startsWith(page.context().options?.baseURL ?? 'http://localhost:4200')) {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-  }
-
   const ingredient = options?.ingredient ?? 'Test Ingredient';
   const step = options?.step ?? 'Test Step';
   const servings = options?.servings ?? 4;
 
   const identifier = await page.evaluate(
-    async ({ title, ingredient, step, servings }) => {
+    async ({ title, ingredient, step, servings, gatewayUrl }) => {
       const token = localStorage.getItem('access_token');
-      const res = await fetch('/api/v1/recipes', {
+      const res = await fetch(`${gatewayUrl}/api/v1/recipes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +106,7 @@ export async function createTestRecipe(
       const body = (await res.json()) as { identifier: string };
       return body.identifier;
     },
-    { title, ingredient, step, servings },
+    { title, ingredient, step, servings, gatewayUrl: GATEWAY_URL },
   );
 
   return identifier;
@@ -125,18 +117,17 @@ export async function createTestRecipe(
  * afterAll blocks.
  */
 export async function deleteTestRecipe(page: Page, recipeIdentifier: string): Promise<void> {
-  if (!page.url().startsWith(page.context().options?.baseURL ?? 'http://localhost:4200')) {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-  }
-
-  await page.evaluate(async (id) => {
-    const token = localStorage.getItem('access_token');
-    const res = await fetch(`/api/v1/recipes/${id}`, {
-      method: 'DELETE',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    if (!res.ok && res.status !== 404) {
-      throw new Error(`deleteTestRecipe failed: ${res.status} ${await res.text()}`);
-    }
-  }, recipeIdentifier);
+  await page.evaluate(
+    async ({ id, gatewayUrl }) => {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(`${gatewayUrl}/api/v1/recipes/${id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok && res.status !== 404) {
+        throw new Error(`deleteTestRecipe failed: ${res.status} ${await res.text()}`);
+      }
+    },
+    { id: recipeIdentifier, gatewayUrl: GATEWAY_URL },
+  );
 }

@@ -230,6 +230,7 @@ jobs:
         run: npx nx e2e shell-e2e
         env:
           BASE_URL: http://localhost:4200
+          GATEWAY_URL: http://localhost:5100
           E2E_TOKENS_FILE: /tmp/e2e-tokens.json
           CI: true
 
