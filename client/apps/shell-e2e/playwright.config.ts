@@ -17,7 +17,12 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
 
 export default defineConfig({
   ...nxE2EPreset(__filename, { testDir: './src' }),
-  timeout: 30_000,
+  // Bumped from 30s to 60s: post-token-expiry-fix, fixture-heavy beforeAll
+  // hooks (openAuthenticatedPage + API POST under parallel worker pressure)
+  // started exceeding 30s. The real API calls themselves are ~1s; the budget
+  // is eaten by the `page.goto('/')` that scopes localStorage to the origin
+  // plus concurrent Angular bootstrap on the shared dev server.
+  timeout: 60_000,
   expect: { timeout: 10_000 },
   // On CI: retry once (not twice) — each retry on a 30s-timeout test can cost
   // a minute on top of the original. Transient flakes still get a second
