@@ -23,12 +23,15 @@ export default defineConfig({
   // a minute on top of the original. Transient flakes still get a second
   // chance; systemic failures fail faster.
   retries: process.env['CI'] ? 1 : 0,
-  // Serial runs. File-level parallelism was tried (#331) and broke the
-  // recipes + shopping suites — those specs share DB state across tests in
-  // a file via test.beforeAll, and two files running concurrently corrupted
-  // each other's fixtures. Revisit once those specs are refactored to use
-  // per-test fixtures.
-  workers: 1,
+  // File-level parallelism on CI. fullyParallel stays false so tests inside
+  // a spec file still run sequentially on their assigned worker — the
+  // recipes/shopping specs use beforeAll to create shared DB fixtures and
+  // rely on that order. Inter-file safety: each beforeAll uses
+  // uniqueTitle() with a random suffix so two files' setups don't clash
+  // when they run concurrently on different workers, and each beforeAll
+  // reuses auth.setup's storageState via openAuthenticatedPage() rather
+  // than replaying the brittle Keycloak UI login flow.
+  workers: process.env['CI'] ? 2 : undefined,
   reporter: process.env['CI']
     ? [
         ['html', { open: 'never' }],

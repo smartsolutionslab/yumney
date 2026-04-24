@@ -1,7 +1,7 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { RecipeDetailPage } from '../pages/recipe-detail.page';
 import { RecipeListPage } from '../pages/recipe-list.page';
-import { uniqueTitle, loginViaKeycloak, createTestRecipe } from '../helpers/test-data.helper';
+import { uniqueTitle, openAuthenticatedPage, createTestRecipe } from '../helpers/test-data.helper';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Favorite Recipes (US-071)', () => {
@@ -9,8 +9,7 @@ test.describe('Favorite Recipes (US-071)', () => {
   let recipeIdentifier: string;
 
   test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
-    await loginViaKeycloak(page);
+    const page = await openAuthenticatedPage(browser);
 
     recipeTitle = uniqueTitle('E2E Favorite');
     recipeIdentifier = await createTestRecipe(page, recipeTitle, {
@@ -18,7 +17,7 @@ test.describe('Favorite Recipes (US-071)', () => {
       step: 'Add salt to taste',
     });
 
-    await page.close();
+    await page.context().close();
   });
 
   test('should toggle favorite from recipe list card', async ({ authenticatedPage }) => {

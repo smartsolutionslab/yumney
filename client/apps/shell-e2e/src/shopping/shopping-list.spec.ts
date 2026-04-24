@@ -3,7 +3,7 @@ import { ShoppingCreatePage } from '../pages/shopping-create.page';
 import { ShoppingDetailPage } from '../pages/shopping-detail.page';
 import {
   uniqueTitle,
-  loginViaKeycloak,
+  openAuthenticatedPage,
   createTestRecipe,
   deleteTestRecipe,
 } from '../helpers/test-data.helper';
@@ -13,12 +13,11 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   let recipeIdentifier: string;
 
   test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
-    await loginViaKeycloak(page);
+    const page = await openAuthenticatedPage(browser);
     recipeIdentifier = await createTestRecipe(page, uniqueTitle('E2E Shopping'), {
       ingredient: 'Butter',
     });
-    await page.close();
+    await page.context().close();
   });
 
   test('should load recipe ingredients on create page', async ({ authenticatedPage }) => {
@@ -149,9 +148,8 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   test.afterAll(async ({ browser }) => {
     if (!recipeIdentifier) return;
 
-    const page = await browser.newPage();
-    await loginViaKeycloak(page);
+    const page = await openAuthenticatedPage(browser);
     await deleteTestRecipe(page, recipeIdentifier);
-    await page.close();
+    await page.context().close();
   });
 });
