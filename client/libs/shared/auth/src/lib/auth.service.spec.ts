@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Subject } from 'rxjs';
 import { AuthService } from './auth.service';
+import { AppConfigService } from './app-config.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -46,9 +47,11 @@ describe('AuthService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [AuthService, { provide: OAuthService, useValue: oauthMock }],
+      providers: [AuthService, AppConfigService, { provide: OAuthService, useValue: oauthMock }],
     });
 
+    // AppConfigService is usually loaded via APP_INITIALIZER; do it by hand here.
+    TestBed.inject(AppConfigService);
     service = TestBed.inject(AuthService);
   });
 

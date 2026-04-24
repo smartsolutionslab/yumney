@@ -9,7 +9,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
-import { authInterceptor, provideAuth } from '@yumney/shared/auth';
+import { apiBaseInterceptor, authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { provideYumneyIcons } from '@yumney/ui';
 import { appRoutes } from './app.routes';
 import {
@@ -28,7 +28,10 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
     provideYumneyIcons(),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor, globalErrorInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([apiBaseInterceptor, authInterceptor, globalErrorInterceptor]),
+    ),
     provideAuth(),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),

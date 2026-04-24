@@ -9,7 +9,7 @@ import {
 import { provideRouter, Routes } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideTransloco, provideTranslocoScope } from '@jsverse/transloco';
-import { authInterceptor, provideAuth } from '@yumney/shared/auth';
+import { apiBaseInterceptor, authInterceptor, provideAuth } from '@yumney/shared/auth';
 import { TranslocoHttpLoader } from './transloco-loader';
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from './language-code';
 import { globalErrorInterceptor } from './global-error.interceptor';
@@ -38,7 +38,10 @@ export function createMfeAppConfig(
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor, globalErrorInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([apiBaseInterceptor, authInterceptor, globalErrorInterceptor]),
+    ),
     provideAuth(),
     provideTransloco({
       config: {
