@@ -106,6 +106,14 @@ jobs:
       - name: Build solution (including AppHost)
         run: dotnet build Yumney.slnx --no-restore
 
+      - name: Build frontend bundle for E2E
+        # Pre-build all MFEs and merge them into dist/apps/shell/browser so
+        # the AppHost can serve a single static bundle in E2E mode (see
+        # serve:shell:dist). Avoids the per-test Vite dev-server cold-start
+        # that made browser-side API calls time out (#356–#363).
+        working-directory: client
+        run: yarn build:all
+
       - name: Start Aspire AppHost
         run: |
           aspire start --apphost src/Yumney.AppHost/Yumney.AppHost.csproj 2>&1 | tee /tmp/aspire.log

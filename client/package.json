@@ -10,6 +10,7 @@
     "serve:shopping": "nx serve shopping",
     "serve:account": "nx serve account",
     "serve:all": "nx run-many --target=serve --projects=shell,recipes,shopping,account --parallel=4",
+    "serve:shell:dist": "node scripts/serve-shell-dist.mjs",
     "generate:validation": "node scripts/generate-validation-constants.mjs",
     "generate:api-types": "node scripts/generate-api-types.mjs",
     "build:all": "node scripts/generate-validation-constants.mjs && nx run-many --target=build --projects=shell,recipes,shopping,account --parallel=4 && node scripts/copy-remotes.mjs",
