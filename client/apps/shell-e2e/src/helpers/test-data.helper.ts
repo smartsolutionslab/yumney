@@ -32,10 +32,13 @@ export function uniqueTitle(prefix: string): string {
 export async function openAuthenticatedPage(browser: Browser): Promise<Page> {
   const context = await browser.newContext({ storageState: STORAGE_STATE_PATH });
   const page = await context.newPage();
-  // Navigate to the app so the page is on-origin — createTestRecipe uses
-  // relative-URL fetches against the gateway and needs localStorage tokens
-  // in scope.
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  // Navigate to a tiny static asset on the :4200 origin so the page is
+  // on-origin (createTestRecipe reads access_token from localStorage and
+  // does relative fetches against the gateway). Avoids the 5–10s federation
+  // cold-start that `page.goto('/')` triggers in dev mode — beforeAll hooks
+  // were timing out at 60s when 30s+ was burned on Angular bootstrap before
+  // a single API call could fire.
+  await page.goto('/assets/config/app-config.json', { waitUntil: 'domcontentloaded' });
   return page;
 }
 
