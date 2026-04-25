@@ -97,6 +97,13 @@ export class ProfileSettingsComponent {
   private loadProfile(): void {
     this.loading.set(true);
     this.error.set(null);
+
+    // DEBUG PROBE for #340: fire a native fetch in parallel with the
+    // HttpClient call so the rendered alert reveals which one (if any)
+    // returns and what the response actually was. Will be reverted once
+    // the remaining E2E cluster is unblocked.
+    this.runFetchProbe();
+
     this.api
       .getProfile()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -111,10 +118,46 @@ export class ProfileSettingsComponent {
           this.cookingEffort.set(profile.dietaryProfile.cookingEffort ?? '');
           this.loading.set(false);
         },
-        error: () => {
-          this.error.set(this.transloco.translate('account.settings.errors.loadFailed'));
+        error: (err) => {
+          const detail =
+            err && typeof err === 'object'
+              ? `${err.status ?? '?'} ${err.statusText ?? ''} ${err.message ?? ''}`.trim()
+              : String(err);
+          this.error.set(`loadFailed [HttpClient: ${detail}]`);
           this.loading.set(false);
         },
       });
+  }
+
+  private async runFetchProbe(): Promise<void> {
+    const gateway =
+      (window as unknown as { __yumneyAppConfig?: { gatewayUrl?: string } }).__yumneyAppConfig
+        ?.gatewayUrl ?? '';
+    // Skip the probe entirely when no gateway config is present (e.g. unit
+    // tests). Native fetch with a relative URL throws synchronously, which
+    // surfaces as an unhandled promise rejection and can fail the test run.
+    if (!gateway) return;
+    const token = localStorage.getItem('access_token') ?? '<no-token>';
+    const url = `${gateway}/api/v1/users/me/profile`;
+    const start = Date.now();
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const ms = Date.now() - start;
+      const body = await res.text();
+      console.log(`[fetch-probe] ${url} -> ${res.status} ${res.statusText} in ${ms}ms`);
+      console.log(`[fetch-probe] body: ${body.slice(0, 200)}`);
+      this.error.update((prev) =>
+        `${prev ?? ''} | fetch: ${res.status} in ${ms}ms; body=${body.slice(0, 80)}`.trim(),
+      );
+    } catch (e) {
+      const ms = Date.now() - start;
+      const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+      console.error(`[fetch-probe] failed in ${ms}ms: ${msg}`);
+      this.error.update((prev) => `${prev ?? ''} | fetch ERR in ${ms}ms: ${msg}`.trim());
+    }
   }
 }
