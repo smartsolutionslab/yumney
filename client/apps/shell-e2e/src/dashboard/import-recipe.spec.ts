@@ -70,7 +70,8 @@ test.describe('Dashboard — Photo Import (US-130)', () => {
     await expect(dashboard.photoUploadInput).toHaveAttribute('multiple', '');
   });
 
-  test('should have camera capture attribute for mobile', async () => {
-    await expect(dashboard.photoUploadInput).toHaveAttribute('capture', 'environment');
-  });
+  // Camera capture is handled by a dedicated `Scan with camera` button now,
+  // not by a `capture="environment"` attribute on the file input. The button
+  // is only rendered when the browser exposes a camera API, which Playwright
+  // headless Chromium doesn't — so we just assert the file input still works.
 });
