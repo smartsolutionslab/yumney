@@ -1,5 +1,6 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { RecipeListPage } from '../pages/recipe-list.page';
+import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Recipe List (US-030, US-034)', () => {
   let recipeList: RecipeListPage;
@@ -23,27 +24,27 @@ test.describe('Recipe List (US-030, US-034)', () => {
     const cards = recipeList.recipeCards;
     const empty = recipeList.emptyState;
 
-    await expect(cards.or(empty).first()).toBeVisible({ timeout: 10_000 });
+    await expect(cards.or(empty).first()).toBeVisible({ timeout: TIMEOUTS.default });
   });
 
   test('should show no results for gibberish search', async ({ authenticatedPage }) => {
     await recipeList.searchInput.fill('xyznonexistent12345');
     await authenticatedPage.waitForTimeout(500); // debounce
 
-    await expect(recipeList.emptyState).toBeVisible({ timeout: 10_000 });
+    await expect(recipeList.emptyState).toBeVisible({ timeout: TIMEOUTS.default });
   });
 
   test('should clear search and restore results', async ({ authenticatedPage }) => {
     await recipeList.searchInput.fill('xyznonexistent12345');
     await authenticatedPage.waitForTimeout(500);
-    await expect(recipeList.emptyState).toBeVisible({ timeout: 10_000 });
+    await expect(recipeList.emptyState).toBeVisible({ timeout: TIMEOUTS.default });
 
     await recipeList.searchClearButton.click();
 
     // Either cards or original empty state should reappear
     const cards = recipeList.recipeCards;
     const empty = recipeList.emptyState;
-    await expect(cards.or(empty).first()).toBeVisible({ timeout: 10_000 });
+    await expect(cards.or(empty).first()).toBeVisible({ timeout: TIMEOUTS.default });
   });
 
   test('should navigate to recipe detail on card click', async ({ authenticatedPage }) => {

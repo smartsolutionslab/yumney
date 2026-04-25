@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { ResendVerificationPage } from '../pages/resend-verification.page';
+import { TIMEOUTS } from '../helpers/timeouts';
 
 // Pre-authentication flow — reset the storage state planted by auth.setup.
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -39,7 +40,7 @@ test.describe('Resend Verification Page', () => {
     await resendPage.emailInput.fill('test@yumney.dev');
     await resendPage.submitButton.click();
 
-    await expect(resendPage.successHeading).toBeVisible({ timeout: 10_000 });
+    await expect(resendPage.successHeading).toBeVisible({ timeout: TIMEOUTS.default });
   });
 
   test('should have back to registration link', async ({ page }) => {
