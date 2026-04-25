@@ -6,7 +6,9 @@ test.describe('Merged Shopping List (US-312-318)', () => {
   test('should display the shopping page', async ({ authenticatedPage }) => {
     await authenticatedPage.goto('/shopping');
 
-    await expect(authenticatedPage.locator('.merged-list, .empty-state, .loading')).toBeVisible({
+    await expect(
+      authenticatedPage.locator('.merged-list, .empty-state, .loading').first(),
+    ).toBeVisible({
       timeout: TIMEOUTS.default,
     });
   });
