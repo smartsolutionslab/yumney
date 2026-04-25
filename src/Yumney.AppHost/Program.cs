@@ -70,23 +70,16 @@ if (!options.DatabaseOnly)
 
 	if (isRunMode && !options.E2ETests)
 	{
-		redis
-			.WithLifetime(ContainerLifetime.Persistent)
-			.WithDataVolume();
-		messaging
-			.WithLifetime(ContainerLifetime.Persistent)
-			.WithDataVolume();
-		keycloak
-			.WithLifetime(ContainerLifetime.Persistent)
-			.WithDataVolume();
+		redis.WithLifetime(ContainerLifetime.Persistent).WithDataVolume();
+		messaging.WithLifetime(ContainerLifetime.Persistent).WithDataVolume();
+		keycloak.WithLifetime(ContainerLifetime.Persistent).WithDataVolume();
 	}
 
 	keycloak.WithRealmImport("Realms");
 
 	if (isRunMode && !options.E2ETests)
 	{
-		builder
-			.AddContainer("mailpit", "axllent/mailpit", "v1.22")
+		builder.AddContainer("mailpit", "axllent/mailpit", "v1.22")
 			.WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
 			.WithEndpoint(port: 1025, targetPort: 1025, name: "smtp")
 			.WithLifetime(ContainerLifetime.Persistent);
@@ -195,7 +188,9 @@ if (!options.DatabaseOnly)
 	if (isRunMode)
 	{
 		// Run mode (including E2E) spawns the Angular dev servers and the gateway
-		// project so the full federated stack is reachable on localhost.
+		// project so the full federated stack is reachable on localhost. The E2E
+		// flag above still toggles persistent volumes and optional sidecars
+		// (pgAdmin, mailpit); it doesn't affect whether the frontend is registered.
 		var addMfe = (string name, string script, int port) =>
 			builder.AddJavaScriptApp(name, "../../client", script)
 				.WithYarn()
@@ -203,23 +198,10 @@ if (!options.DatabaseOnly)
 				.WithEnvironment("NX_ISOLATE_PLUGINS", "false")
 				.WithHttpEndpoint(targetPort: port);
 
-		// In E2E mode serve a pre-built bundle instead of `nx serve`. Vite dev
-		// mode + federated MFEs + fresh-Playwright-context-per-test produced
-		// unreliable MFE bundle loads under parallel pressure; every test
-		// paid the cold-start tax and timed out before API responses landed
-		// (see PRs #356–#363). The CI workflow runs `yarn build:all` upfront
-		// so dist/apps/shell/browser contains every MFE co-located, then a
-		// tiny static server hands it out — same shape production will see.
-		var shell = options.E2ETests
-			? addMfe("shell", "serve:shell:dist", 4200)
-			: addMfe("shell", "serve:shell", 4200);
-
-		if (!options.E2ETests)
-		{
-			addMfe("recipes-mfe", "serve:recipes", 4201);
-			addMfe("shopping-mfe", "serve:shopping", 4202);
-			addMfe("account-mfe", "serve:account", 4203);
-		}
+		var shell = addMfe("shell", "serve:shell", 4200);
+		var recipesMfe = addMfe("recipes-mfe", "serve:recipes", 4201);
+		var shoppingMfe = addMfe("shopping-mfe", "serve:shopping", 4202);
+		var accountMfe = addMfe("account-mfe", "serve:account", 4203);
 
 		builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
 			.WithHttpEndpoint(port: 5100)
