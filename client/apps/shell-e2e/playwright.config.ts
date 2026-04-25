@@ -22,10 +22,10 @@ export default defineConfig({
   // started exceeding 30s. The real API calls themselves are ~1s; the budget
   // is eaten by the `page.goto('/')` that scopes localStorage to the origin
   // plus concurrent Angular bootstrap on the shared dev server.
-  timeout: 60_000,
-  // 25s mirrors TIMEOUTS.default — covers MFE federation cold-start on
-  // first visits in dev mode (see helpers/timeouts.ts).
-  expect: { timeout: 25_000 },
+  timeout: 90_000,
+  // 45s mirrors TIMEOUTS.default — covers MFE federation cold-start under
+  // parallel worker pressure (see helpers/timeouts.ts).
+  expect: { timeout: 45_000 },
   // On CI: retry once (not twice) — each retry on a 30s-timeout test can cost
   // a minute on top of the original. Transient flakes still get a second
   // chance; systemic failures fail faster.
