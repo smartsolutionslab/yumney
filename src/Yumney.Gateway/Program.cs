@@ -17,16 +17,22 @@ builder.Services.Configure<GzipCompressionProviderOptions>(options => options.Le
 
 builder.Services.AddCors(options =>
 {
-	options.AddDefaultPolicy(policy =>
-	{
-		var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-			?? ["http://localhost:4200"];
+	var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+		?? ["http://localhost:4200"];
 
+	void Configure(Microsoft.AspNetCore.Cors.Infrastructure.CorsPolicyBuilder policy) =>
 		policy.WithOrigins(allowedOrigins)
 			.AllowAnyMethod()
 			.AllowAnyHeader()
 			.AllowCredentials();
-	});
+
+	options.AddDefaultPolicy(Configure);
+
+	// YARP routes reference policies by name via "CorsPolicy" config — without
+	// a named registration, browser preflights fall through to the upstream
+	// API where most endpoints return 405 and the browser blocks the actual
+	// request with "TypeError: Failed to fetch". Mirrors the default policy.
+	options.AddPolicy("Default", Configure);
 });
 
 builder.Services.AddReverseProxy()
