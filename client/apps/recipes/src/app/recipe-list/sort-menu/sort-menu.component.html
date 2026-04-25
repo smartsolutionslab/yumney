@@ -2,6 +2,8 @@
   <button
     type="button"
     class="sort-toggle"
+    data-testid="sort-toggle"
+    [attr.data-current-value]="currentValue()"
     (click)="toggle()"
     [attr.aria-label]="ariaLabel()"
     [attr.aria-expanded]="open()"
@@ -17,6 +19,7 @@
         <li
           role="option"
           class="sort-menu-item"
+          [attr.data-testid]="'sort-option-' + option.value"
           [class.active]="currentValue() === option.value"
           (click)="select(option.value)"
         >

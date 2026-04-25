@@ -13,9 +13,9 @@ test.describe('Recipe List (US-030, US-034)', () => {
     await expect(recipeList.heading).toBeVisible();
   });
 
-  test('should display search input and sort select', async () => {
+  test('should display search input and sort toggle', async () => {
     await expect(recipeList.searchInput).toBeVisible();
-    await expect(recipeList.sortSelect).toBeVisible();
+    await expect(recipeList.sortToggle).toBeVisible();
   });
 
   test('should show empty state or recipe cards', async () => {
@@ -57,8 +57,9 @@ test.describe('Recipe List (US-030, US-034)', () => {
   });
 
   test('should change sort order', async () => {
-    await recipeList.sortSelect.selectOption('name-asc');
-    // Just verify the select changed — results depend on data
-    await expect(recipeList.sortSelect).toHaveValue('name-asc');
+    await recipeList.chooseSortOption('name-asc');
+    // The custom dropdown exposes the current value via data-current-value
+    // on the toggle. Poll for the attribute change rather than reading once.
+    await expect(recipeList.sortToggle).toHaveAttribute('data-current-value', 'name-asc');
   });
 });
