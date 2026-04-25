@@ -50,7 +50,12 @@ describe('HeaderComponent', () => {
       userInitial: signal<string | null>(null),
       logout: vi.fn(),
     };
-    const languageServiceMock = { activeLang: 'en', nextLanguage: 'de', switchTo: vi.fn() };
+    const languageServiceMock = {
+      activeLang: 'en',
+      activeLangSignal: signal('en'),
+      nextLanguage: 'de',
+      switchTo: vi.fn(),
+    };
     const themeServiceMock = { theme: signal('light'), toggle: vi.fn(), initialize: vi.fn() };
     const chatStateMock = { toggle: vi.fn() };
 

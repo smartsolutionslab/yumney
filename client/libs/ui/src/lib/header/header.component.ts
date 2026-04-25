@@ -34,8 +34,21 @@ export class HeaderComponent {
   protected isDark = computed(() => this.themeService.theme() === 'dark');
 
   protected nextLanguageKey = computed(() => {
-    const lang = this.languageService.nextLanguage;
+    const lang = this.nextLanguage();
     return `layout.header.language${lang[0].toUpperCase()}${lang.slice(1)}`;
+  });
+
+  // Exposed for E2E selectors via data-current-lang / data-next-lang. Reads
+  // the same signal Transloco re-renders on, so the data attributes update
+  // when language changes — tests can poll without re-opening the menu.
+  protected currentLanguage = computed(() => {
+    // Touch the transloco signal so this re-evaluates on language change.
+    void this.languageService.activeLangSignal();
+    return this.languageService.activeLang;
+  });
+  protected nextLanguage = computed(() => {
+    void this.languageService.activeLangSignal();
+    return this.languageService.nextLanguage;
   });
 
   @HostListener('document:keydown.escape')

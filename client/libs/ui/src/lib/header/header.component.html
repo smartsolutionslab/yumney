@@ -28,6 +28,7 @@
         <div class="avatar-wrapper">
           <button
             class="avatar-button"
+            data-testid="user-menu-toggle"
             (click)="onToggleMenu()"
             [attr.aria-expanded]="menuOpen()"
             [attr.aria-label]="t('layout.header.settings')"
@@ -53,7 +54,14 @@
                 }
               </button>
 
-              <button class="dropdown-item" (click)="onSwitchLanguage()" role="menuitem">
+              <button
+                class="dropdown-item"
+                data-testid="lang-switch"
+                [attr.data-current-lang]="currentLanguage()"
+                [attr.data-next-lang]="nextLanguage()"
+                (click)="onSwitchLanguage()"
+                role="menuitem"
+              >
                 <lucide-icon name="languages" [size]="18" />
                 <span>{{ t(nextLanguageKey()) }}</span>
               </button>
@@ -62,6 +70,7 @@
 
               <button
                 class="dropdown-item dropdown-item--danger"
+                data-testid="logout"
                 (click)="onLogout()"
                 role="menuitem"
               >
