@@ -53,6 +53,8 @@ describe('HeaderComponent', () => {
     };
 
     languageMock = {
+      activeLang: 'en',
+      activeLangSignal: signal('en'),
       nextLanguage: 'de',
       switchTo: vi.fn(),
     };

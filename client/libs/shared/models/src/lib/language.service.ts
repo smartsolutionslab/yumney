@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { type LanguageCode, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from './language-code';
 
@@ -10,11 +10,17 @@ function isSupportedLanguage(lang: string): lang is LanguageCode {
 
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
+  // Mirrors transloco's active language as a signal so components can react
+  // via computed() without RxJS subscriptions. Updated in initialize() and
+  // switchTo().
+  readonly activeLangSignal = signal<LanguageCode>(DEFAULT_LANGUAGE);
+
   constructor(private transloco: TranslocoService) {}
 
   initialize(): void {
     const lang = this.getStoredLanguage() ?? this.detectBrowserLanguage();
     this.transloco.setActiveLang(lang);
+    this.activeLangSignal.set(lang);
   }
 
   get activeLang(): LanguageCode {
@@ -33,6 +39,7 @@ export class LanguageService {
 
     this.transloco.setActiveLang(lang);
     localStorage.setItem(LANGUAGE_KEY, lang);
+    this.activeLangSignal.set(lang);
   }
 
   private getStoredLanguage(): LanguageCode | null {

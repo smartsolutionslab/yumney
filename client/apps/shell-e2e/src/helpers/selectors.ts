@@ -68,8 +68,9 @@ export const SELECTORS = {
     retryBtn: '.retry-btn',
   },
   header: {
-    langToggle: '.lang-toggle',
-    logout: '.logout-button',
+    userMenuToggle: '[data-testid="user-menu-toggle"]',
+    langSwitch: '[data-testid="lang-switch"]',
+    logout: '[data-testid="logout"]',
   },
   keycloak: {
     username: '#username',
