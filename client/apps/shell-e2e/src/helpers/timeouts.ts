@@ -1,19 +1,17 @@
 // Centralised waits for E2E.
 //
-// The `default` timeout was raised 10s → 25s after diagnosing the
-// profile-settings cluster: each test gets a fresh browser context, and on
-// first visit to a federated MFE route (account/recipes/shopping) the
-// browser has to fetch the remoteEntry, the route bundle and any deps
-// from the MFE's own Vite dev server before the component constructs and
-// triggers its first API call. In dev mode that whole chain regularly
-// takes 5–10s on top of the 1–2s API request itself, so a 10s
-// toBeVisible was racing the cold-start of the MFE.
+// `default` is intentionally generous because we run against `nx serve shell`
+// in dev mode. On a fresh browser context, the first navigation to a federated
+// MFE route (account / recipes / shopping) triggers Vite to compile and serve
+// the remoteEntry, the route bundle, every shared dep, plus the @vite/client
+// HMR runtime — all on demand. Under parallel-worker pressure that easily
+// stretches past the 10s most assertions used to allow.
 //
-// `long` covers chains where a UI action triggers a backend write that
-// then has to round-trip through projections / event handlers.
+// `long` covers UI flows that trigger a backend write that round-trips through
+// projections / event handlers before the result is visible.
 export const TIMEOUTS = {
   short: 5_000,
-  default: 25_000,
-  long: 35_000,
-  veryLong: 60_000,
+  default: 45_000,
+  long: 60_000,
+  veryLong: 90_000,
 } as const;
