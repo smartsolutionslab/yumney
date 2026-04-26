@@ -61,16 +61,15 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'src/.auth/user.json',
-        // DEBUG #340: gateway-requests.log proves browser GETs to :5100 never
-        // reach the gateway, while server-side calls (curl, page.evaluate) do.
-        // Headless Chromium negotiates HTTP/2 by default; Aspire's DCP proxy
-        // may not support it. Force HTTP/1.1 only to test that hypothesis.
+        // Force chromium to HTTP/1.1. Aspire's DCP localhost proxy doesn't
+        // round-trip HTTP/2 streams in our setup — browser-issued cross-origin
+        // fetches to the gateway silently failed when chromium negotiated h2,
+        // while curl/Playwright server-side fetches (HTTP/1.1 by default)
+        // worked. Confirmed by gateway request log: with --disable-http2 the
+        // GETs land and tests pass; without it, they never arrive. Keep this
+        // until DCP h2 support stabilizes upstream.
         launchOptions: {
-          args: [
-            '--disable-web-security',
-            '--disable-site-isolation-trials',
-            '--disable-http2',
-          ],
+          args: ['--disable-http2'],
         },
       },
       dependencies: ['setup'],
