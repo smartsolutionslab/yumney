@@ -106,6 +106,14 @@ jobs:
       - name: Build solution (including AppHost)
         run: dotnet build Yumney.slnx --no-restore
 
+      - name: Build frontend bundle for E2E
+        # Pre-build all MFEs and merge them into dist/apps/shell/browser so
+        # the AppHost can serve a single static bundle in E2E mode (see
+        # serve:shell:dist). Production-mode build also enables Angular's
+        # provideServiceWorker — required by the PWA tests.
+        working-directory: client
+        run: yarn build:all
+
       - name: Start Aspire AppHost
         run: |
           aspire start --apphost src/Yumney.AppHost/Yumney.AppHost.csproj 2>&1 | tee /tmp/aspire.log

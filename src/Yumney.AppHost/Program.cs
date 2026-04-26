@@ -198,10 +198,21 @@ if (!options.DatabaseOnly)
 				.WithEnvironment("NX_ISOLATE_PLUGINS", "false")
 				.WithHttpEndpoint(targetPort: port);
 
-		var shell = addMfe("shell", "serve:shell", 4200);
-		var recipesMfe = addMfe("recipes-mfe", "serve:recipes", 4201);
-		var shoppingMfe = addMfe("shopping-mfe", "serve:shopping", 4202);
-		var accountMfe = addMfe("account-mfe", "serve:account", 4203);
+		// E2E mode runs against a production build so PWA tests (service
+		// worker, offline cache) and Vite-free fetch behaviour exercise the
+		// real shape. `yarn build:all` co-locates every MFE in
+		// `dist/apps/shell/browser`, then `serve:shell:dist` hands it out
+		// from a single static root.
+		var shell = options.E2ETests
+			? addMfe("shell", "serve:shell:dist", 4200)
+			: addMfe("shell", "serve:shell", 4200);
+
+		if (!options.E2ETests)
+		{
+			addMfe("recipes-mfe", "serve:recipes", 4201);
+			addMfe("shopping-mfe", "serve:shopping", 4202);
+			addMfe("account-mfe", "serve:account", 4203);
+		}
 
 		builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
 			.WithHttpEndpoint(port: 5100)
