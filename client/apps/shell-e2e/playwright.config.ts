@@ -61,12 +61,16 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'src/.auth/user.json',
-        // DEBUG #340: --disable-web-security removes CORS / COEP / COOP /
-        // mixed-content checks. If browser-side security is what's hanging
-        // the cross-origin fetches in CI, this should unblock the suite.
-        // Will be reverted once we know whether security is the cause.
+        // DEBUG #340: gateway-requests.log proves browser GETs to :5100 never
+        // reach the gateway, while server-side calls (curl, page.evaluate) do.
+        // Headless Chromium negotiates HTTP/2 by default; Aspire's DCP proxy
+        // may not support it. Force HTTP/1.1 only to test that hypothesis.
         launchOptions: {
-          args: ['--disable-web-security', '--disable-site-isolation-trials'],
+          args: [
+            '--disable-web-security',
+            '--disable-site-isolation-trials',
+            '--disable-http2',
+          ],
         },
       },
       dependencies: ['setup'],
