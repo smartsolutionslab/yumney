@@ -90,7 +90,7 @@ test.describe('Recipe Detail (US-031, US-050, US-032, US-033)', () => {
     await detail.deleteButton.click();
     await expect(detail.confirmDialog).toBeVisible();
 
-    const confirmButton = detail.confirmDialog.locator('.btn-danger');
+    const confirmButton = detail.confirmDialog.locator('.btn-danger-filled');
     await confirmButton.click();
 
     await expect(authenticatedPage).toHaveURL(/\/recipes$/, { timeout: TIMEOUTS.default });
