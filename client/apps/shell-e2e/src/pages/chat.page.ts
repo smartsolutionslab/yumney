@@ -34,7 +34,10 @@ export class ChatPage {
 
   async sendMessage(text: string): Promise<void> {
     await this.input.fill(text);
-    await this.sendButton.click();
+    // Chat panel slides in with a CSS transition; the send button can be
+    // mid-animation when Playwright tries to click and triggers
+    // "element is not stable" retries until test timeout. Force the click.
+    await this.sendButton.click({ force: true });
   }
 
   userMessage(index = 0): Locator {
