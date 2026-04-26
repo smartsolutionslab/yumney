@@ -61,6 +61,13 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'src/.auth/user.json',
+        // DEBUG #340: --disable-web-security removes CORS / COEP / COOP /
+        // mixed-content checks. If browser-side security is what's hanging
+        // the cross-origin fetches in CI, this should unblock the suite.
+        // Will be reverted once we know whether security is the cause.
+        launchOptions: {
+          args: ['--disable-web-security', '--disable-site-isolation-trials'],
+        },
       },
       dependencies: ['setup'],
     },
