@@ -33,7 +33,10 @@ export class RecipeDetailPage {
     // with the header nav link "Shopping Lists".
     this.shoppingListButton = page.getByRole('link', { name: 'Shopping List', exact: true });
     this.sourceLink = page.locator('.source-link a');
-    this.confirmDialog = page.locator('yn-confirm-dialog');
+    // Target the .confirm-overlay child rather than the host yn-confirm-dialog.
+    // The host has 0x0 dimensions because its child is position:fixed, so
+    // Playwright reports the host as hidden even when the dialog is visible.
+    this.confirmDialog = page.locator('yn-confirm-dialog .confirm-overlay');
     this.errorBanner = page.locator('[role="alert"]');
     this.backLink = page.locator('.back-link');
     this.favoriteButton = page.locator('.actions-bar yn-favorite-button .favorite-button');
