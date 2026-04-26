@@ -17,13 +17,9 @@ env:
 
 jobs:
   e2e:
-    name: E2E Tests (shard ${{ matrix.shard }}/${{ strategy.job-total }})
+    name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
     env:
       # Opt the AppHost into E2E mode — skips persistent volumes, pgAdmin,
       # mailpit, and the LLM provider setup, so fewer containers need to come up.
@@ -251,7 +247,7 @@ jobs:
       - name: Run Playwright e2e tests
         continue-on-error: true
         working-directory: client
-        run: npx nx e2e shell-e2e -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+        run: npx nx e2e shell-e2e
         env:
           BASE_URL: http://localhost:4200
           GATEWAY_URL: http://localhost:5100
@@ -270,8 +266,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          # Suffix per-shard so parallel jobs don't fight over the same artifact name.
-          name: aspire-logs-shard-${{ matrix.shard }}
+          name: aspire-logs
           path: |
             /tmp/aspire.log
             /tmp/diag/
@@ -281,7 +276,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-shard-${{ matrix.shard }}
+          name: playwright-report
           path: |
             client/test-results/
             client/apps/shell-e2e/playwright-report/
