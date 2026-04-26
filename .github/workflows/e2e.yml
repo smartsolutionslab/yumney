@@ -78,6 +78,10 @@ jobs:
           restore-keys: |
             yarn-${{ runner.os }}-
 
+      - name: Install frontend dependencies
+        working-directory: client
+        run: yarn install --immutable
+
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v4
@@ -87,26 +91,17 @@ jobs:
           restore-keys: |
             playwright-${{ runner.os }}-
 
-      - name: Install dependencies in parallel (yarn + dotnet + playwright)
+      - name: Install Playwright browsers
+        working-directory: client
         run: |
-          set -e
-          # yarn install
-          (cd client && yarn install --immutable) &
-          PID_YARN=$!
-          # dotnet restore
-          (dotnet restore Yumney.slnx) &
-          PID_DOTNET=$!
-          # playwright browsers — install-deps needs sudo, run in foreground
-          # but only deps; the browsers themselves should already be cached.
-          wait $PID_YARN
-          (cd client && \
-            if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then \
-              npx playwright install-deps chromium; \
-            else \
-              npx playwright install chromium --with-deps; \
-            fi) &
-          PID_PW=$!
-          wait $PID_DOTNET $PID_PW
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium
+          else
+            npx playwright install chromium --with-deps
+          fi
+
+      - name: Restore .NET packages
+        run: dotnet restore Yumney.slnx
 
       - name: Build solution (including AppHost)
         run: dotnet build Yumney.slnx --no-restore
