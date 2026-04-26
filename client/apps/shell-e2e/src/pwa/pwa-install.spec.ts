@@ -39,12 +39,7 @@ test.describe('PWA Installation', () => {
     expect(icon512?.status()).toBe(200);
   });
 
-  // Angular's provideServiceWorker is configured with `enabled: !isDevMode()`.
-  // The E2E suite runs against `nx serve shell` (dev mode), so no SW registers
-  // and this test can never pass against the dev pipeline. Either run against
-  // a built-and-served bundle or keep this skipped — the manifest/icons tests
-  // above already cover the static-asset side of PWA-readiness.
-  test.skip('should register a service worker', async ({ page }) => {
+  test('should register a service worker', async ({ page }) => {
     await page.route('**/realms/**', (route) => route.abort());
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
