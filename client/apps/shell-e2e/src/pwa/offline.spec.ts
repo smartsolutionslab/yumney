@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { setupKeycloakMock, waitForServiceWorker } from '../helpers/pwa.helper';
+import {
+  setupKeycloakMock,
+  waitForServiceWorker,
+  waitForServiceWorkerControl,
+} from '../helpers/pwa.helper';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Offline Caching', () => {
@@ -7,7 +11,12 @@ test.describe('Offline Caching', () => {
     await setupKeycloakMock(page);
     await page.goto('/', { waitUntil: 'networkidle' });
     await waitForServiceWorker(page);
+    // Reload so the now-active SW claims the page as a client.
     await page.reload({ waitUntil: 'networkidle' });
+    // Wait until the SW actually controls fetches AND prime the cache for
+    // the URLs the offline tests care about. Without this the tests race
+    // the lazy NGSW cache population and see nothing.
+    await waitForServiceWorkerControl(page);
   });
 
   test('should serve cached app shell when offline', async ({ page, context }) => {
