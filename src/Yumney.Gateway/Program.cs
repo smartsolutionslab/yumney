@@ -46,27 +46,29 @@ app.UseCors();
 
 // DEBUG #340: log every incoming request so the E2E workflow can upload it
 // as an artifact. Tells us whether the hung browser fetches actually reach
-// the gateway, get stuck inside YARP, or never arrive at all.
-const string debugLog = "/tmp/gateway-requests.log";
+// the gateway, get stuck inside YARP, or never arrive at all. Path is
+// configurable via env so the workflow places it where upload-artifact can
+// find it; defaults to /tmp on Linux.
+var debugLog = Environment.GetEnvironmentVariable("GATEWAY_REQUEST_LOG")
+	?? "/tmp/gateway-requests.log";
+Console.Error.WriteLine($"[debug] gateway-request-log: {debugLog}");
 app.Use(async (context, next) =>
 {
 	var ts = DateTime.UtcNow;
 	var origin = context.Request.Headers.Origin.ToString();
 	var method = context.Request.Method;
 	var path = context.Request.Path + context.Request.QueryString;
-	try
-	{
-		await File.AppendAllTextAsync(debugLog, $"{ts:HH:mm:ss.fff} >> {method} {path} Origin={origin}\n");
-	}
-	catch { }
+	var startLine = $"{ts:HH:mm:ss.fff} >> {method} {path} Origin={origin}\n";
+	Console.Error.Write(startLine);
+	try { await File.AppendAllTextAsync(debugLog, startLine); }
+	catch (Exception ex) { Console.Error.WriteLine($"[debug] gateway-log write failed: {ex.Message}"); }
 
 	await next();
 
-	try
-	{
-		var elapsed = (DateTime.UtcNow - ts).TotalMilliseconds;
-		await File.AppendAllTextAsync(debugLog, $"{DateTime.UtcNow:HH:mm:ss.fff} << {context.Response.StatusCode} {method} {path} ({elapsed:0}ms)\n");
-	}
+	var elapsed = (DateTime.UtcNow - ts).TotalMilliseconds;
+	var endLine = $"{DateTime.UtcNow:HH:mm:ss.fff} << {context.Response.StatusCode} {method} {path} ({elapsed:0}ms)\n";
+	Console.Error.Write(endLine);
+	try { await File.AppendAllTextAsync(debugLog, endLine); }
 	catch { }
 });
 
