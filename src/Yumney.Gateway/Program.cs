@@ -44,6 +44,32 @@ app.UseHttpsRedirection();
 app.UseResponseCompression();
 app.UseCors();
 
+// DEBUG #340: log every incoming request so the E2E workflow can upload it
+// as an artifact. Tells us whether the hung browser fetches actually reach
+// the gateway, get stuck inside YARP, or never arrive at all.
+const string debugLog = "/tmp/gateway-requests.log";
+app.Use(async (context, next) =>
+{
+	var ts = DateTime.UtcNow;
+	var origin = context.Request.Headers.Origin.ToString();
+	var method = context.Request.Method;
+	var path = context.Request.Path + context.Request.QueryString;
+	try
+	{
+		await File.AppendAllTextAsync(debugLog, $"{ts:HH:mm:ss.fff} >> {method} {path} Origin={origin}\n");
+	}
+	catch { }
+
+	await next();
+
+	try
+	{
+		var elapsed = (DateTime.UtcNow - ts).TotalMilliseconds;
+		await File.AppendAllTextAsync(debugLog, $"{DateTime.UtcNow:HH:mm:ss.fff} << {context.Response.StatusCode} {method} {path} ({elapsed:0}ms)\n");
+	}
+	catch { }
+});
+
 // Manual CORS preflight handling for YARP routes.
 //
 // `UseCors()` only handles OPTIONS preflight when the matched endpoint has
