@@ -85,7 +85,7 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   });
 
   test('should display shopping lists on overview page', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/shopping');
+    await authenticatedPage.goto('/shopping/lists');
 
     const cards = authenticatedPage.locator('.list-card');
     const empty = authenticatedPage.locator('.empty-state');
@@ -95,7 +95,7 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   test('should check off an item with strikethrough', async ({ authenticatedPage }) => {
     test.skip(!recipeIdentifier, 'No recipe created');
 
-    await authenticatedPage.goto('/shopping');
+    await authenticatedPage.goto('/shopping/lists');
     const firstCard = authenticatedPage.locator('.list-card').first();
     await firstCard.click();
     await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });
@@ -112,7 +112,7 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   test('should check all items and reset', async ({ authenticatedPage }) => {
     test.skip(!recipeIdentifier, 'No recipe created');
 
-    await authenticatedPage.goto('/shopping');
+    await authenticatedPage.goto('/shopping/lists');
     const firstCard = authenticatedPage.locator('.list-card').first();
     await firstCard.click();
     await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });
@@ -135,7 +135,7 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   test('should show progress counter', async ({ authenticatedPage }) => {
     test.skip(!recipeIdentifier, 'No recipe created');
 
-    await authenticatedPage.goto('/shopping');
+    await authenticatedPage.goto('/shopping/lists');
     const firstCard = authenticatedPage.locator('.list-card').first();
     await firstCard.click();
     await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });

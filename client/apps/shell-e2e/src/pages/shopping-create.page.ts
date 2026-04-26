@@ -14,8 +14,10 @@ export class ShoppingCreatePage {
     this.heading = page.getByRole('heading', { level: 1 });
     this.titleInput = page.locator('#shopping-list-title');
     this.ingredientCheckboxes = page.locator('input[type="checkbox"]');
-    this.selectAllButton = page.getByRole('button', { name: /select all/i });
-    this.deselectAllButton = page.getByRole('button', { name: /deselect all/i });
+    // Exact match — case-insensitive /select all/i also matches "Deselect all"
+    // and triggers Playwright's strict-mode violation.
+    this.selectAllButton = page.getByRole('button', { name: 'Select all', exact: true });
+    this.deselectAllButton = page.getByRole('button', { name: 'Deselect all', exact: true });
     this.createButton = page.locator('.create-button');
     this.errorBanner = page.locator('[role="alert"]');
     this.backLink = page.locator('.back-link');
