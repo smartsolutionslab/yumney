@@ -28,7 +28,7 @@ export class RecipeDetailPage {
     this.decreaseServingsButton = page.getByLabel(/decrease servings/i);
     this.resetServingsButton = page.getByRole('button', { name: /reset/i });
     this.editButton = page.getByRole('link', { name: /edit/i });
-    this.deleteButton = page.locator('.action-button--danger');
+    this.deleteButton = page.locator('.btn-danger');
     this.shoppingListButton = page.getByRole('link', { name: /shopping list/i });
     this.sourceLink = page.locator('.source-link a');
     this.confirmDialog = page.locator('yn-confirm-dialog');

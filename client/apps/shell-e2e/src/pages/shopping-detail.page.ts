@@ -17,7 +17,7 @@ export class ShoppingDetailPage {
     this.checkedItems = page.locator('.items-list li.checked');
     this.checkAllButton = page.getByRole('button', { name: /check all/i });
     this.resetButton = page.getByRole('button', { name: /reset/i });
-    this.progress = page.locator('.progress');
+    this.progress = page.locator('.progress-text');
     this.backLink = page.locator('.back-link');
   }
 
