@@ -34,10 +34,11 @@ export class ChatPage {
 
   async sendMessage(text: string): Promise<void> {
     await this.input.fill(text);
-    // Chat panel slides in with a CSS transition; the send button can be
-    // mid-animation when Playwright tries to click and triggers
-    // "element is not stable" retries until test timeout. Force the click.
-    await this.sendButton.click({ force: true });
+    // Press Enter to submit the form rather than clicking the button.
+    // Force-clicking bypassed the panel's slide-in animation stability
+    // check but didn't reliably reach the (ngSubmit) handler — Enter
+    // triggers form submission via the browser's native path.
+    await this.input.press('Enter');
   }
 
   userMessage(index = 0): Locator {
