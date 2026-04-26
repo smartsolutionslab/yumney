@@ -38,7 +38,10 @@ export default defineConfig({
   // when they run concurrently on different workers, and each beforeAll
   // reuses auth.setup's storageState via openAuthenticatedPage() rather
   // than replaying the brittle Keycloak UI login flow.
-  workers: process.env['CI'] ? 2 : undefined,
+  // Within-shard parallelism. The CI workflow also splits across N matrix
+  // shards (see .github/workflows/e2e.yml) so total concurrency is workers
+  // × shards. Each ubuntu-latest runner has 4 vCPU.
+  workers: process.env['CI'] ? 4 : undefined,
   reporter: process.env['CI']
     ? [
         ['html', { open: 'never' }],
