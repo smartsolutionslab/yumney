@@ -28,6 +28,7 @@ public sealed class ToggleFavoriteCommandHandler(
 		if (alreadyFavorited)
 		{
 			await unitOfWork.Favorites.RemoveAsync(owner, identifier, cancellationToken);
+			await unitOfWork.SaveChangesAsync(cancellationToken);
 			return new FavoriteStateDto(identifier.Value, false);
 		}
 
