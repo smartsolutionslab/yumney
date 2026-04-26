@@ -29,7 +29,9 @@ export class RecipeDetailPage {
     this.resetServingsButton = page.getByRole('button', { name: /reset/i });
     this.editButton = page.getByRole('link', { name: /edit/i });
     this.deleteButton = page.locator('.btn-danger');
-    this.shoppingListButton = page.getByRole('link', { name: /shopping list/i });
+    // Action button on the recipe-detail page. Exact match to avoid colliding
+    // with the header nav link "Shopping Lists".
+    this.shoppingListButton = page.getByRole('link', { name: 'Shopping List', exact: true });
     this.sourceLink = page.locator('.source-link a');
     this.confirmDialog = page.locator('yn-confirm-dialog');
     this.errorBanner = page.locator('[role="alert"]');
