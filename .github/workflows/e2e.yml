@@ -247,17 +247,9 @@ jobs:
       - name: Run Playwright e2e tests
         continue-on-error: true
         working-directory: client
-        # TEMP: scoped to profile-settings while validating same-origin
-        # routing via gateway. Revert to `npx nx e2e shell-e2e` after.
-        run: npx nx e2e shell-e2e -- src/account/profile-settings.spec.ts
+        run: npx nx e2e shell-e2e
         env:
-          # Route Playwright through the YARP gateway (same origin as APIs)
-          # to test the hypothesis that the cross-origin :4200→:5100 fetch
-          # is what's hanging in CI. Gateway's shell-route catches /dashboard
-          # etc. and proxies upstream to the shell dev server, while /api/*
-          # routes hit the API services. Browser sees everything as same
-          # origin → no CORS preflight, no cross-origin fetch quirks.
-          BASE_URL: http://localhost:5100
+          BASE_URL: http://localhost:4200
           GATEWAY_URL: http://localhost:5100
           E2E_TOKENS_FILE: /tmp/e2e-tokens.json
           CI: true
