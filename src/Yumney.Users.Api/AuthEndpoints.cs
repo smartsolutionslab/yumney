@@ -49,18 +49,35 @@ public static class AuthEndpoints
 			ResendVerificationEmailRequest request,
 			IValidator<ResendVerificationEmailRequest> validator,
 			ICommandHandler<ResendVerificationEmailCommand, Result> handler,
+			ILoggerFactory loggerFactory,
 			CancellationToken cancellationToken)
 		{
 			var validation = await validator.ValidateAsync(request, cancellationToken);
 			if (validation.HasFailed()) return validation.ToValidationProblem();
 
 			var command = new ResendVerificationEmailCommand(Email.From(request.Email));
-			var result = await handler.HandleAsync(command, cancellationToken);
 
-			// Always return 200 to prevent email enumeration
-			if (result.IsFailure && result.Error == VerificationErrors.IdentityProviderUnavailable)
+			// The endpoint is intentionally indistinguishable for "user found",
+			// "user not found", and most failures so an attacker can't probe
+			// which emails are registered. Only an explicit
+			// IdentityProviderUnavailable signal (Keycloak unreachable) leaks
+			// out as 503 — anything else collapses to a 200 success body, even
+			// unhandled exceptions. Without this catch, a flaky downstream
+			// (Redis, Keycloak SMTP) bubbled up as 500, which the SPA mapped
+			// to "An unexpected error occurred." instead of "Email sent".
+			try
 			{
-				return Results.Problem(result.Error.Message, statusCode: result.Error.HttpStatusCode);
+				var result = await handler.HandleAsync(command, cancellationToken);
+
+				if (result.IsFailure && result.Error == VerificationErrors.IdentityProviderUnavailable)
+				{
+					return Results.Problem(result.Error.Message, statusCode: result.Error.HttpStatusCode);
+				}
+			}
+			catch (Exception ex)
+			{
+				loggerFactory.CreateLogger("ResendVerificationEmail")
+					.LogWarning(ex, "Resend verification flow failed unexpectedly; returning generic success");
 			}
 
 			return Results.Ok(new ResendVerificationEmailResultDto("If this email is registered, a verification email has been sent."));
