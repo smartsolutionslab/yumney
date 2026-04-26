@@ -58,6 +58,11 @@
   }
 }
 
+// Variant hover styles are gated on `@media (hover: hover)` so they don't
+// fire on a tap and stick on touch devices. The base touch-only `:active`
+// rule (opacity: 0.8) provides tactile press feedback without a stuck
+// color state.
+
 // ── Primary ──
 .btn-primary {
   @extend %btn-base;
@@ -67,9 +72,11 @@
   color: var(--yn-text-inverse);
   font-size: var(--yn-text-lg);
 
-  &:hover:not(:disabled) {
-    background: var(--yn-primary-hover);
-    box-shadow: var(--yn-shadow-primary-glow);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: var(--yn-primary-hover);
+      box-shadow: var(--yn-shadow-primary-glow);
+    }
   }
 }
 
@@ -85,10 +92,12 @@
   color: var(--yn-text-muted);
   font-size: var(--yn-text-lg);
 
-  &:hover:not(:disabled) {
-    border-color: var(--yn-primary);
-    color: var(--yn-primary);
-    background: var(--yn-primary-light);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      border-color: var(--yn-primary);
+      color: var(--yn-primary);
+      background: var(--yn-primary-light);
+    }
   }
 }
 
@@ -102,11 +111,13 @@
   color: var(--yn-text-muted);
   font-size: var(--yn-text-md);
 
-  &:hover:not(:disabled) {
-    background: var(--yn-glass-bg);
-    backdrop-filter: blur(var(--yn-glass-blur-soft));
-    -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
-    color: var(--yn-text);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: var(--yn-glass-bg);
+      backdrop-filter: blur(var(--yn-glass-blur-soft));
+      -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
+      color: var(--yn-text);
+    }
   }
 }
 
@@ -121,9 +132,11 @@
   font-size: var(--yn-text-base);
   font-weight: var(--yn-font-medium);
 
-  &:hover:not(:disabled) {
-    background: var(--yn-danger);
-    color: var(--yn-text-inverse);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: var(--yn-danger);
+      color: var(--yn-text-inverse);
+    }
   }
 }
 
@@ -137,9 +150,11 @@
   font-size: var(--yn-text-base);
   font-weight: var(--yn-font-medium);
 
-  &:hover:not(:disabled) {
-    background: #b91c1c;
-    box-shadow: var(--yn-shadow-danger-glow);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: #b91c1c;
+      box-shadow: var(--yn-shadow-danger-glow);
+    }
   }
 }
 
@@ -153,8 +168,10 @@
   font-size: var(--yn-text-base);
   font-weight: var(--yn-font-medium);
 
-  &:hover:not(:disabled) {
-    background: var(--yn-link-hover);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: var(--yn-link-hover);
+    }
   }
 }
 
@@ -169,9 +186,11 @@
   font-size: var(--yn-text-md);
   width: 100%;
 
-  &:hover:not(:disabled) {
-    border-color: var(--yn-primary);
-    background: var(--yn-primary-light);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      border-color: var(--yn-primary);
+      background: var(--yn-primary-light);
+    }
   }
 
   &:active:not(:disabled) {
@@ -191,10 +210,12 @@
   color: var(--yn-text-muted);
   font-size: var(--yn-text-sm);
 
-  &:hover:not(:disabled) {
-    border-color: var(--yn-primary);
-    background: var(--yn-primary-light);
-    color: var(--yn-primary);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      border-color: var(--yn-primary);
+      background: var(--yn-primary-light);
+      color: var(--yn-primary);
+    }
   }
 
   &:active:not(:disabled) {
@@ -206,10 +227,12 @@
   }
 
   &.btn-icon--danger {
-    &:hover:not(:disabled) {
-      border-color: var(--yn-danger);
-      background: var(--yn-danger-light);
-      color: var(--yn-danger);
+    @media (hover: hover) {
+      &:hover:not(:disabled) {
+        border-color: var(--yn-danger);
+        background: var(--yn-danger-light);
+        color: var(--yn-danger);
+      }
     }
   }
 }
@@ -223,8 +246,10 @@
   font-size: var(--yn-text-base);
   font-weight: var(--yn-font-medium);
 
-  &:hover {
-    color: var(--yn-primary-hover);
+  @media (hover: hover) {
+    &:hover {
+      color: var(--yn-primary-hover);
+    }
   }
 }
 
