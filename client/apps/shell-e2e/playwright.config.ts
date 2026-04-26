@@ -26,10 +26,11 @@ export default defineConfig({
   // 45s mirrors TIMEOUTS.default — covers MFE federation cold-start under
   // parallel worker pressure (see helpers/timeouts.ts).
   expect: { timeout: 45_000 },
-  // On CI: retry once (not twice) — each retry on a 30s-timeout test can cost
-  // a minute on top of the original. Transient flakes still get a second
-  // chance; systemic failures fail faster.
-  retries: process.env['CI'] ? 1 : 0,
+  // No retries in CI. With 45s expect timeouts each retry costs another
+  // 45s on every failure; with the current 5 known systemic failures
+  // that was burning ~4 min of wall time per run on retry waste. If we
+  // start seeing genuine flakes that pass on retry, lift to 1.
+  retries: 0,
   // File-level parallelism on CI. fullyParallel stays false so tests inside
   // a spec file still run sequentially on their assigned worker — the
   // recipes/shopping specs use beforeAll to create shared DB fixtures and
