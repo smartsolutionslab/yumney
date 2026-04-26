@@ -60,9 +60,13 @@ test.describe('Favorite Recipes (US-071)', () => {
 
     await list.filterToggle.click();
     await list.favoritesFilterChip.click();
-    await authenticatedPage.waitForTimeout(500);
 
-    await expect(list.recipeCard(recipeTitle).first()).toBeVisible();
+    // Filter triggers a fresh GET with favoritesOnly=true; with retries:0
+    // the previous toggle's POST may not have committed before the filter
+    // refetch fires. Use the long timeout to absorb that.
+    await expect(list.recipeCard(recipeTitle).first()).toBeVisible({
+      timeout: TIMEOUTS.long,
+    });
   });
 
   test('should reflect favorite state on recipe detail page', async ({ authenticatedPage }) => {
