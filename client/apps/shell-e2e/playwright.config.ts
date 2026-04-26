@@ -50,6 +50,11 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    // Tell the browser to prefer reduced motion; our CSS suppresses keyframe
+    // animations under @media (prefers-reduced-motion: reduce), so things
+    // like the confirm-dialog overlay render at static opacity:1 instead of
+    // racing through a fade-in that Playwright sometimes catches at opacity:0.
+    reducedMotion: 'reduce',
   },
   projects: [
     {
