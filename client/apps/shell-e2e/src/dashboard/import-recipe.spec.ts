@@ -30,7 +30,10 @@ test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', ()
     await dashboard.urlInput.fill('https://this-domain-does-not-exist-e2e.invalid/recipe');
     await dashboard.importButton.click();
 
-    await expect(dashboard.errorBanner).toBeVisible({ timeout: 30_000 });
+    // Backend uses AddStandardResilienceHandler — DNS failures are retried
+    // with exponential backoff before the handler returns, so the error
+    // banner can take ~40-50s to appear in CI. 30s was too tight.
+    await expect(dashboard.errorBanner).toBeVisible({ timeout: 60_000 });
   });
 
   test('should display create recipe button', async () => {
