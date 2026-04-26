@@ -53,11 +53,12 @@ export async function waitForServiceWorker(page: Page, timeout = 40_000): Promis
 }
 
 /**
- * Wait until the page is being controlled by an active service worker.
- * Required after a reload following SW activation: NGSW sets
- * navigator.serviceWorker.controller asynchronously and the offline
- * tests need a controlled fetch path. Also primes a few well-known
- * URLs so the SW has them cached before the test goes offline.
+ * Wait until the page is being controlled by an active service worker AND
+ * the NGSW asset cache actually contains the URLs the offline tests rely
+ * on. NGSW prefetches the `app` asset group asynchronously after
+ * activation, so even after `controller` is set there's a window where
+ * caches.match('/index.html') returns nothing. Without this, setOffline
+ * + reload races the prefetch and serves nothing from cache.
  */
 export async function waitForServiceWorkerControl(page: Page, timeout = 40_000): Promise<void> {
   await page.evaluate(async (ms) => {
@@ -66,16 +67,20 @@ export async function waitForServiceWorkerControl(page: Page, timeout = 40_000):
     while (Date.now() < deadline && !navigator.serviceWorker.controller) {
       await new Promise((r) => setTimeout(r, 100));
     }
-    // Prime the cache for the URLs the offline tests care about. The Angular
-    // SW asset/data groups are populated lazily on first fetch through the
-    // SW; without this, an immediate setOffline + reload races the cache
-    // and serves nothing.
+    // Force the SW to see and cache the URLs we care about. fetch() goes
+    // through the controlling SW; NGSW will satisfy from cache or fall
+    // through to network and store. After this returns, caches.match()
+    // should hit for these URLs even when the network is gone.
     const warmupUrls = ['/', '/index.html', '/assets/i18n/en.json'];
-    await Promise.all(
-      warmupUrls.map((url) =>
-        fetch(url, { cache: 'no-store' }).catch(() => undefined),
-      ),
-    );
+    await Promise.all(warmupUrls.map((url) => fetch(url).catch(() => undefined)));
+
+    // Verify the cache actually has /index.html (the SPA fallback target);
+    // if NGSW prefetch hasn't landed yet, poll until it does.
+    while (Date.now() < deadline) {
+      const cached = await caches.match('/index.html');
+      if (cached) return;
+      await new Promise((r) => setTimeout(r, 200));
+    }
   }, timeout);
 }
 
