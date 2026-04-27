@@ -20,7 +20,21 @@ test.describe('Favorite Recipes (US-071)', () => {
     const heart = list.favoriteButtonOnCard(recipe().title).first();
     await expect(heart).toHaveAttribute('aria-pressed', 'false');
 
+    // Wait for POST /api/v1/recipes/{id}/favorite to commit before
+    // returning. Subsequent tests in this file (`persist favorite state
+    // across reload`, `reflect favorite state on recipe detail page`,
+    // …) refetch from the server and would race the un-committed write
+    // otherwise — see #419.
+    const favoriteCommitted = authenticatedPage.waitForResponse(
+      (res) =>
+        /\/api\/v1\/recipes\/.+\/favorite$/.test(res.url()) &&
+        res.request().method() === 'POST' &&
+        res.ok(),
+      { timeout: TIMEOUTS.default },
+    );
     await heart.click();
+    await favoriteCommitted;
+
     await expect(heart).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -74,7 +88,18 @@ test.describe('Favorite Recipes (US-071)', () => {
     await detail.goto(recipe().identifier);
     await expect(detail.favoriteButton).toBeVisible({ timeout: TIMEOUTS.default });
 
+    // Same race as in test 1 (#419): without waiting on the POST commit,
+    // a subsequent reload could still see aria-pressed='true'.
+    const favoriteCommitted = authenticatedPage.waitForResponse(
+      (res) =>
+        /\/api\/v1\/recipes\/.+\/favorite$/.test(res.url()) &&
+        res.request().method() === 'POST' &&
+        res.ok(),
+      { timeout: TIMEOUTS.default },
+    );
     await detail.favoriteButton.click();
+    await favoriteCommitted;
+
     await expect(detail.favoriteButton).toHaveAttribute('aria-pressed', 'false');
   });
 });

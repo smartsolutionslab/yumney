@@ -74,6 +74,10 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   test('should check off an item with strikethrough', async ({ authenticatedPage }) => {
     await authenticatedPage.goto('/shopping/lists');
     const firstCard = authenticatedPage.locator('.list-card').first();
+    // The list created earlier in this file goes through Wolverine
+    // messaging + projection before showing up in /api/v1/shopping-lists.
+    // Without TIMEOUTS.long, the click times out on the empty state — see #419.
+    await expect(firstCard).toBeVisible({ timeout: TIMEOUTS.long });
     await firstCard.click();
     await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });
 
@@ -89,6 +93,10 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   test('should check all items and reset', async ({ authenticatedPage }) => {
     await authenticatedPage.goto('/shopping/lists');
     const firstCard = authenticatedPage.locator('.list-card').first();
+    // The list created earlier in this file goes through Wolverine
+    // messaging + projection before showing up in /api/v1/shopping-lists.
+    // Without TIMEOUTS.long, the click times out on the empty state — see #419.
+    await expect(firstCard).toBeVisible({ timeout: TIMEOUTS.long });
     await firstCard.click();
     await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });
 
@@ -110,6 +118,10 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   test('should show progress counter', async ({ authenticatedPage }) => {
     await authenticatedPage.goto('/shopping/lists');
     const firstCard = authenticatedPage.locator('.list-card').first();
+    // The list created earlier in this file goes through Wolverine
+    // messaging + projection before showing up in /api/v1/shopping-lists.
+    // Without TIMEOUTS.long, the click times out on the empty state — see #419.
+    await expect(firstCard).toBeVisible({ timeout: TIMEOUTS.long });
     await firstCard.click();
     await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });
 
