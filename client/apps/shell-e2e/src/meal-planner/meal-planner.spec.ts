@@ -62,13 +62,11 @@ test.describe('Meal Planner (US-320)', () => {
     await planner.goto();
 
     await expect(planner.weekLabel).toBeVisible({ timeout: TIMEOUTS.default });
-    const initialLabel = await planner.weekLabel.textContent();
+    const initialLabel = (await planner.weekLabel.textContent()) ?? '';
 
     await planner.navNext.click();
-    await authenticatedPage.waitForTimeout(500);
-
-    const newLabel = await planner.weekLabel.textContent();
-    expect(newLabel).not.toBe(initialLabel);
+    // Polling assertion: passes once the label flips off the initial value.
+    await expect(planner.weekLabel).not.toHaveText(initialLabel, { timeout: TIMEOUTS.default });
   });
 
   test('should navigate to previous week', async ({ authenticatedPage }) => {
@@ -76,13 +74,10 @@ test.describe('Meal Planner (US-320)', () => {
     await planner.goto();
 
     await expect(planner.weekLabel).toBeVisible({ timeout: TIMEOUTS.default });
-    const initialLabel = await planner.weekLabel.textContent();
+    const initialLabel = (await planner.weekLabel.textContent()) ?? '';
 
     await planner.navPrev.click();
-    await authenticatedPage.waitForTimeout(500);
-
-    const newLabel = await planner.weekLabel.textContent();
-    expect(newLabel).not.toBe(initialLabel);
+    await expect(planner.weekLabel).not.toHaveText(initialLabel, { timeout: TIMEOUTS.default });
   });
 
   test('should navigate to meal planner from header', async ({ authenticatedPage }) => {

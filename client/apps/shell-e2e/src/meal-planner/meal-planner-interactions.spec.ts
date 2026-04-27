@@ -78,14 +78,14 @@ test.describe('Meal Planner Interactions', () => {
     await planner.goto();
     await expect(planner.weekLabel).toBeVisible({ timeout: TIMEOUTS.default });
 
-    const originalWeek = await planner.weekLabel.textContent();
+    const originalWeek = (await planner.weekLabel.textContent()) ?? '';
 
     await planner.navNext.click();
-    await authenticatedPage.waitForTimeout(500);
-    await planner.navPrev.click();
-    await authenticatedPage.waitForTimeout(500);
+    // Confirm we actually moved off the original week before navigating back.
+    await expect(planner.weekLabel).not.toHaveText(originalWeek, { timeout: TIMEOUTS.default });
 
-    const restoredWeek = await planner.weekLabel.textContent();
-    expect(restoredWeek).toBe(originalWeek);
+    await planner.navPrev.click();
+    // Polling assertion replaces the prior read-once equality check.
+    await expect(planner.weekLabel).toHaveText(originalWeek, { timeout: TIMEOUTS.default });
   });
 });

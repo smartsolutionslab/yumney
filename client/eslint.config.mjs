@@ -101,4 +101,21 @@ export default [
     // Override or add rules here
     rules: {},
   },
+  {
+    // Hard sleeps (page.waitForTimeout / await page.waitForTimeout) are the
+    // top flake source in e2e specs. Use polling assertions or
+    // locator.waitFor() instead. See issue #401.
+    files: ['apps/shell-e2e/src/**/*.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.property.name='waitForTimeout']",
+          message:
+            'page.waitForTimeout() is forbidden in e2e specs (#401). Use expect.poll, locator.waitFor, or a polling assertion that ties to the deterministic signal you are actually waiting for.',
+        },
+      ],
+    },
+  },
 ];

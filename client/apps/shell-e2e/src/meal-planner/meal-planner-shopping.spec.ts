@@ -12,12 +12,16 @@ test.describe('Meal Planner Shopping Integration (US-325)', () => {
     // Navigate to a far-future week that likely has no recipes
     await authenticatedPage.goto('/meal-planner');
     await expect(planner.weekLabel).toBeVisible({ timeout: TIMEOUTS.default });
+    const initialLabel = (await planner.weekLabel.textContent()) ?? '';
 
     // Navigate far forward to an empty week
     for (let i = 0; i < 10; i++) {
       await planner.navNext.click();
     }
-    await authenticatedPage.waitForTimeout(500);
+    // Wait for the planner to settle on a different week before asserting the
+    // button is absent — without this the not-visible assertion can pass
+    // mid-transition while the button is briefly re-rendering.
+    await expect(planner.weekLabel).not.toHaveText(initialLabel, { timeout: TIMEOUTS.default });
 
     // Generate button should not be visible for empty plans
     await expect(authenticatedPage.locator(SELECTORS.mealPlanner.generateBtn)).not.toBeVisible();
