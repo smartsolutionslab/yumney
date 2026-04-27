@@ -17,7 +17,8 @@
  *         └── ...
  */
 import { cpSync, copyFileSync, existsSync, mkdirSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -51,4 +52,28 @@ if (existsSync(prodManifest) && existsSync(distManifest)) {
   console.log('✓ Replaced federation manifest with production version');
 } else {
   console.warn('⚠ Could not replace federation manifest');
+}
+
+// Regenerate ngsw.json against the final on-disk bytes.
+//
+// Background (#423): nx build shell runs Angular's service-worker plugin
+// which hashes every prefetched asset and writes those hashes into
+// ngsw.json. We then *overwrite* /assets/federation.manifest.json above
+// (and copy in remote MFE files), so the hashes baked into ngsw.json no
+// longer match what the static server actually returns. NGSW computes
+// SHA-1 of each asset during install, sees the mismatch, fails the
+// install, and falls into SAFE_MODE — every cache stays empty and the
+// PWA tests think offline doesn't work. Regenerating ngsw.json from the
+// post-copy dist directory makes the hashTable match reality.
+const ngswCli = join(root, 'node_modules', '@angular', 'service-worker', 'ngsw-config.js');
+const ngswConfig = join(root, 'apps', 'shell', 'ngsw-config.json');
+if (existsSync(ngswCli) && existsSync(ngswConfig)) {
+  // ngsw-config CLI resolves its args relative to process.cwd, so pass
+  // paths relative to the client root (where we run yarn from).
+  const distRel = relative(root, shellBrowser);
+  const cfgRel = relative(root, ngswConfig);
+  execFileSync('node', [ngswCli, distRel, cfgRel, '/'], { stdio: 'inherit', cwd: root });
+  console.log('✓ Regenerated ngsw.json against post-copy bytes');
+} else {
+  console.warn('⚠ Could not regenerate ngsw.json — CLI or config missing');
 }
