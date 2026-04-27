@@ -277,7 +277,6 @@ jobs:
           echo "guard fired as expected"
 
       - name: Run Playwright e2e tests
-        continue-on-error: true
         working-directory: client
         run: npx nx e2e shell-e2e
         env:
