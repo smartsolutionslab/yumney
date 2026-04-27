@@ -9,10 +9,13 @@ import { TIMEOUTS } from '../helpers/timeouts';
 test.describe('Offline Caching', () => {
   test.beforeEach(async ({ page }) => {
     await setupKeycloakMock(page);
-    await page.goto('/', { waitUntil: 'networkidle' });
+    // domcontentloaded is enough — the real readiness signals are the SW
+    // helpers below. networkidle is a known anti-pattern under our Aspire
+    // stack: OTLP/log streams keep the network busy and it can never fire.
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await waitForServiceWorker(page);
     // Reload so the now-active SW claims the page as a client.
-    await page.reload({ waitUntil: 'networkidle' });
+    await page.reload({ waitUntil: 'domcontentloaded' });
     // Wait until the SW actually controls fetches AND prime the cache for
     // the URLs the offline tests care about. Without this the tests race
     // the lazy NGSW cache population and see nothing.
@@ -20,8 +23,8 @@ test.describe('Offline Caching', () => {
   });
 
   test('should serve cached app shell when offline', async ({ page, context }) => {
-    await page.waitForLoadState('networkidle');
-
+    // beforeEach has already awaited SW control and primed the cache, so we
+    // can go offline immediately — no extra wait needed.
     await context.setOffline(true);
     await page.reload({ waitUntil: 'domcontentloaded' });
 
@@ -30,8 +33,13 @@ test.describe('Offline Caching', () => {
   });
 
   test('should serve cached i18n translations when offline', async ({ page, context }) => {
-    await page.evaluate(() => fetch('/assets/i18n/en.json'));
-    await page.waitForLoadState('networkidle');
+    // Read the body so the SW fetch handler completes the cache write before
+    // we go offline. Awaiting only the Response headers (or relying on
+    // networkidle) leaves a race where the cache may not be populated yet.
+    await page.evaluate(async () => {
+      const res = await fetch('/assets/i18n/en.json');
+      await res.text();
+    });
 
     await context.setOffline(true);
 
