@@ -70,16 +70,19 @@ export async function waitForServiceWorker(page: Page, timeout = 40_000): Promis
  * priming. A single shared deadline meant a slow activation could starve
  * the cache prime entirely.
  */
-export async function waitForServiceWorkerControl(page: Page, timeout = 60_000): Promise<void> {
+export async function waitForServiceWorkerControl(page: Page, timeout = 120_000): Promise<void> {
   const result = await page.evaluate(async (totalMs) => {
     if (!('serviceWorker' in navigator)) {
       return { ok: true as const, reason: 'no-service-worker-support' };
     }
 
-    const half = Math.floor(totalMs / 2);
+    // 25% of budget for activation, 75% for prefetch — busy CI runners
+    // routinely take 30-60s to finish NGSW's prefetch over many JS chunks.
+    const controllerBudget = Math.floor(totalMs * 0.25);
+    const cacheBudget = totalMs - controllerBudget;
 
     // Phase 1: wait for the SW to control fetches.
-    const controllerDeadline = Date.now() + half;
+    const controllerDeadline = Date.now() + controllerBudget;
     while (Date.now() < controllerDeadline && !navigator.serviceWorker.controller) {
       await new Promise((r) => setTimeout(r, 100));
     }
@@ -88,7 +91,7 @@ export async function waitForServiceWorkerControl(page: Page, timeout = 60_000):
       return {
         ok: false as const,
         reason: 'controller-never-set',
-        elapsedMs: half,
+        elapsedMs: controllerBudget,
         registrations: regs.length,
         states: regs.map((r) => ({
           active: r.active?.state ?? null,
@@ -100,7 +103,9 @@ export async function waitForServiceWorkerControl(page: Page, timeout = 60_000):
 
     // Phase 2: prime the cache for the URLs the offline tests care about.
     // fetch() routes through the controlling SW; NGSW satisfies from cache
-    // or falls through to network and stores.
+    // or falls through to network and stores. We accept either /index.html
+    // or / as the SPA shell anchor — NGSW's navigationUrls fallback may
+    // store the shell under either depending on how the navigation was made.
     const warmupUrls = ['/', '/index.html', '/assets/i18n/en.json'];
     const fetchResults = await Promise.all(
       warmupUrls.map(async (url) => {
@@ -113,31 +118,42 @@ export async function waitForServiceWorkerControl(page: Page, timeout = 60_000):
       }),
     );
 
-    const cacheDeadline = Date.now() + half;
+    const isShellPath = (p: string): boolean => p === '/index.html' || p === '/';
+
+    const cacheDeadline = Date.now() + cacheBudget;
     while (Date.now() < cacheDeadline) {
-      const cached = await caches.match('/index.html');
-      if (cached) {
+      const indexHit = await caches.match('/index.html');
+      const rootHit = await caches.match('/');
+      if (indexHit || rootHit) {
         return { ok: true as const, reason: 'cache-primed' };
       }
-      await new Promise((r) => setTimeout(r, 200));
+      await new Promise((r) => setTimeout(r, 250));
     }
 
     const cacheNames = await caches.keys();
-    const indexInAny: string[] = [];
+    const cacheDetails: Array<{
+      name: string;
+      size: number;
+      sample: string[];
+      hasShell: boolean;
+    }> = [];
     for (const name of cacheNames) {
       const cache = await caches.open(name);
       const keys = await cache.keys();
-      if (keys.some((req) => new URL(req.url).pathname === '/index.html')) {
-        indexInAny.push(name);
-      }
+      const paths = keys.map((req) => new URL(req.url).pathname);
+      cacheDetails.push({
+        name,
+        size: keys.length,
+        sample: paths.slice(0, 8),
+        hasShell: paths.some(isShellPath),
+      });
     }
     return {
       ok: false as const,
-      reason: 'index-html-never-cached',
+      reason: 'spa-shell-never-cached',
       elapsedMs: totalMs,
       fetchResults,
-      cacheNames,
-      indexInAny,
+      cacheDetails,
     };
   }, timeout);
 
