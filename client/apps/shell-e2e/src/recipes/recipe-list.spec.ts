@@ -1,9 +1,13 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { RecipeListPage } from '../pages/recipe-list.page';
+import { setupSharedRecipe } from '../helpers/shared-recipe';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Recipe List (US-030, US-034)', () => {
   let recipeList: RecipeListPage;
+  // Seed a known recipe so the "navigate on click" test isn't gated on
+  // ambient DB state (previously skipped silently when DB was empty).
+  const recipe = setupSharedRecipe(test, 'E2E List Test');
 
   test.beforeEach(async ({ authenticatedPage }) => {
     recipeList = new RecipeListPage(authenticatedPage);
@@ -46,13 +50,11 @@ test.describe('Recipe List (US-030, US-034)', () => {
   });
 
   test('should navigate to recipe detail on card click', async ({ authenticatedPage }) => {
-    // Skip if no recipes exist
-    const cards = recipeList.recipeCards;
-    const count = await cards.count();
-    test.skip(count === 0, 'No recipes in database — cannot test navigation');
+    const card = recipeList.recipeCard(recipe().title).first();
+    await expect(card).toBeVisible({ timeout: TIMEOUTS.default });
 
-    await cards.first().click();
-    await expect(authenticatedPage).toHaveURL(/\/recipes\/.+/);
+    await card.click();
+    await expect(authenticatedPage).toHaveURL(new RegExp(`/recipes/${recipe().identifier}`));
   });
 
   test('should change sort order', async () => {

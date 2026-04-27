@@ -75,14 +75,15 @@ export async function loginViaKeycloak(
 export async function createTestRecipe(
   page: Page,
   title: string,
-  options?: { ingredient?: string; step?: string; servings?: number },
+  options?: { ingredient?: string; step?: string; servings?: number; tags?: string[] },
 ): Promise<string> {
   const ingredient = options?.ingredient ?? 'Test Ingredient';
   const step = options?.step ?? 'Test Step';
   const servings = options?.servings ?? 4;
+  const tags = options?.tags ?? [];
 
   const identifier = await page.evaluate(
-    async ({ title, ingredient, step, servings, gatewayUrl }) => {
+    async ({ title, ingredient, step, servings, tags, gatewayUrl }) => {
       const token = localStorage.getItem('access_token');
       const res = await fetch(`${gatewayUrl}/api/v1/recipes`, {
         method: 'POST',
@@ -100,7 +101,7 @@ export async function createTestRecipe(
           cookTimeMinutes: null,
           difficulty: null,
           imageUrl: null,
-          tags: [],
+          tags,
         }),
       });
       if (!res.ok) {
@@ -109,7 +110,7 @@ export async function createTestRecipe(
       const body = (await res.json()) as { identifier: string };
       return body.identifier;
     },
-    { title, ingredient, step, servings, gatewayUrl: GATEWAY_URL },
+    { title, ingredient, step, servings, tags, gatewayUrl: GATEWAY_URL },
   );
 
   return identifier;
