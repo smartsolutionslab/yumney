@@ -1,5 +1,6 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { DashboardPage } from '../pages/dashboard.page';
+import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', () => {
   let dashboard: DashboardPage;
@@ -25,15 +26,27 @@ test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', ()
     await expect(dashboard.fieldError(/valid.*URL|invalid/i)).toBeVisible();
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   test('should show error for unreachable URL', async ({ authenticatedPage }) => {
+    // Mock the SSE import stream to fail immediately. Without this we'd hit
+    // the real backend, which uses AddStandardResilienceHandler — DNS
+    // failures retry with exponential backoff for ~40-50s on busy CI runners,
+    // making this the flakiest test in the suite (#420). What we actually
+    // want to verify is the *UI behaviour* on a failed import, which a mock
+    // covers cleanly. The real resilience path stays covered by backend
+    // integration tests.
+    await authenticatedPage.route('**/api/v1/recipes/import/stream**', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'text/event-stream',
+        headers: { 'Cache-Control': 'no-cache' },
+        body: 'event: fail\ndata: Could not reach URL\n\n',
+      }),
+    );
+
     await dashboard.urlInput.fill('https://this-domain-does-not-exist-e2e.invalid/recipe');
     await dashboard.importButton.click();
 
-    // Backend uses AddStandardResilienceHandler — DNS failures are retried
-    // with exponential backoff before the handler returns, so the error
-    // banner can take ~40-50s to appear in CI. 30s was too tight.
-    await expect(dashboard.errorBanner).toBeVisible({ timeout: 60_000 });
+    await expect(dashboard.errorBanner).toBeVisible({ timeout: TIMEOUTS.default });
   });
 
   test('should display create recipe button', async () => {
