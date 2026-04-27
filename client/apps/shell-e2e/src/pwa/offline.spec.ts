@@ -6,13 +6,7 @@ import {
 } from '../helpers/pwa.helper';
 import { TIMEOUTS } from '../helpers/timeouts';
 
-// The PWA offline tests are temporarily fixme-d pending #423: NGSW caches
-// remain empty in CI even after the SW activates, which makes the
-// offline-reload assertions meaningless. The richer diagnostic added in
-// #421 / waitForServiceWorkerControl is what surfaced the real issue —
-// it's a build/serve mismatch, not a timing problem, so it doesn't belong
-// in the e2e suite to fix. Re-enable once #423 lands.
-test.describe.fixme('Offline Caching', () => {
+test.describe('Offline Caching', () => {
   test.beforeEach(async ({ page }) => {
     await setupKeycloakMock(page);
     // domcontentloaded is enough — the real readiness signals are the SW
