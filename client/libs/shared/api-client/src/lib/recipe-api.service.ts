@@ -31,7 +31,18 @@ export class RecipeApiService {
   importRecipeStream(url: string): Observable<ImportStreamEvent> {
     return new Observable((subscriber) => {
       const abortController = new AbortController();
-      const timeout = setTimeout(() => abortController.abort(), RecipeApiService.SSE_TIMEOUT_MS);
+      // Have the timeout itself surface an error to subscribers. Without
+      // this, the catch blocks in fetchSseStream / readSseBody guard
+      // subscriber.error with `if (!signal.aborted)` — and a timeout-
+      // induced abort sets signal.aborted=true, so the guard skips the
+      // error and the Observable hangs forever (#430). Calling
+      // subscriber.error from the timeout pre-empts the catch; if the
+      // stream completed normally, RxJS makes subsequent error/complete
+      // calls no-ops so this is safe.
+      const timeout = setTimeout(() => {
+        abortController.abort();
+        subscriber.error(new Error('Import timed out'));
+      }, RecipeApiService.SSE_TIMEOUT_MS);
 
       this.fetchSseStream(url, abortController, subscriber).finally(() => clearTimeout(timeout));
 
