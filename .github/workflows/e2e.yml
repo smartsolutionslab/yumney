@@ -252,6 +252,30 @@ jobs:
       # (Backend Build + Test). Skipping here to keep the E2E run focused on
       # browser-level coverage and reduce wall time.
 
+      - name: Verify BASE_URL guard rejects remote targets
+        # Smoke-check the safety guard from helpers/env-guard.ts: pointing
+        # BASE_URL at a non-local host MUST fail before any worker spins up.
+        # We use --grep with a sentinel that matches no test so globalSetup
+        # runs (--list skips it) but no actual tests do. The step succeeds
+        # only if Playwright exits non-zero AND the error contains our
+        # [e2e-guard] tag (distinguishes guard failure from "no tests found").
+        working-directory: client/apps/shell-e2e
+        run: |
+          set +e
+          output=$(BASE_URL=https://example.com GATEWAY_URL=http://localhost:5100 \
+            npx playwright test --grep "__never_match_e2e_guard__" 2>&1)
+          rc=$?
+          echo "$output"
+          if [ "$rc" -eq 0 ]; then
+            echo "::error::BASE_URL guard did not fire — exit code was 0"
+            exit 1
+          fi
+          if ! echo "$output" | grep -q "e2e-guard"; then
+            echo "::error::Playwright failed but not due to the e2e-guard"
+            exit 1
+          fi
+          echo "guard fired as expected"
+
       - name: Run Playwright e2e tests
         continue-on-error: true
         working-directory: client
