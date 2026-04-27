@@ -59,29 +59,94 @@ export async function waitForServiceWorker(page: Page, timeout = 40_000): Promis
  * activation, so even after `controller` is set there's a window where
  * caches.match('/index.html') returns nothing. Without this, setOffline
  * + reload races the prefetch and serves nothing from cache.
+ *
+ * Throws — loudly — if the SW never controls the page or if the index.html
+ * cache prime never lands. Previously the helper silently returned on
+ * timeout, which masked PWA test failures (#421): the offline tests would
+ * race an empty cache and fail with `yn-root not attached`, with no
+ * indication that the upstream priming had given up.
+ *
+ * Time budget is split: half for controller activation, half for cache
+ * priming. A single shared deadline meant a slow activation could starve
+ * the cache prime entirely.
  */
-export async function waitForServiceWorkerControl(page: Page, timeout = 40_000): Promise<void> {
-  await page.evaluate(async (ms) => {
-    if (!('serviceWorker' in navigator)) return;
-    const deadline = Date.now() + ms;
-    while (Date.now() < deadline && !navigator.serviceWorker.controller) {
+export async function waitForServiceWorkerControl(page: Page, timeout = 60_000): Promise<void> {
+  const result = await page.evaluate(async (totalMs) => {
+    if (!('serviceWorker' in navigator)) {
+      return { ok: true as const, reason: 'no-service-worker-support' };
+    }
+
+    const half = Math.floor(totalMs / 2);
+
+    // Phase 1: wait for the SW to control fetches.
+    const controllerDeadline = Date.now() + half;
+    while (Date.now() < controllerDeadline && !navigator.serviceWorker.controller) {
       await new Promise((r) => setTimeout(r, 100));
     }
-    // Force the SW to see and cache the URLs we care about. fetch() goes
-    // through the controlling SW; NGSW will satisfy from cache or fall
-    // through to network and store. After this returns, caches.match()
-    // should hit for these URLs even when the network is gone.
-    const warmupUrls = ['/', '/index.html', '/assets/i18n/en.json'];
-    await Promise.all(warmupUrls.map((url) => fetch(url).catch(() => undefined)));
+    if (!navigator.serviceWorker.controller) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      return {
+        ok: false as const,
+        reason: 'controller-never-set',
+        elapsedMs: half,
+        registrations: regs.length,
+        states: regs.map((r) => ({
+          active: r.active?.state ?? null,
+          installing: r.installing?.state ?? null,
+          waiting: r.waiting?.state ?? null,
+        })),
+      };
+    }
 
-    // Verify the cache actually has /index.html (the SPA fallback target);
-    // if NGSW prefetch hasn't landed yet, poll until it does.
-    while (Date.now() < deadline) {
+    // Phase 2: prime the cache for the URLs the offline tests care about.
+    // fetch() routes through the controlling SW; NGSW satisfies from cache
+    // or falls through to network and stores.
+    const warmupUrls = ['/', '/index.html', '/assets/i18n/en.json'];
+    const fetchResults = await Promise.all(
+      warmupUrls.map(async (url) => {
+        try {
+          const res = await fetch(url);
+          return { url, status: res.status };
+        } catch (err) {
+          return { url, status: 0, error: String(err) };
+        }
+      }),
+    );
+
+    const cacheDeadline = Date.now() + half;
+    while (Date.now() < cacheDeadline) {
       const cached = await caches.match('/index.html');
-      if (cached) return;
+      if (cached) {
+        return { ok: true as const, reason: 'cache-primed' };
+      }
       await new Promise((r) => setTimeout(r, 200));
     }
+
+    const cacheNames = await caches.keys();
+    const indexInAny: string[] = [];
+    for (const name of cacheNames) {
+      const cache = await caches.open(name);
+      const keys = await cache.keys();
+      if (keys.some((req) => new URL(req.url).pathname === '/index.html')) {
+        indexInAny.push(name);
+      }
+    }
+    return {
+      ok: false as const,
+      reason: 'index-html-never-cached',
+      elapsedMs: totalMs,
+      fetchResults,
+      cacheNames,
+      indexInAny,
+    };
   }, timeout);
+
+  if (!result.ok) {
+    throw new Error(
+      `waitForServiceWorkerControl failed: ${result.reason}\n` +
+        `details: ${JSON.stringify(result, null, 2)}`,
+    );
+  }
 }
 
 /**
