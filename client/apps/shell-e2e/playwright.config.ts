@@ -17,6 +17,9 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
 
 export default defineConfig({
   ...nxE2EPreset(__filename, { testDir: './src' }),
+  // Refuse to start if BASE_URL/GATEWAY_URL points outside localhost. The
+  // suite issues real writes; set E2E_ALLOW_REMOTE=true to override.
+  globalSetup: require.resolve('./src/global-setup'),
   // Bumped from 30s to 60s: post-token-expiry-fix, fixture-heavy beforeAll
   // hooks (openAuthenticatedPage + API POST under parallel worker pressure)
   // started exceeding 30s. The real API calls themselves are ~1s; the budget
