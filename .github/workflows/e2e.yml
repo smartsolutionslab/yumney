@@ -252,47 +252,6 @@ jobs:
       # (Backend Build + Test). Skipping here to keep the E2E run focused on
       # browser-level coverage and reduce wall time.
 
-      - name: Diagnose NGSW shell serve (#423)
-        # PWA offline tests fail because every NGSW cache stays empty
-        # after activation. Hypothesis: Aspire's DCP localhost proxy on
-        # :4200 mangles the manifest or referenced assets so NGSW silently
-        # rejects them. This step inspects what the same origin Playwright
-        # hits (http://localhost:4200) actually returns for the SW assets.
-        run: |
-          set +e
-          BASE=http://localhost:4200
-          dump() {
-            local label="$1" url="$2"
-            echo "=== $label: $url ==="
-            curl -sk -D /tmp/diag/hdr-"$label".txt \
-              -o /tmp/diag/body-"$label".bin \
-              -w "  http=%{http_code} size_dl=%{size_download} time=%{time_total}s\n" \
-              --max-time 30 "$url"
-            echo "  --- response headers ---"
-            sed 's/^/    /' /tmp/diag/hdr-"$label".txt
-            echo "  --- body byte length on disk ---"
-            stat -c '    %s bytes' /tmp/diag/body-"$label".bin 2>/dev/null \
-              || stat -f '    %z bytes' /tmp/diag/body-"$label".bin
-          }
-
-          mkdir -p /tmp/diag
-          dump ngsw-json     "$BASE/ngsw.json"
-          dump index-html    "$BASE/index.html"
-          dump ngsw-worker   "$BASE/ngsw-worker.js"
-
-          echo "=== ngsw.json body (first 4 KB) ==="
-          head -c 4096 /tmp/diag/body-ngsw-json.bin || true
-          echo
-          echo "=== assets referenced by ngsw.json (first 5) ==="
-          if command -v jq >/dev/null 2>&1; then
-            mapfile -t urls < <(jq -r '.assetGroups[].urls[]?' /tmp/diag/body-ngsw-json.bin 2>/dev/null | head -5)
-            for u in "${urls[@]}"; do
-              dump "asset$(echo "$u" | tr '/.' '__')" "$BASE$u"
-            done
-          else
-            echo "jq not available, skipping referenced-asset probe"
-          fi
-
       - name: Run Playwright e2e tests
         continue-on-error: true
         working-directory: client
