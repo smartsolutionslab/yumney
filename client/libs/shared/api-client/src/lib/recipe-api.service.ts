@@ -201,6 +201,12 @@ export class RecipeApiService {
   }
 
   toggleFavorite(identifier: string): Observable<FavoriteState> {
-    return this.http.post<FavoriteState>(API_ENDPOINTS.recipes.favorite(identifier), {});
+    // Invalidate the in-memory shareReplay cache so a subsequent
+    // getRecipeById refetches with the new isFavorite — without this the
+    // detail page replays the pre-toggle response and shows aria-pressed
+    // wrong on the favorite button (#427).
+    return this.http
+      .post<FavoriteState>(API_ENDPOINTS.recipes.favorite(identifier), {})
+      .pipe(tap(() => this.invalidateRecipeCache(identifier)));
   }
 }

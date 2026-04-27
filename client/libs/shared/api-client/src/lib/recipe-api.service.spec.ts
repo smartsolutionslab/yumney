@@ -155,6 +155,32 @@ describe('RecipeApiService', () => {
     });
   });
 
+  describe('toggleFavorite', () => {
+    it('should POST /api/v1/recipes/:identifier/favorite', () => {
+      service.toggleFavorite('recipe-abc').subscribe();
+
+      const req = httpTesting.expectOne('/api/v1/recipes/recipe-abc/favorite');
+      expect(req.request.method).toBe('POST');
+      req.flush({ isFavorite: true });
+    });
+
+    it('should invalidate the recipe cache so a subsequent getRecipeById refetches (#427)', () => {
+      // Prime the in-memory shareReplay cache.
+      service.getRecipeById('recipe-abc').subscribe();
+      httpTesting.expectOne('/api/v1/recipes/recipe-abc').flush(mockRecipeDetail);
+
+      service.toggleFavorite('recipe-abc').subscribe();
+      httpTesting.expectOne('/api/v1/recipes/recipe-abc/favorite').flush({ isFavorite: true });
+
+      // After toggle, getRecipeById must hit the network again — the cached
+      // observable would replay stale isFavorite without invalidation.
+      service.getRecipeById('recipe-abc').subscribe();
+      const refetch = httpTesting.expectOne('/api/v1/recipes/recipe-abc');
+      expect(refetch.request.method).toBe('GET');
+      refetch.flush({ ...mockRecipeDetail });
+    });
+  });
+
   describe('getRecipes', () => {
     const mockListResponse: RecipeListResponse = {
       items: [
