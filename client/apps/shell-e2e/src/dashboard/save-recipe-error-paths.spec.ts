@@ -92,11 +92,19 @@ async function fillMinimalRecipeForm(
   // The manual-create flow pre-populates one empty ingredient row and one
   // empty step row; only need to fill them so client-side validation
   // doesn't block the submit. Ingredient amount is optional per the form,
-  // but the name is not.
+  // but ingredient.name and step.description are required.
+  //
+  // Scope ingredient/step selectors to their row containers — the recipe
+  // also has a top-level description textarea with formControlName="description"
+  // that would otherwise match before the step row.
   await page.locator('#preview-title').fill(title);
   await page.locator('#preview-servings').fill('4');
-  // First ingredient + step rows exist by default; their inputs use
-  // formControlName="name" / "description" within their row containers.
+  // formControlName="name" is unique to ingredient rows; .first() is fine.
   await page.locator('input[formControlName="name"]').first().fill('Salt');
-  await page.locator('textarea[formControlName="description"]').first().fill('Mix everything.');
+  // Scope description textarea to .step-fields — there is also a
+  // recipe-level textarea#preview-description with the same formControlName.
+  await page
+    .locator('.step-fields textarea[formControlName="description"]')
+    .first()
+    .fill('Mix everything.');
 }
