@@ -29,10 +29,24 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
 
     await dashboard.createButton.click();
     await expect(dashboard.recipePreview).toBeVisible({ timeout: TIMEOUTS.default });
+    await expect(authenticatedPage.locator('#preview-title')).toBeVisible({
+      timeout: TIMEOUTS.default,
+    });
 
     await fillMinimalRecipeForm(authenticatedPage, 'E2E 500 Test');
 
-    await authenticatedPage.locator('.save-btn').click();
+    // Scope save-btn to within the recipe-preview so we don't accidentally
+    // hit another .save-btn elsewhere on the dashboard. Wait for the
+    // POST response before asserting the banner so we know the click
+    // actually fired the request the mock is supposed to fulfill.
+    const savePost = authenticatedPage.waitForResponse(
+      (res) =>
+        new URL(res.url()).pathname === '/api/v1/recipes' &&
+        res.request().method() === 'POST',
+      { timeout: TIMEOUTS.default },
+    );
+    await dashboard.recipePreview.locator('.save-btn').click();
+    await savePost;
 
     await expect(dashboard.errorBanner).toBeVisible({ timeout: TIMEOUTS.default });
     // Form must survive the error so the user can retry without retyping.
@@ -51,10 +65,20 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
 
     await dashboard.createButton.click();
     await expect(dashboard.recipePreview).toBeVisible({ timeout: TIMEOUTS.default });
+    await expect(authenticatedPage.locator('#preview-title')).toBeVisible({
+      timeout: TIMEOUTS.default,
+    });
 
     await fillMinimalRecipeForm(authenticatedPage, 'E2E 422 Test');
 
-    await authenticatedPage.locator('.save-btn').click();
+    const savePost = authenticatedPage.waitForResponse(
+      (res) =>
+        new URL(res.url()).pathname === '/api/v1/recipes' &&
+        res.request().method() === 'POST',
+      { timeout: TIMEOUTS.default },
+    );
+    await dashboard.recipePreview.locator('.save-btn').click();
+    await savePost;
 
     await expect(dashboard.errorBanner).toBeVisible({ timeout: TIMEOUTS.default });
     await expect(authenticatedPage.locator('#preview-title')).toHaveValue('E2E 422 Test');
