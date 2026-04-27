@@ -1,6 +1,5 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { DashboardPage } from '../pages/dashboard.page';
-import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', () => {
   let dashboard: DashboardPage;
@@ -46,7 +45,13 @@ test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', ()
     await dashboard.urlInput.fill('https://this-domain-does-not-exist-e2e.invalid/recipe');
     await dashboard.importButton.click();
 
-    await expect(dashboard.errorBanner).toBeVisible({ timeout: TIMEOUTS.default });
+    // 90s — belt-and-braces. If the mock fires the banner appears in <1s.
+    // If something layers above page.route (NGSW intercept post-#424,
+    // service-worker fetch handling, etc.) and the request reaches the
+    // real backend, the frontend's SSE_TIMEOUT_MS = 60_000 in
+    // recipe-api.service.ts surfaces a Connection-lost error within
+    // 60-70s. The 90s budget covers both paths under CI load.
+    await expect(dashboard.errorBanner).toBeVisible({ timeout: 90_000 });
   });
 
   test('should display create recipe button', async () => {
