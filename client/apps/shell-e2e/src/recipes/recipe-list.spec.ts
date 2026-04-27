@@ -27,16 +27,14 @@ test.describe('Recipe List (US-030, US-034)', () => {
     await expect(cards.or(empty).first()).toBeVisible({ timeout: TIMEOUTS.default });
   });
 
-  test('should show no results for gibberish search', async ({ authenticatedPage }) => {
+  test('should show no results for gibberish search', async () => {
     await recipeList.searchInput.fill('xyznonexistent12345');
-    await authenticatedPage.waitForTimeout(500); // debounce
-
+    // Search input is debounced; the polling assertion below covers the wait.
     await expect(recipeList.emptyState).toBeVisible({ timeout: TIMEOUTS.default });
   });
 
-  test('should clear search and restore results', async ({ authenticatedPage }) => {
+  test('should clear search and restore results', async () => {
     await recipeList.searchInput.fill('xyznonexistent12345');
-    await authenticatedPage.waitForTimeout(500);
     await expect(recipeList.emptyState).toBeVisible({ timeout: TIMEOUTS.default });
 
     await recipeList.searchClearButton.click();

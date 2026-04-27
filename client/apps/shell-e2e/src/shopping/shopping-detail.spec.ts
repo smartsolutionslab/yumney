@@ -29,7 +29,11 @@ test.describe('Shopping List Detail', () => {
   test('should show export button on merged list', async ({ authenticatedPage }) => {
     await authenticatedPage.goto('/shopping');
 
-    await authenticatedPage.waitForTimeout(1000);
+    // Wait for the merged list shell to render before probing for the
+    // optional export button. The add-input is the page's stable anchor.
+    await expect(authenticatedPage.locator('.add-input')).toBeVisible({
+      timeout: TIMEOUTS.default,
+    });
 
     const exportBtn = authenticatedPage.getByRole('button', { name: /export/i });
     const hasExport = (await exportBtn.count()) > 0;

@@ -23,7 +23,10 @@ test.describe('Shopping Mode Flow', () => {
     await input.fill('Shopping Mode Test');
     await input.press('Enter');
 
-    await authenticatedPage.waitForTimeout(500);
+    // Wait for the just-added item to render — confirms the POST round-tripped.
+    await expect(authenticatedPage.getByText('Shopping Mode Test')).toBeVisible({
+      timeout: TIMEOUTS.default,
+    });
 
     // Shopping mode button should appear when there are items
     const startBtn = authenticatedPage.getByRole('button', { name: /shopping mode|start/i });
@@ -45,9 +48,8 @@ test.describe('Shopping Mode Flow', () => {
     await input.fill('Toggle Test Item');
     await input.press('Enter');
 
-    await authenticatedPage.waitForTimeout(500);
-
-    // Find the item and try to check it off
+    // Find the item and try to check it off — assertion polls for the
+    // POST round-trip, so an explicit sleep is unnecessary.
     const itemRow = authenticatedPage.getByText('Toggle Test Item').first();
     await expect(itemRow).toBeVisible({ timeout: TIMEOUTS.default });
   });
