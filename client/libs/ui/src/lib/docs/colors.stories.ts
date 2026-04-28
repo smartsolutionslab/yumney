@@ -32,7 +32,7 @@ import { Component } from '@angular/core';
         <tr><td>--yn-surface (#f0f8f0)</td><td>--yn-text, --yn-text-secondary, --yn-text-muted</td></tr>
         <tr><td>--yn-surface-elevated (#fff)</td><td>--yn-text, --yn-text-secondary, --yn-text-muted</td></tr>
         <tr><td>--yn-background (#dcedc8)</td><td>--yn-text, --yn-text-secondary</td></tr>
-        <tr><td>--yn-primary (#f97316)</td><td>--yn-text-inverse (#fff)</td></tr>
+        <tr><td>--yn-primary (#c2410c)</td><td>--yn-text-inverse (#fff)</td></tr>
         <tr><td>--yn-danger (#dc2626)</td><td>--yn-text-inverse (#fff)</td></tr>
       </table>
     </section>
@@ -113,8 +113,8 @@ class ColorSwatchesComponent {
     {
       name: 'Brand',
       colors: [
-        { token: '--yn-primary', value: '#f97316' },
-        { token: '--yn-primary-hover', value: '#ea580c' },
+        { token: '--yn-primary', value: '#c2410c' },
+        { token: '--yn-primary-hover', value: '#9a3412' },
         { token: '--yn-primary-light', value: '#fff7ed' },
         { token: '--yn-primary-light-end', value: '#fed7aa' },
       ],

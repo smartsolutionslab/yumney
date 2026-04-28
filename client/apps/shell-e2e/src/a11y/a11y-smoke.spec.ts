@@ -18,11 +18,12 @@ import { TIMEOUTS } from '../helpers/timeouts';
  */
 const SERIOUS_OR_CRITICAL = ['serious', 'critical'] as const;
 
-// Pre-existing serious violations on develop, tracked in #443. Disabled
-// here so this smoke can land green and surface NEW regressions on top
-// of the known-bad baseline. aria-command-name was fixed in #454 (slice 1);
-// color-contrast remains pending. Remove the last entry once that lands.
-const DISABLED_RULES_PENDING_443 = ['color-contrast'];
+// All #443 axe violations are now fixed: aria-command-name in #454
+// (slice 1, meal-planner empty-slot aria-label), color-contrast in this
+// commit (slice 2, --yn-primary token darkened from #f97316 to #c2410c).
+// The list is now empty; left in place as a documented hook for future
+// known-bad rules pending follow-up issues.
+const DISABLED_RULES_PENDING_443: string[] = [];
 
 async function runAxe(page: import('@playwright/test').Page): Promise<void> {
   const results = await new AxeBuilder({ page })
