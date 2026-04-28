@@ -71,12 +71,11 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
     await expect(cards.or(empty).first()).toBeVisible({ timeout: TIMEOUTS.default });
   });
 
-  // The next three tests are fixme'd pending #432: in CI the just-created
-  // list (test 5) doesn't show up at /shopping/lists for reasons we
-  // haven't pinned down — backend contract tests pass, frontend has no
-  // in-memory cache layer, NGSW freshness timeout bump didn't help. Needs
-  // trace artifacts to root-cause.
-  test.fixme('should check off an item with strikethrough', async ({ authenticatedPage }) => {
+  // Re-enabled — #432 fix dropped the shopping-api data group from
+  // ngsw-config.json. The NGSW freshness fallback was serving stale
+  // empty cached responses under CI load, which made just-created lists
+  // appear missing. Shopping data is too volatile to cache anyway.
+  test('should check off an item with strikethrough', async ({ authenticatedPage }) => {
     await authenticatedPage.goto('/shopping/lists');
     const firstCard = authenticatedPage.locator('.list-card').first();
     await firstCard.click();
@@ -91,7 +90,7 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
     await expect(detailPage.checkedItems.first()).toBeVisible();
   });
 
-  test.fixme('should check all items and reset', async ({ authenticatedPage }) => {
+  test('should check all items and reset', async ({ authenticatedPage }) => {
     await authenticatedPage.goto('/shopping/lists');
     const firstCard = authenticatedPage.locator('.list-card').first();
     await firstCard.click();
@@ -112,7 +111,7 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
     }
   });
 
-  test.fixme('should show progress counter', async ({ authenticatedPage }) => {
+  test('should show progress counter', async ({ authenticatedPage }) => {
     await authenticatedPage.goto('/shopping/lists');
     const firstCard = authenticatedPage.locator('.list-card').first();
     await firstCard.click();

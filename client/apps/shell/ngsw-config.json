@@ -43,16 +43,6 @@
       }
     },
     {
-      "name": "shopping-api",
-      "urls": ["/api/v1/shopping-lists", "/api/v1/shopping-lists/*"],
-      "cacheConfig": {
-        "maxSize": 50,
-        "maxAge": "1d",
-        "strategy": "freshness",
-        "timeout": "3s"
-      }
-    },
-    {
       "name": "i18n",
       "urls": ["/assets/i18n/*"],
       "cacheConfig": {
