@@ -91,6 +91,7 @@
             class="empty-slot"
             tabindex="0"
             role="button"
+            [attr.aria-label]="t('mealPlanner.addMeal', { day: entry.day })"
             (click)="onSelectSlot(entry.day)"
             (keydown.enter)="onSelectSlot(entry.day)"
           >
