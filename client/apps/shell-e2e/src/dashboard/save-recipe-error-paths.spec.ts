@@ -22,13 +22,7 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
     await dashboard.goto();
   });
 
-  // fixme pending #438: dashboard's error banner is gated on the import
-  // section being expanded; a save-error from the manual-create flow has
-  // no visible surface for users. The test correctly fires the POST and
-  // gets the mocked 500 — the gap is in the dashboard template, not the
-  // test. Re-enable once the banner moves out of the importSectionExpanded
-  // @if and renders unconditionally on serverError().
-  test.fixme('shows error banner when save returns 500', async ({ authenticatedPage }) => {
+  test('shows error banner when save returns 500', async ({ authenticatedPage }) => {
     await mockApiError(authenticatedPage, '**/api/v1/recipes', 500, {
       detail: 'An unexpected error occurred.',
     });
@@ -59,8 +53,7 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
     await expect(authenticatedPage.locator('#preview-title')).toHaveValue('E2E 500 Test');
   });
 
-  // fixme pending #438: same banner-placement issue as the 500 case.
-  test.fixme('shows error banner when save returns 422 with validation errors', async ({
+  test('shows error banner when save returns 422 with validation errors', async ({
     authenticatedPage,
   }) => {
     await mockApiError(authenticatedPage, '**/api/v1/recipes', 422, {
