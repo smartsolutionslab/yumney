@@ -1,6 +1,8 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
+using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -11,13 +13,15 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Queries;
 public class GetShoppingListByIdQueryHandlerTests
 {
 	private readonly IShoppingListRepository shoppingLists = Substitute.For<IShoppingListRepository>();
+	private readonly IShoppingListProjectionRepository projection = Substitute.For<IShoppingListProjectionRepository>();
+	private readonly ShoppingOptions options = new() { UseProjectionReadModel = false };
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly GetShoppingListByIdQueryHandler handler;
 
 	public GetShoppingListByIdQueryHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new GetShoppingListByIdQueryHandler(shoppingLists, currentUser);
+		handler = new GetShoppingListByIdQueryHandler(shoppingLists, projection, options, currentUser);
 	}
 
 	[Fact]
@@ -60,6 +64,42 @@ public class GetShoppingListByIdQueryHandlerTests
 		var query = new GetShoppingListByIdQuery(shoppingList.Identifier);
 
 		var result = await handler.HandleAsync(query);
+
+		result.IsFailure.Should().BeTrue();
+		result.Error.Should().Be(GetShoppingListByIdErrors.AccessDenied);
+	}
+
+	[Fact]
+	public async Task HandleAsync_WhenProjectionFlagIsOn_QueriesProjectionRepository()
+	{
+		options.UseProjectionReadModel = true;
+		var listId = ShoppingListIdentifier.New();
+		var dto = new ShoppingListDetailDto(
+			listId.Value,
+			"Projected",
+			RecipeReference: null,
+			DateTime.UtcNow,
+			Items: []);
+		projection.GetByIdAsync(listId, Arg.Any<CancellationToken>())
+			.Returns(new ShoppingListProjectedDetail("user-123", dto));
+
+		var result = await handler.HandleAsync(new GetShoppingListByIdQuery(listId));
+
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Title.Should().Be("Projected");
+		await shoppingLists.DidNotReceiveWithAnyArgs().GetByIdAsync(default!, default);
+	}
+
+	[Fact]
+	public async Task HandleAsync_ProjectionDifferentOwner_ReturnsAccessDenied()
+	{
+		options.UseProjectionReadModel = true;
+		var listId = ShoppingListIdentifier.New();
+		var dto = new ShoppingListDetailDto(listId.Value, "T", null, DateTime.UtcNow, []);
+		projection.GetByIdAsync(listId, Arg.Any<CancellationToken>())
+			.Returns(new ShoppingListProjectedDetail("other-user", dto));
+
+		var result = await handler.HandleAsync(new GetShoppingListByIdQuery(listId));
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(GetShoppingListByIdErrors.AccessDenied);

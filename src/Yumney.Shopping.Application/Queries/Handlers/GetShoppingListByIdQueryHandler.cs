@@ -1,12 +1,15 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
+using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 
 public sealed class GetShoppingListByIdQueryHandler(
 	IShoppingListRepository shoppingLists,
+	IShoppingListProjectionRepository projection,
+	ShoppingOptions options,
 	ICurrentUser currentUser)
 	: IQueryHandler<GetShoppingListByIdQuery, Result<ShoppingListDetailDto>>
 {
@@ -16,12 +19,16 @@ public sealed class GetShoppingListByIdQueryHandler(
 	{
 		var identifier = query.Identifier;
 
+		if (options.UseProjectionReadModel)
+		{
+			var detail = await projection.GetByIdAsync(identifier, cancellationToken);
+			if (detail.OwnerId != currentUser.UserId) return GetShoppingListByIdErrors.AccessDenied;
+			return detail.Dto;
+		}
+
 		var shoppingList = await shoppingLists.GetByIdAsync(identifier, cancellationToken);
-
 		var owner = currentUser.AsOwner();
-
 		if (shoppingList.Owner != owner) return GetShoppingListByIdErrors.AccessDenied;
-
 		return shoppingList.ToDetailDto();
 	}
 }
