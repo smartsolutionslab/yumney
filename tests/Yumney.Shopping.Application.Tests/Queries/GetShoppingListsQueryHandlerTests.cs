@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -11,13 +12,15 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Queries;
 public class GetShoppingListsQueryHandlerTests
 {
 	private readonly IShoppingListRepository shoppingLists = Substitute.For<IShoppingListRepository>();
+	private readonly IShoppingListProjectionRepository projection = Substitute.For<IShoppingListProjectionRepository>();
+	private readonly ShoppingOptions options = new() { UseProjectionReadModel = false };
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly GetShoppingListsQueryHandler handler;
 
 	public GetShoppingListsQueryHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new GetShoppingListsQueryHandler(shoppingLists, currentUser);
+		handler = new GetShoppingListsQueryHandler(shoppingLists, projection, options, currentUser);
 	}
 
 	[Fact]
@@ -98,6 +101,29 @@ public class GetShoppingListsQueryHandlerTests
 			Arg.Is<SortingOptions<ShoppingListSortField>>(s =>
 				s.SortBy == ShoppingListSortField.Title && s.Direction == SortDirection.Ascending),
 			Arg.Any<CancellationToken>());
+	}
+
+	[Fact]
+	public async Task HandleAsync_WhenProjectionFlagIsOn_QueriesProjectionRepository()
+	{
+		options.UseProjectionReadModel = true;
+		List<ShoppingListSummary> summaries =
+		[
+			new(ShoppingListIdentifier.New(), ShoppingListTitle.From("Projected"), ItemCount.From(3), DateTime.UtcNow)
+		];
+		projection.GetByOwnerAsync(
+			Arg.Any<OwnerIdentifier>(),
+			Arg.Any<PagingOptions>(),
+			Arg.Any<SortingOptions<ShoppingListSortField>>(),
+			Arg.Any<CancellationToken>())
+			.Returns(((IReadOnlyList<ShoppingListSummary>)summaries, ItemCount.From(1)));
+
+		var query = CreateQuery(1, 20, ShoppingListSortField.Date, SortDirection.Descending);
+		var result = await handler.HandleAsync(query);
+
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Items.Should().ContainSingle().Which.Title.Should().Be("Projected");
+		await shoppingLists.DidNotReceiveWithAnyArgs().GetByOwnerAsync(default!, default!, default!);
 	}
 
 	[Fact]
