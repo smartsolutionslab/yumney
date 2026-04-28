@@ -9,7 +9,7 @@ public static class ShoppingListMappingExtensions
 		public ShoppingListDetailDto ToDetailDto()
 		{
 			return new ShoppingListDetailDto(
-				shoppingList.Id.Value,
+				shoppingList.Identifier.Value,
 				shoppingList.Title.Value,
 				shoppingList.RecipeReference?.Value,
 				shoppingList.CreatedAt,

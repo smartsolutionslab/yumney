@@ -10,8 +10,9 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
 	public void Configure(EntityTypeBuilder<ShoppingList> entity)
 	{
 		entity.ToTable("ShoppingLists");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.Id)
+		entity.HasKey(e => e.Identifier);
+		entity.Property(e => e.Identifier)
+			.HasColumnName("Id")
 			.HasConversion<ShoppingListIdentifierConverter>();
 
 		entity.Property(e => e.Title)
@@ -62,6 +63,7 @@ internal sealed class ShoppingListConfiguration : IEntityTypeConfiguration<Shopp
 		entity.Property<uint>("xmin")
 			.HasColumnType("xid")
 			.IsRowVersion();
-		entity.Ignore(e => e.DomainEvents);
+		entity.Ignore(e => e.UncommittedEvents);
+		entity.Ignore(e => e.Version);
 	}
 }

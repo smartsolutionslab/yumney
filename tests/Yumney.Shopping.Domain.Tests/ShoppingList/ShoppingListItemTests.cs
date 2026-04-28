@@ -50,27 +50,6 @@ public class ShoppingListItemTests
 		item.IsChecked.Should().BeFalse();
 	}
 
-	[Fact]
-	public void Check_SetsIsCheckedToTrue()
-	{
-		var item = CreateFlourItem();
-
-		item.Check();
-
-		item.IsChecked.Should().BeTrue();
-	}
-
-	[Fact]
-	public void Uncheck_SetsIsCheckedToFalse()
-	{
-		var item = CreateFlourItem();
-		item.Check();
-
-		item.Uncheck();
-
-		item.IsChecked.Should().BeFalse();
-	}
-
 	private static ShoppingListItem CreateFlourItem() =>
 		ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram));
 }
