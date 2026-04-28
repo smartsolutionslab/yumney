@@ -17,6 +17,10 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
 
 	public DbSet<AggregateMetadata> ShoppingAggregates => Set<AggregateMetadata>();
 
+	public DbSet<ShoppingListStoredEvent> ShoppingListEvents => Set<ShoppingListStoredEvent>();
+
+	public DbSet<ShoppingListAggregateMetadata> ShoppingListAggregates => Set<ShoppingListAggregateMetadata>();
+
 	public DbSet<InboxMessage> InboxMessages => Set<InboxMessage>();
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
