@@ -2,13 +2,19 @@
   <div class="planner-header">
     <button
       class="nav-btn"
+      data-testid="meal-planner-nav-prev"
       (click)="onPreviousWeek()"
       [attr.aria-label]="t('mealPlanner.previousWeek')"
     >
       <lucide-icon name="chevron-left" [size]="20" />
     </button>
     <h1>{{ weekLabel() }}</h1>
-    <button class="nav-btn" (click)="onNextWeek()" [attr.aria-label]="t('mealPlanner.nextWeek')">
+    <button
+      class="nav-btn"
+      data-testid="meal-planner-nav-next"
+      (click)="onNextWeek()"
+      [attr.aria-label]="t('mealPlanner.nextWeek')"
+    >
       <lucide-icon name="chevron-right" [size]="20" />
     </button>
   </div>
