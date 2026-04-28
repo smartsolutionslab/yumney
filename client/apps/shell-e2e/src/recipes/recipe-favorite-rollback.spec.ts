@@ -26,9 +26,12 @@ test.describe('Favorite Recipes — Optimistic Rollback (#409)', () => {
     // Delay the rejected response so the optimistic flip is observable
     // before the rollback. 800ms is enough for Playwright's auto-retry
     // toHaveAttribute to land on the 'true' state at least once.
-    await authenticatedPage.route(
-      `**/api/v1/recipes/${recipe().identifier}/favorite`,
-      async (route) => {
+    // Regex pattern matches the full URL after gateway rewrite — gives a
+    // clearer failure mode than a glob if the pattern slips. Scoped to
+    // this recipe's identifier so other recipes' favorites still hit
+    // the real backend.
+    const favoriteUrl = new RegExp(`/api/v1/recipes/${recipe().identifier}/favorite$`);
+    await authenticatedPage.route(favoriteUrl, async (route) => {
         if (route.request().method() !== 'POST') {
           return route.continue();
         }
