@@ -14,17 +14,20 @@ import { TIMEOUTS } from '../helpers/timeouts';
 test.describe('Recipe Edit Flow', () => {
   const recipe = setupSharedRecipe(test, 'E2E Edit Test');
 
-  test('navigates from list card to detail page with edit button', async ({ authenticatedPage }) => {
+  test('navigates from list card to detail page with edit button', async ({
+    authenticatedPage,
+  }) => {
     await authenticatedPage.goto('/recipes');
 
-    const card = authenticatedPage.locator(SELECTORS.recipe.card, { hasText: recipe().title }).first();
+    const card = authenticatedPage
+      .locator(SELECTORS.recipe.card, { hasText: recipe().title })
+      .first();
     await expect(card).toBeVisible({ timeout: TIMEOUTS.default });
     await card.click();
 
-    await expect(authenticatedPage).toHaveURL(
-      new RegExp(`/recipes/${recipe().identifier}`),
-      { timeout: TIMEOUTS.default },
-    );
+    await expect(authenticatedPage).toHaveURL(new RegExp(`/recipes/${recipe().identifier}`), {
+      timeout: TIMEOUTS.default,
+    });
 
     // Edit is rendered as <a> with routerLink (role=link), not <button>.
     // The pre-#412 test used getByRole('button', /edit/i) and hid the

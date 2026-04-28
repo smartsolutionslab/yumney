@@ -22,19 +22,19 @@ test.describe('Auth Session Lifecycle (#407)', () => {
   test('redirects to login when refresh is rejected by Keycloak', async ({ authenticatedPage }) => {
     // Intercept the refresh-token POST and reject it as Keycloak would when
     // the refresh token has been revoked or the session expired server-side.
-    await authenticatedPage.route(
-      '**/realms/yumney/protocol/openid-connect/token',
-      (route) => {
-        if (route.request().method() === 'POST') {
-          return route.fulfill({
-            status: 400,
-            contentType: 'application/json',
-            body: JSON.stringify({ error: 'invalid_grant', error_description: 'Token is not active' }),
-          });
-        }
-        return route.continue();
-      },
-    );
+    await authenticatedPage.route('**/realms/yumney/protocol/openid-connect/token', (route) => {
+      if (route.request().method() === 'POST') {
+        return route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            error: 'invalid_grant',
+            error_description: 'Token is not active',
+          }),
+        });
+      }
+      return route.continue();
+    });
 
     // Force the stored access token to look expired so the auth lib /
     // authGuard sees no valid token. Use both expires_at and

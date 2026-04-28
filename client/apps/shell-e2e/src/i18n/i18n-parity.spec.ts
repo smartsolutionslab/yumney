@@ -47,9 +47,7 @@ async function setLanguage(
 
 test.describe('i18n parity smoke (#413)', () => {
   for (const probe of PROBE_PAGES) {
-    test(`${probe.label} renders translated text in EN and DE`, async ({
-      authenticatedPage,
-    }) => {
+    test(`${probe.label} renders translated text in EN and DE`, async ({ authenticatedPage }) => {
       await setLanguage(authenticatedPage, 'en');
       await authenticatedPage.goto(probe.url);
       const enText = await readH1(authenticatedPage);

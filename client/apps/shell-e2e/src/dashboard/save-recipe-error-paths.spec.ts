@@ -47,8 +47,7 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
     // actually fired the request the mock is supposed to fulfill.
     const savePost = authenticatedPage.waitForResponse(
       (res) =>
-        new URL(res.url()).pathname === '/api/v1/recipes' &&
-        res.request().method() === 'POST',
+        new URL(res.url()).pathname === '/api/v1/recipes' && res.request().method() === 'POST',
       { timeout: TIMEOUTS.default },
     );
     await dashboard.recipePreview.locator('.save-btn').click();
@@ -80,8 +79,7 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
 
     const savePost = authenticatedPage.waitForResponse(
       (res) =>
-        new URL(res.url()).pathname === '/api/v1/recipes' &&
-        res.request().method() === 'POST',
+        new URL(res.url()).pathname === '/api/v1/recipes' && res.request().method() === 'POST',
       { timeout: TIMEOUTS.default },
     );
     await dashboard.recipePreview.locator('.save-btn').click();
