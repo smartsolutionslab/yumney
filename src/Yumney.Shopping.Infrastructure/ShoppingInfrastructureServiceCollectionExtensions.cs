@@ -6,6 +6,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
+using SmartSolutionsLab.Yumney.Shopping.Application;
 using SmartSolutionsLab.Yumney.Shopping.Application.IntegrationEventHandlers;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
@@ -21,6 +22,15 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 {
 	public static IServiceCollection AddShoppingInfrastructure(this IServiceCollection services, IConfiguration configuration)
 	{
+		services.AddSingleton(_ =>
+		{
+			var section = configuration.GetSection(ShoppingOptions.SectionName);
+			return new ShoppingOptions
+			{
+				UseProjectionReadModel = bool.TryParse(section["UseProjectionReadModel"], out var v) ? v : true,
+			};
+		});
+
 		var connectionString = configuration.GetConnectionString("shoppingdb");
 		Action<NpgsqlDbContextOptionsBuilder> contextOptions = builder => builder
 			.MigrationsHistoryTable("__ShoppingMigrationsHistory")
@@ -44,6 +54,7 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IShoppingEventStore, EfCoreShoppingEventStore>();
 		services.AddScoped<IShoppingListWriter, ShoppingListWriter>();
 		services.AddScoped<IShoppingListReadModelRepository, ShoppingListReadModelRepository>();
+		services.AddScoped<IShoppingListProjectionRepository, EfCoreShoppingListProjectionRepository>();
 		services.AddScoped<ShoppingListProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemAddedIntegrationEvent>, ShoppingListProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>, ShoppingListProjectionHandler>();
