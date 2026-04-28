@@ -686,6 +686,9 @@ Scopes: recipes, shopping, users, account, shared, api, shell, infra, ui
 - CORS: only allowed origins (enforced at Gateway, not API)
 - Rate Limiting: 10 imports/minute/user
 - Secrets: Azure Key Vault only, NEVER in code
+  - All credentials flow through Aspire `AddParameter(..., secret: true)` — `PostgresPassword`, `KeycloakPassword`, `MessagingPassword`, `RedisPassword`, `YumneyApiClientSecret`, `OpenAiApiKey`.
+  - In run mode the AppHost provides a clearly-labeled dev default for the Keycloak client secret (matching `Realms/yumney-realm.json`); in publish mode the value is sourced from a Container App secret backed by Key Vault.
+  - `gitleaks` runs on every PR (`.github/workflows/secret-scan.yml`) to catch regressions.
 - No token in localStorage – HttpOnly Cookie
 - Angular Sanitization: never disable
 

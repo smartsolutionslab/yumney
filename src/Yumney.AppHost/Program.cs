@@ -19,6 +19,13 @@ var keycloakPassword = builder.AddParameter("KeycloakPassword", secret: true);
 var messagingPassword = builder.AddParameter("MessagingPassword", secret: true);
 var redisPassword = builder.AddParameter("RedisPassword", secret: true);
 
+// Run mode: default matches the literal in Realms/yumney-realm.json so the dev
+// stack works out of the box. Publish mode: no default — value must be supplied
+// via Container App secret backed by Key Vault.
+var yumneyApiClientSecret = isRunMode
+	? builder.AddParameter("YumneyApiClientSecret", "dev-only-keycloak-client-secret", secret: true)
+	: builder.AddParameter("YumneyApiClientSecret", secret: true);
+
 IResourceBuilder<IResourceWithConnectionString> recipesDb, shoppingDb, usersDb, mealplanDb, keycloakDb;
 
 if (options.DatabaseOnly)
@@ -114,6 +121,7 @@ if (!options.DatabaseOnly)
 	var usersApi = builder
 		.AddProject<Projects.Yumney_Users_Api>("users-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
+		.WithEnvironment("Keycloak__ClientSecret", yumneyApiClientSecret)
 		.AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
 	var mealplanApi = builder
 		.AddProject<Projects.Yumney_MealPlan_Api>("mealplan-api")
