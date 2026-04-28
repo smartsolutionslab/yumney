@@ -41,7 +41,7 @@
       "name": "Yumney API",
       "enabled": true,
       "clientAuthenticatorType": "client-secret",
-      "secret": "yumney-api-secret",
+      "secret": "dev-only-keycloak-client-secret",
       "publicClient": false,
       "bearerOnly": false,
       "standardFlowEnabled": false,
