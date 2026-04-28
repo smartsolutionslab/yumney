@@ -23,7 +23,7 @@
   </div>
 
   @if (totalItems() > 0) {
-    <div class="progress-bar">
+    <div class="progress-bar" data-testid="shopping-progress-bar">
       {{ boughtItems() }} / {{ totalItems() }} {{ t('shopping.checked') }}
     </div>
   }
@@ -36,6 +36,7 @@
       (keydown)="onKeydown($event)"
       [placeholder]="t('shopping.addPlaceholder')"
       class="add-input"
+      data-testid="shopping-add-input"
     />
     <button
       class="add-btn"
@@ -56,7 +57,7 @@
   />
 
   @for (group of categoryGroups(); track group.category) {
-    <div class="category-group">
+    <div class="category-group" data-testid="shopping-category-group">
       <h2 class="category-header">{{ categoryLabels()[group.category] ?? group.category }}</h2>
 
       @for (item of group.items; track item.itemName) {
@@ -80,7 +81,7 @@
   }
 
   @if (!loading() && totalItems() === 0) {
-    <div class="empty-state">
+    <div class="empty-state" data-testid="shopping-empty-state">
       <p>{{ t(showPastPurchases() ? 'shopping.history.empty' : 'shopping.empty') }}</p>
     </div>
   }
