@@ -1,6 +1,10 @@
 export const SELECTORS = {
   banners: {
-    success: '.success-banner',
+    success: '[data-testid="success-banner"]',
+    // error stays as the role-alert match — it's the canonical a11y
+    // attribute for the banner and gives us free rule-out for axe a11y
+    // checks. Multiple components render their own [role="alert"];
+    // tests scope by container as needed.
     error: '[role="alert"]',
   },
   form: {

@@ -129,7 +129,7 @@
 
   @if (saveSuccess()) {
     <div class="save-success" role="status" aria-live="polite">
-      <div class="success-banner">
+      <div class="success-banner" data-testid="success-banner">
         {{ t('dashboard.save.success', { title: saveSuccess() }) }}
       </div>
       <button
