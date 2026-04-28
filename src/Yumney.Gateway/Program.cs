@@ -6,6 +6,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+// Refuse to boot if any YARP cluster disables TLS validation outside Development.
+// This catches both stale config files and accidental overrides from environment
+// variables. The flag is legitimate only against the Aspire dev Keycloak which
+// uses an ASP.NET self-signed cert; production must use proper CAs.
+if (!builder.Environment.IsDevelopment())
+{
+	foreach (var cluster in builder.Configuration.GetSection("ReverseProxy:Clusters").GetChildren())
+	{
+		if (cluster.GetValue<bool>("HttpClient:DangerousAcceptAnyServerCertificate"))
+		{
+			throw new InvalidOperationException(
+				$"Cluster '{cluster.Key}' has DangerousAcceptAnyServerCertificate=true in environment "
+				+ $"'{builder.Environment.EnvironmentName}'. This flag is only allowed in Development. "
+				+ "Move it to appsettings.Development.json or remove the override.");
+		}
+	}
+}
+
 builder.Services.AddResponseCompression(options =>
 {
 	options.EnableForHttps = true;
