@@ -17,11 +17,13 @@ public static class AuthEndpoints
 
 		group.MapPost("/register", Register)
 			.AllowAnonymous()
+			.RequireRateLimiting(RateLimitPolicies.AnonymousAuth)
 			.WithName("RegisterUser")
 			.WithTags("Auth")
 			.Produces<RegisterUserResultDto>(StatusCodes.Status201Created)
 			.ProducesValidationProblem()
-			.ProducesProblem(StatusCodes.Status409Conflict);
+			.ProducesProblem(StatusCodes.Status409Conflict)
+			.ProducesProblem(StatusCodes.Status429TooManyRequests);
 
 		static async Task<IResult> Register(
 			RegisterUserRequest request,
@@ -40,10 +42,12 @@ public static class AuthEndpoints
 
 		group.MapPost("/resend-verification-email", ResendVerificationEmail)
 			.AllowAnonymous()
+			.RequireRateLimiting(RateLimitPolicies.AnonymousAuth)
 			.WithName("ResendVerificationEmail")
 			.WithTags("Auth")
 			.Produces<ResendVerificationEmailResultDto>()
-			.ProducesValidationProblem();
+			.ProducesValidationProblem()
+			.ProducesProblem(StatusCodes.Status429TooManyRequests);
 
 		static async Task<IResult> ResendVerificationEmail(
 			ResendVerificationEmailRequest request,
