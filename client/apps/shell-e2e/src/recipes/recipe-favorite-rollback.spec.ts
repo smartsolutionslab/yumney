@@ -30,11 +30,23 @@ test.describe('Favorite Recipes — Optimistic Rollback (#409)', () => {
     // clearer failure mode than a glob if the pattern slips. Scoped to
     // this recipe's identifier so other recipes' favorites still hit
     // the real backend.
-    const favoriteUrl = new RegExp(`/api/v1/recipes/${recipe().identifier}/favorite$`);
-    await authenticatedPage.route(favoriteUrl, async (route) => {
+    // Use a URL-predicate function so route matching is fully explicit —
+    // earlier glob and regex attempts produced the same "route never fired"
+    // failure mode. Log the match decision so CI traces show whether the
+    // handler ran or the request hit the real backend.
+    const targetIdentifier = recipe().identifier;
+    let handlerFireCount = 0;
+    await authenticatedPage.route(
+      (url) =>
+        url.pathname === `/api/v1/recipes/${targetIdentifier}/favorite` ||
+        url.pathname.endsWith(`/api/v1/recipes/${targetIdentifier}/favorite`),
+      async (route) => {
         if (route.request().method() !== 'POST') {
           return route.continue();
         }
+        handlerFireCount += 1;
+        // eslint-disable-next-line no-console
+        console.log(`[#409 mock] intercepted POST ${route.request().url()}`);
         await new Promise((resolve) => setTimeout(resolve, 800));
         return route.fulfill({
           status: 500,
@@ -72,7 +84,15 @@ test.describe('Favorite Recipes — Optimistic Rollback (#409)', () => {
     await expect(heart).toHaveAttribute('aria-pressed', 'true', { timeout: TIMEOUTS.short });
 
     // Wait for the server response (500), then verify the rollback.
-    await favoritePost;
+    const response = await favoritePost;
+    // Diagnostic: confirm the response was actually our mock.
+    // eslint-disable-next-line no-console
+    console.log(
+      `[#409 mock] favorite response status=${response.status()} handlerFireCount=${handlerFireCount}`,
+    );
+    expect(handlerFireCount, 'route handler should have intercepted the POST').toBeGreaterThan(0);
+    expect(response.status(), 'mocked response should be 500').toBe(500);
+
     await expect(heart).toHaveAttribute('aria-pressed', 'false', { timeout: TIMEOUTS.default });
   });
 });
