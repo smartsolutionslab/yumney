@@ -24,10 +24,8 @@ export async function mockApiError(
   status: number,
   problem: Partial<Omit<ProblemDetails, 'status'>> = {},
 ): Promise<void> {
-  await page.route(urlPattern, (route) => {
-    // eslint-disable-next-line no-console
-    console.log(`[mockApiError] ${status} ← ${route.request().url()}`);
-    return route.fulfill({
+  await page.route(urlPattern, (route) =>
+    route.fulfill({
       status,
       contentType: 'application/problem+json',
       body: JSON.stringify({
@@ -38,8 +36,8 @@ export async function mockApiError(
         ...(problem.instance !== undefined && { instance: problem.instance }),
         ...(problem.errors !== undefined && { errors: problem.errors }),
       }),
-    });
-  });
+    }),
+  );
 }
 
 function defaultTitleFor(status: number): string {
