@@ -9,7 +9,7 @@ public static class EventingServiceCollectionExtensions
 {
 	/// <summary>
 	/// Registers in-process domain event dispatcher and in-process event bus.
-	/// When using a distributed event bus (e.g. MassTransit), call this first for domain events,
+	/// When using a distributed event bus (e.g. Wolverine), call this first for domain events,
 	/// then register the distributed IEventBus which will override the in-process one.
 	/// </summary>
 	/// <param name="services">The service collection.</param>
