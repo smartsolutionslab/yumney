@@ -1,5 +1,4 @@
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
-using SmartSolutionsLab.Yumney.Shared.Events;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
 
@@ -7,4 +6,4 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStor
 public sealed record ServingsAdjustedIntegrationEvent(
 	string OwnerId,
 	string Week,
-	ServingsAdjusted Inner) : IntegrationEvent;
+	ServingsAdjusted Inner) : MealPlanIntegrationEvent(OwnerId, Week);

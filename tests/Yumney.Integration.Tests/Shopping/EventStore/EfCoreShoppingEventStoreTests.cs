@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -201,7 +202,7 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 			.AddItem(milk, Quantity.Of(Amount.From(1), litre), Source);
 		var act = () => CreateStore(ctx2).SaveAsync(second);
 
-		await act.Should().ThrowAsync<DbUpdateException>();
+		await act.Should().ThrowAsync<ConcurrencyConflictException>();
 	}
 
 	[Fact]

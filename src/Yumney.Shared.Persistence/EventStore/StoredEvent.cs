@@ -1,7 +1,9 @@
-namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
+namespace SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 
 /// <summary>
-/// Persisted event in the append-only event store.
+/// Persisted event row in an append-only event store. Each module maps this type
+/// to its own table (e.g. <c>ShoppingEvents</c>, <c>MealPlanEvents</c>) via its
+/// own <see cref="Microsoft.EntityFrameworkCore.IEntityTypeConfiguration{TEntity}"/>.
 /// </summary>
 public sealed class StoredEvent
 {

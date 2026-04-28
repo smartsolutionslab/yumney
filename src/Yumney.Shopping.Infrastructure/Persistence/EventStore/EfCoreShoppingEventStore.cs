@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -121,7 +122,14 @@ public sealed partial class EfCoreShoppingEventStore(
 			await SaveSnapshotAsync(ledger, cancellationToken);
 		}
 
-		await context.SaveChangesAsync(cancellationToken);
+		try
+		{
+			await context.SaveChangesAsync(cancellationToken);
+		}
+		catch (DbUpdateException ex) when (ex.IsUniqueViolation())
+		{
+			throw new ConcurrencyConflictException(nameof(ShoppingLedger), ledger.Identifier, ex);
+		}
 
 		ledger.MarkCommitted();
 
