@@ -25,12 +25,10 @@ test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', ()
     await expect(dashboard.fieldError(/valid.*URL|invalid/i)).toBeVisible();
   });
 
-  // Fixme'd pending #430: the URL-import flow has a real product bug where
-  // an SSE timeout / network-drop silently aborts without surfacing an error
-  // to the user. The test was the only thing catching it, but couldn't be
-  // made green without papering over the bug. Re-enable once #430 lands and
-  // the frontend actually surfaces a banner on import failure.
-  test.fixme('should show error for unreachable URL', async () => {
+  // Re-enabled — #430 fix landed in recipe-api.service.ts: the SSE
+  // timeout now calls subscriber.error directly instead of relying on
+  // a catch guard that the abort-on-timeout silently bypassed.
+  test('should show error for unreachable URL', async () => {
     await dashboard.urlInput.fill('https://this-domain-does-not-exist-e2e.invalid/recipe');
     await dashboard.importButton.click();
 
