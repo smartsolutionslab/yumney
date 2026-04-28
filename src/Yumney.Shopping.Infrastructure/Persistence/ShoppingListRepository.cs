@@ -19,7 +19,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext writeContext, Shopp
 	{
 		return await readContext.ShoppingLists
 			.Include(l => l.Items)
-			.FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken)
+			.FirstOrDefaultAsync(l => l.Identifier == identifier, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
 	}
 
@@ -29,7 +29,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext writeContext, Shopp
 	{
 		return await shoppingLists
 			.Include(l => l.Items)
-			.FirstOrDefaultAsync(l => l.Id == identifier, cancellationToken)
+			.FirstOrDefaultAsync(l => l.Identifier == identifier, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
 	}
 
@@ -47,7 +47,7 @@ public sealed class ShoppingListRepository(ShoppingDbContext writeContext, Shopp
 		var items = await query
 			.Skip(paging.Skip)
 			.Take(paging.PageSize.Value)
-			.Select(l => new ShoppingListSummary(l.Id, l.Title, ItemCount.From(l.Items.Count), l.CreatedAt))
+			.Select(l => new ShoppingListSummary(l.Identifier, l.Title, ItemCount.From(l.Items.Count), l.CreatedAt))
 			.ToListAsync(cancellationToken);
 
 		return (items, ItemCount.From(totalCount));

@@ -26,8 +26,8 @@ public class CheckOffAllItemsCommandHandlerTests
 	public async Task HandleAsync_CheckAllValid_ReturnsSuccess()
 	{
 		var list = ShoppingListTestData.CreateListWithItems();
-		shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
-		var command = new CheckOffAllItemsCommand(list.Id, true);
+		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		var command = new CheckOffAllItemsCommand(list.Identifier, true);
 
 		var result = await handler.HandleAsync(command);
 
@@ -38,8 +38,8 @@ public class CheckOffAllItemsCommandHandlerTests
 	public async Task HandleAsync_UncheckAllValid_ReturnsSuccess()
 	{
 		var list = ShoppingListTestData.CreateListWithItems();
-		shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
-		var command = new CheckOffAllItemsCommand(list.Id, false);
+		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		var command = new CheckOffAllItemsCommand(list.Identifier, false);
 
 		var result = await handler.HandleAsync(command);
 
@@ -63,8 +63,8 @@ public class CheckOffAllItemsCommandHandlerTests
 	public async Task HandleAsync_DifferentOwner_ReturnsAccessDenied()
 	{
 		var list = ShoppingListTestData.CreateListWithItems("other-user");
-		shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
-		var command = new CheckOffAllItemsCommand(list.Id, true);
+		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		var command = new CheckOffAllItemsCommand(list.Identifier, true);
 
 		var result = await handler.HandleAsync(command);
 
@@ -76,8 +76,8 @@ public class CheckOffAllItemsCommandHandlerTests
 	public async Task HandleAsync_CheckTrue_AllItemsChecked()
 	{
 		var list = ShoppingListTestData.CreateListWithItems();
-		shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
-		var command = new CheckOffAllItemsCommand(list.Id, true);
+		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		var command = new CheckOffAllItemsCommand(list.Identifier, true);
 
 		await handler.HandleAsync(command);
 
@@ -89,8 +89,8 @@ public class CheckOffAllItemsCommandHandlerTests
 	{
 		var list = ShoppingListTestData.CreateListWithItems();
 		list.CheckAllItems();
-		shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
-		var command = new CheckOffAllItemsCommand(list.Id, false);
+		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		var command = new CheckOffAllItemsCommand(list.Identifier, false);
 
 		await handler.HandleAsync(command);
 
@@ -101,8 +101,8 @@ public class CheckOffAllItemsCommandHandlerTests
 	public async Task HandleAsync_ValidCommand_CallsSaveChanges()
 	{
 		var list = ShoppingListTestData.CreateListWithItems();
-		shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
-		var command = new CheckOffAllItemsCommand(list.Id, true);
+		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		var command = new CheckOffAllItemsCommand(list.Identifier, true);
 
 		await handler.HandleAsync(command);
 
@@ -114,12 +114,12 @@ public class CheckOffAllItemsCommandHandlerTests
 	{
 		var cts = new CancellationTokenSource();
 		var list = ShoppingListTestData.CreateListWithItems();
-		shoppingLists.GetByIdForUpdateAsync(list.Id, Arg.Any<CancellationToken>()).Returns(list);
-		var command = new CheckOffAllItemsCommand(list.Id, true);
+		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		var command = new CheckOffAllItemsCommand(list.Identifier, true);
 
 		await handler.HandleAsync(command, cts.Token);
 
-		await shoppingLists.Received(1).GetByIdForUpdateAsync(list.Id, cts.Token);
+		await shoppingLists.Received(1).GetByIdForUpdateAsync(list.Identifier, cts.Token);
 		await unitOfWork.Received(1).SaveChangesAsync(cts.Token);
 	}
 }

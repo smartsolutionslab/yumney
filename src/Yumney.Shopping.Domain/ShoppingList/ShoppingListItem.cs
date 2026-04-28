@@ -25,13 +25,24 @@ public sealed class ShoppingListItem : Entity<ShoppingListItemIdentifier>
 		};
 	}
 
-	public ShoppingListItem Check()
+	internal static ShoppingListItem Hydrate(ShoppingListItemIdentifier id, ItemName name, Quantity? quantity)
+	{
+		return new ShoppingListItem
+		{
+			Id = id,
+			Name = name,
+			Quantity = quantity,
+			IsChecked = false,
+		};
+	}
+
+	internal ShoppingListItem MarkChecked()
 	{
 		IsChecked = true;
 		return this;
 	}
 
-	public ShoppingListItem Uncheck()
+	internal ShoppingListItem MarkUnchecked()
 	{
 		IsChecked = false;
 		return this;

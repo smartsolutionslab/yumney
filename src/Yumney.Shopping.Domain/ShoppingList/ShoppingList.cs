@@ -4,7 +4,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
+public sealed class ShoppingList : EventSourcedAggregate<ShoppingListIdentifier>
 {
 	private readonly List<ShoppingListItem> items = [];
 
@@ -20,6 +20,13 @@ public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
 
 	private ShoppingList()
 	{
+		On<ShoppingListCreated>(OnCreated);
+		On<ListItemAdded>(OnListItemAdded);
+		On<ListItemChecked>(OnListItemChecked);
+		On<ListItemUnchecked>(OnListItemUnchecked);
+		On<AllItemsChecked>(_ => OnAllItemsChecked());
+		On<AllItemsUnchecked>(_ => OnAllItemsUnchecked());
+		On<RecipeReferenceCleared>(_ => OnRecipeReferenceCleared());
 	}
 
 	public static ShoppingList Create(
@@ -30,60 +37,113 @@ public sealed class ShoppingList : AggregateRoot<ShoppingListIdentifier>
 	{
 		Ensure.That(items).IsNotEmpty();
 
-		var shoppingList = new ShoppingList
+		var list = new ShoppingList();
+		list.RaiseEvent(new ShoppingListCreated(
+			ShoppingListIdentifier.New(),
+			title,
+			owner,
+			recipeReference,
+			DateTime.UtcNow));
+
+		foreach (var item in items)
 		{
-			Id = ShoppingListIdentifier.New(),
-			Title = title,
-			Owner = owner,
-			RecipeReference = recipeReference,
-			CreatedAt = DateTime.UtcNow,
-		};
+			list.RaiseEvent(new ListItemAdded(item.Id, item.Name, item.Quantity));
+		}
 
-		shoppingList.items.AddRange(items);
+		return list;
+	}
 
-		shoppingList.AddDomainEvent(new ShoppingListCreatedEvent(shoppingList.Id, title));
-
-		return shoppingList;
+	public static ShoppingList FromEvents(
+		ShoppingListIdentifier identifier,
+		IEnumerable<IDomainEvent> events,
+		AggregateVersion? startVersion = null)
+	{
+		var list = new ShoppingList { Identifier = identifier };
+		list.LoadFromHistory(events, startVersion);
+		return list;
 	}
 
 	public ShoppingList CheckOffItem(ShoppingListItemIdentifier itemId)
 	{
-		var item = FindItem(itemId);
-		item.Check();
+		EnsureItemExists(itemId);
+		RaiseEvent(new ListItemChecked(itemId));
 		return this;
 	}
 
 	public ShoppingList UncheckItem(ShoppingListItemIdentifier itemId)
 	{
-		var item = FindItem(itemId);
-		item.Uncheck();
+		EnsureItemExists(itemId);
+		RaiseEvent(new ListItemUnchecked(itemId));
 		return this;
 	}
 
 	public ShoppingList CheckAllItems()
 	{
-		foreach (var item in items)
-		{
-			item.Check();
-		}
-
+		RaiseEvent(new AllItemsChecked());
 		return this;
 	}
 
 	public ShoppingList UncheckAllItems()
 	{
-		foreach (var item in items)
-		{
-			item.Uncheck();
-		}
-
+		RaiseEvent(new AllItemsUnchecked());
 		return this;
 	}
 
 	public ShoppingList ClearRecipeReference()
 	{
-		RecipeReference = null;
+		RaiseEvent(new RecipeReferenceCleared());
 		return this;
+	}
+
+	private void OnCreated(ShoppingListCreated e)
+	{
+		Identifier = e.Identifier;
+		Title = e.Title;
+		Owner = e.Owner;
+		RecipeReference = e.RecipeReference;
+		CreatedAt = e.CreatedAt;
+	}
+
+	private void OnListItemAdded(ListItemAdded e)
+	{
+		items.Add(ShoppingListItem.Hydrate(e.ItemId, e.Name, e.Quantity));
+	}
+
+	private void OnListItemChecked(ListItemChecked e)
+	{
+		FindItem(e.ItemId).MarkChecked();
+	}
+
+	private void OnListItemUnchecked(ListItemUnchecked e)
+	{
+		FindItem(e.ItemId).MarkUnchecked();
+	}
+
+	private void OnAllItemsChecked()
+	{
+		foreach (var item in items)
+		{
+			item.MarkChecked();
+		}
+	}
+
+	private void OnAllItemsUnchecked()
+	{
+		foreach (var item in items)
+		{
+			item.MarkUnchecked();
+		}
+	}
+
+	private void OnRecipeReferenceCleared()
+	{
+		RecipeReference = null;
+	}
+
+	private void EnsureItemExists(ShoppingListItemIdentifier itemId)
+	{
+		var item = items.FirstOrDefault(i => i.Id == itemId);
+		Ensure.That(item!).IsNotNull();
 	}
 
 	private ShoppingListItem FindItem(ShoppingListItemIdentifier itemId)

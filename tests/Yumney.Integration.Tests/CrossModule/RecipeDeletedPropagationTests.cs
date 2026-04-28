@@ -44,7 +44,7 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 			var userId = await fixture.GetTestUserIdAsync();
 			var owner = OwnerIdentifier.From(userId);
 			await using var ctx = await fixture.CreateShoppingDbContextAsync();
-			var list = await ctx.ShoppingLists.AsNoTracking().SingleAsync(l => l.Id == ShoppingListIdentifier.From(listId) && l.Owner == owner);
+			var list = await ctx.ShoppingLists.AsNoTracking().SingleAsync(l => l.Identifier == ShoppingListIdentifier.From(listId) && l.Owner == owner);
 			return list.RecipeReference is null;
 		});
 	}
@@ -65,7 +65,7 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 		await Task.Delay(2000);
 
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
-		var list = await ctx.ShoppingLists.AsNoTracking().SingleAsync(l => l.Id == ShoppingListIdentifier.From(linkedToB));
+		var list = await ctx.ShoppingLists.AsNoTracking().SingleAsync(l => l.Identifier == ShoppingListIdentifier.From(linkedToB));
 		list.RecipeReference.Should().NotBeNull();
 	}
 
