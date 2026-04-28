@@ -1,7 +1,8 @@
 @if (state.isOpen()) {
-  <div class="chat-backdrop" (click)="onBackdropClick()"></div>
+  <div class="chat-backdrop" data-testid="chat-backdrop" (click)="onBackdropClick()"></div>
   <div
     class="chat-panel"
+    data-testid="chat-panel"
     *transloco="let t"
     role="dialog"
     aria-modal="true"
@@ -11,11 +12,21 @@
       <h2>{{ t('chat.title') }}</h2>
       <div class="chat-header-actions">
         @if (state.messages().length > 0) {
-          <button class="chat-clear" (click)="onClear()" [attr.aria-label]="t('chat.clearHistory')">
+          <button
+            class="chat-clear"
+            data-testid="chat-clear"
+            (click)="onClear()"
+            [attr.aria-label]="t('chat.clearHistory')"
+          >
             {{ t('chat.clear') }}
           </button>
         }
-        <button class="chat-close" (click)="onClose()" [attr.aria-label]="t('chat.close')">
+        <button
+          class="chat-close"
+          data-testid="chat-close"
+          (click)="onClose()"
+          [attr.aria-label]="t('chat.close')"
+        >
           <lucide-icon name="x" [size]="18" />
         </button>
       </div>
@@ -23,7 +34,7 @@
 
     <div #messages class="chat-messages">
       @if (state.messages().length === 0) {
-        <div class="chat-welcome">
+        <div class="chat-welcome" data-testid="chat-welcome">
           <p>{{ t('chat.welcome') }}</p>
           <ul class="chat-examples">
             <li>{{ t('chat.examples.1') }}</li>
@@ -79,6 +90,7 @@
 
     <form class="chat-input" (submit)="$event.preventDefault(); onSend()">
       <textarea
+        data-testid="chat-input"
         [ngModel]="input()"
         (ngModelChange)="input.set($event)"
         (keydown)="onKeydown($event)"
@@ -90,6 +102,7 @@
       <button
         type="submit"
         class="chat-send btn-primary"
+        data-testid="chat-send"
         [disabled]="!input().trim() || state.isThinking()"
       >
         {{ t('chat.send') }}

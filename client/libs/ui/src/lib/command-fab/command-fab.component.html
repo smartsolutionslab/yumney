@@ -1,6 +1,7 @@
 <button
   *transloco="let t"
   class="command-fab"
+  data-testid="chat-fab"
   [class.is-open]="chatState.isOpen()"
   (click)="onToggle()"
   [attr.aria-label]="t('commandBar.toggle')"
