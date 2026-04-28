@@ -47,11 +47,11 @@ export const SELECTORS = {
     retryBtn: '.retry-btn',
   },
   shopping: {
-    categoryGroup: '.category-group',
+    categoryGroup: '[data-testid="shopping-category-group"]',
     itemName: '.item-name',
-    addInput: '.add-input',
-    emptyState: '.empty-state',
-    progressBar: '.progress-bar',
+    addInput: '[data-testid="shopping-add-input"]',
+    emptyState: '[data-testid="shopping-empty-state"]',
+    progressBar: '[data-testid="shopping-progress-bar"]',
     retryBtn: '.retry-btn',
   },
   profileSettings: {
