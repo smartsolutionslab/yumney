@@ -1,5 +1,5 @@
 <div class="profile-settings" *transloco="let t">
-  <h1>{{ t('account.settings.title') }}</h1>
+  <h1 data-testid="profile-settings-title">{{ t('account.settings.title') }}</h1>
 
   <yn-async-state
     [loading]="loading()"
@@ -11,7 +11,7 @@
 
   @if (profile(); as p) {
     <form (submit)="$event.preventDefault(); onSave()">
-      <section class="settings-section">
+      <section class="settings-section" data-testid="profile-settings-section">
         <h2>{{ t('account.settings.household') }}</h2>
         <div class="form-field">
           <label for="servings">{{ t('account.settings.defaultServings') }}</label>
@@ -27,7 +27,7 @@
         </div>
       </section>
 
-      <section class="settings-section">
+      <section class="settings-section" data-testid="profile-settings-section">
         <h2>{{ t('account.settings.dietary') }}</h2>
         <div class="form-field">
           <label for="dietaryType">{{ t('account.settings.dietaryType') }}</label>
@@ -76,7 +76,7 @@
         </div>
       </section>
 
-      <section class="settings-section">
+      <section class="settings-section" data-testid="profile-settings-section">
         <h2>{{ t('account.settings.weeklyGoals') }}</h2>
         <div class="form-row">
           <div class="form-field">
@@ -107,11 +107,18 @@
       </section>
 
       <div class="form-actions">
-        <button type="submit" class="save-btn" [disabled]="saving()">
+        <button
+          type="submit"
+          class="save-btn"
+          data-testid="profile-save-btn"
+          [disabled]="saving()"
+        >
           {{ saving() ? t('account.settings.saving') : t('account.settings.save') }}
         </button>
         @if (saved()) {
-          <span class="saved-indicator">{{ t('account.settings.saved') }}</span>
+          <span class="saved-indicator" data-testid="profile-saved-indicator">{{
+            t('account.settings.saved')
+          }}</span>
         }
       </div>
     </form>

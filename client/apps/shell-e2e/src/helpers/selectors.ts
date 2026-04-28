@@ -60,14 +60,17 @@ export const SELECTORS = {
     retryBtn: '.retry-btn',
   },
   profileSettings: {
-    title: '.profile-settings h1',
+    title: '[data-testid="profile-settings-title"]',
     servingsInput: '#servings',
     dietaryTypeSelect: '#dietaryType',
     cookingEffortSelect: '#cookingEffort',
     checkboxLabel: '.checkbox-label',
-    saveBtn: '.save-btn',
-    savedIndicator: '.saved-indicator',
-    settingsSection: '.settings-section',
+    saveBtn: '[data-testid="profile-save-btn"]',
+    savedIndicator: '[data-testid="profile-saved-indicator"]',
+    settingsSection: '[data-testid="profile-settings-section"]',
+    // loading/error/retryBtn are rendered by the shared yn-async-state
+    // component — kept on class selectors until that component gets
+    // its own data-testid in a follow-up.
     loading: '.loading',
     error: '.error',
     retryBtn: '.retry-btn',
