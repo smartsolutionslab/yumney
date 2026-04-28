@@ -304,6 +304,7 @@
     "loading": "Loading meal plan...",
     "servings": "servings",
     "clearSlot": "Clear this slot",
+    "addMeal": "Add meal for {{day}}",
     "retry": "Retry",
     "generateShoppingList": "Generate Shopping List",
     "generatingList": "Generating...",
