@@ -8,6 +8,10 @@ public sealed class ShoppingReadDbContext(DbContextOptions<ShoppingReadDbContext
 {
 	public DbSet<ShoppingListReadItem> ShoppingListReadItems => Set<ShoppingListReadItem>();
 
+	public DbSet<ShoppingListSummaryReadItem> ShoppingListSummaryReadItems => Set<ShoppingListSummaryReadItem>();
+
+	public DbSet<ShoppingListItemReadItem> ShoppingListItemReadItems => Set<ShoppingListItemReadItem>();
+
 	public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
