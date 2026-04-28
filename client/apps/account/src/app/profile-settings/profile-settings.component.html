@@ -107,12 +107,7 @@
       </section>
 
       <div class="form-actions">
-        <button
-          type="submit"
-          class="save-btn"
-          data-testid="profile-save-btn"
-          [disabled]="saving()"
-        >
+        <button type="submit" class="save-btn" data-testid="profile-save-btn" [disabled]="saving()">
           {{ saving() ? t('account.settings.saving') : t('account.settings.save') }}
         </button>
         @if (saved()) {
