@@ -20,6 +20,9 @@ export default defineConfig({
   // Refuse to start if BASE_URL/GATEWAY_URL points outside localhost. The
   // suite issues real writes; set E2E_ALLOW_REMOTE=true to override.
   globalSetup: require.resolve('./src/global-setup'),
+  // Sweep up any orphaned E2E-prefixed recipes left behind by tests that
+  // crashed (afterAll is bypassed on crash). See src/global-teardown.ts.
+  globalTeardown: require.resolve('./src/global-teardown'),
   // Bumped from 30s to 60s: post-token-expiry-fix, fixture-heavy beforeAll
   // hooks (openAuthenticatedPage + API POST under parallel worker pressure)
   // started exceeding 30s. The real API calls themselves are ~1s; the budget
