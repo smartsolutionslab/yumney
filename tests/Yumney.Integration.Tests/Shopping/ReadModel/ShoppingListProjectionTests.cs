@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 using Xunit;
@@ -30,15 +31,10 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 	[Fact]
 	public async Task Created_InsertsSummaryRow()
 	{
-		var projection = await CreateProjectionAsync();
-		var inner = new ShoppingListCreated(
-			ShoppingListIdentifier.From(aggregateId),
-			ShoppingListTitle.From("Weekly Groceries"),
-			owner,
-			RecipeReference: null,
-			CreatedAt: DateTime.UtcNow);
-
-		await projection.HandleAsync(new ShoppingListCreatedIntegrationEvent(owner.Value, aggregateId, inner));
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await new ShoppingListProjection(ctx).HandleAsync(CreatedEvent());
+		}
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var summary = await verify.Set<ShoppingListSummaryReadItem>().SingleAsync(s => s.Id == aggregateId);
@@ -52,11 +48,13 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 	public async Task ItemAdded_InsertsItemAndIncrementsCount()
 	{
 		await SeedCreatedAsync();
-		var projection = await CreateProjectionAsync();
 		var itemId = ShoppingListItemIdentifier.New();
-		var inner = new ListItemAdded(itemId, ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram));
 
-		await projection.HandleAsync(new ListItemAddedIntegrationEvent(owner.Value, aggregateId, inner));
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await new ShoppingListProjection(ctx).HandleAsync(
+				ItemAddedEvent(itemId, "Flour"));
+		}
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var item = await verify.Set<ShoppingListItemReadItem>().SingleAsync(i => i.Id == itemId.Value);
@@ -71,14 +69,39 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 	}
 
 	[Fact]
+	public async Task ItemAdded_DeliveredTwice_KeepsCountAtOne()
+	{
+		await SeedCreatedAsync();
+		var itemId = ShoppingListItemIdentifier.New();
+
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await new ShoppingListProjection(ctx).HandleAsync(ItemAddedEvent(itemId, "Flour"));
+		}
+
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await new ShoppingListProjection(ctx).HandleAsync(ItemAddedEvent(itemId, "Flour"));
+		}
+
+		await using var verify = await fixture.CreateShoppingDbContextAsync();
+		var items = await verify.Set<ShoppingListItemReadItem>().Where(i => i.ListId == aggregateId).CountAsync();
+		var summary = await verify.Set<ShoppingListSummaryReadItem>().SingleAsync(s => s.Id == aggregateId);
+		items.Should().Be(1);
+		summary.ItemCount.Should().Be(1);
+	}
+
+	[Fact]
 	public async Task ItemChecked_FlipsIsCheckedFlag()
 	{
 		await SeedCreatedAsync();
 		var itemId = await SeedItemAsync("Sugar");
-		var projection = await CreateProjectionAsync();
 
-		await projection.HandleAsync(new ListItemCheckedIntegrationEvent(
-			owner.Value, aggregateId, new ListItemChecked(ShoppingListItemIdentifier.From(itemId))));
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await new ShoppingListProjection(ctx).HandleAsync(new ListItemCheckedIntegrationEvent(
+				owner.Value, aggregateId, new ListItemChecked(ShoppingListItemIdentifier.From(itemId))));
+		}
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var item = await verify.Set<ShoppingListItemReadItem>().SingleAsync(i => i.Id == itemId);
@@ -89,20 +112,20 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 	public async Task AllItemsChecked_FlipsEveryItemForList()
 	{
 		await SeedCreatedAsync();
-		var first = await SeedItemAsync("Sugar");
-		var second = await SeedItemAsync("Salt");
-		var projection = await CreateProjectionAsync();
+		await SeedItemAsync("Sugar");
+		await SeedItemAsync("Salt");
 
-		await projection.HandleAsync(new AllItemsCheckedIntegrationEvent(
-			owner.Value, aggregateId, new AllItemsChecked()));
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await new ShoppingListProjection(ctx).HandleAsync(new AllItemsCheckedIntegrationEvent(
+				owner.Value, aggregateId, new AllItemsChecked()));
+		}
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var items = await verify.Set<ShoppingListItemReadItem>()
 			.Where(i => i.ListId == aggregateId).ToListAsync();
 		items.Should().HaveCount(2);
 		items.Should().OnlyContain(i => i.IsChecked);
-		_ = first;
-		_ = second;
 	}
 
 	[Fact]
@@ -115,11 +138,18 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 			owner,
 			RecipeReference: RecipeReference.From(recipe),
 			CreatedAt: DateTime.UtcNow);
-		var projection = await CreateProjectionAsync();
-		await projection.HandleAsync(new ShoppingListCreatedIntegrationEvent(owner.Value, aggregateId, inner));
 
-		await projection.HandleAsync(new RecipeReferenceClearedIntegrationEvent(
-			owner.Value, aggregateId, new RecipeReferenceCleared()));
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			var projection = new ShoppingListProjection(ctx);
+			await projection.HandleAsync(new ShoppingListCreatedIntegrationEvent(owner.Value, aggregateId, inner));
+		}
+
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await new ShoppingListProjection(ctx).HandleAsync(new RecipeReferenceClearedIntegrationEvent(
+				owner.Value, aggregateId, new RecipeReferenceCleared()));
+		}
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var summary = await verify.Set<ShoppingListSummaryReadItem>().SingleAsync(s => s.Id == aggregateId);
@@ -129,46 +159,46 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 	[Fact]
 	public async Task Created_TwiceForSameAggregate_IsIdempotent()
 	{
-		var projection = await CreateProjectionAsync();
-		var inner = new ShoppingListCreated(
-			ShoppingListIdentifier.From(aggregateId),
-			ShoppingListTitle.From("Weekly Groceries"),
-			owner,
-			RecipeReference: null,
-			CreatedAt: DateTime.UtcNow);
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await new ShoppingListProjection(ctx).HandleAsync(CreatedEvent());
+		}
 
-		await projection.HandleAsync(new ShoppingListCreatedIntegrationEvent(owner.Value, aggregateId, inner));
-		await projection.HandleAsync(new ShoppingListCreatedIntegrationEvent(owner.Value, aggregateId, inner));
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			await new ShoppingListProjection(ctx).HandleAsync(CreatedEvent());
+		}
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var rows = await verify.Set<ShoppingListSummaryReadItem>().Where(s => s.Id == aggregateId).CountAsync();
 		rows.Should().Be(1);
 	}
 
-	private async Task<ShoppingListProjection> CreateProjectionAsync()
-	{
-		var ctx = await fixture.CreateShoppingDbContextAsync();
-		return new ShoppingListProjection(ctx);
-	}
-
-	private async Task SeedCreatedAsync()
-	{
-		var projection = await CreateProjectionAsync();
-		var inner = new ShoppingListCreated(
+	private ShoppingListCreatedIntegrationEvent CreatedEvent() =>
+		new(owner.Value, aggregateId, new ShoppingListCreated(
 			ShoppingListIdentifier.From(aggregateId),
 			ShoppingListTitle.From("Weekly Groceries"),
 			owner,
 			RecipeReference: null,
-			CreatedAt: DateTime.UtcNow);
-		await projection.HandleAsync(new ShoppingListCreatedIntegrationEvent(owner.Value, aggregateId, inner));
+			CreatedAt: DateTime.UtcNow));
+
+	private ListItemAddedIntegrationEvent ItemAddedEvent(ShoppingListItemIdentifier itemId, string name) =>
+		new(owner.Value, aggregateId, new ListItemAdded(
+			itemId,
+			ItemName.From(name),
+			Quantity.Of(Amount.From(500), Unit.Gram)));
+
+	private async Task SeedCreatedAsync()
+	{
+		await using var ctx = await fixture.CreateShoppingDbContextAsync();
+		await new ShoppingListProjection(ctx).HandleAsync(CreatedEvent());
 	}
 
 	private async Task<Guid> SeedItemAsync(string name)
 	{
-		var projection = await CreateProjectionAsync();
 		var itemId = ShoppingListItemIdentifier.New();
-		var inner = new ListItemAdded(itemId, ItemName.From(name), Quantity.Of(Amount.From(1), Unit.Gram));
-		await projection.HandleAsync(new ListItemAddedIntegrationEvent(owner.Value, aggregateId, inner));
+		await using var ctx = await fixture.CreateShoppingDbContextAsync();
+		await new ShoppingListProjection(ctx).HandleAsync(ItemAddedEvent(itemId, name));
 		return itemId.Value;
 	}
 }

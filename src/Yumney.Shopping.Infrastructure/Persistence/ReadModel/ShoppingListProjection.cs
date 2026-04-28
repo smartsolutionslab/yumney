@@ -69,9 +69,12 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 				CreatedAt = DateTime.UtcNow,
 				LastUpdated = DateTime.UtcNow,
 			});
+
+			// Only increment when the item is newly inserted — otherwise replay/duplicate
+			// delivery would drift the count while the items table stays at 1 row.
+			await IncrementItemCountAsync(@event.AggregateId, cancellationToken);
 		}
 
-		await IncrementItemCountAsync(@event.AggregateId, cancellationToken);
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
