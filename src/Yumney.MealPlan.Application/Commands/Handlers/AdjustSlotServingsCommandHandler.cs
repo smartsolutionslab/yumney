@@ -5,7 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
-public sealed class AdjustSlotServingsCommandHandler(IMealPlanUnitOfWork unitOfWork, ICurrentUser currentUser)
+public sealed class AdjustSlotServingsCommandHandler(IMealPlanEventStore eventStore, ICurrentUser currentUser)
 	: ICommandHandler<AdjustSlotServingsCommand, Result<WeeklyPlanDto>>
 {
 	public async Task<Result<WeeklyPlanDto>> HandleAsync(AdjustSlotServingsCommand command, CancellationToken cancellationToken = default)
@@ -13,10 +13,11 @@ public sealed class AdjustSlotServingsCommandHandler(IMealPlanUnitOfWork unitOfW
 		var (week, day, mealType, servings) = command;
 		var owner = currentUser.AsOwner();
 
-		var plan = await unitOfWork.Plans.GetByOwnerAndWeekAsync(owner, week, cancellationToken);
+		var plan = await eventStore.LoadAsync(owner, week, cancellationToken)
+			?? throw new EntityNotFoundException(nameof(WeeklyPlan), $"{owner.Value}/{week.Value}");
 
 		plan.AdjustServings(day, servings, mealType);
-		await unitOfWork.SaveChangesAsync(cancellationToken);
+		await eventStore.SaveAsync(plan, cancellationToken);
 
 		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
 	}

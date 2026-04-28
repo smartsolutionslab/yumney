@@ -6,7 +6,7 @@ using SmartSolutionsLab.Yumney.Shared.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddYumneyDefaults();
+builder.AddYumneyDefaults(typeof(MealPlanInfrastructureServiceCollectionExtensions).Assembly);
 
 builder.Services
 	.AddMealPlanApi()

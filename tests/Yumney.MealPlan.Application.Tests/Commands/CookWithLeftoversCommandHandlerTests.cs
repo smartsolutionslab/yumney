@@ -1,9 +1,7 @@
 using FluentAssertions;
-using NSubstitute;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using Xunit;
 using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
@@ -12,22 +10,17 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class CookWithLeftoversCommandHandlerTests
 {
-	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
-	private readonly IMealPlanUnitOfWork unitOfWork = Substitute.For<IMealPlanUnitOfWork>();
+	private readonly FakeMealPlanEventStore eventStore = new();
 	private readonly CookWithLeftoversCommandHandler handler;
 
 	public CookWithLeftoversCommandHandlerTests()
 	{
-		unitOfWork.Plans.Returns(plans);
-		handler = new CookWithLeftoversCommandHandler(unitOfWork, CreateCurrentUser());
+		handler = new CookWithLeftoversCommandHandler(eventStore, CreateCurrentUser());
 	}
 
 	[Fact]
 	public async Task HandleAsync_Cook8Eat4_CreatesRecipeAndLeftover()
 	{
-		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns((WeeklyPlan?)null);
-
 		var command = new CookWithLeftoversCommand(TestWeek, DayOfWeek.Monday, Recipe("Bolognese"), SlotServings.From(8), SlotServings.From(4), DayOfWeek.Wednesday);
 
 		var result = await handler.HandleAsync(command);
@@ -47,9 +40,6 @@ public class CookWithLeftoversCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_NoLeftoverWhenEqual_OnlyRecipe()
 	{
-		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns((WeeklyPlan?)null);
-
 		var command = new CookWithLeftoversCommand(TestWeek, DayOfWeek.Monday, Recipe(), SlotServings.From(4), SlotServings.From(4), DayOfWeek.Tuesday);
 
 		var result = await handler.HandleAsync(command);

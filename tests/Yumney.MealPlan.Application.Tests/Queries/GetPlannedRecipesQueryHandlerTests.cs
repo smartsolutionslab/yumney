@@ -1,9 +1,7 @@
 using FluentAssertions;
-using NSubstitute;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
 using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
@@ -11,20 +9,17 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Queries;
 
 public class GetPlannedRecipesQueryHandlerTests
 {
-	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
+	private readonly FakeMealPlanReadModelRepository readModel = new();
 	private readonly GetPlannedRecipesQueryHandler handler;
 
 	public GetPlannedRecipesQueryHandlerTests()
 	{
-		handler = new GetPlannedRecipesQueryHandler(plans, CreateCurrentUser());
+		handler = new GetPlannedRecipesQueryHandler(readModel, CreateCurrentUser());
 	}
 
 	[Fact]
 	public async Task HandleAsync_NoPlan_ReturnsEmptyRecipes()
 	{
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns((WeeklyPlan?)null);
-
 		var result = await handler.HandleAsync(new GetPlannedRecipesQuery(TestWeek));
 
 		result.IsSuccess.Should().BeTrue();
@@ -38,9 +33,7 @@ public class GetPlannedRecipesQueryHandlerTests
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe());
 		plan.SetFreetext(DayOfWeek.Tuesday, FreetextLabel.From("Eating out"));
 		plan.SetLeftover(DayOfWeek.Wednesday, DayOfWeek.Monday, MealType.Dinner, SlotRecipeTitle.From("Pasta"));
-
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
+		readModel.Seed(plan);
 
 		var result = await handler.HandleAsync(new GetPlannedRecipesQuery(TestWeek));
 
@@ -55,9 +48,7 @@ public class GetPlannedRecipesQueryHandlerTests
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe(), servings: SlotServings.From(4));
 		plan.AssignRecipe(DayOfWeek.Wednesday, Recipe("Steak"), servings: SlotServings.From(6));
 		plan.AssignRecipe(DayOfWeek.Friday, Recipe("Fish"), servings: SlotServings.From(2));
-
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
+		readModel.Seed(plan);
 
 		var result = await handler.HandleAsync(new GetPlannedRecipesQuery(TestWeek));
 
@@ -69,9 +60,7 @@ public class GetPlannedRecipesQueryHandlerTests
 	{
 		var plan = CreatePlan();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe(), servings: SlotServings.From(8));
-
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
+		readModel.Seed(plan);
 
 		var result = await handler.HandleAsync(new GetPlannedRecipesQuery(TestWeek));
 
@@ -82,9 +71,7 @@ public class GetPlannedRecipesQueryHandlerTests
 	public async Task HandleAsync_EmptySlots_Excluded()
 	{
 		var plan = CreatePlan();
-
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
+		readModel.Seed(plan);
 
 		var result = await handler.HandleAsync(new GetPlannedRecipesQuery(TestWeek));
 

@@ -1,162 +1,73 @@
-using SmartSolutionsLab.Yumney.Shared.Common;
-
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
-public sealed class MealSlot : Entity<MealSlotIdentifier>
+public sealed record MealSlot(
+	DayOfWeek Day,
+	MealType MealType,
+	SlotContentType ContentType,
+	SlotRecipeReference? Recipe,
+	SlotServings Servings,
+	FreetextLabel? FreetextLabel,
+	LeftoverLabel? LeftoverLabel,
+	DayOfWeek? LeftoverSourceDay,
+	MealType? LeftoverSourceMealType,
+	MealState State)
 {
-	public DayOfWeek Day { get; private set; }
-
-	public MealType MealType { get; private set; }
-
-	public SlotContentType ContentType { get; private set; }
-
-	public SlotRecipeReference? Recipe { get; private set; }
-
-	public SlotServings Servings { get; private set; } = default!;
-
-	public FreetextLabel? FreetextLabel { get; private set; }
-
-	public LeftoverLabel? LeftoverLabel { get; private set; }
-
-	public DayOfWeek? LeftoverSourceDay { get; private set; }
-
-	public MealType? LeftoverSourceMealType { get; private set; }
-
-	public MealState State { get; private set; }
-
 	public bool IsEmpty => ContentType == SlotContentType.Empty;
 
-	private MealSlot()
-	{
-	}
+	public static MealSlot Empty(DayOfWeek day, MealType mealType, SlotServings servings) =>
+		new(day, mealType, SlotContentType.Empty, null, servings, null, null, null, null, MealState.Planned);
 
-	internal static MealSlot Create(DayOfWeek day, MealType mealType, SlotServings defaultServings)
-	{
-		return new MealSlot
+	internal MealSlot WithRecipe(SlotRecipeReference recipe, SlotServings? servings) =>
+		this with
 		{
-			Id = MealSlotIdentifier.New(),
-			Day = day,
-			MealType = mealType,
-			ContentType = SlotContentType.Empty,
-			Servings = defaultServings,
+			ContentType = SlotContentType.Recipe,
+			Recipe = recipe,
+			FreetextLabel = null,
+			LeftoverLabel = null,
+			LeftoverSourceDay = null,
+			LeftoverSourceMealType = null,
+			Servings = servings ?? Servings,
 		};
-	}
 
-	internal MealSlot AssignRecipe(SlotRecipeReference recipe, SlotServings? servings = null)
-	{
-		ContentType = SlotContentType.Recipe;
-		Recipe = recipe;
-		FreetextLabel = null;
-		LeftoverLabel = null;
-		LeftoverSourceDay = null;
-		LeftoverSourceMealType = null;
-		if (servings is not null)
+	internal MealSlot WithFreetext(FreetextLabel label) =>
+		this with
 		{
-			Servings = servings;
-		}
+			ContentType = SlotContentType.Freetext,
+			FreetextLabel = label,
+			Recipe = null,
+			LeftoverLabel = null,
+			LeftoverSourceDay = null,
+			LeftoverSourceMealType = null,
+		};
 
-		return this;
-	}
-
-	internal MealSlot SetAsFreetext(FreetextLabel label)
-	{
-		ContentType = SlotContentType.Freetext;
-		FreetextLabel = label;
-		Recipe = null;
-		LeftoverLabel = null;
-		LeftoverSourceDay = null;
-		LeftoverSourceMealType = null;
-		return this;
-	}
-
-	internal MealSlot SetAsLeftover(
+	internal MealSlot WithLeftover(
 		DayOfWeek sourceDay,
 		MealType sourceMealType,
 		SlotRecipeTitle sourceRecipeTitle,
-		SlotServings? servings = null)
-	{
-		ContentType = SlotContentType.Leftover;
-		LeftoverSourceDay = sourceDay;
-		LeftoverSourceMealType = sourceMealType;
-		LeftoverLabel = LeftoverLabel.ForRecipe(sourceRecipeTitle);
-		Recipe = null;
-		FreetextLabel = null;
-		if (servings is not null)
+		SlotServings? servings) =>
+		this with
 		{
-			Servings = servings;
-		}
+			ContentType = SlotContentType.Leftover,
+			LeftoverSourceDay = sourceDay,
+			LeftoverSourceMealType = sourceMealType,
+			LeftoverLabel = LeftoverLabel.ForRecipe(sourceRecipeTitle),
+			Recipe = null,
+			FreetextLabel = null,
+			Servings = servings ?? Servings,
+		};
 
-		return this;
-	}
+	internal MealSlot Cleared() =>
+		this with
+		{
+			ContentType = SlotContentType.Empty,
+			Recipe = null,
+			FreetextLabel = null,
+			LeftoverLabel = null,
+			LeftoverSourceDay = null,
+			LeftoverSourceMealType = null,
+		};
 
-	internal MealSlot ClearSlot()
-	{
-		ContentType = SlotContentType.Empty;
-		Recipe = null;
-		FreetextLabel = null;
-		LeftoverLabel = null;
-		LeftoverSourceDay = null;
-		LeftoverSourceMealType = null;
-		return this;
-	}
+	internal MealSlot WithServings(SlotServings servings) => this with { Servings = servings };
 
-	internal MealSlot AdjustServingsTo(SlotServings servings)
-	{
-		Servings = servings;
-		return this;
-	}
-
-	internal MealSlot MarkAsCooked()
-	{
-		State = MealState.Cooked;
-		return this;
-	}
-
-	internal MealSlot MarkAsSkipped()
-	{
-		State = MealState.Skipped;
-		return this;
-	}
-
-	internal MealSlot ResetToPlanned()
-	{
-		State = MealState.Planned;
-		return this;
-	}
-
-	internal SlotSnapshot TakeSnapshot()
-	{
-		return new SlotSnapshot(
-			ContentType,
-			Recipe,
-			Servings,
-			FreetextLabel,
-			LeftoverLabel,
-			LeftoverSourceDay,
-			LeftoverSourceMealType,
-			State);
-	}
-
-	internal MealSlot RestoreFromSnapshot(SlotSnapshot snapshot)
-	{
-		ContentType = snapshot.ContentType;
-		Recipe = snapshot.Recipe;
-		Servings = snapshot.Servings;
-		FreetextLabel = snapshot.FreetextLabel;
-		LeftoverLabel = snapshot.LeftoverLabel;
-		LeftoverSourceDay = snapshot.LeftoverSourceDay;
-		LeftoverSourceMealType = snapshot.LeftoverSourceMealType;
-		State = snapshot.State;
-		return this;
-	}
-
-	internal sealed record SlotSnapshot(
-		SlotContentType ContentType,
-		SlotRecipeReference? Recipe,
-		SlotServings Servings,
-		FreetextLabel? FreetextLabel,
-		LeftoverLabel? LeftoverLabel,
-		DayOfWeek? LeftoverSourceDay,
-		MealType? LeftoverSourceMealType,
-		MealState State);
+	internal MealSlot InState(MealState state) => this with { State = state };
 }

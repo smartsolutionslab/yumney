@@ -99,15 +99,22 @@ public class MealPlanFlowTests(AspireFixture fixture)
 
 		await client.PostAsJsonAsync($"{WeekPath}/slots", request);
 
-		var response = await client.GetAsync(WeekPath);
-		var plan = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		var slots = plan.GetProperty("slots");
-
-		var wednesdayDinner = slots.EnumerateArray()
-			.FirstOrDefault(s =>
-				s.GetProperty("day").GetString() == "Wednesday" &&
-				s.GetProperty("mealType").GetString() == "Dinner" &&
-				!s.GetProperty("isEmpty").GetBoolean());
+		// MealPlan read-model projection is driven async by Wolverine; poll.
+		var deadline = DateTime.UtcNow.AddSeconds(15);
+		JsonElement wednesdayDinner = default;
+		while (DateTime.UtcNow < deadline)
+		{
+			var response = await client.GetAsync(WeekPath);
+			var plan = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+			var slots = plan.GetProperty("slots");
+			wednesdayDinner = slots.EnumerateArray()
+				.FirstOrDefault(s =>
+					s.GetProperty("day").GetString() == "Wednesday" &&
+					s.GetProperty("mealType").GetString() == "Dinner" &&
+					!s.GetProperty("isEmpty").GetBoolean());
+			if (wednesdayDinner.ValueKind != JsonValueKind.Undefined) break;
+			await Task.Delay(250);
+		}
 
 		wednesdayDinner.GetProperty("recipeTitle").GetString().Should().Be("Wednesday Dinner");
 		wednesdayDinner.GetProperty("servings").GetInt32().Should().Be(2);
