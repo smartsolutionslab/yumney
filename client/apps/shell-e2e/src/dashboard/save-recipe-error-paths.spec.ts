@@ -46,7 +46,9 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
       { timeout: TIMEOUTS.default },
     );
     await dashboard.recipePreview.locator('.save-btn').click();
-    await savePost;
+    const response = await savePost;
+    // eslint-disable-next-line no-console
+    console.log(`[#408 spec] save POST response status=${response.status()}`);
 
     await expect(dashboard.errorBanner).toBeVisible({ timeout: TIMEOUTS.default });
     // Form must survive the error so the user can retry without retyping.
@@ -78,7 +80,9 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
       { timeout: TIMEOUTS.default },
     );
     await dashboard.recipePreview.locator('.save-btn').click();
-    await savePost;
+    const response = await savePost;
+    // eslint-disable-next-line no-console
+    console.log(`[#408 spec] save POST response status=${response.status()}`);
 
     await expect(dashboard.errorBanner).toBeVisible({ timeout: TIMEOUTS.default });
     await expect(authenticatedPage.locator('#preview-title')).toHaveValue('E2E 422 Test');
