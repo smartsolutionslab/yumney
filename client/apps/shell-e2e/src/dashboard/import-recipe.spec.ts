@@ -28,11 +28,27 @@ test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', ()
   // Re-enabled — #430 fix landed in recipe-api.service.ts: the SSE
   // timeout now calls subscriber.error directly instead of relying on
   // a catch guard that the abort-on-timeout silently bypassed.
-  test('should show error for unreachable URL', async () => {
-    await dashboard.urlInput.fill('https://this-domain-does-not-exist-e2e.invalid/recipe');
+  //
+  // The original test pointed at a `.invalid` URL and relied on a real
+  // DNS failure. That worked locally but flakes in CI where chromium's
+  // resolver can hang for tens of seconds on non-existent TLDs. Instead,
+  // intercept the import-stream and hang the response — the SSE timeout
+  // (60s) is the actual #430 codepath under test, and a hung route
+  // exercises it deterministically.
+  test('should show error when SSE import times out', async ({ authenticatedPage }) => {
+    test.setTimeout(120_000);
+    await authenticatedPage.context().route('**/api/v1/recipes/import/stream*', () => {
+      // Never call fulfill/continue/abort — the request hangs until
+      // recipe-api.service.ts's 60s timeout fires, which is exactly the
+      // path #430 made user-visible.
+    });
+
+    await dashboard.urlInput.fill('https://example.com/recipe');
     await dashboard.importButton.click();
 
-    await expect(dashboard.errorBanner).toBeVisible();
+    // SSE_TIMEOUT_MS is 60 s; allow some headroom for the catch / emit
+    // chain. The banner appears as soon as subscriber.error fires.
+    await expect(dashboard.errorBanner).toBeVisible({ timeout: 75_000 });
   });
 
   test('should display create recipe button', async () => {
