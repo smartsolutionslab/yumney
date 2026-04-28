@@ -11,20 +11,33 @@ namespace SmartSolutionsLab.Yumney.MigrationRunner;
 /// <summary>
 /// Background worker that applies EF Core migrations for all modules on startup.
 /// Uses PostgreSQL advisory locks to prevent concurrent migration from multiple instances.
+///
+/// When started with <c>Persistence:ResetMealPlanOnly=true</c> the worker only
+/// touches the MealPlan database, dropping and re-migrating it. This is the mode
+/// used by the dashboard "yumney-mealplan-reset" entry — convenient for wiping
+/// the event-sourced MealPlan store during local development.
 /// </summary>
 public sealed partial class MigrationWorker(
 	IServiceProvider serviceProvider,
 	IHostApplicationLifetime lifetime,
+	IConfiguration configuration,
 	ILogger<MigrationWorker> logger) : BackgroundService
 {
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
 		try
 		{
-			await ApplyMigrationsAsync<RecipesDbContext>("Recipes", stoppingToken);
-			await ApplyMigrationsAsync<UsersDbContext>("Users", stoppingToken);
-			await ApplyMigrationsAsync<ShoppingDbContext>("Shopping", stoppingToken);
-			await ApplyMigrationsAsync<MealPlanDbContext>("MealPlan", stoppingToken);
+			if (configuration.GetValue<bool>("Persistence:ResetMealPlanOnly"))
+			{
+				await ApplyMigrationsAsync<MealPlanDbContext>("MealPlan", stoppingToken, reset: true);
+			}
+			else
+			{
+				await ApplyMigrationsAsync<RecipesDbContext>("Recipes", stoppingToken);
+				await ApplyMigrationsAsync<UsersDbContext>("Users", stoppingToken);
+				await ApplyMigrationsAsync<ShoppingDbContext>("Shopping", stoppingToken);
+				await ApplyMigrationsAsync<MealPlanDbContext>("MealPlan", stoppingToken);
+			}
 
 			LogAllMigrationsApplied(logger);
 		}
@@ -58,13 +71,16 @@ public sealed partial class MigrationWorker(
 	[LoggerMessage(Level = LogLevel.Information, Message = "{Module}: advisory lock released")]
 	private static partial void LogLockReleased(ILogger logger, string module);
 
+	[LoggerMessage(Level = LogLevel.Warning, Message = "{Module}: dropping database before migrating")]
+	private static partial void LogResettingDatabase(ILogger logger, string module);
+
 	private static int GenerateLockId(string moduleName)
 	{
 		var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"yumney-migration-{moduleName}"));
 		return BitConverter.ToInt32(hash, 0);
 	}
 
-	private async Task ApplyMigrationsAsync<TContext>(string moduleName, CancellationToken cancellationToken)
+	private async Task ApplyMigrationsAsync<TContext>(string moduleName, CancellationToken cancellationToken, bool reset = false)
 		where TContext : DbContext
 	{
 		await using var scope = serviceProvider.CreateAsyncScope();
@@ -81,6 +97,12 @@ public sealed partial class MigrationWorker(
 			await using var lockCmd = connection.CreateCommand();
 			lockCmd.CommandText = $"SELECT pg_advisory_lock({lockId})";
 			await lockCmd.ExecuteNonQueryAsync(cancellationToken);
+
+			if (reset)
+			{
+				LogResettingDatabase(logger, moduleName);
+				await context.Database.EnsureDeletedAsync(cancellationToken);
+			}
 
 			var pending = (await context.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
 
