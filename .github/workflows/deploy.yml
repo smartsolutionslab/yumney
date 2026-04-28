@@ -151,6 +151,7 @@ jobs:
           Parameters__PostgresUser: ${{ vars.POSTGRES_USER }}
           Parameters__PostgresPassword: ${{ secrets.POSTGRES_PASSWORD }}
           Parameters__KeycloakPassword: ${{ secrets.KEYCLOAK_PASSWORD }}
+          Parameters__YumneyApiClientSecret: ${{ secrets.YUMNEY_API_CLIENT_SECRET }}
           Parameters__OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}
           Parameters__MessagingPassword: ${{ secrets.MESSAGING_PASSWORD }}
           Parameters__RedisPassword: ${{ secrets.REDIS_PASSWORD }}
