@@ -43,6 +43,15 @@ public sealed class ShoppingUnitOfWork(
 			throw new ConcurrencyConflictException(nameof(ShoppingList), trackedLists.FirstOrDefault()?.Identifier.Value ?? Guid.Empty, ex);
 		}
 
+		// Mark committed BEFORE publishing: events are already persisted to the store,
+		// so the aggregate is conceptually "clean". A publish failure (e.g. a projection
+		// handler throws) propagates to the caller, but the aggregate doesn't keep stale
+		// uncommitted events that would re-stage with conflicting versions on retry.
+		foreach (var (list, _) in pendingPublishes)
+		{
+			list.MarkCommitted();
+		}
+
 		foreach (var (list, events) in pendingPublishes)
 		{
 			foreach (var domainEvent in events)
@@ -53,8 +62,6 @@ public sealed class ShoppingUnitOfWork(
 					await eventBus.PublishAsync(integrationEvent, cancellationToken);
 				}
 			}
-
-			list.MarkCommitted();
 		}
 
 		return result;
