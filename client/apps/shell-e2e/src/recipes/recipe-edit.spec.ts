@@ -44,7 +44,11 @@ test.describe('Recipe Edit Flow', () => {
     const editBtn = authenticatedPage.getByRole('link', { name: /edit/i });
     await editBtn.click();
 
-    const titleInput = authenticatedPage.locator('input[name="title"], #title');
+    // The edit page reuses <yn-recipe-preview> (same as manual-create),
+    // so the title input is #preview-title — the original test's
+    // `input[name="title"], #title` selector never existed and was
+    // hidden by the `if (hasRecipes)` skip.
+    const titleInput = authenticatedPage.locator('#preview-title');
     // Tightened from .length > 0 (#412): the form must round-trip the
     // exact title we seeded, not just "any non-empty string".
     await expect(titleInput).toHaveValue(recipe().title, { timeout: TIMEOUTS.default });
@@ -60,10 +64,14 @@ test.describe('Recipe Edit Flow', () => {
     const editBtn = authenticatedPage.getByRole('link', { name: /edit/i });
     await editBtn.click();
 
-    await expect(authenticatedPage.locator(SELECTORS.form.ingredients)).toBeVisible({
+    // recipe-preview renders ingredient rows as .ingredient-row (not
+    // .ingredient-fields, which doesn't exist) and step rows as
+    // .step-fields. Same selector mismatch as the title input — was
+    // hidden by the `if (hasRecipes)` skip in the original test.
+    await expect(authenticatedPage.locator('.ingredient-row').first()).toBeVisible({
       timeout: TIMEOUTS.default,
     });
-    await expect(authenticatedPage.locator(SELECTORS.form.steps)).toBeVisible({
+    await expect(authenticatedPage.locator(SELECTORS.form.steps).first()).toBeVisible({
       timeout: TIMEOUTS.default,
     });
   });
