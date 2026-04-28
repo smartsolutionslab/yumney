@@ -20,8 +20,9 @@ const SERIOUS_OR_CRITICAL = ['serious', 'critical'] as const;
 
 // Pre-existing serious violations on develop, tracked in #443. Disabled
 // here so this smoke can land green and surface NEW regressions on top
-// of the known-bad baseline. Remove once #443 ships.
-const DISABLED_RULES_PENDING_443 = ['color-contrast', 'aria-command-name'];
+// of the known-bad baseline. aria-command-name was fixed in #454 (slice 1);
+// color-contrast remains pending. Remove the last entry once that lands.
+const DISABLED_RULES_PENDING_443 = ['color-contrast'];
 
 async function runAxe(page: import('@playwright/test').Page): Promise<void> {
   const results = await new AxeBuilder({ page })
