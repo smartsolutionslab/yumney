@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Playwright/dev auth fixture (removed in cbde68ba, gitignored). The JWTs are dev-only and the file no longer exists in the working tree."
+paths = [
+  '''client/src/\.auth/user\.json'''
+]
