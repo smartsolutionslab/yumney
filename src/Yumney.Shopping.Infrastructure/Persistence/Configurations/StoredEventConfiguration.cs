@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configurations;
 

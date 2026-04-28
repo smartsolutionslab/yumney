@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Configurations;
 

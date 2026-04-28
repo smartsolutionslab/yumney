@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 

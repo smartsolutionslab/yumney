@@ -8,6 +8,8 @@ using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Converters;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore.Json;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
 
@@ -24,11 +26,11 @@ public sealed partial class EfCoreMealPlanEventStore(
 		Converters =
 		{
 			new JsonStringEnumConverter(),
-			new OwnerIdentifierJsonConverter(),
+			new StringValueObjectJsonConverter<OwnerIdentifier>(OwnerIdentifier.From),
+			new StringValueObjectJsonConverter<FreetextLabel>(FreetextLabel.From),
+			new StringValueObjectJsonConverter<SlotRecipeTitle>(SlotRecipeTitle.From),
+			new IntValueObjectJsonConverter<SlotServings>(SlotServings.From),
 			new WeekIdentifierJsonConverter(),
-			new SlotServingsJsonConverter(),
-			new FreetextLabelJsonConverter(),
-			new SlotRecipeTitleJsonConverter(),
 			new SlotRecipeReferenceJsonConverter(),
 		},
 	};
@@ -108,7 +110,14 @@ public sealed partial class EfCoreMealPlanEventStore(
 			});
 		}
 
-		await context.SaveChangesAsync(cancellationToken);
+		try
+		{
+			await context.SaveChangesAsync(cancellationToken);
+		}
+		catch (DbUpdateException ex) when (ex.IsUniqueViolation())
+		{
+			throw new ConcurrencyConflictException(nameof(WeeklyPlan), plan.Identifier.Value, ex);
+		}
 
 		plan.MarkCommitted();
 
