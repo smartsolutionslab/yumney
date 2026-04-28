@@ -5,7 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
-public sealed class ToggleExtendedModeCommandHandler(IMealPlanUnitOfWork unitOfWork, ICurrentUser currentUser)
+public sealed class ToggleExtendedModeCommandHandler(IMealPlanEventStore eventStore, ICurrentUser currentUser)
 	: ICommandHandler<ToggleExtendedModeCommand, Result<WeeklyPlanDto>>
 {
 	public async Task<Result<WeeklyPlanDto>> HandleAsync(ToggleExtendedModeCommand command, CancellationToken cancellationToken = default)
@@ -13,31 +13,17 @@ public sealed class ToggleExtendedModeCommandHandler(IMealPlanUnitOfWork unitOfW
 		var (week, enable) = command;
 		var owner = currentUser.AsOwner();
 
-		var plan = await unitOfWork.Plans.FindForUpdateAsync(owner, week, cancellationToken);
-		if (plan is null)
+		var plan = await eventStore.LoadAsync(owner, week, cancellationToken) ?? WeeklyPlan.Create(owner, week);
+		if (enable)
 		{
-			plan = WeeklyPlan.Create(owner, week);
-
-			if (enable)
-			{
-				plan.EnableExtendedMode();
-			}
-
-			await unitOfWork.Plans.AddAsync(plan, cancellationToken);
+			plan.EnableExtendedMode();
 		}
 		else
 		{
-			if (enable)
-			{
-				plan.EnableExtendedMode();
-			}
-			else
-			{
-				plan.DisableExtendedMode();
-			}
+			plan.DisableExtendedMode();
 		}
 
-		await unitOfWork.SaveChangesAsync(cancellationToken);
+		await eventStore.SaveAsync(plan, cancellationToken);
 
 		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
 	}

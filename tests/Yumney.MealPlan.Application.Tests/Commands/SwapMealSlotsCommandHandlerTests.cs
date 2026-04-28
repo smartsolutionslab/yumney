@@ -1,8 +1,6 @@
 using FluentAssertions;
-using NSubstitute;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
-using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
 using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
@@ -11,20 +9,18 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class SwapMealSlotsCommandHandlerTests
 {
-	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
-	private readonly IMealPlanUnitOfWork unitOfWork = Substitute.For<IMealPlanUnitOfWork>();
+	private readonly FakeMealPlanEventStore eventStore = new();
 	private readonly SwapMealSlotsCommandHandler handler;
 
 	public SwapMealSlotsCommandHandlerTests()
 	{
-		unitOfWork.Plans.Returns(plans);
-		handler = new SwapMealSlotsCommandHandler(unitOfWork, CreateCurrentUser());
+		handler = new SwapMealSlotsCommandHandler(eventStore, CreateCurrentUser());
 	}
 
 	[Fact]
 	public async Task HandleAsync_SwapsAndSaves()
 	{
-		CreatePlanWithRecipe(plans);
+		SeedPlanWithRecipe(eventStore);
 
 		var command = new SwapMealSlotsCommand(TestWeek, DayOfWeek.Monday, DayOfWeek.Wednesday);
 
@@ -33,15 +29,12 @@ public class SwapMealSlotsCommandHandlerTests
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Slots.First(s => s.Day == "Monday").IsEmpty.Should().BeTrue();
 		result.Value.Slots.First(s => s.Day == "Wednesday").RecipeTitle.Should().Be("Pasta");
-		await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+		eventStore.SaveCount.Should().Be(1);
 	}
 
 	[Fact]
 	public async Task HandleAsync_NoPlan_ThrowsEntityNotFoundException()
 	{
-		plans.GetByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns<WeeklyPlan>(_ => throw new EntityNotFoundException(nameof(WeeklyPlan), "2026-W15"));
-
 		var command = new SwapMealSlotsCommand(TestWeek, DayOfWeek.Monday, DayOfWeek.Tuesday);
 
 		var act = () => handler.HandleAsync(command);

@@ -1,9 +1,10 @@
+using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
 using SmartSolutionsLab.Yumney.Shared.Common;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
 #pragma warning disable SA1311
-public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
+public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 {
 	private static readonly DayOfWeek[] allDays =
 	[
@@ -13,10 +14,11 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
 		DayOfWeek.Thursday,
 		DayOfWeek.Friday,
 		DayOfWeek.Saturday,
-		DayOfWeek.Sunday
+		DayOfWeek.Sunday,
 	];
 
-	private readonly List<MealSlot> slots = [];
+	private readonly Dictionary<SlotKey, MealSlot> slots = [];
+	private SlotServings defaultServings = SlotServings.Default();
 
 	public OwnerIdentifier Owner { get; private set; } = default!;
 
@@ -24,63 +26,78 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
 
 	public bool IsExtendedMode { get; private set; }
 
-	public IReadOnlyList<MealSlot> Slots => slots.AsReadOnly();
+	public IReadOnlyList<MealSlot> Slots =>
+		slots.Values
+			.OrderBy(s => s.Day)
+			.ThenBy(s => s.MealType)
+			.ToList()
+			.AsReadOnly();
 
 	private WeeklyPlan()
 	{
+		On<WeeklyPlanCreated>(OnCreated);
+		On<ExtendedModeEnabled>(OnExtendedModeEnabled);
+		On<ExtendedModeDisabled>(_ => OnExtendedModeDisabled());
+		On<RecipeAssigned>(OnRecipeAssigned);
+		On<MealSetAsFreetext>(OnMealSetAsFreetext);
+		On<LeftoverAssigned>(OnLeftoverAssigned);
+		On<MealSlotCleared>(OnMealSlotCleared);
+		On<ServingsAdjusted>(OnServingsAdjusted);
+		On<MealMarkedAsCooked>(OnMealMarkedAsCooked);
+		On<MealMarkedAsSkipped>(OnMealMarkedAsSkipped);
+		On<MealResetToPlanned>(OnMealResetToPlanned);
+		On<MealSlotsSwapped>(OnMealSlotsSwapped);
 	}
 
 	public static WeeklyPlan Create(OwnerIdentifier owner, WeekIdentifier week, SlotServings? defaultServings = null)
 	{
-		var servings = defaultServings ?? SlotServings.Default();
-		var plan = new WeeklyPlan
-		{
-			Id = WeeklyPlanIdentifier.New(),
-			Owner = owner,
-			Week = week,
-		};
-
-		foreach (var day in allDays)
-		{
-			plan.slots.Add(MealSlot.Create(day, MealType.Dinner, servings));
-		}
-
+		var plan = new WeeklyPlan { Identifier = WeeklyPlanIdentifier.New() };
+		plan.RaiseEvent(new WeeklyPlanCreated(owner, week, defaultServings ?? SlotServings.Default()));
 		return plan;
 	}
 
-	public WeeklyPlan EnableExtendedMode(SlotServings? defaultServings = null)
+	public static WeeklyPlan FromEvents(
+		WeeklyPlanIdentifier identifier,
+		IEnumerable<IDomainEvent> events,
+		AggregateVersion? startVersion = null)
 	{
-		if (IsExtendedMode) return this;
-
-		var servings = defaultServings ?? SlotServings.Default();
-		foreach (var day in allDays)
-		{
-			if (!slots.Any(s => s.Day == day && s.MealType == MealType.Breakfast))
-			{
-				slots.Add(MealSlot.Create(day, MealType.Breakfast, servings));
-			}
-
-			if (!slots.Any(s => s.Day == day && s.MealType == MealType.Lunch))
-			{
-				slots.Add(MealSlot.Create(day, MealType.Lunch, servings));
-			}
-		}
-
-		IsExtendedMode = true;
-		return this;
-	}
-
-	public WeeklyPlan DisableExtendedMode()
-	{
-		IsExtendedMode = false;
-		return this;
+		var plan = new WeeklyPlan { Identifier = identifier };
+		plan.LoadFromHistory(events, startVersion);
+		return plan;
 	}
 
 	public IReadOnlyList<MealSlot> GetVisibleSlots()
 	{
 		return IsExtendedMode
-			? slots.AsReadOnly()
-			: slots.Where(s => s.MealType == MealType.Dinner).ToList().AsReadOnly();
+			? Slots
+			: slots.Values
+				.Where(s => s.MealType == MealType.Dinner)
+				.OrderBy(s => s.Day)
+				.ToList()
+				.AsReadOnly();
+	}
+
+	public IReadOnlyList<MealSlot> GetUnconfirmedPastMeals(DayOfWeek today)
+	{
+		return slots.Values
+			.Where(s => s.ContentType == SlotContentType.Recipe && s.State == MealState.Planned && s.Day < today)
+			.OrderBy(s => s.Day)
+			.ThenBy(s => s.MealType)
+			.ToList();
+	}
+
+	public WeeklyPlan EnableExtendedMode(SlotServings? overrideDefault = null)
+	{
+		if (IsExtendedMode) return this;
+		RaiseEvent(new ExtendedModeEnabled(overrideDefault ?? defaultServings));
+		return this;
+	}
+
+	public WeeklyPlan DisableExtendedMode()
+	{
+		if (!IsExtendedMode) return this;
+		RaiseEvent(new ExtendedModeDisabled());
+		return this;
 	}
 
 	public WeeklyPlan AssignRecipe(
@@ -89,15 +106,15 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
 		MealType mealType = MealType.Dinner,
 		SlotServings? servings = null)
 	{
-		var slot = FindSlot(day, mealType);
-		slot.AssignRecipe(recipe, servings);
+		EnsureSlotExists(day, mealType);
+		RaiseEvent(new RecipeAssigned(day, mealType, recipe, servings));
 		return this;
 	}
 
 	public WeeklyPlan SetFreetext(DayOfWeek day, FreetextLabel label, MealType mealType = MealType.Dinner)
 	{
-		var slot = FindSlot(day, mealType);
-		slot.SetAsFreetext(label);
+		EnsureSlotExists(day, mealType);
+		RaiseEvent(new MealSetAsFreetext(day, mealType, label));
 		return this;
 	}
 
@@ -109,80 +126,167 @@ public sealed class WeeklyPlan : AggregateRoot<WeeklyPlanIdentifier>
 		MealType mealType = MealType.Dinner,
 		SlotServings? servings = null)
 	{
-		var slot = FindSlot(day, mealType);
-		slot.SetAsLeftover(sourceDay, sourceMealType, sourceRecipeTitle, servings);
-
+		EnsureSlotExists(day, mealType);
+		RaiseEvent(new LeftoverAssigned(day, mealType, sourceDay, sourceMealType, sourceRecipeTitle, servings));
 		return this;
 	}
 
 	public WeeklyPlan ClearSlot(DayOfWeek day, MealType mealType = MealType.Dinner)
 	{
-		var slot = FindSlot(day, mealType);
-		slot.ClearSlot();
-
+		EnsureSlotExists(day, mealType);
+		RaiseEvent(new MealSlotCleared(day, mealType));
 		return this;
 	}
 
 	public WeeklyPlan AdjustServings(DayOfWeek day, SlotServings servings, MealType mealType = MealType.Dinner)
 	{
-		var slot = FindSlot(day, mealType);
-		slot.AdjustServingsTo(servings);
-
+		EnsureSlotExists(day, mealType);
+		RaiseEvent(new ServingsAdjusted(day, mealType, servings));
 		return this;
 	}
 
-	public WeeklyPlan MarkAsCooked(DayOfWeek day, MealType mealType = MealType.Dinner)
+	public WeeklyPlan MarkAsCooked(
+		DayOfWeek day,
+		MealType mealType = MealType.Dinner,
+		IReadOnlyList<CookedIngredient>? ingredients = null)
 	{
 		var slot = FindSlot(day, mealType);
-		slot.MarkAsCooked();
-
+		RaiseEvent(new MealMarkedAsCooked(day, mealType, slot.Recipe, slot.Servings, ingredients ?? []));
 		return this;
 	}
 
 	public WeeklyPlan MarkAsSkipped(DayOfWeek day, MealType mealType = MealType.Dinner)
 	{
-		var slot = FindSlot(day, mealType);
-		slot.MarkAsSkipped();
-
+		EnsureSlotExists(day, mealType);
+		RaiseEvent(new MealMarkedAsSkipped(day, mealType));
 		return this;
 	}
 
 	public WeeklyPlan ResetToPlanned(DayOfWeek day, MealType mealType = MealType.Dinner)
 	{
-		var slot = FindSlot(day, mealType);
-		slot.ResetToPlanned();
-
+		EnsureSlotExists(day, mealType);
+		RaiseEvent(new MealResetToPlanned(day, mealType));
 		return this;
-	}
-
-	/// <summary>
-	/// Get meals that need cooked confirmation (planned recipes from past days).
-	/// </summary>
-	/// <param name="today">Today's day of week.</param>
-	/// <returns>Slots that are Recipe type, still in Planned state, and before today.</returns>
-	public IReadOnlyList<MealSlot> GetUnconfirmedPastMeals(DayOfWeek today)
-	{
-		return slots
-			.Where(s => s.ContentType == SlotContentType.Recipe && s.State == MealState.Planned && s.Day < today)
-			.ToList();
 	}
 
 	public WeeklyPlan SwapSlots(DayOfWeek day1, DayOfWeek day2, MealType mealType = MealType.Dinner)
 	{
-		var slot1 = FindSlot(day1, mealType);
-		var slot2 = FindSlot(day2, mealType);
-
-		var snapshot1 = slot1.TakeSnapshot();
-		slot1.RestoreFromSnapshot(slot2.TakeSnapshot());
-		slot2.RestoreFromSnapshot(snapshot1);
-
+		EnsureSlotExists(day1, mealType);
+		EnsureSlotExists(day2, mealType);
+		RaiseEvent(new MealSlotsSwapped(day1, day2, mealType));
 		return this;
+	}
+
+	private void OnCreated(WeeklyPlanCreated e)
+	{
+		Owner = e.Owner;
+		Week = e.Week;
+		defaultServings = e.DefaultServings;
+		foreach (var day in allDays)
+		{
+			slots[new SlotKey(day, MealType.Dinner)] = MealSlot.Empty(day, MealType.Dinner, defaultServings);
+		}
+	}
+
+	private void OnExtendedModeEnabled(ExtendedModeEnabled e)
+	{
+		foreach (var day in allDays)
+		{
+			var breakfastKey = new SlotKey(day, MealType.Breakfast);
+			if (!slots.ContainsKey(breakfastKey))
+			{
+				slots[breakfastKey] = MealSlot.Empty(day, MealType.Breakfast, e.DefaultServings);
+			}
+
+			var lunchKey = new SlotKey(day, MealType.Lunch);
+			if (!slots.ContainsKey(lunchKey))
+			{
+				slots[lunchKey] = MealSlot.Empty(day, MealType.Lunch, e.DefaultServings);
+			}
+		}
+
+		IsExtendedMode = true;
+	}
+
+	private void OnExtendedModeDisabled() => IsExtendedMode = false;
+
+	private void OnRecipeAssigned(RecipeAssigned e)
+	{
+		var key = new SlotKey(e.Day, e.MealType);
+		slots[key] = slots[key].WithRecipe(e.Recipe, e.Servings);
+	}
+
+	private void OnMealSetAsFreetext(MealSetAsFreetext e)
+	{
+		var key = new SlotKey(e.Day, e.MealType);
+		slots[key] = slots[key].WithFreetext(e.Label);
+	}
+
+	private void OnLeftoverAssigned(LeftoverAssigned e)
+	{
+		var key = new SlotKey(e.Day, e.MealType);
+		slots[key] = slots[key].WithLeftover(e.SourceDay, e.SourceMealType, e.SourceRecipeTitle, e.Servings);
+	}
+
+	private void OnMealSlotCleared(MealSlotCleared e)
+	{
+		var key = new SlotKey(e.Day, e.MealType);
+		slots[key] = slots[key].Cleared();
+	}
+
+	private void OnServingsAdjusted(ServingsAdjusted e)
+	{
+		var key = new SlotKey(e.Day, e.MealType);
+		slots[key] = slots[key].WithServings(e.Servings);
+	}
+
+	private void OnMealMarkedAsCooked(MealMarkedAsCooked e)
+	{
+		var key = new SlotKey(e.Day, e.MealType);
+		slots[key] = slots[key].InState(MealState.Cooked);
+	}
+
+	private void OnMealMarkedAsSkipped(MealMarkedAsSkipped e)
+	{
+		var key = new SlotKey(e.Day, e.MealType);
+		slots[key] = slots[key].InState(MealState.Skipped);
+	}
+
+	private void OnMealResetToPlanned(MealResetToPlanned e)
+	{
+		var key = new SlotKey(e.Day, e.MealType);
+		slots[key] = slots[key].InState(MealState.Planned);
+	}
+
+	private void OnMealSlotsSwapped(MealSlotsSwapped e)
+	{
+		var key1 = new SlotKey(e.Day1, e.MealType);
+		var key2 = new SlotKey(e.Day2, e.MealType);
+		var slot1 = slots[key1];
+		var slot2 = slots[key2];
+		slots[key1] = slot2 with { Day = e.Day1, MealType = e.MealType };
+		slots[key2] = slot1 with { Day = e.Day2, MealType = e.MealType };
+	}
+
+	private void EnsureSlotExists(DayOfWeek day, MealType mealType)
+	{
+		if (!slots.ContainsKey(new SlotKey(day, mealType)))
+		{
+			throw new EntityNotFoundException(nameof(MealSlot), $"{day}/{mealType}");
+		}
 	}
 
 	private MealSlot FindSlot(DayOfWeek day, MealType mealType)
 	{
-		return slots.FirstOrDefault(s => s.Day == day && s.MealType == mealType)
-			?? throw new EntityNotFoundException(nameof(MealSlot), $"{day}/{mealType}");
+		var key = new SlotKey(day, mealType);
+		if (!slots.TryGetValue(key, out var slot))
+		{
+			throw new EntityNotFoundException(nameof(MealSlot), $"{day}/{mealType}");
+		}
+
+		return slot;
 	}
+
+	private readonly record struct SlotKey(DayOfWeek Day, MealType MealType);
 }
 #pragma warning restore SA1311

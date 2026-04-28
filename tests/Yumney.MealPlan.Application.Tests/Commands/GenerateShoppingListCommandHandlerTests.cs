@@ -11,7 +11,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class GenerateShoppingListCommandHandlerTests
 {
-	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
+	private readonly FakeMealPlanReadModelRepository readModel = new();
 	private readonly IRecipeIngredientProvider ingredientProvider = Substitute.For<IRecipeIngredientProvider>();
 	private readonly IStaplesProvider staplesProvider = Substitute.For<IStaplesProvider>();
 	private readonly IShoppingListWriter shoppingListWriter = Substitute.For<IShoppingListWriter>();
@@ -21,25 +21,22 @@ public class GenerateShoppingListCommandHandlerTests
 	{
 		staplesProvider.GetStapleNamesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
 			.Returns(new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "salt", "pepper", "flour" });
-		handler = new GenerateShoppingListCommandHandler(plans, ingredientProvider, staplesProvider, shoppingListWriter, CreateCurrentUser());
+		handler = new GenerateShoppingListCommandHandler(readModel, ingredientProvider, staplesProvider, shoppingListWriter, CreateCurrentUser());
 	}
 
 	[Fact]
-	public async Task HandleAsync_NoPlanFound_ReturnsFailure()
+	public async Task HandleAsync_NoPlan_ReturnsNoRecipes()
 	{
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns((WeeklyPlan?)null);
-
 		var result = await handler.HandleAsync(new GenerateShoppingListCommand(TestWeek));
 
 		result.IsSuccess.Should().BeFalse();
-		result.Error!.Code.Should().Be("MEALPLAN_NOT_FOUND");
+		result.Error!.Code.Should().Be("MEALPLAN_NO_RECIPES");
 	}
 
 	[Fact]
 	public async Task HandleAsync_NoRecipeSlots_ReturnsFailure()
 	{
-		SetupPlanWithNoRecipes();
+		readModel.Seed(CreatePlan());
 
 		var result = await handler.HandleAsync(new GenerateShoppingListCommand(TestWeek));
 
@@ -50,7 +47,7 @@ public class GenerateShoppingListCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_SingleRecipe_AddsIngredientsToShoppingList()
 	{
-		var recipeId = SetupPlanWithRecipe("Pasta", 4);
+		var recipeId = SeedPlanWithRecipeId("Pasta", 4);
 
 		ingredientProvider.GetIngredientsAsync(recipeId, Arg.Any<CancellationToken>())
 			.Returns(new List<RecipeIngredientInfo>
@@ -72,7 +69,7 @@ public class GenerateShoppingListCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_ScalesQuantitiesByServings()
 	{
-		var recipeId = SetupPlanWithRecipe("Pasta", 8);
+		var recipeId = SeedPlanWithRecipeId("Pasta", 8);
 
 		ingredientProvider.GetIngredientsAsync(recipeId, Arg.Any<CancellationToken>())
 			.Returns(new List<RecipeIngredientInfo>
@@ -93,7 +90,7 @@ public class GenerateShoppingListCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_MergesSameIngredientAcrossRecipes()
 	{
-		var (recipeA, recipeB) = SetupPlanWithTwoRecipes("Pasta", 4, "Risotto", 4);
+		var (recipeA, recipeB) = SeedPlanWithTwoRecipes("Pasta", 4, "Risotto", 4);
 
 		ingredientProvider.GetIngredientsAsync(recipeA, Arg.Any<CancellationToken>())
 			.Returns(new List<RecipeIngredientInfo>
@@ -120,7 +117,7 @@ public class GenerateShoppingListCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_FilterStaples_SkipsStapleItems()
 	{
-		var recipeId = SetupPlanWithRecipe("Steak", 2);
+		var recipeId = SeedPlanWithRecipeId("Steak", 2);
 
 		ingredientProvider.GetIngredientsAsync(recipeId, Arg.Any<CancellationToken>())
 			.Returns(new List<RecipeIngredientInfo>
@@ -140,7 +137,7 @@ public class GenerateShoppingListCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_NoItemsAfterFiltering_DoesNotCallWriter()
 	{
-		var recipeId = SetupPlanWithRecipe("Salt Toast", 2);
+		var recipeId = SeedPlanWithRecipeId("Salt Toast", 2);
 
 		ingredientProvider.GetIngredientsAsync(recipeId, Arg.Any<CancellationToken>())
 			.Returns(new List<RecipeIngredientInfo>
@@ -159,36 +156,23 @@ public class GenerateShoppingListCommandHandlerTests
 			Arg.Any<CancellationToken>());
 	}
 
-	private void SetupPlanWithNoRecipes()
-	{
-		var plan = CreatePlan();
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
-	}
-
-	private Guid SetupPlanWithRecipe(string title, int servings)
+	private Guid SeedPlanWithRecipeId(string title, int servings)
 	{
 		var recipeId = Guid.NewGuid();
 		var plan = CreatePlan();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe(recipeId, title), servings: SlotServings.From(servings));
-
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
-
+		readModel.Seed(plan);
 		return recipeId;
 	}
 
-	private (Guid RecipeA, Guid RecipeB) SetupPlanWithTwoRecipes(string titleA, int servingsA, string titleB, int servingsB)
+	private (Guid RecipeA, Guid RecipeB) SeedPlanWithTwoRecipes(string titleA, int servingsA, string titleB, int servingsB)
 	{
 		var recipeA = Guid.NewGuid();
 		var recipeB = Guid.NewGuid();
 		var plan = CreatePlan();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe(recipeA, titleA), servings: SlotServings.From(servingsA));
 		plan.AssignRecipe(DayOfWeek.Tuesday, Recipe(recipeB, titleB), servings: SlotServings.From(servingsB));
-
-		plans.FindByOwnerAndWeekAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(plan);
-
+		readModel.Seed(plan);
 		return (recipeA, recipeB);
 	}
 }

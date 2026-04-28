@@ -1,4 +1,5 @@
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
+using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
@@ -6,7 +7,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
 public sealed class GenerateShoppingListCommandHandler(
-	IWeeklyPlanRepository plans,
+	IMealPlanReadModelRepository readModel,
 	IRecipeIngredientProvider ingredientProvider,
 	IStaplesProvider staplesProvider,
 	IShoppingListWriter shoppingListWriter,
@@ -17,26 +18,16 @@ public sealed class GenerateShoppingListCommandHandler(
 		var week = command.Week;
 		var owner = currentUser.AsOwner();
 
-		var plan = await plans.FindByOwnerAndWeekAsync(owner, week, cancellationToken);
-		if (plan is null) return GenerateShoppingListErrors.NoPlanFound;
+		var planned = await readModel.GetPlannedRecipesAsync(owner, week, cancellationToken);
+		if (planned.Recipes.Count == 0) return GenerateShoppingListErrors.NoRecipes;
 
-		var recipeSlots = plan.Slots
-			.Where(s => s.ContentType == SlotContentType.Recipe && s.Recipe is not null)
-			.ToList();
-
-		if (recipeSlots.Count == 0) return GenerateShoppingListErrors.NoRecipes;
-
-		// Fetch ingredients for all recipes
 		var merged = new Dictionary<string, MergedItem>(StringComparer.OrdinalIgnoreCase);
 
-		foreach (var slot in recipeSlots)
+		foreach (var recipe in planned.Recipes)
 		{
-			var recipe = slot.Recipe;
-			var servings = slot.Servings;
-
-			var ingredients = await ingredientProvider.GetIngredientsAsync(recipe!.RecipeIdentifier.Value, cancellationToken);
-			var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? servings.Value;
-			var scaleFactor = recipeServings > 0 ? (decimal)servings.Value / recipeServings : 1m;
+			var ingredients = await ingredientProvider.GetIngredientsAsync(recipe.RecipeIdentifier, cancellationToken);
+			var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? recipe.Servings;
+			var scaleFactor = recipeServings > 0 ? (decimal)recipe.Servings / recipeServings : 1m;
 
 			foreach (var ingredient in ingredients)
 			{

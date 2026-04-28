@@ -22,15 +22,13 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Migration
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.WeeklyPlan", b =>
+            modelBuilder.Entity("SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore.AggregateMetadata", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("AggregateId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsExtendedMode")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Owner")
+                    b.Property<string>("OwnerId")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
@@ -40,100 +38,142 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Migration
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
-                    b.HasKey("Id");
+                    b.HasKey("AggregateId");
 
-                    b.HasIndex("Owner", "Week")
+                    b.HasIndex("OwnerId", "Week")
                         .IsUnique();
 
-                    b.ToTable("WeeklyPlans", (string)null);
+                    b.ToTable("MealPlanAggregates", (string)null);
                 });
 
-            modelBuilder.Entity("SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.WeeklyPlan", b =>
+            modelBuilder.Entity("SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore.StoredEvent", b =>
                 {
-                    b.OwnsMany("SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.MealSlot", "Slots", b1 =>
-                        {
-                            b1.Property<Guid>("WeeklyPlanId")
-                                .HasColumnType("uuid");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uuid");
+                    b.Property<Guid>("AggregateId")
+                        .HasColumnType("uuid");
 
-                            b1.Property<string>("ContentType")
-                                .IsRequired()
-                                .HasMaxLength(10)
-                                .HasColumnType("character varying(10)");
+                    b.Property<string>("EventData")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                            b1.Property<string>("Day")
-                                .IsRequired()
-                                .HasMaxLength(10)
-                                .HasColumnType("character varying(10)");
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                            b1.Property<string>("FreetextLabel")
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)");
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
 
-                            b1.Property<string>("LeftoverLabel")
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)");
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
 
-                            b1.Property<string>("LeftoverSourceDay")
-                                .HasMaxLength(10)
-                                .HasColumnType("character varying(10)");
+                    b.HasKey("Id");
 
-                            b1.Property<string>("LeftoverSourceMealType")
-                                .HasMaxLength(10)
-                                .HasColumnType("character varying(10)");
+                    b.HasIndex("OccurredAt");
 
-                            b1.Property<string>("MealType")
-                                .IsRequired()
-                                .HasMaxLength(10)
-                                .HasColumnType("character varying(10)");
+                    b.HasIndex("AggregateId", "Version")
+                        .IsUnique();
 
-                            b1.Property<int>("Servings")
-                                .HasColumnType("integer");
+                    b.ToTable("MealPlanEvents", (string)null);
+                });
 
-                            b1.Property<string>("State")
-                                .IsRequired()
-                                .HasMaxLength(10)
-                                .HasColumnType("character varying(10)");
+            modelBuilder.Entity("SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel.MealPlanSlotReadItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                            b1.HasKey("WeeklyPlanId", "Id");
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
-                            b1.ToTable("MealSlots", (string)null);
+                    b.Property<string>("Day")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
-                            b1.WithOwner()
-                                .HasForeignKey("WeeklyPlanId");
+                    b.Property<string>("FreetextLabel")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
-                            b1.OwnsOne("SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.SlotRecipeReference", "Recipe", b2 =>
-                                {
-                                    b2.Property<Guid>("MealSlotWeeklyPlanId")
-                                        .HasColumnType("uuid");
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp with time zone");
 
-                                    b2.Property<Guid>("MealSlotId")
-                                        .HasColumnType("uuid");
+                    b.Property<string>("LeftoverLabel")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
-                                    b2.Property<Guid>("RecipeIdentifier")
-                                        .HasColumnType("uuid")
-                                        .HasColumnName("RecipeIdentifier");
+                    b.Property<string>("LeftoverSourceDay")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
-                                    b2.Property<string>("Title")
-                                        .IsRequired()
-                                        .HasMaxLength(200)
-                                        .HasColumnType("character varying(200)")
-                                        .HasColumnName("RecipeTitle");
+                    b.Property<string>("LeftoverSourceMealType")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
-                                    b2.HasKey("MealSlotWeeklyPlanId", "MealSlotId");
+                    b.Property<string>("MealType")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
-                                    b2.ToTable("MealSlots");
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
-                                    b2.WithOwner()
-                                        .HasForeignKey("MealSlotWeeklyPlanId", "MealSlotId");
-                                });
+                    b.Property<Guid?>("RecipeIdentifier")
+                        .HasColumnType("uuid");
 
-                            b1.Navigation("Recipe");
-                        });
+                    b.Property<string>("RecipeTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
-                    b.Navigation("Slots");
+                    b.Property<int>("Servings")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Week")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId", "Week");
+
+                    b.HasIndex("OwnerId", "Week", "Day", "MealType")
+                        .IsUnique();
+
+                    b.ToTable("MealPlanSlotReadItems", (string)null);
+                });
+
+            modelBuilder.Entity("SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel.MealPlanWeekReadItem", b =>
+                {
+                    b.Property<string>("OwnerId")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Week")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<bool>("IsExtendedMode")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("OwnerId", "Week");
+
+                    b.ToTable("MealPlanWeekReadItems", (string)null);
                 });
 #pragma warning restore 612, 618
         }

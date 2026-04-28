@@ -1,9 +1,6 @@
 using FluentAssertions;
-using NSubstitute;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
-using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
 using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
@@ -11,28 +8,23 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 
 public class ToggleExtendedModeCommandHandlerTests
 {
-	private readonly IWeeklyPlanRepository plans = Substitute.For<IWeeklyPlanRepository>();
-	private readonly IMealPlanUnitOfWork unitOfWork = Substitute.For<IMealPlanUnitOfWork>();
+	private readonly FakeMealPlanEventStore eventStore = new();
 	private readonly ToggleExtendedModeCommandHandler handler;
 
 	public ToggleExtendedModeCommandHandlerTests()
 	{
-		unitOfWork.Plans.Returns(plans);
-		handler = new ToggleExtendedModeCommandHandler(unitOfWork, CreateCurrentUser());
+		handler = new ToggleExtendedModeCommandHandler(eventStore, CreateCurrentUser());
 	}
 
 	[Fact]
 	public async Task HandleAsync_EnableNoPlan_CreatesExtended()
 	{
-		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns((WeeklyPlan?)null);
-
 		var result = await handler.HandleAsync(new ToggleExtendedModeCommand(TestWeek, true));
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.IsExtendedMode.Should().BeTrue();
 		result.Value.Slots.Should().HaveCount(21);
-		await plans.Received(1).AddAsync(Arg.Any<WeeklyPlan>(), Arg.Any<CancellationToken>());
+		eventStore.SaveCount.Should().Be(1);
 	}
 
 	[Fact]
@@ -40,9 +32,7 @@ public class ToggleExtendedModeCommandHandlerTests
 	{
 		var existing = CreatePlan();
 		existing.EnableExtendedMode();
-
-		plans.FindForUpdateAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<WeekIdentifier>(), Arg.Any<CancellationToken>())
-			.Returns(existing);
+		eventStore.Seed(existing);
 
 		var result = await handler.HandleAsync(new ToggleExtendedModeCommand(TestWeek, false));
 

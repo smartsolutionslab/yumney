@@ -5,7 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
-public sealed class CookWithLeftoversCommandHandler(IMealPlanUnitOfWork unitOfWork, ICurrentUser currentUser)
+public sealed class CookWithLeftoversCommandHandler(IMealPlanEventStore eventStore, ICurrentUser currentUser)
 	: ICommandHandler<CookWithLeftoversCommand, Result<WeeklyPlanDto>>
 {
 	public async Task<Result<WeeklyPlanDto>> HandleAsync(CookWithLeftoversCommand command, CancellationToken cancellationToken = default)
@@ -14,30 +14,15 @@ public sealed class CookWithLeftoversCommandHandler(IMealPlanUnitOfWork unitOfWo
 		var owner = currentUser.AsOwner();
 		var leftoverServingsValue = totalServings.Value - eatServings.Value;
 
-		var plan = await unitOfWork.Plans.FindForUpdateAsync(owner, week, cancellationToken);
-		if (plan is null)
+		var plan = await eventStore.LoadAsync(owner, week, cancellationToken) ?? WeeklyPlan.Create(owner, week);
+		plan.AssignRecipe(cookDay, recipe, mealType, totalServings);
+
+		if (leftoverServingsValue > 0)
 		{
-			plan = WeeklyPlan.Create(owner, week);
-			plan.AssignRecipe(cookDay, recipe, mealType, totalServings);
-
-			if (leftoverServingsValue > 0)
-			{
-				plan.SetLeftover(leftoverDay, cookDay, mealType, recipe.Title, mealType, SlotServings.From(leftoverServingsValue));
-			}
-
-			await unitOfWork.Plans.AddAsync(plan, cancellationToken);
-		}
-		else
-		{
-			plan.AssignRecipe(cookDay, recipe, mealType, totalServings);
-
-			if (leftoverServingsValue > 0)
-			{
-				plan.SetLeftover(leftoverDay, cookDay, mealType, recipe.Title, mealType, SlotServings.From(leftoverServingsValue));
-			}
+			plan.SetLeftover(leftoverDay, cookDay, mealType, recipe.Title, mealType, SlotServings.From(leftoverServingsValue));
 		}
 
-		await unitOfWork.SaveChangesAsync(cancellationToken);
+		await eventStore.SaveAsync(plan, cancellationToken);
 
 		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
 	}
