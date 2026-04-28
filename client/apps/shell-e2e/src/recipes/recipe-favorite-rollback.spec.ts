@@ -22,14 +22,11 @@ test.describe('Favorite Recipes — Optimistic Rollback (#409)', () => {
     ingredient: 'Pepper',
   });
 
-  // Fixme'd pending #442: page.route does not intercept the POST to
-  // /api/v1/recipes/{id}/favorite — neither glob, regex, nor URL-
-  // predicate patterns matched. The diagnostic version of this test
-  // proved handlerFireCount=0 in three CI runs. The favorite-toggle
-  // rollback logic itself is implemented correctly in
-  // libs/shared/models/src/lib/favorite-toggle.ts; the test just
-  // can't drive it via mocked failure until #442 is figured out.
-  test.fixme('reverts aria-pressed when the favorite POST fails', async ({ authenticatedPage }) => {
+  // Re-enabled — using context.route instead of page.route so the
+  // mock intercepts cross-origin requests (page is on :4200, fetch
+  // targets :5100 via apiBaseInterceptor). Page-scoped routes don't
+  // catch those; context-scoped do. See #442.
+  test('reverts aria-pressed when the favorite POST fails', async ({ authenticatedPage }) => {
     // Delay the rejected response so the optimistic flip is observable
     // before the rollback. 800ms is enough for Playwright's auto-retry
     // toHaveAttribute to land on the 'true' state at least once.
@@ -43,7 +40,11 @@ test.describe('Favorite Recipes — Optimistic Rollback (#409)', () => {
     // handler ran or the request hit the real backend.
     const targetIdentifier = recipe().identifier;
     let handlerFireCount = 0;
-    await authenticatedPage.route(
+    // context.route, not page.route — see #442. The frontend rewrites
+    // /api/v1/* to ${gatewayUrl}/api/v1/* via apiBaseInterceptor, so
+    // these requests cross from :4200 to :5100 and page-scoped routes
+    // don't intercept them.
+    await authenticatedPage.context().route(
       (url) =>
         url.pathname === `/api/v1/recipes/${targetIdentifier}/favorite` ||
         url.pathname.endsWith(`/api/v1/recipes/${targetIdentifier}/favorite`),
