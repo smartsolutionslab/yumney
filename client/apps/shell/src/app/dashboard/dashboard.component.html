@@ -6,6 +6,10 @@
   <h1>{{ t('dashboard.title') }}</h1>
   <p>{{ t('dashboard.welcome') }}</p>
 
+  @if (serverError(); as error) {
+    <div class="error-banner" role="alert">{{ t(error) }}</div>
+  }
+
   @if (quickActions().length > 0) {
     <yn-quick-actions [actions]="quickActions()" (actionClicked)="onQuickAction($event)" />
   }
@@ -52,10 +56,6 @@
 
     @if (importSectionExpanded()) {
       <div class="import-content">
-        @if (serverError(); as error) {
-          <div class="error-banner" role="alert">{{ t(error) }}</div>
-        }
-
         <yn-url-import
           [isSaving]="isSaving()"
           (importStarted)="onUrlImportStarted()"
