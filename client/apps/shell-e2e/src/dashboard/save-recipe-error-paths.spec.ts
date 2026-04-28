@@ -22,13 +22,9 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
     await dashboard.goto();
   });
 
-  // fixme pending #442: page.route does not intercept POST
-  // /api/v1/recipes — diagnostic confirmed response status=201 and
-  // [mockApiError] never logged. The dashboard banner placement
-  // (#438) IS fixed by this PR; the test just can't drive the
-  // failure path until #442 figures out why route patterns don't
-  // match this URL family.
-  test.fixme('shows error banner when save returns 500', async ({ authenticatedPage }) => {
+  // Re-enabled — mockApiError now uses context.route, which intercepts
+  // cross-origin requests (page on :4200, fetch on :5100). See #442.
+  test('shows error banner when save returns 500', async ({ authenticatedPage }) => {
     await mockApiError(authenticatedPage, '**/api/v1/recipes', 500, {
       detail: 'An unexpected error occurred.',
     });
@@ -58,8 +54,7 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
     await expect(authenticatedPage.locator('#preview-title')).toHaveValue('E2E 500 Test');
   });
 
-  // fixme pending #442: same Playwright route-matching issue as above.
-  test.fixme('shows error banner when save returns 422 with validation errors', async ({
+  test('shows error banner when save returns 422 with validation errors', async ({
     authenticatedPage,
   }) => {
     await mockApiError(authenticatedPage, '**/api/v1/recipes', 422, {
