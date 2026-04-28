@@ -70,6 +70,20 @@ if (!options.DatabaseOnly)
 		.WaitFor(usersDb)
 		.WaitFor(mealplanDb);
 
+	// Dashboard-only entry (run mode): drops and re-migrates mealplandb.
+	// Click "Start" on this resource to wipe the event-sourced MealPlan store.
+	if (isRunMode)
+	{
+		builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-mealplan-reset")
+			.WithReference(recipesDb)
+			.WithReference(shoppingDb)
+			.WithReference(usersDb)
+			.WithReference(mealplanDb)
+			.WaitFor(mealplanDb)
+			.WithEnvironment("Persistence__ResetMealPlanOnly", "true")
+			.WithExplicitStart();
+	}
+
 	// ── Infrastructure ── (persistent with data volumes for dev, ephemeral for E2E)
 	var redis = builder.AddRedis("redis", password: redisPassword).WithImageTag("alpine");
 	var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithImageTag("4-management-alpine").WithManagementPlugin();
