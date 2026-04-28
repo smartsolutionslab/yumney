@@ -116,7 +116,12 @@
       <a class="btn-primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
         {{ t('recipes.detail.actions.edit') }}
       </a>
-      <button class="btn-danger" [disabled]="isDeleting()" (click)="onDelete()">
+      <button
+        class="btn-danger"
+        data-testid="recipe-delete-btn"
+        [disabled]="isDeleting()"
+        (click)="onDelete()"
+      >
         {{
           isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete')
         }}

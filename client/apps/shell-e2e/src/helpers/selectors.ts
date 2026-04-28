@@ -9,9 +9,12 @@ export const SELECTORS = {
     steps: '.step-fields',
   },
   recipe: {
-    card: '.recipe-card',
+    card: '[data-testid="recipe-card"]',
     title: '.recipe-title',
-    deleteBtn: '.btn-danger',
+    deleteBtn: '[data-testid="recipe-delete-btn"]',
+    // confirmDelete is the modal confirmation button inside yn-confirm-dialog;
+    // shared component, scope-agnostic — keep CSS selector for now until the
+    // dialog gets its own data-testid in a follow-up.
     confirmDelete: '.btn-danger-filled',
   },
   chat: {

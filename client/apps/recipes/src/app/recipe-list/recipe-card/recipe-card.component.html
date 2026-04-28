@@ -1,5 +1,10 @@
 @if (assignMode()) {
-  <div class="recipe-card assign-card" (click)="onAssign($event)" *transloco="let t">
+  <div
+    class="recipe-card assign-card"
+    data-testid="recipe-card"
+    (click)="onAssign($event)"
+    *transloco="let t"
+  >
     @if (recipe().imageUrl) {
       <img
         [src]="recipe().imageUrl"
@@ -34,6 +39,7 @@
 } @else {
   <a
     class="recipe-card"
+    data-testid="recipe-card"
     [routerLink]="ROUTES.recipes.detail(recipe().identifier)"
     *transloco="let t"
   >
