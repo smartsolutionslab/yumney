@@ -8,4 +8,7 @@ public static class RateLimitPolicies
 
 	/// <summary>General API rate limit (60/min).</summary>
 	public const string GeneralApi = "GeneralApi";
+
+	/// <summary>Strict limit for unauthenticated auth endpoints (10/min/IP) — registration, resend verification, etc.</summary>
+	public const string AnonymousAuth = "AnonymousAuth";
 }

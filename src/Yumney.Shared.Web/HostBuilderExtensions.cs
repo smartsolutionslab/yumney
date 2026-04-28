@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
@@ -136,6 +137,37 @@ public static class HostBuilderExtensions
 					ConnectionMultiplexerFactory = () => context.RequestServices.GetRequiredService<IConnectionMultiplexer>(),
 				});
 			});
+
+			// Anonymous-only — partitions by client IP (resolved via ForwardedHeaders).
+			// If RemoteIpAddress is somehow null, the partition key is the literal
+			// "unknown" — those requests share a single global bucket of 10/min,
+			// which still caps abuse from any path that bypasses the gateway.
+			options.AddPolicy(RateLimitPolicies.AnonymousAuth, context =>
+			{
+				var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+				return RedisRateLimitPartition.GetSlidingWindowRateLimiter(clientIp, _ => new RedisSlidingWindowRateLimiterOptions
+				{
+					PermitLimit = 10,
+					Window = TimeSpan.FromMinutes(1),
+					ConnectionMultiplexerFactory = () => context.RequestServices.GetRequiredService<IConnectionMultiplexer>(),
+				});
+			});
+		});
+
+		// Trust X-Forwarded-* from the immediate proxy (Yumney.Gateway). The gateway sits
+		// at a private/loopback address that varies per environment (loopback in Aspire
+		// dev, a Container Apps internal IP in Azure), so we trust any direct caller and
+		// rely on Container Apps' internal-only ingress to ensure the API is unreachable
+		// except via the gateway. ForwardLimit = 1 means only the gateway's claim is
+		// honoured; chained X-Forwarded-For values further upstream are discarded.
+		builder.Services.Configure<ForwardedHeadersOptions>(options =>
+		{
+			options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+			options.ForwardLimit = 1;
+			options.KnownIPNetworks.Clear();
+			options.KnownProxies.Clear();
+			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("0.0.0.0/0"));
+			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("::/0"));
 		});
 
 		builder.Services.AddHttpClient();
@@ -148,6 +180,7 @@ public static class HostBuilderExtensions
 
 	public static WebApplication UseYumneyDefaults(this WebApplication app)
 	{
+		app.UseForwardedHeaders();
 		app.UseMiddleware<CorrelationIdMiddleware>();
 		app.UseMiddleware<RequestLoggingMiddleware>();
 		app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
