@@ -85,7 +85,8 @@ test.describe('A11y smoke (#411)', () => {
   });
 
   test('account profile', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/account/profile');
+    // /account is the profile-settings route — mirrors profile-settings.spec.ts
+    await authenticatedPage.goto('/account');
     await expect(authenticatedPage.getByRole('heading', { level: 1 })).toBeVisible({
       timeout: TIMEOUTS.default,
     });
