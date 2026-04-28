@@ -26,14 +26,22 @@ test.describe('Recipe Edit Flow', () => {
       { timeout: TIMEOUTS.default },
     );
 
-    const editBtn = authenticatedPage.getByRole('button', { name: /edit/i });
+    // Edit is rendered as <a> with routerLink (role=link), not <button>.
+    // The pre-#412 test used getByRole('button', /edit/i) and hid the
+    // selector mismatch behind an `if (hasRecipes)` skip — exactly the
+    // silent-pass pattern this PR was meant to expose.
+    const editBtn = authenticatedPage.getByRole('link', { name: /edit/i });
     await expect(editBtn).toBeVisible({ timeout: TIMEOUTS.default });
   });
 
   test('opens edit form pre-populated with the recipe title', async ({ authenticatedPage }) => {
     await authenticatedPage.goto(`/recipes/${recipe().identifier}`);
 
-    const editBtn = authenticatedPage.getByRole('button', { name: /edit/i });
+    // Edit is rendered as <a> with routerLink (role=link), not <button>.
+    // The pre-#412 test used getByRole('button', /edit/i) and hid the
+    // selector mismatch behind an `if (hasRecipes)` skip — exactly the
+    // silent-pass pattern this PR was meant to expose.
+    const editBtn = authenticatedPage.getByRole('link', { name: /edit/i });
     await editBtn.click();
 
     const titleInput = authenticatedPage.locator('input[name="title"], #title');
@@ -45,7 +53,11 @@ test.describe('Recipe Edit Flow', () => {
   test('shows ingredient and step fields in the edit form', async ({ authenticatedPage }) => {
     await authenticatedPage.goto(`/recipes/${recipe().identifier}`);
 
-    const editBtn = authenticatedPage.getByRole('button', { name: /edit/i });
+    // Edit is rendered as <a> with routerLink (role=link), not <button>.
+    // The pre-#412 test used getByRole('button', /edit/i) and hid the
+    // selector mismatch behind an `if (hasRecipes)` skip — exactly the
+    // silent-pass pattern this PR was meant to expose.
+    const editBtn = authenticatedPage.getByRole('link', { name: /edit/i });
     await editBtn.click();
 
     await expect(authenticatedPage.locator(SELECTORS.form.ingredients)).toBeVisible({
