@@ -203,6 +203,28 @@ public sealed class AspireFixture : IAsyncLifetime
 		await context.SaveChangesAsync();
 	}
 
+	public async Task ResetShoppingListEventStoreAsync(ShoppingDomain.ShoppingList.OwnerIdentifier owner)
+	{
+		await using var context = await CreateShoppingDbContextAsync();
+		var aggregateIds = await context.Set<ShoppingListAggregateMetadata>()
+			.Where(m => m.OwnerId == owner.Value)
+			.Select(m => m.AggregateId)
+			.ToListAsync();
+
+		if (aggregateIds.Count == 0) return;
+
+		var events = await context.Set<ShoppingListStoredEvent>()
+			.Where(e => aggregateIds.Contains(e.AggregateId))
+			.ToListAsync();
+		var metadata = await context.Set<ShoppingListAggregateMetadata>()
+			.Where(m => aggregateIds.Contains(m.AggregateId))
+			.ToListAsync();
+
+		context.RemoveRange(events);
+		context.RemoveRange(metadata);
+		await context.SaveChangesAsync();
+	}
+
 	public async Task ResetShoppingReadModelAsync(string ownerId)
 	{
 		await using var context = await CreateShoppingDbContextAsync();
