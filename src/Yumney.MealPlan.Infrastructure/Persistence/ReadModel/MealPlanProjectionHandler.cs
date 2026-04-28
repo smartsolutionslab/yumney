@@ -52,9 +52,10 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 			});
 		}
 
+		var existingKeys = await LoadExistingSlotKeysAsync(ownerId, week, cancellationToken);
 		foreach (var day in allDays)
 		{
-			await EnsureSlotAsync(ownerId, week, day.ToString(), MealType.Dinner.ToString(), defaultServings, cancellationToken);
+			AddSlotIfMissing(existingKeys, ownerId, week, day.ToString(), MealType.Dinner.ToString(), defaultServings);
 		}
 
 		await context.SaveChangesAsync(cancellationToken);
@@ -73,10 +74,11 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 			weekItem.LastUpdated = DateTime.UtcNow;
 		}
 
+		var existingKeys = await LoadExistingSlotKeysAsync(ownerId, week, cancellationToken);
 		foreach (var day in allDays)
 		{
-			await EnsureSlotAsync(ownerId, week, day.ToString(), MealType.Breakfast.ToString(), defaultServings, cancellationToken);
-			await EnsureSlotAsync(ownerId, week, day.ToString(), MealType.Lunch.ToString(), defaultServings, cancellationToken);
+			AddSlotIfMissing(existingKeys, ownerId, week, day.ToString(), MealType.Breakfast.ToString(), defaultServings);
+			AddSlotIfMissing(existingKeys, ownerId, week, day.ToString(), MealType.Lunch.ToString(), defaultServings);
 		}
 
 		await context.SaveChangesAsync(cancellationToken);
@@ -236,14 +238,18 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	private async Task EnsureSlotAsync(string ownerId, string week, string day, string mealType, int defaultServings, CancellationToken cancellationToken)
+	private async Task<HashSet<(string Day, string MealType)>> LoadExistingSlotKeysAsync(string ownerId, string week, CancellationToken cancellationToken)
 	{
 		var existing = await context.MealPlanSlotReadItems
-			.AsTracking()
-			.FirstOrDefaultAsync(
-				s => s.OwnerId == ownerId && s.Week == week && s.Day == day && s.MealType == mealType,
-				cancellationToken);
-		if (existing is not null) return;
+			.Where(s => s.OwnerId == ownerId && s.Week == week)
+			.Select(s => new { s.Day, s.MealType })
+			.ToListAsync(cancellationToken);
+		return existing.Select(s => (s.Day, s.MealType)).ToHashSet();
+	}
+
+	private void AddSlotIfMissing(HashSet<(string Day, string MealType)> existingKeys, string ownerId, string week, string day, string mealType, int defaultServings)
+	{
+		if (!existingKeys.Add((day, mealType))) return;
 
 		context.MealPlanSlotReadItems.Add(new MealPlanSlotReadItem
 		{
