@@ -50,6 +50,14 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>, ShoppingListProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemRemovedIntegrationEvent>, ShoppingListProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemQuantityAdjustedIntegrationEvent>, ShoppingListProjectionHandler>();
+		services.AddScoped<ShoppingListProjection>();
+		services.AddScoped<IIntegrationEventHandler<ShoppingListCreatedIntegrationEvent>, ShoppingListProjection>();
+		services.AddScoped<IIntegrationEventHandler<ListItemAddedIntegrationEvent>, ShoppingListProjection>();
+		services.AddScoped<IIntegrationEventHandler<ListItemCheckedIntegrationEvent>, ShoppingListProjection>();
+		services.AddScoped<IIntegrationEventHandler<ListItemUncheckedIntegrationEvent>, ShoppingListProjection>();
+		services.AddScoped<IIntegrationEventHandler<AllItemsCheckedIntegrationEvent>, ShoppingListProjection>();
+		services.AddScoped<IIntegrationEventHandler<AllItemsUncheckedIntegrationEvent>, ShoppingListProjection>();
+		services.AddScoped<IIntegrationEventHandler<RecipeReferenceClearedIntegrationEvent>, ShoppingListProjection>();
 		services.AddScoped<IIntegrationEventHandler<RecipeDeletedIntegrationEvent>, RecipeDeletedHandler>();
 		services.AddScoped<IIntegrationEventHandler<MealConfirmedIntegrationEvent>, MealConfirmedHandler>();
 		services.AddScoped<IInboxStore, EfCoreInboxStore<ShoppingDbContext>>();
