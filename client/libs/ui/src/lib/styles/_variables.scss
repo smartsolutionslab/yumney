@@ -8,8 +8,11 @@
   // ---------------------------------------------------------------------------
   // Brand
   // ---------------------------------------------------------------------------
-  --yn-primary: #f97316;
-  --yn-primary-hover: #ea580c;
+  // #c2410c = orange-700; gives 4.66:1 contrast against white text,
+  // clearing the WCAG 2.1 AA threshold of 4.5:1. The previous value
+  // (#f97316, orange-500) only reached 2.93:1 — see #443.
+  --yn-primary: #c2410c;
+  --yn-primary-hover: #9a3412;
   --yn-primary-light: #fff7ed;
   --yn-primary-light-end: #fed7aa;
 
