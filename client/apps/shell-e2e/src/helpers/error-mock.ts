@@ -14,6 +14,12 @@ export interface ProblemDetails {
  * the given URL pattern. Used by error-path e2e tests to exercise the UI's
  * 5xx / 422 / 409 handling without orchestrating real backend chaos.
  *
+ * Routes are registered on the browser context, not the page. The shell
+ * runs at :4200 but fetches go to :5100 via apiBaseInterceptor — those
+ * are cross-origin from the page's perspective, and `page.route` only
+ * intercepts same-origin requests. `context.route` covers any origin
+ * the page navigates to or fetches from. See #442.
+ *
  * The body shape mirrors what GlobalExceptionHandlerMiddleware and
  * ValidationExtensions produce in production (RFC 7807 problem+json), so
  * the frontend's error-mapping logic sees realistic input.
@@ -24,7 +30,7 @@ export async function mockApiError(
   status: number,
   problem: Partial<Omit<ProblemDetails, 'status'>> = {},
 ): Promise<void> {
-  await page.route(urlPattern, (route) =>
+  await page.context().route(urlPattern, (route) =>
     route.fulfill({
       status,
       contentType: 'application/problem+json',
