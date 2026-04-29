@@ -82,9 +82,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     });
   });
 
-  test('should reflect favorite state on recipe detail page', async ({
-    authenticatedPage,
-  }) => {
+  test('should reflect favorite state on recipe detail page', async ({ authenticatedPage }) => {
     const detail = new RecipeDetailPage(authenticatedPage);
     await detail.goto(recipe().identifier);
 
@@ -92,9 +90,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     await expect(detail.favoriteButton).toHaveAttribute('aria-pressed', 'true');
   });
 
-  test('should toggle favorite back off from recipe detail', async ({
-    authenticatedPage,
-  }) => {
+  test('should toggle favorite back off from recipe detail', async ({ authenticatedPage }) => {
     const detail = new RecipeDetailPage(authenticatedPage);
     await detail.goto(recipe().identifier);
     await expect(detail.favoriteButton).toBeVisible({ timeout: TIMEOUTS.default });
