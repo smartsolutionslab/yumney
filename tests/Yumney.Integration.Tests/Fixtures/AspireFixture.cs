@@ -190,15 +190,11 @@ public sealed class AspireFixture : IAsyncLifetime
 		var events = await context.Set<StoredEvent>()
 			.Where(e => aggregateIds.Contains(e.AggregateId))
 			.ToListAsync();
-		var snapshots = await context.Set<StoredSnapshot>()
-			.Where(s => aggregateIds.Contains(s.AggregateId))
-			.ToListAsync();
 		var metadata = await context.Set<AggregateMetadata>()
 			.Where(m => aggregateIds.Contains(m.AggregateId))
 			.ToListAsync();
 
 		context.RemoveRange(events);
-		context.RemoveRange(snapshots);
 		context.RemoveRange(metadata);
 		await context.SaveChangesAsync();
 	}

@@ -70,42 +70,12 @@ if (!options.DatabaseOnly)
 		.WaitFor(usersDb)
 		.WaitFor(mealplanDb);
 
-	// Dashboard-only entry (run mode): drops and re-migrates mealplandb.
-	// Click "Start" on this resource to wipe the event-sourced MealPlan store.
+	// Dashboard-only operational entries (run mode): one resource per maintenance
+	// task. Each sits idle until the dev clicks Start in the dashboard.
 	if (isRunMode)
 	{
-		builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-mealplan-reset")
-			.WithReference(recipesDb)
-			.WithReference(shoppingDb)
-			.WithReference(usersDb)
-			.WithReference(mealplanDb)
-			.WaitFor(mealplanDb)
-			.WithEnvironment("Persistence__ResetMealPlanOnly", "true")
-			.WithExplicitStart();
-
-		// Dashboard-only entry (run mode): truncates the ShoppingList projection
-		// tables and replays the event store into them. Events, metadata, and the
-		// legacy ShoppingLists table are untouched. Idempotent.
-		builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-shopping-projection-reset")
-			.WithReference(recipesDb)
-			.WithReference(shoppingDb)
-			.WithReference(usersDb)
-			.WithReference(mealplanDb)
-			.WaitFor(shoppingDb)
-			.WithEnvironment("Persistence__RebuildShoppingProjections", "true")
-			.WithExplicitStart();
-
-		// Dashboard-only entry (run mode): synthesises events for any legacy
-		// ShoppingLists rows that don't yet have an entry in the event store.
-		// One-off operation; idempotent for already-backfilled lists.
-		builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-shopping-event-backfill")
-			.WithReference(recipesDb)
-			.WithReference(shoppingDb)
-			.WithReference(usersDb)
-			.WithReference(mealplanDb)
-			.WaitFor(shoppingDb)
-			.WithEnvironment("Persistence__BackfillShoppingEvents", "true")
-			.WithExplicitStart();
+		DashboardResetEntries.AddShoppingAndMealPlanResetEntries(
+			builder, recipesDb, shoppingDb, usersDb, mealplanDb);
 	}
 
 	// ── Infrastructure ── (persistent with data volumes for dev, ephemeral for E2E)

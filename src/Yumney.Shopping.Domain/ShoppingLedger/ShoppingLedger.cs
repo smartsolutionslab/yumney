@@ -52,24 +52,6 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
 		return ledger;
 	}
 
-	public static ShoppingLedger FromSnapshot(
-		ShoppingLedgerIdentifier identifier,
-		OwnerIdentifier ownerId,
-		Dictionary<string, ShoppingItemState> snapshotItems,
-		AggregateVersion snapshotVersion,
-		IEnumerable<IDomainEvent> eventsSinceSnapshot)
-	{
-		var ledger = new ShoppingLedger { Identifier = identifier, OwnerId = ownerId };
-		foreach (var item in snapshotItems)
-		{
-			ledger.items[item.Key] = item.Value;
-		}
-
-		ledger.LoadFromHistory(eventsSinceSnapshot, snapshotVersion);
-
-		return ledger;
-	}
-
 	public ShoppingLedger AddItem(ItemName itemName, Quantity quantity, ItemSource source)
 	{
 		RaiseEvent(new ShoppingItemAdded(itemName, quantity, source));
