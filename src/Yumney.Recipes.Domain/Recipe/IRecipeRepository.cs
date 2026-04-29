@@ -22,5 +22,12 @@ public interface IRecipeRepository
 		RecipeFilter? filter = null,
 		CancellationToken cancellationToken = default);
 
+	// Bulk fetch with ingredients eagerly loaded. Used by the recipe-matching
+	// engine ("What Can I Cook?"). Untracked. Keep in mind this loads the full
+	// recipe set for the owner — caller is responsible for any ranking + cap.
+	Task<IReadOnlyList<Recipe>> GetAllByOwnerWithIngredientsAsync(
+		OwnerIdentifier owner,
+		CancellationToken cancellationToken = default);
+
 	void Remove(Recipe recipe);
 }

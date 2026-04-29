@@ -46,6 +46,18 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 		context.Recipes.Remove(recipe);
 	}
 
+	public async Task<IReadOnlyList<Recipe>> GetAllByOwnerWithIngredientsAsync(
+		OwnerIdentifier owner,
+		CancellationToken cancellationToken = default)
+	{
+		return await recipes
+			.AsNoTracking()
+			.Where(r => r.Owner == owner)
+			.Include(r => r.Ingredients)
+			.AsSplitQuery()
+			.ToListAsync(cancellationToken);
+	}
+
 	public async Task<(IReadOnlyList<Recipe> Items, ItemCount TotalCount)> GetByOwnerAsync(
 		OwnerIdentifier owner,
 		PagingOptions paging,
