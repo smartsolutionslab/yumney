@@ -48,6 +48,24 @@ public class InProcessEventBusTests
 	}
 
 	[Fact]
+	public async Task PublishAsync_ViaInterfaceStaticType_StillReachesConcreteHandler()
+	{
+		// Regression: callers commonly map domain events to integration events with a
+		// `IIntegrationEvent? = switch { ... }` expression — the variable's static type
+		// is the marker interface, so naive generic-parameter dispatch would bind
+		// TEvent to IIntegrationEvent and miss every concrete-type subscriber. The bus
+		// must resolve handlers by the event's runtime type to avoid silently dropping
+		// every integration event published this way.
+		var handler = new TestIntegrationEventHandler();
+		var eventBus = CreateEventBus(services => services.AddSingleton<IIntegrationEventHandler<TestIntegrationEvent>>(handler));
+		IIntegrationEvent integrationEvent = new TestIntegrationEvent();
+
+		await eventBus.PublishAsync(integrationEvent);
+
+		handler.HandledEvents.Should().ContainSingle().Which.Should().Be(integrationEvent);
+	}
+
+	[Fact]
 	public async Task PublishAsync_WithNoHandler_CompletesWithoutError()
 	{
 		// Arrange
