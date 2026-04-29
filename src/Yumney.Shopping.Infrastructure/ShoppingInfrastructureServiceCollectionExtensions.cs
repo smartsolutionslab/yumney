@@ -58,6 +58,17 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IIntegrationEventHandler<RecipeReferenceClearedIntegrationEvent>, ShoppingListProjection>();
 		services.AddScoped<IIntegrationEventHandler<RecipeDeletedIntegrationEvent>, RecipeDeletedHandler>();
 		services.AddScoped<IIntegrationEventHandler<MealConfirmedIntegrationEvent>, MealConfirmedHandler>();
+		services.AddScoped<IngredientBalanceProjectionHandler>();
+		services.AddScoped<IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>, IngredientBalanceProjectionHandler>();
+		services.AddScoped<IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>, IngredientBalanceProjectionHandler>();
+		services.AddScoped<IIntegrationEventHandler<ShoppingItemRemovedIntegrationEvent>, IngredientBalanceProjectionHandler>();
+		services.AddScoped<IIntegrationEventHandler<ShoppingItemUndoBoughtIntegrationEvent>, IngredientBalanceProjectionHandler>();
+		services.AddScoped<IIntegrationEventHandler<ShoppingItemAddedAsAtHomeIntegrationEvent>, IngredientBalanceProjectionHandler>();
+		services.AddScoped<IIngredientBalanceReadModelRepository, IngredientBalanceReadModelRepository>();
+		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
+		services.AddTransient<AuthTokenDelegatingHandler>();
+		services.AddHttpClient("users-api", client => client.BaseAddress = new Uri("http://users-api"))
+			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
 		services.AddScoped<IInboxStore, EfCoreInboxStore<ShoppingDbContext>>();
 		services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");
 

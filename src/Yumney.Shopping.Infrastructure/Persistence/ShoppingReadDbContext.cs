@@ -11,6 +11,8 @@ public sealed class ShoppingReadDbContext(DbContextOptions<ShoppingReadDbContext
 
 	public DbSet<ShoppingListItemReadItem> ShoppingListItemReadItems => Set<ShoppingListItemReadItem>();
 
+	public DbSet<IngredientBalanceReadItem> IngredientBalanceReadItems => Set<IngredientBalanceReadItem>();
+
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
 		optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
