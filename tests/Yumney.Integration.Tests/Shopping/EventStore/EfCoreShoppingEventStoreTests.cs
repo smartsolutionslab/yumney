@@ -295,6 +295,48 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 	}
 
 	[Fact]
+	public async Task SaveAsync_UndoBought_PublishesUndoBoughtIntegrationEvent()
+	{
+		var milk = ItemName.From("Milk");
+		var litre = Unit.From("l");
+		var oneLitre = Quantity.Of(Amount.From(1), litre);
+
+		await using var context = await fixture.CreateShoppingDbContextAsync();
+		var bus = Substitute.For<IEventBus>();
+		var store = CreateStore(context, bus);
+		var ledger = ShoppingLedger.Create(owner)
+			.AddItem(milk, oneLitre, Source)
+			.MarkBought(milk, oneLitre)
+			.UndoBought(milk, oneLitre);
+
+		await store.SaveAsync(ledger);
+
+		await bus.Received(1).PublishAsync(
+			Arg.Is<ShoppingItemUndoBoughtIntegrationEvent>(e => e.OwnerId == owner.Value),
+			Arg.Any<CancellationToken>());
+	}
+
+	[Fact]
+	public async Task SaveAsync_AddedAsAtHome_PublishesAddedAsAtHomeIntegrationEvent()
+	{
+		var butter = ItemName.From("Butter");
+		var grams = Unit.From("g");
+
+		await using var context = await fixture.CreateShoppingDbContextAsync();
+		var bus = Substitute.For<IEventBus>();
+		var store = CreateStore(context, bus);
+		var ledger = ShoppingLedger.Create(owner)
+			.AddAsAtHome(butter, Quantity.Of(Amount.From(250), grams));
+
+		await store.SaveAsync(ledger);
+
+		await bus.Received(1).PublishAsync(
+			Arg.Is<ShoppingItemAddedAsAtHomeIntegrationEvent>(e =>
+				e.OwnerId == owner.Value && e.Inner.ItemName.Value == "Butter"),
+			Arg.Any<CancellationToken>());
+	}
+
+	[Fact]
 	public async Task SaveAsync_CancelledToken_ThrowsOperationCanceled()
 	{
 		using var cts = new CancellationTokenSource();
