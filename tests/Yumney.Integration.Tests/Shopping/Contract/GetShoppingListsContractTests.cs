@@ -106,8 +106,6 @@ public class GetShoppingListsContractTests(AspireFixture fixture) : IAsyncLifeti
 	{
 		var userId = await fixture.GetTestUserIdAsync();
 		var owner = OwnerIdentifier.From(userId);
-		await AspireFixture.CleanupAsync(
-			fixture.CreateShoppingDbContextAsync,
-			ctx => ctx.ShoppingLists.Where(l => l.Owner == owner));
+		await fixture.ResetShoppingListEventStoreAsync(owner);
 	}
 }

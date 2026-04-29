@@ -6,7 +6,6 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
-using SmartSolutionsLab.Yumney.Shopping.Application;
 using SmartSolutionsLab.Yumney.Shopping.Application.IntegrationEventHandlers;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
@@ -22,15 +21,6 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 {
 	public static IServiceCollection AddShoppingInfrastructure(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddSingleton(_ =>
-		{
-			var section = configuration.GetSection(ShoppingOptions.SectionName);
-			return new ShoppingOptions
-			{
-				UseProjectionReadModel = bool.TryParse(section["UseProjectionReadModel"], out var v) ? v : true,
-			};
-		});
-
 		var connectionString = configuration.GetConnectionString("shoppingdb");
 		Action<NpgsqlDbContextOptionsBuilder> contextOptions = builder => builder
 			.MigrationsHistoryTable("__ShoppingMigrationsHistory")
@@ -48,15 +38,12 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 			options.UseNpgsql(connectionString, contextOptions);
 		});
 
-		services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
 		services.AddScoped<IShoppingListEventStore, EfCoreShoppingListEventStore>();
-		services.AddScoped<IShoppingUnitOfWork, ShoppingUnitOfWork>();
 		services.AddScoped<IShoppingEventStore, EfCoreShoppingEventStore>();
 		services.AddScoped<IShoppingListWriter, ShoppingListWriter>();
 		services.AddScoped<IShoppingLedgerReadModelRepository, ShoppingLedgerReadModelRepository>();
 		services.AddScoped<IShoppingListProjectionRepository, EfCoreShoppingListProjectionRepository>();
 		services.AddScoped<IShoppingListProjectionRebuilder, ShoppingListProjectionRebuilder>();
-		services.AddScoped<IShoppingListBackfillService, ShoppingListBackfillService>();
 		services.AddScoped<ShoppingLedgerProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemAddedIntegrationEvent>, ShoppingLedgerProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>, ShoppingLedgerProjectionHandler>();

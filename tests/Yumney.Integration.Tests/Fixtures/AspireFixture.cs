@@ -234,14 +234,6 @@ public sealed class AspireFixture : IAsyncLifetime
 		await context.SaveChangesAsync();
 	}
 
-	public async Task SeedShoppingListsAsync(params ShoppingList[] shoppingLists)
-	{
-		await using var context = await CreateShoppingDbContextAsync();
-		context.ShoppingLists.AddRange(shoppingLists);
-
-		await context.SaveChangesAsync();
-	}
-
 	public async Task<UsersDbContext> CreateUsersDbContextAsync()
 	{
 		var connectionString = await App.GetConnectionStringAsync("usersdb");

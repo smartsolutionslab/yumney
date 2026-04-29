@@ -1,5 +1,6 @@
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.IntegrationEventHandlers;
@@ -10,7 +11,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.IntegrationEventHandlers
 /// publishing user that still references the deleted recipe. The user's list
 /// and items are preserved — only the broken link is severed.
 /// </summary>
-public sealed class RecipeDeletedHandler(IShoppingUnitOfWork unitOfWork)
+public sealed class RecipeDeletedHandler(
+	IShoppingListProjectionRepository projection,
+	IShoppingListEventStore eventStore)
 	: IIntegrationEventHandler<RecipeDeletedIntegrationEvent>
 {
 	/// <inheritdoc />
@@ -19,14 +22,15 @@ public sealed class RecipeDeletedHandler(IShoppingUnitOfWork unitOfWork)
 		var owner = OwnerIdentifier.From(@event.OwnerId);
 		var reference = RecipeReference.From(@event.RecipeIdentifier);
 
-		var lists = await unitOfWork.ShoppingLists.FindByRecipeReferenceAsync(owner, reference, cancellationToken);
-		if (lists.Count == 0) return;
+		var listIds = await projection.FindIdsByRecipeAsync(owner, reference, cancellationToken);
+		if (listIds.Count == 0) return;
 
-		foreach (var list in lists)
+		foreach (var listId in listIds)
 		{
+			var list = await eventStore.LoadAsync(listId, cancellationToken);
+			if (list is null) continue;
 			list.ClearRecipeReference();
+			await eventStore.SaveAsync(list, cancellationToken);
 		}
-
-		await unitOfWork.SaveChangesAsync(cancellationToken);
 	}
 }
