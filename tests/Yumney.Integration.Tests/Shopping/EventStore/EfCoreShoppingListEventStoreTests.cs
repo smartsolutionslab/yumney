@@ -1,7 +1,10 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
+using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
@@ -32,14 +35,13 @@ public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLi
 	}
 
 	[Fact]
-	public async Task AppendAsync_NewList_StagesEventsAndMetadata()
+	public async Task SaveAsync_NewList_PersistsEventsAndMetadata()
 	{
 		await using var context = await fixture.CreateShoppingDbContextAsync();
 		var store = CreateStore(context);
 		var list = CreateList();
 
-		await store.AppendAsync(list);
-		await context.SaveChangesAsync();
+		await store.SaveAsync(list);
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var stored = await verify.Set<ShoppingListStoredEvent>()
@@ -58,25 +60,21 @@ public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLi
 	}
 
 	[Fact]
-	public async Task AppendAsync_OnlyAfterMarkCommitted_DoesNotDoubleStage()
+	public async Task SaveAsync_ClearsUncommittedEventsAfterPersist()
 	{
 		var list = CreateList();
 
 		await using (var context = await fixture.CreateShoppingDbContextAsync())
 		{
-			var store = CreateStore(context);
-			await store.AppendAsync(list);
-			await context.SaveChangesAsync();
-			list.MarkCommitted();
+			await CreateStore(context).SaveAsync(list);
 		}
 
+		list.UncommittedEvents.Should().BeEmpty();
 		list.CheckOffItem(list.Items[0].Id);
 
 		await using (var context = await fixture.CreateShoppingDbContextAsync())
 		{
-			var store = CreateStore(context);
-			await store.AppendAsync(list);
-			await context.SaveChangesAsync();
+			await CreateStore(context).SaveAsync(list);
 		}
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
@@ -98,14 +96,11 @@ public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLi
 
 		await using (var context = await fixture.CreateShoppingDbContextAsync())
 		{
-			var store = CreateStore(context);
-			await store.AppendAsync(original);
-			await context.SaveChangesAsync();
+			await CreateStore(context).SaveAsync(original);
 		}
 
 		await using var loadContext = await fixture.CreateShoppingDbContextAsync();
-		var loadStore = CreateStore(loadContext);
-		var loaded = await loadStore.LoadAsync(original.Identifier);
+		var loaded = await CreateStore(loadContext).LoadAsync(original.Identifier);
 
 		loaded.Should().NotBeNull();
 		loaded!.Identifier.Should().Be(original.Identifier);
@@ -117,20 +112,16 @@ public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLi
 	}
 
 	[Fact]
-	public async Task AppendAsync_ConflictingVersion_ThrowsOnSave()
+	public async Task SaveAsync_ConflictingVersion_ThrowsConcurrencyConflictException()
 	{
 		var list = CreateList();
 
 		await using (var context = await fixture.CreateShoppingDbContextAsync())
 		{
-			var store = CreateStore(context);
-			await store.AppendAsync(list);
-			await context.SaveChangesAsync();
-			list.MarkCommitted();
+			await CreateStore(context).SaveAsync(list);
 		}
 
-		// Simulate a competing write at version 2 by manually inserting a row with the
-		// same (AggregateId, Version) as the next staged event would use.
+		// Simulate a competing write at the next version slot.
 		await using (var conflictContext = await fixture.CreateShoppingDbContextAsync())
 		{
 			conflictContext.Set<ShoppingListStoredEvent>().Add(new ShoppingListStoredEvent
@@ -149,15 +140,14 @@ public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLi
 
 		await using var context2 = await fixture.CreateShoppingDbContextAsync();
 		var store2 = CreateStore(context2);
-		await store2.AppendAsync(list);
 
-		var act = () => context2.SaveChangesAsync();
-		var ex = await act.Should().ThrowAsync<DbUpdateException>();
-		ex.Which.IsUniqueViolation().Should().BeTrue();
+		var act = () => store2.SaveAsync(list);
+
+		await act.Should().ThrowAsync<ConcurrencyConflictException>();
 	}
 
 	private static EfCoreShoppingListEventStore CreateStore(ShoppingDbContext context) =>
-		new(context, NullLogger<EfCoreShoppingListEventStore>.Instance);
+		new(context, Substitute.For<IEventBus>(), NullLogger<EfCoreShoppingListEventStore>.Instance);
 
 	private ShoppingList CreateList()
 	{

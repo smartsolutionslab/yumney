@@ -4,14 +4,15 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
-public sealed class CheckOffItemCommandHandler(IShoppingUnitOfWork unitOfWork, ICurrentUser currentUser)
+public sealed class CheckOffItemCommandHandler(IShoppingListEventStore eventStore, ICurrentUser currentUser)
 	: ICommandHandler<CheckOffItemCommand, Result>
 {
 	public async Task<Result> HandleAsync(CheckOffItemCommand command, CancellationToken cancellationToken = default)
 	{
 		var (listIdentifier, itemId, isChecked) = command;
 
-		var shoppingList = await unitOfWork.ShoppingLists.GetByIdForUpdateAsync(listIdentifier, cancellationToken);
+		var shoppingList = await eventStore.LoadAsync(listIdentifier, cancellationToken)
+			?? throw new EntityNotFoundException(nameof(ShoppingList), listIdentifier.Value);
 
 		var owner = currentUser.AsOwner();
 
@@ -26,7 +27,7 @@ public sealed class CheckOffItemCommandHandler(IShoppingUnitOfWork unitOfWork, I
 			shoppingList.UncheckItem(itemId);
 		}
 
-		await unitOfWork.SaveChangesAsync(cancellationToken);
+		await eventStore.SaveAsync(shoppingList, cancellationToken);
 
 		return Result.Success();
 	}

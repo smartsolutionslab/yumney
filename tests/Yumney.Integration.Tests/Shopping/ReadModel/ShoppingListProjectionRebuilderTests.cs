@@ -25,10 +25,8 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
 		var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(s => s.OwnerId == owner.Value).ToListAsync();
 		var items = await ctx.Set<ShoppingListItemReadItem>().Where(i => i.OwnerId == owner.Value).ToListAsync();
-		var lists = await ctx.ShoppingLists.Where(l => l.Owner == owner).ToListAsync();
 		ctx.RemoveRange(summaries);
 		ctx.RemoveRange(items);
-		ctx.RemoveRange(lists);
 		await ctx.SaveChangesAsync();
 	}
 
@@ -95,33 +93,26 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 
 	private async Task<ShoppingListIdentifier> SeedListAsync(string title, params string[] itemNames)
 	{
-		await using var writeCtx = await fixture.CreateShoppingDbContextAsync();
-		await using var readCtx = await fixture.CreateShoppingReadDbContextAsync();
-		var legacy = new ShoppingListRepository(writeCtx, readCtx);
-		var listEventStore = new EfCoreShoppingListEventStore(writeCtx, NullLogger<EfCoreShoppingListEventStore>.Instance);
+		await using var ctx = await fixture.CreateShoppingDbContextAsync();
 		var bus = Substitute.For<IEventBus>();
-		var uow = new ShoppingUnitOfWork(writeCtx, legacy, listEventStore, bus);
+		var store = new EfCoreShoppingListEventStore(ctx, bus, NullLogger<EfCoreShoppingListEventStore>.Instance);
 
 		var items = itemNames
 			.Select(n => ShoppingListItem.Create(ItemName.From(n), Quantity.Of(Amount.From(1), Unit.Gram)))
 			.ToList();
 		var list = ShoppingList.Create(ShoppingListTitle.From(title), owner, items);
-		await legacy.AddAsync(list);
-		await uow.SaveChangesAsync();
+		await store.SaveAsync(list);
 		return list.Identifier;
 	}
 
 	private async Task CheckOffFirstItemAsync(ShoppingListIdentifier listId)
 	{
-		await using var writeCtx = await fixture.CreateShoppingDbContextAsync();
-		await using var readCtx = await fixture.CreateShoppingReadDbContextAsync();
-		var legacy = new ShoppingListRepository(writeCtx, readCtx);
-		var listEventStore = new EfCoreShoppingListEventStore(writeCtx, NullLogger<EfCoreShoppingListEventStore>.Instance);
+		await using var ctx = await fixture.CreateShoppingDbContextAsync();
 		var bus = Substitute.For<IEventBus>();
-		var uow = new ShoppingUnitOfWork(writeCtx, legacy, listEventStore, bus);
+		var store = new EfCoreShoppingListEventStore(ctx, bus, NullLogger<EfCoreShoppingListEventStore>.Instance);
 
-		var list = await legacy.GetByIdForUpdateAsync(listId);
+		var list = await store.LoadAsync(listId) ?? throw new InvalidOperationException("seeded list missing");
 		list.CheckOffItem(list.Items[0].Id);
-		await uow.SaveChangesAsync();
+		await store.SaveAsync(list);
 	}
 }
