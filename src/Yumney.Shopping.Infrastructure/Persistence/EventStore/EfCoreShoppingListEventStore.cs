@@ -1,12 +1,7 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Common;
-using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
-using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore.Json;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Converters;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
@@ -15,35 +10,6 @@ public sealed partial class EfCoreShoppingListEventStore(
 	ShoppingDbContext context,
 	ILogger<EfCoreShoppingListEventStore> logger) : IShoppingListEventStore
 {
-#pragma warning disable SA1311, SA1303, SA1204
-	private static readonly JsonSerializerOptions jsonOptions = new()
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		Converters =
-		{
-			new StringValueObjectJsonConverter<OwnerIdentifier>(OwnerIdentifier.From),
-			new StringValueObjectJsonConverter<ShoppingListTitle>(ShoppingListTitle.From),
-			new StringValueObjectJsonConverter<ItemName>(ItemName.From),
-			new ShoppingListIdentifierJsonConverter(),
-			new ShoppingListItemIdentifierJsonConverter(),
-			new RecipeReferenceJsonConverter(),
-			new AmountJsonConverter(),
-			new UnitJsonConverter(),
-		},
-	};
-
-	private static readonly Dictionary<string, Type> eventTypeMap = new()
-	{
-		[nameof(ShoppingListCreated)] = typeof(ShoppingListCreated),
-		[nameof(ListItemAdded)] = typeof(ListItemAdded),
-		[nameof(ListItemChecked)] = typeof(ListItemChecked),
-		[nameof(ListItemUnchecked)] = typeof(ListItemUnchecked),
-		[nameof(AllItemsChecked)] = typeof(AllItemsChecked),
-		[nameof(AllItemsUnchecked)] = typeof(AllItemsUnchecked),
-		[nameof(RecipeReferenceCleared)] = typeof(RecipeReferenceCleared),
-	};
-#pragma warning restore SA1311
-
 	public async Task<ShoppingList?> LoadAsync(
 		ShoppingListIdentifier identifier,
 		CancellationToken cancellationToken = default)
@@ -64,7 +30,10 @@ public sealed partial class EfCoreShoppingListEventStore(
 
 		if (storedEvents.Count == 0) return null;
 
-		var events = storedEvents.Select(DeserializeEvent).Where(e => e is not null).Cast<IDomainEvent>();
+		var events = storedEvents
+			.Select(s => ShoppingListEventSerializer.Deserialize(s.EventType, s.EventData))
+			.Where(e => e is not null)
+			.Cast<IDomainEvent>();
 
 		return ShoppingList.FromEvents(identifier, events);
 	}
@@ -98,20 +67,13 @@ public sealed partial class EfCoreShoppingListEventStore(
 				Id = Guid.CreateVersion7(),
 				AggregateId = aggregateId,
 				EventType = @event.GetType().Name,
-				EventData = JsonSerializer.Serialize(@event, @event.GetType(), jsonOptions),
+				EventData = ShoppingListEventSerializer.Serialize(@event),
 				Version = baseVersion + index + 1,
 				OccurredAt = @event.OccurredOn,
 			});
 		}
 
 		LogEventsStaged(aggregateId, uncommitted.Count, list.Version);
-	}
-
-	private static IDomainEvent? DeserializeEvent(ShoppingListStoredEvent stored)
-	{
-		if (!eventTypeMap.TryGetValue(stored.EventType, out var type)) return null;
-
-		return JsonSerializer.Deserialize(stored.EventData, type, jsonOptions) as IDomainEvent;
 	}
 
 	[LoggerMessage(Level = LogLevel.Debug, Message = "Staged {Count} ShoppingList events for aggregate {AggregateId}, version now {Version}")]

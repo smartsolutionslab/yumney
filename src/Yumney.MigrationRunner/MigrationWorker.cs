@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
@@ -12,10 +13,14 @@ namespace SmartSolutionsLab.Yumney.MigrationRunner;
 /// Background worker that applies EF Core migrations for all modules on startup.
 /// Uses PostgreSQL advisory locks to prevent concurrent migration from multiple instances.
 ///
-/// When started with <c>Persistence:ResetMealPlanOnly=true</c> the worker only
-/// touches the MealPlan database, dropping and re-migrating it. This is the mode
-/// used by the dashboard "yumney-mealplan-reset" entry — convenient for wiping
-/// the event-sourced MealPlan store during local development.
+/// Dashboard-driven modes (set via configuration before start):
+/// <list type="bullet">
+///   <item><c>Persistence:ResetMealPlanOnly=true</c> — drops and re-migrates the
+///   MealPlan database only. Wipes the event-sourced MealPlan store.</item>
+///   <item><c>Persistence:RebuildShoppingProjections=true</c> — truncates the
+///   ShoppingList projection tables and replays the event store into them.
+///   Other Shopping data (events, metadata, legacy lists) is untouched.</item>
+/// </list>
 /// </summary>
 public sealed partial class MigrationWorker(
 	IServiceProvider serviceProvider,
@@ -27,7 +32,11 @@ public sealed partial class MigrationWorker(
 	{
 		try
 		{
-			if (configuration.GetValue<bool>("Persistence:ResetMealPlanOnly"))
+			if (configuration.GetValue<bool>("Persistence:RebuildShoppingProjections"))
+			{
+				await RebuildShoppingProjectionsAsync(stoppingToken);
+			}
+			else if (configuration.GetValue<bool>("Persistence:ResetMealPlanOnly"))
 			{
 				await ApplyMigrationsAsync<MealPlanDbContext>("MealPlan", stoppingToken, reset: true);
 			}
@@ -74,10 +83,21 @@ public sealed partial class MigrationWorker(
 	[LoggerMessage(Level = LogLevel.Warning, Message = "{Module}: dropping database before migrating")]
 	private static partial void LogResettingDatabase(ILogger logger, string module);
 
+	[LoggerMessage(Level = LogLevel.Information, Message = "Shopping: rebuilt {Count} projection events")]
+	private static partial void LogShoppingProjectionsRebuilt(ILogger logger, int count);
+
 	private static int GenerateLockId(string moduleName)
 	{
 		var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"yumney-migration-{moduleName}"));
 		return BitConverter.ToInt32(hash, 0);
+	}
+
+	private async Task RebuildShoppingProjectionsAsync(CancellationToken cancellationToken)
+	{
+		await using var scope = serviceProvider.CreateAsyncScope();
+		var rebuilder = scope.ServiceProvider.GetRequiredService<IShoppingListProjectionRebuilder>();
+		var replayed = await rebuilder.RebuildAsync(cancellationToken);
+		LogShoppingProjectionsRebuilt(logger, replayed);
 	}
 
 	private async Task ApplyMigrationsAsync<TContext>(string moduleName, CancellationToken cancellationToken, bool reset = false)
