@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence;
 
@@ -37,6 +38,7 @@ builder.Services.AddDbContext<MealPlanDbContext>(options =>
 // MigrationWorker through this code path; the regular migration run never resolves them.
 builder.Services.AddScoped<ShoppingListProjection>();
 builder.Services.AddScoped<IShoppingListProjectionRebuilder, ShoppingListProjectionRebuilder>();
+builder.Services.AddScoped<IShoppingListBackfillService, ShoppingListBackfillService>();
 
 builder.Services.AddHostedService<MigrationWorker>();
 
