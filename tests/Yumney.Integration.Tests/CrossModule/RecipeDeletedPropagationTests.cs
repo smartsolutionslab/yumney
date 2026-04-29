@@ -9,6 +9,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.CrossModule;
@@ -41,11 +42,10 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 
 		await WaitForAsync(async () =>
 		{
-			var userId = await fixture.GetTestUserIdAsync();
-			var owner = OwnerIdentifier.From(userId);
-			await using var ctx = await fixture.CreateShoppingDbContextAsync();
-			var list = await ctx.ShoppingLists.AsNoTracking().SingleAsync(l => l.Identifier == ShoppingListIdentifier.From(listId) && l.Owner == owner);
-			return list.RecipeReference is null;
+			await using var ctx = await fixture.CreateShoppingReadDbContextAsync();
+			var summary = await ctx.ShoppingListSummaryReadItems
+				.SingleOrDefaultAsync(s => s.Id == listId);
+			return summary is not null && summary.RecipeIdentifier is null;
 		});
 	}
 
@@ -64,9 +64,9 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 
 		await Task.Delay(2000);
 
-		await using var ctx = await fixture.CreateShoppingDbContextAsync();
-		var list = await ctx.ShoppingLists.AsNoTracking().SingleAsync(l => l.Identifier == ShoppingListIdentifier.From(linkedToB));
-		list.RecipeReference.Should().NotBeNull();
+		await using var ctx = await fixture.CreateShoppingReadDbContextAsync();
+		var summary = await ctx.ShoppingListSummaryReadItems.SingleAsync(s => s.Id == linkedToB);
+		summary.RecipeIdentifier.Should().NotBeNull();
 	}
 
 	private static async Task<Guid> CreateRecipeAsync(HttpClient client)
@@ -111,9 +111,16 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 	{
 		var userId = await fixture.GetTestUserIdAsync();
 		var owner = OwnerIdentifier.From(userId);
-		await AspireFixture.CleanupAsync(
-			fixture.CreateShoppingDbContextAsync,
-			ctx => ctx.ShoppingLists.Where(l => l.Owner == owner));
+		await fixture.ResetShoppingListEventStoreAsync(owner);
+		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
+		{
+			var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(s => s.OwnerId == userId).ToListAsync();
+			var items = await ctx.Set<ShoppingListItemReadItem>().Where(i => i.OwnerId == userId).ToListAsync();
+			ctx.RemoveRange(summaries);
+			ctx.RemoveRange(items);
+			await ctx.SaveChangesAsync();
+		}
+
 		await AspireFixture.CleanupAsync(
 			fixture.CreateRecipesDbContextAsync,
 			ctx => ctx.Recipes.Where(r => r.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));

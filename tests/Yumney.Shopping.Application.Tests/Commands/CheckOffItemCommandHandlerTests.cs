@@ -10,23 +10,21 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
 
 public class CheckOffItemCommandHandlerTests
 {
-	private readonly IShoppingListRepository shoppingLists = Substitute.For<IShoppingListRepository>();
-	private readonly IShoppingUnitOfWork unitOfWork = Substitute.For<IShoppingUnitOfWork>();
+	private readonly IShoppingListEventStore eventStore = Substitute.For<IShoppingListEventStore>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly CheckOffItemCommandHandler handler;
 
 	public CheckOffItemCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		unitOfWork.ShoppingLists.Returns(shoppingLists);
-		handler = new CheckOffItemCommandHandler(unitOfWork, currentUser);
+		handler = new CheckOffItemCommandHandler(eventStore, currentUser);
 	}
 
 	[Fact]
 	public async Task HandleAsync_ValidCheckCommand_ReturnsSuccess()
 	{
 		var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
-		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		eventStore.LoadAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
 		var command = new CheckOffItemCommand(list.Identifier, itemId, true);
 
 		var result = await handler.HandleAsync(command);
@@ -38,7 +36,7 @@ public class CheckOffItemCommandHandlerTests
 	public async Task HandleAsync_ValidUncheckCommand_ReturnsSuccess()
 	{
 		var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
-		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		eventStore.LoadAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
 		var command = new CheckOffItemCommand(list.Identifier, itemId, false);
 
 		var result = await handler.HandleAsync(command);
@@ -50,8 +48,7 @@ public class CheckOffItemCommandHandlerTests
 	public async Task HandleAsync_ListNotFound_ThrowsEntityNotFoundException()
 	{
 		var listId = ShoppingListIdentifier.New();
-		shoppingLists.GetByIdForUpdateAsync(listId, Arg.Any<CancellationToken>())
-			.Returns<ShoppingList>(_ => throw new EntityNotFoundException(nameof(ShoppingList), listId.Value));
+		eventStore.LoadAsync(listId, Arg.Any<CancellationToken>()).Returns((ShoppingList?)null);
 		var command = new CheckOffItemCommand(listId, ShoppingListItemIdentifier.New(), true);
 
 		var act = () => handler.HandleAsync(command);
@@ -63,7 +60,7 @@ public class CheckOffItemCommandHandlerTests
 	public async Task HandleAsync_DifferentOwner_ReturnsAccessDenied()
 	{
 		var list = ShoppingListTestData.CreateListWithItem("other-user", out var itemId);
-		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		eventStore.LoadAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
 		var command = new CheckOffItemCommand(list.Identifier, itemId, true);
 
 		var result = await handler.HandleAsync(command);
@@ -73,22 +70,22 @@ public class CheckOffItemCommandHandlerTests
 	}
 
 	[Fact]
-	public async Task HandleAsync_ValidCommand_CallsSaveChanges()
+	public async Task HandleAsync_ValidCommand_CallsSaveAsync()
 	{
 		var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
-		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		eventStore.LoadAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
 		var command = new CheckOffItemCommand(list.Identifier, itemId, true);
 
 		await handler.HandleAsync(command);
 
-		await unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+		await eventStore.Received(1).SaveAsync(list, Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
-	public async Task HandleAsync_CheckTrue_CallsCheckOffItem()
+	public async Task HandleAsync_CheckTrue_MarksItemChecked()
 	{
 		var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
-		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		eventStore.LoadAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
 		var command = new CheckOffItemCommand(list.Identifier, itemId, true);
 
 		await handler.HandleAsync(command);
@@ -97,11 +94,11 @@ public class CheckOffItemCommandHandlerTests
 	}
 
 	[Fact]
-	public async Task HandleAsync_CheckFalse_CallsUncheckItem()
+	public async Task HandleAsync_CheckFalse_MarksItemUnchecked()
 	{
 		var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
 		list.CheckOffItem(itemId);
-		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		eventStore.LoadAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
 		var command = new CheckOffItemCommand(list.Identifier, itemId, false);
 
 		await handler.HandleAsync(command);
@@ -114,12 +111,12 @@ public class CheckOffItemCommandHandlerTests
 	{
 		var cts = new CancellationTokenSource();
 		var list = ShoppingListTestData.CreateListWithItem("user-123", out var itemId);
-		shoppingLists.GetByIdForUpdateAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
+		eventStore.LoadAsync(list.Identifier, Arg.Any<CancellationToken>()).Returns(list);
 		var command = new CheckOffItemCommand(list.Identifier, itemId, true);
 
 		await handler.HandleAsync(command, cts.Token);
 
-		await shoppingLists.Received(1).GetByIdForUpdateAsync(list.Identifier, cts.Token);
-		await unitOfWork.Received(1).SaveChangesAsync(cts.Token);
+		await eventStore.Received(1).LoadAsync(list.Identifier, cts.Token);
+		await eventStore.Received(1).SaveAsync(list, cts.Token);
 	}
 }

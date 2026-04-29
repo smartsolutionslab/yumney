@@ -11,16 +11,14 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
 
 public class CreateShoppingListCommandHandlerTests
 {
-	private readonly IShoppingListRepository shoppingLists = Substitute.For<IShoppingListRepository>();
-	private readonly IShoppingUnitOfWork unitOfWork = Substitute.For<IShoppingUnitOfWork>();
+	private readonly IShoppingListEventStore eventStore = Substitute.For<IShoppingListEventStore>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly CreateShoppingListCommandHandler handler;
 
 	public CreateShoppingListCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		unitOfWork.ShoppingLists.Returns(shoppingLists);
-		handler = new CreateShoppingListCommandHandler(unitOfWork, currentUser);
+		handler = new CreateShoppingListCommandHandler(eventStore, currentUser);
 	}
 
 	[Fact]
@@ -46,13 +44,13 @@ public class CreateShoppingListCommandHandlerTests
 	}
 
 	[Fact]
-	public async Task HandleAsync_ValidCommand_CallsAddAsync()
+	public async Task HandleAsync_ValidCommand_CallsSaveAsyncOnEventStore()
 	{
 		var command = CreateValidCommand();
 
 		await handler.HandleAsync(command);
 
-		await shoppingLists.Received(1).AddAsync(
+		await eventStore.Received(1).SaveAsync(
 			Arg.Any<ShoppingList>(),
 			Arg.Any<CancellationToken>());
 	}
@@ -83,7 +81,7 @@ public class CreateShoppingListCommandHandlerTests
 	{
 		currentUser.UserId.Returns("specific-user-id");
 		ShoppingList? capturedList = null;
-		await shoppingLists.AddAsync(
+		await eventStore.SaveAsync(
 			Arg.Do<ShoppingList>(l => capturedList = l),
 			Arg.Any<CancellationToken>());
 
@@ -103,9 +101,7 @@ public class CreateShoppingListCommandHandlerTests
 
 		await handler.HandleAsync(command, cts.Token);
 
-		await shoppingLists.Received(1).AddAsync(
-			Arg.Any<ShoppingList>(),
-			cts.Token);
+		await eventStore.Received(1).SaveAsync(Arg.Any<ShoppingList>(), cts.Token);
 	}
 
 	[Fact]

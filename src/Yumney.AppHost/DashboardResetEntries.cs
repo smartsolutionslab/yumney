@@ -29,14 +29,8 @@ internal static class DashboardResetEntries
 		Add(builder, "yumney-shopping-reset", "Persistence__ResetShoppingOnly", shoppingDb, allDbs);
 
 		// Truncates the ShoppingList projection tables and replays the event store
-		// into them. Events, metadata, and the legacy ShoppingLists table are
-		// untouched. Idempotent.
+		// into them. Events and metadata are untouched. Idempotent.
 		Add(builder, "yumney-shopping-projection-reset", "Persistence__RebuildShoppingProjections", shoppingDb, allDbs);
-
-		// Synthesises events for any legacy ShoppingLists rows that don't yet have
-		// an entry in the event store. One-off; idempotent for already-backfilled
-		// lists.
-		Add(builder, "yumney-shopping-event-backfill", "Persistence__BackfillShoppingEvents", shoppingDb, allDbs);
 	}
 
 	private static void Add(

@@ -57,6 +57,20 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 		return new ShoppingListProjectedDetail(summary.OwnerId, dto);
 	}
 
+	public async Task<IReadOnlyList<ShoppingListIdentifier>> FindIdsByRecipeAsync(
+		OwnerIdentifier owner,
+		RecipeReference recipeReference,
+		CancellationToken cancellationToken = default)
+	{
+		var ownerValue = owner.Value;
+		var recipeValue = recipeReference.Value;
+		var ids = await context.ShoppingListSummaryReadItems
+			.Where(s => s.OwnerId == ownerValue && s.RecipeIdentifier == recipeValue)
+			.Select(s => s.Id)
+			.ToListAsync(cancellationToken);
+		return ids.Select(ShoppingListIdentifier.From).ToList();
+	}
+
 	private static IQueryable<ShoppingListSummaryReadItem> ApplySorting(
 		IQueryable<ShoppingListSummaryReadItem> query,
 		SortingOptions<ShoppingListSortField> sorting)

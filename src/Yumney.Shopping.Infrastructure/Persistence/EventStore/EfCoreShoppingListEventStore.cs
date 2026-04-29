@@ -1,13 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
 #pragma warning disable SA1601
 public sealed partial class EfCoreShoppingListEventStore(
 	ShoppingDbContext context,
+	IEventBus eventBus,
 	ILogger<EfCoreShoppingListEventStore> logger) : IShoppingListEventStore
 {
 	public async Task<ShoppingList?> LoadAsync(
@@ -38,7 +43,7 @@ public sealed partial class EfCoreShoppingListEventStore(
 		return ShoppingList.FromEvents(identifier, events);
 	}
 
-	public async Task AppendAsync(ShoppingList list, CancellationToken cancellationToken = default)
+	public async Task SaveAsync(ShoppingList list, CancellationToken cancellationToken = default)
 	{
 		var uncommitted = list.UncommittedEvents.ToList();
 		if (uncommitted.Count == 0) return;
@@ -73,9 +78,64 @@ public sealed partial class EfCoreShoppingListEventStore(
 			});
 		}
 
-		LogEventsStaged(aggregateId, uncommitted.Count, list.Version);
+		try
+		{
+			await context.SaveChangesAsync(cancellationToken);
+		}
+		catch (DbUpdateException ex) when (ex.IsUniqueViolation())
+		{
+			throw new ConcurrencyConflictException(nameof(ShoppingList), aggregateId, ex);
+		}
+
+		// Mark committed BEFORE publishing: events are persisted, so the aggregate is
+		// "clean" from its own perspective. A publish failure (e.g. projection handler
+		// throws) propagates to the caller; the aggregate doesn't keep stale events
+		// that would re-stage with conflicting versions on retry.
+		list.MarkCommitted();
+
+		await PublishEventsAsync(list, uncommitted, cancellationToken);
+
+		LogEventsSaved(aggregateId, uncommitted.Count, list.Version);
 	}
 
-	[LoggerMessage(Level = LogLevel.Debug, Message = "Staged {Count} ShoppingList events for aggregate {AggregateId}, version now {Version}")]
-	private partial void LogEventsStaged(Guid aggregateId, int count, int version);
+	private static IIntegrationEvent? MapToCrossModuleEvent(string ownerId, Guid aggregateId, IDomainEvent domainEvent)
+	{
+		return domainEvent switch
+		{
+			ShoppingListCreated created => new ShoppingListCreatedCrossModuleIntegrationEvent(
+				ownerId,
+				aggregateId,
+				created.Title.Value,
+				created.RecipeReference?.Value,
+				created.CreatedAt),
+			RecipeReferenceCleared => new ShoppingListRecipeReferenceClearedCrossModuleIntegrationEvent(
+				ownerId,
+				aggregateId),
+			_ => null,
+		};
+	}
+
+	private async Task PublishEventsAsync(ShoppingList list, List<IDomainEvent> events, CancellationToken cancellationToken)
+	{
+		var ownerId = list.Owner.Value;
+		var aggregateId = list.Identifier.Value;
+
+		foreach (var domainEvent in events)
+		{
+			var integrationEvent = ShoppingListIntegrationEventMapper.Map(ownerId, aggregateId, domainEvent);
+			if (integrationEvent is not null)
+			{
+				await eventBus.PublishAsync(integrationEvent, cancellationToken);
+			}
+
+			var crossModuleEvent = MapToCrossModuleEvent(ownerId, aggregateId, domainEvent);
+			if (crossModuleEvent is not null)
+			{
+				await eventBus.PublishAsync(crossModuleEvent, cancellationToken);
+			}
+		}
+	}
+
+	[LoggerMessage(Level = LogLevel.Information, Message = "Saved {Count} ShoppingList events for aggregate {AggregateId}, version now {Version}")]
+	private partial void LogEventsSaved(Guid aggregateId, int count, int version);
 }

@@ -28,6 +28,20 @@ public interface IShoppingListProjectionRepository
 	Task<ShoppingListProjectedDetail> GetByIdAsync(
 		ShoppingListIdentifier identifier,
 		CancellationToken cancellationToken = default);
+
+	/// <summary>
+	/// Returns the identifiers of every list owned by <paramref name="owner"/> whose
+	/// summary row references the given recipe. Used by integration handlers (e.g.
+	/// recipe deletion) to find the aggregates that need a follow-up command.
+	/// </summary>
+	/// <param name="owner">List owner.</param>
+	/// <param name="recipeReference">Recipe pointer to match.</param>
+	/// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+	/// <returns>List identifiers, possibly empty.</returns>
+	Task<IReadOnlyList<ShoppingListIdentifier>> FindIdsByRecipeAsync(
+		OwnerIdentifier owner,
+		RecipeReference recipeReference,
+		CancellationToken cancellationToken = default);
 }
 
 /// <summary>
