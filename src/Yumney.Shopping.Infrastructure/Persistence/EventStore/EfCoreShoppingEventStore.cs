@@ -131,6 +131,10 @@ public sealed partial class EfCoreShoppingEventStore(
 				await eventBus.PublishAsync(new ShoppingItemRemovedIntegrationEvent(ownerId, removed), cancellationToken);
 			else if (@event is ShoppingItemQuantityAdjusted adjusted)
 				await eventBus.PublishAsync(new ShoppingItemQuantityAdjustedIntegrationEvent(ownerId, adjusted), cancellationToken);
+			else if (@event is ShoppingItemAddedAsAtHome atHome)
+				await eventBus.PublishAsync(new ShoppingItemAddedAsAtHomeIntegrationEvent(ownerId, atHome), cancellationToken);
+			else if (@event is ShoppingItemUndoBought undo)
+				await eventBus.PublishAsync(new ShoppingItemUndoBoughtIntegrationEvent(ownerId, undo), cancellationToken);
 		}
 	}
 

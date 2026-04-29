@@ -207,6 +207,19 @@ public static class ShoppingEndpoints
 			return result.ToNoContent();
 		}
 
+		group.MapGet("/balance", GetBalance)
+			.WithName("GetIngredientBalance")
+			.WithTags("Shopping")
+			.Produces<IngredientBalanceDto>();
+
+		static async Task<IResult> GetBalance(
+			IQueryHandler<GetIngredientBalanceQuery, Result<IngredientBalanceDto>> handler,
+			CancellationToken cancellationToken)
+		{
+			var result = await handler.HandleAsync(new GetIngredientBalanceQuery(), cancellationToken);
+			return result.ToOk();
+		}
+
 		group.MapGet("/export", Export)
 			.WithName("ExportShoppingList")
 			.WithTags("Shopping")
