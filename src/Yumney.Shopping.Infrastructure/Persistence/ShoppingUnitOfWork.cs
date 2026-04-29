@@ -57,7 +57,8 @@ public sealed class ShoppingUnitOfWork(
 		{
 			foreach (var domainEvent in events)
 			{
-				var integrationEvent = MapToIntegrationEvent(list, domainEvent);
+				var integrationEvent = ShoppingListIntegrationEventMapper.Map(
+					list.Owner.Value, list.Identifier.Value, domainEvent);
 				if (integrationEvent is not null)
 				{
 					await eventBus.PublishAsync(integrationEvent, cancellationToken);
@@ -72,24 +73,6 @@ public sealed class ShoppingUnitOfWork(
 		}
 
 		return result;
-	}
-
-	private static IIntegrationEvent? MapToIntegrationEvent(ShoppingList list, IDomainEvent domainEvent)
-	{
-		var ownerId = list.Owner.Value;
-		var aggregateId = list.Identifier.Value;
-
-		return domainEvent switch
-		{
-			ShoppingListCreated created => new ShoppingListCreatedIntegrationEvent(ownerId, aggregateId, created),
-			ListItemAdded added => new ListItemAddedIntegrationEvent(ownerId, aggregateId, added),
-			ListItemChecked checked_ => new ListItemCheckedIntegrationEvent(ownerId, aggregateId, checked_),
-			ListItemUnchecked unchecked_ => new ListItemUncheckedIntegrationEvent(ownerId, aggregateId, unchecked_),
-			AllItemsChecked allChecked => new AllItemsCheckedIntegrationEvent(ownerId, aggregateId, allChecked),
-			AllItemsUnchecked allUnchecked => new AllItemsUncheckedIntegrationEvent(ownerId, aggregateId, allUnchecked),
-			RecipeReferenceCleared cleared => new RecipeReferenceClearedIntegrationEvent(ownerId, aggregateId, cleared),
-			_ => null,
-		};
 	}
 
 	private static IIntegrationEvent? MapToCrossModuleEvent(ShoppingList list, IDomainEvent domainEvent)
