@@ -201,24 +201,35 @@ public sealed class AspireFixture : IAsyncLifetime
 
 	public async Task ResetShoppingListEventStoreAsync(ShoppingDomain.ShoppingList.OwnerIdentifier owner)
 	{
-		await using var context = await CreateShoppingDbContextAsync();
-		var aggregateIds = await context.Set<ShoppingListAggregateMetadata>()
+		await using var writeContext = await CreateShoppingDbContextAsync();
+		var aggregateIds = await writeContext.Set<ShoppingListAggregateMetadata>()
 			.Where(m => m.OwnerId == owner.Value)
 			.Select(m => m.AggregateId)
 			.ToListAsync();
 
-		if (aggregateIds.Count == 0) return;
+		if (aggregateIds.Count > 0)
+		{
+			await writeContext.Set<ShoppingListStoredEvent>()
+				.Where(e => aggregateIds.Contains(e.AggregateId))
+				.ExecuteDeleteAsync();
+			await writeContext.Set<ShoppingListAggregateMetadata>()
+				.Where(m => aggregateIds.Contains(m.AggregateId))
+				.ExecuteDeleteAsync();
+		}
 
-		var events = await context.Set<ShoppingListStoredEvent>()
-			.Where(e => aggregateIds.Contains(e.AggregateId))
-			.ToListAsync();
-		var metadata = await context.Set<ShoppingListAggregateMetadata>()
-			.Where(m => aggregateIds.Contains(m.AggregateId))
-			.ToListAsync();
-
-		context.RemoveRange(events);
-		context.RemoveRange(metadata);
-		await context.SaveChangesAsync();
+		// Read model lives in a separate set of tables — the event-store wipe
+		// above doesn't touch it. Without this, lists materialised by the
+		// projection handler in earlier tests stay visible to subsequent
+		// reads, surfacing as "expected 0 lists, found N" assertion failures
+		// in the integration test suite (the umbrella backend job that runs
+		// every Shopping integration class against one shared database).
+		await using var readContext = await CreateShoppingReadDbContextAsync();
+		await readContext.Set<ShoppingListItemReadItem>()
+			.Where(i => i.OwnerId == owner.Value)
+			.ExecuteDeleteAsync();
+		await readContext.Set<ShoppingListSummaryReadItem>()
+			.Where(s => s.OwnerId == owner.Value)
+			.ExecuteDeleteAsync();
 	}
 
 	public async Task ResetShoppingReadModelAsync(string ownerId)

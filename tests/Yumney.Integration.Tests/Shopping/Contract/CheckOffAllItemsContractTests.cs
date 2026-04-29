@@ -40,10 +40,13 @@ public class CheckOffAllItemsContractTests(AspireFixture fixture) : IAsyncLifeti
 			new { isChecked = true });
 
 		response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-		var detail = await GetListAsync(client, listId);
-		detail.GetProperty("items").EnumerateArray()
-			.Select(i => i.GetProperty("isChecked").GetBoolean())
-			.Should().AllBeEquivalentTo(true);
+		await Eventually.AssertAsync(async () =>
+		{
+			var detail = await GetListAsync(client, listId);
+			detail.GetProperty("items").EnumerateArray()
+				.Select(i => i.GetProperty("isChecked").GetBoolean())
+				.Should().AllBeEquivalentTo(true);
+		});
 	}
 
 	[Fact]
@@ -58,10 +61,13 @@ public class CheckOffAllItemsContractTests(AspireFixture fixture) : IAsyncLifeti
 			new { isChecked = false });
 
 		response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-		var detail = await GetListAsync(client, listId);
-		detail.GetProperty("items").EnumerateArray()
-			.Select(i => i.GetProperty("isChecked").GetBoolean())
-			.Should().AllBeEquivalentTo(false);
+		await Eventually.AssertAsync(async () =>
+		{
+			var detail = await GetListAsync(client, listId);
+			detail.GetProperty("items").EnumerateArray()
+				.Select(i => i.GetProperty("isChecked").GetBoolean())
+				.Should().AllBeEquivalentTo(false);
+		});
 	}
 
 	[Fact]

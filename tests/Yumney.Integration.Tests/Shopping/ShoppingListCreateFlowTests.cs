@@ -38,14 +38,16 @@ public class ShoppingListCreateFlowTests(AspireFixture fixture)
 		var identifier = created.GetProperty("identifier").GetGuid();
 		identifier.Should().NotBeEmpty();
 
-		// Retrieve
-		var getResponse = await client.GetAsync($"/api/v1/shopping-lists/{identifier}");
-
-		getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-		var detail = await getResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-
-		detail.GetProperty("title").GetString().Should().Be("Integration Test List");
-		detail.GetProperty("items").GetArrayLength().Should().Be(3);
+		// Retrieve via the read model — projection handler runs asynchronously
+		// on the Wolverine worker, so the GET races the handler.
+		await Eventually.AssertAsync(async () =>
+		{
+			var getResponse = await client.GetAsync($"/api/v1/shopping-lists/{identifier}");
+			getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+			var detail = await getResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+			detail.GetProperty("title").GetString().Should().Be("Integration Test List");
+			detail.GetProperty("items").GetArrayLength().Should().Be(3);
+		});
 	}
 
 	[Fact]
@@ -94,11 +96,12 @@ public class ShoppingListCreateFlowTests(AspireFixture fixture)
 
 		checkResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-		// Retrieve and verify
-		var getResponse = await client.GetAsync($"/api/v1/shopping-lists/{listId}");
-		var detail = await getResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-
-		detail.GetProperty("items")[0].GetProperty("isChecked").GetBoolean().Should().BeTrue();
+		await Eventually.AssertAsync(async () =>
+		{
+			var getResponse = await client.GetAsync($"/api/v1/shopping-lists/{listId}");
+			var detail = await getResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+			detail.GetProperty("items")[0].GetProperty("isChecked").GetBoolean().Should().BeTrue();
+		});
 	}
 
 	[Fact]
