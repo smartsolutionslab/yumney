@@ -42,6 +42,27 @@ public class GetRecipeByIdContractTests(AspireFixture fixture) : IAsyncLifetime
 	}
 
 	[Fact]
+	public async Task GetRecipeById_AfterToggleViaSeparateClient_ReturnsIsFavoriteTrue()
+	{
+		var userId = await fixture.GetTestUserIdAsync();
+		var recipe = RecipeFactory.Lasagne(userId);
+		await fixture.SeedRecipesAsync(recipe);
+
+		using (var toggleClient = await fixture.CreateAuthenticatedClientAsync("recipes-api"))
+		{
+			var toggle = await toggleClient.PostAsync($"/api/v1/recipes/{recipe.Id.Value}/favorite", content: null);
+			toggle.StatusCode.Should().Be(HttpStatusCode.OK);
+		}
+
+		using var readClient = await fixture.CreateAuthenticatedClientAsync("recipes-api");
+		var response = await readClient.GetAsync($"/api/v1/recipes/{recipe.Id.Value}");
+
+		response.StatusCode.Should().Be(HttpStatusCode.OK);
+		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+		body.GetProperty("isFavorite").GetBoolean().Should().BeTrue();
+	}
+
+	[Fact]
 	public async Task GetRecipeById_NeverFavorited_ReturnsIsFavoriteFalse()
 	{
 		var userId = await fixture.GetTestUserIdAsync();
