@@ -13,8 +13,6 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
 
 	public DbSet<StoredEvent> ShoppingEvents => Set<StoredEvent>();
 
-	public DbSet<StoredSnapshot> ShoppingSnapshots => Set<StoredSnapshot>();
-
 	public DbSet<AggregateMetadata> ShoppingAggregates => Set<AggregateMetadata>();
 
 	public DbSet<ShoppingListStoredEvent> ShoppingListEvents => Set<ShoppingListStoredEvent>();
