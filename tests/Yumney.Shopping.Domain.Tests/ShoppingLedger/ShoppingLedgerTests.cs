@@ -203,29 +203,6 @@ public class ShoppingLedgerTests
 	}
 
 	[Fact]
-	public void FromSnapshot_ContinuesFromSnapshotState()
-	{
-		var owner = Owner("user-123");
-		var milk = N("Milk");
-		var quantity = Q(2, "L");
-		var consumedQuantity = Q(1, "L");
-		var original = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
-		original.AddItem(milk, quantity, ItemSource.Manual);
-		original.MarkBought(milk, quantity);
-
-		var snapshotItems = original.Items.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
-		var newEvents = new[] { new ShoppingItemConsumed(milk, consumedQuantity, ItemSource.From("recipe:abc")) };
-
-		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromSnapshot(
-			original.Identifier, owner, snapshotItems, AggregateVersion.From(2), newEvents);
-
-		rebuilt.Version.Should().Be(AggregateVersion.From(3));
-		var item = rebuilt.Items.Values.First();
-		item.AtHome.Should().Be(consumedQuantity.Amount);
-	}
-
-	[Fact]
 	public void Version_IncrementsPerEvent()
 	{
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));

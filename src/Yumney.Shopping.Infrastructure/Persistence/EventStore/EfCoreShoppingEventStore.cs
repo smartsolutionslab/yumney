@@ -18,8 +18,6 @@ public sealed partial class EfCoreShoppingEventStore(
 	ILogger<EfCoreShoppingEventStore> logger) : IShoppingEventStore
 {
 #pragma warning disable SA1311, SA1303, SA1204
-	private const int snapshotInterval = 50;
-
 	private static readonly JsonSerializerOptions jsonOptions = new()
 	{
 		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -59,27 +57,13 @@ public sealed partial class EfCoreShoppingEventStore(
 
 		var aggregateId = metadata.AggregateId;
 
-		var snapshot = await context.Set<StoredSnapshot>()
-			.AsNoTracking()
-			.FirstOrDefaultAsync(s => s.AggregateId == aggregateId, cancellationToken);
-
-		var startVersion = snapshot?.Version ?? 0;
-		var domainStartVersion = AggregateVersion.From(startVersion);
-
 		var storedEvents = await context.Set<StoredEvent>()
 			.AsNoTracking()
-			.Where(e => e.AggregateId == aggregateId && e.Version > startVersion)
+			.Where(e => e.AggregateId == aggregateId)
 			.OrderBy(e => e.Version)
 			.ToListAsync(cancellationToken);
 
 		var events = storedEvents.Select(DeserializeEvent).Where(e => e is not null).Cast<IDomainEvent>();
-
-		if (snapshot is not null)
-		{
-			var snapshotItems = JsonSerializer.Deserialize<Dictionary<string, ShoppingItemState>>(snapshot.State, jsonOptions) ?? [];
-			var identifier = ShoppingLedgerIdentifier.From(aggregateId);
-			return ShoppingLedger.FromSnapshot(identifier, ownerId, snapshotItems, domainStartVersion, events);
-		}
 
 		return ShoppingLedger.FromEvents(ShoppingLedgerIdentifier.From(aggregateId), ownerId, events);
 	}
@@ -117,11 +101,6 @@ public sealed partial class EfCoreShoppingEventStore(
 			});
 		}
 
-		if (ledger.Version % snapshotInterval == 0 && ledger.Version > 0)
-		{
-			await SaveSnapshotAsync(ledger, cancellationToken);
-		}
-
 		try
 		{
 			await context.SaveChangesAsync(cancellationToken);
@@ -136,31 +115,6 @@ public sealed partial class EfCoreShoppingEventStore(
 		await PublishEventsAsync(ledger.OwnerId, uncommitted, cancellationToken);
 
 		LogEventsSaved(ledger.OwnerId, uncommitted.Count, ledger.Version);
-	}
-
-	private async Task SaveSnapshotAsync(ShoppingLedger ledger, CancellationToken cancellationToken)
-	{
-		var existing = await context.Set<StoredSnapshot>()
-			.FirstOrDefaultAsync(s => s.AggregateId == ledger.Identifier, cancellationToken);
-
-		var stateJson = JsonSerializer.Serialize(ledger.Items, jsonOptions);
-
-		if (existing is not null)
-		{
-			existing.State = stateJson;
-			existing.Version = ledger.Version;
-			existing.CreatedAt = DateTime.UtcNow;
-		}
-		else
-		{
-			context.Set<StoredSnapshot>().Add(new()
-			{
-				AggregateId = ledger.Identifier,
-				State = stateJson,
-				Version = ledger.Version,
-				CreatedAt = DateTime.UtcNow,
-			});
-		}
 	}
 
 	private async Task PublishEventsAsync(string ownerId, List<IDomainEvent> events, CancellationToken cancellationToken)
