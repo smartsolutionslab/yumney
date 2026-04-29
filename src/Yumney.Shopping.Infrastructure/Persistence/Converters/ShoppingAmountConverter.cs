@@ -1,7 +1,0 @@
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
-
-namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Converters;
-
-internal sealed class ShoppingAmountConverter()
-	: ValueConverter<Amount, decimal>(v => v.Value, v => Amount.From(v));
