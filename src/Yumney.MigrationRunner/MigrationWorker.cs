@@ -17,6 +17,9 @@ namespace SmartSolutionsLab.Yumney.MigrationRunner;
 /// <list type="bullet">
 ///   <item><c>Persistence:ResetMealPlanOnly=true</c> — drops and re-migrates the
 ///   MealPlan database only. Wipes the event-sourced MealPlan store.</item>
+///   <item><c>Persistence:ResetShoppingOnly=true</c> — drops and re-migrates the
+///   Shopping database only. Wipes events, metadata, projections, and legacy
+///   lists in one shot.</item>
 ///   <item><c>Persistence:RebuildShoppingProjections=true</c> — truncates the
 ///   ShoppingList projection tables and replays the event store into them.
 ///   Other Shopping data (events, metadata, legacy lists) is untouched.</item>
@@ -46,6 +49,10 @@ public sealed partial class MigrationWorker(
 			else if (configuration.GetValue<bool>("Persistence:ResetMealPlanOnly"))
 			{
 				await ApplyMigrationsAsync<MealPlanDbContext>("MealPlan", stoppingToken, reset: true);
+			}
+			else if (configuration.GetValue<bool>("Persistence:ResetShoppingOnly"))
+			{
+				await ApplyMigrationsAsync<ShoppingDbContext>("Shopping", stoppingToken, reset: true);
 			}
 			else
 			{

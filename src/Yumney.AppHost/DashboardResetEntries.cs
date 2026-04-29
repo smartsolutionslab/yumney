@@ -24,6 +24,10 @@ internal static class DashboardResetEntries
 		// Drops and re-migrates mealplandb — wipes the event-sourced MealPlan store.
 		Add(builder, "yumney-mealplan-reset", "Persistence__ResetMealPlanOnly", mealplanDb, allDbs);
 
+		// Drops and re-migrates shoppingdb — wipes events, metadata, projections,
+		// and legacy lists in one shot.
+		Add(builder, "yumney-shopping-reset", "Persistence__ResetShoppingOnly", shoppingDb, allDbs);
+
 		// Truncates the ShoppingList projection tables and replays the event store
 		// into them. Events, metadata, and the legacy ShoppingLists table are
 		// untouched. Idempotent.
