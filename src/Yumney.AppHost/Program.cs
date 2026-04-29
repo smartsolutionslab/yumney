@@ -94,6 +94,18 @@ if (!options.DatabaseOnly)
 			.WaitFor(shoppingDb)
 			.WithEnvironment("Persistence__RebuildShoppingProjections", "true")
 			.WithExplicitStart();
+
+		// Dashboard-only entry (run mode): synthesises events for any legacy
+		// ShoppingLists rows that don't yet have an entry in the event store.
+		// One-off operation; idempotent for already-backfilled lists.
+		builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-shopping-event-backfill")
+			.WithReference(recipesDb)
+			.WithReference(shoppingDb)
+			.WithReference(usersDb)
+			.WithReference(mealplanDb)
+			.WaitFor(shoppingDb)
+			.WithEnvironment("Persistence__BackfillShoppingEvents", "true")
+			.WithExplicitStart();
 	}
 
 	// ── Infrastructure ── (persistent with data volumes for dev, ephemeral for E2E)

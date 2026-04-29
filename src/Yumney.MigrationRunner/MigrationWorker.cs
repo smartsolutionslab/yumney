@@ -20,6 +20,9 @@ namespace SmartSolutionsLab.Yumney.MigrationRunner;
 ///   <item><c>Persistence:RebuildShoppingProjections=true</c> — truncates the
 ///   ShoppingList projection tables and replays the event store into them.
 ///   Other Shopping data (events, metadata, legacy lists) is untouched.</item>
+///   <item><c>Persistence:BackfillShoppingEvents=true</c> — synthesises events
+///   for legacy <c>ShoppingLists</c> rows that don't yet have an event-store
+///   entry. One-off; idempotent for already-backfilled lists.</item>
 /// </list>
 /// </summary>
 public sealed partial class MigrationWorker(
@@ -32,7 +35,11 @@ public sealed partial class MigrationWorker(
 	{
 		try
 		{
-			if (configuration.GetValue<bool>("Persistence:RebuildShoppingProjections"))
+			if (configuration.GetValue<bool>("Persistence:BackfillShoppingEvents"))
+			{
+				await BackfillShoppingEventsAsync(stoppingToken);
+			}
+			else if (configuration.GetValue<bool>("Persistence:RebuildShoppingProjections"))
 			{
 				await RebuildShoppingProjectionsAsync(stoppingToken);
 			}
@@ -86,6 +93,9 @@ public sealed partial class MigrationWorker(
 	[LoggerMessage(Level = LogLevel.Information, Message = "Shopping: rebuilt {Count} projection events")]
 	private static partial void LogShoppingProjectionsRebuilt(ILogger logger, int count);
 
+	[LoggerMessage(Level = LogLevel.Information, Message = "Shopping: backfilled events for {Count} legacy list(s)")]
+	private static partial void LogShoppingEventsBackfilled(ILogger logger, int count);
+
 	private static int GenerateLockId(string moduleName)
 	{
 		var hash = SHA256.HashData(Encoding.UTF8.GetBytes($"yumney-migration-{moduleName}"));
@@ -98,6 +108,14 @@ public sealed partial class MigrationWorker(
 		var rebuilder = scope.ServiceProvider.GetRequiredService<IShoppingListProjectionRebuilder>();
 		var replayed = await rebuilder.RebuildAsync(cancellationToken);
 		LogShoppingProjectionsRebuilt(logger, replayed);
+	}
+
+	private async Task BackfillShoppingEventsAsync(CancellationToken cancellationToken)
+	{
+		await using var scope = serviceProvider.CreateAsyncScope();
+		var backfill = scope.ServiceProvider.GetRequiredService<IShoppingListBackfillService>();
+		var count = await backfill.BackfillAsync(cancellationToken);
+		LogShoppingEventsBackfilled(logger, count);
 	}
 
 	private async Task ApplyMigrationsAsync<TContext>(string moduleName, CancellationToken cancellationToken, bool reset = false)
