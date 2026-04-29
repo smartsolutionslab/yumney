@@ -10,11 +10,21 @@ public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, 
 	public async Task PublishAsync<TEvent>(TEvent integrationEvent, CancellationToken cancellationToken = default)
 		where TEvent : IIntegrationEvent
 	{
-		var handlers = serviceProvider.GetServices<IIntegrationEventHandler<TEvent>>();
-		var eventName = typeof(TEvent).Name;
+		// Resolve handlers by the runtime concrete type, not the compile-time
+		// generic argument. Without this, callers that publish via an
+		// `IIntegrationEvent` static type (e.g. from a `... switch { ... }`
+		// mapping that returns the marker interface) would inadvertently bind
+		// TEvent to the interface and miss every concrete-type subscriber.
+		var eventType = integrationEvent.GetType();
+		var handlerInterface = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
+		var handleMethod = handlerInterface.GetMethod(nameof(IIntegrationEventHandler<TEvent>.HandleAsync))!;
+		var handlers = serviceProvider.GetServices(handlerInterface);
+		var eventName = eventType.Name;
 
 		foreach (var handler in handlers)
 		{
+			if (handler is null) continue;
+
 			var handlerName = handler.GetType().Name;
 			using var activity = EventsDiagnostics.ActivitySource.StartActivity($"integration_event.{eventName}.{handlerName}");
 			activity?.SetTag("event.name", eventName);
@@ -25,15 +35,28 @@ public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, 
 
 			try
 			{
-				await handler.HandleAsync(integrationEvent, cancellationToken);
+				await (Task)handleMethod.Invoke(handler, [integrationEvent, cancellationToken])!;
 				var elapsed = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
 				activity?.SetTag("event.result", "success");
 				activity?.SetStatus(ActivityStatusCode.Ok);
 				LogHandlerCompleted(eventName, handlerName, elapsed);
 			}
+			catch (System.Reflection.TargetInvocationException tie) when (tie.InnerException is OperationCanceledException && cancellationToken.IsCancellationRequested)
+			{
+				throw tie.InnerException;
+			}
 			catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 			{
 				throw;
+			}
+			catch (System.Reflection.TargetInvocationException tie)
+			{
+				var elapsed = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
+				activity?.SetTag("event.result", "error");
+				activity?.SetStatus(ActivityStatusCode.Error, tie.InnerException?.Message ?? tie.Message);
+
+				// Isolate handlers — one failing subscriber must not block the others.
+				LogHandlerFailed(tie.InnerException ?? tie, eventName, handlerName, elapsed);
 			}
 			catch (Exception ex)
 			{
