@@ -224,7 +224,7 @@ public sealed class AspireFixture : IAsyncLifetime
 	public async Task ResetShoppingReadModelAsync(string ownerId)
 	{
 		await using var context = await CreateShoppingDbContextAsync();
-		var items = await context.Set<ShoppingListReadItem>()
+		var items = await context.Set<ShoppingLedgerReadItem>()
 			.Where(r => r.OwnerId == ownerId)
 			.ToListAsync();
 

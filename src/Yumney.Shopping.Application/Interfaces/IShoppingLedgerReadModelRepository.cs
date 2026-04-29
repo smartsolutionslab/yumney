@@ -5,7 +5,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 /// <summary>
 /// Read model repository for the shopping list projection.
 /// </summary>
-public interface IShoppingListReadModelRepository
+public interface IShoppingLedgerReadModelRepository
 {
 	/// <summary>
 	/// Gets the merged shopping list. By default, hides items bought before today.

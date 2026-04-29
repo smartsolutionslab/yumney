@@ -6,7 +6,7 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 
 public sealed class GetMergedShoppingListQueryHandler(
-	IShoppingListReadModelRepository readModel,
+	IShoppingLedgerReadModelRepository readModel,
 	ICurrentUser currentUser) : IQueryHandler<GetMergedShoppingListQuery, Result<MergedShoppingListDto>>
 {
 	public async Task<Result<MergedShoppingListDto>> HandleAsync(GetMergedShoppingListQuery query, CancellationToken cancellationToken = default)
