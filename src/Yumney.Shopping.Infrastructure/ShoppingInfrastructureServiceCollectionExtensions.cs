@@ -26,11 +26,9 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 			.MigrationsHistoryTable("__ShoppingMigrationsHistory")
 			.EnableRetryOnFailure();
 
-		services.AddDbContext<ShoppingDbContext>((sp, options) =>
+		services.AddDbContext<ShoppingDbContext>(options =>
 		{
-			options
-				.UseNpgsql(connectionString, contextOptions)
-				.AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
+			options.UseNpgsql(connectionString, contextOptions);
 		});
 
 		services.AddDbContext<ShoppingReadDbContext>(options =>
