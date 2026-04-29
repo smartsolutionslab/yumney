@@ -11,7 +11,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Queries;
 
 public class ExportShoppingListQueryHandlerTests
 {
-	private readonly IShoppingListReadModelRepository readModel = Substitute.For<IShoppingListReadModelRepository>();
+	private readonly IShoppingLedgerReadModelRepository readModel = Substitute.For<IShoppingLedgerReadModelRepository>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly ExportShoppingListQueryHandler handler;
 

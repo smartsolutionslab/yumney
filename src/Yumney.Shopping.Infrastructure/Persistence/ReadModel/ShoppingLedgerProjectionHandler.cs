@@ -7,12 +7,15 @@ using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 
 /// <summary>
-/// Async projection handler — rebuilds the read model from shopping events.
-/// Subscribes to integration events published by the event store.
-/// See PROFILING.md alongside this file for the expected query budget per
-/// event and how to snapshot it with QueryCountingInterceptor.
+/// Async projection handler for the <c>ShoppingLedger</c> aggregate. Subscribes
+/// to ledger integration events (<c>ShoppingItemAdded</c>, <c>Bought</c>,
+/// <c>Consumed</c>, <c>Removed</c>, <c>QuantityAdjusted</c>) and maintains the
+/// per-item rolled-up read row exposed via <see cref="MergedShoppingListDto"/>.
+/// Distinct from <see cref="ShoppingListProjection"/>, which projects the
+/// ShoppingList aggregate's own event stream.
+/// See PROFILING.md alongside this file for the expected query budget per event.
 /// </summary>
-public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
+public sealed class ShoppingLedgerProjectionHandler(ShoppingDbContext context)
 	: IIntegrationEventHandler<ShoppingItemAddedIntegrationEvent>,
 	  IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>,
 	  IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>,
@@ -24,7 +27,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 	{
 		var inner = @event.Inner;
 
-		Action<ShoppingListReadItem> mutate = readItem =>
+		Action<ShoppingLedgerReadItem> mutate = readItem =>
 		{
 			readItem.TotalQuantity += inner.Quantity.Amount;
 			AppendSource(readItem, inner.Quantity.Amount, inner.Source);
@@ -38,7 +41,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 	{
 		var inner = @event.Inner;
 
-		Action<ShoppingListReadItem> mutate = readItem =>
+		Action<ShoppingLedgerReadItem> mutate = readItem =>
 		{
 			readItem.IsBought = true;
 			readItem.BoughtAt = DateTime.UtcNow;
@@ -59,12 +62,12 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 	{
 		var inner = @event.Inner;
 
-		Action<ShoppingListReadItem> mutate = readItem =>
+		Action<ShoppingLedgerReadItem> mutate = readItem =>
 		{
 			readItem.TotalQuantity = Math.Max(0, readItem.TotalQuantity - inner.Quantity.Amount);
 			if (readItem.TotalQuantity <= 0)
 			{
-				context.Set<ShoppingListReadItem>().Remove(readItem);
+				context.Set<ShoppingLedgerReadItem>().Remove(readItem);
 			}
 		};
 
@@ -76,7 +79,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 	{
 		var inner = @event.Inner;
 
-		Action<ShoppingListReadItem> mutate = readItem =>
+		Action<ShoppingLedgerReadItem> mutate = readItem =>
 		{
 			readItem.TotalQuantity = inner.NewQuantity.Amount;
 		};
@@ -88,7 +91,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 		string ownerId,
 		string itemName,
 		string? unit,
-		Action<ShoppingListReadItem> mutate,
+		Action<ShoppingLedgerReadItem> mutate,
 		CancellationToken cancellationToken)
 	{
 		var readItem = await FindAsync(ownerId, itemName, unit, cancellationToken);
@@ -103,7 +106,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 		string ownerId,
 		string itemName,
 		string? unit,
-		Action<ShoppingListReadItem> mutate,
+		Action<ShoppingLedgerReadItem> mutate,
 		CancellationToken cancellationToken)
 	{
 		var readItem = await FindAsync(ownerId, itemName, unit, cancellationToken)
@@ -113,10 +116,10 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	private ShoppingListReadItem Create(string ownerId, string itemName, string? unit)
+	private ShoppingLedgerReadItem Create(string ownerId, string itemName, string? unit)
 	{
 		var category = IngredientCategoryResolver.Resolve(itemName) ?? IngredientCategory.Other;
-		var readItem = new ShoppingListReadItem
+		var readItem = new ShoppingLedgerReadItem
 		{
 			Id = Guid.CreateVersion7(),
 			OwnerId = ownerId,
@@ -125,13 +128,13 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 			Category = category.Value,
 			LastUpdated = DateTime.UtcNow,
 		};
-		context.Set<ShoppingListReadItem>().Add(readItem);
+		context.Set<ShoppingLedgerReadItem>().Add(readItem);
 		return readItem;
 	}
 
-	private async Task<ShoppingListReadItem?> FindAsync(string ownerId, string itemName, string? unit, CancellationToken cancellationToken)
+	private async Task<ShoppingLedgerReadItem?> FindAsync(string ownerId, string itemName, string? unit, CancellationToken cancellationToken)
 	{
-		return await context.Set<ShoppingListReadItem>()
+		return await context.Set<ShoppingLedgerReadItem>()
 			.FirstOrDefaultAsync(
 				r => r.OwnerId == ownerId
 					&& EF.Functions.ILike(r.ItemName, itemName)
@@ -140,7 +143,7 @@ public sealed class ShoppingListProjectionHandler(ShoppingDbContext context)
 	}
 
 #pragma warning disable SA1204
-	private static void AppendSource(ShoppingListReadItem readItem, decimal quantity, string source)
+	private static void AppendSource(ShoppingLedgerReadItem readItem, decimal quantity, string source)
 	{
 		var sources = JsonSerializer.Deserialize<List<SourceEntry>>(readItem.SourcesJson) ?? [];
 		sources.Add(new SourceEntry(quantity, source, DateTime.UtcNow));

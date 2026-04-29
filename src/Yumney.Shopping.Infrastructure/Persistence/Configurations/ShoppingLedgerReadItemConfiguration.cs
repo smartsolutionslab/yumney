@@ -4,10 +4,12 @@ using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configurations;
 
-internal sealed class ShoppingListReadItemConfiguration : IEntityTypeConfiguration<ShoppingListReadItem>
+internal sealed class ShoppingLedgerReadItemConfiguration : IEntityTypeConfiguration<ShoppingLedgerReadItem>
 {
-	public void Configure(EntityTypeBuilder<ShoppingListReadItem> entity)
+	public void Configure(EntityTypeBuilder<ShoppingLedgerReadItem> entity)
 	{
+		// Physical table name kept as-is to avoid a rename migration.
+		// The C# type was renamed in the cleanup pass; the schema is stable.
 		entity.ToTable("ShoppingListReadItems");
 		entity.HasKey(e => e.Id);
 		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();

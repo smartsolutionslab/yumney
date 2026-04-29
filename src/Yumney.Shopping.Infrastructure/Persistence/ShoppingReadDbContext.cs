@@ -6,7 +6,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 
 public sealed class ShoppingReadDbContext(DbContextOptions<ShoppingReadDbContext> options) : DbContext(options)
 {
-	public DbSet<ShoppingListReadItem> ShoppingListReadItems => Set<ShoppingListReadItem>();
+	public DbSet<ShoppingLedgerReadItem> ShoppingLedgerReadItems => Set<ShoppingLedgerReadItem>();
 
 	public DbSet<ShoppingListSummaryReadItem> ShoppingListSummaryReadItems => Set<ShoppingListSummaryReadItem>();
 
