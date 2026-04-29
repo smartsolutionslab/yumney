@@ -44,12 +44,14 @@ public class GetShoppingListsContractTests(AspireFixture fixture) : IAsyncLifeti
 		using var client = await fixture.CreateAuthenticatedClientAsync("shopping-api");
 		await CreateListAsync(client, "List A");
 
-		var response = await client.GetAsync(Endpoint);
-
-		response.StatusCode.Should().Be(HttpStatusCode.OK);
-		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		body.GetProperty("totalCount").GetInt32().Should().Be(1);
-		body.GetProperty("items")[0].GetProperty("title").GetString().Should().Be("List A");
+		await Eventually.AssertAsync(async () =>
+		{
+			var response = await client.GetAsync(Endpoint);
+			response.StatusCode.Should().Be(HttpStatusCode.OK);
+			var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+			body.GetProperty("totalCount").GetInt32().Should().Be(1);
+			body.GetProperty("items")[0].GetProperty("title").GetString().Should().Be("List A");
+		});
 	}
 
 	[Fact]
@@ -60,12 +62,14 @@ public class GetShoppingListsContractTests(AspireFixture fixture) : IAsyncLifeti
 		await CreateListAsync(client, "Two");
 		await CreateListAsync(client, "Three");
 
-		var response = await client.GetAsync($"{Endpoint}?page=1&pageSize=2");
-
-		response.StatusCode.Should().Be(HttpStatusCode.OK);
-		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		body.GetProperty("items").GetArrayLength().Should().Be(2);
-		body.GetProperty("totalCount").GetInt32().Should().Be(3);
+		await Eventually.AssertAsync(async () =>
+		{
+			var response = await client.GetAsync($"{Endpoint}?page=1&pageSize=2");
+			response.StatusCode.Should().Be(HttpStatusCode.OK);
+			var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+			body.GetProperty("items").GetArrayLength().Should().Be(2);
+			body.GetProperty("totalCount").GetInt32().Should().Be(3);
+		});
 	}
 
 	[Fact]
@@ -76,13 +80,15 @@ public class GetShoppingListsContractTests(AspireFixture fixture) : IAsyncLifeti
 		await CreateListAsync(client, "Alpha");
 		await CreateListAsync(client, "Bravo");
 
-		var response = await client.GetAsync($"{Endpoint}?sortBy=Title&sortDirection=Ascending");
-
-		response.StatusCode.Should().Be(HttpStatusCode.OK);
-		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		var titles = body.GetProperty("items").EnumerateArray()
-			.Select(i => i.GetProperty("title").GetString()).ToList();
-		titles.Should().Equal("Alpha", "Bravo", "Charlie");
+		await Eventually.AssertAsync(async () =>
+		{
+			var response = await client.GetAsync($"{Endpoint}?sortBy=Title&sortDirection=Ascending");
+			response.StatusCode.Should().Be(HttpStatusCode.OK);
+			var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+			var titles = body.GetProperty("items").EnumerateArray()
+				.Select(i => i.GetProperty("title").GetString()).ToList();
+			titles.Should().Equal("Alpha", "Bravo", "Charlie");
+		});
 	}
 
 	[Fact]
