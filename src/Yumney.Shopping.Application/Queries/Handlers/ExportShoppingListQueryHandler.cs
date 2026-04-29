@@ -11,7 +11,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 /// Only includes unbought items. Does not change any item state.
 /// </summary>
 public sealed class ExportShoppingListQueryHandler(
-	IShoppingListReadModelRepository readModel,
+	IShoppingLedgerReadModelRepository readModel,
 	ICurrentUser currentUser) : IQueryHandler<ExportShoppingListQuery, Result<string>>
 {
 #pragma warning disable SA1311

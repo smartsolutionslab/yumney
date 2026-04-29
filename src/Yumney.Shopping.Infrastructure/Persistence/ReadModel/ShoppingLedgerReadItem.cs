@@ -6,7 +6,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 /// Materialized read model for a single shopping list item.
 /// Updated asynchronously by projection handlers.
 /// </summary>
-public sealed class ShoppingListReadItem
+public sealed class ShoppingLedgerReadItem
 {
 	public Guid Id { get; set; }
 
