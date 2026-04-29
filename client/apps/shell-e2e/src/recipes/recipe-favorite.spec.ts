@@ -5,6 +5,13 @@ import { setupSharedRecipe } from '../helpers/shared-recipe';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Favorite Recipes (US-071)', () => {
+  // Serial mode: tests share state via the favorite toggled in test 1.
+  // Without serial, an individual test failure restarts the worker and
+  // re-runs setupSharedRecipe's beforeAll, creating a NEW recipe; downstream
+  // tests then read recipe().identifier expecting the toggled state, but
+  // the toggle was on the previous (now-orphaned) recipe — see #427.
+  test.describe.configure({ mode: 'serial' });
+
   const recipe = setupSharedRecipe(test, 'E2E Favorite', {
     ingredient: 'Salt',
     step: 'Add salt to taste',
@@ -75,13 +82,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     });
   });
 
-  // fixme pending #432: detail GET returns isFavorite=false in CI even
-  // after the toggle commits and the list endpoint returns isFavorite=true.
-  // Confirmed via trace artifacts on PR #505: the API response itself is
-  // wrong, so the bug is server-side — NGSW caching and frontend state
-  // were ruled out. Needs an integration test that reproduces the flow
-  // before this can be re-enabled.
-  test.fixme('should reflect favorite state on recipe detail page', async ({
+  test('should reflect favorite state on recipe detail page', async ({
     authenticatedPage,
   }) => {
     const detail = new RecipeDetailPage(authenticatedPage);
@@ -91,10 +92,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     await expect(detail.favoriteButton).toHaveAttribute('aria-pressed', 'true');
   });
 
-  // fixme pending #432: same family as the test above — depends on the
-  // detail page reflecting the toggled-favorite state, which it doesn't
-  // in CI for reasons not yet understood.
-  test.fixme('should toggle favorite back off from recipe detail', async ({
+  test('should toggle favorite back off from recipe detail', async ({
     authenticatedPage,
   }) => {
     const detail = new RecipeDetailPage(authenticatedPage);
