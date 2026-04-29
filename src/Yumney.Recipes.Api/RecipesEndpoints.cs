@@ -165,5 +165,19 @@ public static partial class RecipesEndpoints
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
 		}
+
+		group.MapGet("/what-can-i-cook", WhatCanICook)
+			.WithName("WhatCanICook")
+			.WithTags("Recipes")
+			.Produces<IReadOnlyList<CookableRecipeDto>>();
+
+		static async Task<IResult> WhatCanICook(
+			IQueryHandler<GetCookableRecipesQuery, Result<IReadOnlyList<CookableRecipeDto>>> handler,
+			CancellationToken cancellationToken,
+			bool fullMatchOnly = false)
+		{
+			var result = await handler.HandleAsync(new GetCookableRecipesQuery(fullMatchOnly), cancellationToken);
+			return result.ToOk();
+		}
 	}
 }

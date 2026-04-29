@@ -117,11 +117,6 @@ if (!options.DatabaseOnly)
 
 	var apiEnvironment = builder.Environment.EnvironmentName;
 
-	var recipesApi = builder
-		.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
-		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
-		.AsYumneyApi(recipesDb, keycloak, redis, messaging, migrationRunner)
-		.WithLlmProvider(builder, options);
 	var usersApi = builder
 		.AddProject<Projects.Yumney_Users_Api>("users-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
@@ -132,6 +127,12 @@ if (!options.DatabaseOnly)
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.AsYumneyApi(shoppingDb, keycloak, redis, messaging, migrationRunner)
 		.WithReference(usersApi);
+	var recipesApi = builder
+		.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
+		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
+		.AsYumneyApi(recipesDb, keycloak, redis, messaging, migrationRunner)
+		.WithLlmProvider(builder, options)
+		.WithReference(shoppingApi);
 	var mealplanApi = builder
 		.AddProject<Projects.Yumney_MealPlan_Api>("mealplan-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
