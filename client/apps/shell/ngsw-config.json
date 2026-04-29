@@ -34,7 +34,7 @@
   "dataGroups": [
     {
       "name": "recipes-api",
-      "urls": ["/api/v1/recipes", "/api/v1/recipes/*"],
+      "urls": ["/api/v1/recipes"],
       "cacheConfig": {
         "maxSize": 100,
         "maxAge": "7d",

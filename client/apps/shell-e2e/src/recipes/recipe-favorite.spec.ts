@@ -75,12 +75,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     });
   });
 
-  // fixme pending #432: the recipe detail GET endpoint returns
-  // isFavorite=false in CI even after the toggle commits and the list
-  // endpoint returns isFavorite=true. Backend contract tests pass for
-  // both endpoints; in-memory cache invalidated post-#427; NGSW freshness
-  // timeout bump didn't help. Real root cause needs trace artifacts.
-  test.fixme('should reflect favorite state on recipe detail page', async ({
+  test('should reflect favorite state on recipe detail page', async ({
     authenticatedPage,
   }) => {
     const detail = new RecipeDetailPage(authenticatedPage);
@@ -90,10 +85,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     await expect(detail.favoriteButton).toHaveAttribute('aria-pressed', 'true');
   });
 
-  // fixme pending #432: same family as the test above — depends on the
-  // detail page reflecting the toggled-favorite state, which it doesn't
-  // in CI for reasons not yet understood.
-  test.fixme('should toggle favorite back off from recipe detail', async ({
+  test('should toggle favorite back off from recipe detail', async ({
     authenticatedPage,
   }) => {
     const detail = new RecipeDetailPage(authenticatedPage);
