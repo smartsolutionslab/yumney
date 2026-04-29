@@ -82,6 +82,18 @@ if (!options.DatabaseOnly)
 			.WaitFor(mealplanDb)
 			.WithEnvironment("Persistence__ResetMealPlanOnly", "true")
 			.WithExplicitStart();
+
+		// Dashboard-only entry (run mode): truncates the ShoppingList projection
+		// tables and replays the event store into them. Events, metadata, and the
+		// legacy ShoppingLists table are untouched. Idempotent.
+		builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-shopping-projection-reset")
+			.WithReference(recipesDb)
+			.WithReference(shoppingDb)
+			.WithReference(usersDb)
+			.WithReference(mealplanDb)
+			.WaitFor(shoppingDb)
+			.WithEnvironment("Persistence__RebuildShoppingProjections", "true")
+			.WithExplicitStart();
 	}
 
 	// ── Infrastructure ── (persistent with data volumes for dev, ephemeral for E2E)
