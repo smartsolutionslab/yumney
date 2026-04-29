@@ -65,14 +65,9 @@ public static partial class RecipesEndpoints
 
 		static async Task<IResult> GetById(
 			Guid identifier,
-			HttpContext httpContext,
 			IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			// no-store keeps NGSW (and any other HTTP cache) from serving a stale
-			// response after a favorite toggle: the detail payload includes
-			// per-user state that has to refetch, see #427.
-			httpContext.Response.Headers.CacheControl = "no-store";
 			var query = new GetRecipeByIdQuery(RecipeIdentifier.From(identifier));
 			var result = await handler.HandleAsync(query, cancellationToken);
 			return result.ToOk();
