@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
@@ -61,6 +62,12 @@ public sealed class ShoppingUnitOfWork(
 				{
 					await eventBus.PublishAsync(integrationEvent, cancellationToken);
 				}
+
+				var crossModuleEvent = MapToCrossModuleEvent(list, domainEvent);
+				if (crossModuleEvent is not null)
+				{
+					await eventBus.PublishAsync(crossModuleEvent, cancellationToken);
+				}
 			}
 		}
 
@@ -81,6 +88,26 @@ public sealed class ShoppingUnitOfWork(
 			AllItemsChecked allChecked => new AllItemsCheckedIntegrationEvent(ownerId, aggregateId, allChecked),
 			AllItemsUnchecked allUnchecked => new AllItemsUncheckedIntegrationEvent(ownerId, aggregateId, allUnchecked),
 			RecipeReferenceCleared cleared => new RecipeReferenceClearedIntegrationEvent(ownerId, aggregateId, cleared),
+			_ => null,
+		};
+	}
+
+	private static IIntegrationEvent? MapToCrossModuleEvent(ShoppingList list, IDomainEvent domainEvent)
+	{
+		var ownerId = list.Owner.Value;
+		var aggregateId = list.Identifier.Value;
+
+		return domainEvent switch
+		{
+			ShoppingListCreated created => new ShoppingListCreatedCrossModuleIntegrationEvent(
+				ownerId,
+				aggregateId,
+				created.Title.Value,
+				created.RecipeReference?.Value,
+				created.CreatedAt),
+			RecipeReferenceCleared => new ShoppingListRecipeReferenceClearedCrossModuleIntegrationEvent(
+				ownerId,
+				aggregateId),
 			_ => null,
 		};
 	}
