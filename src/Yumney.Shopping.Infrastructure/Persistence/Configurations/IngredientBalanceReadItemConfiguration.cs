@@ -18,6 +18,7 @@ internal sealed class IngredientBalanceReadItemConfiguration : IEntityTypeConfig
 		entity.Property(e => e.BoughtTotal).HasColumnType("numeric");
 		entity.Property(e => e.ConsumedTotal).HasColumnType("numeric");
 		entity.Property(e => e.RemovedTotal).HasColumnType("numeric");
+		entity.Property(e => e.LastBoughtAt);
 		entity.Property(e => e.LastUpdated).IsRequired();
 
 		entity.Ignore(e => e.AtHome);

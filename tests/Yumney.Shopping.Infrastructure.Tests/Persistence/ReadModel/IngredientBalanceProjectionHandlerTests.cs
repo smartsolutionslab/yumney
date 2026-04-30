@@ -33,6 +33,52 @@ public class IngredientBalanceProjectionHandlerTests
 	}
 
 	[Fact]
+	public async Task Bought_SetsLastBoughtAt()
+	{
+		await using var context = CreateContext();
+		var handler = new IngredientBalanceProjectionHandler(context);
+		var before = DateTime.UtcNow;
+		var domainEvent = new ShoppingItemBought(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")));
+
+		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(OwnerId, domainEvent));
+		var after = DateTime.UtcNow;
+
+		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
+		row.LastBoughtAt.Should().NotBeNull().And.BeOnOrAfter(before).And.BeOnOrBefore(after);
+	}
+
+	[Fact]
+	public async Task AddedAsAtHome_SetsLastBoughtAt()
+	{
+		await using var context = CreateContext();
+		var handler = new IngredientBalanceProjectionHandler(context);
+		var before = DateTime.UtcNow;
+		var domainEvent = new ShoppingItemAddedAsAtHome(ItemName.From("Butter"), Quantity.Of(Amount.From(250), Unit.From("g")));
+
+		await handler.HandleAsync(new ShoppingItemAddedAsAtHomeIntegrationEvent(OwnerId, domainEvent));
+		var after = DateTime.UtcNow;
+
+		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
+		row.LastBoughtAt.Should().NotBeNull().And.BeOnOrAfter(before).And.BeOnOrBefore(after);
+	}
+
+	[Fact]
+	public async Task Consumed_DoesNotChangeLastBoughtAt()
+	{
+		await using var context = CreateContext();
+		var handler = new IngredientBalanceProjectionHandler(context);
+		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(
+			OwnerId, new ShoppingItemBought(ItemName.From("Milk"), Quantity.Of(Amount.From(2), Unit.From("l")))));
+		var firstBoughtAt = (await context.Set<IngredientBalanceReadItem>().SingleAsync()).LastBoughtAt;
+
+		await handler.HandleAsync(new ShoppingItemConsumedIntegrationEvent(
+			OwnerId, new ShoppingItemConsumed(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")), ItemSource.From("meal-plan"))));
+
+		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
+		row.LastBoughtAt.Should().Be(firstBoughtAt);
+	}
+
+	[Fact]
 	public async Task Consumed_AfterBought_DecrementsAtHome()
 	{
 		await using var context = CreateContext();

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
@@ -70,6 +71,7 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddHttpClient("users-api", client => client.BaseAddress = new Uri("http://users-api"))
 			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
 		services.AddScoped<IInboxStore, EfCoreInboxStore<ShoppingDbContext>>();
+		services.TryAddSingleton(TimeProvider.System);
 		services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");
 
 		return services;
