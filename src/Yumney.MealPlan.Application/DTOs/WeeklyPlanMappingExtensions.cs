@@ -2,11 +2,13 @@ using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 
-public static class MealSlotMappingExtensions
+public static class WeeklyPlanMappingExtensions
 {
-	public static MealSlotDto ToDto(this MealSlot slot)
-	{
-		return new MealSlotDto(
+	public static WeeklyPlanDto ToDto(this WeeklyPlan plan, WeekIdentifier week) =>
+		new(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToDtos());
+
+	public static MealSlotDto ToDto(this MealSlot slot) =>
+		new(
 			slot.Day.ToString(),
 			slot.MealType.ToString(),
 			slot.ContentType.ToString(),
@@ -19,14 +21,11 @@ public static class MealSlotMappingExtensions
 			slot.LeftoverSourceDay?.ToString(),
 			slot.LeftoverSourceMealType?.ToString(),
 			slot.IsEmpty);
-	}
 
-	public static List<MealSlotDto> ToOrderedDtos(this IEnumerable<MealSlot> slots)
-	{
-		return slots
-			.OrderBy(s => s.Day)
-			.ThenBy(s => s.MealType)
-			.Select(s => s.ToDto())
+	public static IReadOnlyList<MealSlotDto> ToDtos(this IEnumerable<MealSlot> slots) =>
+		slots
+			.OrderBy(slot => slot.Day)
+			.ThenBy(slot => slot.MealType)
+			.Select(slot => slot.ToDto())
 			.ToList();
-	}
 }

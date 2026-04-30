@@ -17,6 +17,6 @@ public sealed class AssignRecipeCommandHandler(IMealPlanEventStore eventStore, I
 		plan.AssignRecipe(day, recipe, mealType, servings);
 		await eventStore.SaveAsync(plan, cancellationToken);
 
-		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
+		return plan.ToDto(week);
 	}
 }

@@ -77,11 +77,11 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 	{
 		if (store.TryGetValue((owner.Value, week.Value), out var plan))
 		{
-			return Task.FromResult(new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos()));
+			return Task.FromResult(plan.ToDto(week));
 		}
 
 		var emptyPlan = WeeklyPlan.Create(owner, week);
-		return Task.FromResult(new WeeklyPlanDto(week.Value, false, emptyPlan.GetVisibleSlots().ToOrderedDtos()));
+		return Task.FromResult(emptyPlan.ToDto(week));
 	}
 
 	public Task<WeeklyPlannedRecipesDto> GetPlannedRecipesAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
