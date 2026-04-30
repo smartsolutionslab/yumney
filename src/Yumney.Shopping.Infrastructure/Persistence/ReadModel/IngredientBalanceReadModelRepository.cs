@@ -16,23 +16,15 @@ public sealed class IngredientBalanceReadModelRepository(ShoppingReadDbContext c
 		var now = timeProvider.GetUtcNow().UtcDateTime;
 
 		return rows
-			.Where(r => r.AtHome > 0)
-			.Select(r =>
+			.Where(row => row.AtHome > 0)
+			.Select(row =>
 			{
-				var category = IngredientCategory.From(r.Category);
-				var daysSinceBought = r.LastBoughtAt is null
+				var category = IngredientCategory.From(row.Category);
+				var daysSinceBought = row.LastBoughtAt is null
 					? (int?)null
-					: Math.Max(0, (int)(now - r.LastBoughtAt.Value).TotalDays);
+					: Math.Max(0, (int)(now - row.LastBoughtAt.Value).TotalDays);
 				var freshness = ShelfLife.Classify(category, daysSinceBought);
-
-				return new IngredientBalanceItemDto(
-					ItemName: r.ItemName,
-					Quantity: r.AtHome,
-					Unit: r.Unit,
-					Category: r.Category,
-					Source: IngredientBalanceSource.AtHome,
-					Freshness: freshness,
-					DaysSinceBought: daysSinceBought);
+				return row.ToDto(freshness, daysSinceBought);
 			})
 			.ToList();
 	}

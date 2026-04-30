@@ -19,8 +19,6 @@ public sealed class GetShoppingListsQueryHandler(
 
 		var (items, totalCount) = await projection.GetByOwnerAsync(owner, paging, sorting, cancellationToken);
 
-		var shoppingListSummaryDtos = items.Select(l => l.ToSummaryDto()).ToList();
-
-		return PagedResultExtensions.With(shoppingListSummaryDtos, totalCount, paging);
+		return PagedResultExtensions.With(items.ToSummaryDtos(), totalCount, paging);
 	}
 }
