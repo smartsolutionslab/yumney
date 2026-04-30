@@ -81,7 +81,14 @@ public sealed partial class SemanticKernelRecipeSuggestionService(
 				return RecipeSuggestionErrors.SuggestionFailed;
 			}
 
-			return Result<IReadOnlyList<ExtractedRecipeDto>>.Success(envelope.Recipes);
+			List<ExtractedRecipeDto> usable = [.. envelope.Recipes.Where(IsUsable)];
+			if (usable.Count == 0)
+			{
+				if (!quiet) LogParsingFailed("All suggested recipes were missing required fields");
+				return RecipeSuggestionErrors.SuggestionFailed;
+			}
+
+			return Result<IReadOnlyList<ExtractedRecipeDto>>.Success(usable);
 		}
 		catch (JsonException ex)
 		{
@@ -89,6 +96,13 @@ public sealed partial class SemanticKernelRecipeSuggestionService(
 			return RecipeSuggestionErrors.SuggestionFailed;
 		}
 	}
+
+#pragma warning disable SA1204
+	private static bool IsUsable(ExtractedRecipeDto recipe) =>
+		!string.IsNullOrWhiteSpace(recipe.Title)
+		&& recipe.Ingredients is { Count: > 0 }
+		&& recipe.Steps is { Count: > 0 };
+#pragma warning restore SA1204
 
 #pragma warning disable SA1402, SA1649
 	private sealed record SuggestionEnvelope(IReadOnlyList<ExtractedRecipeDto>? Recipes);
