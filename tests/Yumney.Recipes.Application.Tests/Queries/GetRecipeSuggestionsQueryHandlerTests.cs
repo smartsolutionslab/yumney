@@ -184,14 +184,16 @@ public class GetRecipeSuggestionsQueryHandlerTests
 
 		await handler.HandleAsync(new GetRecipeSuggestionsQuery());
 
-		await balanceProvider.Received(1).GetAvailableIngredientNamesAsync(OwnerId, Arg.Any<CancellationToken>());
+		await balanceProvider.Received(1).GetAvailableIngredientsAsync(OwnerId, Arg.Any<CancellationToken>());
 		await dietaryProvider.Received(1).GetAsync(OwnerId, Arg.Any<CancellationToken>());
 	}
 
 	private void ConfigureBalance(params string[] names)
 	{
-		balanceProvider.GetAvailableIngredientNamesAsync(OwnerId, Arg.Any<CancellationToken>())
-			.Returns((IReadOnlySet<string>)names.ToHashSet(StringComparer.OrdinalIgnoreCase));
+		var dict = new Dictionary<string, Freshness>(StringComparer.OrdinalIgnoreCase);
+		foreach (var name in names) dict[name] = Freshness.Fresh;
+		balanceProvider.GetAvailableIngredientsAsync(OwnerId, Arg.Any<CancellationToken>())
+			.Returns((IReadOnlyDictionary<string, Freshness>)dict);
 	}
 
 	private void ConfigureDietary(string? dietaryType, IReadOnlyList<string> restrictions)
