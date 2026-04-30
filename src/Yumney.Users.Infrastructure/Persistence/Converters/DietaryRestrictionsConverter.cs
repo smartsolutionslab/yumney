@@ -5,8 +5,8 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence.Converters;
 
 internal sealed class DietaryRestrictionsConverter()
 	: ValueConverter<IReadOnlyList<DietaryRestriction>, string>(
-		v => string.Join(',', v.Select(r => r.Value)),
-		v => ConvertFromString(v))
+		restrictions => string.Join(',', restrictions.Select(restriction => restriction.Value)),
+		serialized => ConvertFromString(serialized))
 {
 	private static IReadOnlyList<DietaryRestriction> ConvertFromString(string value) =>
 		string.IsNullOrEmpty(value)

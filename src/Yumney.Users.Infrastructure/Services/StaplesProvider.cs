@@ -15,12 +15,12 @@ public sealed class StaplesProvider(IStaplesListRepository staplesLists) : IStap
 		if (staples is null)
 		{
 			return StaplesList.DefaultItems
-				.Select(i => i.Value.ToLowerInvariant())
+				.Select(item => item.Value.ToLowerInvariant())
 				.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		}
 
 		return staples.Items
-			.Select(i => i.Value.ToLowerInvariant())
+			.Select(item => item.Value.ToLowerInvariant())
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 	}
 }
