@@ -27,4 +27,15 @@ public interface IMealPlanReadModelRepository
 	/// <param name="cancellationToken">Cancellation token.</param>
 	/// <returns>The planned recipes for the week.</returns>
 	Task<WeeklyPlannedRecipesDto> GetPlannedRecipesAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default);
+
+	/// <summary>
+	/// Searches cooked-state slots by recipe title (case-insensitive substring),
+	/// newest week first. Empty / null term returns the most recent cooked meals.
+	/// </summary>
+	/// <param name="owner">The owner identifier.</param>
+	/// <param name="term">Optional substring to match against the slot's recipe title.</param>
+	/// <param name="limit">Max number of rows to return.</param>
+	/// <param name="cancellationToken">Cancellation token.</param>
+	/// <returns>The matching history entries, newest first.</returns>
+	Task<IReadOnlyList<MealHistoryEntryDto>> SearchCookedHistoryAsync(OwnerIdentifier owner, string? term, int limit, CancellationToken cancellationToken = default);
 }
