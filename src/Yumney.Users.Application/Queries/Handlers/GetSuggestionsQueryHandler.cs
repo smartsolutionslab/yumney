@@ -42,9 +42,9 @@ public sealed class GetSuggestionsQueryHandler(IUserActivityRepository activitie
 			actions.Add("try_something_new");
 		}
 
-		var hasRecentImport = recentActivities.Any(a =>
-			a.Type == ActivityType.RecipeImported &&
-			a.OccurredAt > now.AddHours(recentImportLookbackHours));
+		var hasRecentImport = recentActivities.Any(activity =>
+			activity.Type == ActivityType.RecipeImported &&
+			activity.OccurredAt > now.AddHours(recentImportLookbackHours));
 
 		if (hasRecentImport)
 		{

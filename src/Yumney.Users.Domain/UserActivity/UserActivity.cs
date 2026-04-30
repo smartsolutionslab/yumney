@@ -21,7 +21,7 @@ public sealed class UserActivity : Entity<UserActivityIdentifier>
 	public static UserActivity Record(
 		OwnerIdentifier owner,
 		ActivityType type,
-		RecipeIdentifierSnapshot? recipeIdentifier = null,
+		RecipeIdentifierSnapshot? recipe = null,
 		RecipeTitleSnapshot? recipeTitle = null)
 	{
 		return new UserActivity
@@ -29,7 +29,7 @@ public sealed class UserActivity : Entity<UserActivityIdentifier>
 			Id = UserActivityIdentifier.New(),
 			Owner = owner,
 			Type = type,
-			RecipeIdentifier = recipeIdentifier,
+			RecipeIdentifier = recipe,
 			RecipeTitle = recipeTitle,
 			OccurredAt = DateTime.UtcNow,
 		};

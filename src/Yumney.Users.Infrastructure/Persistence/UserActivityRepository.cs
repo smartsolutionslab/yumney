@@ -19,8 +19,8 @@ public sealed class UserActivityRepository(UsersDbContext context) : IUserActivi
 	{
 		return await activities
 			.AsNoTracking()
-			.Where(a => a.Owner == owner)
-			.OrderByDescending(a => a.OccurredAt)
+			.Where(activity => activity.Owner == owner)
+			.OrderByDescending(activity => activity.OccurredAt)
 			.Take(limit.Value)
 			.ToListAsync(cancellationToken);
 	}
