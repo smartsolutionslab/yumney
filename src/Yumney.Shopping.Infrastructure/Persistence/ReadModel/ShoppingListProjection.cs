@@ -129,7 +129,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 	private async Task SetAllCheckedAsync(Guid listId, bool isChecked, CancellationToken cancellationToken)
 	{
 		var items = await context.Set<ShoppingListItemReadItem>()
-			.Where(i => i.ListId == listId)
+			.Where(item => item.ListId == listId)
 			.ToListAsync(cancellationToken);
 		foreach (var item in items)
 		{

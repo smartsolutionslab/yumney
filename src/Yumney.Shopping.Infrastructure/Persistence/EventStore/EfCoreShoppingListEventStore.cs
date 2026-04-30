@@ -29,15 +29,15 @@ public sealed partial class EfCoreShoppingListEventStore(
 
 		var storedEvents = await context.Set<ShoppingListStoredEvent>()
 			.AsNoTracking()
-			.Where(e => e.AggregateId == aggregateId)
-			.OrderBy(e => e.Version)
+			.Where(stored => stored.AggregateId == aggregateId)
+			.OrderBy(stored => stored.Version)
 			.ToListAsync(cancellationToken);
 
 		if (storedEvents.Count == 0) return null;
 
 		var events = storedEvents
-			.Select(s => ShoppingListEventSerializer.Deserialize(s.EventType, s.EventData))
-			.Where(e => e is not null)
+			.Select(stored => ShoppingListEventSerializer.Deserialize(stored.EventType, stored.EventData))
+			.Where(deserialized => deserialized is not null)
 			.Cast<IDomainEvent>();
 
 		return ShoppingList.FromEvents(identifier, events);

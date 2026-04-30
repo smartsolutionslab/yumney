@@ -142,13 +142,13 @@ public sealed class ShoppingList : EventSourcedAggregate<ShoppingListIdentifier>
 
 	private void EnsureItemExists(ShoppingListItemIdentifier itemId)
 	{
-		var item = items.FirstOrDefault(i => i.Id == itemId);
+		var item = items.FirstOrDefault(candidate => candidate.Id == itemId);
 		Ensure.That(item!).IsNotNull();
 	}
 
 	private ShoppingListItem FindItem(ShoppingListItemIdentifier itemId)
 	{
-		var item = items.FirstOrDefault(i => i.Id == itemId);
+		var item = items.FirstOrDefault(candidate => candidate.Id == itemId);
 		Ensure.That(item!).IsNotNull();
 		return item!;
 	}

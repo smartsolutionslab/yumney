@@ -22,12 +22,12 @@ public sealed class GetIngredientBalanceQueryHandler(
 		var staples = staplesTask.Result;
 
 		var atHomeNames = atHomeItems
-			.Select(i => i.ItemName)
+			.Select(item => item.ItemName)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
 		List<IngredientBalanceItemDto> items = [.. atHomeItems];
 
-		foreach (var staple in staples.OrderBy(s => s, StringComparer.OrdinalIgnoreCase))
+		foreach (var staple in staples.OrderBy(staple => staple, StringComparer.OrdinalIgnoreCase))
 		{
 			if (atHomeNames.Contains(staple)) continue;
 
@@ -41,8 +41,8 @@ public sealed class GetIngredientBalanceQueryHandler(
 		}
 
 		List<IngredientBalanceItemDto> sorted = [.. items
-			.OrderBy(i => IngredientCategory.From(i.Category).DisplayOrder)
-			.ThenBy(i => i.ItemName, StringComparer.OrdinalIgnoreCase)];
+			.OrderBy(item => IngredientCategory.From(item.Category).DisplayOrder)
+			.ThenBy(item => item.ItemName, StringComparer.OrdinalIgnoreCase)];
 
 		return new IngredientBalanceDto(sorted);
 	}

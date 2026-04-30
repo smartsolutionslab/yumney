@@ -46,13 +46,13 @@ public sealed class ExportShoppingListQueryHandler(
 	{
 		var list = await readModel.GetByOwnerAsync(currentUser.UserId, cancellationToken: cancellationToken);
 
-		var openItems = list.Items.Where(i => !i.IsBought).ToList();
+		var openItems = list.Items.Where(item => !item.IsBought).ToList();
 		if (openItems.Count == 0)
 			return string.Empty;
 
 		var grouped = openItems
-			.GroupBy(i => i.Category)
-			.OrderBy(g => IngredientCategory.From(g.Key).DisplayOrder);
+			.GroupBy(item => item.Category)
+			.OrderBy(group => IngredientCategory.From(group.Key).DisplayOrder);
 
 		var sb = new StringBuilder();
 
