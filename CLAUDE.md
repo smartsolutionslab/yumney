@@ -327,6 +327,64 @@ public RecipeTitle(string value)
 - **Use `Identifier` not `Id`** – Value objects and properties use full word: `RecipeIdentifier`, not `RecipeId`
 - **Self-documenting code** – comments only for "why", not "what"
 
+### Lambda parameters and locals — no single-letter names
+
+Lambda parameters, `foreach` iterators, and local variables must be named for what they hold. Single-letter names (`x`, `i`, `s`, `r`, `e`) are forbidden — they encode no information at the call site.
+
+```csharp
+// ❌ FORBIDDEN
+recipes.Where(x => x.IsFavorite).Select(r => r.ToDto());
+foreach (var i in ingredients) { … }
+catch (DbUpdateException e) { … }
+
+// ✅ REQUIRED
+recipes.Where(recipe => recipe.IsFavorite).Select(recipe => recipe.ToDto());
+foreach (var ingredient in ingredients) { … }
+catch (DbUpdateException dbException) { … }
+```
+
+The only acceptable single-letter local is `_` for an explicitly discarded value (`out _`, `(_, value) = tuple`).
+
+### Identifier-typed variable names
+
+When a variable holds a value object whose **type** ends in `Identifier` (e.g. `RecipeIdentifier`, `OwnerIdentifier`, `ShoppingListIdentifier`), the **variable name** drops the `Identifier` suffix:
+
+```csharp
+// ❌ FORBIDDEN — variable name parrots the type
+RecipeIdentifier recipeIdentifier = …;
+OwnerIdentifier ownerIdentifier = …;
+public void AssignRecipe(RecipeIdentifier recipeIdentifier, …) { }
+
+// ✅ REQUIRED — variable name is the domain noun
+RecipeIdentifier recipe = …;
+OwnerIdentifier owner = …;
+public void AssignRecipe(RecipeIdentifier recipe, …) { }
+```
+
+When the surrounding code already has a variable called `recipe` (the aggregate or DTO), use `recipeRef` for the identifier — never `recipeId` / `recipeIdentifier`:
+
+```csharp
+public void Cook(Recipe recipe, RecipeIdentifier recipeRef) { … }
+```
+
+The TYPE name `RecipeIdentifier` is mandated by the rule above; only the variable/parameter name shifts.
+
+### Test naming — no `sut`
+
+Test fixtures and locals use the type name (lowercased), not the conventional `sut`:
+
+```csharp
+// ❌ FORBIDDEN
+var sut = new ImportRecipeCommandHandler(...);
+sut.Handle(command);
+
+// ✅ REQUIRED
+var handler = new ImportRecipeCommandHandler(...);
+handler.HandleAsync(command);
+```
+
+Method-name pattern (`{Method}_{Scenario}_{ExpectedResult}`) is unchanged.
+
 ## Code Style
 
 ### Backend
@@ -405,6 +463,78 @@ var slot = FindSlot(day, mealType);
 | Max parameters | 4 | 4 |
 | Max nesting depth | 3 | 3 |
 | Cyclomatic complexity | ≤ 10 | ≤ 10 |
+
+## DTO ↔ Domain Mapping
+
+Mappings between domain types and DTOs (and between DTOs and commands)
+are centralised in **extension method classes**, never inlined inside
+handlers, repositories, or endpoints. Each aggregate root gets one
+mapper file.
+
+### File location and naming
+
+| Direction | File location | Filename |
+|-----------|---------------|----------|
+| Domain → DTO | `*.Application/DTOs/` | `{Aggregate}MappingExtensions.cs` |
+| API request → command | `*.Api/` | `RequestMappingExtensions.cs` (one per module) |
+
+Each file is a `static class` named `{Aggregate}MappingExtensions`.
+
+### Canonical signatures
+
+```csharp
+// Single — domain entity / aggregate to DTO
+public static RecipeDto ToDto(this Recipe recipe);
+
+// Collection — IEnumerable<TSource> to IReadOnlyList<TDto>
+public static IReadOnlyList<RecipeDto> ToDtos(this IEnumerable<Recipe> recipes);
+
+// Multiple DTO shapes for the same source — distinct method names
+public static RecipeDetailDto ToDetailDto(this Recipe recipe, bool isFavorite);
+public static RecipeSummaryDto ToSummaryDto(this Recipe recipe);
+
+// API request → command (when not handled by record `Deconstruct` or `ToValueObjects()`)
+public static SaveRecipeCommand ToCommand(this SaveRecipeRequest request);
+```
+
+The collection method always returns `IReadOnlyList<TDto>` (not `IEnumerable`) — the consumer almost always wants a materialised list, and exposing `IEnumerable` invites repeat enumeration. Single-method calls inside `Select` are preferred over the collection method when the surrounding LINQ pipeline already materialises:
+
+```csharp
+// ✅ inside a LINQ chain
+var dtos = recipes.Where(recipe => recipe.IsActive).Select(recipe => recipe.ToDto()).ToList();
+
+// ✅ direct collection mapping
+var dtos = recipes.ToDtos();
+```
+
+### What goes in a mapping extension vs handler logic
+
+Mapping extensions contain **only** field-to-field projection plus pure transforms (string trimming, enum conversion, value-object unwrap). Anything that needs collaborators (a repository read, a `currentUser`, a `timeProvider`) stays in the handler — that's not mapping, it's orchestration.
+
+```csharp
+// ✅ Pure mapping — belongs in extension
+public static RecipeDto ToDto(this Recipe recipe) =>
+    new(recipe.Id.Value, recipe.Title.Value, recipe.Servings?.Value);
+
+// ❌ Not pure — must NOT live in extension method
+public static RecipeDetailDto ToDetailDto(this Recipe recipe, IFavoriteRepository favorites) { … }
+```
+
+Pass extra primitive context as a parameter when needed (`isFavorite`, `category`), don't inject services.
+
+### No inline `new …Dto(...)` in handlers, endpoints, or repositories
+
+```csharp
+// ❌ FORBIDDEN — inline projection
+return recipes.Select(recipe => new RecipeDto(recipe.Id.Value, recipe.Title.Value, …)).ToList();
+
+// ✅ REQUIRED — through an extension method
+return recipes.Select(recipe => recipe.ToDto()).ToList();
+// or
+return recipes.ToDtos();
+```
+
+The single allowed exception is when the constructor call is the one statement in the mapper itself (the extension method body is the projection).
 
 ## Error Handling
 
