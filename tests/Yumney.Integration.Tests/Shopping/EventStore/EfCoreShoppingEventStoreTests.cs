@@ -317,6 +317,27 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 	}
 
 	[Fact]
+	public async Task SaveAsync_MarkedAsFrozen_PublishesMarkedAsFrozenIntegrationEvent()
+	{
+		var chicken = ItemName.From("Chicken");
+		var grams = Unit.From("g");
+
+		await using var context = await fixture.CreateShoppingDbContextAsync();
+		var bus = Substitute.For<IEventBus>();
+		var store = CreateStore(context, bus);
+		var ledger = ShoppingLedger.Create(owner)
+			.AddAsAtHome(chicken, Quantity.Of(Amount.From(500), grams))
+			.MarkAsFrozen(chicken, grams);
+
+		await store.SaveAsync(ledger);
+
+		await bus.Received(1).PublishAsync(
+			Arg.Is<ShoppingItemMarkedAsFrozenIntegrationEvent>(e =>
+				e.OwnerId == owner.Value && e.Inner.ItemName.Value == "Chicken"),
+			Arg.Any<CancellationToken>());
+	}
+
+	[Fact]
 	public async Task SaveAsync_AddedAsAtHome_PublishesAddedAsAtHomeIntegrationEvent()
 	{
 		var butter = ItemName.From("Butter");

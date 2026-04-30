@@ -547,6 +547,47 @@ public class ShoppingLedgerTests
 		rebuilt.Items.Values.First().AtHome.Should().Be(quantity.Amount);
 	}
 
+	[Fact]
+	public void MarkAsFrozen_RaisesEventWithoutTouchingState()
+	{
+		var milk = N("Milk");
+		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
+		ledger.AddAsAtHome(milk, Q(2, "L"));
+		var atHomeBefore = ledger.Items.Values.Single().AtHome;
+
+		ledger.MarkAsFrozen(milk, Unit.From("L"));
+
+		ledger.UncommittedEvents.OfType<ShoppingItemMarkedAsFrozen>().Should().ContainSingle();
+		ledger.Items.Values.Single().AtHome.Should().Be(atHomeBefore);
+	}
+
+	[Fact]
+	public void MarkAsFrozen_NullUnit_RaisesEventWithNullUnit()
+	{
+		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
+
+		ledger.MarkAsFrozen(N("Eggs"), null);
+
+		var raised = ledger.UncommittedEvents.OfType<ShoppingItemMarkedAsFrozen>().Single();
+		raised.Unit.Should().BeNull();
+	}
+
+	[Fact]
+	public void FromEvents_RebuildsMarkAsFrozenWithoutCorruptingState()
+	{
+		var owner = Owner("user-123");
+		var butter = N("Butter");
+		var quantity = Q(250, "g");
+		var original = Domain.ShoppingLedger.ShoppingLedger.Create(owner);
+		original.AddAsAtHome(butter, quantity);
+		original.MarkAsFrozen(butter, Unit.From("g"));
+
+		var events = original.UncommittedEvents.ToList();
+		var rebuilt = Domain.ShoppingLedger.ShoppingLedger.FromEvents(original.Identifier, owner, events);
+
+		rebuilt.Items.Values.Single().AtHome.Should().Be(quantity.Amount);
+	}
+
 	private static ItemName N(string name) => ItemName.From(name);
 
 	private static Quantity Q(decimal amount, string? unit = null) =>

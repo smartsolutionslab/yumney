@@ -27,6 +27,7 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
 		On<ShoppingItemQuantityAdjusted>(OnQuantityAdjusted);
 		On<ShoppingItemUndoBought>(OnUndoBought);
 		On<ShoppingItemAddedAsAtHome>(OnAddedAsAtHome);
+		On<ShoppingItemMarkedAsFrozen>(_ => { });
 		On<ShoppingModeStarted>(OnShoppingModeStarted);
 		On<ShoppingModeEnded>(_ => OnShoppingModeEnded());
 	}
@@ -91,6 +92,12 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
 	public ShoppingLedger AddAsAtHome(ItemName itemName, Quantity quantity)
 	{
 		RaiseEvent(new ShoppingItemAddedAsAtHome(itemName, quantity));
+		return this;
+	}
+
+	public ShoppingLedger MarkAsFrozen(ItemName itemName, Unit? unit)
+	{
+		RaiseEvent(new ShoppingItemMarkedAsFrozen(itemName, unit));
 		return this;
 	}
 

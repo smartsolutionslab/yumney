@@ -207,6 +207,28 @@ public static class ShoppingEndpoints
 			return result.ToNoContent();
 		}
 
+		group.MapPost("/items/freeze", MarkAsFrozen)
+			.WithName("MarkItemAsFrozen")
+			.WithTags("Shopping")
+			.Produces(StatusCodes.Status204NoContent)
+			.ProducesValidationProblem();
+
+		static async Task<IResult> MarkAsFrozen(
+			MarkAsFrozenRequest request,
+			IValidator<MarkAsFrozenRequest> validator,
+			ICommandHandler<MarkAsFrozenCommand, Result> handler,
+			CancellationToken cancellationToken)
+		{
+			var validation = await validator.ValidateAsync(request, cancellationToken);
+			if (validation.HasFailed()) return validation.ToValidationProblem();
+
+			var (itemName, unit) = request.ToValueObjects();
+			var command = new MarkAsFrozenCommand(itemName, unit);
+
+			var result = await handler.HandleAsync(command, cancellationToken);
+			return result.ToNoContent();
+		}
+
 		group.MapGet("/balance", GetBalance)
 			.WithName("GetIngredientBalance")
 			.WithTags("Shopping")
