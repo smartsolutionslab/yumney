@@ -262,18 +262,23 @@ public sealed class AspireFixture : IAsyncLifetime
 		await context.SaveChangesAsync();
 	}
 
-	public async Task<HttpClient> CreateAuthenticatedClientAsync(string resourceName)
+	public Task<HttpClient> CreateAuthenticatedClientAsync(string resourceName) =>
+		CreateAuthenticatedClientAsync(resourceName, "testuser", "Test1234");
+
+	public async Task<HttpClient> CreateAuthenticatedClientAsync(string resourceName, string username, string password)
 	{
-		var accessToken = await GetTestUserAccessTokenAsync();
+		var accessToken = await GetAccessTokenAsync(username, password);
 		var client = App.CreateHttpClient(resourceName);
 		client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
 		return client;
 	}
 
-	public async Task<string> GetTestUserIdAsync()
+	public Task<string> GetTestUserIdAsync() => GetUserIdAsync("testuser", "Test1234");
+
+	public async Task<string> GetUserIdAsync(string username, string password)
 	{
-		var accessToken = await GetTestUserAccessTokenAsync();
+		var accessToken = await GetAccessTokenAsync(username, password);
 		var payload = accessToken.Split('.')[1];
 		var padded = payload.PadRight(payload.Length + ((4 - (payload.Length % 4)) % 4), '=');
 		var decoded = Convert.FromBase64String(padded.Replace('-', '+').Replace('_', '/'));
@@ -282,15 +287,15 @@ public sealed class AspireFixture : IAsyncLifetime
 		return claims.GetProperty("sub").GetString()!;
 	}
 
-	private async Task<string> GetTestUserAccessTokenAsync()
+	public async Task<string> GetAccessTokenAsync(string username, string password)
 	{
 		var keycloakClient = App.CreateHttpClient("keycloak");
 		Dictionary<string, string> valueCollection = new()
 		{
 			["grant_type"] = "password",
 			["client_id"] = "yumney-web",
-			["username"] = "testuser",
-			["password"] = "Test1234",
+			["username"] = username,
+			["password"] = password,
 		};
 		var tokenResponse = await keycloakClient.PostAsync("/realms/yumney/protocol/openid-connect/token", new FormUrlEncodedContent(valueCollection));
 
