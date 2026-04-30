@@ -8,16 +8,16 @@ public sealed record SlotRecipeReference : IValueObject
 
 	public SlotRecipeTitle Title { get; }
 
-	private SlotRecipeReference(SlotRecipeIdentifier recipeIdentifier, SlotRecipeTitle title)
+	private SlotRecipeReference(SlotRecipeIdentifier recipe, SlotRecipeTitle title)
 	{
-		RecipeIdentifier = recipeIdentifier;
+		RecipeIdentifier = recipe;
 		Title = title;
 	}
 
-	public static SlotRecipeReference From(SlotRecipeIdentifier recipeIdentifier, SlotRecipeTitle title) => new(recipeIdentifier, title);
+	public static SlotRecipeReference From(SlotRecipeIdentifier recipe, SlotRecipeTitle title) => new(recipe, title);
 
-	public static SlotRecipeReference From(Guid recipeIdentifier, string title) =>
-		From(SlotRecipeIdentifier.From(recipeIdentifier), SlotRecipeTitle.From(title));
+	public static SlotRecipeReference From(Guid recipe, string title) =>
+		From(SlotRecipeIdentifier.From(recipe), SlotRecipeTitle.From(title));
 
 	public override string ToString() => $"{Title} ({RecipeIdentifier})";
 }

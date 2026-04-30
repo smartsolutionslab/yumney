@@ -67,11 +67,11 @@ public sealed partial class EfCoreMealPlanEventStore(
 
 		var storedEvents = await context.Set<StoredEvent>()
 			.AsNoTracking()
-			.Where(e => e.AggregateId == aggregateId)
-			.OrderBy(e => e.Version)
+			.Where(stored => stored.AggregateId == aggregateId)
+			.OrderBy(stored => stored.Version)
 			.ToListAsync(cancellationToken);
 
-		var events = storedEvents.Select(DeserializeEvent).Where(e => e is not null).Cast<IDomainEvent>();
+		var events = storedEvents.Select(DeserializeEvent).Where(deserialized => deserialized is not null).Cast<IDomainEvent>();
 
 		return WeeklyPlan.FromEvents(WeeklyPlanIdentifier.From(aggregateId), events);
 	}
@@ -159,7 +159,7 @@ public sealed partial class EfCoreMealPlanEventStore(
 					confirmed.Recipe.RecipeIdentifier.Value,
 					confirmed.Servings.Value,
 					confirmed.Ingredients
-						.Select(i => new MealConfirmedIngredient(i.Name, i.Quantity, i.Unit))
+						.Select(ingredient => new MealConfirmedIngredient(ingredient.Name, ingredient.Quantity, ingredient.Unit))
 						.ToList());
 				await PublishAsync(crossModule, cancellationToken);
 			}
