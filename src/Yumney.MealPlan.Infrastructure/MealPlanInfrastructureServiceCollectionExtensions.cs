@@ -35,7 +35,6 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 
 		services.AddScoped<IMealPlanEventStore, EfCoreMealPlanEventStore>();
 		services.AddScoped<IMealPlanReadModelRepository, MealPlanReadModelRepository>();
-		services.AddScoped<MealPlanProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<WeeklyPlanCreatedIntegrationEvent>, MealPlanProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ExtendedModeEnabledIntegrationEvent>, MealPlanProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ExtendedModeDisabledIntegrationEvent>, MealPlanProjectionHandler>();

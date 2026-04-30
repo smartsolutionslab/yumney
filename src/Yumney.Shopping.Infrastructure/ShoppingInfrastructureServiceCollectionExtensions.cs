@@ -44,7 +44,6 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IShoppingLedgerReadModelRepository, ShoppingLedgerReadModelRepository>();
 		services.AddScoped<IShoppingListProjectionRepository, EfCoreShoppingListProjectionRepository>();
 		services.AddScoped<IShoppingListProjectionRebuilder, ShoppingListProjectionRebuilder>();
-		services.AddScoped<ShoppingLedgerProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemAddedIntegrationEvent>, ShoppingLedgerProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>, ShoppingLedgerProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>, ShoppingLedgerProjectionHandler>();
