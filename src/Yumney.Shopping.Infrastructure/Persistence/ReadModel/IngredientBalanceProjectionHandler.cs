@@ -13,7 +13,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 /// Powers the <see cref="GetIngredientBalanceQuery"/> ("what's at home right now")
 /// and is the data source for the "What Can I Cook?" feature (US-342).
 /// </summary>
-public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context)
+public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context, TimeProvider timeProvider)
 	: IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>,
 	  IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>,
 	  IIntegrationEventHandler<ShoppingItemRemovedIntegrationEvent>,
@@ -23,7 +23,7 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 	public Task HandleAsync(ShoppingItemBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var now = DateTime.UtcNow;
+		var now = timeProvider.GetUtcNow().UtcDateTime;
 		return UpsertAsync(
 			@event.OwnerId,
 			inner.ItemName,
@@ -72,7 +72,7 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 	public Task HandleAsync(ShoppingItemAddedAsAtHomeIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var now = DateTime.UtcNow;
+		var now = timeProvider.GetUtcNow().UtcDateTime;
 		return UpsertAsync(
 			@event.OwnerId,
 			inner.ItemName,
@@ -116,7 +116,7 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 		}
 
 		mutate(row);
-		row.LastUpdated = DateTime.UtcNow;
+		row.LastUpdated = timeProvider.GetUtcNow().UtcDateTime;
 		await context.SaveChangesAsync(cancellationToken);
 	}
 }
