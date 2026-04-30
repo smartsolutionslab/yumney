@@ -27,8 +27,8 @@ public class ImportRecipeCommandHandlerTests
 		extraction.ExtractAsync(scrapedContent, Arg.Any<CancellationToken>())
 			.Returns(Result<ExtractedRecipeDto>.Success(expectedRecipe));
 
-		var sut = CreateSut();
-		var result = await sut.HandleAsync(new ImportRecipeCommand(url));
+		var handler = CreateHandler();
+		var result = await handler.HandleAsync(new ImportRecipeCommand(url));
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Title.Should().Be("Pasta Carbonara");
@@ -42,8 +42,8 @@ public class ImportRecipeCommandHandlerTests
 		scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
 			.Returns(Result<ScrapedContent>.Failure(ImportRecipeErrors.PageUnreachable));
 
-		var sut = CreateSut();
-		var result = await sut.HandleAsync(new ImportRecipeCommand(url));
+		var handler = CreateHandler();
+		var result = await handler.HandleAsync(new ImportRecipeCommand(url));
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(ImportRecipeErrors.PageUnreachable);
@@ -60,8 +60,8 @@ public class ImportRecipeCommandHandlerTests
 		extraction.ExtractAsync(scrapedContent, Arg.Any<CancellationToken>())
 			.Returns(Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.NoRecipeFound));
 
-		var sut = CreateSut();
-		var result = await sut.HandleAsync(new ImportRecipeCommand(url));
+		var handler = CreateHandler();
+		var result = await handler.HandleAsync(new ImportRecipeCommand(url));
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(ImportRecipeErrors.NoRecipeFound);
@@ -79,8 +79,8 @@ public class ImportRecipeCommandHandlerTests
 		extraction.ExtractAsync(scrapedContent, Arg.Any<CancellationToken>())
 			.Returns(Result<ExtractedRecipeDto>.Success(expectedRecipe));
 
-		var sut = CreateSut();
-		await sut.HandleAsync(new ImportRecipeCommand(url));
+		var handler = CreateHandler();
+		await handler.HandleAsync(new ImportRecipeCommand(url));
 
 		await extraction.Received(1).ExtractAsync(scrapedContent, Arg.Any<CancellationToken>());
 	}
@@ -93,8 +93,8 @@ public class ImportRecipeCommandHandlerTests
 		scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
 			.Returns(Result<ScrapedContent>.Failure(ImportRecipeErrors.PageUnreachable));
 
-		var sut = CreateSut();
-		await sut.HandleAsync(new ImportRecipeCommand(url));
+		var handler = CreateHandler();
+		await handler.HandleAsync(new ImportRecipeCommand(url));
 
 		await extraction.DidNotReceive().ExtractAsync(
 			Arg.Any<ScrapedContent>(), Arg.Any<CancellationToken>());
@@ -108,8 +108,8 @@ public class ImportRecipeCommandHandlerTests
 		scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
 			.Returns(Result<ScrapedContent>.Failure(ImportRecipeErrors.ScrapeTimeout));
 
-		var sut = CreateSut();
-		var result = await sut.HandleAsync(new ImportRecipeCommand(url));
+		var handler = CreateHandler();
+		var result = await handler.HandleAsync(new ImportRecipeCommand(url));
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(ImportRecipeErrors.ScrapeTimeout);
@@ -126,8 +126,8 @@ public class ImportRecipeCommandHandlerTests
 		extraction.ExtractAsync(scrapedContent, Arg.Any<CancellationToken>())
 			.Returns(Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed));
 
-		var sut = CreateSut();
-		var result = await sut.HandleAsync(new ImportRecipeCommand(url));
+		var handler = CreateHandler();
+		var result = await handler.HandleAsync(new ImportRecipeCommand(url));
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
@@ -146,8 +146,8 @@ public class ImportRecipeCommandHandlerTests
 		extraction.ExtractAsync(scrapedContent, cts.Token)
 			.Returns(Result<ExtractedRecipeDto>.Success(expectedRecipe));
 
-		var sut = CreateSut();
-		await sut.HandleAsync(new ImportRecipeCommand(url), cts.Token);
+		var handler = CreateHandler();
+		await handler.HandleAsync(new ImportRecipeCommand(url), cts.Token);
 
 		await scraper.Received(1).ScrapeAsync(url, cts.Token);
 	}
@@ -165,8 +165,8 @@ public class ImportRecipeCommandHandlerTests
 		extraction.ExtractAsync(scrapedContent, cts.Token)
 			.Returns(Result<ExtractedRecipeDto>.Success(expectedRecipe));
 
-		var sut = CreateSut();
-		await sut.HandleAsync(new ImportRecipeCommand(url), cts.Token);
+		var handler = CreateHandler();
+		await handler.HandleAsync(new ImportRecipeCommand(url), cts.Token);
 
 		await extraction.Received(1).ExtractAsync(scrapedContent, cts.Token);
 	}
@@ -183,8 +183,8 @@ public class ImportRecipeCommandHandlerTests
 		extraction.ExtractAsync(scrapedContent, Arg.Any<CancellationToken>())
 			.Returns(Result<ExtractedRecipeDto>.Success(minimalRecipe));
 
-		var sut = CreateSut();
-		var result = await sut.HandleAsync(new ImportRecipeCommand(url));
+		var handler = CreateHandler();
+		var result = await handler.HandleAsync(new ImportRecipeCommand(url));
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Title.Should().Be("Simple Dish");
@@ -200,8 +200,8 @@ public class ImportRecipeCommandHandlerTests
 		scraper.ScrapeAsync(url, Arg.Any<CancellationToken>())
 			.Returns(Result<ScrapedContent>.Failure(ImportRecipeErrors.ContentTooLarge));
 
-		var sut = CreateSut();
-		var result = await sut.HandleAsync(new ImportRecipeCommand(url));
+		var handler = CreateHandler();
+		var result = await handler.HandleAsync(new ImportRecipeCommand(url));
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(ImportRecipeErrors.ContentTooLarge);
@@ -217,8 +217,8 @@ public class ImportRecipeCommandHandlerTests
 		scraper.ScrapeAsync(url, cts.Token)
 			.Returns<Result<ScrapedContent>>(_ => throw new OperationCanceledException(cts.Token));
 
-		var sut = CreateSut();
-		var act = () => sut.HandleAsync(new ImportRecipeCommand(url), cts.Token);
+		var handler = CreateHandler();
+		var act = () => handler.HandleAsync(new ImportRecipeCommand(url), cts.Token);
 
 		await act.Should().ThrowAsync<OperationCanceledException>();
 	}
@@ -237,8 +237,8 @@ public class ImportRecipeCommandHandlerTests
 		extraction.ExtractAsync(scrapedContent, cts.Token)
 			.Returns<Result<ExtractedRecipeDto>>(_ => throw new OperationCanceledException(cts.Token));
 
-		var sut = CreateSut();
-		var act = () => sut.HandleAsync(new ImportRecipeCommand(url), cts.Token);
+		var handler = CreateHandler();
+		var act = () => handler.HandleAsync(new ImportRecipeCommand(url), cts.Token);
 
 		await act.Should().ThrowAsync<OperationCanceledException>();
 	}
@@ -246,5 +246,5 @@ public class ImportRecipeCommandHandlerTests
 	private static ExtractedRecipeDto CreateExtractedRecipe(string title = "Test Recipe") =>
 		new(title, [new ExtractedIngredientDto("Flour", 500, "g")], [new ExtractedStepDto(1, "Mix ingredients")], Servings: 4);
 
-	private ImportRecipeCommandHandler CreateSut() => new(scraper, extraction);
+	private ImportRecipeCommandHandler CreateHandler() => new(scraper, extraction);
 }

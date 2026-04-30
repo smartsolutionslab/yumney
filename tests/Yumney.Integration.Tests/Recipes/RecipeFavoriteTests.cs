@@ -27,7 +27,7 @@ public class RecipeFavoriteTests(AspireFixture fixture) : IAsyncLifetime
 
 	public Task DisposeAsync() => AspireFixture.CleanupAsync(
 		fixture.CreateRecipesDbContextAsync,
-		ctx => ctx.Recipes.Where(r => r.Owner == owner));
+		ctx => ctx.Recipes.Where(recipe => recipe.Owner == owner));
 
 	[Fact]
 	public async Task IsFavoritedAsync_NotFavorited_ReturnsFalse()

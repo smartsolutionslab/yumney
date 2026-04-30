@@ -114,8 +114,8 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 		await fixture.ResetShoppingListEventStoreAsync(owner);
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{
-			var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(s => s.OwnerId == userId).ToListAsync();
-			var items = await ctx.Set<ShoppingListItemReadItem>().Where(i => i.OwnerId == userId).ToListAsync();
+			var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(summary => summary.OwnerId == userId).ToListAsync();
+			var items = await ctx.Set<ShoppingListItemReadItem>().Where(item => item.OwnerId == userId).ToListAsync();
 			ctx.RemoveRange(summaries);
 			ctx.RemoveRange(items);
 			await ctx.SaveChangesAsync();
@@ -123,6 +123,6 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 
 		await AspireFixture.CleanupAsync(
 			fixture.CreateRecipesDbContextAsync,
-			ctx => ctx.Recipes.Where(r => r.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
+			ctx => ctx.Recipes.Where(recipe => recipe.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
 	}
 }

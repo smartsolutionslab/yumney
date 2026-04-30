@@ -26,7 +26,7 @@ public class FileSizeTests
 		oversized.Should().BeEmpty(
 			"files exceeding {0} lines per CLAUDE.md: {1}",
 			MaxLinesPerFile,
-			string.Join(Environment.NewLine, oversized.Select(f => $"  {f.LineCount} lines — {Path.GetRelativePath(srcRoot, f.Path)}")));
+			string.Join(Environment.NewLine, oversized.Select(file => $"  {file.LineCount} lines — {Path.GetRelativePath(srcRoot, file.Path)}")));
 	}
 
 	private static bool IsTrackedSourceFile(string path)

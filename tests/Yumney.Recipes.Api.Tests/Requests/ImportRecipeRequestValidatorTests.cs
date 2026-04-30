@@ -7,14 +7,14 @@ namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests;
 
 public class ImportRecipeRequestValidatorTests
 {
-	private readonly ImportRecipeRequestValidator sut = new();
+	private readonly ImportRecipeRequestValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidHttpsUrl_IsValid()
 	{
 		var request = new ImportRecipeRequest("https://example.com/recipe/123");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeTrue();
 	}
@@ -24,7 +24,7 @@ public class ImportRecipeRequestValidatorTests
 	{
 		var request = new ImportRecipeRequest("http://example.com/recipe/123");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeTrue();
 	}
@@ -34,7 +34,7 @@ public class ImportRecipeRequestValidatorTests
 	{
 		var request = new ImportRecipeRequest("https://example.com/recipe?id=123&lang=en");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeTrue();
 	}
@@ -46,7 +46,7 @@ public class ImportRecipeRequestValidatorTests
 	{
 		var request = new ImportRecipeRequest(url);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "Url");
@@ -60,7 +60,7 @@ public class ImportRecipeRequestValidatorTests
 	{
 		var request = new ImportRecipeRequest(url);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "Url");
@@ -73,7 +73,7 @@ public class ImportRecipeRequestValidatorTests
 		var url = $"https://x.com/{path}";
 		var request = new ImportRecipeRequest(url);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "Url");
@@ -87,7 +87,7 @@ public class ImportRecipeRequestValidatorTests
 		var url = $"{prefix}{path}";
 		var request = new ImportRecipeRequest(url);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.Errors.Should().NotContain(
 			e => e.PropertyName == "Url"
@@ -99,7 +99,7 @@ public class ImportRecipeRequestValidatorTests
 	{
 		var request = new ImportRecipeRequest(null!);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "Url");
@@ -111,7 +111,7 @@ public class ImportRecipeRequestValidatorTests
 		var request = new ImportRecipeRequest(
 			"https://example.com/recipe#ingredients");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeTrue();
 	}

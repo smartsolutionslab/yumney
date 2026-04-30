@@ -167,7 +167,7 @@ public class WeeklyPlanTests
 	{
 		var plan = CreatePlan();
 
-		var days = plan.Slots.Select(s => s.Day).ToList();
+		var days = plan.Slots.Select(slot => slot.Day).ToList();
 		days.Should().Contain(DayOfWeek.Monday);
 		days.Should().Contain(DayOfWeek.Tuesday);
 		days.Should().Contain(DayOfWeek.Wednesday);

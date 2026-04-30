@@ -115,7 +115,7 @@ public class OwnershipIsolationTests(AspireFixture fixture) : IAsyncLifetime
 				listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 				var page = await listResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 				var ids = page.GetProperty("items").EnumerateArray()
-					.Select(i => i.GetProperty("identifier").GetGuid())
+					.Select(entry => entry.GetProperty("identifier").GetGuid())
 					.ToList();
 				ids.Should().NotContain(listId);
 			},
@@ -159,10 +159,10 @@ public class OwnershipIsolationTests(AspireFixture fixture) : IAsyncLifetime
 				var ownerResponse = await userAMealPlan.GetAsync(weekPath);
 				ownerResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 				var ownerPlan = await ownerResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-				var ownerHasFridayDinner = ownerPlan.GetProperty("slots").EnumerateArray().Any(s =>
-					s.GetProperty("day").GetString() == "Friday" &&
-					s.GetProperty("mealType").GetString() == "Dinner" &&
-					!s.GetProperty("isEmpty").GetBoolean());
+				var ownerHasFridayDinner = ownerPlan.GetProperty("slots").EnumerateArray().Any(slot =>
+					slot.GetProperty("day").GetString() == "Friday" &&
+					slot.GetProperty("mealType").GetString() == "Dinner" &&
+					!slot.GetProperty("isEmpty").GetBoolean());
 				ownerHasFridayDinner.Should().BeTrue("user A's projection should have caught up");
 			},
 			timeout: TimeSpan.FromSeconds(15));
@@ -220,9 +220,9 @@ public class OwnershipIsolationTests(AspireFixture fixture) : IAsyncLifetime
 
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
 		var summaries = await ctx.Set<ShoppingListSummaryReadItem>()
-			.Where(s => s.OwnerId == userId).ToListAsync();
+			.Where(summary => summary.OwnerId == userId).ToListAsync();
 		var items = await ctx.Set<ShoppingListItemReadItem>()
-			.Where(i => i.OwnerId == userId).ToListAsync();
+			.Where(item => item.OwnerId == userId).ToListAsync();
 		ctx.RemoveRange(summaries);
 		ctx.RemoveRange(items);
 		await ctx.SaveChangesAsync();
@@ -231,6 +231,6 @@ public class OwnershipIsolationTests(AspireFixture fixture) : IAsyncLifetime
 	private Task CleanupRecipesForOwnerAsync(string userId) =>
 		AspireFixture.CleanupAsync(
 			fixture.CreateRecipesDbContextAsync,
-			ctx => ctx.Recipes.Where(r =>
-				r.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
+			ctx => ctx.Recipes.Where(recipe =>
+				recipe.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
 }

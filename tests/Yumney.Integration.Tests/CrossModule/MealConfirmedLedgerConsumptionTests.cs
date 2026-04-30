@@ -84,16 +84,16 @@ public class MealConfirmedLedgerConsumptionTests(AspireFixture fixture) : IAsync
 			{
 				await using var ctx = await fixture.CreateShoppingDbContextAsync();
 				var ledgerAggregateIds = await ctx.Set<AggregateMetadata>()
-					.Where(m => m.OwnerId == userId)
-					.Select(m => m.AggregateId)
+					.Where(metadata => metadata.OwnerId == userId)
+					.Select(metadata => metadata.AggregateId)
 					.ToListAsync();
 
 				ledgerAggregateIds.Should().NotBeEmpty(
 					"the AddManualItem calls in step 4 should have created a ledger aggregate");
 
 				var consumedEvents = await ctx.Set<StoredEvent>()
-					.Where(e => ledgerAggregateIds.Contains(e.AggregateId)
-						&& e.EventType == nameof(ShoppingItemConsumed))
+					.Where(stored => ledgerAggregateIds.Contains(stored.AggregateId)
+						&& stored.EventType == nameof(ShoppingItemConsumed))
 					.ToListAsync();
 
 				consumedEvents.Should().HaveCountGreaterThanOrEqualTo(
@@ -162,7 +162,7 @@ public class MealConfirmedLedgerConsumptionTests(AspireFixture fixture) : IAsync
 				response.StatusCode.Should().Be(HttpStatusCode.OK);
 				var planned = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 				var titles = planned.GetProperty("recipes").EnumerateArray()
-					.Select(r => r.GetProperty("recipeTitle").GetString())
+					.Select(entry => entry.GetProperty("recipeTitle").GetString())
 					.ToList();
 				titles.Should().Contain(title);
 			},
@@ -203,9 +203,9 @@ public class MealConfirmedLedgerConsumptionTests(AspireFixture fixture) : IAsync
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{
 			var summaries = await ctx.Set<ShoppingListSummaryReadItem>()
-				.Where(s => s.OwnerId == userId).ToListAsync();
+				.Where(summary => summary.OwnerId == userId).ToListAsync();
 			var items = await ctx.Set<ShoppingListItemReadItem>()
-				.Where(i => i.OwnerId == userId).ToListAsync();
+				.Where(item => item.OwnerId == userId).ToListAsync();
 			ctx.RemoveRange(summaries);
 			ctx.RemoveRange(items);
 			await ctx.SaveChangesAsync();
@@ -214,14 +214,14 @@ public class MealConfirmedLedgerConsumptionTests(AspireFixture fixture) : IAsync
 		await using (var readCtx = await fixture.CreateShoppingReadDbContextAsync())
 		{
 			var balanceRows = await readCtx.IngredientBalanceReadItems
-				.Where(r => r.OwnerId == userId).ToListAsync();
+				.Where(row => row.OwnerId == userId).ToListAsync();
 			readCtx.RemoveRange(balanceRows);
 			await readCtx.SaveChangesAsync();
 		}
 
 		await AspireFixture.CleanupAsync(
 			fixture.CreateRecipesDbContextAsync,
-			ctx => ctx.Recipes.Where(r =>
-				r.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
+			ctx => ctx.Recipes.Where(recipe =>
+				recipe.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
 	}
 }

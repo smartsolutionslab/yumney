@@ -18,11 +18,11 @@ public static class RecipeFactory
 		IReadOnlyList<string>? tags = null)
 	{
 		var recipeIngredients = (ingredients ?? [("Default Ingredient", null, null)])
-			.Select(i => Ingredient.Create(
-				IngredientName.From(i.Name),
+			.Select(spec => Ingredient.Create(
+				IngredientName.From(spec.Name),
 				Quantity.FromNullable(
-					Amount.FromNullable(i.Amount),
-					Unit.FromNullable(i.Unit))))
+					Amount.FromNullable(spec.Amount),
+					Unit.FromNullable(spec.Unit))))
 			.ToList();
 
 		var recipeSteps = (steps ?? ["Default step"])

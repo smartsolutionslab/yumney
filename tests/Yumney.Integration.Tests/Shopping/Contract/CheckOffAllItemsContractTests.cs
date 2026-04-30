@@ -44,7 +44,7 @@ public class CheckOffAllItemsContractTests(AspireFixture fixture) : IAsyncLifeti
 		{
 			var detail = await GetListAsync(client, listId);
 			detail.GetProperty("items").EnumerateArray()
-				.Select(i => i.GetProperty("isChecked").GetBoolean())
+				.Select(entry => entry.GetProperty("isChecked").GetBoolean())
 				.Should().AllBeEquivalentTo(true);
 		});
 	}
@@ -65,7 +65,7 @@ public class CheckOffAllItemsContractTests(AspireFixture fixture) : IAsyncLifeti
 		{
 			var detail = await GetListAsync(client, listId);
 			detail.GetProperty("items").EnumerateArray()
-				.Select(i => i.GetProperty("isChecked").GetBoolean())
+				.Select(entry => entry.GetProperty("isChecked").GetBoolean())
 				.Should().AllBeEquivalentTo(false);
 		});
 	}

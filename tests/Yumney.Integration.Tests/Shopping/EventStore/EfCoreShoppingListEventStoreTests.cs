@@ -45,8 +45,8 @@ public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLi
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var stored = await verify.Set<ShoppingListStoredEvent>()
-			.Where(e => e.AggregateId == list.Identifier.Value)
-			.OrderBy(e => e.Version)
+			.Where(stored => stored.AggregateId == list.Identifier.Value)
+			.OrderBy(stored => stored.Version)
 			.ToListAsync();
 		var metadata = await verify.Set<ShoppingListAggregateMetadata>()
 			.SingleAsync(m => m.AggregateId == list.Identifier.Value);
@@ -79,8 +79,8 @@ public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLi
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var stored = await verify.Set<ShoppingListStoredEvent>()
-			.Where(e => e.AggregateId == list.Identifier.Value)
-			.OrderBy(e => e.Version)
+			.Where(stored => stored.AggregateId == list.Identifier.Value)
+			.OrderBy(stored => stored.Version)
 			.ToListAsync();
 
 		stored.Should().HaveCount(3);

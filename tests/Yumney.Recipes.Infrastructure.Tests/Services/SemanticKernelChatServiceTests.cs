@@ -64,7 +64,7 @@ public class SemanticKernelChatServiceTests
 			"Tomato Soup pairs great with Grilled Cheese.", recipes);
 
 		result.Should().HaveCount(2);
-		result.Select(s => s.Title).Should().Contain("Tomato Soup").And.Contain("Grilled Cheese");
+		result.Select(suggestion => suggestion.Title).Should().Contain("Tomato Soup").And.Contain("Grilled Cheese");
 	}
 
 	[Fact]

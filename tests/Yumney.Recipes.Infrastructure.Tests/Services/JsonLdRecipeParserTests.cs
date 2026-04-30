@@ -84,7 +84,7 @@ public class JsonLdRecipeParserTests
 		var result = JsonLdRecipeParser.TryParse(html);
 
 		result!.Steps.Should().HaveCount(3);
-		result.Steps.Select(s => s.Description).Should().Equal("Prepare the batter", "Bake", "Make frosting");
+		result.Steps.Select(step => step.Description).Should().Equal("Prepare the batter", "Bake", "Make frosting");
 	}
 
 	[Fact]

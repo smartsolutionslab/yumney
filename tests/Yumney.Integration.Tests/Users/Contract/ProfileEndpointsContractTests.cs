@@ -130,6 +130,6 @@ public class ProfileEndpointsContractTests(AspireFixture fixture) : IAsyncLifeti
 		if (id is null) return Task.CompletedTask;
 		return AspireFixture.CleanupAsync(
 			fixture.CreateUsersDbContextAsync,
-			ctx => ctx.AppUserProfiles.Where(p => p.KeycloakUserId == id));
+			ctx => ctx.AppUserProfiles.Where(profile => profile.KeycloakUserId == id));
 	}
 }

@@ -92,13 +92,13 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 		}
 
 		var recipes = plan.Slots
-			.Where(s => s.ContentType == SlotContentType.Recipe && s.Recipe is not null)
-			.Select(s => new PlannedRecipeDto(
-				s.Recipe!.RecipeIdentifier.Value,
-				s.Recipe.Title.Value,
-				s.Servings.Value,
-				s.Day.ToString(),
-				s.MealType.ToString()))
+			.Where(slot => slot.ContentType == SlotContentType.Recipe && slot.Recipe is not null)
+			.Select(slot => new PlannedRecipeDto(
+				slot.Recipe!.RecipeIdentifier.Value,
+				slot.Recipe.Title.Value,
+				slot.Servings.Value,
+				slot.Day.ToString(),
+				slot.MealType.ToString()))
 			.ToList();
 
 		return Task.FromResult(new WeeklyPlannedRecipesDto(week.Value, recipes));
@@ -109,23 +109,23 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 		IEnumerable<MealHistoryEntryDto> rows = store
 			.Where(kv => kv.Key.Owner == owner.Value)
 			.SelectMany(kv => kv.Value.Slots
-				.Where(s => s.State == MealState.Cooked && s.Recipe is not null)
-				.Select(s => new MealHistoryEntryDto(
-					s.Recipe!.RecipeIdentifier.Value,
-					s.Recipe.Title.Value,
+				.Where(slot => slot.State == MealState.Cooked && slot.Recipe is not null)
+				.Select(slot => new MealHistoryEntryDto(
+					slot.Recipe!.RecipeIdentifier.Value,
+					slot.Recipe.Title.Value,
 					kv.Key.Week,
-					s.Day.ToString(),
-					s.MealType.ToString())));
+					slot.Day.ToString(),
+					slot.MealType.ToString())));
 
 		if (!string.IsNullOrWhiteSpace(term))
 		{
-			rows = rows.Where(r => r.RecipeTitle.Contains(term.Trim(), StringComparison.OrdinalIgnoreCase));
+			rows = rows.Where(entry => entry.RecipeTitle.Contains(term.Trim(), StringComparison.OrdinalIgnoreCase));
 		}
 
 		return Task.FromResult<IReadOnlyList<MealHistoryEntryDto>>(rows
-			.OrderByDescending(r => r.Week)
-			.ThenBy(r => r.Day)
-			.ThenBy(r => r.MealType)
+			.OrderByDescending(entry => entry.Week)
+			.ThenBy(entry => entry.Day)
+			.ThenBy(entry => entry.MealType)
 			.Take(limit)
 			.ToList());
 	}

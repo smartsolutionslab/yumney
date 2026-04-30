@@ -59,6 +59,6 @@ public class DeleteRecipeContractTests(AspireFixture fixture) : IAsyncLifetime
 		var owner = OwnerIdentifier.From(userId);
 		await AspireFixture.CleanupAsync(
 			fixture.CreateRecipesDbContextAsync,
-			ctx => ctx.Recipes.Where(r => r.Owner == owner));
+			ctx => ctx.Recipes.Where(recipe => recipe.Owner == owner));
 	}
 }

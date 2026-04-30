@@ -86,7 +86,7 @@ public class GetShoppingListsContractTests(AspireFixture fixture) : IAsyncLifeti
 			response.StatusCode.Should().Be(HttpStatusCode.OK);
 			var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 			var titles = body.GetProperty("items").EnumerateArray()
-				.Select(i => i.GetProperty("title").GetString()).ToList();
+				.Select(entry => entry.GetProperty("title").GetString()).ToList();
 			titles.Should().Equal("Alpha", "Bravo", "Charlie");
 		});
 	}
