@@ -50,19 +50,7 @@ public sealed class GetCookableRecipesQueryHandler(
 			if (tier == CookableRecipeMatchTier.Near && missing.Count > maxMissingForNearMatch) continue;
 			if (query.FullMatchOnly && tier != CookableRecipeMatchTier.Full) continue;
 
-			matches.Add(new RankedMatch(
-				new CookableRecipeDto(
-					RecipeIdentifier: recipe.Id.Value,
-					Title: recipe.Title.Value,
-					ImageUrl: recipe.ImageUrl?.Value,
-					Servings: recipe.Servings?.Value,
-					PrepTimeMinutes: recipe.Timing?.Preparation?.Value,
-					CookTimeMinutes: recipe.Timing?.Cooking?.Value,
-					Difficulty: recipe.Difficulty?.Value,
-					IngredientCount: recipe.Ingredients.Count,
-					Tier: tier,
-					MissingIngredients: missing),
-				urgentCount));
+			matches.Add(new RankedMatch(recipe.ToCookableDto(tier, missing), urgentCount));
 		}
 
 		IReadOnlyList<CookableRecipeDto> ranked = [.. matches
