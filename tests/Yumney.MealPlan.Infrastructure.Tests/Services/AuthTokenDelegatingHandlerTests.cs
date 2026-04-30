@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using NSubstitute;
-using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Services;
+using SmartSolutionsLab.Yumney.Shared.Web;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Tests.Services;

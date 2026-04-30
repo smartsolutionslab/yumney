@@ -7,6 +7,7 @@ using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
+using SmartSolutionsLab.Yumney.Shared.Web;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure;
 

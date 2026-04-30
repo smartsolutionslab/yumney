@@ -10,6 +10,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Services;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Web;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure;
 
