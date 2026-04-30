@@ -4,15 +4,13 @@ namespace SmartSolutionsLab.Yumney.Users.Application.DTOs;
 
 public static class UserActivityMappingExtensions
 {
-	extension(UserActivity activity)
-	{
-		public UserActivityDto ToDto()
-		{
-			return new UserActivityDto(
-				activity.Type.Value,
-				activity.RecipeIdentifier?.Value,
-				activity.RecipeTitle?.Value,
-				activity.OccurredAt);
-		}
-	}
+	public static UserActivityDto ToDto(this UserActivity activity) =>
+		new(
+			activity.Type.Value,
+			activity.RecipeIdentifier?.Value,
+			activity.RecipeTitle?.Value,
+			activity.OccurredAt);
+
+	public static IReadOnlyList<UserActivityDto> ToDtos(this IEnumerable<UserActivity> activities) =>
+		activities.Select(activity => activity.ToDto()).ToList();
 }
