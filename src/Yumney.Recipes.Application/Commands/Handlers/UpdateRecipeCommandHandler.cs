@@ -24,8 +24,8 @@ public sealed class UpdateRecipeCommandHandler(
 			return UpdateRecipeErrors.AccessDenied;
 		}
 
-		var ingredients = ingredientCommands.Select(i => i.ToDomain()).ToList();
-		var steps = stepCommands.Select(s => s.ToDomain()).ToList();
+		var ingredients = ingredientCommands.Select(ingredient => ingredient.ToDomain()).ToList();
+		var steps = stepCommands.Select(step => step.ToDomain()).ToList();
 
 		recipe.Update(
 			title,

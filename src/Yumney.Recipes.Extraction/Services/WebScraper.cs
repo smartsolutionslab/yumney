@@ -130,7 +130,7 @@ public sealed partial class WebScraper(HttpClient httpClient, IOptions<ScrapingO
 
 			// Schema.org hints can surface multiple fragments (one per itemprop) —
 			// concatenate them in document order so nothing is lost.
-			var combined = string.Join("\n", matches.Select(m => m.TextContent.Trim())).Trim();
+			var combined = string.Join("\n", matches.Select(node => node.TextContent.Trim())).Trim();
 			if (combined.Length > 0) return combined;
 		}
 

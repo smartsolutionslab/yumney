@@ -22,8 +22,8 @@ public sealed class SaveRecipeCommandHandler(
 			return SaveRecipeErrors.AlreadyImported;
 		}
 
-		var ingredients = ingredientCommands.Select(i => i.ToDomain()).ToList();
-		var steps = stepCommands.Select(s => s.ToDomain()).ToList();
+		var ingredients = ingredientCommands.Select(ingredient => ingredient.ToDomain()).ToList();
+		var steps = stepCommands.Select(step => step.ToDomain()).ToList();
 
 		var recipe = Recipe.Create(
 			title,

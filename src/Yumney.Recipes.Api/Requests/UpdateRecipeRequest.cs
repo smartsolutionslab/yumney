@@ -36,6 +36,6 @@ public sealed record UpdateRecipeRequest(
 			CookingTime.FromNullable(CookTimeMinutes));
 		difficulty = Domain.Recipe.Difficulty.FromNullable(Difficulty);
 		imageUrl = Domain.Recipe.ImageUrl.FromNullable(ImageUrl);
-		tags = Tags?.Select(t => RecipeTag.From(t)).ToList();
+		tags = Tags?.Select(tag => RecipeTag.From(tag)).ToList();
 	}
 }

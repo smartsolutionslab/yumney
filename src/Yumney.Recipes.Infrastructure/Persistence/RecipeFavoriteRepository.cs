@@ -8,28 +8,28 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
 {
 	private readonly DbSet<RecipeFavorite> favorites = context.RecipeFavorites;
 
-	public async Task<bool> IsFavoritedAsync(OwnerIdentifier owner, RecipeIdentifier recipeIdentifier, CancellationToken cancellationToken = default)
+	public async Task<bool> IsFavoritedAsync(OwnerIdentifier owner, RecipeIdentifier recipe, CancellationToken cancellationToken = default)
 	{
 		return await favorites
 			.AsNoTracking()
-			.AnyAsync(f => f.Owner == owner && f.RecipeIdentifier == recipeIdentifier, cancellationToken);
+			.AnyAsync(favorite => favorite.Owner == owner && favorite.RecipeIdentifier == recipe, cancellationToken);
 	}
 
 	public async Task<IReadOnlySet<Guid>> GetFavoritedIdsAsync(
 		OwnerIdentifier owner,
-		IReadOnlyCollection<RecipeIdentifier> recipeIdentifiers,
+		IReadOnlyCollection<RecipeIdentifier> recipes,
 		CancellationToken cancellationToken = default)
 	{
-		if (recipeIdentifiers.Count == 0) return new HashSet<Guid>();
+		if (recipes.Count == 0) return new HashSet<Guid>();
 
-		var idList = recipeIdentifiers.ToList();
+		var idList = recipes.ToList();
 		var favorited = await favorites
 			.AsNoTracking()
-			.Where(f => f.Owner == owner && idList.Contains(f.RecipeIdentifier))
-			.Select(f => f.RecipeIdentifier)
+			.Where(favorite => favorite.Owner == owner && idList.Contains(favorite.RecipeIdentifier))
+			.Select(favorite => favorite.RecipeIdentifier)
 			.ToListAsync(cancellationToken);
 
-		return favorited.Select(r => r.Value).ToHashSet();
+		return favorited.Select(recipeId => recipeId.Value).ToHashSet();
 	}
 
 	public async Task AddAsync(RecipeFavorite favorite, CancellationToken cancellationToken = default)
@@ -37,10 +37,10 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
 		await favorites.AddAsync(favorite, cancellationToken);
 	}
 
-	public async Task RemoveAsync(OwnerIdentifier owner, RecipeIdentifier recipeIdentifier, CancellationToken cancellationToken = default)
+	public async Task RemoveAsync(OwnerIdentifier owner, RecipeIdentifier recipe, CancellationToken cancellationToken = default)
 	{
 		await favorites
-			.Where(f => f.Owner == owner && f.RecipeIdentifier == recipeIdentifier)
+			.Where(favorite => favorite.Owner == owner && favorite.RecipeIdentifier == recipe)
 			.ExecuteDeleteAsync(cancellationToken);
 	}
 }

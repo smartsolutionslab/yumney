@@ -54,11 +54,11 @@ public sealed class GetCookableRecipesQueryHandler(
 		}
 
 		IReadOnlyList<CookableRecipeDto> ranked = [.. matches
-			.OrderBy(m => m.Dto.Tier == CookableRecipeMatchTier.Full ? 0 : 1)
-			.ThenByDescending(m => m.UrgentIngredientCount)
-			.ThenBy(m => m.Dto.MissingIngredients.Count)
-			.ThenBy(m => m.Dto.Title, StringComparer.OrdinalIgnoreCase)
-			.Select(m => m.Dto)];
+			.OrderBy(match => match.Dto.Tier == CookableRecipeMatchTier.Full ? 0 : 1)
+			.ThenByDescending(match => match.UrgentIngredientCount)
+			.ThenBy(match => match.Dto.MissingIngredients.Count)
+			.ThenBy(match => match.Dto.Title, StringComparer.OrdinalIgnoreCase)
+			.Select(match => match.Dto)];
 
 		return Result<IReadOnlyList<CookableRecipeDto>>.Success(ranked);
 	}

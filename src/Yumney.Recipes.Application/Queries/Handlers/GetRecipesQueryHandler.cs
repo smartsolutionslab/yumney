@@ -21,11 +21,11 @@ public sealed class GetRecipesQueryHandler(
 
 		var favoritedIds = await favorites.GetFavoritedIdsAsync(
 			owner,
-			items.Select(r => r.Id).ToList(),
+			items.Select(recipe => recipe.Id).ToList(),
 			cancellationToken);
 
 		var dtoItems = items
-			.Select(r => r.ToListItemDto(favoritedIds.Contains(r.Id.Value)))
+			.Select(recipe => recipe.ToListItemDto(favoritedIds.Contains(recipe.Id.Value)))
 			.ToList();
 
 		return PagedResultExtensions.With(dtoItems, totalCount, paging);

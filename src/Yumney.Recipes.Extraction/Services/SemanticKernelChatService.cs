@@ -106,7 +106,7 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 	{
 		var recipeList = userRecipes.Count == 0
 			? "(no recipes yet)"
-			: string.Join("\n", userRecipes.Select(r => $"- {r.Title.Value}"));
+			: string.Join("\n", userRecipes.Select(recipe => $"- {recipe.Title.Value}"));
 
 		return $$"""
             You are a friendly, concise cooking assistant for the Yumney recipe app.
