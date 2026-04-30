@@ -65,7 +65,7 @@ public class WhatCanICookContractTests(AspireFixture fixture) : IAsyncLifetime
 	[Fact]
 	public async Task WhatCanICook_Unauthenticated_Returns401()
 	{
-		using var client = fixture.RecipesApi;
+		var client = fixture.RecipesApi;
 
 		var response = await client.GetAsync(Endpoint);
 
