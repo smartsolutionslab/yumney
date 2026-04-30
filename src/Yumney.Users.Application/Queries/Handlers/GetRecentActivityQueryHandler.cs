@@ -14,8 +14,6 @@ public sealed class GetRecentActivityQueryHandler(IUserActivityRepository activi
 
 		var recentActivities = await activities.GetRecentAsync(owner, query.Limit, cancellationToken);
 
-		var dtos = recentActivities.Select(a => a.ToDto()).ToList();
-
-		return Result.Success<IReadOnlyList<UserActivityDto>>(dtos);
+		return Result.Success(recentActivities.ToDtos());
 	}
 }

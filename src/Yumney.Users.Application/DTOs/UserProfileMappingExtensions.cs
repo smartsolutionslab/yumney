@@ -4,24 +4,19 @@ namespace SmartSolutionsLab.Yumney.Users.Application.DTOs;
 
 public static class UserProfileMappingExtensions
 {
-	extension(AppUserProfile profile)
-	{
-		public UserProfileDto ToDto()
-		{
-			var dietary = profile.DietaryProfile;
-			var dietaryDto = new DietaryProfileDto(
-				dietary.DietaryType?.Value,
-				dietary.Restrictions.Select(r => r.Value).ToList(),
-				dietary.BalanceGoals.MinVeggieMeals,
-				dietary.BalanceGoals.MaxRedMeatMeals,
-				dietary.CookingEffort?.Value);
+	public static UserProfileDto ToDto(this AppUserProfile profile) =>
+		new(
+			profile.DisplayName.Value,
+			profile.PreferredLanguage.Value,
+			profile.PreferredUnitSystem.Value,
+			profile.DefaultServings.Value,
+			profile.DietaryProfile.ToDto());
 
-			return new UserProfileDto(
-				profile.DisplayName.Value,
-				profile.PreferredLanguage.Value,
-				profile.PreferredUnitSystem.Value,
-				profile.DefaultServings.Value,
-				dietaryDto);
-		}
-	}
+	public static DietaryProfileDto ToDto(this DietaryProfile dietary) =>
+		new(
+			dietary.DietaryType?.Value,
+			dietary.Restrictions.Select(restriction => restriction.Value).ToList(),
+			dietary.BalanceGoals.MinVeggieMeals,
+			dietary.BalanceGoals.MaxRedMeatMeals,
+			dietary.CookingEffort?.Value);
 }
