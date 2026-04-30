@@ -15,7 +15,7 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 		SortingOptions<ShoppingListSortField> sorting,
 		CancellationToken cancellationToken = default)
 	{
-		var query = context.ShoppingListSummaryReadItems.Where(s => s.OwnerId == owner.Value);
+		var query = context.ShoppingListSummaryReadItems.Where(summary => summary.OwnerId == owner.Value);
 
 		query = ApplySorting(query, sorting);
 
@@ -23,11 +23,11 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 		var items = await query
 			.Skip(paging.Skip)
 			.Take(paging.PageSize.Value)
-			.Select(s => new ShoppingListSummary(
-				ShoppingListIdentifier.From(s.Id),
-				ShoppingListTitle.From(s.Title),
-				ItemCount.From(s.ItemCount),
-				s.CreatedAt))
+			.Select(summary => new ShoppingListSummary(
+				ShoppingListIdentifier.From(summary.Id),
+				ShoppingListTitle.From(summary.Title),
+				ItemCount.From(summary.ItemCount),
+				summary.CreatedAt))
 			.ToListAsync(cancellationToken);
 
 		return (items, ItemCount.From(totalCount));
@@ -38,7 +38,7 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 		CancellationToken cancellationToken = default)
 	{
 		var summary = await context.ShoppingListSummaryReadItems
-			.FirstOrDefaultAsync(s => s.Id == identifier.Value, cancellationToken)
+			.FirstOrDefaultAsync(row => row.Id == identifier.Value, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
 
 		var itemRows = await context.ShoppingListItemReadItems
@@ -57,8 +57,8 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 		var ownerValue = owner.Value;
 		var recipeValue = recipeReference.Value;
 		var ids = await context.ShoppingListSummaryReadItems
-			.Where(s => s.OwnerId == ownerValue && s.RecipeIdentifier == recipeValue)
-			.Select(s => s.Id)
+			.Where(summary => summary.OwnerId == ownerValue && summary.RecipeIdentifier == recipeValue)
+			.Select(summary => summary.Id)
 			.ToListAsync(cancellationToken);
 		return ids.Select(ShoppingListIdentifier.From).ToList();
 	}
@@ -69,10 +69,10 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 	{
 		return (sorting.SortBy, sorting.Direction) switch
 		{
-			(ShoppingListSortField.Title, SortDirection.Ascending) => query.OrderBy(s => s.Title),
-			(ShoppingListSortField.Title, SortDirection.Descending) => query.OrderByDescending(s => s.Title),
-			(ShoppingListSortField.Date, SortDirection.Ascending) => query.OrderBy(s => s.CreatedAt),
-			(ShoppingListSortField.Date, SortDirection.Descending) => query.OrderByDescending(s => s.CreatedAt),
+			(ShoppingListSortField.Title, SortDirection.Ascending) => query.OrderBy(summary => summary.Title),
+			(ShoppingListSortField.Title, SortDirection.Descending) => query.OrderByDescending(summary => summary.Title),
+			(ShoppingListSortField.Date, SortDirection.Ascending) => query.OrderBy(summary => summary.CreatedAt),
+			(ShoppingListSortField.Date, SortDirection.Descending) => query.OrderByDescending(summary => summary.CreatedAt),
 			_ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
 		};
 	}

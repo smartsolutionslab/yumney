@@ -60,11 +60,11 @@ public sealed partial class EfCoreShoppingEventStore(
 
 		var storedEvents = await context.Set<StoredEvent>()
 			.AsNoTracking()
-			.Where(e => e.AggregateId == aggregateId)
-			.OrderBy(e => e.Version)
+			.Where(stored => stored.AggregateId == aggregateId)
+			.OrderBy(stored => stored.Version)
 			.ToListAsync(cancellationToken);
 
-		var events = storedEvents.Select(DeserializeEvent).Where(e => e is not null).Cast<IDomainEvent>();
+		var events = storedEvents.Select(DeserializeEvent).Where(deserialized => deserialized is not null).Cast<IDomainEvent>();
 
 		return ShoppingLedger.FromEvents(ShoppingLedgerIdentifier.From(aggregateId), ownerId, events);
 	}

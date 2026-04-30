@@ -14,11 +14,11 @@ public sealed class ShoppingLedgerReadModelRepository(ShoppingReadDbContext cont
 		var today = DateTime.UtcNow.Date;
 
 		var query = context.ShoppingLedgerReadItems
-			.Where(r => r.OwnerId == ownerId);
+			.Where(row => row.OwnerId == ownerId);
 
 		if (!includePastBought)
 		{
-			query = query.Where(r => !r.IsBought || r.BoughtAt == null || r.BoughtAt >= today);
+			query = query.Where(row => !row.IsBought || row.BoughtAt == null || row.BoughtAt >= today);
 		}
 
 		var readItems = await query.ToListAsync(cancellationToken);

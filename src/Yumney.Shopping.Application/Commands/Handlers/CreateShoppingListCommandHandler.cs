@@ -15,7 +15,7 @@ public sealed class CreateShoppingListCommandHandler(IShoppingListEventStore eve
 		var owner = currentUser.AsOwner();
 
 		var items = itemCommands
-			.Select(i => Domain.ShoppingList.ShoppingListItem.Create(i.Name, i.Quantity))
+			.Select(item => Domain.ShoppingList.ShoppingListItem.Create(item.Name, item.Quantity))
 			.ToList();
 		var shoppingList = ShoppingList.Create(title, owner, items, recipeReference);
 

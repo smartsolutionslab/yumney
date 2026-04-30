@@ -23,12 +23,12 @@ public sealed partial class ShoppingListProjectionRebuilder(
 
 		var ownerByAggregate = await context.Set<ShoppingListAggregateMetadata>()
 			.AsNoTracking()
-			.ToDictionaryAsync(m => m.AggregateId, m => m.OwnerId, cancellationToken);
+			.ToDictionaryAsync(metadata => metadata.AggregateId, metadata => metadata.OwnerId, cancellationToken);
 
 		var storedEvents = await context.Set<ShoppingListStoredEvent>()
 			.AsNoTracking()
-			.OrderBy(e => e.AggregateId)
-			.ThenBy(e => e.Version)
+			.OrderBy(stored => stored.AggregateId)
+			.ThenBy(stored => stored.Version)
 			.ToListAsync(cancellationToken);
 
 		var replayed = 0;

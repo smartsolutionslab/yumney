@@ -10,7 +10,7 @@ public sealed class IngredientBalanceReadModelRepository(ShoppingReadDbContext c
 	public async Task<IReadOnlyList<IngredientBalanceItemDto>> GetAtHomeItemsAsync(string ownerId, CancellationToken cancellationToken = default)
 	{
 		var rows = await context.IngredientBalanceReadItems
-			.Where(r => r.OwnerId == ownerId)
+			.Where(row => row.OwnerId == ownerId)
 			.ToListAsync(cancellationToken);
 
 		var now = timeProvider.GetUtcNow().UtcDateTime;

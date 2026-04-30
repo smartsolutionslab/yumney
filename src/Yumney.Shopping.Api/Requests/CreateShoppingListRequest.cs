@@ -11,11 +11,11 @@ public sealed record CreateShoppingListRequest(
 	public (ShoppingListTitle Title, IReadOnlyList<CommandItem> Items, RecipeReference? RecipeReference) ToValueObjects() =>
 	(
 		ShoppingListTitle.From(Title),
-		Items.Select(i => new CommandItem(
-			ItemName.From(i.Name),
+		Items.Select(item => new CommandItem(
+			ItemName.From(item.Name),
 			Quantity.FromNullable(
-				Amount.FromNullable(i.Amount),
-				Unit.FromNullable(i.Unit))))
+				Amount.FromNullable(item.Amount),
+				Unit.FromNullable(item.Unit))))
 			.ToList(),
 		Domain.ShoppingList.RecipeReference.FromNullable(RecipeIdentifier));
 }
