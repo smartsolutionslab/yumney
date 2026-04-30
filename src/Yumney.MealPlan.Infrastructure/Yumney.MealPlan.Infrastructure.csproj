@@ -9,6 +9,7 @@
     <ProjectReference Include="..\Yumney.MealPlan.Domain\Yumney.MealPlan.Domain.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Persistence\Yumney.Shared.Persistence.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Events\Yumney.Shared.Events.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
