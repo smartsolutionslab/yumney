@@ -473,12 +473,9 @@ mapper file.
 
 ### File location and naming
 
-| Direction | File location | Filename |
-|-----------|---------------|----------|
-| Domain → DTO | `*.Application/DTOs/` | `{Aggregate}MappingExtensions.cs` |
-| API request → command | `*.Api/` | `RequestMappingExtensions.cs` (one per module) |
+Mapping extension classes live in `*.Application/DTOs/` and are named `{Aggregate}MappingExtensions.cs`. Read-model-row → DTO mappings, when the EF entity lives in Infrastructure, sit alongside that entity in `*.Infrastructure/Persistence/ReadModel/`.
 
-Each file is a `static class` named `{Aggregate}MappingExtensions`.
+API request → command conversion does NOT use extension methods. Use the `Deconstruct` / `ToValueObjects()` pattern documented under "Request DTO → Value Object Conversion" — endpoints destructure the request and construct the command inline.
 
 ### Canonical signatures
 
@@ -492,9 +489,6 @@ public static IReadOnlyList<RecipeDto> ToDtos(this IEnumerable<Recipe> recipes);
 // Multiple DTO shapes for the same source — distinct method names
 public static RecipeDetailDto ToDetailDto(this Recipe recipe, bool isFavorite);
 public static RecipeSummaryDto ToSummaryDto(this Recipe recipe);
-
-// API request → command (when not handled by record `Deconstruct` or `ToValueObjects()`)
-public static SaveRecipeCommand ToCommand(this SaveRecipeRequest request);
 ```
 
 The collection method always returns `IReadOnlyList<TDto>` (not `IEnumerable`) — the consumer almost always wants a materialised list, and exposing `IEnumerable` invites repeat enumeration. Single-method calls inside `Select` are preferred over the collection method when the surrounding LINQ pipeline already materialises:
