@@ -18,6 +18,7 @@ public static class ExtractionServiceCollectionExtensions
 			.AddStandardResilienceHandler();
 		services.TryAddSingleton<IExtractionResultCache, InMemoryExtractionResultCache>();
 		services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
+		services.AddScoped<IRecipeSuggestionService, SemanticKernelRecipeSuggestionService>();
 		services.AddScoped<IIngredientRecognitionService, SemanticKernelIngredientRecognitionService>();
 		services.AddScoped<IChatService, SemanticKernelChatService>();
 		services.AddScoped<IIntentParserService, SemanticKernelIntentParserService>();

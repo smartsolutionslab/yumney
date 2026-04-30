@@ -26,8 +26,11 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 		services.AddScoped<IRecipesUnitOfWork, RecipesUnitOfWork>();
 		services.AddScoped<IRecipeIngredientProvider, RecipeIngredientProvider>();
 		services.AddScoped<IIngredientBalanceProvider, HttpIngredientBalanceProvider>();
+		services.AddScoped<IDietaryProfileProvider, HttpDietaryProfileProvider>();
 		services.AddTransient<AuthTokenDelegatingHandler>();
 		services.AddHttpClient("shopping-api", client => client.BaseAddress = new Uri("http://shopping-api"))
+			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
+		services.AddHttpClient("users-api", client => client.BaseAddress = new Uri("http://users-api"))
 			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
 		services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
 
