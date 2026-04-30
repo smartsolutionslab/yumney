@@ -121,7 +121,7 @@ public class HistorySurvivesRecipeDeletionTests(AspireFixture fixture) : IAsyncL
 				response.StatusCode.Should().Be(HttpStatusCode.OK);
 				var planned = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 				var titles = planned.GetProperty("recipes").EnumerateArray()
-					.Select(r => r.GetProperty("recipeTitle").GetString())
+					.Select(entry => entry.GetProperty("recipeTitle").GetString())
 					.ToList();
 				titles.Should().Contain(title);
 			},
@@ -150,7 +150,7 @@ public class HistorySurvivesRecipeDeletionTests(AspireFixture fixture) : IAsyncL
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 		var rows = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 		return rows.EnumerateArray()
-			.Select(r => r.GetProperty("recipeTitle").GetString())
+			.Select(entry => entry.GetProperty("recipeTitle").GetString())
 			.ToList();
 	}
 
@@ -166,9 +166,9 @@ public class HistorySurvivesRecipeDeletionTests(AspireFixture fixture) : IAsyncL
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{
 			var summaries = await ctx.Set<ShoppingListSummaryReadItem>()
-				.Where(s => s.OwnerId == userId).ToListAsync();
+				.Where(summary => summary.OwnerId == userId).ToListAsync();
 			var items = await ctx.Set<ShoppingListItemReadItem>()
-				.Where(i => i.OwnerId == userId).ToListAsync();
+				.Where(item => item.OwnerId == userId).ToListAsync();
 			ctx.RemoveRange(summaries);
 			ctx.RemoveRange(items);
 			await ctx.SaveChangesAsync();
@@ -176,7 +176,7 @@ public class HistorySurvivesRecipeDeletionTests(AspireFixture fixture) : IAsyncL
 
 		await AspireFixture.CleanupAsync(
 			fixture.CreateRecipesDbContextAsync,
-			ctx => ctx.Recipes.Where(r =>
-				r.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
+			ctx => ctx.Recipes.Where(recipe =>
+				recipe.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
 	}
 }

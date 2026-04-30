@@ -23,18 +23,18 @@ public class CqrsSeparationTests
 			var assembly = Assembly.Load($"Yumney.{module}.Application");
 
 			var queryHandlers = assembly.GetTypes()
-				.Where(t => t is { IsClass: true, IsAbstract: false })
-				.Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == queryHandlerInterface))
+				.Where(type => type is { IsClass: true, IsAbstract: false })
+				.Where(type => type.GetInterfaces().Any(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == queryHandlerInterface))
 				.ToList();
 
 			foreach (var handler in queryHandlers)
 			{
 				var ctorParams = handler
 					.GetConstructors()
-					.SelectMany(c => c.GetParameters())
-					.Select(p => p.ParameterType);
+					.SelectMany(ctor => ctor.GetParameters())
+					.Select(parameter => parameter.ParameterType);
 
-				var uowDependency = ctorParams.FirstOrDefault(t => unitOfWorkBase.IsAssignableFrom(t));
+				var uowDependency = ctorParams.FirstOrDefault(type => unitOfWorkBase.IsAssignableFrom(type));
 				if (uowDependency is not null)
 				{
 					violations.Add($"{handler.FullName} depends on {uowDependency.Name}");

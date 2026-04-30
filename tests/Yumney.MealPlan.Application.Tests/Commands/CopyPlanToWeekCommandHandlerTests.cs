@@ -51,7 +51,7 @@ public class CopyPlanToWeekCommandHandlerTests
 		result.IsSuccess.Should().BeTrue();
 		var saved = eventStore.LastSavedPlan!;
 		saved.Week.Should().Be(TargetWeek);
-		saved.Slots.Where(s => s.ContentType == SlotContentType.Recipe).Should().HaveCount(2);
+		saved.Slots.Where(slot => slot.ContentType == SlotContentType.Recipe).Should().HaveCount(2);
 		saved.Slots.Should().Contain(s => s.Recipe != null && s.Recipe.Title.Value == "Pasta" && s.Day == DayOfWeek.Monday);
 		saved.Slots.Should().Contain(s => s.Recipe != null && s.Recipe.Title.Value == "Soup" && s.Day == DayOfWeek.Wednesday);
 	}
@@ -83,7 +83,7 @@ public class CopyPlanToWeekCommandHandlerTests
 
 		result.IsSuccess.Should().BeTrue();
 		eventStore.LastSavedPlan!.Slots
-			.Where(s => s.ContentType == SlotContentType.Leftover)
+			.Where(slot => slot.ContentType == SlotContentType.Leftover)
 			.Should().BeEmpty();
 	}
 

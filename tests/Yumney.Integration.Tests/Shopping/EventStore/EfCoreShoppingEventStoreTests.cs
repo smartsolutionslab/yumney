@@ -52,7 +52,7 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 
 		await using var verifyContext = await fixture.CreateShoppingDbContextAsync();
 		var stored = await verifyContext.Set<StoredEvent>()
-			.Where(e => e.AggregateId == ledger.Identifier).ToListAsync();
+			.Where(stored => stored.AggregateId == ledger.Identifier).ToListAsync();
 		var metadata = await verifyContext.Set<AggregateMetadata>()
 			.SingleAsync(m => m.AggregateId == ledger.Identifier);
 		stored.Should().HaveCount(1);
@@ -84,8 +84,8 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 
 		await using var verifyContext = await fixture.CreateShoppingDbContextAsync();
 		var versions = await verifyContext.Set<StoredEvent>()
-			.Where(e => e.AggregateId == ledger.Identifier)
-			.OrderBy(e => e.Version).Select(e => e.Version).ToListAsync();
+			.Where(stored => stored.AggregateId == ledger.Identifier)
+			.OrderBy(stored => stored.Version).Select(stored => stored.Version).ToListAsync();
 		versions.Should().Equal(1, 2);
 	}
 

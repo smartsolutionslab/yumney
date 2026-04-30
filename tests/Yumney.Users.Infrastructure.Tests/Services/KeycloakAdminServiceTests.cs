@@ -240,9 +240,9 @@ public class KeycloakAdminServiceTests
 				TokenRequestCount++;
 			}
 
-			var match = responses.FirstOrDefault(r =>
-				r.Method == request.Method &&
-				request.RequestUri!.PathAndQuery.StartsWith(r.PathPrefix, StringComparison.OrdinalIgnoreCase));
+			var match = responses.FirstOrDefault(response =>
+				response.Method == request.Method &&
+				request.RequestUri!.PathAndQuery.StartsWith(response.PathPrefix, StringComparison.OrdinalIgnoreCase));
 
 			if (match == default) { return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)); }
 

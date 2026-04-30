@@ -108,10 +108,10 @@ public class MealPlanFlowTests(AspireFixture fixture)
 			var plan = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 			var slots = plan.GetProperty("slots");
 			wednesdayDinner = slots.EnumerateArray()
-				.FirstOrDefault(s =>
-					s.GetProperty("day").GetString() == "Wednesday" &&
-					s.GetProperty("mealType").GetString() == "Dinner" &&
-					!s.GetProperty("isEmpty").GetBoolean());
+				.FirstOrDefault(slot =>
+					slot.GetProperty("day").GetString() == "Wednesday" &&
+					slot.GetProperty("mealType").GetString() == "Dinner" &&
+					!slot.GetProperty("isEmpty").GetBoolean());
 			if (wednesdayDinner.ValueKind != JsonValueKind.Undefined) break;
 			await Task.Delay(250);
 		}

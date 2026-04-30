@@ -181,17 +181,17 @@ public sealed class AspireFixture : IAsyncLifetime
 	{
 		await using var context = await CreateShoppingDbContextAsync();
 		var aggregateIds = await context.Set<AggregateMetadata>()
-			.Where(m => m.OwnerId == owner.Value)
-			.Select(m => m.AggregateId)
+			.Where(metadata => metadata.OwnerId == owner.Value)
+			.Select(metadata => metadata.AggregateId)
 			.ToListAsync();
 
 		if (aggregateIds.Count == 0) return;
 
 		var events = await context.Set<StoredEvent>()
-			.Where(e => aggregateIds.Contains(e.AggregateId))
+			.Where(stored => aggregateIds.Contains(stored.AggregateId))
 			.ToListAsync();
 		var metadata = await context.Set<AggregateMetadata>()
-			.Where(m => aggregateIds.Contains(m.AggregateId))
+			.Where(row => aggregateIds.Contains(row.AggregateId))
 			.ToListAsync();
 
 		context.RemoveRange(events);
@@ -203,17 +203,17 @@ public sealed class AspireFixture : IAsyncLifetime
 	{
 		await using var writeContext = await CreateShoppingDbContextAsync();
 		var aggregateIds = await writeContext.Set<ShoppingListAggregateMetadata>()
-			.Where(m => m.OwnerId == owner.Value)
-			.Select(m => m.AggregateId)
+			.Where(metadata => metadata.OwnerId == owner.Value)
+			.Select(metadata => metadata.AggregateId)
 			.ToListAsync();
 
 		if (aggregateIds.Count > 0)
 		{
 			await writeContext.Set<ShoppingListStoredEvent>()
-				.Where(e => aggregateIds.Contains(e.AggregateId))
+				.Where(stored => aggregateIds.Contains(stored.AggregateId))
 				.ExecuteDeleteAsync();
 			await writeContext.Set<ShoppingListAggregateMetadata>()
-				.Where(m => aggregateIds.Contains(m.AggregateId))
+				.Where(row => aggregateIds.Contains(row.AggregateId))
 				.ExecuteDeleteAsync();
 		}
 
@@ -225,10 +225,10 @@ public sealed class AspireFixture : IAsyncLifetime
 		// every Shopping integration class against one shared database).
 		await using var readContext = await CreateShoppingReadDbContextAsync();
 		await readContext.Set<ShoppingListItemReadItem>()
-			.Where(i => i.OwnerId == owner.Value)
+			.Where(item => item.OwnerId == owner.Value)
 			.ExecuteDeleteAsync();
 		await readContext.Set<ShoppingListSummaryReadItem>()
-			.Where(s => s.OwnerId == owner.Value)
+			.Where(summary => summary.OwnerId == owner.Value)
 			.ExecuteDeleteAsync();
 	}
 
@@ -236,7 +236,7 @@ public sealed class AspireFixture : IAsyncLifetime
 	{
 		await using var context = await CreateShoppingDbContextAsync();
 		var items = await context.Set<ShoppingLedgerReadItem>()
-			.Where(r => r.OwnerId == ownerId)
+			.Where(row => row.OwnerId == ownerId)
 			.ToListAsync();
 
 		if (items.Count == 0) return;

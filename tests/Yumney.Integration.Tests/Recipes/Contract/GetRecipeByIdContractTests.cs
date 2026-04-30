@@ -101,9 +101,9 @@ public class GetRecipeByIdContractTests(AspireFixture fixture) : IAsyncLifetime
 		var owner = OwnerIdentifier.From(userId);
 		await AspireFixture.CleanupAsync(
 			fixture.CreateRecipesDbContextAsync,
-			ctx => ctx.Recipes.Where(r => r.Owner == owner));
+			ctx => ctx.Recipes.Where(recipe => recipe.Owner == owner));
 		await AspireFixture.CleanupAsync(
 			fixture.CreateRecipesDbContextAsync,
-			ctx => ctx.RecipeFavorites.Where(f => f.Owner == owner));
+			ctx => ctx.RecipeFavorites.Where(favorite => favorite.Owner == owner));
 	}
 }

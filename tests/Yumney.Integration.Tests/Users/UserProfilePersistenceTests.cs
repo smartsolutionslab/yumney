@@ -19,7 +19,7 @@ public class UserProfilePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
 	public Task DisposeAsync() => AspireFixture.CleanupAsync(
 		fixture.CreateUsersDbContextAsync,
-		ctx => ctx.AppUserProfiles.Where(p => p.KeycloakUserId == keycloakId));
+		ctx => ctx.AppUserProfiles.Where(profile => profile.KeycloakUserId == keycloakId));
 
 	[Fact]
 	public async Task AddAsync_NewProfile_PersistsWithDefaultPreferences()

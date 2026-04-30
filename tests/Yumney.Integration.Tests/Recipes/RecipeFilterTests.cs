@@ -50,7 +50,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 
 	public Task DisposeAsync() => AspireFixture.CleanupAsync(
 		fixture.CreateRecipesDbContextAsync,
-		ctx => ctx.Recipes.Where(r => r.Owner == owner));
+		ctx => ctx.Recipes.Where(recipe => recipe.Owner == owner));
 
 	[Fact]
 	public async Task Filter_ByDifficulty_ReturnsOnlyMatching()
@@ -76,7 +76,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, _) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		items.Select(r => r.Title.Value).Should()
+		items.Select(recipe => recipe.Title.Value).Should()
 			.Contain("Quick Vegan Salad")
 			.And.Contain("Vegan Curry")
 			.And.NotContain("Beef Wellington")
@@ -93,7 +93,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var (items, _) = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		items.Select(r => r.Title.Value).Should()
+		items.Select(recipe => recipe.Title.Value).Should()
 			.Contain("Quick Vegan Salad")
 			.And.Contain("Vegan Curry")
 			.And.NotContain("Beef Wellington");
@@ -110,7 +110,7 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
 		totalCount.Should().Be(ItemCount.From(2));
-		items.Select(r => r.Title.Value).Should()
+		items.Select(recipe => recipe.Title.Value).Should()
 			.Contain("Quick Vegan Salad")
 			.And.Contain("Vegan Curry");
 	}

@@ -13,29 +13,29 @@ public class EventConsumerRegistrationTests
 	public void EveryIntegrationEvent_HasAtLeastOneHandler()
 	{
 		var assemblies = InfrastructureModules
-			.Select(m => Assembly.Load($"Yumney.{m}.Infrastructure"))
+			.Select(module => Assembly.Load($"Yumney.{module}.Infrastructure"))
 			.ToList();
 
 		var integrationEventType = typeof(IIntegrationEvent);
 		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
 
 		var integrationEvents = assemblies
-			.SelectMany(a => a.GetTypes())
-			.Where(t => integrationEventType.IsAssignableFrom(t) && t is { IsClass: true, IsAbstract: false })
+			.SelectMany(assembly => assembly.GetTypes())
+			.Where(type => integrationEventType.IsAssignableFrom(type) && type is { IsClass: true, IsAbstract: false })
 			.ToList();
 
 		var handledEventTypes = assemblies
-			.SelectMany(a => a.GetTypes())
-			.SelectMany(t => t.GetInterfaces())
-			.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
-			.Select(i => i.GetGenericArguments()[0])
+			.SelectMany(assembly => assembly.GetTypes())
+			.SelectMany(type => type.GetInterfaces())
+			.Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == handlerInterfaceType)
+			.Select(iface => iface.GetGenericArguments()[0])
 			.ToHashSet();
 
 		integrationEvents.Should().NotBeEmpty("at least one integration event must exist across modules");
 
 		var missing = integrationEvents
-			.Where(e => !handledEventTypes.Contains(e))
-			.Select(e => e.FullName)
+			.Where(eventType => !handledEventTypes.Contains(eventType))
+			.Select(eventType => eventType.FullName)
 			.ToList();
 
 		missing.Should().BeEmpty(
@@ -47,23 +47,23 @@ public class EventConsumerRegistrationTests
 	public void EveryIntegrationEventHandler_HandlesAKnownIntegrationEvent()
 	{
 		var assemblies = InfrastructureModules
-			.Select(m => Assembly.Load($"Yumney.{m}.Infrastructure"))
+			.Select(module => Assembly.Load($"Yumney.{module}.Infrastructure"))
 			.ToList();
 
 		var integrationEventType = typeof(IIntegrationEvent);
 		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
 
 		var handlerEventTargets = assemblies
-			.SelectMany(a => a.GetTypes())
-			.SelectMany(t => t.GetInterfaces())
-			.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
-			.Select(i => i.GetGenericArguments()[0])
+			.SelectMany(assembly => assembly.GetTypes())
+			.SelectMany(type => type.GetInterfaces())
+			.Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == handlerInterfaceType)
+			.Select(iface => iface.GetGenericArguments()[0])
 			.Distinct()
 			.ToList();
 
 		var nonEventHandlerTargets = handlerEventTargets
-			.Where(t => !integrationEventType.IsAssignableFrom(t))
-			.Select(t => t.FullName)
+			.Where(type => !integrationEventType.IsAssignableFrom(type))
+			.Select(type => type.FullName)
 			.ToList();
 
 		nonEventHandlerTargets.Should().BeEmpty(

@@ -21,8 +21,8 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 	public async Task DisposeAsync()
 	{
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
-		var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(s => s.OwnerId == owner.Value).ToListAsync();
-		var items = await ctx.Set<ShoppingListItemReadItem>().Where(i => i.OwnerId == owner.Value).ToListAsync();
+		var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(summary => summary.OwnerId == owner.Value).ToListAsync();
+		var items = await ctx.Set<ShoppingListItemReadItem>().Where(item => item.OwnerId == owner.Value).ToListAsync();
 		ctx.RemoveRange(summaries);
 		ctx.RemoveRange(items);
 		await ctx.SaveChangesAsync();
@@ -85,7 +85,7 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 		}
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
-		var items = await verify.Set<ShoppingListItemReadItem>().Where(i => i.ListId == aggregateId).CountAsync();
+		var items = await verify.Set<ShoppingListItemReadItem>().Where(item => item.ListId == aggregateId).CountAsync();
 		var summary = await verify.Set<ShoppingListSummaryReadItem>().SingleAsync(s => s.Id == aggregateId);
 		items.Should().Be(1);
 		summary.ItemCount.Should().Be(1);
@@ -123,7 +123,7 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var items = await verify.Set<ShoppingListItemReadItem>()
-			.Where(i => i.ListId == aggregateId).ToListAsync();
+			.Where(item => item.ListId == aggregateId).ToListAsync();
 		items.Should().HaveCount(2);
 		items.Should().OnlyContain(i => i.IsChecked);
 	}
@@ -170,7 +170,7 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 		}
 
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
-		var rows = await verify.Set<ShoppingListSummaryReadItem>().Where(s => s.Id == aggregateId).CountAsync();
+		var rows = await verify.Set<ShoppingListSummaryReadItem>().Where(summary => summary.Id == aggregateId).CountAsync();
 		rows.Should().Be(1);
 	}
 

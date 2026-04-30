@@ -93,7 +93,7 @@ public class SearchMealHistoryQueryHandlerTests
 
 		var result = await handler.HandleAsync(new SearchMealHistoryQuery());
 
-		result.Value.Select(r => r.RecipeTitle).Should().Equal("New Soup", "Old Soup");
+		result.Value.Select(entry => entry.RecipeTitle).Should().Equal("New Soup", "Old Soup");
 	}
 
 	[Fact]

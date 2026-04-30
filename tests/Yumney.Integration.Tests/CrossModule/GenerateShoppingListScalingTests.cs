@@ -77,7 +77,7 @@ public class GenerateShoppingListScalingTests(AspireFixture fixture) : IAsyncLif
 				var response = await mealplanClient.GetAsync($"{WeekPath}/planned-recipes");
 				var planned = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 				var titles = planned.GetProperty("recipes").EnumerateArray()
-					.Select(r => r.GetProperty("recipeTitle").GetString())
+					.Select(entry => entry.GetProperty("recipeTitle").GetString())
 					.ToList();
 				titles.Should().Contain(recipeATitle);
 				titles.Should().Contain(recipeBTitle);
@@ -104,14 +104,14 @@ public class GenerateShoppingListScalingTests(AspireFixture fixture) : IAsyncLif
 				var merged = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 				var items = merged.GetProperty("items").EnumerateArray().ToList();
 
-				var pasta = items.SingleOrDefault(i =>
-					string.Equals(i.GetProperty("itemName").GetString(), "Pasta", StringComparison.OrdinalIgnoreCase) &&
-					i.GetProperty("unit").GetString() == "g");
+				var pasta = items.SingleOrDefault(entry =>
+					string.Equals(entry.GetProperty("itemName").GetString(), "Pasta", StringComparison.OrdinalIgnoreCase) &&
+					entry.GetProperty("unit").GetString() == "g");
 				pasta.ValueKind.Should().NotBe(JsonValueKind.Undefined, "Pasta should be present once after the merge");
 				pasta.GetProperty("totalQuantity").GetDecimal().Should().Be(450m, "200g × 1.5 + 100g × 1.5 = 450g");
 
-				var sauce = items.SingleOrDefault(i =>
-					string.Equals(i.GetProperty("itemName").GetString(), "Tomato Sauce", StringComparison.OrdinalIgnoreCase));
+				var sauce = items.SingleOrDefault(entry =>
+					string.Equals(entry.GetProperty("itemName").GetString(), "Tomato Sauce", StringComparison.OrdinalIgnoreCase));
 				sauce.ValueKind.Should().NotBe(JsonValueKind.Undefined);
 				sauce.GetProperty("totalQuantity").GetDecimal().Should().Be(300m, "200ml × 1.5 = 300ml");
 			},
@@ -127,7 +127,7 @@ public class GenerateShoppingListScalingTests(AspireFixture fixture) : IAsyncLif
 		var request = new
 		{
 			title,
-			ingredients = ingredients.Select(i => new { name = i.Name, amount = i.Amount, unit = i.Unit }).ToArray(),
+			ingredients = ingredients.Select(ingredient => new { name = ingredient.Name, amount = ingredient.Amount, unit = ingredient.Unit }).ToArray(),
 			steps = new object[] { new { number = 1, description = "Cook." } },
 			servings = recipeServings,
 		};
@@ -170,9 +170,9 @@ public class GenerateShoppingListScalingTests(AspireFixture fixture) : IAsyncLif
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{
 			var summaries = await ctx.Set<ShoppingListSummaryReadItem>()
-				.Where(s => s.OwnerId == userId).ToListAsync();
+				.Where(summary => summary.OwnerId == userId).ToListAsync();
 			var items = await ctx.Set<ShoppingListItemReadItem>()
-				.Where(i => i.OwnerId == userId).ToListAsync();
+				.Where(item => item.OwnerId == userId).ToListAsync();
 			ctx.RemoveRange(summaries);
 			ctx.RemoveRange(items);
 			await ctx.SaveChangesAsync();
@@ -181,14 +181,14 @@ public class GenerateShoppingListScalingTests(AspireFixture fixture) : IAsyncLif
 		await using (var readCtx = await fixture.CreateShoppingReadDbContextAsync())
 		{
 			var balanceRows = await readCtx.IngredientBalanceReadItems
-				.Where(r => r.OwnerId == userId).ToListAsync();
+				.Where(row => row.OwnerId == userId).ToListAsync();
 			readCtx.RemoveRange(balanceRows);
 			await readCtx.SaveChangesAsync();
 		}
 
 		await AspireFixture.CleanupAsync(
 			fixture.CreateRecipesDbContextAsync,
-			ctx => ctx.Recipes.Where(r =>
-				r.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
+			ctx => ctx.Recipes.Where(recipe =>
+				recipe.Owner == global::SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId)));
 	}
 }

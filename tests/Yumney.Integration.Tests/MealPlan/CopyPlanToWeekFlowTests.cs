@@ -150,10 +150,10 @@ public class CopyPlanToWeekFlowTests(AspireFixture fixture)
 
 	private static JsonElement FindMondayDinner(JsonElement plan)
 	{
-		var slot = plan.GetProperty("slots").EnumerateArray().FirstOrDefault(s =>
-			s.GetProperty("day").GetString() == "Monday" &&
-			s.GetProperty("mealType").GetString() == "Dinner" &&
-			!s.GetProperty("isEmpty").GetBoolean());
+		var slot = plan.GetProperty("slots").EnumerateArray().FirstOrDefault(candidate =>
+			candidate.GetProperty("day").GetString() == "Monday" &&
+			candidate.GetProperty("mealType").GetString() == "Dinner" &&
+			!candidate.GetProperty("isEmpty").GetBoolean());
 		slot.ValueKind.Should().NotBe(
 			JsonValueKind.Undefined,
 			"Monday Dinner slot must be populated for the assertion to be meaningful");

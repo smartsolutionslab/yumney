@@ -59,7 +59,7 @@ public class GetIngredientBalanceQueryHandlerTests
 			i.Quantity.Should().BeNull();
 			i.Unit.Should().BeNull();
 		});
-		result.Value.Items.Select(i => i.ItemName).Should().BeEquivalentTo(["salt", "pepper"]);
+		result.Value.Items.Select(item => item.ItemName).Should().BeEquivalentTo(["salt", "pepper"]);
 	}
 
 	[Fact]
@@ -71,7 +71,7 @@ public class GetIngredientBalanceQueryHandlerTests
 		var result = await handler.HandleAsync(new GetIngredientBalanceQuery());
 
 		result.Value.Items.Should().HaveCount(2);
-		result.Value.Items.Where(i => string.Equals(i.ItemName, "Butter", StringComparison.OrdinalIgnoreCase))
+		result.Value.Items.Where(item => string.Equals(item.ItemName, "Butter", StringComparison.OrdinalIgnoreCase))
 			.Should().ContainSingle()
 			.Which.Source.Should().Be(IngredientBalanceSource.AtHome);
 	}
@@ -100,7 +100,7 @@ public class GetIngredientBalanceQueryHandlerTests
 
 		var result = await handler.HandleAsync(new GetIngredientBalanceQuery());
 
-		var names = result.Value.Items.Select(i => i.ItemName).ToList();
+		var names = result.Value.Items.Select(item => item.ItemName).ToList();
 		names.Should().Equal("Apple", "Tomato", "Yogurt");
 	}
 

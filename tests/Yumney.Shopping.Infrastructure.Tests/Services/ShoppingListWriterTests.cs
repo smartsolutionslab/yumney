@@ -101,7 +101,7 @@ public class ShoppingListWriterTests
 		var existing = ShoppingLedger.Create(OwnerIdentifier.From(OwnerId));
 		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(existing);
 		var items = Enumerable.Range(0, 50)
-			.Select(i => new ShoppingItemRequest($"Item{i}", 1m, "pc", "manual"))
+			.Select(index => new ShoppingItemRequest($"Item{index}", 1m, "pc", "manual"))
 			.ToArray();
 
 		await writer.AddItemsAsync(OwnerId, items);

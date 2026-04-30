@@ -46,7 +46,7 @@ public class RecipeFilterParserTests
 		var result = RecipeFilterParser.Build("vegan,italian,quick", null, null, null);
 
 		result!.Tags.Should().HaveCount(3);
-		result.Tags!.Select(t => t.Value).Should().Contain("vegan").And.Contain("italian").And.Contain("quick");
+		result.Tags!.Select(tag => tag.Value).Should().Contain("vegan").And.Contain("italian").And.Contain("quick");
 	}
 
 	[Fact]
@@ -54,7 +54,7 @@ public class RecipeFilterParserTests
 	{
 		var result = RecipeFilterParser.Build(" vegan , italian ", null, null, null);
 
-		result!.Tags!.Select(t => t.Value).Should().Contain("vegan").And.Contain("italian");
+		result!.Tags!.Select(tag => tag.Value).Should().Contain("vegan").And.Contain("italian");
 	}
 
 	[Fact]

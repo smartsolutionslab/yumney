@@ -94,7 +94,7 @@ public class CurrentUserProviderTests
 	private void SetupAuthenticatedUser(string userId, params string[] roles)
 	{
 		List<Claim> claims = [new("sub", userId)];
-		claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+		claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 		var identity = new ClaimsIdentity(claims, "TestAuth");
 		var principal = new ClaimsPrincipal(identity);
 		var httpContext = new DefaultHttpContext { User = principal };

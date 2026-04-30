@@ -17,7 +17,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
 	public Task DisposeAsync() => AspireFixture.CleanupAsync(
 		fixture.CreateRecipesDbContextAsync,
-		ctx => ctx.Recipes.Where(r => r.Owner == owner));
+		ctx => ctx.Recipes.Where(recipe => recipe.Owner == owner));
 
 	[Fact]
 	public async Task AddAsync_NewRecipe_PersistsWithAllRelationsAndOptionalFields()
@@ -42,7 +42,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		saved.Description!.Value.Should().Contain("Bolognese");
 		saved.Servings.Should().Be(Servings.From(6));
 		saved.Ingredients.Should().HaveCount(10);
-		saved.Ingredients.Select(i => i.Name).Should().Contain(IngredientName.From("Mozzarella"));
+		saved.Ingredients.Select(ingredient => ingredient.Name).Should().Contain(IngredientName.From("Mozzarella"));
 		saved.Steps.Should().HaveCount(5);
 		saved.Steps.First(s => s.Number == StepNumber.From(1)).Description.Value
 			.Should().Contain("Brown the ground beef");
@@ -110,7 +110,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(readContext);
 		var loaded = await recipes.GetByIdAsync(recipe.Id);
 
-		loaded.Tags.Select(t => t.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
+		loaded.Tags.Select(tag => tag.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
 	}
 
 	[Fact]
@@ -148,7 +148,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		{
 			await AspireFixture.CleanupAsync(
 				fixture.CreateRecipesDbContextAsync,
-				ctx => ctx.Recipes.Where(r => r.Owner == otherOwner));
+				ctx => ctx.Recipes.Where(recipe => recipe.Owner == otherOwner));
 		}
 	}
 
@@ -175,7 +175,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(readContext);
 		var (items, _) = await recipes.GetByOwnerAsync(owner, paging, sorting);
 
-		items.Single().Tags.Select(t => t.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
+		items.Single().Tags.Select(tag => tag.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
 	}
 
 	[Fact]

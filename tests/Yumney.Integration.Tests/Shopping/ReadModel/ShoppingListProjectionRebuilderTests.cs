@@ -23,8 +23,8 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 	{
 		await fixture.ResetShoppingListEventStoreAsync(owner);
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
-		var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(s => s.OwnerId == owner.Value).ToListAsync();
-		var items = await ctx.Set<ShoppingListItemReadItem>().Where(i => i.OwnerId == owner.Value).ToListAsync();
+		var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(summary => summary.OwnerId == owner.Value).ToListAsync();
+		var items = await ctx.Set<ShoppingListItemReadItem>().Where(item => item.OwnerId == owner.Value).ToListAsync();
 		ctx.RemoveRange(summaries);
 		ctx.RemoveRange(items);
 		await ctx.SaveChangesAsync();
@@ -44,7 +44,7 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 		var summary = await verify.Set<ShoppingListSummaryReadItem>().SingleAsync(s => s.Id == listId.Value);
 		summary.Title.Should().Be("Weekly Groceries");
 		summary.ItemCount.Should().Be(2);
-		var items = await verify.Set<ShoppingListItemReadItem>().Where(i => i.ListId == listId.Value).ToListAsync();
+		var items = await verify.Set<ShoppingListItemReadItem>().Where(item => item.ListId == listId.Value).ToListAsync();
 		items.Should().HaveCount(2);
 		items.Count(i => i.IsChecked).Should().Be(1);
 	}
@@ -65,7 +65,7 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 		await RunRebuildAsync();
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		var summary = await verify.Set<ShoppingListSummaryReadItem>().SingleAsync(s => s.Id == listId.Value);
-		var items = await verify.Set<ShoppingListItemReadItem>().Where(i => i.ListId == listId.Value).CountAsync();
+		var items = await verify.Set<ShoppingListItemReadItem>().Where(item => item.ListId == listId.Value).CountAsync();
 		summary.ItemCount.Should().Be(3);
 		items.Should().Be(3);
 	}
@@ -84,8 +84,8 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 	private async Task TruncateProjectionsForOwnerAsync()
 	{
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
-		var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(s => s.OwnerId == owner.Value).ToListAsync();
-		var items = await ctx.Set<ShoppingListItemReadItem>().Where(i => i.OwnerId == owner.Value).ToListAsync();
+		var summaries = await ctx.Set<ShoppingListSummaryReadItem>().Where(summary => summary.OwnerId == owner.Value).ToListAsync();
+		var items = await ctx.Set<ShoppingListItemReadItem>().Where(item => item.OwnerId == owner.Value).ToListAsync();
 		ctx.RemoveRange(summaries);
 		ctx.RemoveRange(items);
 		await ctx.SaveChangesAsync();
@@ -98,7 +98,7 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 		var store = new EfCoreShoppingListEventStore(ctx, bus, NullLogger<EfCoreShoppingListEventStore>.Instance);
 
 		var items = itemNames
-			.Select(n => ShoppingListItem.Create(ItemName.From(n), Quantity.Of(Amount.From(1), Unit.Gram)))
+			.Select(name => ShoppingListItem.Create(ItemName.From(name), Quantity.Of(Amount.From(1), Unit.Gram)))
 			.ToList();
 		var list = ShoppingList.Create(ShoppingListTitle.From(title), owner, items);
 		await store.SaveAsync(list);
