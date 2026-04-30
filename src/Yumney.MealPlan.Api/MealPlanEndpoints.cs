@@ -132,6 +132,42 @@ public static class MealPlanEndpoints
 			.Produces<GenerateShoppingListResultDto>()
 			.ProducesProblem(StatusCodes.Status400BadRequest);
 
+		group.MapGet("/history/search", SearchHistory)
+			.WithName("SearchMealHistory")
+			.WithTags("MealPlan")
+			.Produces<IReadOnlyList<MealHistoryEntryDto>>();
+
+		static async Task<IResult> SearchHistory(
+			IQueryHandler<SearchMealHistoryQuery, Result<IReadOnlyList<MealHistoryEntryDto>>> handler,
+			CancellationToken cancellationToken,
+			string? term = null,
+			int limit = 20)
+		{
+			var result = await handler.HandleAsync(new SearchMealHistoryQuery(term, limit), cancellationToken);
+			return result.ToOk();
+		}
+
+		group.MapPost("/{srcYear:int}/w/{srcWeek:int}/copy-to/{dstYear:int}/{dstWeek:int}", CopyPlanToWeek)
+			.WithName("CopyPlanToWeek")
+			.WithTags("MealPlan")
+			.Produces<WeeklyPlanDto>()
+			.ProducesProblem(StatusCodes.Status404NotFound)
+			.ProducesProblem(StatusCodes.Status422UnprocessableEntity);
+
+		static async Task<IResult> CopyPlanToWeek(
+			int srcYear,
+			int srcWeek,
+			int dstYear,
+			int dstWeek,
+			ICommandHandler<CopyPlanToWeekCommand, Result<WeeklyPlanDto>> handler,
+			CancellationToken cancellationToken)
+		{
+			var source = WeekIdentifier.From(srcYear, srcWeek);
+			var target = WeekIdentifier.From(dstYear, dstWeek);
+			var result = await handler.HandleAsync(new CopyPlanToWeekCommand(source, target), cancellationToken);
+			return result.ToOk();
+		}
+
 		return app;
 
 		static async Task<IResult> CookWithLeftovers(

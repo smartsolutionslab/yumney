@@ -104,6 +104,32 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 		return Task.FromResult(new WeeklyPlannedRecipesDto(week.Value, recipes));
 	}
 
+	public Task<IReadOnlyList<MealHistoryEntryDto>> SearchCookedHistoryAsync(OwnerIdentifier owner, string? term, int limit, CancellationToken cancellationToken = default)
+	{
+		IEnumerable<MealHistoryEntryDto> rows = store
+			.Where(kv => kv.Key.Owner == owner.Value)
+			.SelectMany(kv => kv.Value.Slots
+				.Where(s => s.State == MealState.Cooked && s.Recipe is not null)
+				.Select(s => new MealHistoryEntryDto(
+					s.Recipe!.RecipeIdentifier.Value,
+					s.Recipe.Title.Value,
+					kv.Key.Week,
+					s.Day.ToString(),
+					s.MealType.ToString())));
+
+		if (!string.IsNullOrWhiteSpace(term))
+		{
+			rows = rows.Where(r => r.RecipeTitle.Contains(term.Trim(), StringComparison.OrdinalIgnoreCase));
+		}
+
+		return Task.FromResult<IReadOnlyList<MealHistoryEntryDto>>(rows
+			.OrderByDescending(r => r.Week)
+			.ThenBy(r => r.Day)
+			.ThenBy(r => r.MealType)
+			.Take(limit)
+			.ToList());
+	}
+
 	public void Seed(WeeklyPlan plan)
 	{
 		store[(plan.Owner.Value, plan.Week.Value)] = plan;

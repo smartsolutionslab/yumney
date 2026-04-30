@@ -70,6 +70,37 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		return new WeeklyPlannedRecipesDto(weekValue, recipes);
 	}
 
+	public async Task<IReadOnlyList<MealHistoryEntryDto>> SearchCookedHistoryAsync(OwnerIdentifier owner, string? term, int limit, CancellationToken cancellationToken = default)
+	{
+		var ownerId = owner.Value;
+		var cookedState = MealState.Cooked.ToString();
+
+		var query = context.MealPlanSlotReadItems
+			.Where(s => s.OwnerId == ownerId && s.State == cookedState && s.RecipeTitle != null);
+
+		if (!string.IsNullOrWhiteSpace(term))
+		{
+			var pattern = $"%{term.Trim()}%";
+			query = query.Where(s => EF.Functions.ILike(s.RecipeTitle!, pattern));
+		}
+
+		var rows = await query
+			.OrderByDescending(s => s.Week)
+			.ThenBy(s => s.Day)
+			.ThenBy(s => s.MealType)
+			.Take(limit)
+			.ToListAsync(cancellationToken);
+
+		return rows
+			.Select(s => new MealHistoryEntryDto(
+				s.RecipeIdentifier,
+				s.RecipeTitle ?? string.Empty,
+				s.Week,
+				s.Day,
+				s.MealType))
+			.ToList();
+	}
+
 	private static MealSlotDto ToDto(MealPlanSlotReadItem row) =>
 		new(
 			row.Day,
