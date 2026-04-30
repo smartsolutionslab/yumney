@@ -184,7 +184,7 @@ public class GetRecipeSuggestionsQueryHandlerTests
 
 		await handler.HandleAsync(new GetRecipeSuggestionsQuery());
 
-		await balanceProvider.Received(1).GetAvailableIngredientsAsync(OwnerId, Arg.Any<CancellationToken>());
+		await balanceProvider.Received(1).GetAvailableIngredientsAsync(Arg.Any<CancellationToken>());
 		await dietaryProvider.Received(1).GetAsync(OwnerId, Arg.Any<CancellationToken>());
 	}
 
@@ -192,7 +192,7 @@ public class GetRecipeSuggestionsQueryHandlerTests
 	{
 		var dict = new Dictionary<string, Freshness>(StringComparer.OrdinalIgnoreCase);
 		foreach (var name in names) dict[name] = Freshness.Fresh;
-		balanceProvider.GetAvailableIngredientsAsync(OwnerId, Arg.Any<CancellationToken>())
+		balanceProvider.GetAvailableIngredientsAsync(Arg.Any<CancellationToken>())
 			.Returns((IReadOnlyDictionary<string, Freshness>)dict);
 	}
 

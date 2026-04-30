@@ -20,7 +20,7 @@ public sealed class HttpIngredientBalanceProvider(IHttpClientFactory httpClientF
 	};
 #pragma warning restore SA1311
 
-	public async Task<IReadOnlyDictionary<string, Freshness>> GetAvailableIngredientsAsync(string ownerId, CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyDictionary<string, Freshness>> GetAvailableIngredientsAsync(CancellationToken cancellationToken = default)
 	{
 		var client = httpClientFactory.CreateClient("shopping-api");
 		var dto = await client.GetFromJsonAsync<BalanceDto>("/api/v1/shopping-lists/balance", jsonOptions, cancellationToken);

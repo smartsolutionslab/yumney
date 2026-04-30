@@ -16,7 +16,7 @@ public class HttpIngredientBalanceProviderTests
 	{
 		var sut = CreateSut("""{ "items": [] }""");
 
-		var result = await sut.GetAvailableIngredientsAsync("owner-1");
+		var result = await sut.GetAvailableIngredientsAsync();
 
 		result.Should().BeEmpty();
 	}
@@ -26,7 +26,7 @@ public class HttpIngredientBalanceProviderTests
 	{
 		var sut = CreateSut("""{ "items": null }""");
 
-		var result = await sut.GetAvailableIngredientsAsync("owner-1");
+		var result = await sut.GetAvailableIngredientsAsync();
 
 		result.Should().BeEmpty();
 	}
@@ -43,7 +43,7 @@ public class HttpIngredientBalanceProviderTests
             }
             """);
 
-		var result = await sut.GetAvailableIngredientsAsync("owner-1");
+		var result = await sut.GetAvailableIngredientsAsync();
 
 		result["Milk"].Should().Be(Freshness.UseSoon);
 		result["Salt"].Should().Be(Freshness.NotTracked);
@@ -54,7 +54,7 @@ public class HttpIngredientBalanceProviderTests
 	{
 		var sut = CreateSut("""{ "items": [ { "itemName": "Milk", "freshness": "Fresh" } ] }""");
 
-		var result = await sut.GetAvailableIngredientsAsync("owner-1");
+		var result = await sut.GetAvailableIngredientsAsync();
 
 		result.ContainsKey("milk").Should().BeTrue();
 		result.ContainsKey("MILK").Should().BeTrue();
@@ -65,7 +65,7 @@ public class HttpIngredientBalanceProviderTests
 	{
 		var sut = CreateSut("""{ "items": [ { "itemName": "  Milk  ", "freshness": "Fresh" } ] }""");
 
-		var result = await sut.GetAvailableIngredientsAsync("owner-1");
+		var result = await sut.GetAvailableIngredientsAsync();
 
 		result.Should().ContainSingle().Which.Key.Should().Be("Milk");
 	}
@@ -82,7 +82,7 @@ public class HttpIngredientBalanceProviderTests
             }
             """);
 
-		var result = await sut.GetAvailableIngredientsAsync("owner-1");
+		var result = await sut.GetAvailableIngredientsAsync();
 
 		result.Should().ContainSingle().Which.Key.Should().Be("Eggs");
 	}
@@ -102,7 +102,7 @@ public class HttpIngredientBalanceProviderTests
             }
             """);
 
-		var result = await sut.GetAvailableIngredientsAsync("owner-1");
+		var result = await sut.GetAvailableIngredientsAsync();
 
 		result.Should().ContainSingle().Which.Value.Should().Be(Freshness.UseSoon);
 	}
@@ -120,7 +120,7 @@ public class HttpIngredientBalanceProviderTests
             }
             """);
 
-		var result = await sut.GetAvailableIngredientsAsync("owner-1");
+		var result = await sut.GetAvailableIngredientsAsync();
 
 		result["Chicken"].Should().Be(Freshness.CheckIt);
 	}
@@ -130,7 +130,7 @@ public class HttpIngredientBalanceProviderTests
 	{
 		var sut = CreateSut(string.Empty, HttpStatusCode.InternalServerError);
 
-		var act = () => sut.GetAvailableIngredientsAsync("owner-1");
+		var act = () => sut.GetAvailableIngredientsAsync();
 
 		await act.Should().ThrowAsync<HttpRequestException>();
 	}
