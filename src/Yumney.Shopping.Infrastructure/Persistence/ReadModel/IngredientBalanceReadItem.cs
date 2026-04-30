@@ -31,6 +31,12 @@ public sealed class IngredientBalanceReadItem
 
 	public decimal RemovedTotal { get; set; }
 
+	/// <summary>
+	/// Gets or sets the most recent Bought / AddedAsAtHome timestamp,
+	/// used to compute freshness (US-341). Null until the first purchase.
+	/// </summary>
+	public DateTime? LastBoughtAt { get; set; }
+
 	public DateTime LastUpdated { get; set; }
 
 	/// <summary>

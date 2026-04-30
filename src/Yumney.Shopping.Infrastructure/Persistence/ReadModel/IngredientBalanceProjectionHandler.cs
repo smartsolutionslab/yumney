@@ -23,11 +23,16 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 	public Task HandleAsync(ShoppingItemBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
+		var now = DateTime.UtcNow;
 		return UpsertAsync(
 			@event.OwnerId,
 			inner.ItemName,
 			inner.Quantity.Unit?.Value,
-			row => row.BoughtTotal += inner.Quantity.Amount,
+			row =>
+			{
+				row.BoughtTotal += inner.Quantity.Amount;
+				row.LastBoughtAt = now;
+			},
 			cancellationToken);
 	}
 
@@ -67,11 +72,16 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 	public Task HandleAsync(ShoppingItemAddedAsAtHomeIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
+		var now = DateTime.UtcNow;
 		return UpsertAsync(
 			@event.OwnerId,
 			inner.ItemName,
 			inner.Quantity.Unit?.Value,
-			row => row.BoughtTotal += inner.Quantity.Amount,
+			row =>
+			{
+				row.BoughtTotal += inner.Quantity.Amount;
+				row.LastBoughtAt = now;
+			},
 			cancellationToken);
 	}
 
