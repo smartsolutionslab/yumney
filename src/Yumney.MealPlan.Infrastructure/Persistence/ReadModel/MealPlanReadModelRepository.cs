@@ -21,7 +21,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		var weekValue = week.Value;
 
 		var weekItem = await context.MealPlanWeekReadItems
-			.FirstOrDefaultAsync(w => w.OwnerId == ownerId && w.Week == weekValue, cancellationToken);
+			.FirstOrDefaultAsync(weekRow => weekRow.OwnerId == ownerId && weekRow.Week == weekValue, cancellationToken);
 
 		if (weekItem is null)
 		{
@@ -29,20 +29,14 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		}
 
 		var slotRows = await context.MealPlanSlotReadItems
-			.Where(s => s.OwnerId == ownerId && s.Week == weekValue)
+			.Where(slot => slot.OwnerId == ownerId && slot.Week == weekValue)
 			.ToListAsync(cancellationToken);
 
 		var visible = weekItem.IsExtendedMode
 			? slotRows
-			: slotRows.Where(s => s.MealType == MealType.Dinner.ToString()).ToList();
+			: slotRows.Where(slot => slot.MealType == MealType.Dinner.ToString()).ToList();
 
-		var slotDtos = visible
-			.Select(ToDto)
-			.OrderBy(d => Enum.Parse<DayOfWeek>(d.Day))
-			.ThenBy(d => Enum.Parse<MealType>(d.MealType))
-			.ToList();
-
-		return new WeeklyPlanDto(weekValue, weekItem.IsExtendedMode, slotDtos);
+		return new WeeklyPlanDto(weekValue, weekItem.IsExtendedMode, visible.ToDtos());
 	}
 
 	public async Task<WeeklyPlannedRecipesDto> GetPlannedRecipesAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
@@ -52,22 +46,13 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		var recipeContent = SlotContentType.Recipe.ToString();
 
 		var slotRows = await context.MealPlanSlotReadItems
-			.Where(s => s.OwnerId == ownerId
-				&& s.Week == weekValue
-				&& s.ContentType == recipeContent
-				&& s.RecipeIdentifier != null)
+			.Where(slot => slot.OwnerId == ownerId
+				&& slot.Week == weekValue
+				&& slot.ContentType == recipeContent
+				&& slot.RecipeIdentifier != null)
 			.ToListAsync(cancellationToken);
 
-		var recipes = slotRows
-			.Select(s => new PlannedRecipeDto(
-				s.RecipeIdentifier!.Value,
-				s.RecipeTitle ?? string.Empty,
-				s.Servings,
-				s.Day,
-				s.MealType))
-			.ToList();
-
-		return new WeeklyPlannedRecipesDto(weekValue, recipes);
+		return new WeeklyPlannedRecipesDto(weekValue, slotRows.ToPlannedRecipeDtos());
 	}
 
 	public async Task<IReadOnlyList<MealHistoryEntryDto>> SearchCookedHistoryAsync(OwnerIdentifier owner, string? term, int limit, CancellationToken cancellationToken = default)
@@ -76,49 +61,26 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		var cookedState = MealState.Cooked.ToString();
 
 		var query = context.MealPlanSlotReadItems
-			.Where(s => s.OwnerId == ownerId && s.State == cookedState && s.RecipeTitle != null);
+			.Where(slot => slot.OwnerId == ownerId && slot.State == cookedState && slot.RecipeTitle != null);
 
 		if (!string.IsNullOrWhiteSpace(term))
 		{
 			var pattern = $"%{term.Trim()}%";
-			query = query.Where(s => EF.Functions.ILike(s.RecipeTitle!, pattern));
+			query = query.Where(slot => EF.Functions.ILike(slot.RecipeTitle!, pattern));
 		}
 
 		var rows = await query
-			.OrderByDescending(s => s.Week)
-			.ThenBy(s => s.Day)
-			.ThenBy(s => s.MealType)
+			.OrderByDescending(slot => slot.Week)
+			.ThenBy(slot => slot.Day)
+			.ThenBy(slot => slot.MealType)
 			.Take(limit)
 			.ToListAsync(cancellationToken);
 
-		return rows
-			.Select(s => new MealHistoryEntryDto(
-				s.RecipeIdentifier,
-				s.RecipeTitle ?? string.Empty,
-				s.Week,
-				s.Day,
-				s.MealType))
-			.ToList();
+		return rows.ToHistoryEntryDtos();
 	}
 
-	private static MealSlotDto ToDto(MealPlanSlotReadItem row) =>
-		new(
-			row.Day,
-			row.MealType,
-			row.ContentType,
-			row.State,
-			row.RecipeIdentifier,
-			row.RecipeTitle,
-			row.Servings,
-			row.FreetextLabel,
-			row.LeftoverLabel,
-			row.LeftoverSourceDay,
-			row.LeftoverSourceMealType,
-			row.ContentType == SlotContentType.Empty.ToString());
-
-	private static List<MealSlotDto> EmptyDinnerSlots(int defaultServings)
-	{
-		return allDays
+	private static List<MealSlotDto> EmptyDinnerSlots(int defaultServings) =>
+		allDays
 			.Select(day => new MealSlotDto(
 				day.ToString(),
 				MealType.Dinner.ToString(),
@@ -133,5 +95,4 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 				null,
 				true))
 			.ToList();
-	}
 }

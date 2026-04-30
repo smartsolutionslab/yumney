@@ -30,7 +30,7 @@ public sealed class CopyPlanToWeekCommandHandler(IMealPlanEventStore eventStore,
 
 		await eventStore.SaveAsync(target, cancellationToken);
 
-		return new WeeklyPlanDto(targetWeek.Value, target.IsExtendedMode, target.GetVisibleSlots().ToOrderedDtos());
+		return target.ToDto(targetWeek);
 	}
 
 	private static void ApplySlot(WeeklyPlan target, MealSlot slot)

@@ -25,6 +25,6 @@ public sealed class ToggleExtendedModeCommandHandler(IMealPlanEventStore eventSt
 
 		await eventStore.SaveAsync(plan, cancellationToken);
 
-		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
+		return plan.ToDto(week);
 	}
 }
