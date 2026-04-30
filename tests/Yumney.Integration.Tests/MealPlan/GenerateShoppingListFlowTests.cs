@@ -20,20 +20,24 @@ public class GenerateShoppingListFlowTests(AspireFixture fixture)
 
 	private static string WeekPath => $"/api/v1/meal-plans/{Year}/w/{TestWeek}";
 
-	[Fact(Skip = "Requires auth propagation in HTTP adapters (service-to-service calls don't forward JWT)")]
+	[Fact]
 	public async Task GenerateShoppingList_WithRecipes_ReturnsItemCount()
 	{
 		// 1. Create a recipe with ingredients via recipes-api
 		using var recipesClient = await fixture.CreateAuthenticatedClientAsync("recipes-api");
 
+		// Ingredients deliberately avoid the default staples list (salt, pepper,
+		// flour, sugar, butter, eggs, garlic, onion, etc.) — staples get
+		// filtered out of the generated shopping list, which would mask a real
+		// regression behind a vacuously-passing assertion.
 		var recipeRequest = new
 		{
 			title = "Shopping Gen Recipe",
 			ingredients = new object[]
 			{
-				new { name = "Flour", amount = 500m, unit = "g" },
-				new { name = "Sugar", amount = 200m, unit = "g" },
-				new { name = "Butter", amount = 100m, unit = "g" },
+				new { name = "Pasta", amount = 500m, unit = "g" },
+				new { name = "Tomato Sauce", amount = 200m, unit = "ml" },
+				new { name = "Parmesan", amount = 100m, unit = "g" },
 			},
 			steps = new object[] { new { number = 1, description = "Mix all" } },
 			servings = 4,
@@ -59,12 +63,17 @@ public class GenerateShoppingListFlowTests(AspireFixture fixture)
 		var assignResponse = await mealplanClient.PostAsJsonAsync($"{WeekPath}/slots", assignRequest);
 		assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-		// 3. Generate shopping list
-		var generateResponse = await mealplanClient.PostAsync($"{WeekPath}/generate-shopping-list", null);
-
-		generateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-		var result = await generateResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		result.GetProperty("itemsAdded").GetInt32().Should().BeGreaterThan(0);
+		// 3. Generate shopping list — wait for the planned-recipes read model
+		// to catch up with the RabbitMQ projection before issuing the call.
+		await Eventually.AssertAsync(
+			async () =>
+			{
+				var response = await mealplanClient.PostAsync($"{WeekPath}/generate-shopping-list", null);
+				response.StatusCode.Should().Be(HttpStatusCode.OK);
+				var result = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+				result.GetProperty("itemsAdded").GetInt32().Should().BeGreaterThan(0);
+			},
+			timeout: TimeSpan.FromSeconds(15));
 	}
 
 	[Fact]
