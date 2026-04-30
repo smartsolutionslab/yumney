@@ -42,6 +42,6 @@ public sealed record SaveRecipeRequest(
 		imageUrl = Domain.Recipe.ImageUrl.FromNullable(ImageUrl);
 		language = RecipeLanguage.FromNullable(Language);
 		sourceUrl = RecipeUrl.FromNullable(SourceUrl);
-		tags = Tags?.Select(t => RecipeTag.From(t)).ToList();
+		tags = Tags?.Select(tag => RecipeTag.From(tag)).ToList();
 	}
 }

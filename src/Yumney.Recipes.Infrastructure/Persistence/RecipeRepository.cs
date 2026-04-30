@@ -17,28 +17,28 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 	{
 		return await recipes
 			.AsNoTracking()
-			.Include(r => r.Ingredients)
-			.Include(r => r.Steps.OrderBy(s => s.Number))
-			.Include(r => r.Tags)
+			.Include(recipe => recipe.Ingredients)
+			.Include(recipe => recipe.Steps.OrderBy(step => step.Number))
+			.Include(recipe => recipe.Tags)
 			.AsSplitQuery()
-			.FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken)
+			.FirstOrDefaultAsync(recipe => recipe.Id == identifier, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
 	}
 
 	public async Task<Recipe> GetByIdForUpdateAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
 	{
 		return await recipes
-			.Include(r => r.Ingredients)
-			.Include(r => r.Steps.OrderBy(s => s.Number))
-			.Include(r => r.Tags)
+			.Include(recipe => recipe.Ingredients)
+			.Include(recipe => recipe.Steps.OrderBy(step => step.Number))
+			.Include(recipe => recipe.Tags)
 			.AsSplitQuery()
-			.FirstOrDefaultAsync(r => r.Id == identifier, cancellationToken)
+			.FirstOrDefaultAsync(recipe => recipe.Id == identifier, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
 	}
 
 	public async Task<bool> ExistsBySourceUrlAsync(RecipeUrl sourceUrl, OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
-		return await recipes.AnyAsync(r => r.SourceUrl == sourceUrl && r.Owner == owner, cancellationToken);
+		return await recipes.AnyAsync(recipe => recipe.SourceUrl == sourceUrl && recipe.Owner == owner, cancellationToken);
 	}
 
 	public void Remove(Recipe recipe)
@@ -52,8 +52,8 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 	{
 		return await recipes
 			.AsNoTracking()
-			.Where(r => r.Owner == owner)
-			.Include(r => r.Ingredients)
+			.Where(recipe => recipe.Owner == owner)
+			.Include(recipe => recipe.Ingredients)
 			.AsSplitQuery()
 			.ToListAsync(cancellationToken);
 	}
@@ -66,16 +66,16 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 		RecipeFilter? filter = null,
 		CancellationToken cancellationToken = default)
 	{
-		var query = recipes.AsNoTracking().Where(r => r.Owner == owner);
+		var query = recipes.AsNoTracking().Where(recipe => recipe.Owner == owner);
 
 		if (search is not null)
 		{
 			var pattern = $"%{search.Value}%";
 
-			query = query.Where(r =>
-				EF.Functions.ILike(r.Title, pattern) ||
-				(r.Description != null && EF.Functions.ILike(r.Description, pattern)) ||
-				r.Ingredients.Any(i => EF.Functions.ILike(i.Name, pattern)));
+			query = query.Where(recipe =>
+				EF.Functions.ILike(recipe.Title, pattern) ||
+				(recipe.Description != null && EF.Functions.ILike(recipe.Description, pattern)) ||
+				recipe.Ingredients.Any(ingredient => EF.Functions.ILike(ingredient.Name, pattern)));
 		}
 
 		query = ApplyFilter(query, owner, filter);
@@ -83,7 +83,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
 		var totalCount = await query.CountAsync(cancellationToken);
 		var items = await query
-			.Include(r => r.Tags)
+			.Include(recipe => recipe.Tags)
 			.AsSplitQuery()
 			.Skip(paging.Skip)
 			.Take(paging.PageSize.Value)
@@ -96,10 +96,10 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 	{
 		return (sorting.SortBy, sorting.Direction) switch
 		{
-			(RecipeSortField.Name, SortDirection.Ascending) => query.OrderBy(r => r.Title),
-			(RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(r => r.Title),
-			(RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(r => r.CreatedAt),
-			(RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(r => r.CreatedAt),
+			(RecipeSortField.Name, SortDirection.Ascending) => query.OrderBy(recipe => recipe.Title),
+			(RecipeSortField.Name, SortDirection.Descending) => query.OrderByDescending(recipe => recipe.Title),
+			(RecipeSortField.Date, SortDirection.Ascending) => query.OrderBy(recipe => recipe.CreatedAt),
+			(RecipeSortField.Date, SortDirection.Descending) => query.OrderByDescending(recipe => recipe.CreatedAt),
 			_ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
 		};
 	}
@@ -110,19 +110,19 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
 		if (filter.Difficulty is not null)
 		{
-			query = query.Where(r => r.Difficulty == filter.Difficulty);
+			query = query.Where(recipe => recipe.Difficulty == filter.Difficulty);
 		}
 
 		if (filter.MaxPrepTime is not null)
 		{
 			var maxPrep = filter.MaxPrepTime;
-			query = query.Where(r => r.Timing != null && r.Timing.Preparation != null && r.Timing.Preparation <= maxPrep);
+			query = query.Where(recipe => recipe.Timing != null && recipe.Timing.Preparation != null && recipe.Timing.Preparation <= maxPrep);
 		}
 
 		if (filter.MaxCookTime is not null)
 		{
 			var maxCook = filter.MaxCookTime;
-			query = query.Where(r => r.Timing != null && r.Timing.Cooking != null && r.Timing.Cooking <= maxCook);
+			query = query.Where(recipe => recipe.Timing != null && recipe.Timing.Cooking != null && recipe.Timing.Cooking <= maxCook);
 		}
 
 		if (filter.Tags is not null && filter.Tags.Count > 0)
@@ -131,16 +131,16 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 			foreach (var requiredTag in filter.Tags)
 			{
 				var tagValue = requiredTag.Value;
-				query = query.Where(r => r.Tags.Any(t => t.Value == tagValue));
+				query = query.Where(recipe => recipe.Tags.Any(tag => tag.Value == tagValue));
 			}
 		}
 
 		if (filter.FavoritesOnly == true)
 		{
 			var favoriteRecipeIds = context.RecipeFavorites
-				.Where(f => f.Owner == owner)
-				.Select(f => f.RecipeIdentifier);
-			query = query.Where(r => favoriteRecipeIds.Contains(r.Id));
+				.Where(favorite => favorite.Owner == owner)
+				.Select(favorite => favorite.RecipeIdentifier);
+			query = query.Where(recipe => favoriteRecipeIds.Contains(recipe.Id));
 		}
 
 		return query;

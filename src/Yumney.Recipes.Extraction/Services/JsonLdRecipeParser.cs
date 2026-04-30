@@ -100,7 +100,7 @@ public static partial class JsonLdRecipeParser
 		return type.ValueKind switch
 		{
 			JsonValueKind.String => IsRecipeType(type.GetString()),
-			JsonValueKind.Array => type.EnumerateArray().Any(t => IsRecipeType(t.GetString())),
+			JsonValueKind.Array => type.EnumerateArray().Any(element => IsRecipeType(element.GetString())),
 			_ => false,
 		};
 	}
@@ -203,7 +203,7 @@ public static partial class JsonLdRecipeParser
 		{
 			JsonValueKind.Number when yield.TryGetInt32(out var i) => i,
 			JsonValueKind.String => ParseLeadingInt(yield.GetString()),
-			JsonValueKind.Array => yield.EnumerateArray().Select(e => ReadServingsValue(e)).FirstOrDefault(v => v is not null),
+			JsonValueKind.Array => yield.EnumerateArray().Select(element => ReadServingsValue(element)).FirstOrDefault(value => value is not null),
 			_ => null,
 		};
 	}
@@ -246,7 +246,7 @@ public static partial class JsonLdRecipeParser
 		return image.ValueKind switch
 		{
 			JsonValueKind.String => image.GetString(),
-			JsonValueKind.Array => image.EnumerateArray().Select(e => ReadImageValue(e)).FirstOrDefault(v => v is not null),
+			JsonValueKind.Array => image.EnumerateArray().Select(element => ReadImageValue(element)).FirstOrDefault(value => value is not null),
 			JsonValueKind.Object => ReadImageValue(image),
 			_ => null,
 		};

@@ -22,15 +22,15 @@ public sealed class RecipeFavorite : AggregateRoot<RecipeFavoriteIdentifier>
 	{
 	}
 
-	public static RecipeFavorite Create(RecipeIdentifier recipeIdentifier, OwnerIdentifier owner)
+	public static RecipeFavorite Create(RecipeIdentifier recipe, OwnerIdentifier owner)
 	{
-		Ensure.That(recipeIdentifier).IsNotNull();
+		Ensure.That(recipe).IsNotNull();
 		Ensure.That(owner).IsNotNull();
 
 		return new RecipeFavorite
 		{
 			Id = RecipeFavoriteIdentifier.New(),
-			RecipeIdentifier = recipeIdentifier,
+			RecipeIdentifier = recipe,
 			Owner = owner,
 			FavoritedAt = DateTime.UtcNow,
 		};

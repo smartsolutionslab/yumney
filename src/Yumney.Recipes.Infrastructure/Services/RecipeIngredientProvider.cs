@@ -12,10 +12,10 @@ public sealed class RecipeIngredientProvider(IRecipeRepository recipes) : IRecip
 		var recipe = await recipes.GetByIdAsync(RecipeIdentifier.From(recipeIdentifier), cancellationToken);
 
 		return recipe.Ingredients
-			.Select(i => new RecipeIngredientInfo(
-				i.Name.Value,
-				i.Quantity?.Amount.Value,
-				i.Quantity?.Unit?.Value,
+			.Select(ingredient => new RecipeIngredientInfo(
+				ingredient.Name.Value,
+				ingredient.Quantity?.Amount.Value,
+				ingredient.Quantity?.Unit?.Value,
 				recipe.Servings?.Value))
 			.ToList();
 	}

@@ -60,9 +60,9 @@ internal static class RequestMappingExtensions
 	{
 		public IEnumerable<ChatHistoryEntry> MapToChatHistoryEntries()
 		{
-			return history.Select(h => new ChatHistoryEntry(
-				ChatRole.From(h.Role),
-				ChatMessageContent.From(h.Content)));
+			return history.Select(message => new ChatHistoryEntry(
+				ChatRole.From(message.Role),
+				ChatMessageContent.From(message.Content)));
 		}
 	}
 }
