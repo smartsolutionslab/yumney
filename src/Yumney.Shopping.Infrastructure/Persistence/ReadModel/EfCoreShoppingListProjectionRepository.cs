@@ -41,20 +41,12 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 			.FirstOrDefaultAsync(s => s.Id == identifier.Value, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
 
-		var items = await context.ShoppingListItemReadItems
-			.Where(i => i.ListId == identifier.Value)
-			.OrderBy(i => i.CreatedAt)
-			.Select(i => new ShoppingListItemDto(i.Id, i.Name, i.QuantityAmount, i.QuantityUnit, i.IsChecked))
+		var itemRows = await context.ShoppingListItemReadItems
+			.Where(item => item.ListId == identifier.Value)
+			.OrderBy(item => item.CreatedAt)
 			.ToListAsync(cancellationToken);
 
-		var dto = new ShoppingListDetailDto(
-			summary.Id,
-			summary.Title,
-			summary.RecipeIdentifier,
-			summary.CreatedAt,
-			items);
-
-		return new ShoppingListProjectedDetail(summary.OwnerId, dto);
+		return new ShoppingListProjectedDetail(summary.OwnerId, summary.ToDetailDto(itemRows.ToDtos()));
 	}
 
 	public async Task<IReadOnlyList<ShoppingListIdentifier>> FindIdsByRecipeAsync(

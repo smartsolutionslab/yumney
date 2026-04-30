@@ -24,17 +24,17 @@ public sealed class ShoppingLedgerReadModelRepository(ShoppingReadDbContext cont
 		var readItems = await query.ToListAsync(cancellationToken);
 
 		var dtoItems = readItems
-			.Select(r =>
-			{
-				var sources = JsonSerializer.Deserialize<List<SourceEntry>>(r.SourcesJson) ?? [];
-				var sourceDtos = sources.Select(s => new ItemSourceDto(s.Quantity, s.Source, s.OccurredAt)).ToList();
-				var rounded = QuantityRounder.RoundUp(r.TotalQuantity, r.Unit);
-				return new MergedShoppingItemDto(r.ItemName, r.TotalQuantity, rounded.DisplayQuantity, r.Unit, r.Category, r.IsBought, sourceDtos);
-			})
-			.OrderBy(i => IngredientCategory.From(i.Category).DisplayOrder)
+			.Select(row => row.ToMergedItemDto(DeserializeSources(row.SourcesJson)))
+			.OrderBy(item => IngredientCategory.From(item.Category).DisplayOrder)
 			.ToList();
 
 		return new MergedShoppingListDto(dtoItems);
+	}
+
+	private static List<ItemSourceDto> DeserializeSources(string sourcesJson)
+	{
+		var sources = JsonSerializer.Deserialize<List<SourceEntry>>(sourcesJson) ?? [];
+		return sources.Select(source => new ItemSourceDto(source.Quantity, source.Source, source.OccurredAt)).ToList();
 	}
 
 	private sealed record SourceEntry(decimal Quantity, string Source, DateTime OccurredAt);
