@@ -132,7 +132,8 @@ if (!options.DatabaseOnly)
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.AsYumneyApi(recipesDb, keycloak, redis, messaging, migrationRunner)
 		.WithLlmProvider(builder, options)
-		.WithReference(shoppingApi);
+		.WithReference(shoppingApi)
+		.WithReference(usersApi);
 	var mealplanApi = builder
 		.AddProject<Projects.Yumney_MealPlan_Api>("mealplan-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)

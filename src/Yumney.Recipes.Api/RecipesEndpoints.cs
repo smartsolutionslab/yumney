@@ -179,5 +179,21 @@ public static partial class RecipesEndpoints
 			var result = await handler.HandleAsync(new GetCookableRecipesQuery(fullMatchOnly), cancellationToken);
 			return result.ToOk();
 		}
+
+		group.MapGet("/suggestions", GetSuggestions)
+			.WithName("GetRecipeSuggestions")
+			.WithTags("Recipes")
+			.Produces<IReadOnlyList<ExtractedRecipeDto>>()
+			.ProducesProblem(StatusCodes.Status422UnprocessableEntity)
+			.ProducesProblem(StatusCodes.Status502BadGateway);
+
+		static async Task<IResult> GetSuggestions(
+			IQueryHandler<GetRecipeSuggestionsQuery, Result<IReadOnlyList<ExtractedRecipeDto>>> handler,
+			CancellationToken cancellationToken,
+			int count = 4)
+		{
+			var result = await handler.HandleAsync(new GetRecipeSuggestionsQuery(count), cancellationToken);
+			return result.ToOk();
+		}
 	}
 }
