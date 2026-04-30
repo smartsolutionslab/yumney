@@ -22,7 +22,7 @@ public sealed class GetRecipeSuggestionsQueryHandler(
 		var count = Math.Clamp(query.Count, minCount, maxCount);
 		var ownerId = currentUser.UserId;
 
-		var availableTask = balanceProvider.GetAvailableIngredientNamesAsync(ownerId, cancellationToken);
+		var availableTask = balanceProvider.GetAvailableIngredientsAsync(ownerId, cancellationToken);
 		var dietaryTask = dietaryProvider.GetAsync(ownerId, cancellationToken);
 		await Task.WhenAll(availableTask, dietaryTask);
 
@@ -34,7 +34,7 @@ public sealed class GetRecipeSuggestionsQueryHandler(
 
 		var dietary = dietaryTask.Result;
 		return await suggestionService.SuggestAsync(
-			available,
+			(IReadOnlyCollection<string>)available.Keys.ToList(),
 			dietary.DietaryType,
 			dietary.Restrictions,
 			count,

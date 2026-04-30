@@ -149,14 +149,70 @@ public class GetCookableRecipesQueryHandlerTests
 	}
 
 	[Fact]
+	public async Task HandleAsync_WithinSameTier_RecipesUsingUseSoonOutrankFresh()
+	{
+		ConfigureBalance(("flour", Freshness.Fresh), ("milk", Freshness.UseSoon), ("eggs", Freshness.Fresh));
+		ConfigureRecipes(
+			MakeRecipe("FreshOnly", "Flour", "Eggs"),
+			MakeRecipe("UsesMilk", "Flour", "Milk"));
+
+		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+
+		result.Value.Select(r => r.Title).Should().Equal("UsesMilk", "FreshOnly");
+	}
+
+	[Fact]
+	public async Task HandleAsync_MoreUrgentIngredients_RankedHigherWithinTier()
+	{
+		ConfigureBalance(
+			("flour", Freshness.Fresh),
+			("milk", Freshness.UseSoon),
+			("chicken", Freshness.CheckIt));
+		ConfigureRecipes(
+			MakeRecipe("OneUrgent", "Flour", "Milk"),
+			MakeRecipe("TwoUrgent", "Milk", "Chicken"));
+
+		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+
+		result.Value.Select(r => r.Title).Should().Equal("TwoUrgent", "OneUrgent");
+	}
+
+	[Fact]
+	public async Task HandleAsync_NotTrackedDoesNotCountAsUrgent()
+	{
+		ConfigureBalance(("salt", Freshness.NotTracked), ("milk", Freshness.UseSoon));
+		ConfigureRecipes(
+			MakeRecipe("StaplesOnly", "Salt"),
+			MakeRecipe("UsesMilk", "Milk"));
+
+		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+
+		result.Value.Select(r => r.Title).Should().Equal("UsesMilk", "StaplesOnly");
+	}
+
+	[Fact]
+	public async Task HandleAsync_TierStillBeatsPerishability()
+	{
+		// A near-match with urgent ingredients does NOT beat a full match without any urgent items.
+		ConfigureBalance(("flour", Freshness.Fresh), ("milk", Freshness.CheckIt));
+		ConfigureRecipes(
+			MakeRecipe("FullMatchFresh", "Flour"),
+			MakeRecipe("NearMatchUrgent", "Milk", "Sugar"));
+
+		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+
+		result.Value.Select(r => r.Title).Should().Equal("FullMatchFresh", "NearMatchUrgent");
+	}
+
+	[Fact]
 	public async Task HandleAsync_BalanceProviderQueriedWithCurrentUser()
 	{
-		ConfigureBalance();
+		ConfigureBalance(Array.Empty<string>());
 		ConfigureRecipes();
 
 		await handler.HandleAsync(new GetCookableRecipesQuery());
 
-		await balanceProvider.Received(1).GetAvailableIngredientNamesAsync(OwnerId, Arg.Any<CancellationToken>());
+		await balanceProvider.Received(1).GetAvailableIngredientsAsync(OwnerId, Arg.Any<CancellationToken>());
 	}
 
 	private static Recipe MakeRecipe(string title, params string[] ingredientNames)
@@ -176,7 +232,18 @@ public class GetCookableRecipesQueryHandlerTests
 
 	private void ConfigureBalance(params string[] availableNames)
 	{
-		balanceProvider.GetAvailableIngredientNamesAsync(OwnerId, Arg.Any<CancellationToken>())
-			.Returns((IReadOnlySet<string>)availableNames.ToHashSet(StringComparer.OrdinalIgnoreCase));
+		ConfigureBalance(availableNames.Select(n => (n, Freshness.Fresh)).ToArray());
+	}
+
+	private void ConfigureBalance(params (string Name, Freshness Freshness)[] items)
+	{
+		var dict = new Dictionary<string, Freshness>(StringComparer.OrdinalIgnoreCase);
+		foreach (var (name, freshness) in items)
+		{
+			dict[name] = freshness;
+		}
+
+		balanceProvider.GetAvailableIngredientsAsync(OwnerId, Arg.Any<CancellationToken>())
+			.Returns((IReadOnlyDictionary<string, Freshness>)dict);
 	}
 }
