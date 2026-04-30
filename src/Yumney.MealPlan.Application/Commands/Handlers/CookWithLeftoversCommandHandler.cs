@@ -24,6 +24,6 @@ public sealed class CookWithLeftoversCommandHandler(IMealPlanEventStore eventSto
 
 		await eventStore.SaveAsync(plan, cancellationToken);
 
-		return new WeeklyPlanDto(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToOrderedDtos());
+		return plan.ToDto(week);
 	}
 }
