@@ -23,7 +23,7 @@ public sealed class ConfirmMealCommandHandler(
 		switch (newState)
 		{
 			case MealState.Cooked:
-				var slot = plan.GetVisibleSlots().FirstOrDefault(s => s.Day == day && s.MealType == mealType);
+				var slot = plan.GetVisibleSlots().FirstOrDefault(slot => slot.Day == day && slot.MealType == mealType);
 				var ingredients = slot?.Recipe is not null
 					? await FetchIngredientsAsync(slot.Recipe.RecipeIdentifier.Value, cancellationToken)
 					: [];
@@ -46,8 +46,8 @@ public sealed class ConfirmMealCommandHandler(
 	{
 		var ingredients = await ingredientProvider.GetIngredientsAsync(recipeId, cancellationToken);
 		return ingredients
-			.Where(i => i.Amount.HasValue && i.Amount.Value > 0m)
-			.Select(i => new CookedIngredient(i.Name, i.Amount!.Value, i.Unit))
+			.Where(ingredient => ingredient.Amount.HasValue && ingredient.Amount.Value > 0m)
+			.Select(ingredient => new CookedIngredient(ingredient.Name, ingredient.Amount!.Value, ingredient.Unit))
 			.ToList();
 	}
 }

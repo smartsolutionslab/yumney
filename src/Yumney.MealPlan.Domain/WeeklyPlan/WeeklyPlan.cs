@@ -28,8 +28,8 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 
 	public IReadOnlyList<MealSlot> Slots =>
 		slots.Values
-			.OrderBy(s => s.Day)
-			.ThenBy(s => s.MealType)
+			.OrderBy(slot => slot.Day)
+			.ThenBy(slot => slot.MealType)
 			.ToList()
 			.AsReadOnly();
 
@@ -71,8 +71,8 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 		return IsExtendedMode
 			? Slots
 			: slots.Values
-				.Where(s => s.MealType == MealType.Dinner)
-				.OrderBy(s => s.Day)
+				.Where(slot => slot.MealType == MealType.Dinner)
+				.OrderBy(slot => slot.Day)
 				.ToList()
 				.AsReadOnly();
 	}
@@ -80,9 +80,9 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 	public IReadOnlyList<MealSlot> GetUnconfirmedPastMeals(DayOfWeek today)
 	{
 		return slots.Values
-			.Where(s => s.ContentType == SlotContentType.Recipe && s.State == MealState.Planned && s.Day < today)
-			.OrderBy(s => s.Day)
-			.ThenBy(s => s.MealType)
+			.Where(slot => slot.ContentType == SlotContentType.Recipe && slot.State == MealState.Planned && slot.Day < today)
+			.OrderBy(slot => slot.Day)
+			.ThenBy(slot => slot.MealType)
 			.ToList();
 	}
 
