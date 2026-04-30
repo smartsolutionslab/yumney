@@ -50,15 +50,13 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 				IsExtendedMode = false,
 				LastUpdated = DateTime.UtcNow,
 			});
+			await context.SaveChangesAsync(cancellationToken);
 		}
 
-		var existingKeys = await LoadExistingSlotKeysAsync(ownerId, week, cancellationToken);
 		foreach (var day in allDays)
 		{
-			AddSlotIfMissing(existingKeys, ownerId, week, day.ToString(), MealType.Dinner.ToString(), defaultServings);
+			await UpsertSlotAsync(ownerId, week, day.ToString(), MealType.Dinner.ToString(), defaultServings, cancellationToken);
 		}
-
-		await context.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task HandleAsync(ExtendedModeEnabledIntegrationEvent @event, CancellationToken cancellationToken = default)
@@ -72,16 +70,14 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		{
 			weekItem.IsExtendedMode = true;
 			weekItem.LastUpdated = DateTime.UtcNow;
+			await context.SaveChangesAsync(cancellationToken);
 		}
 
-		var existingKeys = await LoadExistingSlotKeysAsync(ownerId, week, cancellationToken);
 		foreach (var day in allDays)
 		{
-			AddSlotIfMissing(existingKeys, ownerId, week, day.ToString(), MealType.Breakfast.ToString(), defaultServings);
-			AddSlotIfMissing(existingKeys, ownerId, week, day.ToString(), MealType.Lunch.ToString(), defaultServings);
+			await UpsertSlotAsync(ownerId, week, day.ToString(), MealType.Breakfast.ToString(), defaultServings, cancellationToken);
+			await UpsertSlotAsync(ownerId, week, day.ToString(), MealType.Lunch.ToString(), defaultServings, cancellationToken);
 		}
-
-		await context.SaveChangesAsync(cancellationToken);
 	}
 
 	public async Task HandleAsync(ExtendedModeDisabledIntegrationEvent @event, CancellationToken cancellationToken = default)
@@ -97,8 +93,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	public async Task HandleAsync(RecipeAssignedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var slot = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
-		if (slot is null) return;
+		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
 		slot.ContentType = SlotContentType.Recipe.ToString();
 		slot.RecipeIdentifier = inner.Recipe.RecipeIdentifier.Value;
@@ -119,8 +114,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	public async Task HandleAsync(MealSetAsFreetextIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var slot = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
-		if (slot is null) return;
+		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
 		slot.ContentType = SlotContentType.Freetext.ToString();
 		slot.FreetextLabel = inner.Label.Value;
@@ -136,8 +130,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	public async Task HandleAsync(LeftoverAssignedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var slot = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
-		if (slot is null) return;
+		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
 		slot.ContentType = SlotContentType.Leftover.ToString();
 		slot.LeftoverLabel = LeftoverLabel.ForRecipe(inner.SourceRecipeTitle).Value;
@@ -158,8 +151,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	public async Task HandleAsync(MealSlotClearedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var slot = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
-		if (slot is null) return;
+		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
 		slot.ContentType = SlotContentType.Empty.ToString();
 		slot.RecipeIdentifier = null;
@@ -175,8 +167,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	public async Task HandleAsync(ServingsAdjustedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var slot = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
-		if (slot is null) return;
+		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
 		slot.Servings = inner.Servings.Value;
 		slot.LastUpdated = DateTime.UtcNow;
@@ -186,8 +177,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	public async Task HandleAsync(MealMarkedAsCookedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var slot = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
-		if (slot is null) return;
+		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
 		slot.State = MealState.Cooked.ToString();
 		slot.LastUpdated = DateTime.UtcNow;
@@ -197,8 +187,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	public async Task HandleAsync(MealMarkedAsSkippedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var slot = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
-		if (slot is null) return;
+		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
 		slot.State = MealState.Skipped.ToString();
 		slot.LastUpdated = DateTime.UtcNow;
@@ -208,8 +197,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	public async Task HandleAsync(MealResetToPlannedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var slot = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
-		if (slot is null) return;
+		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
 		slot.State = MealState.Planned.ToString();
 		slot.LastUpdated = DateTime.UtcNow;
@@ -219,9 +207,8 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	public async Task HandleAsync(MealSlotsSwappedIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var slot1 = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day1, inner.MealType, cancellationToken);
-		var slot2 = await GetTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day2, inner.MealType, cancellationToken);
-		if (slot1 is null || slot2 is null) return;
+		var slot1 = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day1, inner.MealType, cancellationToken);
+		var slot2 = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day2, inner.MealType, cancellationToken);
 
 		(slot1.ContentType, slot2.ContentType) = (slot2.ContentType, slot1.ContentType);
 		(slot1.RecipeIdentifier, slot2.RecipeIdentifier) = (slot2.RecipeIdentifier, slot1.RecipeIdentifier);
@@ -238,31 +225,24 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	private async Task<HashSet<(string Day, string MealType)>> LoadExistingSlotKeysAsync(string ownerId, string week, CancellationToken cancellationToken)
+	// PostgreSQL atomic upsert. Idempotent and concurrency-safe — multiple
+	// projection handlers seeding overlapping slot rows produce one row each
+	// without throwing. Used both by the week-seeding handlers
+	// (WeeklyPlanCreated, ExtendedModeEnabled) and by the on-demand
+	// materialisation in GetOrCreateTrackedSlotAsync.
+	private Task<int> UpsertSlotAsync(string ownerId, string week, string day, string mealType, int defaultServings, CancellationToken cancellationToken)
 	{
-		var existing = await context.MealPlanSlotReadItems
-			.Where(s => s.OwnerId == ownerId && s.Week == week)
-			.Select(s => new { s.Day, s.MealType })
-			.ToListAsync(cancellationToken);
-		return existing.Select(s => (s.Day, s.MealType)).ToHashSet();
-	}
+		var newId = Guid.CreateVersion7();
+		var emptyContent = SlotContentType.Empty.ToString();
+		var plannedState = MealState.Planned.ToString();
+		var now = DateTime.UtcNow;
 
-	private void AddSlotIfMissing(HashSet<(string Day, string MealType)> existingKeys, string ownerId, string week, string day, string mealType, int defaultServings)
-	{
-		if (!existingKeys.Add((day, mealType))) return;
-
-		context.MealPlanSlotReadItems.Add(new MealPlanSlotReadItem
-		{
-			Id = Guid.CreateVersion7(),
-			OwnerId = ownerId,
-			Week = week,
-			Day = day,
-			MealType = mealType,
-			ContentType = SlotContentType.Empty.ToString(),
-			Servings = defaultServings,
-			State = MealState.Planned.ToString(),
-			LastUpdated = DateTime.UtcNow,
-		});
+		return context.Database.ExecuteSqlInterpolatedAsync(
+			$@"INSERT INTO ""MealPlanSlotReadItems""
+				(""Id"", ""OwnerId"", ""Week"", ""Day"", ""MealType"", ""ContentType"", ""Servings"", ""State"", ""LastUpdated"")
+			   VALUES ({newId}, {ownerId}, {week}, {day}, {mealType}, {emptyContent}, {defaultServings}, {plannedState}, {now})
+			   ON CONFLICT (""OwnerId"", ""Week"", ""Day"", ""MealType"") DO NOTHING",
+			cancellationToken);
 	}
 
 	private Task<MealPlanWeekReadItem?> GetTrackedWeekAsync(string ownerId, string week, CancellationToken cancellationToken) =>
@@ -279,5 +259,33 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 			.FirstOrDefaultAsync(
 				s => s.OwnerId == ownerId && s.Week == week && s.Day == dayName && s.MealType == mealTypeName,
 				cancellationToken);
+	}
+
+	// Slot-mutation events (RecipeAssigned, MealSetAsFreetext, MarkedAsCooked,
+	// etc.) can race ahead of the WeeklyPlanCreated event that seeds the
+	// week's slot rows — Wolverine's local in-process bus dispatches the two
+	// concurrently, and the slot writer can run before the seeder commits.
+	// Falling back to a silent no-op (the previous behaviour) silently dropped
+	// the user's update from the read model.
+	//
+	// We materialise the row through a PostgreSQL upsert: atomic INSERT … ON
+	// CONFLICT DO NOTHING gives us a guaranteed-present row without throwing
+	// duplicate-key exceptions, which would otherwise abort the WeeklyPlanCreated
+	// handler's batched 7-slot insert and dead-letter that message.
+	private async Task<MealPlanSlotReadItem> GetOrCreateTrackedSlotAsync(
+		string ownerId,
+		string week,
+		DayOfWeek day,
+		MealType mealType,
+		CancellationToken cancellationToken)
+	{
+		var existing = await GetTrackedSlotAsync(ownerId, week, day, mealType, cancellationToken);
+		if (existing is not null) return existing;
+
+		await UpsertSlotAsync(ownerId, week, day.ToString(), mealType.ToString(), SlotServings.DefaultValue, cancellationToken);
+
+		var slot = await GetTrackedSlotAsync(ownerId, week, day, mealType, cancellationToken);
+		return slot ?? throw new InvalidOperationException(
+			$"Slot upsert succeeded but no row is visible for {ownerId}/{week}/{day}/{mealType}.");
 	}
 }
