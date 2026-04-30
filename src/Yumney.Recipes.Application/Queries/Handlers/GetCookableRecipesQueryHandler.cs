@@ -20,7 +20,7 @@ public sealed class GetCookableRecipesQueryHandler(
 		var owner = currentUser.AsOwner();
 
 		var recipesTask = recipes.GetAllByOwnerWithIngredientsAsync(owner, cancellationToken);
-		var availableTask = balanceProvider.GetAvailableIngredientsAsync(currentUser.UserId, cancellationToken);
+		var availableTask = balanceProvider.GetAvailableIngredientsAsync(cancellationToken);
 		await Task.WhenAll(recipesTask, availableTask);
 
 		var available = availableTask.Result;

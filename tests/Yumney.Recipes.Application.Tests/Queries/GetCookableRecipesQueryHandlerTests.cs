@@ -212,7 +212,7 @@ public class GetCookableRecipesQueryHandlerTests
 
 		await handler.HandleAsync(new GetCookableRecipesQuery());
 
-		await balanceProvider.Received(1).GetAvailableIngredientsAsync(OwnerId, Arg.Any<CancellationToken>());
+		await balanceProvider.Received(1).GetAvailableIngredientsAsync(Arg.Any<CancellationToken>());
 	}
 
 	private static Recipe MakeRecipe(string title, params string[] ingredientNames)
@@ -243,7 +243,7 @@ public class GetCookableRecipesQueryHandlerTests
 			dict[name] = freshness;
 		}
 
-		balanceProvider.GetAvailableIngredientsAsync(OwnerId, Arg.Any<CancellationToken>())
+		balanceProvider.GetAvailableIngredientsAsync(Arg.Any<CancellationToken>())
 			.Returns((IReadOnlyDictionary<string, Freshness>)dict);
 	}
 }

@@ -10,5 +10,5 @@ namespace SmartSolutionsLab.Yumney.Shared.Common;
 /// </summary>
 public interface IIngredientBalanceProvider
 {
-	Task<IReadOnlyDictionary<string, Freshness>> GetAvailableIngredientsAsync(string ownerId, CancellationToken cancellationToken = default);
+	Task<IReadOnlyDictionary<string, Freshness>> GetAvailableIngredientsAsync(CancellationToken cancellationToken = default);
 }
