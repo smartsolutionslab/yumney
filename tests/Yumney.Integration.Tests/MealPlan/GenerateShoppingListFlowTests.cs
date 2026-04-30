@@ -73,8 +73,7 @@ public class GenerateShoppingListFlowTests(AspireFixture fixture)
 		using var client = await fixture.CreateAuthenticatedClientAsync("mealplan-api");
 
 		// Use a week with no assignments
-		var response = await client.PostAsync(
-			$"/api/v1/meal-plans/{Year}/w/1/generate-shopping-list", null);
+		var response = await client.PostAsync($"/api/v1/meal-plans/{Year}/w/1/generate-shopping-list", null);
 
 		// Should fail — no recipes assigned
 		response.StatusCode.Should().BeOneOf(

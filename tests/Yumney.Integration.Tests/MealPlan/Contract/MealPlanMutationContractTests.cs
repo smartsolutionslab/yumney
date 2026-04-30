@@ -1,8 +1,6 @@
-using System;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using Xunit;
@@ -28,7 +26,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		using var client = await fixture.CreateAuthenticatedClientAsync("mealplan-api");
 
-		var response = await client.PutAsJsonAsync(WeekPath(10) + "/extended-mode", new { enable = true });
+		var response = await client.PutAsJsonAsync($"{WeekPath(10)}/extended-mode", new { enable = true });
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 	}
@@ -38,7 +36,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		var client = fixture.MealPlanApi;
 
-		var response = await client.PutAsJsonAsync(WeekPath(10) + "/extended-mode", new { enable = true });
+		var response = await client.PutAsJsonAsync($"{WeekPath(10)}/extended-mode", new { enable = true });
 
 		response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 	}
@@ -57,7 +55,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 			servings = 4,
 		});
 
-		var response = await client.PutAsJsonAsync(week + "/slots/servings", new
+		var response = await client.PutAsJsonAsync($"{week}/slots/servings", new
 		{
 			day = DayOfWeek.Monday,
 			mealType = 0,
@@ -72,7 +70,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		using var client = await fixture.CreateAuthenticatedClientAsync("mealplan-api");
 
-		var response = await client.PutAsJsonAsync(WeekPath(12) + "/slots/servings", new
+		var response = await client.PutAsJsonAsync($"{WeekPath(12)}/slots/servings", new
 		{
 			day = DayOfWeek.Monday,
 			mealType = 0,
@@ -87,7 +85,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		var client = fixture.MealPlanApi;
 
-		var response = await client.PutAsJsonAsync(WeekPath(12) + "/slots/servings", new
+		var response = await client.PutAsJsonAsync($"{WeekPath(12)}/slots/servings", new
 		{
 			day = DayOfWeek.Monday,
 			mealType = 0,
@@ -102,7 +100,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		using var client = await fixture.CreateAuthenticatedClientAsync("mealplan-api");
 
-		var response = await client.PutAsJsonAsync(WeekPath(13) + "/slots/swap", new
+		var response = await client.PutAsJsonAsync($"{WeekPath(13)}/slots/swap", new
 		{
 			sourceDay = DayOfWeek.Friday,
 			targetDay = DayOfWeek.Saturday,
@@ -117,7 +115,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		var client = fixture.MealPlanApi;
 
-		var response = await client.PutAsJsonAsync(WeekPath(13) + "/slots/swap", new
+		var response = await client.PutAsJsonAsync($"{WeekPath(13)}/slots/swap", new
 		{
 			sourceDay = DayOfWeek.Monday,
 			targetDay = DayOfWeek.Tuesday,
@@ -145,7 +143,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 			servings = 4,
 		});
 
-		var response = await client.PutAsJsonAsync(week + "/slots/confirm", new
+		var response = await client.PutAsJsonAsync($"{week}/slots/confirm", new
 		{
 			day = DayOfWeek.Wednesday,
 			mealType = 0,
@@ -160,7 +158,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		var client = fixture.MealPlanApi;
 
-		var response = await client.PutAsJsonAsync(WeekPath(14) + "/slots/confirm", new
+		var response = await client.PutAsJsonAsync($"{WeekPath(14)}/slots/confirm", new
 		{
 			day = DayOfWeek.Wednesday,
 			mealType = 0,
@@ -175,7 +173,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		using var client = await fixture.CreateAuthenticatedClientAsync("mealplan-api");
 
-		var response = await client.PostAsJsonAsync(WeekPath(15) + "/cook-with-leftovers", new
+		var response = await client.PostAsJsonAsync($"{WeekPath(15)}/cook-with-leftovers", new
 		{
 			cookDay = DayOfWeek.Monday,
 			recipeIdentifier = Guid.NewGuid(),
@@ -194,7 +192,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		using var client = await fixture.CreateAuthenticatedClientAsync("mealplan-api");
 
-		var response = await client.PostAsJsonAsync(WeekPath(16) + "/cook-with-leftovers", new
+		var response = await client.PostAsJsonAsync($"{WeekPath(16)}/cook-with-leftovers", new
 		{
 			cookDay = DayOfWeek.Monday,
 			recipeIdentifier = Guid.NewGuid(),
@@ -213,7 +211,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		var client = fixture.MealPlanApi;
 
-		var response = await client.PostAsJsonAsync(WeekPath(15) + "/cook-with-leftovers", new
+		var response = await client.PostAsJsonAsync($"{WeekPath(15)}/cook-with-leftovers", new
 		{
 			cookDay = DayOfWeek.Monday,
 			recipeIdentifier = Guid.NewGuid(),
@@ -232,7 +230,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		using var client = await fixture.CreateAuthenticatedClientAsync("mealplan-api");
 
-		var response = await client.GetAsync(WeekPath(17) + "/planned-recipes");
+		var response = await client.GetAsync($"{WeekPath(17)}/planned-recipes");
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
@@ -244,7 +242,7 @@ public class MealPlanMutationContractTests(AspireFixture fixture)
 	{
 		var client = fixture.MealPlanApi;
 
-		var response = await client.GetAsync(WeekPath(17) + "/planned-recipes");
+		var response = await client.GetAsync($"{WeekPath(17)}/planned-recipes");
 
 		response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 	}
