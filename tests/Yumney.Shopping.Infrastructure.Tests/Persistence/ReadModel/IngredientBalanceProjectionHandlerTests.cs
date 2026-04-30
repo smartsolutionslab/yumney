@@ -187,6 +187,59 @@ public class IngredientBalanceProjectionHandlerTests
 		rows.Should().HaveCount(2);
 	}
 
+	[Fact]
+	public async Task MarkedAsFrozen_FlipsCategoryAndResetsClock()
+	{
+		await using var context = CreateContext();
+		var fakeTime = new FakeTimeProvider(DateTimeOffset.Parse("2026-04-30T10:00:00Z", CultureInfo.InvariantCulture));
+		var handler = new IngredientBalanceProjectionHandler(context, fakeTime);
+
+		// First buy meat — projection sets category to meat-fish + clock to T0.
+		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(
+			OwnerId, new ShoppingItemBought(ItemName.From("Chicken"), Quantity.Of(Amount.From(500), Unit.From("g")))));
+		var rowAfterBuy = await context.Set<IngredientBalanceReadItem>().SingleAsync();
+		rowAfterBuy.Category.Should().Be(IngredientCategory.MeatFish.Value);
+		var t0 = rowAfterBuy.LastBoughtAt!.Value;
+
+		// Advance time and freeze.
+		fakeTime.Advance(TimeSpan.FromDays(1));
+		var t1 = fakeTime.GetUtcNow().UtcDateTime;
+		await handler.HandleAsync(new ShoppingItemMarkedAsFrozenIntegrationEvent(
+			OwnerId, new ShoppingItemMarkedAsFrozen(ItemName.From("Chicken"), Unit.From("g"))));
+
+		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
+		row.Category.Should().Be(IngredientCategory.Frozen.Value);
+		row.LastBoughtAt.Should().Be(t1).And.NotBe(t0);
+	}
+
+	[Fact]
+	public async Task MarkedAsFrozen_NoMatchingRow_DoesNotCreateOne()
+	{
+		await using var context = CreateContext();
+		var handler = new IngredientBalanceProjectionHandler(context, timeProvider);
+
+		await handler.HandleAsync(new ShoppingItemMarkedAsFrozenIntegrationEvent(
+			OwnerId, new ShoppingItemMarkedAsFrozen(ItemName.From("Chicken"), Unit.From("g"))));
+
+		(await context.Set<IngredientBalanceReadItem>().AnyAsync()).Should().BeFalse();
+	}
+
+	[Fact]
+	public async Task MarkedAsFrozen_DifferentUnit_NoUpdate()
+	{
+		await using var context = CreateContext();
+		var handler = new IngredientBalanceProjectionHandler(context, timeProvider);
+		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(
+			OwnerId, new ShoppingItemBought(ItemName.From("Chicken"), Quantity.Of(Amount.From(500), Unit.From("g")))));
+		var originalCategory = (await context.Set<IngredientBalanceReadItem>().SingleAsync()).Category;
+
+		// Freeze "kg" instead of "g" — different unit, same name → not a match.
+		await handler.HandleAsync(new ShoppingItemMarkedAsFrozenIntegrationEvent(
+			OwnerId, new ShoppingItemMarkedAsFrozen(ItemName.From("Chicken"), Unit.From("kg"))));
+
+		(await context.Set<IngredientBalanceReadItem>().SingleAsync()).Category.Should().Be(originalCategory);
+	}
+
 	private static ShoppingDbContext CreateContext()
 	{
 		var options = new DbContextOptionsBuilder<ShoppingDbContext>()

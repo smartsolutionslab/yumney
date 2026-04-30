@@ -18,7 +18,8 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 	  IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>,
 	  IIntegrationEventHandler<ShoppingItemRemovedIntegrationEvent>,
 	  IIntegrationEventHandler<ShoppingItemUndoBoughtIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemAddedAsAtHomeIntegrationEvent>
+	  IIntegrationEventHandler<ShoppingItemAddedAsAtHomeIntegrationEvent>,
+	  IIntegrationEventHandler<ShoppingItemMarkedAsFrozenIntegrationEvent>
 {
 	public Task HandleAsync(ShoppingItemBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
 	{
@@ -83,6 +84,27 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 				row.LastBoughtAt = now;
 			},
 			cancellationToken);
+	}
+
+	/// <inheritdoc />
+	public async Task HandleAsync(ShoppingItemMarkedAsFrozenIntegrationEvent @event, CancellationToken cancellationToken = default)
+	{
+		// Pure update: don't create a row if the item isn't on the ledger —
+		// freezing a non-existent item is a no-op rather than a phantom entry.
+		var inner = @event.Inner;
+		var nameKey = inner.ItemName.Value.ToLowerInvariant();
+		var unit = inner.Unit?.Value;
+		var row = await context.Set<IngredientBalanceReadItem>()
+			.FirstOrDefaultAsync(
+				r => r.OwnerId == @event.OwnerId && r.NameKey == nameKey && r.Unit == unit,
+				cancellationToken);
+		if (row is null) return;
+
+		var now = timeProvider.GetUtcNow().UtcDateTime;
+		row.Category = IngredientCategory.Frozen.Value;
+		row.LastBoughtAt = now;
+		row.LastUpdated = now;
+		await context.SaveChangesAsync(cancellationToken);
 	}
 
 	private async Task UpsertAsync(

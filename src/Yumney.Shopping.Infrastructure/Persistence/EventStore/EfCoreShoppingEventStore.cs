@@ -40,6 +40,7 @@ public sealed partial class EfCoreShoppingEventStore(
 		[nameof(ShoppingItemQuantityAdjusted)] = typeof(ShoppingItemQuantityAdjusted),
 		[nameof(ShoppingItemUndoBought)] = typeof(ShoppingItemUndoBought),
 		[nameof(ShoppingItemAddedAsAtHome)] = typeof(ShoppingItemAddedAsAtHome),
+		[nameof(ShoppingItemMarkedAsFrozen)] = typeof(ShoppingItemMarkedAsFrozen),
 		[nameof(ShoppingModeStarted)] = typeof(ShoppingModeStarted),
 		[nameof(ShoppingModeEnded)] = typeof(ShoppingModeEnded),
 	};
@@ -135,6 +136,8 @@ public sealed partial class EfCoreShoppingEventStore(
 				await eventBus.PublishAsync(new ShoppingItemAddedAsAtHomeIntegrationEvent(ownerId, atHome), cancellationToken);
 			else if (@event is ShoppingItemUndoBought undo)
 				await eventBus.PublishAsync(new ShoppingItemUndoBoughtIntegrationEvent(ownerId, undo), cancellationToken);
+			else if (@event is ShoppingItemMarkedAsFrozen frozen)
+				await eventBus.PublishAsync(new ShoppingItemMarkedAsFrozenIntegrationEvent(ownerId, frozen), cancellationToken);
 		}
 	}
 

@@ -65,6 +65,7 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemRemovedIntegrationEvent>, IngredientBalanceProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemUndoBoughtIntegrationEvent>, IngredientBalanceProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<ShoppingItemAddedAsAtHomeIntegrationEvent>, IngredientBalanceProjectionHandler>();
+		services.AddScoped<IIntegrationEventHandler<ShoppingItemMarkedAsFrozenIntegrationEvent>, IngredientBalanceProjectionHandler>();
 		services.AddScoped<IIngredientBalanceReadModelRepository, IngredientBalanceReadModelRepository>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
 		services.AddTransient<AuthTokenDelegatingHandler>();
