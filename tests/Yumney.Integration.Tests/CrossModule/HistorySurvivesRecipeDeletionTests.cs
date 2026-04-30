@@ -161,6 +161,7 @@ public class HistorySurvivesRecipeDeletionTests(AspireFixture fixture) : IAsyncL
 
 		await fixture.ResetShoppingListEventStoreAsync(owner);
 		await fixture.ResetShoppingEventStoreAsync(owner);
+		await fixture.ResetShoppingReadModelAsync(userId);
 
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{

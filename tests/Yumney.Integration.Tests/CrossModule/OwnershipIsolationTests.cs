@@ -216,6 +216,7 @@ public class OwnershipIsolationTests(AspireFixture fixture) : IAsyncLifetime
 		var owner = OwnerIdentifier.From(userId);
 		await fixture.ResetShoppingListEventStoreAsync(owner);
 		await fixture.ResetShoppingEventStoreAsync(owner);
+		await fixture.ResetShoppingReadModelAsync(userId);
 
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
 		var summaries = await ctx.Set<ShoppingListSummaryReadItem>()

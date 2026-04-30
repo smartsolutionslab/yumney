@@ -198,6 +198,7 @@ public class MealConfirmedLedgerConsumptionTests(AspireFixture fixture) : IAsync
 
 		await fixture.ResetShoppingEventStoreAsync(owner);
 		await fixture.ResetShoppingListEventStoreAsync(owner);
+		await fixture.ResetShoppingReadModelAsync(userId);
 
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{
