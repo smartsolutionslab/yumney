@@ -13,10 +13,10 @@ public sealed class HttpShoppingListWriter(IHttpClientFactory httpClientFactory)
 
 		foreach (var (itemName, quantity, unit, source) in items)
 		{
-			AddItemRequest request = new(owner.Value, itemName, quantity, unit, source);
+			AddItemRequest request = new(itemName, quantity, unit, source);
 			await client.PostAsJsonAsync("/api/v1/shopping-lists/items", request, cancellationToken);
 		}
 	}
 
-	private sealed record AddItemRequest(string OwnerId, string Name, decimal Quantity, string? Unit, string Source);
+	private sealed record AddItemRequest(string Name, decimal Quantity, string? Unit, string Source);
 }

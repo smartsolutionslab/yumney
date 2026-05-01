@@ -28,7 +28,7 @@ public class AddManualItemCommandHandlerTests
 		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
-		var command = new AddManualItemCommand(ItemName.From("Potatoes"), Quantity.Of(Amount.From(2), Unit.From("kg")));
+		var command = new AddManualItemCommand(ItemName.From("Potatoes"), Quantity.Of(Amount.From(2), Unit.From("kg")), ItemSource.Manual);
 
 		var result = await handler.HandleAsync(command);
 
@@ -45,7 +45,7 @@ public class AddManualItemCommandHandlerTests
 		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
-		var command = new AddManualItemCommand(ItemName.From("Milk"), null);
+		var command = new AddManualItemCommand(ItemName.From("Milk"), null, ItemSource.Manual);
 
 		var result = await handler.HandleAsync(command);
 
@@ -61,7 +61,7 @@ public class AddManualItemCommandHandlerTests
 		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
-		var command = new AddManualItemCommand(ItemName.From("Chicken"), Quantity.Of(Amount.From(500), Unit.From("g")));
+		var command = new AddManualItemCommand(ItemName.From("Chicken"), Quantity.Of(Amount.From(500), Unit.From("g")), ItemSource.Manual);
 
 		var result = await handler.HandleAsync(command);
 
@@ -75,7 +75,7 @@ public class AddManualItemCommandHandlerTests
 		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((ShoppingLedger?)null);
 
-		var command = new AddManualItemCommand(ItemName.From("Salt"), null);
+		var command = new AddManualItemCommand(ItemName.From("Salt"), null, ItemSource.Manual);
 
 		var result = await handler.HandleAsync(command);
 
@@ -90,10 +90,24 @@ public class AddManualItemCommandHandlerTests
 		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
-		var command = new AddManualItemCommand(ItemName.From("Bread"), null);
+		var command = new AddManualItemCommand(ItemName.From("Bread"), null, ItemSource.Manual);
 
 		var result = await handler.HandleAsync(command);
 
 		result.Value.Source.Should().Be("manual");
+	}
+
+	[Fact]
+	public async Task HandleAsync_MealPlanSource_TagsItemAsMealPlan()
+	{
+		var existingLedger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
+		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+			.Returns(existingLedger);
+
+		var command = new AddManualItemCommand(ItemName.From("Pasta"), null, ItemSource.MealPlan);
+
+		var result = await handler.HandleAsync(command);
+
+		result.Value.Source.Should().Be("meal-plan");
 	}
 }

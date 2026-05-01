@@ -134,8 +134,8 @@ public static class ShoppingEndpoints
 			var validation = await validator.ValidateAsync(request, cancellationToken);
 			if (validation.HasFailed()) return validation.ToValidationProblem();
 
-			var (itemName, quantity) = request;
-			var command = new AddManualItemCommand(itemName, quantity);
+			var (itemName, quantity, source) = request;
+			var command = new AddManualItemCommand(itemName, quantity, source);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.IsSuccess
