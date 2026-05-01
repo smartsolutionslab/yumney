@@ -63,7 +63,7 @@ public class GenerateShoppingListCommandHandlerTests
 		result.IsSuccess.Should().BeTrue();
 		result.Value.ItemsAdded.Should().Be(2);
 		await shoppingListWriter.Received(1).AddItemsAsync(
-			"user-123",
+			Arg.Is<OwnerIdentifier>(owner => owner.Value == "user-123"),
 			Arg.Is<IReadOnlyList<ShoppingItemRequest>>(items => items.Count == 2),
 			Arg.Any<CancellationToken>());
 	}
@@ -83,7 +83,7 @@ public class GenerateShoppingListCommandHandlerTests
 
 		result.IsSuccess.Should().BeTrue();
 		await shoppingListWriter.Received(1).AddItemsAsync(
-			"user-123",
+			Arg.Is<OwnerIdentifier>(owner => owner.Value == "user-123"),
 			Arg.Is<IReadOnlyList<ShoppingItemRequest>>(items =>
 				items.Count == 1 && items[0].Quantity == 1000m),
 			Arg.Any<CancellationToken>());
@@ -110,7 +110,7 @@ public class GenerateShoppingListCommandHandlerTests
 		result.IsSuccess.Should().BeTrue();
 		result.Value.ItemsAdded.Should().Be(1);
 		await shoppingListWriter.Received(1).AddItemsAsync(
-			"user-123",
+			Arg.Is<OwnerIdentifier>(owner => owner.Value == "user-123"),
 			Arg.Is<IReadOnlyList<ShoppingItemRequest>>(items =>
 				items.Count == 1 && items[0].Quantity == 5m),
 			Arg.Any<CancellationToken>());
@@ -153,7 +153,7 @@ public class GenerateShoppingListCommandHandlerTests
 		result.IsSuccess.Should().BeTrue();
 		result.Value.ItemsAdded.Should().Be(0);
 		await shoppingListWriter.DidNotReceive().AddItemsAsync(
-			Arg.Any<string>(),
+			Arg.Any<OwnerIdentifier>(),
 			Arg.Any<IReadOnlyList<ShoppingItemRequest>>(),
 			Arg.Any<CancellationToken>());
 	}
