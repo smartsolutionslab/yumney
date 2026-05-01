@@ -4,6 +4,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
 
@@ -22,7 +23,7 @@ public class GetRecipeSuggestionsQueryHandlerTests
 	public GetRecipeSuggestionsQueryHandlerTests()
 	{
 		currentUser.UserId.Returns(OwnerId);
-		dietaryProvider.GetAsync(OwnerId, Arg.Any<CancellationToken>())
+		dietaryProvider.GetAsync(Arg.Is<OwnerIdentifier>(owner => owner.Value == OwnerId), Arg.Any<CancellationToken>())
 			.Returns(DietaryProfileSnapshot.Empty);
 		handler = new GetRecipeSuggestionsQueryHandler(balanceProvider, dietaryProvider, suggestionService, currentUser);
 	}
@@ -110,7 +111,7 @@ public class GetRecipeSuggestionsQueryHandlerTests
 	public async Task HandleAsync_NoDietaryPreferences_PassesNullDietaryType()
 	{
 		ConfigureBalance("apple");
-		dietaryProvider.GetAsync(OwnerId, Arg.Any<CancellationToken>())
+		dietaryProvider.GetAsync(Arg.Is<OwnerIdentifier>(owner => owner.Value == OwnerId), Arg.Any<CancellationToken>())
 			.Returns(DietaryProfileSnapshot.Empty);
 		suggestionService.SuggestAsync(
 			Arg.Any<IReadOnlyCollection<string>>(),
@@ -185,7 +186,7 @@ public class GetRecipeSuggestionsQueryHandlerTests
 		await handler.HandleAsync(new GetRecipeSuggestionsQuery());
 
 		await balanceProvider.Received(1).GetAvailableIngredientsAsync(Arg.Any<CancellationToken>());
-		await dietaryProvider.Received(1).GetAsync(OwnerId, Arg.Any<CancellationToken>());
+		await dietaryProvider.Received(1).GetAsync(Arg.Is<OwnerIdentifier>(owner => owner.Value == OwnerId), Arg.Any<CancellationToken>());
 	}
 
 	private void ConfigureBalance(params string[] names)
@@ -198,7 +199,7 @@ public class GetRecipeSuggestionsQueryHandlerTests
 
 	private void ConfigureDietary(string? dietaryType, IReadOnlyList<string> restrictions)
 	{
-		dietaryProvider.GetAsync(OwnerId, Arg.Any<CancellationToken>())
+		dietaryProvider.GetAsync(Arg.Is<OwnerIdentifier>(owner => owner.Value == OwnerId), Arg.Any<CancellationToken>())
 			.Returns(new DietaryProfileSnapshot(dietaryType, restrictions));
 	}
 }

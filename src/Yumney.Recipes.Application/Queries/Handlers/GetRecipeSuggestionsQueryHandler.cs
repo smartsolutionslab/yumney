@@ -20,10 +20,10 @@ public sealed class GetRecipeSuggestionsQueryHandler(
 	public async Task<Result<IReadOnlyList<ExtractedRecipeDto>>> HandleAsync(GetRecipeSuggestionsQuery query, CancellationToken cancellationToken = default)
 	{
 		var count = Math.Clamp(query.Count, minCount, maxCount);
-		var ownerId = currentUser.UserId;
+		var owner = currentUser.AsOwner();
 
 		var availableTask = balanceProvider.GetAvailableIngredientsAsync(cancellationToken);
-		var dietaryTask = dietaryProvider.GetAsync(ownerId, cancellationToken);
+		var dietaryTask = dietaryProvider.GetAsync(owner, cancellationToken);
 		await Task.WhenAll(availableTask, dietaryTask);
 
 		var available = availableTask.Result;
