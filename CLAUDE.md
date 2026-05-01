@@ -106,8 +106,45 @@ Yumney.AppHost    → Yumney.Api + Yumney.Gateway + ServiceDefaults (Aspire orch
 ❌ Domain MUST NOT reference Application, Infrastructure, or Api
 ❌ Application MUST NOT access Infrastructure directly
 ❌ Modules MUST NOT access each other's DB/entities directly
-✅ Cross-module communication ONLY via Shared Interfaces / Domain Events
+✅ Cross-module communication ONLY via consumer-defined contracts (synchronous reads/writes) or Integration Events (asynchronous side effects)
 ```
+
+### Cross-Module Dependencies
+
+When module **A** needs data or behaviour from module **B**, the contract is **owned by the consumer (A)**, not by `Yumney.Shared`. `Shared` cannot reference any module's `Domain`, so contracts living in Shared are forced to use primitives — which violates the "Value Objects in Service Interfaces" rule above.
+
+The pattern, per provider:
+
+```
+Yumney.{Consumer}.Application/
+  Interfaces/I{Provider}{What}.cs        → contract, using consumer's Domain VOs
+  DTOs/{Provider}{What}Result.cs         → consumer-flavoured result DTO
+
+Yumney.{Consumer}.Infrastructure/
+  ExternalServices/Http{Provider}{What}.cs → adapter; today calls
+                                              the provider's REST endpoint,
+                                              tomorrow could be in-process
+```
+
+Concrete example — MealPlan needs a recipe's ingredients:
+
+```csharp
+// in Yumney.MealPlan.Application/Interfaces/IRecipeIngredientLookup.cs
+public interface IRecipeIngredientLookup
+{
+    Task<IReadOnlyList<RecipeIngredientLookupResult>> LookupAsync(
+        SlotRecipeIdentifier recipe,
+        CancellationToken cancellationToken = default);
+}
+```
+
+Rules:
+
+- **The provider doesn't know who consumes it.** Recipes exposes its REST endpoint (`GET /api/v1/recipes/{id}`); MealPlan, Shopping, etc. each define their own `IRecipeIngredientLookup` shape if they need to read ingredients. No shared "lookup" interface tries to satisfy everyone.
+- **No cross-module project references** between `*.Application` projects. The adapter calls the provider over HTTP (or another transport) — not via a direct project reference.
+- **Transport is hidden in the adapter.** A consumer can swap `Http{Provider}{What}` for an `InProcess{Provider}{What}` (when the runtime topology collapses to a single host) without touching any handler.
+- **`Yumney.Shared.Common` does NOT host cross-module service interfaces.** It's reserved for primitive cross-cutting types (`Result`, `Guard`, `ICurrentUser`, paging helpers).
+- **Async cross-module side effects use Integration Events**, not contracts. See the next subsection.
 
 ### Event Communication
 
