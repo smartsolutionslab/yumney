@@ -38,9 +38,9 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_ValidJson_ReturnsRecipes()
 	{
-		var sut = CreateSut(validRecipesJson);
+		var service = CreateService(validRecipesJson);
 
-		var result = await sut.SuggestAsync(["apple"], "vegetarian", [], 2);
+		var result = await service.SuggestAsync(["apple"], "vegetarian", [], 2);
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Should().HaveCount(2);
@@ -50,9 +50,9 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_JsonWrappedInMarkdownFence_ReturnsRecipes()
 	{
-		var sut = CreateSut($"```json\n{validRecipesJson}\n```");
+		var service = CreateService($"```json\n{validRecipesJson}\n```");
 
-		var result = await sut.SuggestAsync(["apple"], null, [], 2);
+		var result = await service.SuggestAsync(["apple"], null, [], 2);
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Should().HaveCount(2);
@@ -61,9 +61,9 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_EmptyRecipesArray_ReturnsSuggestionFailed()
 	{
-		var sut = CreateSut("""{ "recipes": [] }""");
+		var service = CreateService("""{ "recipes": [] }""");
 
-		var result = await sut.SuggestAsync(["apple"], null, [], 2);
+		var result = await service.SuggestAsync(["apple"], null, [], 2);
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(RecipeSuggestionErrors.SuggestionFailed);
@@ -72,7 +72,7 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_AllRecipesMissingFields_ReturnsSuggestionFailed()
 	{
-		var sut = CreateSut("""
+		var service = CreateService("""
             {
               "recipes": [
                 { "title": "Foo" },
@@ -81,7 +81,7 @@ public class SemanticKernelRecipeSuggestionServiceTests
             }
             """);
 
-		var result = await sut.SuggestAsync(["apple"], null, [], 2);
+		var result = await service.SuggestAsync(["apple"], null, [], 2);
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(RecipeSuggestionErrors.SuggestionFailed);
@@ -90,7 +90,7 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_MixOfUsableAndMalformed_ReturnsOnlyUsable()
 	{
-		var sut = CreateSut("""
+		var service = CreateService("""
             {
               "recipes": [
                 { "title": "Foo" },
@@ -104,7 +104,7 @@ public class SemanticKernelRecipeSuggestionServiceTests
             }
             """);
 
-		var result = await sut.SuggestAsync(["apple"], null, [], 2);
+		var result = await service.SuggestAsync(["apple"], null, [], 2);
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Should().ContainSingle().Which.Title.Should().Be("Apple Pie");
@@ -114,9 +114,9 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	public async Task SuggestAsync_MalformedThenValid_RetriesAndSucceeds()
 	{
 		var fake = new FakeChatCompletionService(["I can't do JSON today.", validRecipesJson]);
-		var sut = CreateSut(fake);
+		var service = CreateService(fake);
 
-		var result = await sut.SuggestAsync(["apple"], null, [], 2);
+		var result = await service.SuggestAsync(["apple"], null, [], 2);
 
 		result.IsSuccess.Should().BeTrue();
 		fake.InvocationCount.Should().Be(2);
@@ -126,9 +126,9 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	public async Task SuggestAsync_MalformedTwice_ReturnsSuggestionFailed()
 	{
 		var fake = new FakeChatCompletionService(["garbage 1", "garbage 2"]);
-		var sut = CreateSut(fake);
+		var service = CreateService(fake);
 
-		var result = await sut.SuggestAsync(["apple"], null, [], 2);
+		var result = await service.SuggestAsync(["apple"], null, [], 2);
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(RecipeSuggestionErrors.SuggestionFailed);
@@ -139,9 +139,9 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	public async Task SuggestAsync_LlmThrows_ReturnsSuggestionFailed()
 	{
 		var fake = new FakeChatCompletionService(new HttpRequestException("upstream down"));
-		var sut = CreateSut(fake);
+		var service = CreateService(fake);
 
-		var result = await sut.SuggestAsync(["apple"], null, [], 2);
+		var result = await service.SuggestAsync(["apple"], null, [], 2);
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(RecipeSuggestionErrors.SuggestionFailed);
@@ -151,9 +151,9 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	public async Task SuggestAsync_ForwardsAvailableIngredientsAndDietary()
 	{
 		var fake = new FakeChatCompletionService(validRecipesJson);
-		var sut = CreateSut(fake);
+		var service = CreateService(fake);
 
-		await sut.SuggestAsync(["chicken", "rice"], "vegetarian", ["gluten-free"], 3);
+		await service.SuggestAsync(["chicken", "rice"], "vegetarian", ["gluten-free"], 3);
 
 		var userMessage = fake.CapturedHistory!.Last(m => m.Role == AuthorRole.User).Content!;
 		userMessage.Should().Contain("chicken");
@@ -167,9 +167,9 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	public async Task SuggestAsync_NullDietary_RendersAsNoPreference()
 	{
 		var fake = new FakeChatCompletionService(validRecipesJson);
-		var sut = CreateSut(fake);
+		var service = CreateService(fake);
 
-		await sut.SuggestAsync(["apple"], null, [], 1);
+		await service.SuggestAsync(["apple"], null, [], 1);
 
 		var userMessage = fake.CapturedHistory!.Last(m => m.Role == AuthorRole.User).Content!;
 		userMessage.Should().Contain("(no preference)");
@@ -182,17 +182,17 @@ public class SemanticKernelRecipeSuggestionServiceTests
 		using var cts = new CancellationTokenSource();
 		await cts.CancelAsync();
 		var fake = new FakeChatCompletionService(validRecipesJson);
-		var sut = CreateSut(fake);
+		var service = CreateService(fake);
 
-		var act = () => sut.SuggestAsync(["apple"], null, [], 2, cts.Token);
+		var act = () => service.SuggestAsync(["apple"], null, [], 2, cts.Token);
 
 		await act.Should().ThrowAsync<OperationCanceledException>();
 	}
 
-	private SemanticKernelRecipeSuggestionService CreateSut(string llmResponse) =>
-		CreateSut(new FakeChatCompletionService(llmResponse));
+	private SemanticKernelRecipeSuggestionService CreateService(string llmResponse) =>
+		CreateService(new FakeChatCompletionService(llmResponse));
 
-	private SemanticKernelRecipeSuggestionService CreateSut(FakeChatCompletionService fake)
+	private SemanticKernelRecipeSuggestionService CreateService(FakeChatCompletionService fake)
 	{
 		var builder = Kernel.CreateBuilder();
 		builder.Services.AddSingleton<IChatCompletionService>(fake);

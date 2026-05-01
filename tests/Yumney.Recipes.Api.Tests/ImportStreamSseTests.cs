@@ -108,7 +108,7 @@ public class ImportStreamSseTests
 		await InvokeImportStreamAsync("https://example.com/recipe", scraper, extraction, body);
 
 		var output = Encoding.UTF8.GetString(body.ToArray());
-		var doneEvent = ParseSseEvents(output).First(e => e.Type == "done");
+		var doneEvent = ParseSseEvents(output).First(evt => evt.Type == "done");
 
 		doneEvent.Data.Should().NotContain("\n");
 		doneEvent.Data.Should().Contain("\"title\":\"Lasagne\"");
@@ -123,7 +123,7 @@ public class ImportStreamSseTests
 		await InvokeImportStreamAsync("https://example.com/recipe", scraper, extraction, body);
 
 		var output = Encoding.UTF8.GetString(body.ToArray());
-		var doneEvent = ParseSseEvents(output).First(e => e.Type == "done");
+		var doneEvent = ParseSseEvents(output).First(evt => evt.Type == "done");
 
 		doneEvent.Data.Should().NotContain("```");
 		doneEvent.Data.Should().Contain("\"title\":\"Lasagne\"");

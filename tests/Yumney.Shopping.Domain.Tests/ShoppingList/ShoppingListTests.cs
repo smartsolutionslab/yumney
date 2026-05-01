@@ -307,8 +307,8 @@ public class ShoppingListTests
 		replayed.CreatedAt.Should().Be(original.CreatedAt);
 		replayed.RecipeReference.Should().BeNull();
 		replayed.Items.Should().HaveCount(2);
-		replayed.Items.Single(i => i.Id == items[0].Id).IsChecked.Should().BeTrue();
-		replayed.Items.Single(i => i.Id == items[1].Id).IsChecked.Should().BeFalse();
+		replayed.Items.Single(item => item.Id == items[0].Id).IsChecked.Should().BeTrue();
+		replayed.Items.Single(item => item.Id == items[1].Id).IsChecked.Should().BeFalse();
 		replayed.Version.Should().Be(original.Version);
 	}
 

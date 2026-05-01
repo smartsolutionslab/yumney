@@ -28,7 +28,7 @@ public class AdjustSlotServingsCommandHandlerTests
 		var result = await handler.HandleAsync(command);
 
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Slots.First(s => s.Day == "Monday").Servings.Should().Be(8);
+		result.Value.Slots.First(slot => slot.Day == "Monday").Servings.Should().Be(8);
 		eventStore.SaveCount.Should().Be(1);
 	}
 

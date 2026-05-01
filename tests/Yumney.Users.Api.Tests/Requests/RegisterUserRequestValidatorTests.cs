@@ -6,14 +6,14 @@ namespace SmartSolutionsLab.Yumney.Users.Api.Tests.Requests;
 
 public class RegisterUserRequestValidatorTests
 {
-	private readonly RegisterUserRequestValidator sut = new();
+	private readonly RegisterUserRequestValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
 	{
 		var request = new RegisterUserRequest("test@example.com", "Password1", "Test User");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeTrue();
 	}
@@ -26,7 +26,7 @@ public class RegisterUserRequestValidatorTests
 	{
 		var request = new RegisterUserRequest(email, "Password1", "Test User");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "Email");
@@ -41,7 +41,7 @@ public class RegisterUserRequestValidatorTests
 	{
 		var request = new RegisterUserRequest("test@example.com", password, "Test User");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "Password");
@@ -54,7 +54,7 @@ public class RegisterUserRequestValidatorTests
 	{
 		var request = new RegisterUserRequest("test@example.com", "Password1", displayName);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "DisplayName");
@@ -68,7 +68,7 @@ public class RegisterUserRequestValidatorTests
 	{
 		var request = new RegisterUserRequest(email, "Password1", "Test User");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeTrue();
 	}
@@ -81,7 +81,7 @@ public class RegisterUserRequestValidatorTests
 
 		var request = new RegisterUserRequest(email, "Password1", "Test User");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.Errors.Should().NotContain(e => e.PropertyName == "Email" && e.ErrorCode == "MaximumLengthValidator");
 	}
@@ -94,7 +94,7 @@ public class RegisterUserRequestValidatorTests
 
 		var request = new RegisterUserRequest(email, "Password1", "Test User");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "Email");
@@ -106,7 +106,7 @@ public class RegisterUserRequestValidatorTests
 		var displayName = new string('A', 200);
 		var request = new RegisterUserRequest("test@example.com", "Password1", displayName);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeTrue();
 	}
@@ -117,7 +117,7 @@ public class RegisterUserRequestValidatorTests
 		var displayName = new string('A', 201);
 		var request = new RegisterUserRequest("test@example.com", "Password1", displayName);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "DisplayName");
@@ -128,7 +128,7 @@ public class RegisterUserRequestValidatorTests
 	{
 		var request = new RegisterUserRequest("test@example.com", "Abcdef1x", "Test User");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeTrue();
 	}

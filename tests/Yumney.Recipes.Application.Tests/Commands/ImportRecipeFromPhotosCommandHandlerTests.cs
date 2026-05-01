@@ -22,7 +22,7 @@ public class ImportRecipeFromPhotosCommandHandlerTests
 		extraction.ExtractFromPhotosAsync(Arg.Any<IReadOnlyList<PhotoData>>(), Arg.Any<CancellationToken>())
 			.Returns(Result<ExtractedRecipeDto>.Success(expected));
 
-		var result = await CreateSut().HandleAsync(new ImportRecipeFromPhotosCommand(photos));
+		var result = await CreateHandler().HandleAsync(new ImportRecipeFromPhotosCommand(photos));
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Title.Should().Be("Test Recipe");
@@ -41,7 +41,7 @@ public class ImportRecipeFromPhotosCommandHandlerTests
 				return Result<ExtractedRecipeDto>.Success(CreateExtractedRecipe());
 			});
 
-		await CreateSut().HandleAsync(new ImportRecipeFromPhotosCommand(photos));
+		await CreateHandler().HandleAsync(new ImportRecipeFromPhotosCommand(photos));
 
 		capturedPhotos.Should().HaveCount(2);
 	}
@@ -54,7 +54,7 @@ public class ImportRecipeFromPhotosCommandHandlerTests
 		extraction.ExtractFromPhotosAsync(Arg.Any<IReadOnlyList<PhotoData>>(), Arg.Any<CancellationToken>())
 			.Returns(Result<ExtractedRecipeDto>.Failure(ImportRecipeErrors.ExtractionFailed));
 
-		var result = await CreateSut().HandleAsync(new ImportRecipeFromPhotosCommand(photos));
+		var result = await CreateHandler().HandleAsync(new ImportRecipeFromPhotosCommand(photos));
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
@@ -66,5 +66,5 @@ public class ImportRecipeFromPhotosCommandHandlerTests
 	private static ExtractedRecipeDto CreateExtractedRecipe() =>
 		new("Test Recipe", [new ExtractedIngredientDto("Flour", 500, "g")], [new ExtractedStepDto(1, "Mix")], Servings: 4);
 
-	private ImportRecipeFromPhotosCommandHandler CreateSut() => new(extraction);
+	private ImportRecipeFromPhotosCommandHandler CreateHandler() => new(extraction);
 }

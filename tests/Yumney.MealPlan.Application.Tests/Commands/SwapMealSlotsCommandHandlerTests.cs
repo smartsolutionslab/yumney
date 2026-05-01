@@ -27,8 +27,8 @@ public class SwapMealSlotsCommandHandlerTests
 		var result = await handler.HandleAsync(command);
 
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Slots.First(s => s.Day == "Monday").IsEmpty.Should().BeTrue();
-		result.Value.Slots.First(s => s.Day == "Wednesday").RecipeTitle.Should().Be("Pasta");
+		result.Value.Slots.First(slot => slot.Day == "Monday").IsEmpty.Should().BeTrue();
+		result.Value.Slots.First(slot => slot.Day == "Wednesday").RecipeTitle.Should().Be("Pasta");
 		eventStore.SaveCount.Should().Be(1);
 	}
 

@@ -90,7 +90,7 @@ public class CheckOffItemCommandHandlerTests
 
 		await handler.HandleAsync(command);
 
-		list.Items.First(i => i.Id == itemId).IsChecked.Should().BeTrue();
+		list.Items.First(item => item.Id == itemId).IsChecked.Should().BeTrue();
 	}
 
 	[Fact]
@@ -103,7 +103,7 @@ public class CheckOffItemCommandHandlerTests
 
 		await handler.HandleAsync(command);
 
-		list.Items.First(i => i.Id == itemId).IsChecked.Should().BeFalse();
+		list.Items.First(item => item.Id == itemId).IsChecked.Should().BeFalse();
 	}
 
 	[Fact]

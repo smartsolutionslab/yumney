@@ -28,10 +28,10 @@ public static class CqrsServiceCollectionExtensions
 	private static void RegisterHandlers(IServiceCollection services, Assembly assembly, Type openGenericInterface)
 	{
 		var handlerTypes = assembly.GetTypes()
-			.Where(t => t is { IsAbstract: false, IsInterface: false })
-			.SelectMany(t => t.GetInterfaces()
-				.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == openGenericInterface)
-				.Select(i => (Service: i, Implementation: t)));
+			.Where(type => type is { IsAbstract: false, IsInterface: false })
+			.SelectMany(type => type.GetInterfaces()
+				.Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == openGenericInterface)
+				.Select(iface => (Service: iface, Implementation: type)));
 
 		foreach (var (service, implementation) in handlerTypes)
 		{
@@ -42,7 +42,7 @@ public static class CqrsServiceCollectionExtensions
 	private static void DecorateAll(IServiceCollection services, Type openGenericInterface, Type openGenericDecorator)
 	{
 		var descriptors = services
-			.Where(d => d.ServiceType.IsGenericType && d.ServiceType.GetGenericTypeDefinition() == openGenericInterface)
+			.Where(descriptor => descriptor.ServiceType.IsGenericType && descriptor.ServiceType.GetGenericTypeDefinition() == openGenericInterface)
 			.ToList();
 
 		foreach (var descriptor in descriptors)

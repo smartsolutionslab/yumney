@@ -27,11 +27,11 @@ public class CookWithLeftoversCommandHandlerTests
 
 		result.IsSuccess.Should().BeTrue();
 
-		var monday = result.Value.Slots.First(s => s.Day == "Monday");
+		var monday = result.Value.Slots.First(slot => slot.Day == "Monday");
 		monday.ContentType.Should().Be("Recipe");
 		monday.Servings.Should().Be(8);
 
-		var wednesday = result.Value.Slots.First(s => s.Day == "Wednesday");
+		var wednesday = result.Value.Slots.First(slot => slot.Day == "Wednesday");
 		wednesday.ContentType.Should().Be("Leftover");
 		wednesday.LeftoverSourceDay.Should().Be("Monday");
 		wednesday.Servings.Should().Be(4);
@@ -45,8 +45,8 @@ public class CookWithLeftoversCommandHandlerTests
 		var result = await handler.HandleAsync(command);
 
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Slots.First(s => s.Day == "Monday").ContentType.Should().Be("Recipe");
-		result.Value.Slots.First(s => s.Day == "Tuesday").ContentType.Should().Be("Empty");
+		result.Value.Slots.First(slot => slot.Day == "Monday").ContentType.Should().Be("Recipe");
+		result.Value.Slots.First(slot => slot.Day == "Tuesday").ContentType.Should().Be("Empty");
 	}
 
 	[Fact]

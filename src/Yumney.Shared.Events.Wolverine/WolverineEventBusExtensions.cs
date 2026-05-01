@@ -59,9 +59,9 @@ public static class WolverineEventBusExtensions
 		var handlerType = typeof(IntegrationEventConsumer<>);
 
 		var eventTypes = assembly.GetTypes()
-			.SelectMany(t => t.GetInterfaces())
-			.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
-			.Select(i => i.GetGenericArguments()[0])
+			.SelectMany(type => type.GetInterfaces())
+			.Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == handlerInterfaceType)
+			.Select(iface => iface.GetGenericArguments()[0])
 			.Distinct();
 
 		foreach (var eventType in eventTypes)

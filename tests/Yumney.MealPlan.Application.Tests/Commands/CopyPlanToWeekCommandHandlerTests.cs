@@ -67,7 +67,7 @@ public class CopyPlanToWeekCommandHandlerTests
 		var result = await handler.HandleAsync(new CopyPlanToWeekCommand(SourceWeek, TargetWeek));
 
 		result.IsSuccess.Should().BeTrue();
-		var copied = eventStore.LastSavedPlan!.Slots.Single(s => s.Day == DayOfWeek.Monday && s.MealType == MealType.Dinner);
+		var copied = eventStore.LastSavedPlan!.Slots.Single(slot => slot.Day == DayOfWeek.Monday && slot.MealType == MealType.Dinner);
 		copied.State.Should().Be(MealState.Planned);
 	}
 

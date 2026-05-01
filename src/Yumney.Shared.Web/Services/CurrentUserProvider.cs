@@ -19,7 +19,7 @@ public sealed class CurrentUserProvider(IHttpContextAccessor httpContextAccessor
 		?? string.Empty;
 
 	public IReadOnlyCollection<string> Roles => User?.FindAll(ClaimTypes.Role)
-		.Select(c => c.Value)
+		.Select(claim => claim.Value)
 		.ToArray()
 		?? [];
 

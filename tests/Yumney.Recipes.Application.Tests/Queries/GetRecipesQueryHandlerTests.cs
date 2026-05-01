@@ -355,8 +355,8 @@ public class GetRecipesQueryHandlerTests
 
 		var result = await handler.HandleAsync(CreateQuery(1, 20, RecipeSortField.Date, SortDirection.Descending));
 
-		result.Value.Items.Single(i => i.Identifier == fav.Id.Value).IsFavorite.Should().BeTrue();
-		result.Value.Items.Single(i => i.Identifier == notFav.Id.Value).IsFavorite.Should().BeFalse();
+		result.Value.Items.Single(item => item.Identifier == fav.Id.Value).IsFavorite.Should().BeTrue();
+		result.Value.Items.Single(item => item.Identifier == notFav.Id.Value).IsFavorite.Should().BeFalse();
 	}
 
 	[Fact]

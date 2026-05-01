@@ -23,7 +23,7 @@ public static class ValidationExtensions
 		var failures = result.Errors;
 		if (failures.Count == 0) return;
 
-		var fields = string.Join(", ", failures.Select(e => e.PropertyName).Distinct());
+		var fields = string.Join(", ", failures.Select(failure => failure.PropertyName).Distinct());
 		var activity = Activity.Current;
 		activity?.SetTag("validation.failed_fields", fields);
 		activity?.SetTag("validation.error_count", failures.Count);
