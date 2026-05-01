@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;

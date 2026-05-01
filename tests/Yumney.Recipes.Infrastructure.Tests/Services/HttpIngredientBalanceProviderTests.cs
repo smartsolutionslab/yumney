@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Text;
 using FluentAssertions;
 using NSubstitute;
-using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
 
