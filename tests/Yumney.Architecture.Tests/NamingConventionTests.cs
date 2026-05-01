@@ -4,7 +4,9 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Architecture.Tests;
 
+#pragma warning disable SA1601 // Partial elements should be documented ([GeneratedRegex] requires partial methods).
 public partial class NamingConventionTests
+#pragma warning restore SA1601
 {
 	[Fact]
 	public void NoSourceFile_HasSingleLetterLambdaParameter()
