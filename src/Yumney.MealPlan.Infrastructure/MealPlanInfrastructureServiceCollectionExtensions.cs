@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.ExternalServices;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel;
@@ -48,7 +49,7 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 		services.AddScoped<IIntegrationEventHandler<MealResetToPlannedIntegrationEvent>, MealPlanProjectionHandler>();
 		services.AddScoped<IIntegrationEventHandler<MealSlotsSwappedIntegrationEvent>, MealPlanProjectionHandler>();
 
-		services.AddScoped<IRecipeIngredientProvider, HttpRecipeIngredientProvider>();
+		services.AddScoped<IRecipeIngredientLookup, HttpRecipeIngredientLookup>();
 		services.AddScoped<IShoppingListWriter, HttpShoppingListWriter>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
 		services.AddTransient<AuthTokenDelegatingHandler>();

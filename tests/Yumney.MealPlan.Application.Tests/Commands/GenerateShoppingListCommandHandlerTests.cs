@@ -2,6 +2,8 @@ using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
+using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
+using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
@@ -12,7 +14,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 public class GenerateShoppingListCommandHandlerTests
 {
 	private readonly FakeMealPlanReadModelRepository readModel = new();
-	private readonly IRecipeIngredientProvider ingredientProvider = Substitute.For<IRecipeIngredientProvider>();
+	private readonly IRecipeIngredientLookup recipeIngredients = Substitute.For<IRecipeIngredientLookup>();
 	private readonly IStaplesProvider staplesProvider = Substitute.For<IStaplesProvider>();
 	private readonly IShoppingListWriter shoppingListWriter = Substitute.For<IShoppingListWriter>();
 	private readonly GenerateShoppingListCommandHandler handler;
@@ -21,7 +23,7 @@ public class GenerateShoppingListCommandHandlerTests
 	{
 		staplesProvider.GetStapleNamesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
 			.Returns(new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "salt", "pepper", "flour" });
-		handler = new GenerateShoppingListCommandHandler(readModel, ingredientProvider, staplesProvider, shoppingListWriter, CreateCurrentUser());
+		handler = new GenerateShoppingListCommandHandler(readModel, recipeIngredients, staplesProvider, shoppingListWriter, CreateCurrentUser());
 	}
 
 	[Fact]
@@ -49,8 +51,8 @@ public class GenerateShoppingListCommandHandlerTests
 	{
 		var recipeId = SeedPlanWithRecipeId("Pasta", 4);
 
-		ingredientProvider.GetIngredientsAsync(recipeId, Arg.Any<CancellationToken>())
-			.Returns(new List<RecipeIngredientInfo>
+		recipeIngredients.LookupAsync(SlotRecipeIdentifier.From(recipeId), Arg.Any<CancellationToken>())
+			.Returns(new List<RecipeIngredientLookupResult>
 			{
 				new("Spaghetti", 500m, "g", 4),
 				new("Tomatoes", 400m, "g", 4),
@@ -71,8 +73,8 @@ public class GenerateShoppingListCommandHandlerTests
 	{
 		var recipeId = SeedPlanWithRecipeId("Pasta", 8);
 
-		ingredientProvider.GetIngredientsAsync(recipeId, Arg.Any<CancellationToken>())
-			.Returns(new List<RecipeIngredientInfo>
+		recipeIngredients.LookupAsync(SlotRecipeIdentifier.From(recipeId), Arg.Any<CancellationToken>())
+			.Returns(new List<RecipeIngredientLookupResult>
 			{
 				new("Spaghetti", 500m, "g", 4),
 			});
@@ -92,13 +94,13 @@ public class GenerateShoppingListCommandHandlerTests
 	{
 		var (recipeA, recipeB) = SeedPlanWithTwoRecipes("Pasta", 4, "Risotto", 4);
 
-		ingredientProvider.GetIngredientsAsync(recipeA, Arg.Any<CancellationToken>())
-			.Returns(new List<RecipeIngredientInfo>
+		recipeIngredients.LookupAsync(SlotRecipeIdentifier.From(recipeA), Arg.Any<CancellationToken>())
+			.Returns(new List<RecipeIngredientLookupResult>
 			{
 				new("Olive Oil", 2m, "tbsp", 4),
 			});
-		ingredientProvider.GetIngredientsAsync(recipeB, Arg.Any<CancellationToken>())
-			.Returns(new List<RecipeIngredientInfo>
+		recipeIngredients.LookupAsync(SlotRecipeIdentifier.From(recipeB), Arg.Any<CancellationToken>())
+			.Returns(new List<RecipeIngredientLookupResult>
 			{
 				new("olive oil", 3m, "tbsp", 4),
 			});
@@ -119,8 +121,8 @@ public class GenerateShoppingListCommandHandlerTests
 	{
 		var recipeId = SeedPlanWithRecipeId("Steak", 2);
 
-		ingredientProvider.GetIngredientsAsync(recipeId, Arg.Any<CancellationToken>())
-			.Returns(new List<RecipeIngredientInfo>
+		recipeIngredients.LookupAsync(SlotRecipeIdentifier.From(recipeId), Arg.Any<CancellationToken>())
+			.Returns(new List<RecipeIngredientLookupResult>
 			{
 				new("Steak", 500m, "g", 2),
 				new("Salt", 1m, "tsp", 2),
@@ -139,8 +141,8 @@ public class GenerateShoppingListCommandHandlerTests
 	{
 		var recipeId = SeedPlanWithRecipeId("Salt Toast", 2);
 
-		ingredientProvider.GetIngredientsAsync(recipeId, Arg.Any<CancellationToken>())
-			.Returns(new List<RecipeIngredientInfo>
+		recipeIngredients.LookupAsync(SlotRecipeIdentifier.From(recipeId), Arg.Any<CancellationToken>())
+			.Returns(new List<RecipeIngredientLookupResult>
 			{
 				new("Salt", 1m, "tsp", 2),
 				new("Flour", 100m, "g", 2),

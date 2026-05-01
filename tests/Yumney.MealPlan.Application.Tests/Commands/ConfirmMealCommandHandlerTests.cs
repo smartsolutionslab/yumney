@@ -2,8 +2,9 @@ using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
+using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
+using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
 using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
@@ -12,14 +13,14 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Commands;
 public class ConfirmMealCommandHandlerTests
 {
 	private readonly FakeMealPlanEventStore eventStore = new();
-	private readonly IRecipeIngredientProvider ingredientProvider = Substitute.For<IRecipeIngredientProvider>();
+	private readonly IRecipeIngredientLookup recipeIngredients = Substitute.For<IRecipeIngredientLookup>();
 	private readonly ConfirmMealCommandHandler handler;
 
 	public ConfirmMealCommandHandlerTests()
 	{
-		ingredientProvider.GetIngredientsAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>())
-			.Returns(Array.Empty<RecipeIngredientInfo>());
-		handler = new ConfirmMealCommandHandler(eventStore, CreateCurrentUser(), ingredientProvider);
+		recipeIngredients.LookupAsync(Arg.Any<SlotRecipeIdentifier>(), Arg.Any<CancellationToken>())
+			.Returns(Array.Empty<RecipeIngredientLookupResult>());
+		handler = new ConfirmMealCommandHandler(eventStore, CreateCurrentUser(), recipeIngredients);
 	}
 
 	[Fact]
