@@ -1,16 +1,11 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shared.Common;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
 
-/// <summary>
-/// HTTP-backed <see cref="IIngredientBalanceProvider"/> for callers in the
-/// Recipes module. Calls the Shopping API balance endpoint and projects the
-/// returned items to a name → freshness map used for case-insensitive
-/// matching plus perishable-first ranking.
-/// </summary>
 public sealed class HttpIngredientBalanceProvider(IHttpClientFactory httpClientFactory) : IIngredientBalanceProvider
 {
 #pragma warning disable SA1311
@@ -33,9 +28,8 @@ public sealed class HttpIngredientBalanceProvider(IHttpClientFactory httpClientF
 			var name = item.ItemName.Trim();
 			if (name.Length == 0) continue;
 
-			// Last write wins. Items with the same name but different units
-			// share a freshness slot — the most "urgent" wins so the matcher
-			// is not misled by a fresher duplicate.
+			// Items with the same name but different units share a freshness slot;
+			// the most urgent wins so the matcher is not misled by a fresher duplicate.
 			if (!result.TryGetValue(name, out var existing) || Compare(item.Freshness, existing) > 0)
 			{
 				result[name] = item.Freshness;

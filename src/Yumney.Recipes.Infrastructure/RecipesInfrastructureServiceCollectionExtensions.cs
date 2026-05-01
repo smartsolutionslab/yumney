@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
+using SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 using SmartSolutionsLab.Yumney.Shared.Common;
