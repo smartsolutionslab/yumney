@@ -1,4 +1,6 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Users.Domain.StaplesList;
 
 namespace SmartSolutionsLab.Yumney.Users.Api;
 
@@ -17,7 +19,8 @@ public static class StaplesEndpoints
 
 		static async Task<IResult> GetStaples(IStaplesProvider staplesProvider, ICurrentUser currentUser, CancellationToken cancellationToken)
 		{
-			var staples = await staplesProvider.GetStapleNamesAsync(currentUser.UserId, cancellationToken);
+			var owner = OwnerIdentifier.From(currentUser.UserId);
+			var staples = await staplesProvider.GetStapleNamesAsync(owner, cancellationToken);
 			return Results.Ok(staples);
 		}
 	}

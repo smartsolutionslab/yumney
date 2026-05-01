@@ -13,9 +13,10 @@ public sealed class GetIngredientBalanceQueryHandler(
 	public async Task<Result<IngredientBalanceDto>> HandleAsync(GetIngredientBalanceQuery query, CancellationToken cancellationToken = default)
 	{
 		var ownerId = currentUser.UserId;
+		var owner = currentUser.AsOwner();
 
 		var atHomeTask = readModel.GetAtHomeItemsAsync(ownerId, cancellationToken);
-		var staplesTask = staplesProvider.GetStapleNamesAsync(ownerId, cancellationToken);
+		var staplesTask = staplesProvider.GetStapleNamesAsync(owner, cancellationToken);
 		await Task.WhenAll(atHomeTask, staplesTask);
 
 		var atHomeItems = atHomeTask.Result;
