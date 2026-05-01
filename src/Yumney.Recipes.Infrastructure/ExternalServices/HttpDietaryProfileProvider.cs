@@ -1,18 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
 
-/// <summary>
-/// HTTP-backed <see cref="IDietaryProfileProvider"/> for callers in the
-/// Recipes module. Reads the profile via Users API. Returns
-/// <see cref="DietaryProfileSnapshot.Empty"/> if the user has not set
-/// preferences yet (404) — recipe suggestions then run unfiltered.
-/// </summary>
 public sealed class HttpDietaryProfileProvider(IHttpClientFactory httpClientFactory) : IDietaryProfileProvider
 {
-	public async Task<DietaryProfileSnapshot> GetAsync(string ownerId, CancellationToken cancellationToken = default)
+	public async Task<DietaryProfileSnapshot> GetAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
 		var client = httpClientFactory.CreateClient("users-api");
 		var response = await client.GetAsync("/api/v1/users/me/profile", cancellationToken);
