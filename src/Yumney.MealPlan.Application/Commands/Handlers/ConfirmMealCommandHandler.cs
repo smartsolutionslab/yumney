@@ -1,4 +1,5 @@
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
+using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
 using SmartSolutionsLab.Yumney.Shared.Common;
@@ -9,7 +10,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 public sealed class ConfirmMealCommandHandler(
 	IMealPlanEventStore eventStore,
 	ICurrentUser currentUser,
-	IRecipeIngredientProvider ingredientProvider)
+	IRecipeIngredientLookup recipeIngredients)
 	: ICommandHandler<ConfirmMealCommand, Result<WeeklyPlanDto>>
 {
 	public async Task<Result<WeeklyPlanDto>> HandleAsync(ConfirmMealCommand command, CancellationToken cancellationToken = default)
@@ -25,7 +26,7 @@ public sealed class ConfirmMealCommandHandler(
 			case MealState.Cooked:
 				var slot = plan.GetVisibleSlots().FirstOrDefault(slot => slot.Day == day && slot.MealType == mealType);
 				var ingredients = slot?.Recipe is not null
-					? await FetchIngredientsAsync(slot.Recipe.RecipeIdentifier.Value, cancellationToken)
+					? await FetchIngredientsAsync(slot.Recipe.RecipeIdentifier, cancellationToken)
 					: [];
 				plan.MarkAsCooked(day, mealType, ingredients);
 				break;
@@ -42,9 +43,9 @@ public sealed class ConfirmMealCommandHandler(
 		return plan.ToDto(week);
 	}
 
-	private async Task<IReadOnlyList<CookedIngredient>> FetchIngredientsAsync(Guid recipeId, CancellationToken cancellationToken)
+	private async Task<IReadOnlyList<CookedIngredient>> FetchIngredientsAsync(SlotRecipeIdentifier recipe, CancellationToken cancellationToken)
 	{
-		var ingredients = await ingredientProvider.GetIngredientsAsync(recipeId, cancellationToken);
+		var ingredients = await recipeIngredients.LookupAsync(recipe, cancellationToken);
 		return ingredients
 			.Where(ingredient => ingredient.Amount.HasValue && ingredient.Amount.Value > 0m)
 			.Select(ingredient => new CookedIngredient(ingredient.Name, ingredient.Amount!.Value, ingredient.Unit))

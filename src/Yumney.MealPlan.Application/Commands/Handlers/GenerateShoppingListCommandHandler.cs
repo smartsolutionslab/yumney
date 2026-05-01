@@ -8,7 +8,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
 public sealed class GenerateShoppingListCommandHandler(
 	IMealPlanReadModelRepository readModel,
-	IRecipeIngredientProvider ingredientProvider,
+	IRecipeIngredientLookup recipeIngredients,
 	IStaplesProvider staplesProvider,
 	IShoppingListWriter shoppingListWriter,
 	ICurrentUser currentUser) : ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>>
@@ -25,7 +25,7 @@ public sealed class GenerateShoppingListCommandHandler(
 
 		foreach (var recipe in planned.Recipes)
 		{
-			var ingredients = await ingredientProvider.GetIngredientsAsync(recipe.RecipeIdentifier, cancellationToken);
+			var ingredients = await recipeIngredients.LookupAsync(SlotRecipeIdentifier.From(recipe.RecipeIdentifier), cancellationToken);
 			var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? recipe.Servings;
 			var scaleFactor = recipeServings > 0 ? (decimal)recipe.Servings / recipeServings : 1m;
 
