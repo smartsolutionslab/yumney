@@ -21,12 +21,12 @@ public sealed class DomainEventDispatchInterceptor(IDomainEventDispatcher dispat
 	{
 		var entities = context.ChangeTracker
 			.Entries<IHasDomainEvents>()
-			.Where(e => e.Entity.DomainEvents.Count > 0)
-			.Select(e => e.Entity)
+			.Where(entry => entry.Entity.DomainEvents.Count > 0)
+			.Select(entry => entry.Entity)
 			.ToList();
 
 		var domainEvents = entities
-			.SelectMany(e => e.DomainEvents)
+			.SelectMany(entity => entity.DomainEvents)
 			.ToList();
 
 		foreach (var entity in entities)

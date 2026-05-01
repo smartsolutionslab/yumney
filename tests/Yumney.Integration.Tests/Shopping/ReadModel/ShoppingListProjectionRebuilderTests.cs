@@ -46,7 +46,7 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 		summary.ItemCount.Should().Be(2);
 		var items = await verify.Set<ShoppingListItemReadItem>().Where(item => item.ListId == listId.Value).ToListAsync();
 		items.Should().HaveCount(2);
-		items.Count(i => i.IsChecked).Should().Be(1);
+		items.Count(item => item.IsChecked).Should().Be(1);
 	}
 
 	[Fact]

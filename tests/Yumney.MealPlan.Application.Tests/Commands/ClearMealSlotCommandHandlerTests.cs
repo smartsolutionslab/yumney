@@ -26,7 +26,7 @@ public class ClearMealSlotCommandHandlerTests
 		var result = await handler.HandleAsync(command);
 
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Slots.First(s => s.Day == "Wednesday").IsEmpty.Should().BeTrue();
+		result.Value.Slots.First(slot => slot.Day == "Wednesday").IsEmpty.Should().BeTrue();
 		eventStore.SaveCount.Should().Be(1);
 	}
 }

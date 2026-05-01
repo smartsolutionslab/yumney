@@ -31,7 +31,7 @@ public class ConfirmMealCommandHandlerTests
 		var result = await handler.HandleAsync(command);
 
 		result.IsSuccess.Should().BeTrue();
-		var slot = result.Value.Slots.First(s => s.Day == "Monday");
+		var slot = result.Value.Slots.First(slot => slot.Day == "Monday");
 		slot.State.Should().Be("Cooked");
 		eventStore.SaveCount.Should().Be(1);
 	}
@@ -45,7 +45,7 @@ public class ConfirmMealCommandHandlerTests
 		var result = await handler.HandleAsync(command);
 
 		result.IsSuccess.Should().BeTrue();
-		var slot = result.Value.Slots.First(s => s.Day == "Monday");
+		var slot = result.Value.Slots.First(slot => slot.Day == "Monday");
 		slot.State.Should().Be("Skipped");
 	}
 
@@ -60,7 +60,7 @@ public class ConfirmMealCommandHandlerTests
 		var result = await handler.HandleAsync(command);
 
 		result.IsSuccess.Should().BeTrue();
-		var slot = result.Value.Slots.First(s => s.Day == "Monday");
+		var slot = result.Value.Slots.First(slot => slot.Day == "Monday");
 		slot.State.Should().Be("Planned");
 	}
 }

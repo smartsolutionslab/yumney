@@ -14,9 +14,9 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_EmptyResponse_ReturnsEmptyDictionary()
 	{
-		var sut = CreateSut("""{ "items": [] }""");
+		var provider = CreateProvider("""{ "items": [] }""");
 
-		var result = await sut.GetAvailableIngredientsAsync();
+		var result = await provider.GetAvailableIngredientsAsync();
 
 		result.Should().BeEmpty();
 	}
@@ -24,9 +24,9 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_NullItems_ReturnsEmptyDictionary()
 	{
-		var sut = CreateSut("""{ "items": null }""");
+		var provider = CreateProvider("""{ "items": null }""");
 
-		var result = await sut.GetAvailableIngredientsAsync();
+		var result = await provider.GetAvailableIngredientsAsync();
 
 		result.Should().BeEmpty();
 	}
@@ -34,7 +34,7 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_DeserializesEnumAsString()
 	{
-		var sut = CreateSut("""
+		var provider = CreateProvider("""
             {
               "items": [
                 { "itemName": "Milk", "freshness": "UseSoon" },
@@ -43,7 +43,7 @@ public class HttpIngredientBalanceProviderTests
             }
             """);
 
-		var result = await sut.GetAvailableIngredientsAsync();
+		var result = await provider.GetAvailableIngredientsAsync();
 
 		result["Milk"].Should().Be(Freshness.UseSoon);
 		result["Salt"].Should().Be(Freshness.NotTracked);
@@ -52,9 +52,9 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_LookupIsCaseInsensitive()
 	{
-		var sut = CreateSut("""{ "items": [ { "itemName": "Milk", "freshness": "Fresh" } ] }""");
+		var provider = CreateProvider("""{ "items": [ { "itemName": "Milk", "freshness": "Fresh" } ] }""");
 
-		var result = await sut.GetAvailableIngredientsAsync();
+		var result = await provider.GetAvailableIngredientsAsync();
 
 		result.ContainsKey("milk").Should().BeTrue();
 		result.ContainsKey("MILK").Should().BeTrue();
@@ -63,9 +63,9 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_TrimsWhitespaceFromNames()
 	{
-		var sut = CreateSut("""{ "items": [ { "itemName": "  Milk  ", "freshness": "Fresh" } ] }""");
+		var provider = CreateProvider("""{ "items": [ { "itemName": "  Milk  ", "freshness": "Fresh" } ] }""");
 
-		var result = await sut.GetAvailableIngredientsAsync();
+		var result = await provider.GetAvailableIngredientsAsync();
 
 		result.Should().ContainSingle().Which.Key.Should().Be("Milk");
 	}
@@ -73,7 +73,7 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_BlankName_Skipped()
 	{
-		var sut = CreateSut("""
+		var provider = CreateProvider("""
             {
               "items": [
                 { "itemName": "   ", "freshness": "Fresh" },
@@ -82,7 +82,7 @@ public class HttpIngredientBalanceProviderTests
             }
             """);
 
-		var result = await sut.GetAvailableIngredientsAsync();
+		var result = await provider.GetAvailableIngredientsAsync();
 
 		result.Should().ContainSingle().Which.Key.Should().Be("Eggs");
 	}
@@ -92,7 +92,7 @@ public class HttpIngredientBalanceProviderTests
 	{
 		// Same name with different freshness (e.g. "milk in liters" UseSoon and
 		// "milk in ml" Fresh). The matcher needs the urgent one to surface.
-		var sut = CreateSut("""
+		var provider = CreateProvider("""
             {
               "items": [
                 { "itemName": "Milk", "freshness": "Fresh" },
@@ -102,7 +102,7 @@ public class HttpIngredientBalanceProviderTests
             }
             """);
 
-		var result = await sut.GetAvailableIngredientsAsync();
+		var result = await provider.GetAvailableIngredientsAsync();
 
 		result.Should().ContainSingle().Which.Value.Should().Be(Freshness.UseSoon);
 	}
@@ -111,7 +111,7 @@ public class HttpIngredientBalanceProviderTests
 	public async Task GetAvailableIngredientsAsync_DuplicateNameOrderIndependent()
 	{
 		// Same scenario but reversed order — most-urgent first, then less urgent.
-		var sut = CreateSut("""
+		var provider = CreateProvider("""
             {
               "items": [
                 { "itemName": "Chicken", "freshness": "CheckIt" },
@@ -120,7 +120,7 @@ public class HttpIngredientBalanceProviderTests
             }
             """);
 
-		var result = await sut.GetAvailableIngredientsAsync();
+		var result = await provider.GetAvailableIngredientsAsync();
 
 		result["Chicken"].Should().Be(Freshness.CheckIt);
 	}
@@ -128,14 +128,14 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_HttpError_PropagatesException()
 	{
-		var sut = CreateSut(string.Empty, HttpStatusCode.InternalServerError);
+		var provider = CreateProvider(string.Empty, HttpStatusCode.InternalServerError);
 
-		var act = () => sut.GetAvailableIngredientsAsync();
+		var act = () => provider.GetAvailableIngredientsAsync();
 
 		await act.Should().ThrowAsync<HttpRequestException>();
 	}
 
-	private static HttpIngredientBalanceProvider CreateSut(string responseBody, HttpStatusCode status = HttpStatusCode.OK)
+	private static HttpIngredientBalanceProvider CreateProvider(string responseBody, HttpStatusCode status = HttpStatusCode.OK)
 	{
 		var handler = new StubHttpMessageHandler(responseBody, status);
 		var client = new HttpClient(handler) { BaseAddress = new Uri("http://shopping-api") };

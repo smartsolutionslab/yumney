@@ -19,12 +19,12 @@ public class RegisterUserCommandHandlerTests
 	private readonly IAppUserProfileRepository users = Substitute.For<IAppUserProfileRepository>();
 	private readonly IUsersUnitOfWork unitOfWork = Substitute.For<IUsersUnitOfWork>();
 
-	private readonly RegisterUserCommandHandler sut;
+	private readonly RegisterUserCommandHandler handler;
 
 	public RegisterUserCommandHandlerTests()
 	{
 		unitOfWork.Profiles.Returns(users);
-		sut = new RegisterUserCommandHandler(keycloakAdmin, unitOfWork);
+		handler = new RegisterUserCommandHandler(keycloakAdmin, unitOfWork);
 	}
 
 	[Fact]
@@ -37,7 +37,7 @@ public class RegisterUserCommandHandlerTests
 			.CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())
 			.Returns(Result<KeycloakUserId>.Success(keycloakUserId));
 
-		var result = await sut.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Message.Should().Contain("check your email");
@@ -58,7 +58,7 @@ public class RegisterUserCommandHandlerTests
 			.CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())
 			.Returns(Result<KeycloakUserId>.Failure(RegistrationErrors.EmailAlreadyExists));
 
-		var result = await sut.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(RegistrationErrors.EmailAlreadyExists);
@@ -77,7 +77,7 @@ public class RegisterUserCommandHandlerTests
 			.CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())
 			.Returns(Result<KeycloakUserId>.Failure(RegistrationErrors.IdentityProviderUnavailable));
 
-		var result = await sut.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(RegistrationErrors.IdentityProviderUnavailable);
@@ -92,7 +92,7 @@ public class RegisterUserCommandHandlerTests
 			.CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())
 			.Returns(Result<KeycloakUserId>.Failure(RegistrationErrors.UserCreationFailed));
 
-		var result = await sut.HandleAsync(command);
+		var result = await handler.HandleAsync(command);
 
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(RegistrationErrors.UserCreationFailed);
@@ -107,7 +107,7 @@ public class RegisterUserCommandHandlerTests
 			.CreateUserAsync(command.Email, command.Password, command.DisplayName, Arg.Any<CancellationToken>())
 			.Returns(Result<KeycloakUserId>.Failure(RegistrationErrors.IdentityProviderUnavailable));
 
-		await sut.HandleAsync(command);
+		await handler.HandleAsync(command);
 
 		await users.DidNotReceive().AddAsync(
 			Arg.Any<AppUserProfile>(),

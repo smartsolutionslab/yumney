@@ -16,9 +16,9 @@ public class CurrentUserProviderTests
 	{
 		SetupUser(new Claim("sub", "user-123"));
 
-		var sut = new CurrentUserProvider(httpContextAccessor);
+		var provider = new CurrentUserProvider(httpContextAccessor);
 
-		sut.UserId.Should().Be("user-123");
+		provider.UserId.Should().Be("user-123");
 	}
 
 	[Fact]
@@ -26,9 +26,9 @@ public class CurrentUserProviderTests
 	{
 		httpContextAccessor.HttpContext.Returns((HttpContext?)null);
 
-		var sut = new CurrentUserProvider(httpContextAccessor);
+		var provider = new CurrentUserProvider(httpContextAccessor);
 
-		sut.UserId.Should().BeEmpty();
+		provider.UserId.Should().BeEmpty();
 	}
 
 	[Fact]
@@ -36,9 +36,9 @@ public class CurrentUserProviderTests
 	{
 		SetupUser(new Claim(ClaimTypes.Email, "test@example.com"));
 
-		var sut = new CurrentUserProvider(httpContextAccessor);
+		var provider = new CurrentUserProvider(httpContextAccessor);
 
-		sut.Email.Should().Be("test@example.com");
+		provider.Email.Should().Be("test@example.com");
 	}
 
 	[Fact]
@@ -46,9 +46,9 @@ public class CurrentUserProviderTests
 	{
 		SetupAuthenticatedUser("user-123");
 
-		var sut = new CurrentUserProvider(httpContextAccessor);
+		var provider = new CurrentUserProvider(httpContextAccessor);
 
-		sut.IsAuthenticated.Should().BeTrue();
+		provider.IsAuthenticated.Should().BeTrue();
 	}
 
 	[Fact]
@@ -56,9 +56,9 @@ public class CurrentUserProviderTests
 	{
 		httpContextAccessor.HttpContext.Returns((HttpContext?)null);
 
-		var sut = new CurrentUserProvider(httpContextAccessor);
+		var provider = new CurrentUserProvider(httpContextAccessor);
 
-		sut.IsAuthenticated.Should().BeFalse();
+		provider.IsAuthenticated.Should().BeFalse();
 	}
 
 	[Fact]
@@ -68,9 +68,9 @@ public class CurrentUserProviderTests
 			new Claim(ClaimTypes.Role, "admin"),
 			new Claim(ClaimTypes.Role, "user"));
 
-		var sut = new CurrentUserProvider(httpContextAccessor);
+		var provider = new CurrentUserProvider(httpContextAccessor);
 
-		sut.Roles.Should().BeEquivalentTo(["admin", "user"]);
+		provider.Roles.Should().BeEquivalentTo(["admin", "user"]);
 	}
 
 	[Fact]
@@ -78,9 +78,9 @@ public class CurrentUserProviderTests
 	{
 		SetupAuthenticatedUser("user-123", "admin");
 
-		var sut = new CurrentUserProvider(httpContextAccessor);
+		var provider = new CurrentUserProvider(httpContextAccessor);
 
-		sut.IsInRole("admin").Should().BeTrue();
+		provider.IsInRole("admin").Should().BeTrue();
 	}
 
 	private void SetupUser(params Claim[] claims)

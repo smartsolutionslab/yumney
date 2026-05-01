@@ -44,7 +44,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 		saved.Ingredients.Should().HaveCount(10);
 		saved.Ingredients.Select(ingredient => ingredient.Name).Should().Contain(IngredientName.From("Mozzarella"));
 		saved.Steps.Should().HaveCount(5);
-		saved.Steps.First(s => s.Number == StepNumber.From(1)).Description.Value
+		saved.Steps.First(slot => slot.Number == StepNumber.From(1)).Description.Value
 			.Should().Contain("Brown the ground beef");
 	}
 

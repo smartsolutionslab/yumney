@@ -6,14 +6,14 @@ namespace SmartSolutionsLab.Yumney.Users.Api.Tests.Requests;
 
 public class ResendVerificationEmailRequestValidatorTests
 {
-	private readonly ResendVerificationEmailRequestValidator sut = new();
+	private readonly ResendVerificationEmailRequestValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
 	{
 		var request = new ResendVerificationEmailRequest("test@example.com");
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeTrue();
 	}
@@ -26,7 +26,7 @@ public class ResendVerificationEmailRequestValidatorTests
 	{
 		var request = new ResendVerificationEmailRequest(email);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "Email");
@@ -39,7 +39,7 @@ public class ResendVerificationEmailRequestValidatorTests
 		var email = $"{localPart}@example.com";
 		var request = new ResendVerificationEmailRequest(email);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.Errors.Should().NotContain(e => e.PropertyName == "Email" && e.ErrorCode == "MaximumLengthValidator");
 	}
@@ -51,7 +51,7 @@ public class ResendVerificationEmailRequestValidatorTests
 		var email = $"{localPart}@example.com";
 		var request = new ResendVerificationEmailRequest(email);
 
-		var result = sut.Validate(request);
+		var result = validator.Validate(request);
 
 		result.IsValid.Should().BeFalse();
 		result.Errors.Should().Contain(e => e.PropertyName == "Email");
