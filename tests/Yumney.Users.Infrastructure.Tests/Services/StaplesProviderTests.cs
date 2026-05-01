@@ -22,7 +22,7 @@ public class StaplesProviderTests
 		staplesLists.FindByOwnerAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((StaplesList?)null);
 
-		var result = await provider.GetStapleNamesAsync("user-123");
+		var result = await provider.GetStapleNamesAsync(OwnerIdentifier.From("user-123"));
 
 		result.Should().Contain("salt");
 		result.Should().Contain("pepper");
@@ -41,7 +41,7 @@ public class StaplesProviderTests
 		staplesLists.FindByOwnerAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(list);
 
-		var result = await provider.GetStapleNamesAsync("user-123");
+		var result = await provider.GetStapleNamesAsync(OwnerIdentifier.From("user-123"));
 
 		result.Should().HaveCount(2);
 		result.Should().Contain("rice");
@@ -54,7 +54,7 @@ public class StaplesProviderTests
 		staplesLists.FindByOwnerAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((StaplesList?)null);
 
-		var result = await provider.GetStapleNamesAsync("user-123");
+		var result = await provider.GetStapleNamesAsync(OwnerIdentifier.From("user-123"));
 
 		result.Contains("Salt").Should().BeTrue();
 		result.Contains("SALT").Should().BeTrue();
