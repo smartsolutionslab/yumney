@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -112,12 +113,16 @@ public static class HostBuilderExtensions
 		builder.Services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
 		builder.Services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.SmallestSize);
 
+		var isE2ETests = configuration.GetValue<bool>("E2ETests");
+
 		builder.Services.AddRateLimiter(options =>
 		{
 			options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
 			options.AddPolicy(RateLimitPolicies.RecipeImport, context =>
 			{
+				if (isE2ETests) return RateLimitPartition.GetNoLimiter("e2e-tests");
+
 				var userId = context.User?.FindFirstValue(KeycloakClaimTypes.Subject) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
 				return RedisRateLimitPartition.GetSlidingWindowRateLimiter(userId, _ => new RedisSlidingWindowRateLimiterOptions
 				{
@@ -129,6 +134,8 @@ public static class HostBuilderExtensions
 
 			options.AddPolicy(RateLimitPolicies.GeneralApi, context =>
 			{
+				if (isE2ETests) return RateLimitPartition.GetNoLimiter("e2e-tests");
+
 				var userId = context.User?.FindFirstValue(KeycloakClaimTypes.Subject) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
 				return RedisRateLimitPartition.GetFixedWindowRateLimiter(userId, _ => new RedisFixedWindowRateLimiterOptions
 				{
@@ -144,6 +151,8 @@ public static class HostBuilderExtensions
 			// which still caps abuse from any path that bypasses the gateway.
 			options.AddPolicy(RateLimitPolicies.AnonymousAuth, context =>
 			{
+				if (isE2ETests) return RateLimitPartition.GetNoLimiter("e2e-tests");
+
 				var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 				return RedisRateLimitPartition.GetSlidingWindowRateLimiter(clientIp, _ => new RedisSlidingWindowRateLimiterOptions
 				{

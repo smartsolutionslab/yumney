@@ -121,23 +121,23 @@ if (!options.DatabaseOnly)
 		.AddProject<Projects.Yumney_Users_Api>("users-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.WithEnvironment("Keycloak__ClientSecret", yumneyApiClientSecret)
-		.AsYumneyApi(usersDb, keycloak, redis, messaging, migrationRunner);
+		.AsYumneyApi(options, usersDb, keycloak, redis, messaging, migrationRunner);
 	var shoppingApi = builder
 		.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
-		.AsYumneyApi(shoppingDb, keycloak, redis, messaging, migrationRunner)
+		.AsYumneyApi(options, shoppingDb, keycloak, redis, messaging, migrationRunner)
 		.WithReference(usersApi);
 	var recipesApi = builder
 		.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
-		.AsYumneyApi(recipesDb, keycloak, redis, messaging, migrationRunner)
+		.AsYumneyApi(options, recipesDb, keycloak, redis, messaging, migrationRunner)
 		.WithLlmProvider(builder, options)
 		.WithReference(shoppingApi)
 		.WithReference(usersApi);
 	var mealplanApi = builder
 		.AddProject<Projects.Yumney_MealPlan_Api>("mealplan-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
-		.AsYumneyApi(mealplanDb, keycloak, redis, messaging, migrationRunner)
+		.AsYumneyApi(options, mealplanDb, keycloak, redis, messaging, migrationRunner)
 		.WithReference(recipesApi)
 		.WithReference(shoppingApi)
 		.WithReference(usersApi);
