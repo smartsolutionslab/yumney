@@ -3,9 +3,9 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests.Validator;
 
-public sealed class CreateShoppingListRequestValidator : AbstractValidator<CreateShoppingListRequest>
+public sealed class CreateShoppingListValidator : AbstractValidator<CreateShoppingList>
 {
-	public CreateShoppingListRequestValidator()
+	public CreateShoppingListValidator()
 	{
 		RuleFor(x => x.Title)
 			.NotEmpty()

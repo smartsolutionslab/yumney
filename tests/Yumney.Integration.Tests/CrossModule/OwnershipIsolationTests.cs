@@ -99,7 +99,7 @@ public class OwnershipIsolationTests(AspireFixture fixture) : IAsyncLifetime
 
 		// User B cannot mutate user A's list either — check-all is the only
 		// cross-user write attack vector that takes the list id from the URL.
-		// The endpoint requires a CheckOffItemRequest body; without it ASP.NET
+		// The endpoint requires a CheckOffItem body; without it ASP.NET
 		// fails at model binding with 500 before the handler's owner check
 		// even runs, masking the real assertion.
 		var checkAllResponse = await userBShopping.PutAsJsonAsync(

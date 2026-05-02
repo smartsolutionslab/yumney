@@ -5,9 +5,9 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Tests.Requests;
 
-public class CreateShoppingListRequestValidatorTests
+public class CreateShoppingListValidatorTests
 {
-	private readonly CreateShoppingListRequestValidator validator = new();
+	private readonly CreateShoppingListValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
@@ -103,9 +103,9 @@ public class CreateShoppingListRequestValidatorTests
 		result.IsValid.Should().BeFalse();
 	}
 
-	private static CreateShoppingListRequest CreateValidRequest()
+	private static CreateShoppingList CreateValidRequest()
 	{
-		return new CreateShoppingListRequest(
+		return new CreateShoppingList(
 			"Weekly Groceries",
 			[new ShoppingListItem("Flour", 500, "g")]);
 	}

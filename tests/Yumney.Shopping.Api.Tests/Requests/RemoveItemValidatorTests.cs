@@ -5,14 +5,14 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Tests.Requests;
 
-public class RemoveItemRequestValidatorTests
+public class RemoveItemValidatorTests
 {
-	private readonly RemoveItemRequestValidator validator = new();
+	private readonly RemoveItemValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
 	{
-		var request = new RemoveItemRequest("Eggs", 6, "pc", "not needed");
+		var request = new RemoveItem("Eggs", 6, "pc", "not needed");
 
 		var result = validator.Validate(request);
 
@@ -22,7 +22,7 @@ public class RemoveItemRequestValidatorTests
 	[Fact]
 	public void Validate_NameOnly_IsValid()
 	{
-		var request = new RemoveItemRequest("Eggs");
+		var request = new RemoveItem("Eggs");
 
 		var result = validator.Validate(request);
 
@@ -34,7 +34,7 @@ public class RemoveItemRequestValidatorTests
 	[InlineData("")]
 	public void Validate_EmptyName_IsInvalid(string? name)
 	{
-		var request = new RemoveItemRequest(name!);
+		var request = new RemoveItem(name!);
 
 		var result = validator.Validate(request);
 

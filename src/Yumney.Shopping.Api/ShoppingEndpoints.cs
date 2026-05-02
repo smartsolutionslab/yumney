@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
-using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using Requests = SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
 
@@ -24,8 +24,8 @@ public static class ShoppingEndpoints
 			.ProducesValidationProblem();
 
 		static async Task<IResult> Create(
-			CreateShoppingListRequest request,
-			IValidator<CreateShoppingListRequest> validator,
+			Requests.CreateShoppingList request,
+			IValidator<Requests.CreateShoppingList> validator,
 			ICommandHandler<CreateShoppingListCommand, Result<ShoppingListDetailDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -86,7 +86,7 @@ public static class ShoppingEndpoints
 		static async Task<IResult> CheckOffItem(
 			Guid identifier,
 			Guid itemId,
-			CheckOffItemRequest request,
+			Requests.CheckOffItem request,
 			ICommandHandler<CheckOffItemCommand, Result> handler,
 			CancellationToken cancellationToken)
 		{
@@ -107,7 +107,7 @@ public static class ShoppingEndpoints
 
 		static async Task<IResult> CheckOffAllItems(
 			Guid identifier,
-			CheckOffItemRequest request,
+			Requests.CheckOffItem request,
 			ICommandHandler<CheckOffAllItemsCommand, Result> handler,
 			CancellationToken cancellationToken)
 		{
@@ -124,8 +124,8 @@ public static class ShoppingEndpoints
 			.ProducesProblem(StatusCodes.Status400BadRequest);
 
 		static async Task<IResult> AddManualItem(
-			AddManualItemRequest request,
-			IValidator<AddManualItemRequest> validator,
+			Requests.AddManualItem request,
+			IValidator<Requests.AddManualItem> validator,
 			ICommandHandler<AddManualItemCommand, Result<AddedItemDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -148,8 +148,8 @@ public static class ShoppingEndpoints
 			.ProducesProblem(StatusCodes.Status400BadRequest);
 
 		static async Task<IResult> RemoveItem(
-			[FromBody] RemoveItemRequest request,
-			IValidator<RemoveItemRequest> validator,
+			[FromBody] Requests.RemoveItem request,
+			IValidator<Requests.RemoveItem> validator,
 			ICommandHandler<RemoveShoppingItemCommand, Result> handler,
 			CancellationToken cancellationToken)
 		{
@@ -196,7 +196,7 @@ public static class ShoppingEndpoints
 			.Produces(StatusCodes.Status204NoContent);
 
 		static async Task<IResult> EndShoppingMode(
-			EndShoppingModeRequest request,
+			Requests.EndShoppingMode request,
 			ICommandHandler<EndShoppingModeCommand, Result> handler,
 			CancellationToken cancellationToken)
 		{
@@ -213,8 +213,8 @@ public static class ShoppingEndpoints
 			.ProducesValidationProblem();
 
 		static async Task<IResult> MarkAsFrozen(
-			MarkAsFrozenRequest request,
-			IValidator<MarkAsFrozenRequest> validator,
+			Requests.MarkAsFrozen request,
+			IValidator<Requests.MarkAsFrozen> validator,
 			ICommandHandler<MarkAsFrozenCommand, Result> handler,
 			CancellationToken cancellationToken)
 		{

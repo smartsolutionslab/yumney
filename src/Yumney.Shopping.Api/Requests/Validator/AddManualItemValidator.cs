@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests.Validator;
 
-public sealed class RemoveItemRequestValidator : AbstractValidator<RemoveItemRequest>
+public sealed class AddManualItemValidator : AbstractValidator<AddManualItem>
 {
-	public RemoveItemRequestValidator()
+	public AddManualItemValidator()
 	{
 		RuleFor(x => x.Name).NotEmpty().WithMessage("Item name is required.");
 	}

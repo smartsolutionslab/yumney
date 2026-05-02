@@ -2,7 +2,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
-public sealed record RemoveItemRequest(string Name, decimal? Quantity = null, string? Unit = null, string? Reason = null)
+public sealed record RemoveItem(string Name, decimal? Quantity = null, string? Unit = null, string? Reason = null)
 {
 	public void Deconstruct(out ItemName itemName, out Quantity? quantity, out RemovalReason? reason)
 	{

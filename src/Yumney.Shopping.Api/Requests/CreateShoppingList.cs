@@ -3,7 +3,7 @@ using CommandItem = SmartSolutionsLab.Yumney.Shopping.Application.Commands.Shopp
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
-public sealed record CreateShoppingListRequest(
+public sealed record CreateShoppingList(
 	string Title,
 	List<ShoppingListItem> Items,
 	Guid? RecipeIdentifier = null)

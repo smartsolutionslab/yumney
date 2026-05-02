@@ -4,7 +4,7 @@ using ShoppingList = SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
-public sealed record AddManualItemRequest(
+public sealed record AddManualItem(
 	string Name,
 	decimal? Quantity = null,
 	string? Unit = null,
