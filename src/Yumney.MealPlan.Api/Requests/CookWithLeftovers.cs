@@ -2,7 +2,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Api.Requests;
 
-public sealed record CookWithLeftoversRequest(
+public sealed record CookWithLeftovers(
 	DayOfWeek CookDay,
 	Guid RecipeIdentifier,
 	string RecipeTitle,
