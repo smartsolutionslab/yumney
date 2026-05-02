@@ -5,5 +5,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 
 public interface IRecipeIngredientLookup
 {
-	Task<IReadOnlyList<RecipeIngredientLookupResult>> LookupAsync(SlotRecipeIdentifier recipe, CancellationToken cancellationToken = default);
+	Task<IReadOnlyList<RecipeIngredientLookupResult>> LookupAsync(
+		SlotRecipeIdentifier recipe,
+		CancellationToken cancellationToken = default);
 }

@@ -8,7 +8,9 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Queries.Handlers;
 public sealed class GetPlannedRecipesQueryHandler(IMealPlanReadModelRepository readModel, ICurrentUser currentUser)
 	: IQueryHandler<GetPlannedRecipesQuery, Result<WeeklyPlannedRecipesDto>>
 {
-	public async Task<Result<WeeklyPlannedRecipesDto>> HandleAsync(GetPlannedRecipesQuery query, CancellationToken cancellationToken = default)
+	public async Task<Result<WeeklyPlannedRecipesDto>> HandleAsync(
+		GetPlannedRecipesQuery query,
+		CancellationToken cancellationToken = default)
 	{
 		var owner = currentUser.AsOwner();
 		return await readModel.GetPlannedRecipesAsync(owner, query.Week, cancellationToken);

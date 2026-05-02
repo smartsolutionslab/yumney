@@ -7,11 +7,14 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.ExternalServices;
 
 public sealed class HttpShoppingListWriter(IHttpClientFactory httpClientFactory) : IShoppingListWriter
 {
-	public async Task AddItemsAsync(OwnerIdentifier owner, IReadOnlyList<ShoppingItemRequest> items, CancellationToken cancellationToken = default)
+	public async Task AddItemsAsync(
+		OwnerIdentifier owner,
+		IReadOnlyList<ShoppingItemRequest> items,
+		CancellationToken cancellationToken = default)
 	{
 		var client = httpClientFactory.CreateClient("shopping-api");
 
-		foreach (var (itemName, quantity, unit, source) in items)
+		await foreach (var (itemName, quantity, unit, source) in items.ToAsyncEnumerable().WithCancellation(cancellationToken))
 		{
 			AddItemRequest request = new(itemName, quantity, unit, source);
 			await client.PostAsJsonAsync("/api/v1/shopping-lists/items", request, cancellationToken);

@@ -10,9 +10,8 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 /// Exports the shopping list as formatted text grouped by category.
 /// Only includes unbought items. Does not change any item state.
 /// </summary>
-public sealed class ExportShoppingListQueryHandler(
-	IShoppingLedgerReadModelRepository readModel,
-	ICurrentUser currentUser) : IQueryHandler<ExportShoppingListQuery, Result<string>>
+public sealed class ExportShoppingListQueryHandler(IShoppingLedgerReadModelRepository readModel, ICurrentUser currentUser)
+	: IQueryHandler<ExportShoppingListQuery, Result<string>>
 {
 #pragma warning disable SA1311
 	private static readonly Dictionary<string, string> categoryEmojis = new()

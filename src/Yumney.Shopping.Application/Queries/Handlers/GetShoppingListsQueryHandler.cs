@@ -5,9 +5,7 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 
-public sealed class GetShoppingListsQueryHandler(
-	IShoppingListProjectionRepository projection,
-	ICurrentUser currentUser)
+public sealed class GetShoppingListsQueryHandler(IShoppingListProjectionRepository projection, ICurrentUser currentUser)
 	: IQueryHandler<GetShoppingListsQuery, Result<PagedResult<ShoppingListSummaryDto>>>
 {
 	public async Task<Result<PagedResult<ShoppingListSummaryDto>>> HandleAsync(

@@ -8,7 +8,7 @@ public sealed class RequestContextMiddleware(RequestDelegate next, ILogger<Reque
 {
 	public async Task InvokeAsync(HttpContext context)
 	{
-		var userId = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+		var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
 			?? context.User?.FindFirst(KeycloakClaimTypes.Subject)?.Value
 			?? "anonymous";
 
