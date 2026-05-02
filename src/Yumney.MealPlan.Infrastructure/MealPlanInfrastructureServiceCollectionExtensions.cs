@@ -1,7 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.ExternalServices;
@@ -18,50 +16,23 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 {
 	public static IServiceCollection AddMealPlanInfrastructure(this IServiceCollection services, IConfiguration configuration)
 	{
-		var connectionString = configuration.GetConnectionString("mealplandb");
-		Action<NpgsqlDbContextOptionsBuilder> contextOptions = builder => builder
-			.MigrationsHistoryTable("__MealPlanMigrationsHistory")
-			.EnableRetryOnFailure();
-
-		services.AddQueryCounting();
-
-		services.AddDbContext<MealPlanDbContext>((_, options) =>
-		{
-			options.UseNpgsql(connectionString, contextOptions);
-		});
-
-		services.AddDbContext<MealPlanReadDbContext>((sp, options) =>
-		{
-			options
-				.UseNpgsql(connectionString, contextOptions)
-				.AddInterceptors(sp.GetRequiredService<QueryCountingInterceptor>());
-		});
+		services.AddYumneyNpgsqlDbContext<MealPlanDbContext>(configuration, "mealplandb", "__MealPlanMigrationsHistory");
+		services.AddYumneyNpgsqlDbContext<MealPlanReadDbContext>(
+			configuration,
+			"mealplandb",
+			"__MealPlanMigrationsHistory",
+			typeof(QueryCountingInterceptor));
 
 		services.AddScoped<IMealPlanEventStore, EfCoreMealPlanEventStore>();
 		services.AddScoped<IMealPlanReadModelRepository, MealPlanReadModelRepository>();
-		services.AddScoped<IIntegrationEventHandler<WeeklyPlanCreatedIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<ExtendedModeEnabledIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<ExtendedModeDisabledIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<RecipeAssignedIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<MealSetAsFreetextIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<LeftoverAssignedIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<MealSlotClearedIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<ServingsAdjustedIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<MealMarkedAsCookedIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<MealMarkedAsSkippedIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<MealResetToPlannedIntegrationEvent>, MealPlanProjectionHandler>();
-		services.AddScoped<IIntegrationEventHandler<MealSlotsSwappedIntegrationEvent>, MealPlanProjectionHandler>();
+		services.AddIntegrationEventHandlersFromAssemblyContaining<MealPlanProjectionHandler>();
 
 		services.AddScoped<IRecipeIngredientLookup, HttpRecipeIngredientLookup>();
 		services.AddScoped<IShoppingListWriter, HttpShoppingListWriter>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
-		services.AddTransient<AuthTokenDelegatingHandler>();
-		services.AddHttpClient("recipes-api", client => client.BaseAddress = new Uri("http://recipes-api"))
-			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
-		services.AddHttpClient("shopping-api", client => client.BaseAddress = new Uri("http://shopping-api"))
-			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
-		services.AddHttpClient("users-api", client => client.BaseAddress = new Uri("http://users-api"))
-			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
+		services.AddYumneyServiceClient("recipes-api");
+		services.AddYumneyServiceClient("shopping-api");
+		services.AddYumneyServiceClient("users-api");
 		services.AddHealthChecks().AddDbContextCheck<MealPlanDbContext>("mealplandb");
 
 		return services;

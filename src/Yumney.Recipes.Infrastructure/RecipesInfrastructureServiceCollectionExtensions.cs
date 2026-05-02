@@ -16,23 +16,19 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 {
 	public static IServiceCollection AddRecipesInfrastructure(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddDbContext<RecipesDbContext>((sp, options) =>
-		{
-			var connectionString = configuration.GetConnectionString("recipesdb");
-			options.UseNpgsql(connectionString, x => x.MigrationsHistoryTable("__RecipesMigrationsHistory").EnableRetryOnFailure())
-				   .AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
-		});
+		services.AddYumneyNpgsqlDbContext<RecipesDbContext>(
+			configuration,
+			"recipesdb",
+			"__RecipesMigrationsHistory",
+			typeof(DomainEventDispatchInterceptor));
 
 		services.AddScoped<IRecipeRepository, RecipeRepository>();
 		services.AddScoped<IRecipeFavoriteRepository, RecipeFavoriteRepository>();
 		services.AddScoped<IRecipesUnitOfWork, RecipesUnitOfWork>();
 		services.AddScoped<IIngredientBalanceProvider, HttpIngredientBalanceProvider>();
 		services.AddScoped<IDietaryProfileProvider, HttpDietaryProfileProvider>();
-		services.AddTransient<AuthTokenDelegatingHandler>();
-		services.AddHttpClient("shopping-api", client => client.BaseAddress = new Uri("http://shopping-api"))
-			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
-		services.AddHttpClient("users-api", client => client.BaseAddress = new Uri("http://users-api"))
-			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
+		services.AddYumneyServiceClient("shopping-api");
+		services.AddYumneyServiceClient("users-api");
 		services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
 
 		return services;
