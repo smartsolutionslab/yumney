@@ -58,7 +58,7 @@ public partial class ClaudeMdRuleEnforcementTests
 			.ToList();
 
 		violations.Should().BeEmpty(
-			"Inline `.Select(x => new XDto(...))` projections are forbidden outside `*MappingExtensions.cs` per CLAUDE.md (DTO Mapping). "
+			"Inline `.Select(entity => new XDto(...))` projections are forbidden outside `*MappingExtensions.cs` per CLAUDE.md (DTO Mapping). "
 			+ "Move the projection into a `ToDto()` extension method on the source type. Offenders:{0}{1}",
 			Environment.NewLine,
 			string.Join(Environment.NewLine, violations.Select(violation => $"  {violation}")));
