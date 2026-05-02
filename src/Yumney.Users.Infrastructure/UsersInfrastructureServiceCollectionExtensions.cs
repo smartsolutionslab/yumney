@@ -21,13 +21,11 @@ public static class UsersInfrastructureServiceCollectionExtensions
 			.ValidateDataAnnotations()
 			.ValidateOnStart();
 
-		services.AddDbContext<UsersDbContext>((sp, options) =>
-		{
-			var connectionString = configuration.GetConnectionString("usersdb");
-			options
-				.UseNpgsql(connectionString, x => x.MigrationsHistoryTable("__UsersMigrationsHistory").EnableRetryOnFailure())
-				.AddInterceptors(sp.GetRequiredService<DomainEventDispatchInterceptor>());
-		});
+		services.AddYumneyNpgsqlDbContext<UsersDbContext>(
+			configuration,
+			"usersdb",
+			"__UsersMigrationsHistory",
+			typeof(DomainEventDispatchInterceptor));
 
 		services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
 		services.AddScoped<IUserActivityRepository, UserActivityRepository>();
