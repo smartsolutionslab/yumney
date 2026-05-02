@@ -7,7 +7,7 @@ public static class ShoppingApiServiceCollectionExtensions
 {
 	public static IServiceCollection AddShoppingApi(this IServiceCollection services)
 	{
-		services.AddValidatorsFromAssemblyContaining<CreateShoppingListRequestValidator>();
+		services.AddValidatorsFromAssemblyContaining<CreateShoppingListValidator>();
 
 		return services;
 	}

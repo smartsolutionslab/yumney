@@ -5,14 +5,14 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Tests.Requests;
 
-public class AddManualItemRequestValidatorTests
+public class MarkAsFrozenValidatorTests
 {
-	private readonly AddManualItemRequestValidator validator = new();
+	private readonly MarkAsFrozenValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
 	{
-		var request = new AddManualItemRequest("Milk", 2, "L");
+		var request = new MarkAsFrozen("Chicken", "g");
 
 		var result = validator.Validate(request);
 
@@ -22,7 +22,7 @@ public class AddManualItemRequestValidatorTests
 	[Fact]
 	public void Validate_NameOnly_IsValid()
 	{
-		var request = new AddManualItemRequest("Milk");
+		var request = new MarkAsFrozen("Eggs");
 
 		var result = validator.Validate(request);
 
@@ -34,7 +34,7 @@ public class AddManualItemRequestValidatorTests
 	[InlineData("")]
 	public void Validate_EmptyName_IsInvalid(string? name)
 	{
-		var request = new AddManualItemRequest(name!);
+		var request = new MarkAsFrozen(name!);
 
 		var result = validator.Validate(request);
 
