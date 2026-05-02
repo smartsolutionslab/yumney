@@ -28,14 +28,18 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 			.MigrationsHistoryTable("__ShoppingMigrationsHistory")
 			.EnableRetryOnFailure();
 
+		services.AddQueryCounting();
+
 		services.AddDbContext<ShoppingDbContext>(options =>
 		{
 			options.UseNpgsql(connectionString, contextOptions);
 		});
 
-		services.AddDbContext<ShoppingReadDbContext>(options =>
+		services.AddDbContext<ShoppingReadDbContext>((sp, options) =>
 		{
-			options.UseNpgsql(connectionString, contextOptions);
+			options
+				.UseNpgsql(connectionString, contextOptions)
+				.AddInterceptors(sp.GetRequiredService<QueryCountingInterceptor>());
 		});
 
 		services.AddScoped<IShoppingListEventStore, EfCoreShoppingListEventStore>();
