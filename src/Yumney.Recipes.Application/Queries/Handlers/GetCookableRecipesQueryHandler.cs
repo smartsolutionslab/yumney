@@ -25,11 +25,11 @@ public sealed class GetCookableRecipesQueryHandler(
 		await Task.WhenAll(recipesTask, availableTask);
 
 		var available = availableTask.Result;
-		var matches = new List<RankedMatch>();
+		List<RankedMatch> matches = [];
 
 		foreach (var recipe in recipesTask.Result)
 		{
-			var missing = new List<string>();
+			List<string> missing = [];
 			var urgentCount = 0;
 
 			foreach (var ingredient in recipe.Ingredients)

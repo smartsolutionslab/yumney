@@ -65,7 +65,7 @@ public static class DefaultQuantityResolver
 #pragma warning disable SA1117 // Parameters should be on same line or each on its own line
 	private static Dictionary<string, Quantity> BuildItemDefaults()
 	{
-		var defaults = new Dictionary<string, Quantity>(StringComparer.OrdinalIgnoreCase);
+		Dictionary<string, Quantity> defaults = new(StringComparer.OrdinalIgnoreCase);
 
 		// Liquids → 1L
 		AddWithAliases(defaults, Q(1, "L"),
