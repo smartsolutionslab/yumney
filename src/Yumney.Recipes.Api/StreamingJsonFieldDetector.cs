@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
 /// <summary>
@@ -131,7 +133,7 @@ internal sealed class StreamingJsonFieldDetector
 					// waits for the next chunk.
 					if (i + 5 >= json.Length) return (-1, string.Empty);
 					var hex = json.AsSpan(i + 2, 4);
-					if (!ushort.TryParse(hex, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out var code))
+					if (!ushort.TryParse(hex, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var code))
 					{
 						return (-1, string.Empty);
 					}

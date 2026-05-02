@@ -15,7 +15,10 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 	];
 #pragma warning restore SA1311
 
-	public async Task<WeeklyPlanDto> GetByOwnerAndWeekAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
+	public async Task<WeeklyPlanDto> GetByOwnerAndWeekAsync(
+		OwnerIdentifier owner,
+		WeekIdentifier week,
+		CancellationToken cancellationToken = default)
 	{
 		var ownerId = owner.Value;
 		var weekValue = week.Value;
@@ -39,7 +42,10 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		return new WeeklyPlanDto(weekValue, weekItem.IsExtendedMode, visible.ToDtos());
 	}
 
-	public async Task<WeeklyPlannedRecipesDto> GetPlannedRecipesAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
+	public async Task<WeeklyPlannedRecipesDto> GetPlannedRecipesAsync(
+		OwnerIdentifier owner,
+		WeekIdentifier week,
+		CancellationToken cancellationToken = default)
 	{
 		var ownerId = owner.Value;
 		var weekValue = week.Value;
@@ -55,7 +61,11 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		return new WeeklyPlannedRecipesDto(weekValue, slotRows.ToPlannedRecipeDtos());
 	}
 
-	public async Task<IReadOnlyList<MealHistoryEntryDto>> SearchCookedHistoryAsync(OwnerIdentifier owner, string? term, int limit, CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<MealHistoryEntryDto>> SearchCookedHistoryAsync(
+		OwnerIdentifier owner,
+		string? term,
+		int limit,
+		CancellationToken cancellationToken = default)
 	{
 		var ownerId = owner.Value;
 		var cookedState = MealState.Cooked.ToString();
