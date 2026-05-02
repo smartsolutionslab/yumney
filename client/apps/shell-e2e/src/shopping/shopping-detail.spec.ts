@@ -5,7 +5,7 @@ test.describe('Shopping List Detail', () => {
   test('should navigate to shopping lists page', async ({ authenticatedPage }) => {
     await authenticatedPage.goto('/shopping/lists');
 
-    await expect(authenticatedPage.locator('.shopping-lists, .empty-state, .loading')).toBeVisible({
+    await expect(authenticatedPage.locator('.lists-grid, .empty-state, .loading')).toBeVisible({
       timeout: TIMEOUTS.default,
     });
   });
