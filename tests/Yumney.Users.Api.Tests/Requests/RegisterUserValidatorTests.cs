@@ -1,17 +1,16 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Users.Api.Requests;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Users.Api.Tests.Requests;
 
 public class RegisterUserValidatorTests
 {
-	private readonly RegisterUserValidator validator = new();
+	private readonly Api.Requests.RegisterUserValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
 	{
-		RegisterUser request = new RegisterUser("test@example.com", "Password1", "Test User");
+		var request = new Api.Requests.RegisterUser("test@example.com", "Password1", "Test User");
 
 		var result = validator.Validate(request);
 
@@ -24,7 +23,7 @@ public class RegisterUserValidatorTests
 	[InlineData("not-an-email")]
 	public void Validate_InvalidEmail_IsNotValid(string email)
 	{
-		var request = new RegisterUser(email, "Password1", "Test User");
+		var request = new Api.Requests.RegisterUser(email, "Password1", "Test User");
 
 		var result = validator.Validate(request);
 
@@ -39,7 +38,7 @@ public class RegisterUserValidatorTests
 	[InlineData("NoDigitsHere")]
 	public void Validate_WeakPassword_IsNotValid(string password)
 	{
-		var request = new RegisterUser("test@example.com", password, "Test User");
+		var request = new Api.Requests.RegisterUser("test@example.com", password, "Test User");
 
 		var result = validator.Validate(request);
 
@@ -52,7 +51,7 @@ public class RegisterUserValidatorTests
 	[InlineData("   ")]
 	public void Validate_EmptyDisplayName_IsNotValid(string displayName)
 	{
-		var request = new RegisterUser("test@example.com", "Password1", displayName);
+		var request = new Api.Requests.RegisterUser("test@example.com", "Password1", displayName);
 
 		var result = validator.Validate(request);
 
@@ -66,7 +65,7 @@ public class RegisterUserValidatorTests
 	[InlineData("user_name@example.co.uk")]
 	public void Validate_EmailWithSpecialChars_IsValid(string email)
 	{
-		var request = new RegisterUser(email, "Password1", "Test User");
+		var request = new Api.Requests.RegisterUser(email, "Password1", "Test User");
 
 		var result = validator.Validate(request);
 
@@ -79,7 +78,7 @@ public class RegisterUserValidatorTests
 		var localPart = new string('a', 242);
 		var email = $"{localPart}@example.com";
 
-		var request = new RegisterUser(email, "Password1", "Test User");
+		var request = new Api.Requests.RegisterUser(email, "Password1", "Test User");
 
 		var result = validator.Validate(request);
 
@@ -92,7 +91,7 @@ public class RegisterUserValidatorTests
 		var localPart = new string('a', 243);
 		var email = $"{localPart}@example.com";
 
-		var request = new RegisterUser(email, "Password1", "Test User");
+		var request = new Api.Requests.RegisterUser(email, "Password1", "Test User");
 
 		var result = validator.Validate(request);
 
@@ -104,7 +103,7 @@ public class RegisterUserValidatorTests
 	public void Validate_DisplayNameAtMaxLength_IsValid()
 	{
 		var displayName = new string('A', 200);
-		var request = new RegisterUser("test@example.com", "Password1", displayName);
+		var request = new Api.Requests.RegisterUser("test@example.com", "Password1", displayName);
 
 		var result = validator.Validate(request);
 
@@ -115,7 +114,7 @@ public class RegisterUserValidatorTests
 	public void Validate_DisplayNameExceedsMaxLength_IsNotValid()
 	{
 		var displayName = new string('A', 201);
-		var request = new RegisterUser("test@example.com", "Password1", displayName);
+		var request = new Api.Requests.RegisterUser("test@example.com", "Password1", displayName);
 
 		var result = validator.Validate(request);
 
@@ -126,7 +125,7 @@ public class RegisterUserValidatorTests
 	[Fact]
 	public void Validate_PasswordAtMinLength_IsValid()
 	{
-		var request = new RegisterUser("test@example.com", "Abcdef1x", "Test User");
+		var request = new Api.Requests.RegisterUser("test@example.com", "Abcdef1x", "Test User");
 
 		var result = validator.Validate(request);
 

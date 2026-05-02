@@ -1,13 +1,11 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
-using SmartSolutionsLab.Yumney.Shopping.Api.Requests.Validator;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Tests.Requests;
 
 public class CreateShoppingListValidatorTests
 {
-	private readonly CreateShoppingListValidator validator = new();
+	private readonly Api.Requests.Validator.CreateShoppingListValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
@@ -56,7 +54,7 @@ public class CreateShoppingListValidatorTests
 	{
 		var request = CreateValidRequest() with
 		{
-			Items = [new ShoppingListItem(string.Empty, null, null)],
+			Items = [new Api.Requests.ShoppingListItem(string.Empty, null, null)],
 		};
 
 		var result = validator.Validate(request);
@@ -69,7 +67,7 @@ public class CreateShoppingListValidatorTests
 	{
 		var request = CreateValidRequest() with
 		{
-			Items = [new ShoppingListItem(new string('a', 201), null, null)],
+			Items = [new Api.Requests.ShoppingListItem(new string('a', 201), null, null)],
 		};
 
 		var result = validator.Validate(request);
@@ -82,7 +80,7 @@ public class CreateShoppingListValidatorTests
 	{
 		var request = CreateValidRequest() with
 		{
-			Items = [new ShoppingListItem("Flour", -1, "g")],
+			Items = [new Api.Requests.ShoppingListItem("Flour", -1, "g")],
 		};
 
 		var result = validator.Validate(request);
@@ -95,7 +93,7 @@ public class CreateShoppingListValidatorTests
 	{
 		var request = CreateValidRequest() with
 		{
-			Items = [new ShoppingListItem("Flour", 500, new string('a', 51))],
+			Items = [new Api.Requests.ShoppingListItem("Flour", 500, new string('a', 51))],
 		};
 
 		var result = validator.Validate(request);
@@ -103,10 +101,10 @@ public class CreateShoppingListValidatorTests
 		result.IsValid.Should().BeFalse();
 	}
 
-	private static CreateShoppingList CreateValidRequest()
+	private static Api.Requests.CreateShoppingList CreateValidRequest()
 	{
-		return new CreateShoppingList(
+		return new Api.Requests.CreateShoppingList(
 			"Weekly Groceries",
-			[new ShoppingListItem("Flour", 500, "g")]);
+			[new Api.Requests.ShoppingListItem("Flour", 500, "g")]);
 	}
 }

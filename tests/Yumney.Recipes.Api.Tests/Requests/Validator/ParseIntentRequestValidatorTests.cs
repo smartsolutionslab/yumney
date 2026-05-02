@@ -1,5 +1,4 @@
 using FluentValidation.TestHelper;
-using SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using Xunit;
 
@@ -7,7 +6,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests.Validator;
 
 public class ParseIntentRequestValidatorTests
 {
-	private readonly ParseIntentRequestValidator validator = new();
+	private readonly Api.Requests.Validator.ParseIntentRequestValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_HasNoErrors()

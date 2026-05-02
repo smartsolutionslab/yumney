@@ -1,18 +1,16 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shopping.Api.Requests;
-using SmartSolutionsLab.Yumney.Shopping.Api.Requests.Validator;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Tests.Requests;
 
 public class MarkAsFrozenValidatorTests
 {
-	private readonly MarkAsFrozenValidator validator = new();
+	private readonly Api.Requests.Validator.MarkAsFrozenValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
 	{
-		var request = new MarkAsFrozen("Chicken", "g");
+		var request = new Api.Requests.MarkAsFrozen("Chicken", "g");
 
 		var result = validator.Validate(request);
 
@@ -22,7 +20,7 @@ public class MarkAsFrozenValidatorTests
 	[Fact]
 	public void Validate_NameOnly_IsValid()
 	{
-		var request = new MarkAsFrozen("Eggs");
+		var request = new Api.Requests.MarkAsFrozen("Eggs");
 
 		var result = validator.Validate(request);
 
@@ -34,7 +32,7 @@ public class MarkAsFrozenValidatorTests
 	[InlineData("")]
 	public void Validate_EmptyName_IsInvalid(string? name)
 	{
-		var request = new MarkAsFrozen(name!);
+		var request = new Api.Requests.MarkAsFrozen(name!);
 
 		var result = validator.Validate(request);
 
