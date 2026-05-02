@@ -5,5 +5,8 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 
 public interface IShoppingListWriter
 {
-	Task AddItemsAsync(OwnerIdentifier owner, IReadOnlyList<ShoppingItemRequest> items, CancellationToken cancellationToken = default);
+	Task AddItemsAsync(
+		OwnerIdentifier owner,
+		IReadOnlyList<ShoppingItemRequest> items,
+		CancellationToken cancellationToken = default);
 }

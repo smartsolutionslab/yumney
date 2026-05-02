@@ -9,7 +9,9 @@ using SmartSolutionsLab.Yumney.Shared.Guards;
 namespace SmartSolutionsLab.Yumney.Shared.Web.Middleware;
 
 #pragma warning disable SA1601
-public sealed partial class GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlerMiddleware> logger)
+public sealed partial class GlobalExceptionHandlerMiddleware(
+	RequestDelegate next,
+	ILogger<GlobalExceptionHandlerMiddleware> logger)
 {
 	public async Task InvokeAsync(HttpContext context)
 	{
@@ -51,7 +53,7 @@ public sealed partial class GlobalExceptionHandlerMiddleware(RequestDelegate nex
 	{
 		context.Response.StatusCode = (int)statusCode;
 
-		var problemDetails = new ProblemDetails
+		ProblemDetails problemDetails = new()
 		{
 			Status = (int)statusCode,
 			Title = title,

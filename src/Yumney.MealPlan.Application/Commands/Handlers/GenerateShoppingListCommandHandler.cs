@@ -11,9 +11,12 @@ public sealed class GenerateShoppingListCommandHandler(
 	IRecipeIngredientLookup recipeIngredients,
 	IStaplesProvider staplesProvider,
 	IShoppingListWriter shoppingListWriter,
-	ICurrentUser currentUser) : ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>>
+	ICurrentUser currentUser)
+	: ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>>
 {
-	public async Task<Result<GenerateShoppingListResultDto>> HandleAsync(GenerateShoppingListCommand command, CancellationToken cancellationToken = default)
+	public async Task<Result<GenerateShoppingListResultDto>> HandleAsync(
+		GenerateShoppingListCommand command,
+		CancellationToken cancellationToken = default)
 	{
 		var week = command.Week;
 		var owner = currentUser.AsOwner();
@@ -25,7 +28,8 @@ public sealed class GenerateShoppingListCommandHandler(
 
 		foreach (var recipe in planned.Recipes)
 		{
-			var ingredients = await recipeIngredients.LookupAsync(SlotRecipeIdentifier.From(recipe.RecipeIdentifier), cancellationToken);
+			var recipeRef = SlotRecipeIdentifier.From(recipe.RecipeIdentifier);
+			var ingredients = await recipeIngredients.LookupAsync(recipeRef, cancellationToken);
 			var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? recipe.Servings;
 			var scaleFactor = recipeServings > 0 ? (decimal)recipe.Servings / recipeServings : 1m;
 

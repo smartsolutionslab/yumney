@@ -13,11 +13,14 @@ public sealed class SearchMealHistoryQueryHandler(IMealPlanReadModelRepository r
 	private const int maxLimit = 100;
 #pragma warning restore SA1303
 
-	public async Task<Result<IReadOnlyList<MealHistoryEntryDto>>> HandleAsync(SearchMealHistoryQuery query, CancellationToken cancellationToken = default)
+	public async Task<Result<IReadOnlyList<MealHistoryEntryDto>>> HandleAsync(
+		SearchMealHistoryQuery query,
+		CancellationToken cancellationToken = default)
 	{
 		var owner = currentUser.AsOwner();
 		var limit = Math.Clamp(query.Limit, minLimit, maxLimit);
-		return Result<IReadOnlyList<MealHistoryEntryDto>>.Success(
-			await readModel.SearchCookedHistoryAsync(owner, query.Term, limit, cancellationToken));
+
+		var result = await readModel.SearchCookedHistoryAsync(owner, query.Term, limit, cancellationToken);
+		return Result<IReadOnlyList<MealHistoryEntryDto>>.Success(result);
 	}
 }

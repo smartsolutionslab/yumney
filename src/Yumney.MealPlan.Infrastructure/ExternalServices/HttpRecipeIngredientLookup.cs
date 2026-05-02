@@ -7,7 +7,9 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.ExternalServices;
 
 public sealed class HttpRecipeIngredientLookup(IHttpClientFactory httpClientFactory) : IRecipeIngredientLookup
 {
-	public async Task<IReadOnlyList<RecipeIngredientLookupResult>> LookupAsync(SlotRecipeIdentifier recipe, CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<RecipeIngredientLookupResult>> LookupAsync(
+		SlotRecipeIdentifier recipe,
+		CancellationToken cancellationToken = default)
 	{
 		var client = httpClientFactory.CreateClient("recipes-api");
 		var url = $"/api/v1/recipes/{recipe.Value}";

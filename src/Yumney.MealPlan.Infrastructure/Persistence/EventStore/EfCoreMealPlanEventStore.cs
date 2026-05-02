@@ -57,16 +57,14 @@ public sealed partial class EfCoreMealPlanEventStore(
 		var ownerValue = owner.Value;
 		var weekValue = week.Value;
 
-		var metadata = await context.Set<AggregateMetadata>()
-			.AsNoTracking()
+		var metadata = await context.Set<AggregateMetadata>().AsNoTracking()
 			.FirstOrDefaultAsync(m => m.OwnerId == ownerValue && m.Week == weekValue, cancellationToken);
 
 		if (metadata is null) return null;
 
 		var aggregateId = metadata.AggregateId;
 
-		var storedEvents = await context.Set<StoredEvent>()
-			.AsNoTracking()
+		var storedEvents = await context.Set<StoredEvent>().AsNoTracking()
 			.Where(stored => stored.AggregateId == aggregateId)
 			.OrderBy(stored => stored.Version)
 			.ToListAsync(cancellationToken);
@@ -126,7 +124,11 @@ public sealed partial class EfCoreMealPlanEventStore(
 		LogEventsSaved(plan.Owner.Value, plan.Week.Value, uncommitted.Count, plan.Version);
 	}
 
-	private async Task PublishEventsAsync(string ownerId, string week, List<IDomainEvent> events, CancellationToken cancellationToken)
+	private async Task PublishEventsAsync(
+		string ownerId,
+		string week,
+		List<IDomainEvent> events,
+		CancellationToken cancellationToken)
 	{
 		foreach (var @event in events)
 		{
@@ -158,8 +160,10 @@ public sealed partial class EfCoreMealPlanEventStore(
 					ownerId,
 					confirmed.Recipe.RecipeIdentifier.Value,
 					confirmed.Servings.Value,
-					confirmed.Ingredients
-						.Select(ingredient => new MealConfirmedIngredient(ingredient.Name, ingredient.Quantity, ingredient.Unit))
+					confirmed.Ingredients.Select(ingredient => new MealConfirmedIngredient(
+							ingredient.Name,
+							ingredient.Quantity,
+							ingredient.Unit))
 						.ToList());
 				await PublishAsync(crossModule, cancellationToken);
 			}

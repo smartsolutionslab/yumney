@@ -45,8 +45,7 @@ public static class DefaultQuantityResolver
 	}
 
 #pragma warning disable SA1204
-	private static Quantity Q(decimal amount, string unit) =>
-		Quantity.Of(Amount.From(amount), Unit.FromNullable(unit));
+	private static Quantity Q(decimal amount, string unit) => Quantity.Of(Amount.From(amount), Unit.FromNullable(unit));
 
 	private static string Normalize(string input)
 	{

@@ -180,7 +180,14 @@ public static class MealPlanEndpoints
 			var week = WeekIdentifier.From(year, weekNumber);
 			var (cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType) = request;
 			var recipe = SlotRecipeReference.From(recipeIdentifier, recipeTitle);
-			var command = new CookWithLeftoversCommand(week, cookDay, recipe, SlotServings.From(totalServings), SlotServings.From(eatServings), leftoverDay, mealType);
+			var command = new CookWithLeftoversCommand(
+				week,
+				cookDay,
+				recipe,
+				SlotServings.From(totalServings),
+				SlotServings.From(eatServings),
+				leftoverDay,
+				mealType);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
 
@@ -197,6 +204,7 @@ public static class MealPlanEndpoints
 			var week = WeekIdentifier.From(year, weekNumber);
 			var (day, mealType) = request;
 			var command = new ClearMealSlotCommand(week, day, mealType);
+
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
 		}
@@ -222,6 +230,7 @@ public static class MealPlanEndpoints
 			var week = WeekIdentifier.From(year, weekNumber);
 			var (sourceDay, targetDay, mealType) = request;
 			var command = new SwapMealSlotsCommand(week, sourceDay, targetDay, mealType);
+
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
 		}
@@ -236,6 +245,7 @@ public static class MealPlanEndpoints
 			var week = WeekIdentifier.From(year, weekNumber);
 			var (day, mealType, state) = request;
 			var command = new ConfirmMealCommand(week, day, mealType, state);
+
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
 		}
@@ -247,7 +257,9 @@ public static class MealPlanEndpoints
 			CancellationToken cancellationToken)
 		{
 			var week = WeekIdentifier.From(year, weekNumber);
-			var result = await handler.HandleAsync(new GenerateShoppingListCommand(week), cancellationToken);
+			var command = new GenerateShoppingListCommand(week);
+
+			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
 		}
 	}
