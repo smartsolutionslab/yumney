@@ -422,6 +422,39 @@ handler.HandleAsync(command);
 
 Method-name pattern (`{Method}_{Scenario}_{ExpectedResult}`) is unchanged.
 
+### API request types — no `Request` suffix
+
+API request DTOs in `*.Api/Requests/` and their FluentValidation
+validators in `*.Api/Requests/Validator/` carry **no `Request` suffix or
+infix**. The `Requests` namespace already conveys "this is an API
+request DTO"; repeating it on every type name is noise.
+
+```csharp
+// ❌ FORBIDDEN
+public sealed record ImportRecipeRequest(string Url);
+public sealed class ImportRecipeRequestValidator : AbstractValidator<ImportRecipeRequest> { … }
+
+// ✅ REQUIRED
+public sealed record ImportRecipe(string Url);
+public sealed class ImportRecipeValidator : AbstractValidator<ImportRecipe> { … }
+```
+
+**Call-site qualification by location:**
+
+| Code lives in | Qualification | Example |
+|---|---|---|
+| `*.Api/{Module}Endpoints.cs` | `using Requests = SmartSolutionsLab.Yumney.{Module}.Api.Requests;` then `Requests.X` | `Requests.ImportRecipe request, IValidator<Requests.ImportRecipe> validator` |
+| `*.Api/Requests/` (request types themselves) | unqualified — same namespace | `List<SaveRecipeIngredient> Ingredients` |
+| `*.Api/Requests/Validator/` | unqualified — sibling namespace, no ambiguity | `AbstractValidator<SaveRecipe>` |
+| `*.Api.Tests/Requests/...` | partial qualifier `Api.Requests.X` resolved via parent-namespace lookup | `var request = new Api.Requests.ImportRecipe(...);` |
+
+**Why the test files use `Api.Requests.X` instead of the alias:** the test
+class's containing namespace ends in `Requests` (`SmartSolutionsLab.Yumney.{Module}.Api.Tests.Requests`),
+so a `using Requests = ...Api.Requests;` alias would shadow the local
+namespace and the compiler would refuse to resolve type members. The
+partial qualifier `Api.Requests.X` resolves cleanly via the parent
+namespace `SmartSolutionsLab.Yumney.{Module}.Api`.
+
 ## Code Style
 
 ### Backend
