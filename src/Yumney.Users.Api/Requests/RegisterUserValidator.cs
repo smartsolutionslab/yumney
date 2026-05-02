@@ -3,9 +3,9 @@ using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Api.Requests;
 
-public sealed class RegisterUserRequestValidator : AbstractValidator<RegisterUserRequest>
+public sealed class RegisterUserValidator : AbstractValidator<RegisterUser>
 {
-	public RegisterUserRequestValidator()
+	public RegisterUserValidator()
 	{
 		RuleFor(x => x.Email)
 			.NotEmpty()

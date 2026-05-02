@@ -2,10 +2,10 @@ using FluentValidation;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
-using SmartSolutionsLab.Yumney.Users.Api.Requests;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using SmartSolutionsLab.Yumney.Users.Application.DTOs;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
+using Requests = SmartSolutionsLab.Yumney.Users.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Users.Api;
 
@@ -26,8 +26,8 @@ public static class AuthEndpoints
 			.ProducesProblem(StatusCodes.Status429TooManyRequests);
 
 		static async Task<IResult> Register(
-			RegisterUserRequest request,
-			IValidator<RegisterUserRequest> validator,
+			Requests.RegisterUser request,
+			IValidator<Requests.RegisterUser> validator,
 			ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -50,8 +50,8 @@ public static class AuthEndpoints
 			.ProducesProblem(StatusCodes.Status429TooManyRequests);
 
 		static async Task<IResult> ResendVerificationEmail(
-			ResendVerificationEmailRequest request,
-			IValidator<ResendVerificationEmailRequest> validator,
+			Requests.ResendVerificationEmail request,
+			IValidator<Requests.ResendVerificationEmail> validator,
 			ICommandHandler<ResendVerificationEmailCommand, Result> handler,
 			ILoggerFactory loggerFactory,
 			CancellationToken cancellationToken)

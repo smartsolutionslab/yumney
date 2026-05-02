@@ -7,7 +7,7 @@ public static class UsersApiServiceCollectionExtensions
 {
 	public static IServiceCollection AddUsersApi(this IServiceCollection services)
 	{
-		services.AddValidatorsFromAssemblyContaining<RegisterUserRequestValidator>();
+		services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
 
 		return services;
 	}
