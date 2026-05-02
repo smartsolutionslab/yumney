@@ -26,10 +26,7 @@ internal static class RequestMappingExtensions
 	{
 		public IEnumerable<SaveRecipeIngredientItem> MapToRecipeIngredientItems()
 		{
-			foreach (var item in items)
-			{
-				yield return item.ToCommandItem();
-			}
+			return items.Select(item => item.ToCommandItem());
 		}
 	}
 
@@ -49,10 +46,7 @@ internal static class RequestMappingExtensions
 	{
 		public IEnumerable<SaveRecipeStepItem> MapToRecipeStepItems()
 		{
-			foreach (var item in items)
-			{
-				yield return item.ToCommandItem();
-			}
+			return items.Select(item => item.ToCommandItem());
 		}
 	}
 

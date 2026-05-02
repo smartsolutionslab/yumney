@@ -27,8 +27,13 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 #pragma warning disable SA1311
 	private static readonly DayOfWeek[] allDays =
 	[
-		DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday,
-		DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday,
+		DayOfWeek.Monday,
+		DayOfWeek.Tuesday,
+		DayOfWeek.Wednesday,
+		DayOfWeek.Thursday,
+		DayOfWeek.Friday,
+		DayOfWeek.Saturday,
+		DayOfWeek.Sunday,
 	];
 #pragma warning restore SA1311
 
@@ -55,7 +60,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 
 		foreach (var day in allDays)
 		{
-			await UpsertSlotAsync(ownerId, week, day.ToString(), MealType.Dinner.ToString(), defaultServings, cancellationToken);
+			await UpsertSlotAsync(ownerId, week, day.ToString(), nameof(MealType.Dinner), defaultServings, cancellationToken);
 		}
 	}
 
@@ -75,8 +80,8 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 
 		foreach (var day in allDays)
 		{
-			await UpsertSlotAsync(ownerId, week, day.ToString(), MealType.Breakfast.ToString(), defaultServings, cancellationToken);
-			await UpsertSlotAsync(ownerId, week, day.ToString(), MealType.Lunch.ToString(), defaultServings, cancellationToken);
+			await UpsertSlotAsync(ownerId, week, day.ToString(), nameof(MealType.Breakfast), defaultServings, cancellationToken);
+			await UpsertSlotAsync(ownerId, week, day.ToString(), nameof(MealType.Lunch), defaultServings, cancellationToken);
 		}
 	}
 
@@ -95,7 +100,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
-		slot.ContentType = SlotContentType.Recipe.ToString();
+		slot.ContentType = nameof(SlotContentType.Recipe);
 		slot.RecipeIdentifier = inner.Recipe.RecipeIdentifier.Value;
 		slot.RecipeTitle = inner.Recipe.Title.Value;
 		slot.FreetextLabel = null;
@@ -116,7 +121,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
-		slot.ContentType = SlotContentType.Freetext.ToString();
+		slot.ContentType = nameof(SlotContentType.Freetext);
 		slot.FreetextLabel = inner.Label.Value;
 		slot.RecipeIdentifier = null;
 		slot.RecipeTitle = null;
@@ -132,7 +137,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
-		slot.ContentType = SlotContentType.Leftover.ToString();
+		slot.ContentType = nameof(SlotContentType.Leftover);
 		slot.LeftoverLabel = LeftoverLabel.ForRecipe(inner.SourceRecipeTitle).Value;
 		slot.LeftoverSourceDay = inner.SourceDay.ToString();
 		slot.LeftoverSourceMealType = inner.SourceMealType.ToString();
@@ -153,7 +158,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
-		slot.ContentType = SlotContentType.Empty.ToString();
+		slot.ContentType = nameof(SlotContentType.Empty);
 		slot.RecipeIdentifier = null;
 		slot.RecipeTitle = null;
 		slot.FreetextLabel = null;
@@ -179,7 +184,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
-		slot.State = MealState.Cooked.ToString();
+		slot.State = nameof(MealState.Cooked);
 		slot.LastUpdated = DateTime.UtcNow;
 		await context.SaveChangesAsync(cancellationToken);
 	}
@@ -189,7 +194,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
-		slot.State = MealState.Skipped.ToString();
+		slot.State = nameof(MealState.Skipped);
 		slot.LastUpdated = DateTime.UtcNow;
 		await context.SaveChangesAsync(cancellationToken);
 	}
@@ -199,7 +204,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
-		slot.State = MealState.Planned.ToString();
+		slot.State = nameof(MealState.Planned);
 		slot.LastUpdated = DateTime.UtcNow;
 		await context.SaveChangesAsync(cancellationToken);
 	}

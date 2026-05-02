@@ -18,7 +18,7 @@ public static class MealPlanReadModelMappingExtensions
 			row.LeftoverLabel,
 			row.LeftoverSourceDay,
 			row.LeftoverSourceMealType,
-			row.ContentType == SlotContentType.Empty.ToString());
+			row.ContentType == nameof(SlotContentType.Empty));
 
 	public static IReadOnlyList<MealSlotDto> ToDtos(this IEnumerable<MealPlanSlotReadItem> rows) =>
 		rows
@@ -36,7 +36,9 @@ public static class MealPlanReadModelMappingExtensions
 			row.MealType);
 
 	public static IReadOnlyList<PlannedRecipeDto> ToPlannedRecipeDtos(this IEnumerable<MealPlanSlotReadItem> rows) =>
-		rows.Select(row => row.ToPlannedRecipeDto()).ToList();
+		rows
+			.Select(row => row.ToPlannedRecipeDto())
+			.ToList();
 
 	public static MealHistoryEntryDto ToHistoryEntryDto(this MealPlanSlotReadItem row) =>
 		new(
@@ -47,5 +49,7 @@ public static class MealPlanReadModelMappingExtensions
 			row.MealType);
 
 	public static IReadOnlyList<MealHistoryEntryDto> ToHistoryEntryDtos(this IEnumerable<MealPlanSlotReadItem> rows) =>
-		rows.Select(row => row.ToHistoryEntryDto()).ToList();
+		rows
+			.Select(row => row.ToHistoryEntryDto())
+			.ToList();
 }

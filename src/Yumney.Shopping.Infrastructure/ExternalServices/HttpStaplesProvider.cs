@@ -9,7 +9,8 @@ public sealed class HttpStaplesProvider(IHttpClientFactory httpClientFactory) : 
 	public async Task<IReadOnlySet<string>> GetStapleNamesAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
 		var client = httpClientFactory.CreateClient("users-api");
-		List<string> staples = await client.GetFromJsonAsync<List<string>>("/api/v1/users/staples", cancellationToken) ?? [];
+		var url = "/api/v1/users/staples";
+		List<string> staples = await client.GetFromJsonAsync<List<string>>(url, cancellationToken) ?? [];
 
 		return staples.ToHashSet(StringComparer.OrdinalIgnoreCase);
 	}

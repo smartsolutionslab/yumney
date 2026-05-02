@@ -1,6 +1,4 @@
 using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
-using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 

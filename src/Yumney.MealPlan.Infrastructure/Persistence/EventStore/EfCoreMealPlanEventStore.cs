@@ -69,7 +69,10 @@ public sealed partial class EfCoreMealPlanEventStore(
 			.OrderBy(stored => stored.Version)
 			.ToListAsync(cancellationToken);
 
-		var events = storedEvents.Select(DeserializeEvent).Where(deserialized => deserialized is not null).Cast<IDomainEvent>();
+		var events = storedEvents
+			.Select(DeserializeEvent)
+			.Where(deserialized => deserialized is not null)
+			.Cast<IDomainEvent>();
 
 		return WeeklyPlan.FromEvents(WeeklyPlanIdentifier.From(aggregateId), events);
 	}
