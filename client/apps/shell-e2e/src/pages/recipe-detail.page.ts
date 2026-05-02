@@ -29,9 +29,9 @@ export class RecipeDetailPage {
     this.resetServingsButton = page.getByRole('button', { name: /reset/i });
     this.editButton = page.getByRole('link', { name: /edit/i });
     this.deleteButton = page.locator('.btn-danger');
-    // Action button on the recipe-detail page. Exact match to avoid colliding
-    // with the header nav link "Shopping Lists".
-    this.shoppingListButton = page.getByRole('link', { name: 'Shopping List', exact: true });
+    this.shoppingListButton = page
+      .locator('[data-testid="recipe-create-shopping-list-btn"]')
+      .first();
     this.sourceLink = page.locator('.source-link a');
     // Target the .confirm-overlay child rather than the host yn-confirm-dialog.
     // The host has 0x0 dimensions because its child is position:fixed, so

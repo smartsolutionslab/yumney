@@ -89,6 +89,16 @@
         "generic": "Rezept konnte nicht gelöscht werden. Bitte versuche es später erneut."
       }
     },
+    "createShoppingList": {
+      "title": "Einkaufsliste erstellen",
+      "preview": "{{count}} Zutaten für {{servings}} Portionen",
+      "confirm": "Liste erstellen",
+      "creating": "Wird erstellt...",
+      "cancel": "Abbrechen",
+      "errors": {
+        "generic": "Einkaufsliste konnte nicht erstellt werden. Bitte versuche es später erneut."
+      }
+    },
     "resetServings": "Zurücksetzen",
     "a11y": {
       "decreaseServings": "Portionen verringern",

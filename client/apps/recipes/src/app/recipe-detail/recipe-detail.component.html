@@ -126,9 +126,15 @@
           isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete')
         }}
       </button>
-      <a class="btn-secondary" [routerLink]="ROUTES.shopping.create(recipe.identifier)">
+      <button
+        type="button"
+        class="btn-secondary"
+        data-testid="recipe-create-shopping-list-btn"
+        [disabled]="isCreatingShoppingList()"
+        (click)="onCreateShoppingList()"
+      >
         {{ t('recipes.detail.actions.shoppingList') }}
-      </a>
+      </button>
     </div>
 
     <section class="ingredients-section">
@@ -175,9 +181,15 @@
       <a class="btn-primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
         {{ t('recipes.detail.actions.edit') }}
       </a>
-      <a class="btn-secondary" [routerLink]="ROUTES.shopping.create(recipe.identifier)">
+      <button
+        type="button"
+        class="btn-secondary"
+        data-testid="recipe-create-shopping-list-btn"
+        [disabled]="isCreatingShoppingList()"
+        (click)="onCreateShoppingList()"
+      >
         {{ t('recipes.detail.actions.shoppingList') }}
-      </a>
+      </button>
     </div>
 
     @if (showDeleteConfirm()) {
@@ -187,6 +199,17 @@
         [cancelLabel]="t('recipes.detail.delete.cancelButton')"
         (confirmed)="onDeleteConfirmed()"
         (cancelled)="onDeleteCancelled()"
+      />
+    }
+
+    @if (showCreateShoppingListConfirm()) {
+      <yn-create-shopping-list-dialog
+        [recipeTitle]="recipe.title"
+        [desiredServings]="desiredServings() ?? recipe.servings ?? 1"
+        [ingredients]="scaledIngredients()"
+        [isCreating]="isCreatingShoppingList()"
+        (confirmed)="onCreateShoppingListConfirmed()"
+        (cancelled)="onCreateShoppingListCancelled()"
       />
     }
   }
