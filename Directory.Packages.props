@@ -40,7 +40,6 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
     <!-- LLM & Scraping -->
     <PackageVersion Include="Microsoft.SemanticKernel" Version="1.74.0" />
-    <PackageVersion Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageVersion Include="AngleSharp" Version="1.4.0" />
     <!-- Reverse Proxy -->
     <PackageVersion Include="RedisRateLimiting" Version="1.2.1" />

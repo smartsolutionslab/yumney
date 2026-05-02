@@ -874,7 +874,7 @@ Scopes: recipes, shopping, users, account, shared, api, shell, infra, ui
 | Event Bus | In-process (IDomainEventDispatcher + IEventBus), swappable to RabbitMQ/MassTransit |
 | Validation | FluentValidation + Ensure.That() |
 | LLM | Microsoft Semantic Kernel |
-| HTML Parsing | HtmlAgilityPack + AngleSharp |
+| HTML Parsing | AngleSharp |
 | Auth | Keycloak (OIDC via .NET Aspire) |
 | API Docs | Scalar |
 | Logging | Serilog |

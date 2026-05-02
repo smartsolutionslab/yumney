@@ -5,11 +5,6 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Architecture.Tests;
 
-/// <summary>
-/// Guard rails around third-party adapters: external SDKs (Semantic
-/// Kernel, AngleSharp, HtmlAgilityPack) belong in dedicated adapter
-/// projects, not in Domain, Application, or Api.
-/// </summary>
 public class ExternalDependencyIsolationTests
 {
 	[Theory]
@@ -42,14 +37,7 @@ public class ExternalDependencyIsolationTests
 			.HaveDependencyOn("AngleSharp")
 			.GetResult();
 
-		var htmlAgilityResult = Types.InAssembly(assembly)
-			.ShouldNot()
-			.HaveDependencyOn("HtmlAgilityPack")
-			.GetResult();
-
 		angleResult.IsSuccessful.Should().BeTrue(
 			$"{assemblyName} must not reference AngleSharp directly.");
-		htmlAgilityResult.IsSuccessful.Should().BeTrue(
-			$"{assemblyName} must not reference HtmlAgilityPack directly.");
 	}
 }
