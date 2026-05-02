@@ -91,7 +91,3 @@ public class LoggingCommandHandlerDecoratorTests
 		}
 	}
 }
-
-public sealed record TestCommand : ICommand<Result<string>>;
-
-public sealed record PlainCommand : ICommand<string>;

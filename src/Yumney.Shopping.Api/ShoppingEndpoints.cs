@@ -111,9 +111,7 @@ public static class ShoppingEndpoints
 			ICommandHandler<CheckOffAllItemsCommand, Result> handler,
 			CancellationToken cancellationToken)
 		{
-			var command = new CheckOffAllItemsCommand(
-				ShoppingListIdentifier.From(identifier),
-				request.IsChecked);
+			var command = new CheckOffAllItemsCommand(ShoppingListIdentifier.From(identifier), request.IsChecked);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToNoContent();
@@ -202,8 +200,9 @@ public static class ShoppingEndpoints
 			ICommandHandler<EndShoppingModeCommand, Result> handler,
 			CancellationToken cancellationToken)
 		{
-			var result = await handler.HandleAsync(new EndShoppingModeCommand(request.AcceptPendingChanges), cancellationToken);
+			var command = new EndShoppingModeCommand(request.AcceptPendingChanges);
 
+			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToNoContent();
 		}
 
