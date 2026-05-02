@@ -34,9 +34,7 @@ test.describe('Create shopping list from recipe (US-080)', () => {
 
     await detail.shoppingListButton.click();
 
-    const confirmButton = authenticatedPage.locator(
-      '[data-testid="create-shopping-list-confirm"]',
-    );
+    const confirmButton = authenticatedPage.locator('[data-testid="create-shopping-list-confirm"]');
     await confirmButton.click();
 
     await expect(authenticatedPage).toHaveURL(/\/shopping\/lists\/[\w-]+/);
