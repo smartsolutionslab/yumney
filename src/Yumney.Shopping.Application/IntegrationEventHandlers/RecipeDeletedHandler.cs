@@ -11,9 +11,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.IntegrationEventHandlers
 /// publishing user that still references the deleted recipe. The user's list
 /// and items are preserved — only the broken link is severed.
 /// </summary>
-public sealed class RecipeDeletedHandler(
-	IShoppingListProjectionRepository projection,
-	IShoppingListEventStore eventStore)
+public sealed class RecipeDeletedHandler(IShoppingListProjectionRepository projection, IShoppingListEventStore eventStore)
 	: IIntegrationEventHandler<RecipeDeletedIntegrationEvent>
 {
 	/// <inheritdoc />
