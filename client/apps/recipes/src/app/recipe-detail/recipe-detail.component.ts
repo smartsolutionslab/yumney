@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService, RecipeDetail } from '../api';
+import { CreateShoppingListItem, RecipeApiService, RecipeDetail, ShoppingApiService } from '../api';
 import {
   createAsyncState,
   scaleIngredients,
@@ -24,6 +24,7 @@ import {
   FavoriteButtonComponent,
   LoadingSpinnerComponent,
 } from '@yumney/ui';
+import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog/create-shopping-list-dialog.component';
 
 @Component({
   selector: 'yn-recipe-detail',
@@ -31,6 +32,7 @@ import {
     TranslocoModule,
     RouterLink,
     ConfirmDialogComponent,
+    CreateShoppingListDialogComponent,
     BackLinkComponent,
     LoadingSpinnerComponent,
     FavoriteButtonComponent,
@@ -43,18 +45,22 @@ export class RecipeDetailComponent implements OnInit {
   protected readonly ROUTES = ROUTES;
 
   private recipeApi = inject(RecipeApiService);
+  private shoppingApi = inject(ShoppingApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private loadState = createAsyncState(this.destroyRef);
   private deleteState = createAsyncState(this.destroyRef);
+  private createShoppingListState = createAsyncState(this.destroyRef);
 
   recipe = signal<RecipeDetail | null>(null);
   isLoading = this.loadState.isLoading;
   isDeleting = this.deleteState.isLoading;
+  isCreatingShoppingList = this.createShoppingListState.isLoading;
   serverError = signal<string | null>(null);
   desiredServings = signal<number | null>(null);
   showDeleteConfirm = signal(false);
+  showCreateShoppingListConfirm = signal(false);
 
   scaledIngredients = computed(() => {
     const recipe = this.recipe();
@@ -155,5 +161,53 @@ export class RecipeDetailComponent implements OnInit {
 
   onToggleFavorite(): void {
     toggleFavoriteOnItem(this.recipe, this.destroyRef, (id) => this.recipeApi.toggleFavorite(id));
+  }
+
+  onCreateShoppingList(): void {
+    if (!this.recipe()) {
+      return;
+    }
+    this.serverError.set(null);
+    this.showCreateShoppingListConfirm.set(true);
+  }
+
+  onCreateShoppingListCancelled(): void {
+    if (this.isCreatingShoppingList()) {
+      return;
+    }
+    this.showCreateShoppingListConfirm.set(false);
+  }
+
+  onCreateShoppingListConfirmed(): void {
+    const recipe = this.recipe();
+    const desired = this.desiredServings();
+    if (!recipe || desired === null) {
+      return;
+    }
+
+    const items: CreateShoppingListItem[] = this.scaledIngredients().map(
+      ({ name, amount, unit }) => ({
+        name,
+        amount,
+        unit,
+      }),
+    );
+
+    this.createShoppingListState.execute(
+      this.shoppingApi.createShoppingList({
+        title: `${recipe.title} (x${desired})`,
+        items,
+        recipeIdentifier: recipe.identifier,
+      }),
+      ERROR_MAPS.recipes.createShoppingList,
+      (created) => {
+        this.showCreateShoppingListConfirm.set(false);
+        this.router.navigateByUrl(ROUTES.shopping.detail(created.identifier));
+      },
+      (error) => {
+        this.showCreateShoppingListConfirm.set(false);
+        this.serverError.set(error);
+      },
+    );
   }
 }

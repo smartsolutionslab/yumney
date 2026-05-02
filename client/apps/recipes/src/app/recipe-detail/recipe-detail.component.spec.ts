@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError, EMPTY } from 'rxjs';
 import { RecipeDetailComponent } from './recipe-detail.component';
-import { RecipeApiService, RecipeDetail } from '../api';
+import { RecipeApiService, RecipeDetail, ShoppingApiService, ShoppingListDetail } from '../api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 
@@ -62,6 +62,16 @@ const en = {
         },
       },
       resetServings: 'Reset',
+      createShoppingList: {
+        title: 'Create shopping list',
+        preview: '{{count}} ingredients for {{servings}} servings',
+        confirm: 'Create list',
+        creating: 'Creating...',
+        cancel: 'Cancel',
+        errors: {
+          generic: 'Failed to create shopping list. Please try again later.',
+        },
+      },
       a11y: {
         decreaseServings: 'Decrease servings',
         increaseServings: 'Increase servings',
@@ -80,6 +90,9 @@ describe('RecipeDetailComponent', () => {
     getRecipeById: ReturnType<typeof vi.fn>;
     deleteRecipe: ReturnType<typeof vi.fn>;
   };
+  let shoppingApiMock: {
+    createShoppingList: ReturnType<typeof vi.fn>;
+  };
 
   function setupTestBed(
     getRecipeByIdReturn: ReturnType<typeof vi.fn> = vi.fn(),
@@ -89,6 +102,9 @@ describe('RecipeDetailComponent', () => {
       getRecipeById: getRecipeByIdReturn,
       deleteRecipe: vi.fn().mockReturnValue(EMPTY),
     };
+    shoppingApiMock = {
+      createShoppingList: vi.fn().mockReturnValue(EMPTY),
+    };
 
     TestBed.configureTestingModule({
       imports: [RecipeDetailComponent, setupTranslocoTesting(en)],
@@ -96,6 +112,7 @@ describe('RecipeDetailComponent', () => {
         provideYumneyIcons(),
         provideRouter([]),
         { provide: RecipeApiService, useValue: recipeApiMock },
+        { provide: ShoppingApiService, useValue: shoppingApiMock },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -305,17 +322,19 @@ describe('RecipeDetailComponent', () => {
     expect(editLink.textContent.trim()).toBe('Edit');
   }));
 
-  it('should render shopping list button as link', fakeAsync(() => {
+  it('should render shopping list trigger as a button', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
     fixture.detectChanges();
     tick();
     fixture.detectChanges();
 
-    const shoppingLink = fixture.nativeElement.querySelector('.btn-secondary');
-    expect(shoppingLink).toBeTruthy();
-    expect(shoppingLink.tagName).toBe('A');
-    expect(shoppingLink.getAttribute('href')).toBe('/shopping/create/abc-123');
-    expect(shoppingLink.textContent).toContain('Shopping List');
+    const trigger = fixture.nativeElement.querySelector(
+      '[data-testid="recipe-create-shopping-list-btn"]',
+    );
+    expect(trigger).toBeTruthy();
+    expect(trigger.tagName).toBe('BUTTON');
+    expect(trigger.textContent).toContain('Shopping List');
+    expect(trigger.disabled).toBe(false);
   }));
 
   it('should call getRecipeById with correct identifier', fakeAsync(() => {
@@ -575,5 +594,168 @@ describe('RecipeDetailComponent', () => {
     component.desiredServings.set(6);
 
     expect(component.isScaled()).toBe(true);
+  }));
+
+  it('should open the create-shopping-list dialog on button click', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const trigger = fixture.nativeElement.querySelector(
+      '[data-testid="recipe-create-shopping-list-btn"]',
+    );
+    trigger.click();
+    fixture.detectChanges();
+
+    expect(component.showCreateShoppingListConfirm()).toBe(true);
+    const dialog = fixture.nativeElement.querySelector(
+      '[data-testid="create-shopping-list-dialog"]',
+    );
+    expect(dialog).toBeTruthy();
+  }));
+
+  it('should preview scaled ingredients in the dialog', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    component.desiredServings.set(8);
+    component.onCreateShoppingList();
+    fixture.detectChanges();
+
+    const previewItems = fixture.nativeElement.querySelectorAll('.preview-list li');
+    expect(previewItems.length).toBe(3);
+    expect(previewItems[0].textContent).toContain('800');
+    expect(previewItems[1].textContent).toContain('8');
+  }));
+
+  it('should suggest auto-name "{title} (x{servings})" in the dialog', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    component.desiredServings.set(6);
+    component.onCreateShoppingList();
+    fixture.detectChanges();
+
+    const subtitle = fixture.nativeElement.querySelector(
+      '[data-testid="create-shopping-list-suggested-title"]',
+    );
+    expect(subtitle.textContent.trim()).toBe('Pasta Carbonara (x6)');
+  }));
+
+  it('should send scaled items + auto-title to the API on confirm', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    component.desiredServings.set(6);
+    component.onCreateShoppingList();
+
+    const created: ShoppingListDetail = {
+      identifier: 'list-1',
+      title: 'Pasta Carbonara (x6)',
+      items: [],
+      recipeIdentifier: 'abc-123',
+      createdAt: '2026-05-02T00:00:00Z',
+    } as unknown as ShoppingListDetail;
+    shoppingApiMock.createShoppingList.mockReturnValue(of(created));
+
+    component.onCreateShoppingListConfirmed();
+    tick();
+
+    expect(shoppingApiMock.createShoppingList).toHaveBeenCalledTimes(1);
+    const payload = shoppingApiMock.createShoppingList.mock.calls[0][0];
+    expect(payload.title).toBe('Pasta Carbonara (x6)');
+    expect(payload.recipeIdentifier).toBe('abc-123');
+    expect(payload.items[0]).toEqual({ name: 'Spaghetti', amount: 600, unit: 'g' });
+    expect(payload.items[1]).toEqual({ name: 'Eggs', amount: 6, unit: null });
+    expect(payload.items[2]).toEqual({ name: 'Parmesan', amount: null, unit: null });
+  }));
+
+  it('should send original amounts when servings are unchanged', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    component.onCreateShoppingList();
+
+    shoppingApiMock.createShoppingList.mockReturnValue(
+      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
+    );
+    component.onCreateShoppingListConfirmed();
+    tick();
+
+    const payload = shoppingApiMock.createShoppingList.mock.calls[0][0];
+    expect(payload.title).toBe('Pasta Carbonara (x4)');
+    expect(payload.items[0].amount).toBe(400);
+    expect(payload.items[1].amount).toBe(4);
+  }));
+
+  it('should send divided amounts when scaling down to 1', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    component.desiredServings.set(1);
+    component.onCreateShoppingList();
+
+    shoppingApiMock.createShoppingList.mockReturnValue(
+      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
+    );
+    component.onCreateShoppingListConfirmed();
+    tick();
+
+    const payload = shoppingApiMock.createShoppingList.mock.calls[0][0];
+    expect(payload.title).toBe('Pasta Carbonara (x1)');
+    expect(payload.items[0].amount).toBe(100);
+    expect(payload.items[1].amount).toBe(1);
+  }));
+
+  it('should navigate to the new list on success', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    component.onCreateShoppingList();
+
+    shoppingApiMock.createShoppingList.mockReturnValue(
+      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
+    );
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    component.onCreateShoppingListConfirmed();
+    tick();
+
+    expect(navigateSpy).toHaveBeenCalledWith('/shopping/lists/list-1');
+    navigateSpy.mockRestore();
+  }));
+
+  it('should NOT call createShoppingList on cancel', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    component.onCreateShoppingList();
+    expect(component.showCreateShoppingListConfirm()).toBe(true);
+
+    component.onCreateShoppingListCancelled();
+
+    expect(component.showCreateShoppingListConfirm()).toBe(false);
+    expect(shoppingApiMock.createShoppingList).not.toHaveBeenCalled();
+  }));
+
+  it('should surface a generic error when the API fails', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    component.onCreateShoppingList();
+
+    const httpError = new HttpErrorResponse({ status: 500 });
+    shoppingApiMock.createShoppingList.mockReturnValue(throwError(() => httpError));
+
+    component.onCreateShoppingListConfirmed();
+    tick();
+    fixture.detectChanges();
+
+    const error = fixture.nativeElement.querySelector('.error-banner');
+    expect(error).toBeTruthy();
+    expect(error.textContent).toContain('Failed to create shopping list.');
+    expect(component.showCreateShoppingListConfirm()).toBe(false);
   }));
 });

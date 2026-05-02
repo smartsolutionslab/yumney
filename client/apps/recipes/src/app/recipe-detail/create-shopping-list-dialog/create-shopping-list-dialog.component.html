@@ -1,0 +1,67 @@
+<div class="create-shopping-list-overlay" (click)="onOverlayClick($event)" *transloco="let t">
+  <div
+    class="create-shopping-list-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="create-shopping-list-title"
+    data-testid="create-shopping-list-dialog"
+  >
+    <header class="dialog-header">
+      <h2 id="create-shopping-list-title" class="dialog-title">
+        {{ t('recipes.detail.createShoppingList.title') }}
+      </h2>
+      <p class="dialog-subtitle" data-testid="create-shopping-list-suggested-title">
+        {{ suggestedTitle() }}
+      </p>
+    </header>
+
+    <section class="dialog-preview" aria-labelledby="create-shopping-list-preview-heading">
+      <h3 id="create-shopping-list-preview-heading" class="preview-heading">
+        {{
+          t('recipes.detail.createShoppingList.preview', {
+            count: ingredients().length,
+            servings: desiredServings(),
+          })
+        }}
+      </h3>
+      <ul class="preview-list">
+        @for (ingredient of ingredients(); track ingredient.name) {
+          <li>
+            @if (ingredient.amount !== null) {
+              <span class="preview-amount">{{ ingredient.amount }}</span>
+            }
+            @if (ingredient.unit) {
+              <span class="preview-unit">{{ ingredient.unit }}</span>
+            }
+            <span class="preview-name">{{ ingredient.name }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <div class="dialog-actions">
+      <button
+        type="button"
+        class="btn-secondary"
+        [disabled]="isCreating()"
+        (click)="onCancel()"
+        data-testid="create-shopping-list-cancel"
+      >
+        {{ t('recipes.detail.createShoppingList.cancel') }}
+      </button>
+      <button
+        type="button"
+        class="btn-primary"
+        [disabled]="isCreating()"
+        (click)="onConfirm()"
+        data-testid="create-shopping-list-confirm"
+      >
+        {{
+          isCreating()
+            ? t('recipes.detail.createShoppingList.creating')
+            : t('recipes.detail.createShoppingList.confirm')
+        }}
+      </button>
+    </div>
+  </div>
+</div>

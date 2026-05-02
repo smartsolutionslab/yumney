@@ -1,0 +1,110 @@
+@use 'buttons';
+@use 'glass';
+
+.create-shopping-list-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yn-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yn-space-5);
+  background: var(--yn-overlay);
+  animation: yn-fade-in var(--yn-duration-fast) var(--yn-ease-glass) both;
+}
+
+.create-shopping-list-dialog {
+  @include glass.glass-dialog;
+  width: min(560px, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-6);
+  padding: var(--yn-space-7);
+  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .create-shopping-list-overlay,
+  .create-shopping-list-dialog {
+    animation: none;
+  }
+}
+
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-2);
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: var(--yn-text-xl);
+  line-height: var(--yn-leading-tight);
+}
+
+.dialog-subtitle {
+  margin: 0;
+  font-size: var(--yn-text-md);
+  color: var(--yn-text-muted);
+}
+
+.dialog-preview {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-3);
+  overflow: hidden;
+}
+
+.preview-heading {
+  margin: 0;
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--yn-text-muted);
+}
+
+.preview-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-2);
+  overflow-y: auto;
+
+  li {
+    display: flex;
+    gap: var(--yn-space-2);
+    align-items: baseline;
+    padding-block: var(--yn-space-1);
+    border-bottom: 1px solid var(--yn-glass-border-subtle);
+  }
+
+  li:last-child {
+    border-bottom: 0;
+  }
+}
+
+.preview-amount {
+  font-weight: var(--yn-font-medium);
+  color: var(--yn-text);
+}
+
+.preview-unit {
+  color: var(--yn-text-muted);
+}
+
+.preview-name {
+  flex: 1 1 auto;
+  color: var(--yn-text);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--yn-space-3);
+}

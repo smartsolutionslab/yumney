@@ -89,6 +89,16 @@
         "generic": "Failed to delete recipe. Please try again later."
       }
     },
+    "createShoppingList": {
+      "title": "Create shopping list",
+      "preview": "{{count}} ingredients for {{servings}} servings",
+      "confirm": "Create list",
+      "creating": "Creating...",
+      "cancel": "Cancel",
+      "errors": {
+        "generic": "Failed to create shopping list. Please try again later."
+      }
+    },
     "resetServings": "Reset",
     "a11y": {
       "decreaseServings": "Decrease servings",

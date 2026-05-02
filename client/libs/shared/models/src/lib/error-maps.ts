@@ -29,6 +29,9 @@ export const ERROR_MAPS = {
     list: {
       default: 'recipes.list.errors.generic',
     } satisfies HttpErrorMap,
+    createShoppingList: {
+      default: 'recipes.detail.createShoppingList.errors.generic',
+    } satisfies HttpErrorMap,
   },
   shopping: {
     list: {
