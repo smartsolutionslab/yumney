@@ -21,7 +21,7 @@ public sealed class GenerateShoppingListCommandHandler(
 		var planned = await readModel.GetPlannedRecipesAsync(owner, week, cancellationToken);
 		if (planned.Recipes.Count == 0) return GenerateShoppingListErrors.NoRecipes;
 
-		var merged = new Dictionary<string, MergedItem>(StringComparer.OrdinalIgnoreCase);
+		Dictionary<string, MergedItem> merged = new(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var recipe in planned.Recipes)
 		{
@@ -59,7 +59,7 @@ public sealed class GenerateShoppingListCommandHandler(
 	{
 		var staples = await staplesProvider.GetStapleNamesAsync(owner, cancellationToken);
 		var staplesSkipped = 0;
-		var itemsToAdd = new List<ShoppingItemRequest>();
+		List<ShoppingItemRequest> itemsToAdd = [];
 
 		foreach (var (name, quantity, unit) in merged.Values)
 		{

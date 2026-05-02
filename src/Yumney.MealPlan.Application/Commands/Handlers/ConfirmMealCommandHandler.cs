@@ -46,9 +46,6 @@ public sealed class ConfirmMealCommandHandler(
 	private async Task<IReadOnlyList<CookedIngredient>> FetchIngredientsAsync(SlotRecipeIdentifier recipe, CancellationToken cancellationToken)
 	{
 		var ingredients = await recipeIngredients.LookupAsync(recipe, cancellationToken);
-		return ingredients
-			.Where(ingredient => ingredient.Amount.HasValue && ingredient.Amount.Value > 0m)
-			.Select(ingredient => new CookedIngredient(ingredient.Name, ingredient.Amount!.Value, ingredient.Unit))
-			.ToList();
+		return ingredients.ToCookedIngredients();
 	}
 }

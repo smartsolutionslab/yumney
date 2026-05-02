@@ -34,7 +34,7 @@ public sealed class GetSuggestionsQueryHandler(IUserActivityRepository activitie
 	{
 		var now = DateTime.UtcNow;
 		var hour = now.Hour;
-		var actions = new List<string>(BuildTimeOfDayActions(hour));
+		List<string> actions = new(BuildTimeOfDayActions(hour));
 
 		if (now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
 		{

@@ -134,7 +134,7 @@ public static partial class JsonLdRecipeParser
 
 	private static List<ExtractedIngredientDto> ReadIngredients(JsonElement recipe)
 	{
-		var list = new List<ExtractedIngredientDto>();
+		List<ExtractedIngredientDto> list = [];
 		if (!recipe.TryGetProperty("recipeIngredient", out var ingredients) || ingredients.ValueKind != JsonValueKind.Array)
 		{
 			return list;
@@ -155,7 +155,7 @@ public static partial class JsonLdRecipeParser
 	{
 		if (!recipe.TryGetProperty("recipeInstructions", out var instructions)) return [];
 
-		var flat = new List<string>();
+		List<string> flat = [];
 		FlattenInstructions(instructions, flat);
 
 		return flat
