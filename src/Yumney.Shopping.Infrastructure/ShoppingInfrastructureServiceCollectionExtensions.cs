@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Web;
-using SmartSolutionsLab.Yumney.Shopping.Application.IntegrationEventHandlers;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -34,7 +33,6 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
 		services.AddScoped<IInboxStore, EfCoreInboxStore<ShoppingDbContext>>();
 		services.AddIntegrationEventHandlersFromAssemblyContaining<ShoppingListProjection>();
-		services.AddIntegrationEventHandlersFromAssemblyContaining<RecipeDeletedHandler>();
 		services.AddYumneyServiceClient("users-api");
 		services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");
 
