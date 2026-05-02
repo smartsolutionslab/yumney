@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi;
 using RedisRateLimiting;
@@ -64,6 +65,8 @@ public static class HostBuilderExtensions
 		builder.AddWolverineEventBus(eventHandlerAssemblies);
 
 		builder.Services.AddScoped<DomainEventDispatchInterceptor>();
+		builder.Services.AddQueryCounting();
+		builder.Services.TryAddSingleton(TimeProvider.System);
 
 		var configuration = builder.Configuration;
 
