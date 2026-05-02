@@ -65,6 +65,7 @@ const en = {
       createShoppingList: {
         title: 'Create shopping list',
         preview: '{{count}} ingredients for {{servings}} servings',
+        previewNoServings: '{{count}} ingredients',
         confirm: 'Create list',
         creating: 'Creating...',
         cancel: 'Cancel',
@@ -738,6 +739,26 @@ describe('RecipeDetailComponent', () => {
 
     expect(component.showCreateShoppingListConfirm()).toBe(false);
     expect(shoppingApiMock.createShoppingList).not.toHaveBeenCalled();
+  }));
+
+  it('should create a list without (xN) suffix when recipe has no servings', fakeAsync(() => {
+    const noServings: RecipeDetail = { ...mockRecipe, servings: null };
+    setupTestBed(vi.fn().mockReturnValue(of(noServings)));
+    fixture.detectChanges();
+    tick();
+    component.onCreateShoppingList();
+
+    shoppingApiMock.createShoppingList.mockReturnValue(
+      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
+    );
+
+    component.onCreateShoppingListConfirmed();
+    tick();
+
+    expect(shoppingApiMock.createShoppingList).toHaveBeenCalledTimes(1);
+    const payload = shoppingApiMock.createShoppingList.mock.calls[0][0];
+    expect(payload.title).toBe('Pasta Carbonara');
+    expect(payload.items[0].amount).toBe(400);
   }));
 
   it('should surface a generic error when the API fails', fakeAsync(() => {

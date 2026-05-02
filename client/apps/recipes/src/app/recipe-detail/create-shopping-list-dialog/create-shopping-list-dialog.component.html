@@ -17,12 +17,20 @@
 
     <section class="dialog-preview" aria-labelledby="create-shopping-list-preview-heading">
       <h3 id="create-shopping-list-preview-heading" class="preview-heading">
-        {{
-          t('recipes.detail.createShoppingList.preview', {
-            count: ingredients().length,
-            servings: desiredServings(),
-          })
-        }}
+        @if (desiredServings() !== null) {
+          {{
+            t('recipes.detail.createShoppingList.preview', {
+              count: ingredients().length,
+              servings: desiredServings(),
+            })
+          }}
+        } @else {
+          {{
+            t('recipes.detail.createShoppingList.previewNoServings', {
+              count: ingredients().length,
+            })
+          }}
+        }
       </h3>
       <ul class="preview-list">
         @for (ingredient of ingredients(); track ingredient.name) {

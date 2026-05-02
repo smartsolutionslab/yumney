@@ -18,14 +18,17 @@ import type { ScalableIngredient } from '@yumney/shared/models';
 })
 export class CreateShoppingListDialogComponent {
   recipeTitle = input.required<string>();
-  desiredServings = input.required<number>();
+  desiredServings = input.required<number | null>();
   ingredients = input.required<readonly ScalableIngredient[]>();
   isCreating = input(false);
 
   confirmed = output<void>();
   cancelled = output<void>();
 
-  suggestedTitle = computed(() => `${this.recipeTitle()} (x${this.desiredServings()})`);
+  suggestedTitle = computed(() => {
+    const servings = this.desiredServings();
+    return servings === null ? this.recipeTitle() : `${this.recipeTitle()} (x${servings})`;
+  });
 
   @HostListener('document:keydown.escape')
   onEscapeKey(): void {
