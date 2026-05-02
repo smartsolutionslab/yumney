@@ -11,7 +11,6 @@ public sealed class GetMergedShoppingListQueryHandler(
 {
 	public async Task<Result<MergedShoppingListDto>> HandleAsync(GetMergedShoppingListQuery query, CancellationToken cancellationToken = default)
 	{
-		var ownerId = currentUser.UserId;
-		return await readModel.GetByOwnerAsync(ownerId, query.IncludePastBought, cancellationToken);
+		return await readModel.GetByOwnerAsync(currentUser.AsOwner(), query.IncludePastBought, cancellationToken);
 	}
 }

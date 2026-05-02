@@ -3,18 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 
 public sealed class ShoppingLedgerReadModelRepository(ShoppingReadDbContext context) : IShoppingLedgerReadModelRepository
 {
-	/// <inheritdoc />
-	public async Task<MergedShoppingListDto> GetByOwnerAsync(string ownerId, bool includePastBought = false, CancellationToken cancellationToken = default)
+	public async Task<MergedShoppingListDto> GetByOwnerAsync(OwnerIdentifier owner, bool includePastBought = false, CancellationToken cancellationToken = default)
 	{
 		var today = DateTime.UtcNow.Date;
+		var ownerValue = owner.Value;
 
 		var query = context.ShoppingLedgerReadItems
-			.Where(row => row.OwnerId == ownerId);
+			.Where(row => row.OwnerId == ownerValue);
 
 		if (!includePastBought)
 		{

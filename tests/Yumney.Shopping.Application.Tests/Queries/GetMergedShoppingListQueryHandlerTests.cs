@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Queries;
@@ -24,7 +25,7 @@ public class GetMergedShoppingListQueryHandlerTests
 	[Fact]
 	public async Task HandleAsync_EmptyReadModel_ReturnsEmptyList()
 	{
-		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+		readModel.GetByOwnerAsync(OwnerIdentifier.From("user-123"), Arg.Any<bool>(), Arg.Any<CancellationToken>())
 			.Returns(new MergedShoppingListDto([]));
 
 		var result = await handler.HandleAsync(new GetMergedShoppingListQuery());
@@ -41,7 +42,7 @@ public class GetMergedShoppingListQueryHandlerTests
 			new("Milk", 2, 2, "L", "dairy", false, []),
 			new("Chicken", 500, 500, "g", "meat-fish", false, []),
 		};
-		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+		readModel.GetByOwnerAsync(OwnerIdentifier.From("user-123"), Arg.Any<bool>(), Arg.Any<CancellationToken>())
 			.Returns(new MergedShoppingListDto(items));
 
 		var result = await handler.HandleAsync(new GetMergedShoppingListQuery());
@@ -53,33 +54,33 @@ public class GetMergedShoppingListQueryHandlerTests
 	[Fact]
 	public async Task HandleAsync_DelegatesToReadModel()
 	{
-		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+		readModel.GetByOwnerAsync(OwnerIdentifier.From("user-123"), Arg.Any<bool>(), Arg.Any<CancellationToken>())
 			.Returns(new MergedShoppingListDto([]));
 
 		await handler.HandleAsync(new GetMergedShoppingListQuery());
 
-		await readModel.Received(1).GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>());
+		await readModel.Received(1).GetByOwnerAsync(OwnerIdentifier.From("user-123"), Arg.Any<bool>(), Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
 	public async Task HandleAsync_DefaultQuery_HidesPastBoughtItems()
 	{
-		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+		readModel.GetByOwnerAsync(OwnerIdentifier.From("user-123"), Arg.Any<bool>(), Arg.Any<CancellationToken>())
 			.Returns(new MergedShoppingListDto([]));
 
 		await handler.HandleAsync(new GetMergedShoppingListQuery());
 
-		await readModel.Received(1).GetByOwnerAsync("user-123", false, Arg.Any<CancellationToken>());
+		await readModel.Received(1).GetByOwnerAsync(OwnerIdentifier.From("user-123"), false, Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
 	public async Task HandleAsync_IncludePastBought_ForwardsToReadModel()
 	{
-		readModel.GetByOwnerAsync("user-123", Arg.Any<bool>(), Arg.Any<CancellationToken>())
+		readModel.GetByOwnerAsync(OwnerIdentifier.From("user-123"), Arg.Any<bool>(), Arg.Any<CancellationToken>())
 			.Returns(new MergedShoppingListDto([]));
 
 		await handler.HandleAsync(new GetMergedShoppingListQuery(IncludePastBought: true));
 
-		await readModel.Received(1).GetByOwnerAsync("user-123", true, Arg.Any<CancellationToken>());
+		await readModel.Received(1).GetByOwnerAsync(OwnerIdentifier.From("user-123"), true, Arg.Any<CancellationToken>());
 	}
 }
