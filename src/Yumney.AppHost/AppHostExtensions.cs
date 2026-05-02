@@ -6,13 +6,14 @@ internal static class AppHostExtensions
 {
 	public static IResourceBuilder<ProjectResource> AsYumneyApi(
 		this IResourceBuilder<ProjectResource> api,
+		AppHostOptions options,
 		IResourceBuilder<IResourceWithConnectionString> database,
 		IResourceBuilder<KeycloakResource> keycloak,
 		IResourceBuilder<IResourceWithConnectionString> redis,
 		IResourceBuilder<IResourceWithConnectionString> messaging,
 		IResourceBuilder<ProjectResource> migrationRunner)
 	{
-		return api
+		var configured = api
 			.WithHttpEndpoint()
 			.WithReference(database)
 			.WaitFor(migrationRunner)
@@ -20,6 +21,10 @@ internal static class AppHostExtensions
 			.WithReference(redis)
 			.WithReference(messaging)
 			.WithUrl("/scalar/v1", "Scalar");
+
+		if (options.E2ETests) configured.WithEnvironment("E2ETests", "true");
+
+		return configured;
 	}
 
 	public static IResourceBuilder<ProjectResource> WithLlmProvider(
