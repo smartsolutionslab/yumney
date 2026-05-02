@@ -11,5 +11,3 @@ public sealed record MealConfirmedIntegrationEvent(
 	Guid RecipeIdentifier,
 	int Servings,
 	IReadOnlyList<MealConfirmedIngredient> Ingredients) : IntegrationEvent;
-
-public sealed record MealConfirmedIngredient(string Name, decimal Quantity, string? Unit);

@@ -1,4 +1,3 @@
-using System.Diagnostics.Metrics;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -53,16 +52,5 @@ public class LoggingQueryHandlerDecoratorTests
 		Func<Task> act = () => decorator.HandleAsync(new TestQuery());
 
 		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
-	}
-}
-
-public sealed record TestQuery : IQuery<Result<int>>;
-
-internal sealed class TestMeterFactory : IMeterFactory
-{
-	public Meter Create(MeterOptions options) => new(options);
-
-	public void Dispose()
-	{
 	}
 }
