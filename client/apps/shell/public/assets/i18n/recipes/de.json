@@ -92,6 +92,7 @@
     "createShoppingList": {
       "title": "Einkaufsliste erstellen",
       "preview": "{{count}} Zutaten für {{servings}} Portionen",
+      "previewNoServings": "{{count}} Zutaten",
       "confirm": "Liste erstellen",
       "creating": "Wird erstellt...",
       "cancel": "Abbrechen",

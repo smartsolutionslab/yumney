@@ -92,6 +92,7 @@
     "createShoppingList": {
       "title": "Create shopping list",
       "preview": "{{count}} ingredients for {{servings}} servings",
+      "previewNoServings": "{{count}} ingredients",
       "confirm": "Create list",
       "creating": "Creating...",
       "cancel": "Cancel",

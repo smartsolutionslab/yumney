@@ -205,7 +205,7 @@
     @if (showCreateShoppingListConfirm()) {
       <yn-create-shopping-list-dialog
         [recipeTitle]="recipe.title"
-        [desiredServings]="desiredServings() ?? recipe.servings ?? 1"
+        [desiredServings]="recipe.servings === null ? null : desiredServings()"
         [ingredients]="scaledIngredients()"
         [isCreating]="isCreatingShoppingList()"
         (confirmed)="onCreateShoppingListConfirmed()"

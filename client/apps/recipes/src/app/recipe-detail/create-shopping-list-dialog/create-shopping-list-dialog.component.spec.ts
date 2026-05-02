@@ -8,6 +8,7 @@ const en = {
       createShoppingList: {
         title: 'Create shopping list',
         preview: '{{count}} ingredients for {{servings}} servings',
+        previewNoServings: '{{count}} ingredients',
         confirm: 'Create list',
         creating: 'Creating...',
         cancel: 'Cancel',
@@ -106,5 +107,27 @@ describe('CreateShoppingListDialogComponent', () => {
     component.onEscapeKey();
 
     expect(emitted).toBe(1);
+  });
+
+  it('should drop the servings suffix when desiredServings is null', () => {
+    TestBed.configureTestingModule({
+      imports: [CreateShoppingListDialogComponent, setupTranslocoTesting(en)],
+    });
+    fixture = TestBed.createComponent(CreateShoppingListDialogComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput('recipeTitle', 'Pasta Carbonara');
+    fixture.componentRef.setInput('desiredServings', null);
+    fixture.componentRef.setInput('ingredients', ingredients);
+    fixture.componentRef.setInput('isCreating', false);
+    fixture.detectChanges();
+
+    expect(component.suggestedTitle()).toBe('Pasta Carbonara');
+    const subtitle = fixture.nativeElement.querySelector(
+      '[data-testid="create-shopping-list-suggested-title"]',
+    );
+    expect(subtitle.textContent.trim()).toBe('Pasta Carbonara');
+    const heading = fixture.nativeElement.querySelector('.preview-heading');
+    expect(heading.textContent).toContain('3 ingredients');
+    expect(heading.textContent).not.toContain('servings');
   });
 });

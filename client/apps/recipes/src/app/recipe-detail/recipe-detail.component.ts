@@ -180,11 +180,11 @@ export class RecipeDetailComponent implements OnInit {
 
   onCreateShoppingListConfirmed(): void {
     const recipe = this.recipe();
-    const desired = this.desiredServings();
-    if (!recipe || desired === null) {
+    if (!recipe) {
       return;
     }
 
+    const desired = this.desiredServings();
     const items: CreateShoppingListItem[] = this.scaledIngredients().map(
       ({ name, amount, unit }) => ({
         name,
@@ -192,10 +192,12 @@ export class RecipeDetailComponent implements OnInit {
         unit,
       }),
     );
+    const title =
+      recipe.servings !== null && desired !== null ? `${recipe.title} (x${desired})` : recipe.title;
 
     this.createShoppingListState.execute(
       this.shoppingApi.createShoppingList({
-        title: `${recipe.title} (x${desired})`,
+        title,
         items,
         recipeIdentifier: recipe.identifier,
       }),
