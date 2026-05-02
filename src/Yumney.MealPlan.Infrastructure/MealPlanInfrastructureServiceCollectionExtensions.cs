@@ -9,6 +9,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Web;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure;
@@ -22,14 +23,18 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 			.MigrationsHistoryTable("__MealPlanMigrationsHistory")
 			.EnableRetryOnFailure();
 
+		services.AddQueryCounting();
+
 		services.AddDbContext<MealPlanDbContext>((_, options) =>
 		{
 			options.UseNpgsql(connectionString, contextOptions);
 		});
 
-		services.AddDbContext<MealPlanReadDbContext>(options =>
+		services.AddDbContext<MealPlanReadDbContext>((sp, options) =>
 		{
-			options.UseNpgsql(connectionString, contextOptions);
+			options
+				.UseNpgsql(connectionString, contextOptions)
+				.AddInterceptors(sp.GetRequiredService<QueryCountingInterceptor>());
 		});
 
 		services.AddScoped<IMealPlanEventStore, EfCoreMealPlanEventStore>();
