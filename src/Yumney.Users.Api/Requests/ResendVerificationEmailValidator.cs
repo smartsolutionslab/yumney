@@ -3,9 +3,9 @@ using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Api.Requests;
 
-public sealed class ResendVerificationEmailRequestValidator : AbstractValidator<ResendVerificationEmailRequest>
+public sealed class ResendVerificationEmailValidator : AbstractValidator<ResendVerificationEmail>
 {
-	public ResendVerificationEmailRequestValidator()
+	public ResendVerificationEmailValidator()
 	{
 		RuleFor(x => x.Email)
 			.NotEmpty()

@@ -4,14 +4,14 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Users.Api.Tests.Requests;
 
-public class ResendVerificationEmailRequestValidatorTests
+public class ResendVerificationEmailValidatorTests
 {
-	private readonly ResendVerificationEmailRequestValidator validator = new();
+	private readonly ResendVerificationEmailValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
 	{
-		var request = new ResendVerificationEmailRequest("test@example.com");
+		var request = new ResendVerificationEmail("test@example.com");
 
 		var result = validator.Validate(request);
 
@@ -24,7 +24,7 @@ public class ResendVerificationEmailRequestValidatorTests
 	[InlineData("not-an-email")]
 	public void Validate_InvalidEmail_IsNotValid(string email)
 	{
-		var request = new ResendVerificationEmailRequest(email);
+		var request = new ResendVerificationEmail(email);
 
 		var result = validator.Validate(request);
 
@@ -37,7 +37,7 @@ public class ResendVerificationEmailRequestValidatorTests
 	{
 		var localPart = new string('a', 242);
 		var email = $"{localPart}@example.com";
-		var request = new ResendVerificationEmailRequest(email);
+		var request = new ResendVerificationEmail(email);
 
 		var result = validator.Validate(request);
 
@@ -49,7 +49,7 @@ public class ResendVerificationEmailRequestValidatorTests
 	{
 		var localPart = new string('a', 243);
 		var email = $"{localPart}@example.com";
-		var request = new ResendVerificationEmailRequest(email);
+		var request = new ResendVerificationEmail(email);
 
 		var result = validator.Validate(request);
 
