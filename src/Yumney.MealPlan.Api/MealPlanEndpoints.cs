@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using SmartSolutionsLab.Yumney.MealPlan.Api.Requests;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries;
@@ -7,6 +6,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
+using Requests = SmartSolutionsLab.Yumney.MealPlan.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Api;
 
@@ -42,7 +42,7 @@ public static class MealPlanEndpoints
 		static async Task<IResult> AssignRecipe(
 			int year,
 			int weekNumber,
-			AssignRecipeRequest request,
+			Requests.AssignRecipe request,
 			ICommandHandler<AssignRecipeCommand, Result<WeeklyPlanDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -64,7 +64,7 @@ public static class MealPlanEndpoints
 		static async Task<IResult> ToggleExtendedMode(
 			int year,
 			int weekNumber,
-			ToggleExtendedModeRequest request,
+			Requests.ToggleExtendedMode request,
 			ICommandHandler<ToggleExtendedModeCommand, Result<WeeklyPlanDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -84,7 +84,7 @@ public static class MealPlanEndpoints
 		static async Task<IResult> AdjustServings(
 			int year,
 			int weekNumber,
-			AdjustServingsRequest request,
+			Requests.AdjustServings request,
 			ICommandHandler<AdjustSlotServingsCommand, Result<WeeklyPlanDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -173,7 +173,7 @@ public static class MealPlanEndpoints
 		static async Task<IResult> CookWithLeftovers(
 			int year,
 			int weekNumber,
-			CookWithLeftoversRequest request,
+			Requests.CookWithLeftovers request,
 			ICommandHandler<CookWithLeftoversCommand, Result<WeeklyPlanDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -197,7 +197,7 @@ public static class MealPlanEndpoints
 		static async Task<IResult> ClearSlot(
 			int year,
 			int weekNumber,
-			[FromBody] ClearSlotRequest request,
+			[FromBody] Requests.ClearSlot request,
 			ICommandHandler<ClearMealSlotCommand, Result<WeeklyPlanDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -223,7 +223,7 @@ public static class MealPlanEndpoints
 		static async Task<IResult> SwapSlots(
 			int year,
 			int weekNumber,
-			SwapSlotsRequest request,
+			Requests.SwapSlots request,
 			ICommandHandler<SwapMealSlotsCommand, Result<WeeklyPlanDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -238,7 +238,7 @@ public static class MealPlanEndpoints
 		static async Task<IResult> ConfirmMeal(
 			int year,
 			int weekNumber,
-			ConfirmMealRequest request,
+			Requests.ConfirmMeal request,
 			ICommandHandler<ConfirmMealCommand, Result<WeeklyPlanDto>> handler,
 			CancellationToken cancellationToken)
 		{
