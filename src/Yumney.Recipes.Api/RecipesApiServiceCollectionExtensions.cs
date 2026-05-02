@@ -8,7 +8,7 @@ public static class RecipesApiServiceCollectionExtensions
 {
 	public static IServiceCollection AddRecipesApi(this IServiceCollection services)
 	{
-		services.AddValidatorsFromAssemblyContaining<ImportRecipeRequestValidator>();
+		services.AddValidatorsFromAssemblyContaining<ImportRecipeValidator>();
 		services.AddValidatorsFromAssemblyContaining<PhotoDataValidator>();
 
 		return services;

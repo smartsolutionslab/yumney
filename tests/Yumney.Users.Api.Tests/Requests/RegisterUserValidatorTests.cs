@@ -11,7 +11,7 @@ public class RegisterUserValidatorTests
 	[Fact]
 	public void Validate_ValidRequest_IsValid()
 	{
-		var request = new RegisterUser("test@example.com", "Password1", "Test User");
+		RegisterUser request = new RegisterUser("test@example.com", "Password1", "Test User");
 
 		var result = validator.Validate(request);
 

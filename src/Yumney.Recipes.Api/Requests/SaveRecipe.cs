@@ -3,11 +3,11 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 
-public sealed record SaveRecipeRequest(
+public sealed record SaveRecipe(
 	string Title,
 	string? Description,
-	List<SaveRecipeIngredientRequest> Ingredients,
-	List<SaveRecipeStepRequest> Steps,
+	List<SaveRecipeIngredient> Ingredients,
+	List<SaveRecipeStep> Steps,
 	int? Servings,
 	int? PrepTimeMinutes,
 	int? CookTimeMinutes,

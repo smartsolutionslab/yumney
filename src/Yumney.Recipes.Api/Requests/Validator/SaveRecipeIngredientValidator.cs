@@ -3,9 +3,9 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 
-public sealed class SaveRecipeIngredientRequestValidator : AbstractValidator<SaveRecipeIngredientRequest>
+public sealed class SaveRecipeIngredientValidator : AbstractValidator<SaveRecipeIngredient>
 {
-	public SaveRecipeIngredientRequestValidator()
+	public SaveRecipeIngredientValidator()
 	{
 		RuleFor(i => i.Name)
 			.NotEmpty()

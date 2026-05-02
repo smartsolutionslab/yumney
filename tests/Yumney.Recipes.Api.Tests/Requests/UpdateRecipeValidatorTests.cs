@@ -6,9 +6,9 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests;
 
-public class SaveRecipeRequestValidatorTests
+public class UpdateRecipeValidatorTests
 {
-	private readonly SaveRecipeRequestValidator validator = new();
+	private readonly UpdateRecipeValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_HasNoErrors()
@@ -44,45 +44,13 @@ public class SaveRecipeRequestValidatorTests
 	}
 
 	[Fact]
-	public void Validate_NullSourceUrl_HasNoError()
+	public void Validate_TitleAtMaxLength_HasNoError()
 	{
-		var request = CreateValidRequest() with { SourceUrl = null };
+		var request = CreateValidRequest() with { Title = new string('a', 200) };
 
 		var result = validator.TestValidate(request);
 
-		result.ShouldNotHaveValidationErrorFor(x => x.SourceUrl);
-	}
-
-	[Fact]
-	public void Validate_EmptySourceUrl_HasNoError()
-	{
-		var request = CreateValidRequest() with { SourceUrl = string.Empty };
-
-		var result = validator.TestValidate(request);
-
-		result.ShouldNotHaveValidationErrorFor(x => x.SourceUrl);
-	}
-
-	[Fact]
-	public void Validate_ValidRequestWithNullSourceUrl_HasNoErrors()
-	{
-		var request = CreateValidRequest() with { SourceUrl = null };
-
-		var result = validator.TestValidate(request);
-
-		result.ShouldNotHaveAnyValidationErrors();
-	}
-
-	[Theory]
-	[InlineData("not-a-url")]
-	[InlineData("ftp://example.com")]
-	public void Validate_InvalidSourceUrl_HasError(string sourceUrl)
-	{
-		var request = CreateValidRequest() with { SourceUrl = sourceUrl };
-
-		var result = validator.TestValidate(request);
-
-		result.ShouldHaveValidationErrorFor(x => x.SourceUrl);
+		result.ShouldNotHaveValidationErrorFor(x => x.Title);
 	}
 
 	[Fact]
@@ -100,7 +68,7 @@ public class SaveRecipeRequestValidatorTests
 	{
 		var request = CreateValidRequest() with
 		{
-			Ingredients = [new SaveRecipeIngredientRequest(string.Empty, null, null)],
+			Ingredients = [new SaveRecipeIngredient(string.Empty, null, null)],
 		};
 
 		var result = validator.TestValidate(request);
@@ -123,42 +91,12 @@ public class SaveRecipeRequestValidatorTests
 	{
 		var request = CreateValidRequest() with
 		{
-			Steps = [new SaveRecipeStepRequest(1, string.Empty)],
+			Steps = [new SaveRecipeStep(1, string.Empty)],
 		};
 
 		var result = validator.TestValidate(request);
 
 		result.IsValid.Should().BeFalse();
-	}
-
-	[Fact]
-	public void Validate_ValidHttpUrl_HasNoError()
-	{
-		var request = CreateValidRequest() with { SourceUrl = "http://example.com/recipe" };
-
-		var result = validator.TestValidate(request);
-
-		result.ShouldNotHaveValidationErrorFor(x => x.SourceUrl);
-	}
-
-	[Fact]
-	public void Validate_ValidHttpsUrl_HasNoError()
-	{
-		var request = CreateValidRequest() with { SourceUrl = "https://example.com/recipe" };
-
-		var result = validator.TestValidate(request);
-
-		result.ShouldNotHaveValidationErrorFor(x => x.SourceUrl);
-	}
-
-	[Fact]
-	public void Validate_TitleAtMaxLength_HasNoError()
-	{
-		var request = CreateValidRequest() with { Title = new string('a', 200) };
-
-		var result = validator.TestValidate(request);
-
-		result.ShouldNotHaveValidationErrorFor(x => x.Title);
 	}
 
 	[Fact]
@@ -197,6 +135,16 @@ public class SaveRecipeRequestValidatorTests
 		var result = validator.TestValidate(request);
 
 		result.ShouldHaveValidationErrorFor(x => x.Servings);
+	}
+
+	[Fact]
+	public void Validate_PositiveServings_HasNoError()
+	{
+		var request = CreateValidRequest() with { Servings = 1 };
+
+		var result = validator.TestValidate(request);
+
+		result.ShouldNotHaveValidationErrorFor(x => x.Servings);
 	}
 
 	[Fact]
@@ -240,55 +188,6 @@ public class SaveRecipeRequestValidatorTests
 	}
 
 	[Fact]
-	public void Validate_PositiveServings_HasNoError()
-	{
-		var request = CreateValidRequest() with { Servings = 1 };
-
-		var result = validator.TestValidate(request);
-
-		result.ShouldNotHaveValidationErrorFor(x => x.Servings);
-	}
-
-	[Fact]
-	public void Validate_SourceUrlExceedsMaxLength_HasError()
-	{
-		var request = CreateValidRequest() with
-		{
-			SourceUrl = "https://example.com/" + new string('a', 2040),
-		};
-
-		var result = validator.TestValidate(request);
-
-		result.ShouldHaveValidationErrorFor(x => x.SourceUrl);
-	}
-
-	[Fact]
-	public void Validate_IngredientNameExceedsMaxLength_HasError()
-	{
-		var request = CreateValidRequest() with
-		{
-			Ingredients = [new SaveRecipeIngredientRequest(new string('a', 201), null, null)],
-		};
-
-		var result = validator.TestValidate(request);
-
-		result.IsValid.Should().BeFalse();
-	}
-
-	[Fact]
-	public void Validate_StepDescriptionExceedsMaxLength_HasError()
-	{
-		var request = CreateValidRequest() with
-		{
-			Steps = [new SaveRecipeStepRequest(1, new string('a', 2001))],
-		};
-
-		var result = validator.TestValidate(request);
-
-		result.IsValid.Should().BeFalse();
-	}
-
-	[Fact]
 	public void Validate_DescriptionExceedsMaxLength_HasError()
 	{
 		var request = CreateValidRequest() with { Description = new string('a', 2001) };
@@ -312,6 +211,16 @@ public class SaveRecipeRequestValidatorTests
 	public void Validate_DifficultyExceedsMaxLength_HasError()
 	{
 		var request = CreateValidRequest() with { Difficulty = new string('a', 51) };
+
+		var result = validator.TestValidate(request);
+
+		result.ShouldHaveValidationErrorFor(x => x.Difficulty);
+	}
+
+	[Fact]
+	public void Validate_EmptyDifficulty_HasError()
+	{
+		var request = CreateValidRequest() with { Difficulty = string.Empty };
 
 		var result = validator.TestValidate(request);
 
@@ -352,13 +261,16 @@ public class SaveRecipeRequestValidatorTests
 	}
 
 	[Fact]
-	public void Validate_EmptyDifficulty_HasError()
+	public void Validate_IngredientNameExceedsMaxLength_HasError()
 	{
-		var request = CreateValidRequest() with { Difficulty = string.Empty };
+		var request = CreateValidRequest() with
+		{
+			Ingredients = [new SaveRecipeIngredient(new string('a', 201), null, null)],
+		};
 
 		var result = validator.TestValidate(request);
 
-		result.ShouldHaveValidationErrorFor(x => x.Difficulty);
+		result.IsValid.Should().BeFalse();
 	}
 
 	[Fact]
@@ -366,7 +278,7 @@ public class SaveRecipeRequestValidatorTests
 	{
 		var request = CreateValidRequest() with
 		{
-			Ingredients = [new SaveRecipeIngredientRequest("Flour", -1, "g")],
+			Ingredients = [new SaveRecipeIngredient("Flour", -1, "g")],
 		};
 
 		var result = validator.TestValidate(request);
@@ -379,7 +291,7 @@ public class SaveRecipeRequestValidatorTests
 	{
 		var request = CreateValidRequest() with
 		{
-			Ingredients = [new SaveRecipeIngredientRequest("Flour", 0, "g")],
+			Ingredients = [new SaveRecipeIngredient("Flour", 0, "g")],
 		};
 
 		var result = validator.TestValidate(request);
@@ -388,37 +300,11 @@ public class SaveRecipeRequestValidatorTests
 	}
 
 	[Fact]
-	public void Validate_ZeroStepNumber_HasError()
-	{
-		var request = CreateValidRequest() with
-		{
-			Steps = [new SaveRecipeStepRequest(0, "Cook pasta")],
-		};
-
-		var result = validator.TestValidate(request);
-
-		result.IsValid.Should().BeFalse();
-	}
-
-	[Fact]
-	public void Validate_NegativeStepNumber_HasError()
-	{
-		var request = CreateValidRequest() with
-		{
-			Steps = [new SaveRecipeStepRequest(-1, "Cook pasta")],
-		};
-
-		var result = validator.TestValidate(request);
-
-		result.IsValid.Should().BeFalse();
-	}
-
-	[Fact]
 	public void Validate_IngredientWithNullAmountAndUnit_HasNoError()
 	{
 		var request = CreateValidRequest() with
 		{
-			Ingredients = [new SaveRecipeIngredientRequest("Salt", null, null)],
+			Ingredients = [new SaveRecipeIngredient("Salt", null, null)],
 		};
 
 		var result = validator.TestValidate(request);
@@ -431,7 +317,7 @@ public class SaveRecipeRequestValidatorTests
 	{
 		var request = CreateValidRequest() with
 		{
-			Ingredients = [new SaveRecipeIngredientRequest("Flour", 500, new string('a', 51))],
+			Ingredients = [new SaveRecipeIngredient("Flour", 500, new string('a', 51))],
 		};
 
 		var result = validator.TestValidate(request);
@@ -439,18 +325,56 @@ public class SaveRecipeRequestValidatorTests
 		result.IsValid.Should().BeFalse();
 	}
 
-	private static SaveRecipeRequest CreateValidRequest()
+	[Fact]
+	public void Validate_StepDescriptionExceedsMaxLength_HasError()
 	{
-		return new SaveRecipeRequest(
+		var request = CreateValidRequest() with
+		{
+			Steps = [new SaveRecipeStep(1, new string('a', 2001))],
+		};
+
+		var result = validator.TestValidate(request);
+
+		result.IsValid.Should().BeFalse();
+	}
+
+	[Fact]
+	public void Validate_ZeroStepNumber_HasError()
+	{
+		var request = CreateValidRequest() with
+		{
+			Steps = [new SaveRecipeStep(0, "Cook pasta")],
+		};
+
+		var result = validator.TestValidate(request);
+
+		result.IsValid.Should().BeFalse();
+	}
+
+	[Fact]
+	public void Validate_NegativeStepNumber_HasError()
+	{
+		var request = CreateValidRequest() with
+		{
+			Steps = [new SaveRecipeStep(-1, "Cook pasta")],
+		};
+
+		var result = validator.TestValidate(request);
+
+		result.IsValid.Should().BeFalse();
+	}
+
+	private static UpdateRecipe CreateValidRequest()
+	{
+		return new UpdateRecipe(
 			"Pasta Carbonara",
 			"A classic dish",
-			[new SaveRecipeIngredientRequest("Spaghetti", 400, "g")],
-			[new SaveRecipeStepRequest(1, "Cook pasta")],
+			[new SaveRecipeIngredient("Spaghetti", 400, "g")],
+			[new SaveRecipeStep(1, "Cook pasta")],
 			4,
 			10,
 			20,
 			"medium",
-			null,
-			"https://example.com/recipe");
+			null);
 	}
 }

@@ -5,33 +5,14 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 
-public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeRequest>
+public sealed class UpdateRecipeValidator : AbstractValidator<UpdateRecipe>
 {
-	public SaveRecipeRequestValidator()
+	public UpdateRecipeValidator()
 	{
 		RuleFor(x => x.Title)
 			.NotEmpty()
 			.MaximumLength(RecipeTitle.MaxLength);
 
-		RuleFor(x => x.SourceUrl!)
-			.MustBeValidHttpUrl(RecipeUrl.MaxLength)
-			.When(x => x.SourceUrl.HasValue());
-
-		ConfigureOptionalFieldRules();
-
-		RuleFor(x => x.Ingredients)
-			.NotEmpty()
-			.WithMessage("At least one ingredient is required.");
-		RuleForEach(x => x.Ingredients).SetValidator(new SaveRecipeIngredientRequestValidator());
-
-		RuleFor(x => x.Steps)
-			.NotEmpty()
-			.WithMessage("At least one step is required.");
-		RuleForEach(x => x.Steps).SetValidator(new SaveRecipeStepRequestValidator());
-	}
-
-	private void ConfigureOptionalFieldRules()
-	{
 		RuleFor(x => x.Description)
 			.MaximumLength(RecipeDescription.MaxLength)
 			.When(x => x.Description is not null);
@@ -56,5 +37,15 @@ public sealed class SaveRecipeRequestValidator : AbstractValidator<SaveRecipeReq
 		RuleFor(x => x.CookTimeMinutes)
 			.GreaterThanOrEqualTo(0)
 			.When(x => x.CookTimeMinutes.HasValue);
+
+		RuleFor(x => x.Ingredients)
+			.NotEmpty()
+			.WithMessage("At least one ingredient is required.");
+		RuleForEach(x => x.Ingredients).SetValidator(new SaveRecipeIngredientValidator());
+
+		RuleFor(x => x.Steps)
+			.NotEmpty()
+			.WithMessage("At least one step is required.");
+		RuleForEach(x => x.Steps).SetValidator(new SaveRecipeStepValidator());
 	}
 }

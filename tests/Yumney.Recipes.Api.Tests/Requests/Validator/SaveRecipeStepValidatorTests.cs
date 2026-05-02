@@ -7,14 +7,14 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests.Validator;
 
-public class SaveRecipeStepRequestValidatorTests
+public class SaveRecipeStepValidatorTests
 {
-	private readonly SaveRecipeStepRequestValidator validator = new();
+	private readonly SaveRecipeStepValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_HasNoErrors()
 	{
-		var request = new SaveRecipeStepRequest(1, "Cook pasta until al dente.");
+		var request = new SaveRecipeStep(1, "Cook pasta until al dente.");
 
 		var result = validator.TestValidate(request);
 
@@ -24,7 +24,7 @@ public class SaveRecipeStepRequestValidatorTests
 	[Fact]
 	public void Validate_ZeroNumber_HasError()
 	{
-		var request = new SaveRecipeStepRequest(0, "Cook pasta.");
+		var request = new SaveRecipeStep(0, "Cook pasta.");
 
 		var result = validator.TestValidate(request);
 
@@ -34,7 +34,7 @@ public class SaveRecipeStepRequestValidatorTests
 	[Fact]
 	public void Validate_NegativeNumber_HasError()
 	{
-		var request = new SaveRecipeStepRequest(-1, "Cook pasta.");
+		var request = new SaveRecipeStep(-1, "Cook pasta.");
 
 		var result = validator.TestValidate(request);
 
@@ -44,7 +44,7 @@ public class SaveRecipeStepRequestValidatorTests
 	[Fact]
 	public void Validate_PositiveNumber_HasNoError()
 	{
-		var request = new SaveRecipeStepRequest(5, "Cook pasta.");
+		var request = new SaveRecipeStep(5, "Cook pasta.");
 
 		var result = validator.TestValidate(request);
 
@@ -57,7 +57,7 @@ public class SaveRecipeStepRequestValidatorTests
 	[InlineData("   ")]
 	public void Validate_EmptyDescription_HasError(string? description)
 	{
-		var request = new SaveRecipeStepRequest(1, description!);
+		var request = new SaveRecipeStep(1, description!);
 
 		var result = validator.TestValidate(request);
 
@@ -67,7 +67,7 @@ public class SaveRecipeStepRequestValidatorTests
 	[Fact]
 	public void Validate_DescriptionExceedsMaxLength_HasError()
 	{
-		var request = new SaveRecipeStepRequest(1, new string('a', StepDescription.MaxLength + 1));
+		var request = new SaveRecipeStep(1, new string('a', StepDescription.MaxLength + 1));
 
 		var result = validator.TestValidate(request);
 
@@ -77,7 +77,7 @@ public class SaveRecipeStepRequestValidatorTests
 	[Fact]
 	public void Validate_DescriptionAtMaxLength_HasNoError()
 	{
-		var request = new SaveRecipeStepRequest(1, new string('a', StepDescription.MaxLength));
+		var request = new SaveRecipeStep(1, new string('a', StepDescription.MaxLength));
 
 		var result = validator.TestValidate(request);
 

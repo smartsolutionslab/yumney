@@ -8,7 +8,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
 internal static class RequestMappingExtensions
 {
-	extension(SaveRecipeIngredientRequest request)
+	extension(SaveRecipeIngredient request)
 	{
 		public SaveRecipeIngredientItem ToCommandItem()
 		{
@@ -22,7 +22,7 @@ internal static class RequestMappingExtensions
 		}
 	}
 
-	extension(IEnumerable<SaveRecipeIngredientRequest> items)
+	extension(IEnumerable<SaveRecipeIngredient> items)
 	{
 		public IEnumerable<SaveRecipeIngredientItem> MapToRecipeIngredientItems()
 		{
@@ -30,7 +30,7 @@ internal static class RequestMappingExtensions
 		}
 	}
 
-	extension(SaveRecipeStepRequest request)
+	extension(SaveRecipeStep request)
 	{
 		public SaveRecipeStepItem ToCommandItem()
 		{
@@ -42,7 +42,7 @@ internal static class RequestMappingExtensions
 		}
 	}
 
-	extension(IEnumerable<SaveRecipeStepRequest> items)
+	extension(IEnumerable<SaveRecipeStep> items)
 	{
 		public IEnumerable<SaveRecipeStepItem> MapToRecipeStepItems()
 		{
