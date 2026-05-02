@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using FluentValidation;
-using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Common;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
@@ -11,6 +10,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shared.Web;
+using Requests = SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
@@ -144,8 +144,8 @@ public static partial class RecipesEndpoints
 			.RequireRateLimiting("RecipeImport");
 
 		static async Task<IResult> Import(
-			ImportRecipeRequest request,
-			IValidator<ImportRecipeRequest> validator,
+			Requests.ImportRecipe request,
+			IValidator<Requests.ImportRecipe> validator,
 			ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>> handler,
 			CancellationToken cancellationToken)
 		{

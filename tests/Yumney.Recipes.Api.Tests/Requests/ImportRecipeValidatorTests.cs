@@ -5,14 +5,14 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests;
 
-public class ImportRecipeRequestValidatorTests
+public class ImportRecipeValidatorTests
 {
-	private readonly ImportRecipeRequestValidator validator = new();
+	private readonly ImportRecipeValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidHttpsUrl_IsValid()
 	{
-		var request = new ImportRecipeRequest("https://example.com/recipe/123");
+		var request = new ImportRecipe("https://example.com/recipe/123");
 
 		var result = validator.Validate(request);
 
@@ -22,7 +22,7 @@ public class ImportRecipeRequestValidatorTests
 	[Fact]
 	public void Validate_ValidHttpUrl_IsValid()
 	{
-		var request = new ImportRecipeRequest("http://example.com/recipe/123");
+		var request = new ImportRecipe("http://example.com/recipe/123");
 
 		var result = validator.Validate(request);
 
@@ -32,7 +32,7 @@ public class ImportRecipeRequestValidatorTests
 	[Fact]
 	public void Validate_UrlWithQueryParams_IsValid()
 	{
-		var request = new ImportRecipeRequest("https://example.com/recipe?id=123&lang=en");
+		var request = new ImportRecipe("https://example.com/recipe?id=123&lang=en");
 
 		var result = validator.Validate(request);
 
@@ -44,7 +44,7 @@ public class ImportRecipeRequestValidatorTests
 	[InlineData("   ")]
 	public void Validate_EmptyUrl_IsNotValid(string url)
 	{
-		var request = new ImportRecipeRequest(url);
+		var request = new ImportRecipe(url);
 
 		var result = validator.Validate(request);
 
@@ -58,7 +58,7 @@ public class ImportRecipeRequestValidatorTests
 	[InlineData("example.com/recipe")]
 	public void Validate_InvalidUrl_IsNotValid(string url)
 	{
-		var request = new ImportRecipeRequest(url);
+		var request = new ImportRecipe(url);
 
 		var result = validator.Validate(request);
 
@@ -71,7 +71,7 @@ public class ImportRecipeRequestValidatorTests
 	{
 		var path = new string('a', 2040);
 		var url = $"https://x.com/{path}";
-		var request = new ImportRecipeRequest(url);
+		var request = new ImportRecipe(url);
 
 		var result = validator.Validate(request);
 
@@ -85,7 +85,7 @@ public class ImportRecipeRequestValidatorTests
 		var prefix = "https://x.com/";
 		var path = new string('a', 2048 - prefix.Length);
 		var url = $"{prefix}{path}";
-		var request = new ImportRecipeRequest(url);
+		var request = new ImportRecipe(url);
 
 		var result = validator.Validate(request);
 
@@ -97,7 +97,7 @@ public class ImportRecipeRequestValidatorTests
 	[Fact]
 	public void Validate_NullUrl_IsNotValid()
 	{
-		var request = new ImportRecipeRequest(null!);
+		var request = new ImportRecipe(null!);
 
 		var result = validator.Validate(request);
 
@@ -108,7 +108,7 @@ public class ImportRecipeRequestValidatorTests
 	[Fact]
 	public void Validate_UrlWithFragment_IsValid()
 	{
-		var request = new ImportRecipeRequest(
+		var request = new ImportRecipe(
 			"https://example.com/recipe#ingredients");
 
 		var result = validator.Validate(request);

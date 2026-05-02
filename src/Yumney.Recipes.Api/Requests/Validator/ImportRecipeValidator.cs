@@ -4,9 +4,9 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 
-public sealed class ImportRecipeRequestValidator : AbstractValidator<ImportRecipeRequest>
+public sealed class ImportRecipeValidator : AbstractValidator<ImportRecipe>
 {
-	public ImportRecipeRequestValidator()
+	public ImportRecipeValidator()
 	{
 		RuleFor(x => x.Url)
 			.NotEmpty()

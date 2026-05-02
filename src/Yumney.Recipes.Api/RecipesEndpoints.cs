@@ -1,5 +1,4 @@
 using FluentValidation;
-using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
@@ -8,6 +7,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
+using Requests = SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
@@ -81,8 +81,8 @@ public static partial class RecipesEndpoints
 			.ProducesProblem(StatusCodes.Status409Conflict);
 
 		static async Task<IResult> Save(
-			SaveRecipeRequest request,
-			IValidator<SaveRecipeRequest> validator,
+			Requests.SaveRecipe request,
+			IValidator<Requests.SaveRecipe> validator,
 			ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>> handler,
 			CancellationToken cancellationToken)
 		{
@@ -117,8 +117,8 @@ public static partial class RecipesEndpoints
 
 		static async Task<IResult> Update(
 			Guid identifier,
-			UpdateRecipeRequest request,
-			IValidator<UpdateRecipeRequest> validator,
+			Requests.UpdateRecipe request,
+			IValidator<Requests.UpdateRecipe> validator,
 			ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>> handler,
 			CancellationToken cancellationToken)
 		{

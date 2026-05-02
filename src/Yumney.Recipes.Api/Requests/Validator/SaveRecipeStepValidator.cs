@@ -3,9 +3,9 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 
-public sealed class SaveRecipeStepRequestValidator : AbstractValidator<SaveRecipeStepRequest>
+public sealed class SaveRecipeStepValidator : AbstractValidator<SaveRecipeStep>
 {
-	public SaveRecipeStepRequestValidator()
+	public SaveRecipeStepValidator()
 	{
 		RuleFor(s => s.Number)
 			.GreaterThan(0);
