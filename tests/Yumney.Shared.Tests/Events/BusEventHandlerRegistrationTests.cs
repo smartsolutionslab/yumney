@@ -5,14 +5,14 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shared.Tests.Events;
 
-public class IntegrationEventHandlerRegistrationTests
+public class BusEventHandlerRegistrationTests
 {
 	[Fact]
-	public void AddIntegrationEventHandlersFromAssemblyContaining_RegistersConcreteAsScoped()
+	public void AddBusEventHandlersFromAssemblyContaining_RegistersConcreteAsScoped()
 	{
 		ServiceCollection services = [];
 
-		services.AddIntegrationEventHandlersFromAssemblyContaining<MultiEventConsumer>();
+		services.AddBusEventHandlersFromAssemblyContaining<MultiEventConsumer>();
 
 		using var provider = services.BuildServiceProvider();
 		using var scope = provider.CreateScope();
@@ -22,11 +22,11 @@ public class IntegrationEventHandlerRegistrationTests
 	}
 
 	[Fact]
-	public void AddIntegrationEventHandlersFromAssemblyContaining_PointsEveryInterfaceAtTheSameInstance()
+	public void AddBusEventHandlersFromAssemblyContaining_PointsEveryInterfaceAtTheSameInstance()
 	{
 		ServiceCollection services = [];
 
-		services.AddIntegrationEventHandlersFromAssemblyContaining<MultiEventConsumer>();
+		services.AddBusEventHandlersFromAssemblyContaining<MultiEventConsumer>();
 
 		using var provider = services.BuildServiceProvider();
 		using var scope = provider.CreateScope();
@@ -38,11 +38,11 @@ public class IntegrationEventHandlerRegistrationTests
 	}
 
 	[Fact]
-	public void AddIntegrationEventHandlersFromAssemblyContaining_DifferentScopes_GetDifferentInstances()
+	public void AddBusEventHandlersFromAssemblyContaining_DifferentScopes_GetDifferentInstances()
 	{
 		ServiceCollection services = [];
 
-		services.AddIntegrationEventHandlersFromAssemblyContaining<MultiEventConsumer>();
+		services.AddBusEventHandlersFromAssemblyContaining<MultiEventConsumer>();
 
 		using var provider = services.BuildServiceProvider();
 		using var firstScope = provider.CreateScope();
@@ -55,11 +55,11 @@ public class IntegrationEventHandlerRegistrationTests
 	}
 
 	[Fact]
-	public void AddIntegrationEventHandlersFromAssemblyContaining_RegistersSingleEventConsumer()
+	public void AddBusEventHandlersFromAssemblyContaining_RegistersSingleEventConsumer()
 	{
 		ServiceCollection services = [];
 
-		services.AddIntegrationEventHandlersFromAssemblyContaining<SingleEventConsumer>();
+		services.AddBusEventHandlersFromAssemblyContaining<SingleEventConsumer>();
 
 		using var provider = services.BuildServiceProvider();
 		using var scope = provider.CreateScope();
@@ -69,11 +69,11 @@ public class IntegrationEventHandlerRegistrationTests
 	}
 
 	[Fact]
-	public void AddIntegrationEventHandlersFromAssemblyContaining_RegistersModuleEventHandler()
+	public void AddBusEventHandlersFromAssemblyContaining_RegistersModuleEventHandler()
 	{
 		ServiceCollection services = [];
 
-		services.AddIntegrationEventHandlersFromAssemblyContaining<TestModuleEventConsumer>();
+		services.AddBusEventHandlersFromAssemblyContaining<TestModuleEventConsumer>();
 
 		using var provider = services.BuildServiceProvider();
 		using var scope = provider.CreateScope();

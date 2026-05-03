@@ -3,12 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events;
 
-public static class IntegrationEventHandlerRegistration
+public static class BusEventHandlerRegistration
 {
-	public static IServiceCollection AddIntegrationEventHandlersFromAssemblyContaining<T>(this IServiceCollection services) =>
-		services.AddIntegrationEventHandlers(typeof(T).Assembly);
+	public static IServiceCollection AddBusEventHandlersFromAssemblyContaining<T>(this IServiceCollection services) =>
+		services.AddBusEventHandlers(typeof(T).Assembly);
 
-	public static IServiceCollection AddIntegrationEventHandlers(this IServiceCollection services, Assembly assembly)
+	public static IServiceCollection AddBusEventHandlers(this IServiceCollection services, Assembly assembly)
 	{
 		Type[] openHandlers = [typeof(IIntegrationEventHandler<>), typeof(IModuleEventHandler<>)];
 

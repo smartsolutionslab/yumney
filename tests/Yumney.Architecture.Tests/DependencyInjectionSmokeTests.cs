@@ -79,7 +79,7 @@ public class DependencyInjectionSmokeTests
 			var because =
 				$"{iface.FullName} (from {implementation.FullName}) must be registered in DI — " +
 				"the auto-scanner most likely missed the assembly. Check that the relevant Add*() " +
-				"call passes a type from the right assembly to AddIntegrationEventHandlersFromAssemblyContaining<T>.";
+				"call passes a type from the right assembly to AddBusEventHandlersFromAssemblyContaining<T>.";
 			services.Should().Contain(descriptor => descriptor.ServiceType == iface, because);
 		}
 	}
