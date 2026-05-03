@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 
@@ -81,15 +82,10 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 		query = ApplyFilter(query, owner, filter);
 		query = ApplySorting(query, sorting);
 
-		var totalCount = await query.CountAsync(cancellationToken);
-		var items = await query
+		return await query
 			.Include(recipe => recipe.Tags)
 			.AsSplitQuery()
-			.Skip(paging.Skip)
-			.Take(paging.PageSize.Value)
-			.ToListAsync(cancellationToken);
-
-		return (items, ItemCount.From(totalCount));
+			.ToPagedListAsync(paging, cancellationToken);
 	}
 
 	private static IQueryable<Recipe> ApplySorting(IQueryable<Recipe> query, SortingOptions<RecipeSortField> sorting)
