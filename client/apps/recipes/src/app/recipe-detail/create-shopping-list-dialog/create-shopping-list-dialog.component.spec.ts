@@ -109,6 +109,28 @@ describe('CreateShoppingListDialogComponent', () => {
     expect(emitted).toBe(1);
   });
 
+  it('should emit cancelled when the overlay is clicked', () => {
+    setup();
+    let emitted = 0;
+    component.cancelled.subscribe(() => emitted++);
+
+    const overlay = fixture.nativeElement.querySelector('.create-shopping-list-overlay');
+    overlay.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(emitted).toBe(1);
+  });
+
+  it('should ignore overlay clicks while a request is in flight', () => {
+    setup(true);
+    let emitted = 0;
+    component.cancelled.subscribe(() => emitted++);
+
+    const overlay = fixture.nativeElement.querySelector('.create-shopping-list-overlay');
+    overlay.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(emitted).toBe(0);
+  });
+
   it('should drop the servings suffix when desiredServings is null', () => {
     TestBed.configureTestingModule({
       imports: [CreateShoppingListDialogComponent, setupTranslocoTesting(en)],

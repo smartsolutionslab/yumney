@@ -741,6 +741,31 @@ describe('RecipeDetailComponent', () => {
     expect(shoppingApiMock.createShoppingList).not.toHaveBeenCalled();
   }));
 
+  it('should disable the shopping-list trigger while a request is in flight', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const inflight = new Subject<ShoppingListDetail>();
+    shoppingApiMock.createShoppingList.mockReturnValue(inflight);
+
+    component.onCreateShoppingList();
+    component.onCreateShoppingListConfirmed();
+    fixture.detectChanges();
+
+    const triggers = fixture.nativeElement.querySelectorAll(
+      '[data-testid="recipe-create-shopping-list-btn"]',
+    );
+    expect(triggers.length).toBeGreaterThan(0);
+    triggers.forEach((trigger: HTMLButtonElement) => {
+      expect(trigger.disabled).toBe(true);
+    });
+
+    inflight.complete();
+    tick();
+  }));
+
   it('should create a list without (xN) suffix when recipe has no servings', fakeAsync(() => {
     const noServings: RecipeDetail = { ...mockRecipe, servings: null };
     setupTestBed(vi.fn().mockReturnValue(of(noServings)));
