@@ -11,6 +11,28 @@ public class EventConsumerRegistrationTests
 {
 	private static readonly string[] Modules = ["Recipes", "Shopping", "Users", "MealPlan"];
 
+	[Fact]
+	public void IIntegrationEvent_AndIModuleEvent_AreDisjointOnConcreteTypes()
+	{
+		// Concrete bus events are either cross-module (IIntegrationEvent) or
+		// in-module (IModuleEvent), never both. Mixing the two markers on a single
+		// type would cause InProcessEventBus to dispatch into both handler buckets,
+		// silently fanning a single publish into two semantically different paths.
+		var (eventAssemblies, _) = LoadAssemblies();
+
+		var ambiguous = eventAssemblies
+			.SelectMany(assembly => assembly.GetTypes())
+			.Where(type => type is { IsClass: true, IsAbstract: false })
+			.Where(type => typeof(IIntegrationEvent).IsAssignableFrom(type) && typeof(IModuleEvent).IsAssignableFrom(type))
+			.Select(type => type.FullName)
+			.ToList();
+
+		ambiguous.Should().BeEmpty(
+			"a concrete event must implement IIntegrationEvent (cross-module contract) " +
+			"or IModuleEvent (in-module bus envelope), never both — the two represent " +
+			"different communication contracts and the bus dispatches them via separate handler interfaces.");
+	}
+
 	[Theory]
 	[InlineData(typeof(IIntegrationEvent), typeof(IIntegrationEventHandler<>))]
 	[InlineData(typeof(IModuleEvent), typeof(IModuleEventHandler<>))]
