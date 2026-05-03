@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { DashboardPage } from '../pages/dashboard.page';
+import { KeycloakLoginPage } from '../pages/keycloak-login.page';
 import { LoginPage } from '../pages/login.page';
 import { TEST_USER } from '../helpers/test-data.helper';
 
@@ -60,12 +62,12 @@ test.describe('Login Page (US-002)', () => {
     await loginPage.signInButton.click();
 
     // Keycloak login page
-    await page.locator('#username').fill(TEST_USER.username);
-    await page.locator('#password').fill(TEST_USER.password);
-    await page.locator('#kc-login').click();
+    const keycloak = new KeycloakLoginPage(page);
+    await keycloak.signIn(TEST_USER.username, TEST_USER.password);
 
     // Should arrive at dashboard
+    const dashboard = new DashboardPage(page);
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(dashboard.heading).toBeVisible();
   });
 });

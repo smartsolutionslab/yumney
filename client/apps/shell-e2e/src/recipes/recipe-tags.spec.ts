@@ -11,21 +11,19 @@ test.describe('Recipe Tags (US-070)', () => {
   });
 
   test('should display tags on recipe detail page', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto(`/recipes/${recipe().identifier}`);
-    const detailPage = new RecipeDetailPage(authenticatedPage);
-    await expect(detailPage.title).toBeVisible({ timeout: TIMEOUTS.default });
+    const detail = new RecipeDetailPage(authenticatedPage);
+    await detail.goto(recipe().identifier);
+    await expect(detail.title).toBeVisible({ timeout: TIMEOUTS.default });
 
-    const tags = authenticatedPage.locator('.tag');
-    await expect(tags).toHaveCount(3);
+    await expect(detail.tags).toHaveCount(3);
   });
 
   test('should display tag text correctly', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto(`/recipes/${recipe().identifier}`);
-    await expect(authenticatedPage.locator('.tag').first()).toBeVisible({
-      timeout: TIMEOUTS.default,
-    });
+    const detail = new RecipeDetailPage(authenticatedPage);
+    await detail.goto(recipe().identifier);
+    await expect(detail.tags.first()).toBeVisible({ timeout: TIMEOUTS.default });
 
-    const tagTexts = await authenticatedPage.locator('.tag').allTextContents();
+    const tagTexts = await detail.tags.allTextContents();
     expect(tagTexts).toContain('italian');
     expect(tagTexts).toContain('pasta');
     expect(tagTexts).toContain('quick');

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { AppShellPage } from '../pages/app-shell.page';
 import { isServiceWorkerRegistered } from '../helpers/pwa.helper';
 
 test.describe('PWA Installation', () => {
@@ -18,16 +19,16 @@ test.describe('PWA Installation', () => {
     await page.route('**/realms/**', (route) => route.abort());
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    const manifestLink = page.locator('link[rel="manifest"]');
-    await expect(manifestLink).toHaveAttribute('href', 'manifest.webmanifest');
+    const shell = new AppShellPage(page);
+    await expect(shell.manifestLink).toHaveAttribute('href', 'manifest.webmanifest');
   });
 
   test('should have theme-color meta tag', async ({ page }) => {
     await page.route('**/realms/**', (route) => route.abort());
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    const themeColor = page.locator('meta[name="theme-color"]');
-    await expect(themeColor).toHaveAttribute('content', '#f97316');
+    const shell = new AppShellPage(page);
+    await expect(shell.themeColorMeta).toHaveAttribute('content', '#f97316');
   });
 
   test('should serve PWA icons', async ({ page }) => {

@@ -1,6 +1,7 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { ShoppingCreatePage } from '../pages/shopping-create.page';
 import { ShoppingDetailPage } from '../pages/shopping-detail.page';
+import { ShoppingListsPage } from '../pages/shopping-lists.page';
 import { setupSharedRecipe } from '../helpers/shared-recipe';
 import { TIMEOUTS } from '../helpers/timeouts';
 
@@ -60,15 +61,17 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
     await createPage.createButton.click();
 
     await expect(authenticatedPage).toHaveURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });
-    await expect(authenticatedPage.locator('h1')).toBeVisible();
+    const detailPage = new ShoppingDetailPage(authenticatedPage);
+    await expect(detailPage.heading).toBeVisible();
   });
 
   test('should display shopping lists on overview page', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/shopping/lists');
+    const lists = new ShoppingListsPage(authenticatedPage);
+    await lists.goto();
 
-    const cards = authenticatedPage.locator('.list-card');
-    const empty = authenticatedPage.locator('.empty-state');
-    await expect(cards.or(empty).first()).toBeVisible({ timeout: TIMEOUTS.default });
+    await expect(lists.listCards.or(lists.emptyState).first()).toBeVisible({
+      timeout: TIMEOUTS.default,
+    });
   });
 
   // The next three tests are fixme'd pending #432: in CI the just-created
@@ -77,9 +80,9 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   // in-memory cache layer, NGSW freshness timeout bump didn't help. Needs
   // trace artifacts to root-cause.
   test.fixme('should check off an item with strikethrough', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/shopping/lists');
-    const firstCard = authenticatedPage.locator('.list-card').first();
-    await firstCard.click();
+    const lists = new ShoppingListsPage(authenticatedPage);
+    await lists.goto();
+    await lists.listCards.first().click();
     await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });
 
     const detailPage = new ShoppingDetailPage(authenticatedPage);
@@ -92,9 +95,9 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   });
 
   test.fixme('should check all items and reset', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/shopping/lists');
-    const firstCard = authenticatedPage.locator('.list-card').first();
-    await firstCard.click();
+    const lists = new ShoppingListsPage(authenticatedPage);
+    await lists.goto();
+    await lists.listCards.first().click();
     await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });
 
     const detailPage = new ShoppingDetailPage(authenticatedPage);
@@ -113,9 +116,9 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
   });
 
   test.fixme('should show progress counter', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/shopping/lists');
-    const firstCard = authenticatedPage.locator('.list-card').first();
-    await firstCard.click();
+    const lists = new ShoppingListsPage(authenticatedPage);
+    await lists.goto();
+    await lists.listCards.first().click();
     await authenticatedPage.waitForURL(/\/shopping\/.+/, { timeout: TIMEOUTS.default });
 
     const detailPage = new ShoppingDetailPage(authenticatedPage);

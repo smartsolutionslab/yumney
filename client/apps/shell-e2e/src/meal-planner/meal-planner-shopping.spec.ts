@@ -1,6 +1,5 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { MealPlannerPage } from '../pages/meal-planner.page';
-import { SELECTORS } from '../helpers/selectors';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Meal Planner Shopping Integration (US-325)', () => {
@@ -24,7 +23,7 @@ test.describe('Meal Planner Shopping Integration (US-325)', () => {
     await expect(planner.weekLabel).not.toHaveText(initialLabel, { timeout: TIMEOUTS.default });
 
     // Generate button should not be visible for empty plans
-    await expect(authenticatedPage.locator(SELECTORS.mealPlanner.generateBtn)).not.toBeVisible();
+    await expect(planner.generateButton).not.toBeVisible();
   });
 
   test('should show generate button when recipes are assigned', async ({ authenticatedPage }) => {
@@ -33,9 +32,9 @@ test.describe('Meal Planner Shopping Integration (US-325)', () => {
     await expect(planner.dayCards.first()).toBeVisible({ timeout: TIMEOUTS.default });
 
     // Check if there are any recipe slots — if so, button should be visible
-    const hasMeals = (await authenticatedPage.locator('.meal-title').count()) > 0;
+    const hasMeals = (await planner.mealTitles.count()) > 0;
     if (hasMeals) {
-      await expect(authenticatedPage.locator(SELECTORS.mealPlanner.generateBtn)).toBeVisible();
+      await expect(planner.generateButton).toBeVisible();
     }
   });
 
@@ -44,9 +43,9 @@ test.describe('Meal Planner Shopping Integration (US-325)', () => {
     await planner.goto();
     await expect(planner.dayCards.first()).toBeVisible({ timeout: TIMEOUTS.default });
 
-    const hasMeals = (await authenticatedPage.locator('.meal-title').count()) > 0;
+    const hasMeals = (await planner.mealTitles.count()) > 0;
     if (hasMeals) {
-      await expect(authenticatedPage.locator(SELECTORS.mealPlanner.plannerActions)).toBeVisible();
+      await expect(planner.plannerActions).toBeVisible();
     }
   });
 });

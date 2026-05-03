@@ -5,6 +5,7 @@ export class RecipeDetailPage {
   readonly description: Locator;
   readonly ingredients: Locator;
   readonly steps: Locator;
+  readonly tags: Locator;
   readonly servingsValue: Locator;
   readonly increaseServingsButton: Locator;
   readonly decreaseServingsButton: Locator;
@@ -14,6 +15,8 @@ export class RecipeDetailPage {
   readonly shoppingListButton: Locator;
   readonly sourceLink: Locator;
   readonly confirmDialog: Locator;
+  readonly confirmCancelButton: Locator;
+  readonly confirmDeleteButton: Locator;
   readonly errorBanner: Locator;
   readonly backLink: Locator;
   readonly favoriteButton: Locator;
@@ -23,6 +26,7 @@ export class RecipeDetailPage {
     this.description = page.locator('.recipe-description');
     this.ingredients = page.locator('.ingredients-list li');
     this.steps = page.locator('.steps-list li');
+    this.tags = page.locator('.tag');
     this.servingsValue = page.locator('.servings-value');
     this.increaseServingsButton = page.getByLabel(/increase servings/i);
     this.decreaseServingsButton = page.getByLabel(/decrease servings/i);
@@ -37,6 +41,8 @@ export class RecipeDetailPage {
     // The host has 0x0 dimensions because its child is position:fixed, so
     // Playwright reports the host as hidden even when the dialog is visible.
     this.confirmDialog = page.locator('yn-confirm-dialog .confirm-overlay');
+    this.confirmCancelButton = this.confirmDialog.getByRole('button', { name: /cancel/i });
+    this.confirmDeleteButton = this.confirmDialog.locator('.btn-danger-filled');
     this.errorBanner = page.locator('[role="alert"]');
     this.backLink = page.locator('.back-link');
     this.favoriteButton = page.locator('.actions-bar yn-favorite-button .favorite-button');

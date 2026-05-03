@@ -1,5 +1,6 @@
 import { type Browser, type Page } from '@playwright/test';
-import { SELECTORS } from './selectors';
+import { KeycloakLoginPage } from '../pages/keycloak-login.page';
+import { LoginPage } from '../pages/login.page';
 import { TIMEOUTS } from './timeouts';
 
 const STORAGE_STATE_PATH = 'src/.auth/user.json';
@@ -55,12 +56,12 @@ export async function loginViaKeycloak(
   username: string = TEST_USER.username,
   password: string = TEST_USER.password,
 ): Promise<void> {
-  await page.goto('/auth/login');
-  await page.getByRole('button', { name: /sign in/i }).click();
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.signInButton.click();
   await page.waitForURL('**/realms/yumney/protocol/openid-connect/**');
-  await page.locator(SELECTORS.keycloak.username).fill(username);
-  await page.locator(SELECTORS.keycloak.password).fill(password);
-  await page.locator(SELECTORS.keycloak.loginBtn).click();
+  const keycloak = new KeycloakLoginPage(page);
+  await keycloak.signIn(username, password);
   await page.waitForURL('**/dashboard', { timeout: TIMEOUTS.long });
 }
 

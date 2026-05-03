@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/auth.fixture';
-import { SELECTORS } from '../helpers/selectors';
+import { HeaderPage } from '../pages/header.page';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 /**
@@ -62,8 +62,8 @@ test.describe('Auth Session Lifecycle (#407)', () => {
       route.fulfill({ status: 200, body: '' }),
     );
 
-    await authenticatedPage.locator(SELECTORS.header.userMenuToggle).click();
-    await authenticatedPage.locator(SELECTORS.header.logout).click();
+    const header = new HeaderPage(authenticatedPage);
+    await header.logout();
 
     // logout() clears the stored access token. Wait for that to land
     // before exercising the protected-route redirect.
