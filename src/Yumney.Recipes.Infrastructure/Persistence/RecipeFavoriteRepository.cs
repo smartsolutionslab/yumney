@@ -8,11 +8,16 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
 {
 	private readonly DbSet<RecipeFavorite> favorites = context.RecipeFavorites;
 
-	public async Task<bool> IsFavoritedAsync(OwnerIdentifier owner, RecipeIdentifier recipe, CancellationToken cancellationToken = default)
+	public async Task<bool> IsFavoritedAsync(
+		OwnerIdentifier owner,
+		RecipeIdentifier recipe,
+		CancellationToken cancellationToken = default)
 	{
 		return await favorites
 			.AsNoTracking()
-			.AnyAsync(favorite => favorite.Owner == owner && favorite.RecipeIdentifier == recipe, cancellationToken);
+			.AnyAsync(
+				favorite => favorite.Owner == owner && favorite.RecipeIdentifier == recipe,
+				cancellationToken);
 	}
 
 	public async Task<IReadOnlySet<Guid>> GetFavoritedIdsAsync(

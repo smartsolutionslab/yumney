@@ -16,9 +16,9 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 		SortingOptions<ShoppingListSortField> sorting,
 		CancellationToken cancellationToken = default)
 	{
-		var query = context.ShoppingListSummaryReadItems.Where(summary => summary.OwnerId == owner.Value);
-
-		query = ApplySorting(query, sorting);
+		var query = context.ShoppingListSummaryReadItems
+			.Where(summary => summary.OwnerId == owner.Value)
+			.ApplySorting(sorting);
 
 		return await query
 			.Select(summary => new ShoppingListSummary(
@@ -57,19 +57,5 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 			.Select(summary => summary.Id)
 			.ToListAsync(cancellationToken);
 		return ids.Select(ShoppingListIdentifier.From).ToList();
-	}
-
-	private static IQueryable<ShoppingListSummaryReadItem> ApplySorting(
-		IQueryable<ShoppingListSummaryReadItem> query,
-		SortingOptions<ShoppingListSortField> sorting)
-	{
-		return (sorting.SortBy, sorting.Direction) switch
-		{
-			(ShoppingListSortField.Title, SortDirection.Ascending) => query.OrderBy(summary => summary.Title),
-			(ShoppingListSortField.Title, SortDirection.Descending) => query.OrderByDescending(summary => summary.Title),
-			(ShoppingListSortField.Date, SortDirection.Ascending) => query.OrderBy(summary => summary.CreatedAt),
-			(ShoppingListSortField.Date, SortDirection.Descending) => query.OrderByDescending(summary => summary.CreatedAt),
-			_ => throw new InvalidOperationException($"Unsupported sort combination: {sorting.SortBy}, {sorting.Direction}"),
-		};
 	}
 }

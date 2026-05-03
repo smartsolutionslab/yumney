@@ -600,6 +600,110 @@ return recipes.ToDtos();
 
 The single allowed exception is when the constructor call is the one statement in the mapper itself (the extension method body is the projection).
 
+## Repository Query Plumbing — Apply* Extensions
+
+Repositories that build paged read queries with **filter / search / sort**
+keep the query plumbing in dedicated `*Extensions` static classes, one per
+concern, sitting next to the repository in the same `Persistence/` folder.
+The repository is left as a one-liner orchestrator.
+
+### One concern → one file → one extension class
+
+```
+src/Yumney.{Module}.Infrastructure/Persistence/
+├── {Aggregate}Repository.cs
+├── FilterExtensions.cs       // ApplyFilter + per-axis ApplyTags / ApplyDifficulty / ...
+├── SearchExtensions.cs       // ApplySearch
+└── SortingExtensions.cs      // ApplySorting
+```
+
+### Multiple methods on one receiver → C# 14 `extension(T)` block
+
+When a class hosts more than one `Apply*` instance-style method with the
+same receiver type, group them inside an `extension(IQueryable<T> query)`
+block so the receiver is declared once.
+
+```csharp
+// ✅ Multiple Apply* on the same receiver
+public static class FilterExtensions
+{
+    extension(IQueryable<Recipe> query)
+    {
+        public IQueryable<Recipe> ApplyTags(IReadOnlyList<RecipeTag>? tags) { ... }
+        public IQueryable<Recipe> ApplyDifficulty(Difficulty? difficulty) { ... }
+        public IQueryable<Recipe> ApplyFavoritesOnly(bool? favoritesOnly, ...) { ... }
+
+        public IQueryable<Recipe> ApplyFilter(RecipeFilter? filter, ...)
+        {
+            if (filter is null || filter.IsEmpty) return query;
+            var (tags, difficulty, maxPrepTime, maxCookTime, favoritesOnly) = filter;
+            return query
+                .ApplyDifficulty(difficulty)
+                .ApplyMaxPrepTime(maxPrepTime)
+                .ApplyCookingTime(maxCookTime)
+                .ApplyTags(tags)
+                .ApplyFavoritesOnly(favoritesOnly, ...);
+        }
+    }
+}
+```
+
+### Single method → classic `this T receiver` form
+
+```csharp
+// ✅ One Apply* on the receiver
+public static class SearchExtensions
+{
+    public static IQueryable<Recipe> ApplySearch(this IQueryable<Recipe> query, SearchTerm? search)
+    {
+        if (search is null) return query;
+        var pattern = $"%{search.Value}%";
+        return query.Where(recipe => EF.Functions.ILike(recipe.Title, pattern) || ...);
+    }
+}
+```
+
+### Per-axis methods early-return when inactive
+
+Each `Apply*` checks the inactive case (null, empty, `!= true`) and returns
+the query unchanged. The orchestrator never has to know which axes are set.
+
+```csharp
+public IQueryable<Recipe> ApplyDifficulty(Difficulty? difficulty)
+{
+    if (difficulty is null) return query;
+    return query.Where(recipe => recipe.Difficulty == difficulty);
+}
+```
+
+### Cross-cutting subqueries are passed in, not embedded
+
+When an axis needs to reach into another DbSet (e.g. favorites), the
+repository builds the subquery and **passes it as a parameter**. The
+extension class stays free of `DbContext` and stays unit-testable.
+
+```csharp
+// ❌ FORBIDDEN — extension class reaches into DbContext
+public static IQueryable<Recipe> ApplyFavoritesOnly(this IQueryable<Recipe> query, bool? on, RecipesDbContext context) { ... }
+
+// ✅ REQUIRED — repository owns the subquery, passes it in
+private IQueryable<RecipeIdentifier> GetFavoriteRecipeIdsOfUserQuery(OwnerIdentifier owner) =>
+    context.RecipeFavorites.Where(f => f.Owner == owner).Select(f => f.RecipeIdentifier);
+
+// in repository:
+query = query
+    .ApplySearch(search)
+    .ApplyFilter(filter, GetFavoriteRecipeIdsOfUserQuery(owner))
+    .ApplySorting(sorting);
+```
+
+### Rules of thumb
+
+- Don't extract until there's at least one of: (a) a switch over `SortingOptions`, (b) a multi-axis filter VO, or (c) a search predicate beyond a single inline `Where`. Trivial single-axis sorts (`OrderByDescending(x => x.OccurredAt)`) stay inline.
+- The orchestrator (`ApplyFilter` / `ApplySorting`) returns `IQueryable<T>` so it composes with the rest of the chain.
+- Per-axis methods are named for the **field**, not the verb (`ApplyTags`, not `ApplyTagFilter`).
+- The orchestrator deconstructs the filter VO via record `Deconstruct` and forwards each piece to the matching `Apply*`.
+
 ## Error Handling
 
 ### Result Pattern for expected errors
