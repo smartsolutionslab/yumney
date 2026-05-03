@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -19,18 +20,13 @@ public sealed class EfCoreShoppingListProjectionRepository(ShoppingReadDbContext
 
 		query = ApplySorting(query, sorting);
 
-		var totalCount = await query.CountAsync(cancellationToken);
-		var items = await query
-			.Skip(paging.Skip)
-			.Take(paging.PageSize.Value)
+		return await query
 			.Select(summary => new ShoppingListSummary(
 				ShoppingListIdentifier.From(summary.Id),
 				ShoppingListTitle.From(summary.Title),
 				ItemCount.From(summary.ItemCount),
 				summary.CreatedAt))
-			.ToListAsync(cancellationToken);
-
-		return (items, ItemCount.From(totalCount));
+			.ToPagedListAsync(paging, cancellationToken);
 	}
 
 	public async Task<ShoppingListProjectedDetail> GetByIdAsync(
