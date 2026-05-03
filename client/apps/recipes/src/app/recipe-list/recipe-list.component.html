@@ -45,6 +45,7 @@
     <button
       type="button"
       class="filter-toggle"
+      data-testid="recipe-list-filter-toggle"
       (click)="toggleFilterPanel()"
       [attr.aria-expanded]="filterPanelOpen()"
       [attr.aria-label]="t('recipes.list.filter.toggle')"
