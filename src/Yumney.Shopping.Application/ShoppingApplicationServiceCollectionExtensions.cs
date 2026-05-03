@@ -10,7 +10,7 @@ public static class ShoppingApplicationServiceCollectionExtensions
 	public static IServiceCollection AddShoppingApplication(this IServiceCollection services)
 	{
 		services.AddHandlersFromAssemblyContaining<CreateShoppingListCommandHandler>();
-		services.AddIntegrationEventHandlersFromAssemblyContaining<CreateShoppingListCommandHandler>();
+		services.AddBusEventHandlersFromAssemblyContaining<CreateShoppingListCommandHandler>();
 
 		return services;
 	}

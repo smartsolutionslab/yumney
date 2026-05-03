@@ -10,7 +10,7 @@ public static class RecipesApplicationServiceCollectionExtensions
 	public static IServiceCollection AddRecipesApplication(this IServiceCollection services)
 	{
 		services.AddHandlersFromAssemblyContaining<ImportRecipeCommandHandler>();
-		services.AddIntegrationEventHandlersFromAssemblyContaining<ImportRecipeCommandHandler>();
+		services.AddBusEventHandlersFromAssemblyContaining<ImportRecipeCommandHandler>();
 
 		return services;
 	}
