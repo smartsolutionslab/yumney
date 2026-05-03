@@ -54,6 +54,21 @@
         <span class="filter-toggle-count">{{ filterActiveCount() }}</span>
       }
     </button>
+    @if (!assignment.assignMode()) {
+      <button
+        type="button"
+        class="filter-toggle"
+        data-testid="recipe-list-multi-select-toggle"
+        [attr.aria-pressed]="multiSelectMode()"
+        (click)="onToggleMultiSelectMode()"
+      >
+        {{
+          multiSelectMode()
+            ? t('recipes.list.multiSelect.exit')
+            : t('recipes.list.multiSelect.enter')
+        }}
+      </button>
+    }
   </div>
 
   @if (filterPanelOpen()) {
@@ -93,11 +108,30 @@
           #recipeCard
           [recipe]="recipe"
           [assignMode]="assignment.assignMode()"
+          [multiSelectMode]="multiSelectMode()"
+          [selected]="isRecipeSelected(recipe.identifier)"
           (toggleFavorite)="onToggleFavorite($event)"
           (assign)="assignment.assign($event)"
+          (toggleSelect)="onToggleRecipeSelection($event)"
         />
       }
     </div>
+  }
+
+  @if (multiSelectMode() && hasSelection()) {
+    <button
+      type="button"
+      class="multi-select-fab"
+      data-testid="recipe-list-multi-select-fab"
+      [disabled]="isCreatingMultiShoppingList()"
+      (click)="onCreateMultiShoppingList()"
+    >
+      @if (isCreatingMultiShoppingList()) {
+        {{ t('recipes.list.multiSelect.creating') }}
+      } @else {
+        {{ t('recipes.list.multiSelect.fab', { count: selectedCount() }) }}
+      }
+    </button>
   }
 
   <div

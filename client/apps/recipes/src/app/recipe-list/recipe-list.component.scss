@@ -223,3 +223,41 @@ yn-recipe-card {
 .scroll-sentinel {
   height: 1px;
 }
+
+.multi-select-fab {
+  position: fixed;
+  bottom: var(--yn-space-7);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--yn-z-modal);
+  padding: var(--yn-space-4) var(--yn-space-7);
+  border-radius: 999px;
+  border: 0;
+  background: var(--yn-primary);
+  color: white;
+  font-weight: var(--yn-font-semibold);
+  font-size: var(--yn-text-md);
+  box-shadow: var(--yn-elevation-3);
+  cursor: pointer;
+  transition:
+    transform var(--yn-duration-fast) var(--yn-ease-spring),
+    box-shadow var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover:not(:disabled) {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: var(--yn-elevation-4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover:not(:disabled) {
+      transform: translateX(-50%);
+    }
+  }
+}

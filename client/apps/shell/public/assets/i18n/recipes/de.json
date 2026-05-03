@@ -46,6 +46,15 @@
     },
     "errors": {
       "generic": "Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
+    },
+    "multiSelect": {
+      "enter": "Mehrere auswählen",
+      "exit": "Auswahl beenden",
+      "fab": "Einkaufsliste erstellen ({{count}} Rezepte)",
+      "creating": "Wird erstellt...",
+      "autoTitle": "Meal Prep ({{count}} Rezepte)",
+      "selectAriaLabel": "Rezept auswählen",
+      "deselectAriaLabel": "Auswahl entfernen"
     }
   },
   "edit": {

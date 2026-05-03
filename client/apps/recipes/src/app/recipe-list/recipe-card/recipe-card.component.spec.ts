@@ -13,6 +13,10 @@ const en = {
       servings: '{{count}} servings',
       prepTime: 'Prep {{minutes}} min',
       cookTime: 'Cook {{minutes}} min',
+      multiSelect: {
+        selectAriaLabel: 'Select recipe',
+        deselectAriaLabel: 'Deselect recipe',
+      },
     },
     favorite: {
       addAriaLabel: 'Add to favorites',
@@ -40,8 +44,11 @@ const mockRecipe: RecipeListItem = {
     <yn-recipe-card
       [recipe]="recipe()"
       [assignMode]="assignMode()"
+      [multiSelectMode]="multiSelectMode()"
+      [selected]="selected()"
       (toggleFavorite)="onToggleFavorite($event)"
       (assign)="onAssign($event)"
+      (toggleSelect)="onToggleSelect($event)"
     />
   `,
   imports: [RecipeCardComponent],
@@ -49,8 +56,11 @@ const mockRecipe: RecipeListItem = {
 class TestHostComponent {
   recipe = signal<RecipeListItem>(mockRecipe);
   assignMode = signal(false);
+  multiSelectMode = signal(false);
+  selected = signal(false);
   onToggleFavorite = vi.fn();
   onAssign = vi.fn();
+  onToggleSelect = vi.fn();
 }
 
 describe('RecipeCardComponent', () => {
@@ -151,5 +161,48 @@ describe('RecipeCardComponent', () => {
     const div = fixture.nativeElement.querySelector('div.recipe-card');
     expect(link).toBeNull();
     expect(div).toBeTruthy();
+  });
+
+  it('should render as a button in multi-select mode', () => {
+    host.multiSelectMode.set(true);
+    fixture.detectChanges();
+
+    const link = fixture.nativeElement.querySelector('a.recipe-card');
+    const button = fixture.nativeElement.querySelector('button.multi-select-card');
+    expect(link).toBeNull();
+    expect(button).toBeTruthy();
+  });
+
+  it('should reflect selected state via aria-pressed and is-selected class', () => {
+    host.multiSelectMode.set(true);
+    host.selected.set(true);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('button.multi-select-card');
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(button.classList.contains('is-selected')).toBe(true);
+  });
+
+  it('should show the check icon only when selected', () => {
+    host.multiSelectMode.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.select-indicator i-lucide')).toBeNull();
+
+    host.selected.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.select-indicator i-lucide')).toBeTruthy();
+  });
+
+  it('should emit toggleSelect with recipe identifier on click in multi-select mode', () => {
+    host.multiSelectMode.set(true);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('button.multi-select-card');
+    button.click();
+    fixture.detectChanges();
+
+    expect(host.onToggleSelect).toHaveBeenCalledWith('abc-123');
   });
 });

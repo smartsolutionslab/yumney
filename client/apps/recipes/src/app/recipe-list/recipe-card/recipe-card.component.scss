@@ -111,3 +111,48 @@
     transition: none;
   }
 }
+
+.multi-select-card {
+  width: 100%;
+  text-align: inherit;
+  font: inherit;
+  background: inherit;
+  border: 0;
+  padding: 0;
+
+  &.is-selected {
+    box-shadow:
+      0 0 0 2px var(--yn-primary),
+      var(--yn-elevation-2);
+  }
+}
+
+.select-indicator {
+  position: absolute;
+  top: var(--yn-space-3);
+  right: var(--yn-space-3);
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--yn-glass-bg);
+  border: 1.5px solid var(--yn-glass-border-subtle);
+  color: var(--yn-primary);
+  backdrop-filter: blur(8px);
+  transition:
+    background var(--yn-duration-fast) var(--yn-ease-glass),
+    border-color var(--yn-duration-fast) var(--yn-ease-glass);
+
+  .multi-select-card.is-selected & {
+    background: var(--yn-primary);
+    border-color: var(--yn-primary);
+    color: white;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}

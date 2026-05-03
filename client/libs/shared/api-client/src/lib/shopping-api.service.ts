@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { API_ENDPOINTS } from './api-endpoints';
 import type { CreateShoppingListRequest } from './create-shopping-list-request';
+import type { CreateShoppingListFromRecipesRequest } from './create-shopping-list-from-recipes-request';
 import type { ShoppingListDetail } from './shopping-list-detail';
 import type { ShoppingListSummary } from './shopping-list-summary';
 import type { PagedResponse } from '@yumney/shared/models';
@@ -19,6 +20,12 @@ export class ShoppingApiService {
 
   createShoppingList(request: CreateShoppingListRequest): Observable<ShoppingListDetail> {
     return this.http.post<ShoppingListDetail>(API_ENDPOINTS.shoppingLists.base, request);
+  }
+
+  createShoppingListFromRecipes(
+    request: CreateShoppingListFromRecipesRequest,
+  ): Observable<ShoppingListDetail> {
+    return this.http.post<ShoppingListDetail>(API_ENDPOINTS.shoppingLists.fromRecipes, request);
   }
 
   getShoppingLists(): Observable<ShoppingListSummary[]> {
