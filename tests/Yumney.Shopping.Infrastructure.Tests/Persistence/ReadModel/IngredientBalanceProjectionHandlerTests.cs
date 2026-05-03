@@ -26,7 +26,7 @@ public class IngredientBalanceProjectionHandlerTests
 		var handler = new IngredientBalanceProjectionHandler(context, timeProvider);
 		var domainEvent = new ShoppingItemBought(ItemName.From("Milk"), Quantity.Of(Amount.From(2), Unit.From("l")));
 
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(OwnerId, domainEvent));
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(OwnerId, domainEvent));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
 		row.OwnerId.Should().Be(OwnerId);
@@ -44,7 +44,7 @@ public class IngredientBalanceProjectionHandlerTests
 		var handler = new IngredientBalanceProjectionHandler(context, fakeTime);
 		var domainEvent = new ShoppingItemBought(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")));
 
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(OwnerId, domainEvent));
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(OwnerId, domainEvent));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
 		row.LastBoughtAt.Should().Be(fakeTime.GetUtcNow().UtcDateTime);
@@ -58,7 +58,7 @@ public class IngredientBalanceProjectionHandlerTests
 		var before = DateTime.UtcNow;
 		var domainEvent = new ShoppingItemAddedAsAtHome(ItemName.From("Butter"), Quantity.Of(Amount.From(250), Unit.From("g")));
 
-		await handler.HandleAsync(new ShoppingItemAddedAsAtHomeIntegrationEvent(OwnerId, domainEvent));
+		await handler.HandleAsync(new ShoppingItemAddedAsAtHomeModuleEvent(OwnerId, domainEvent));
 		var after = DateTime.UtcNow;
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
@@ -70,11 +70,11 @@ public class IngredientBalanceProjectionHandlerTests
 	{
 		await using var context = CreateContext();
 		var handler = new IngredientBalanceProjectionHandler(context, timeProvider);
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(
 			OwnerId, new ShoppingItemBought(ItemName.From("Milk"), Quantity.Of(Amount.From(2), Unit.From("l")))));
 		var firstBoughtAt = (await context.Set<IngredientBalanceReadItem>().SingleAsync()).LastBoughtAt;
 
-		await handler.HandleAsync(new ShoppingItemConsumedIntegrationEvent(
+		await handler.HandleAsync(new ShoppingItemConsumedModuleEvent(
 			OwnerId, new ShoppingItemConsumed(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")), ItemSource.From("meal-plan"))));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
@@ -89,8 +89,8 @@ public class IngredientBalanceProjectionHandlerTests
 		var bought = new ShoppingItemBought(ItemName.From("Milk"), Quantity.Of(Amount.From(5), Unit.From("l")));
 		var consumed = new ShoppingItemConsumed(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")), ItemSource.From("meal-plan"));
 
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(OwnerId, bought));
-		await handler.HandleAsync(new ShoppingItemConsumedIntegrationEvent(OwnerId, consumed));
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(OwnerId, bought));
+		await handler.HandleAsync(new ShoppingItemConsumedModuleEvent(OwnerId, consumed));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
 		row.BoughtTotal.Should().Be(5);
@@ -106,8 +106,8 @@ public class IngredientBalanceProjectionHandlerTests
 		var bought = new ShoppingItemBought(ItemName.From("Eggs"), Quantity.Of(Amount.From(12), null));
 		var removed = new ShoppingItemRemoved(ItemName.From("Eggs"), Quantity.Of(Amount.From(2), null), null);
 
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(OwnerId, bought));
-		await handler.HandleAsync(new ShoppingItemRemovedIntegrationEvent(OwnerId, removed));
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(OwnerId, bought));
+		await handler.HandleAsync(new ShoppingItemRemovedModuleEvent(OwnerId, removed));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
 		row.AtHome.Should().Be(10);
@@ -121,8 +121,8 @@ public class IngredientBalanceProjectionHandlerTests
 		var bought = new ShoppingItemBought(ItemName.From("Bread"), Quantity.Of(Amount.From(3), null));
 		var undo = new ShoppingItemUndoBought(ItemName.From("Bread"), Quantity.Of(Amount.From(1), null));
 
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(OwnerId, bought));
-		await handler.HandleAsync(new ShoppingItemUndoBoughtIntegrationEvent(OwnerId, undo));
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(OwnerId, bought));
+		await handler.HandleAsync(new ShoppingItemUndoBoughtModuleEvent(OwnerId, undo));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
 		row.BoughtTotal.Should().Be(2);
@@ -136,7 +136,7 @@ public class IngredientBalanceProjectionHandlerTests
 		var handler = new IngredientBalanceProjectionHandler(context, timeProvider);
 		var atHome = new ShoppingItemAddedAsAtHome(ItemName.From("Butter"), Quantity.Of(Amount.From(250), Unit.From("g")));
 
-		await handler.HandleAsync(new ShoppingItemAddedAsAtHomeIntegrationEvent(OwnerId, atHome));
+		await handler.HandleAsync(new ShoppingItemAddedAsAtHomeModuleEvent(OwnerId, atHome));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
 		row.BoughtTotal.Should().Be(250);
@@ -150,7 +150,7 @@ public class IngredientBalanceProjectionHandlerTests
 		var handler = new IngredientBalanceProjectionHandler(context, timeProvider);
 		var undo = new ShoppingItemUndoBought(ItemName.From("Milk"), Quantity.Of(Amount.From(10), Unit.From("l")));
 
-		await handler.HandleAsync(new ShoppingItemUndoBoughtIntegrationEvent(OwnerId, undo));
+		await handler.HandleAsync(new ShoppingItemUndoBoughtModuleEvent(OwnerId, undo));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
 		row.BoughtTotal.Should().Be(0);
@@ -165,8 +165,8 @@ public class IngredientBalanceProjectionHandlerTests
 		var bought = new ShoppingItemBought(ItemName.From("Apple"), Quantity.Of(Amount.From(2), null));
 		var consumed = new ShoppingItemConsumed(ItemName.From("Apple"), Quantity.Of(Amount.From(5), null), ItemSource.From("meal-plan"));
 
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(OwnerId, bought));
-		await handler.HandleAsync(new ShoppingItemConsumedIntegrationEvent(OwnerId, consumed));
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(OwnerId, bought));
+		await handler.HandleAsync(new ShoppingItemConsumedModuleEvent(OwnerId, consumed));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
 		row.AtHome.Should().Be(0);
@@ -180,8 +180,8 @@ public class IngredientBalanceProjectionHandlerTests
 		var litres = new ShoppingItemBought(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")));
 		var millis = new ShoppingItemBought(ItemName.From("Milk"), Quantity.Of(Amount.From(500), Unit.From("ml")));
 
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(OwnerId, litres));
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(OwnerId, millis));
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(OwnerId, litres));
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(OwnerId, millis));
 
 		var rows = await context.Set<IngredientBalanceReadItem>().ToListAsync();
 		rows.Should().HaveCount(2);
@@ -195,7 +195,7 @@ public class IngredientBalanceProjectionHandlerTests
 		var handler = new IngredientBalanceProjectionHandler(context, fakeTime);
 
 		// First buy meat — projection sets category to meat-fish + clock to T0.
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(
 			OwnerId, new ShoppingItemBought(ItemName.From("Chicken"), Quantity.Of(Amount.From(500), Unit.From("g")))));
 		var rowAfterBuy = await context.Set<IngredientBalanceReadItem>().SingleAsync();
 		rowAfterBuy.Category.Should().Be(IngredientCategory.MeatFish.Value);
@@ -204,7 +204,7 @@ public class IngredientBalanceProjectionHandlerTests
 		// Advance time and freeze.
 		fakeTime.Advance(TimeSpan.FromDays(1));
 		var t1 = fakeTime.GetUtcNow().UtcDateTime;
-		await handler.HandleAsync(new ShoppingItemMarkedAsFrozenIntegrationEvent(
+		await handler.HandleAsync(new ShoppingItemMarkedAsFrozenModuleEvent(
 			OwnerId, new ShoppingItemMarkedAsFrozen(ItemName.From("Chicken"), Unit.From("g"))));
 
 		var row = await context.Set<IngredientBalanceReadItem>().SingleAsync();
@@ -218,7 +218,7 @@ public class IngredientBalanceProjectionHandlerTests
 		await using var context = CreateContext();
 		var handler = new IngredientBalanceProjectionHandler(context, timeProvider);
 
-		await handler.HandleAsync(new ShoppingItemMarkedAsFrozenIntegrationEvent(
+		await handler.HandleAsync(new ShoppingItemMarkedAsFrozenModuleEvent(
 			OwnerId, new ShoppingItemMarkedAsFrozen(ItemName.From("Chicken"), Unit.From("g"))));
 
 		(await context.Set<IngredientBalanceReadItem>().AnyAsync()).Should().BeFalse();
@@ -229,12 +229,12 @@ public class IngredientBalanceProjectionHandlerTests
 	{
 		await using var context = CreateContext();
 		var handler = new IngredientBalanceProjectionHandler(context, timeProvider);
-		await handler.HandleAsync(new ShoppingItemBoughtIntegrationEvent(
+		await handler.HandleAsync(new ShoppingItemBoughtModuleEvent(
 			OwnerId, new ShoppingItemBought(ItemName.From("Chicken"), Quantity.Of(Amount.From(500), Unit.From("g")))));
 		var originalCategory = (await context.Set<IngredientBalanceReadItem>().SingleAsync()).Category;
 
 		// Freeze "kg" instead of "g" — different unit, same name → not a match.
-		await handler.HandleAsync(new ShoppingItemMarkedAsFrozenIntegrationEvent(
+		await handler.HandleAsync(new ShoppingItemMarkedAsFrozenModuleEvent(
 			OwnerId, new ShoppingItemMarkedAsFrozen(ItemName.From("Chicken"), Unit.From("kg"))));
 
 		(await context.Set<IngredientBalanceReadItem>().SingleAsync()).Category.Should().Be(originalCategory);

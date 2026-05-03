@@ -10,15 +10,15 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 /// replay produces the same final state.
 /// </summary>
 public sealed class ShoppingListProjection(ShoppingDbContext context)
-	: IIntegrationEventHandler<ShoppingListCreatedIntegrationEvent>,
-	  IIntegrationEventHandler<ListItemAddedIntegrationEvent>,
-	  IIntegrationEventHandler<ListItemCheckedIntegrationEvent>,
-	  IIntegrationEventHandler<ListItemUncheckedIntegrationEvent>,
-	  IIntegrationEventHandler<AllItemsCheckedIntegrationEvent>,
-	  IIntegrationEventHandler<AllItemsUncheckedIntegrationEvent>,
-	  IIntegrationEventHandler<RecipeReferenceClearedIntegrationEvent>
+	: IModuleEventHandler<ShoppingListCreatedModuleEvent>,
+	  IModuleEventHandler<ListItemAddedModuleEvent>,
+	  IModuleEventHandler<ListItemCheckedModuleEvent>,
+	  IModuleEventHandler<ListItemUncheckedModuleEvent>,
+	  IModuleEventHandler<AllItemsCheckedModuleEvent>,
+	  IModuleEventHandler<AllItemsUncheckedModuleEvent>,
+	  IModuleEventHandler<RecipeReferenceClearedModuleEvent>
 {
-	public async Task HandleAsync(ShoppingListCreatedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(ShoppingListCreatedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var existing = await context.Set<ShoppingListSummaryReadItem>()
@@ -49,7 +49,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(ListItemAddedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(ListItemAddedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var existing = await context.Set<ShoppingListItemReadItem>()
@@ -78,35 +78,35 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(ListItemCheckedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(ListItemCheckedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		await SetCheckedAsync(@event.Inner.ItemId.Value, true, cancellationToken);
 		await TouchSummaryAsync(@event.AggregateId, cancellationToken);
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(ListItemUncheckedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(ListItemUncheckedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		await SetCheckedAsync(@event.Inner.ItemId.Value, false, cancellationToken);
 		await TouchSummaryAsync(@event.AggregateId, cancellationToken);
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(AllItemsCheckedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(AllItemsCheckedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		await SetAllCheckedAsync(@event.AggregateId, true, cancellationToken);
 		await TouchSummaryAsync(@event.AggregateId, cancellationToken);
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(AllItemsUncheckedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(AllItemsUncheckedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		await SetAllCheckedAsync(@event.AggregateId, false, cancellationToken);
 		await TouchSummaryAsync(@event.AggregateId, cancellationToken);
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(RecipeReferenceClearedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(RecipeReferenceClearedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var summary = await context.Set<ShoppingListSummaryReadItem>()
 			.FirstOrDefaultAsync(s => s.Id == @event.AggregateId, cancellationToken);

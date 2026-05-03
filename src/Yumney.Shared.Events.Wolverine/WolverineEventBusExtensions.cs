@@ -43,7 +43,8 @@ public static class WolverineEventBusExtensions
 
 			foreach (var assembly in eventHandlerAssemblies)
 			{
-				RegisterIntegrationEventHandlers(opts, assembly);
+				RegisterBusEventConsumers(opts, assembly, typeof(IIntegrationEventHandler<>), typeof(IntegrationEventConsumer<>));
+				RegisterBusEventConsumers(opts, assembly, typeof(IModuleEventHandler<>), typeof(ModuleEventConsumer<>));
 			}
 		});
 
@@ -53,20 +54,21 @@ public static class WolverineEventBusExtensions
 		return builder;
 	}
 
-	private static void RegisterIntegrationEventHandlers(WolverineOptions opts, Assembly assembly)
+	private static void RegisterBusEventConsumers(
+		WolverineOptions opts,
+		Assembly assembly,
+		Type openHandlerInterface,
+		Type openConsumerType)
 	{
-		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
-		var handlerType = typeof(IntegrationEventConsumer<>);
-
 		var eventTypes = assembly.GetTypes()
 			.SelectMany(type => type.GetInterfaces())
-			.Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == handlerInterfaceType)
+			.Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == openHandlerInterface)
 			.Select(iface => iface.GetGenericArguments()[0])
 			.Distinct();
 
 		foreach (var eventType in eventTypes)
 		{
-			opts.Discovery.IncludeType(handlerType.MakeGenericType(eventType));
+			opts.Discovery.IncludeType(openConsumerType.MakeGenericType(eventType));
 		}
 	}
 }

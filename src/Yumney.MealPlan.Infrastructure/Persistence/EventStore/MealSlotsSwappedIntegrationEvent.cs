@@ -1,9 +1,0 @@
-using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
-
-namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
-
-#pragma warning disable SA1649
-public sealed record MealSlotsSwappedIntegrationEvent(
-	string OwnerId,
-	string Week,
-	MealSlotsSwapped Inner) : MealPlanIntegrationEvent(OwnerId, Week);

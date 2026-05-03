@@ -122,10 +122,10 @@ public sealed partial class EfCoreShoppingListEventStore(
 
 		foreach (var domainEvent in events)
 		{
-			var integrationEvent = ShoppingListIntegrationEventMapper.Map(ownerId, aggregateId, domainEvent);
-			if (integrationEvent is not null)
+			var moduleEvent = ShoppingListModuleEventMapper.Map(ownerId, aggregateId, domainEvent);
+			if (moduleEvent is not null)
 			{
-				await eventBus.PublishAsync(integrationEvent, cancellationToken);
+				await eventBus.PublishAsync(moduleEvent, cancellationToken);
 			}
 
 			var crossModuleEvent = MapToCrossModuleEvent(ownerId, aggregateId, domainEvent);

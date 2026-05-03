@@ -14,14 +14,14 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 /// and is the data source for the "What Can I Cook?" feature (US-342).
 /// </summary>
 public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context, TimeProvider timeProvider)
-	: IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemRemovedIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemUndoBoughtIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemAddedAsAtHomeIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemMarkedAsFrozenIntegrationEvent>
+	: IModuleEventHandler<ShoppingItemBoughtModuleEvent>,
+	  IModuleEventHandler<ShoppingItemConsumedModuleEvent>,
+	  IModuleEventHandler<ShoppingItemRemovedModuleEvent>,
+	  IModuleEventHandler<ShoppingItemUndoBoughtModuleEvent>,
+	  IModuleEventHandler<ShoppingItemAddedAsAtHomeModuleEvent>,
+	  IModuleEventHandler<ShoppingItemMarkedAsFrozenModuleEvent>
 {
-	public Task HandleAsync(ShoppingItemBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemBoughtModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var now = timeProvider.GetUtcNow().UtcDateTime;
@@ -37,7 +37,7 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 			cancellationToken);
 	}
 
-	public Task HandleAsync(ShoppingItemConsumedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemConsumedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		return UpsertAsync(
@@ -48,7 +48,7 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 			cancellationToken);
 	}
 
-	public Task HandleAsync(ShoppingItemRemovedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemRemovedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		return UpsertAsync(
@@ -59,7 +59,7 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 			cancellationToken);
 	}
 
-	public Task HandleAsync(ShoppingItemUndoBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemUndoBoughtModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		return UpsertAsync(
@@ -70,7 +70,7 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 			cancellationToken);
 	}
 
-	public Task HandleAsync(ShoppingItemAddedAsAtHomeIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemAddedAsAtHomeModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var now = timeProvider.GetUtcNow().UtcDateTime;
@@ -87,7 +87,7 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 	}
 
 	/// <inheritdoc />
-	public async Task HandleAsync(ShoppingItemMarkedAsFrozenIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(ShoppingItemMarkedAsFrozenModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		// Pure update: don't create a row if the item isn't on the ledger —
 		// freezing a non-existent item is a no-op rather than a phantom entry.

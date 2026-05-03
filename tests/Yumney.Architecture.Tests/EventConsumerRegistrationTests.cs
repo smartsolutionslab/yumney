@@ -11,17 +11,16 @@ public class EventConsumerRegistrationTests
 {
 	private static readonly string[] Modules = ["Recipes", "Shopping", "Users", "MealPlan"];
 
-	[Fact]
-	public void EveryIntegrationEvent_HasAtLeastOneHandler()
+	[Theory]
+	[InlineData(typeof(IIntegrationEvent), typeof(IIntegrationEventHandler<>))]
+	[InlineData(typeof(IModuleEvent), typeof(IModuleEventHandler<>))]
+	public void EveryEvent_HasAtLeastOneHandler(Type eventBaseType, Type handlerInterfaceType)
 	{
 		var (eventAssemblies, handlerAssemblies) = LoadAssemblies();
 
-		var integrationEventType = typeof(IIntegrationEvent);
-		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
-
-		var integrationEvents = eventAssemblies
+		var events = eventAssemblies
 			.SelectMany(assembly => assembly.GetTypes())
-			.Where(type => integrationEventType.IsAssignableFrom(type) && type is { IsClass: true, IsAbstract: false })
+			.Where(type => eventBaseType.IsAssignableFrom(type) && type is { IsClass: true, IsAbstract: false })
 			.ToList();
 
 		var handledEventTypes = handlerAssemblies
@@ -31,25 +30,24 @@ public class EventConsumerRegistrationTests
 			.Select(iface => iface.GetGenericArguments()[0])
 			.ToHashSet();
 
-		integrationEvents.Should().NotBeEmpty("at least one integration event must exist across modules");
+		events.Should().NotBeEmpty($"at least one {eventBaseType.Name} must exist across modules");
 
-		var missing = integrationEvents
+		var missing = events
 			.Where(eventType => !handledEventTypes.Contains(eventType))
 			.Select(eventType => eventType.FullName)
 			.ToList();
 
 		missing.Should().BeEmpty(
-			"every IIntegrationEvent must have at least one IIntegrationEventHandler<T> implementation. " +
+			$"every {eventBaseType.Name} must have at least one {handlerInterfaceType.Name} implementation. " +
 			"Events without handlers will silently drop at runtime.");
 	}
 
-	[Fact]
-	public void EveryIntegrationEventHandler_HandlesAKnownIntegrationEvent()
+	[Theory]
+	[InlineData(typeof(IIntegrationEvent), typeof(IIntegrationEventHandler<>))]
+	[InlineData(typeof(IModuleEvent), typeof(IModuleEventHandler<>))]
+	public void EveryEventHandler_TargetsAKnownEventType(Type eventBaseType, Type handlerInterfaceType)
 	{
 		var (_, handlerAssemblies) = LoadAssemblies();
-
-		var integrationEventType = typeof(IIntegrationEvent);
-		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
 
 		var handlerEventTargets = handlerAssemblies
 			.SelectMany(assembly => assembly.GetTypes())
@@ -60,12 +58,12 @@ public class EventConsumerRegistrationTests
 			.ToList();
 
 		var nonEventHandlerTargets = handlerEventTargets
-			.Where(type => !integrationEventType.IsAssignableFrom(type))
+			.Where(type => !eventBaseType.IsAssignableFrom(type))
 			.Select(type => type.FullName)
 			.ToList();
 
 		nonEventHandlerTargets.Should().BeEmpty(
-			"every IIntegrationEventHandler<T> must target a type implementing IIntegrationEvent");
+			$"every {handlerInterfaceType.Name} must target a type implementing {eventBaseType.Name}");
 	}
 
 	[Theory]
@@ -75,13 +73,13 @@ public class EventConsumerRegistrationTests
 	[InlineData("MealPlan")]
 	public void AddYumneyDefaults_PassesEveryAssemblyWithHandlers(string module)
 	{
-		var handlerInterfaceType = typeof(IIntegrationEventHandler<>);
+		Type[] handlerInterfaceTypes = [typeof(IIntegrationEventHandler<>), typeof(IModuleEventHandler<>)];
 		var moduleAssemblies = new[] { $"Yumney.{module}.Application", $"Yumney.{module}.Infrastructure" }
 			.Select(name => Assembly.Load(name))
 			.ToList();
 
 		var requiredAssemblies = moduleAssemblies
-			.Where(assembly => HasIntegrationHandlers(assembly, handlerInterfaceType))
+			.Where(assembly => handlerInterfaceTypes.Any(iface => HasBusEventHandlers(assembly, iface)))
 			.Select(assembly => assembly.GetName().Name!)
 			.ToHashSet();
 
@@ -92,7 +90,7 @@ public class EventConsumerRegistrationTests
 		foreach (var required in requiredAssemblies)
 		{
 			var because = $"src/Yumney.{module}.Api/Program.cs must pass typeof(SomethingIn{required}).Assembly to AddYumneyDefaults — " +
-				$"otherwise integration event handlers in {required} will never be wired into Wolverine.";
+				$"otherwise event handlers in {required} will never be wired into Wolverine.";
 			coveredAssemblies.Should().Contain(required, because);
 		}
 	}
@@ -112,7 +110,7 @@ public class EventConsumerRegistrationTests
 		return (eventAssemblies, handlerAssemblies);
 	}
 
-	private static bool HasIntegrationHandlers(Assembly assembly, Type handlerInterfaceType) =>
+	private static bool HasBusEventHandlers(Assembly assembly, Type handlerInterfaceType) =>
 		assembly.GetTypes()
 			.SelectMany(type => type.GetInterfaces())
 			.Any(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == handlerInterfaceType);
