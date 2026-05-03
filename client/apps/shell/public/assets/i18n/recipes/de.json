@@ -54,7 +54,21 @@
       "creating": "Wird erstellt...",
       "autoTitle": "Meal Prep ({{count}} Rezepte)",
       "selectAriaLabel": "Rezept auswählen",
-      "deselectAriaLabel": "Auswahl entfernen"
+      "deselectAriaLabel": "Auswahl entfernen",
+      "preview": {
+        "title": "Einkaufsliste prüfen",
+        "subtitle": "{{count}} Rezepte ausgewählt",
+        "loading": "Rezeptdetails werden geladen...",
+        "fallbackTitle": "Rezept",
+        "recipesHeading": "Rezepte & Portionen",
+        "mergedHeading": "{{count}} zusammengeführte Zutaten",
+        "servings": "{{count}} Portionen",
+        "decreaseAriaLabel": "Portionen für {{title}} verringern",
+        "increaseAriaLabel": "Portionen für {{title}} erhöhen",
+        "confirm": "Liste erstellen",
+        "creating": "Wird erstellt...",
+        "cancel": "Abbrechen"
+      }
     }
   },
   "edit": {

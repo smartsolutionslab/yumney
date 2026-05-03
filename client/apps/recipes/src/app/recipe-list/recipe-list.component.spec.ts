@@ -137,6 +137,7 @@ describe('RecipeListComponent', () => {
   let fixture: ComponentFixture<RecipeListComponent>;
   let recipeApiMock: {
     getRecipes: ReturnType<typeof vi.fn>;
+    getRecipeById: ReturnType<typeof vi.fn>;
     toggleFavorite: ReturnType<typeof vi.fn>;
   };
   let shoppingApiMock: {
@@ -154,6 +155,7 @@ describe('RecipeListComponent', () => {
   function setupTestBed(getRecipesReturn: ReturnType<typeof vi.fn> = vi.fn()) {
     recipeApiMock = {
       getRecipes: getRecipesReturn,
+      getRecipeById: vi.fn(),
       toggleFavorite: vi.fn(),
     };
     shoppingApiMock = {
@@ -706,7 +708,7 @@ describe('RecipeListComponent', () => {
     tick();
     fixture.detectChanges();
 
-    component.onToggleMultiSelectMode();
+    component.multiSelect.toggleMode();
     fixture.detectChanges();
 
     expect(
@@ -720,9 +722,9 @@ describe('RecipeListComponent', () => {
     tick();
     fixture.detectChanges();
 
-    component.onToggleMultiSelectMode();
-    component.onToggleRecipeSelection('abc-123');
-    component.onToggleRecipeSelection('def-456');
+    component.multiSelect.toggleMode();
+    component.multiSelect.toggleSelection('abc-123');
+    component.multiSelect.toggleSelection('def-456');
     fixture.detectChanges();
 
     const fab = fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-fab"]');
@@ -735,12 +737,12 @@ describe('RecipeListComponent', () => {
     fixture.detectChanges();
     tick();
 
-    component.onToggleMultiSelectMode();
-    component.onToggleRecipeSelection('abc-123');
-    expect(component.selectedRecipeIds().has('abc-123')).toBe(true);
+    component.multiSelect.toggleMode();
+    component.multiSelect.toggleSelection('abc-123');
+    expect(component.multiSelect.selectedRecipeIds().has('abc-123')).toBe(true);
 
-    component.onToggleRecipeSelection('abc-123');
-    expect(component.selectedRecipeIds().has('abc-123')).toBe(false);
+    component.multiSelect.toggleSelection('abc-123');
+    expect(component.multiSelect.selectedRecipeIds().has('abc-123')).toBe(false);
   }));
 
   it('should clear selection when leaving multi-select mode', fakeAsync(() => {
@@ -748,60 +750,105 @@ describe('RecipeListComponent', () => {
     fixture.detectChanges();
     tick();
 
-    component.onToggleMultiSelectMode();
-    component.onToggleRecipeSelection('abc-123');
-    expect(component.selectedRecipeIds().size).toBe(1);
+    component.multiSelect.toggleMode();
+    component.multiSelect.toggleSelection('abc-123');
+    expect(component.multiSelect.selectedRecipeIds().size).toBe(1);
 
-    component.onToggleMultiSelectMode();
+    component.multiSelect.toggleMode();
 
-    expect(component.multiSelectMode()).toBe(false);
-    expect(component.selectedRecipeIds().size).toBe(0);
+    expect(component.multiSelect.multiSelectMode()).toBe(false);
+    expect(component.multiSelect.selectedRecipeIds().size).toBe(0);
   }));
 
-  it('should POST selected recipes with their servings on FAB click', fakeAsync(() => {
+  it('should open the preview dialog and load each selected recipe', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
     fixture.detectChanges();
     tick();
 
-    shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(
-      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
+    recipeApiMock.getRecipeById.mockImplementation((identifier: string) =>
+      of({
+        identifier,
+        title: identifier === 'abc-123' ? 'Pasta' : 'Salad',
+        servings: identifier === 'abc-123' ? 4 : 2,
+        ingredients: [{ name: 'Flour', amount: 200, unit: 'g' }],
+      }),
     );
 
-    component.onToggleMultiSelectMode();
-    component.onToggleRecipeSelection('abc-123');
-    component.onToggleRecipeSelection('def-456');
-    component.onCreateMultiShoppingList();
+    component.multiSelect.toggleMode();
+    component.multiSelect.toggleSelection('abc-123');
+    component.multiSelect.toggleSelection('def-456');
+    component.multiSelect.openPreview();
     tick();
 
-    expect(shoppingApiMock.createShoppingListFromRecipes).toHaveBeenCalledTimes(1);
-    const payload = shoppingApiMock.createShoppingListFromRecipes.mock.calls[0][0];
-    expect(payload.title).toBe('Meal Prep (2 recipes)');
-    expect(payload.recipes).toEqual([
-      { recipeIdentifier: 'abc-123', servings: 4 },
-      { recipeIdentifier: 'def-456', servings: 2 },
-    ]);
+    expect(component.multiSelect.showPreviewDialog()).toBe(true);
+    expect(recipeApiMock.getRecipeById).toHaveBeenCalledTimes(2);
+    expect(component.multiSelect.previewSelections()).toHaveLength(2);
+    expect(component.multiSelect.previewSelections()[0].desiredServings).toBe(4);
+    expect(component.multiSelect.previewSelections()[1].desiredServings).toBe(2);
+    expect(shoppingApiMock.createShoppingListFromRecipes).not.toHaveBeenCalled();
   }));
 
-  it('should navigate to the new list and exit multi-select mode on success', fakeAsync(() => {
+  it('should POST adjusted servings and navigate when the preview is confirmed', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
     fixture.detectChanges();
     tick();
 
+    recipeApiMock.getRecipeById.mockImplementation((identifier: string) =>
+      of({
+        identifier,
+        title: 'Pasta',
+        servings: 4,
+        ingredients: [{ name: 'Flour', amount: 200, unit: 'g' }],
+      }),
+    );
     shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(
       of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
     );
     const router = TestBed.inject(Router);
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
-    component.onToggleMultiSelectMode();
-    component.onToggleRecipeSelection('abc-123');
-    component.onCreateMultiShoppingList();
+    component.multiSelect.toggleMode();
+    component.multiSelect.toggleSelection('abc-123');
+    component.multiSelect.openPreview();
+    tick();
+    component.multiSelect.changeServings('abc-123', 6);
+    component.multiSelect.confirmPreview();
     tick();
 
+    expect(shoppingApiMock.createShoppingListFromRecipes).toHaveBeenCalledTimes(1);
+    const payload = shoppingApiMock.createShoppingListFromRecipes.mock.calls[0][0];
+    expect(payload.title).toBe('Meal Prep (1 recipes)');
+    expect(payload.recipes).toEqual([{ recipeIdentifier: 'abc-123', servings: 6 }]);
     expect(navigateSpy).toHaveBeenCalledWith('/shopping/lists/list-1');
-    expect(component.multiSelectMode()).toBe(false);
-    expect(component.selectedRecipeIds().size).toBe(0);
+    expect(component.multiSelect.showPreviewDialog()).toBe(false);
+    expect(component.multiSelect.multiSelectMode()).toBe(false);
     navigateSpy.mockRestore();
+  }));
+
+  it('should close the preview without posting when cancelled', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    recipeApiMock.getRecipeById.mockReturnValue(
+      of({
+        identifier: 'abc-123',
+        title: 'Pasta',
+        servings: 4,
+        ingredients: [],
+      }),
+    );
+
+    component.multiSelect.toggleMode();
+    component.multiSelect.toggleSelection('abc-123');
+    component.multiSelect.openPreview();
+    tick();
+    component.multiSelect.cancelPreview();
+
+    expect(component.multiSelect.showPreviewDialog()).toBe(false);
+    expect(component.multiSelect.multiSelectMode()).toBe(true);
+    expect(component.multiSelect.selectedRecipeIds().has('abc-123')).toBe(true);
+    expect(shoppingApiMock.createShoppingListFromRecipes).not.toHaveBeenCalled();
   }));
 
   it('should not call the API when no recipes are selected', fakeAsync(() => {
@@ -809,8 +856,8 @@ describe('RecipeListComponent', () => {
     fixture.detectChanges();
     tick();
 
-    component.onToggleMultiSelectMode();
-    component.onCreateMultiShoppingList();
+    component.multiSelect.toggleMode();
+    component.multiSelect.openPreview();
     tick();
 
     expect(shoppingApiMock.createShoppingListFromRecipes).not.toHaveBeenCalled();
@@ -821,19 +868,47 @@ describe('RecipeListComponent', () => {
     fixture.detectChanges();
     tick();
 
+    recipeApiMock.getRecipeById.mockReturnValue(
+      of({
+        identifier: 'abc-123',
+        title: 'Pasta',
+        servings: 4,
+        ingredients: [],
+      }),
+    );
     shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(
       throwError(() => ({ status: 500 })),
     );
 
-    component.onToggleMultiSelectMode();
-    component.onToggleRecipeSelection('abc-123');
-    component.onCreateMultiShoppingList();
+    component.multiSelect.toggleMode();
+    component.multiSelect.toggleSelection('abc-123');
+    component.multiSelect.openPreview();
+    tick();
+    component.multiSelect.confirmPreview();
     tick();
     fixture.detectChanges();
 
     expect(component.serverError()).toBeTruthy();
-    expect(component.multiSelectMode()).toBe(true);
-    expect(component.selectedRecipeIds().has('abc-123')).toBe(true);
+    expect(component.multiSelect.multiSelectMode()).toBe(true);
+    expect(component.multiSelect.selectedRecipeIds().has('abc-123')).toBe(true);
+  }));
+
+  it('should surface a server error if the recipe detail fetch fails', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    recipeApiMock.getRecipeById.mockReturnValue(throwError(() => ({ status: 500 })));
+
+    component.multiSelect.toggleMode();
+    component.multiSelect.toggleSelection('abc-123');
+    component.multiSelect.openPreview();
+    tick();
+    fixture.detectChanges();
+
+    expect(component.multiSelect.showPreviewDialog()).toBe(false);
+    expect(component.serverError()).toBeTruthy();
+    expect(shoppingApiMock.createShoppingListFromRecipes).not.toHaveBeenCalled();
   }));
 
   it('should clear the selection when search/sort/filter triggers a reload', fakeAsync(() => {
@@ -841,16 +916,16 @@ describe('RecipeListComponent', () => {
     fixture.detectChanges();
     tick();
 
-    component.onToggleMultiSelectMode();
-    component.onToggleRecipeSelection('abc-123');
-    component.onToggleRecipeSelection('def-456');
-    expect(component.selectedRecipeIds().size).toBe(2);
+    component.multiSelect.toggleMode();
+    component.multiSelect.toggleSelection('abc-123');
+    component.multiSelect.toggleSelection('def-456');
+    expect(component.multiSelect.selectedRecipeIds().size).toBe(2);
 
     component.onSortSelect('name-asc');
     tick();
 
-    expect(component.selectedRecipeIds().size).toBe(0);
-    expect(component.multiSelectMode()).toBe(true);
+    expect(component.multiSelect.selectedRecipeIds().size).toBe(0);
+    expect(component.multiSelect.multiSelectMode()).toBe(true);
   }));
 
   it('should hide the multi-select toggle while in assign mode', fakeAsync(() => {

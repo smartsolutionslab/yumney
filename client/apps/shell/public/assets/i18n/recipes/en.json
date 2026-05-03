@@ -54,7 +54,21 @@
       "creating": "Creating...",
       "autoTitle": "Meal Prep ({{count}} recipes)",
       "selectAriaLabel": "Select recipe",
-      "deselectAriaLabel": "Deselect recipe"
+      "deselectAriaLabel": "Deselect recipe",
+      "preview": {
+        "title": "Review shopping list",
+        "subtitle": "{{count}} recipes selected",
+        "loading": "Loading recipe details...",
+        "fallbackTitle": "Recipe",
+        "recipesHeading": "Recipes & servings",
+        "mergedHeading": "{{count}} merged ingredients",
+        "servings": "{{count}} servings",
+        "decreaseAriaLabel": "Decrease servings for {{title}}",
+        "increaseAriaLabel": "Increase servings for {{title}}",
+        "confirm": "Create list",
+        "creating": "Creating...",
+        "cancel": "Cancel"
+      }
     }
   },
   "edit": {
