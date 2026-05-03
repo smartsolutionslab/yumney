@@ -815,4 +815,59 @@ describe('RecipeListComponent', () => {
 
     expect(shoppingApiMock.createShoppingListFromRecipes).not.toHaveBeenCalled();
   }));
+
+  it('should surface a server error when the from-recipes API fails', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(
+      throwError(() => ({ status: 500 })),
+    );
+
+    component.onToggleMultiSelectMode();
+    component.onToggleRecipeSelection('abc-123');
+    component.onCreateMultiShoppingList();
+    tick();
+    fixture.detectChanges();
+
+    expect(component.serverError()).toBeTruthy();
+    expect(component.multiSelectMode()).toBe(true);
+    expect(component.selectedRecipeIds().has('abc-123')).toBe(true);
+  }));
+
+  it('should clear the selection when search/sort/filter triggers a reload', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.onToggleMultiSelectMode();
+    component.onToggleRecipeSelection('abc-123');
+    component.onToggleRecipeSelection('def-456');
+    expect(component.selectedRecipeIds().size).toBe(2);
+
+    component.onSortSelect('name-asc');
+    tick();
+
+    expect(component.selectedRecipeIds().size).toBe(0);
+    expect(component.multiSelectMode()).toBe(true);
+  }));
+
+  it('should hide the multi-select toggle while in assign mode', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-toggle"]'),
+    ).toBeTruthy();
+
+    component['assignment'].assignTo.set('2026-W18-monday');
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-toggle"]'),
+    ).toBeNull();
+  }));
 });

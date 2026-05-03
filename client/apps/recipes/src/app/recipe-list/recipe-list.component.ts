@@ -87,7 +87,9 @@ export class RecipeListComponent implements OnInit {
   sortBy = signal<'Name' | 'Date'>('Date');
   sortDirection = signal<'Ascending' | 'Descending'>('Descending');
   isLoading = this.asyncState.isLoading;
-  serverError = this.asyncState.serverError;
+  serverError = computed(
+    () => this.createShoppingListState.serverError() ?? this.asyncState.serverError(),
+  );
   isCreatingMultiShoppingList = this.createShoppingListState.isLoading;
   searchQuery = signal('');
   activeSearch = signal('');
@@ -240,6 +242,9 @@ export class RecipeListComponent implements OnInit {
     this.currentPage.set(1);
     this.recipes.set([]);
     this.totalCount.set(0);
+    if (this.selectedRecipeIds().size > 0) {
+      this.selectedRecipeIds.set(new Set<string>());
+    }
     this.loadRecipes(false);
   }
 
