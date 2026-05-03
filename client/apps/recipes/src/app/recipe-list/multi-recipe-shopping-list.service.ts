@@ -1,5 +1,5 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 import { forkJoin, of } from 'rxjs';
 import { createAsyncState, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
@@ -13,6 +13,7 @@ export class MultiRecipeShoppingListService {
   private recipeApi = inject(RecipeApiService);
   private shoppingApi = inject(ShoppingApiService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private transloco = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
   private previewLoadState = createAsyncState(this.destroyRef);
@@ -31,6 +32,24 @@ export class MultiRecipeShoppingListService {
 
   isSelected(identifier: string): boolean {
     return this.selectedRecipeIds().has(identifier);
+  }
+
+  initFromRoute(): void {
+    const params = this.route.snapshot.queryParamMap;
+    if (params.get('multiSelect') !== 'true') return;
+
+    this.multiSelectMode.set(true);
+
+    const preselect = params.get('preselect');
+    if (!preselect) return;
+
+    const ids = preselect
+      .split(',')
+      .map((id) => id.trim())
+      .filter((id) => id.length > 0);
+    if (ids.length > 0) {
+      this.selectedRecipeIds.set(new Set(ids));
+    }
   }
 
   toggleMode(): void {

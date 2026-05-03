@@ -129,9 +129,16 @@ export class DashboardComponent implements OnInit {
   onQuickAction(actionKey: string): void {
     if (actionKey === 'cook_now') {
       this.router.navigate([ROUTES.recipes.list]);
-    } else {
-      this.importSectionExpanded.set(true);
+      return;
     }
+    if (actionKey === 'meal_prep') {
+      const ids = (this.suggestions()?.suggestions ?? []).map((item) => item.recipeIdentifier);
+      const queryParams: Record<string, string> = { multiSelect: 'true' };
+      if (ids.length > 0) queryParams['preselect'] = ids.join(',');
+      this.router.navigate([ROUTES.recipes.list], { queryParams });
+      return;
+    }
+    this.importSectionExpanded.set(true);
   }
 
   onUrlExtracted(payload: { recipe: ImportRecipeResponse; sourceUrl: string }): void {
