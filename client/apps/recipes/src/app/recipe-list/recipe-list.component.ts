@@ -135,6 +135,7 @@ export class RecipeListComponent implements OnInit {
 
   ngOnInit(): void {
     this.assignment.initFromRoute();
+    this.multiSelect.initFromRoute();
     this.loadRecipes(false);
 
     this.searchSubject

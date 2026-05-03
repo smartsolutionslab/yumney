@@ -496,6 +496,43 @@ describe('DashboardComponent', () => {
     const btn = fixture.nativeElement.querySelector('.create-btn');
     expect(btn.disabled).toBe(true);
   });
+
+  it('should navigate to /recipes on cook_now quick action', () => {
+    component.onQuickAction('cook_now');
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes']);
+  });
+
+  it('should navigate to /recipes with multiSelect on meal_prep quick action', () => {
+    component.onQuickAction('meal_prep');
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes'], {
+      queryParams: { multiSelect: 'true' },
+    });
+  });
+
+  it('should preselect suggested recipe ids when meal_prep fires with suggestions', () => {
+    component.suggestions.set({
+      suggestions: [
+        { recipeIdentifier: 'abc', title: 'A', imageUrl: null, prepTimeMinutes: null, reason: '' },
+        { recipeIdentifier: 'def', title: 'B', imageUrl: null, prepTimeMinutes: null, reason: '' },
+      ],
+      quickActions: ['meal_prep'],
+    });
+
+    component.onQuickAction('meal_prep');
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes'], {
+      queryParams: { multiSelect: 'true', preselect: 'abc,def' },
+    });
+  });
+
+  it('should expand the import section for any other quick action', () => {
+    component.onQuickAction('try_something_new');
+
+    expect(component.importSectionExpanded()).toBe(true);
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+  });
 });
 
 describe('DashboardComponent – Share Intent', () => {
