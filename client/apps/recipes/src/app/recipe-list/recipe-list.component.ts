@@ -12,9 +12,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { RecipeApiService, RecipeListItem, GetRecipesParams } from '../api';
+import { RecipeApiService, RecipeListItem, GetRecipesParams, ShoppingApiService } from '../api';
 import {
   createAsyncState,
   ERROR_MAPS,
@@ -22,7 +22,7 @@ import {
   UI,
   toggleFavoriteInList,
 } from '@yumney/shared/models';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   EMPTY_FILTER,
   FilterPanelComponent,
@@ -67,8 +67,12 @@ export class RecipeListComponent implements OnInit {
   ];
 
   private recipeApi = inject(RecipeApiService);
+  private shoppingApi = inject(ShoppingApiService);
+  private router = inject(Router);
+  private transloco = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
   private asyncState = createAsyncState(this.destroyRef);
+  private createShoppingListState = createAsyncState(this.destroyRef);
   private searchSubject = new Subject<string>();
   private loadRequestId = 0;
   private previousCardCount = 0;
@@ -84,11 +88,18 @@ export class RecipeListComponent implements OnInit {
   sortDirection = signal<'Ascending' | 'Descending'>('Descending');
   isLoading = this.asyncState.isLoading;
   serverError = this.asyncState.serverError;
+  isCreatingMultiShoppingList = this.createShoppingListState.isLoading;
   searchQuery = signal('');
   activeSearch = signal('');
   filter = signal<RecipeFilterValue>({ ...EMPTY_FILTER });
   filterPanelOpen = signal(false);
   availableTags = signal<string[]>([]);
+  multiSelectMode = signal(false);
+  selectedRecipeIds = signal<ReadonlySet<string>>(new Set<string>());
+
+  selectedCount = computed(() => this.selectedRecipeIds().size);
+  hasSelection = computed(() => this.selectedCount() > 0);
+  isRecipeSelected = (identifier: string): boolean => this.selectedRecipeIds().has(identifier);
 
   hasMore = computed(() => this.recipes().length < this.totalCount());
 
@@ -179,6 +190,50 @@ export class RecipeListComponent implements OnInit {
   onFilterChange(value: RecipeFilterValue): void {
     this.filter.set(value);
     this.resetAndReload();
+  }
+
+  onToggleMultiSelectMode(): void {
+    const next = !this.multiSelectMode();
+    this.multiSelectMode.set(next);
+    if (!next) {
+      this.selectedRecipeIds.set(new Set<string>());
+    }
+  }
+
+  onToggleRecipeSelection(identifier: string): void {
+    const next = new Set(this.selectedRecipeIds());
+    if (next.has(identifier)) {
+      next.delete(identifier);
+    } else {
+      next.add(identifier);
+    }
+    this.selectedRecipeIds.set(next);
+  }
+
+  onCreateMultiShoppingList(): void {
+    if (!this.hasSelection()) return;
+
+    const ids = [...this.selectedRecipeIds()];
+    const recipesByIdentifier = new Map(
+      this.recipes().map((recipe) => [recipe.identifier, recipe]),
+    );
+    const title = this.transloco.translate('recipes.list.multiSelect.autoTitle', {
+      count: ids.length,
+    });
+    const recipes = ids.map((identifier) => ({
+      recipeIdentifier: identifier,
+      servings: recipesByIdentifier.get(identifier)?.servings ?? null,
+    }));
+
+    this.createShoppingListState.execute(
+      this.shoppingApi.createShoppingListFromRecipes({ title, recipes }),
+      ERROR_MAPS.recipes.createShoppingList,
+      (created) => {
+        this.multiSelectMode.set(false);
+        this.selectedRecipeIds.set(new Set<string>());
+        this.router.navigateByUrl(ROUTES.shopping.detail(created.identifier));
+      },
+    );
   }
 
   private resetAndReload(): void {

@@ -31,6 +31,7 @@ export type {
 export { ShoppingApiService } from './lib/shopping-api.service';
 export type { CreateShoppingListItem } from './lib/create-shopping-list-item';
 export type { CreateShoppingListRequest } from './lib/create-shopping-list-request';
+export type { CreateShoppingListFromRecipesRequest } from './lib/create-shopping-list-from-recipes-request';
 export type { ShoppingListItemResponse } from './lib/shopping-list-item-response';
 export type { ShoppingListDetail } from './lib/shopping-list-detail';
 export type {

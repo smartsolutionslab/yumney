@@ -46,6 +46,15 @@
     },
     "errors": {
       "generic": "Failed to load recipes. Please try again later."
+    },
+    "multiSelect": {
+      "enter": "Select multiple",
+      "exit": "Cancel selection",
+      "fab": "Create shopping list ({{count}} recipes)",
+      "creating": "Creating...",
+      "autoTitle": "Meal Prep ({{count}} recipes)",
+      "selectAriaLabel": "Select recipe",
+      "deselectAriaLabel": "Deselect recipe"
     }
   },
   "edit": {

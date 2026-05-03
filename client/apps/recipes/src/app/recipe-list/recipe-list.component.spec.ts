@@ -3,8 +3,14 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { RecipeListComponent } from './recipe-list.component';
-import { RecipeApiService, RecipeListResponse } from '../api';
+import {
+  RecipeApiService,
+  RecipeListResponse,
+  ShoppingApiService,
+  ShoppingListDetail,
+} from '../api';
 import { setupTranslocoTesting } from '@yumney/shared/models';
+import { Router } from '@angular/router';
 
 vi.mock('@yumney/ui', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@yumney/ui')>();
@@ -113,6 +119,15 @@ const en = {
       errors: {
         generic: 'Failed to load recipes. Please try again later.',
       },
+      multiSelect: {
+        enter: 'Select multiple',
+        exit: 'Cancel selection',
+        fab: 'Create shopping list ({{count}} recipes)',
+        creating: 'Creating...',
+        autoTitle: 'Meal Prep ({{count}} recipes)',
+        selectAriaLabel: 'Select recipe',
+        deselectAriaLabel: 'Deselect recipe',
+      },
     },
   },
 };
@@ -123,6 +138,9 @@ describe('RecipeListComponent', () => {
   let recipeApiMock: {
     getRecipes: ReturnType<typeof vi.fn>;
     toggleFavorite: ReturnType<typeof vi.fn>;
+  };
+  let shoppingApiMock: {
+    createShoppingListFromRecipes: ReturnType<typeof vi.fn>;
   };
 
   beforeAll(() => {
@@ -138,6 +156,9 @@ describe('RecipeListComponent', () => {
       getRecipes: getRecipesReturn,
       toggleFavorite: vi.fn(),
     };
+    shoppingApiMock = {
+      createShoppingListFromRecipes: vi.fn(),
+    };
 
     TestBed.configureTestingModule({
       imports: [RecipeListComponent, setupTranslocoTesting(en)],
@@ -145,6 +166,7 @@ describe('RecipeListComponent', () => {
         provideYumneyIcons(),
         provideRouter([]),
         { provide: RecipeApiService, useValue: recipeApiMock },
+        { provide: ShoppingApiService, useValue: shoppingApiMock },
       ],
     });
 
@@ -676,5 +698,121 @@ describe('RecipeListComponent', () => {
     expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
       expect.objectContaining({ favorites: true }),
     );
+  }));
+
+  it('should not show the FAB until recipes are selected', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    component.onToggleMultiSelectMode();
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-fab"]'),
+    ).toBeNull();
+  }));
+
+  it('should show the FAB with the selection count once a recipe is selected', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    component.onToggleMultiSelectMode();
+    component.onToggleRecipeSelection('abc-123');
+    component.onToggleRecipeSelection('def-456');
+    fixture.detectChanges();
+
+    const fab = fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-fab"]');
+    expect(fab).toBeTruthy();
+    expect(fab.textContent).toContain('Create shopping list (2 recipes)');
+  }));
+
+  it('should toggle selection on/off for the same identifier', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.onToggleMultiSelectMode();
+    component.onToggleRecipeSelection('abc-123');
+    expect(component.selectedRecipeIds().has('abc-123')).toBe(true);
+
+    component.onToggleRecipeSelection('abc-123');
+    expect(component.selectedRecipeIds().has('abc-123')).toBe(false);
+  }));
+
+  it('should clear selection when leaving multi-select mode', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.onToggleMultiSelectMode();
+    component.onToggleRecipeSelection('abc-123');
+    expect(component.selectedRecipeIds().size).toBe(1);
+
+    component.onToggleMultiSelectMode();
+
+    expect(component.multiSelectMode()).toBe(false);
+    expect(component.selectedRecipeIds().size).toBe(0);
+  }));
+
+  it('should POST selected recipes with their servings on FAB click', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(
+      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
+    );
+
+    component.onToggleMultiSelectMode();
+    component.onToggleRecipeSelection('abc-123');
+    component.onToggleRecipeSelection('def-456');
+    component.onCreateMultiShoppingList();
+    tick();
+
+    expect(shoppingApiMock.createShoppingListFromRecipes).toHaveBeenCalledTimes(1);
+    const payload = shoppingApiMock.createShoppingListFromRecipes.mock.calls[0][0];
+    expect(payload.title).toBe('Meal Prep (2 recipes)');
+    expect(payload.recipes).toEqual([
+      { recipeIdentifier: 'abc-123', servings: 4 },
+      { recipeIdentifier: 'def-456', servings: 2 },
+    ]);
+  }));
+
+  it('should navigate to the new list and exit multi-select mode on success', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(
+      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
+    );
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    component.onToggleMultiSelectMode();
+    component.onToggleRecipeSelection('abc-123');
+    component.onCreateMultiShoppingList();
+    tick();
+
+    expect(navigateSpy).toHaveBeenCalledWith('/shopping/lists/list-1');
+    expect(component.multiSelectMode()).toBe(false);
+    expect(component.selectedRecipeIds().size).toBe(0);
+    navigateSpy.mockRestore();
+  }));
+
+  it('should not call the API when no recipes are selected', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.onToggleMultiSelectMode();
+    component.onCreateMultiShoppingList();
+    tick();
+
+    expect(shoppingApiMock.createShoppingListFromRecipes).not.toHaveBeenCalled();
   }));
 });

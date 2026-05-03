@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
   },
   shoppingLists: {
     base: `${API_BASE}/shopping-lists`,
+    fromRecipes: `${API_BASE}/shopping-lists/from-recipes`,
     byIdentifier: (identifier: string) => `${API_BASE}/shopping-lists/${identifier}`,
     checkItem: (listIdentifier: string, itemIdentifier: string) =>
       `${API_BASE}/shopping-lists/${listIdentifier}/items/${itemIdentifier}/check`,
