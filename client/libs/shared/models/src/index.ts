@@ -5,6 +5,11 @@ export { type PaginationParams } from './lib/pagination-params';
 export { urlValidator, passwordsMatchValidator } from './lib/validators';
 export { VALIDATION } from './lib/validation-constants';
 export { scaleIngredients, type ScalableIngredient } from './lib/scale-ingredients';
+export {
+  mergeRecipeIngredients,
+  type RecipeForMerge,
+  type MergedIngredient,
+} from './lib/merge-recipe-ingredients';
 export { UI } from './lib/ui-constants';
 export { createAsyncState, type AsyncState } from './lib/async-state';
 export { ensureFormValid } from './lib/form-helpers';

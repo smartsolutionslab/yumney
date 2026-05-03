@@ -18,7 +18,8 @@ public sealed class HttpIngredientBalanceProvider(IHttpClientFactory httpClientF
 	public async Task<IReadOnlyDictionary<string, Freshness>> GetAvailableIngredientsAsync(CancellationToken cancellationToken = default)
 	{
 		var client = httpClientFactory.CreateClient("shopping-api");
-		var dto = await client.GetFromJsonAsync<BalanceDto>("/api/v1/shopping-lists/balance", jsonOptions, cancellationToken);
+		var url = "/api/v1/shopping-lists/balance";
+		var dto = await client.GetFromJsonAsync<BalanceDto>(url, jsonOptions, cancellationToken);
 
 		var result = new Dictionary<string, Freshness>(StringComparer.OrdinalIgnoreCase);
 		if (dto?.Items is null) return result;

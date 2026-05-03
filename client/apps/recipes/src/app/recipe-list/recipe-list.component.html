@@ -60,11 +60,11 @@
         type="button"
         class="filter-toggle"
         data-testid="recipe-list-multi-select-toggle"
-        [attr.aria-pressed]="multiSelectMode()"
-        (click)="onToggleMultiSelectMode()"
+        [attr.aria-pressed]="multiSelect.multiSelectMode()"
+        (click)="multiSelect.toggleMode()"
       >
         {{
-          multiSelectMode()
+          multiSelect.multiSelectMode()
             ? t('recipes.list.multiSelect.exit')
             : t('recipes.list.multiSelect.enter')
         }}
@@ -109,30 +109,39 @@
           #recipeCard
           [recipe]="recipe"
           [assignMode]="assignment.assignMode()"
-          [multiSelectMode]="multiSelectMode()"
-          [selected]="isRecipeSelected(recipe.identifier)"
+          [multiSelectMode]="multiSelect.multiSelectMode()"
+          [selected]="multiSelect.isSelected(recipe.identifier)"
           (toggleFavorite)="onToggleFavorite($event)"
           (assign)="assignment.assign($event)"
-          (toggleSelect)="onToggleRecipeSelection($event)"
+          (toggleSelect)="multiSelect.toggleSelection($event)"
         />
       }
     </div>
   }
 
-  @if (multiSelectMode() && hasSelection()) {
+  @if (
+    multiSelect.multiSelectMode() && multiSelect.hasSelection() && !multiSelect.showPreviewDialog()
+  ) {
     <button
       type="button"
       class="multi-select-fab"
       data-testid="recipe-list-multi-select-fab"
-      [disabled]="isCreatingMultiShoppingList()"
-      (click)="onCreateMultiShoppingList()"
+      [disabled]="multiSelect.isCreating()"
+      (click)="multiSelect.openPreview()"
     >
-      @if (isCreatingMultiShoppingList()) {
-        {{ t('recipes.list.multiSelect.creating') }}
-      } @else {
-        {{ t('recipes.list.multiSelect.fab', { count: selectedCount() }) }}
-      }
+      {{ t('recipes.list.multiSelect.fab', { count: multiSelect.selectedCount() }) }}
     </button>
+  }
+
+  @if (multiSelect.showPreviewDialog()) {
+    <yn-multi-recipe-preview-dialog
+      [recipes]="multiSelect.previewSelections()"
+      [isLoading]="multiSelect.isLoadingPreview()"
+      [isCreating]="multiSelect.isCreating()"
+      (servingsChanged)="multiSelect.changeServings($event.identifier, $event.servings)"
+      (confirmed)="multiSelect.confirmPreview()"
+      (cancelled)="multiSelect.cancelPreview()"
+    />
   }
 
   <div
