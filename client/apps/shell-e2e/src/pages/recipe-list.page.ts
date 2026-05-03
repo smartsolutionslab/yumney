@@ -23,7 +23,7 @@ export class RecipeListPage {
     this.ctaButton = page.locator('.cta-button');
     this.errorBanner = page.locator('[role="alert"]');
     this.loading = page.locator('.loading');
-    this.filterToggle = page.locator('.filter-toggle');
+    this.filterToggle = page.locator('[data-testid="recipe-list-filter-toggle"]');
     this.favoritesFilterChip = page.locator('yn-filter-panel .filter-chip', {
       hasText: /show only favorites|nur favoriten/i,
     });
