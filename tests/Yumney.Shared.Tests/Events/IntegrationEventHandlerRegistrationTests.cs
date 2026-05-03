@@ -67,6 +67,20 @@ public class IntegrationEventHandlerRegistrationTests
 		var handler = scope.ServiceProvider.GetRequiredService<IIntegrationEventHandler<ThirdEvent>>();
 		handler.Should().BeOfType<SingleEventConsumer>();
 	}
+
+	[Fact]
+	public void AddIntegrationEventHandlersFromAssemblyContaining_RegistersModuleEventHandler()
+	{
+		ServiceCollection services = [];
+
+		services.AddIntegrationEventHandlersFromAssemblyContaining<TestModuleEventConsumer>();
+
+		using var provider = services.BuildServiceProvider();
+		using var scope = provider.CreateScope();
+
+		var handler = scope.ServiceProvider.GetRequiredService<IModuleEventHandler<TestModuleEvent>>();
+		handler.Should().BeOfType<TestModuleEventConsumer>();
+	}
 }
 
 public sealed record FirstEvent : IntegrationEvent;
@@ -74,6 +88,8 @@ public sealed record FirstEvent : IntegrationEvent;
 public sealed record SecondEvent : IntegrationEvent;
 
 public sealed record ThirdEvent : IntegrationEvent;
+
+public sealed record TestModuleEvent(string OwnerId) : ModuleEvent(OwnerId);
 
 public sealed class MultiEventConsumer
 	: IIntegrationEventHandler<FirstEvent>, IIntegrationEventHandler<SecondEvent>
@@ -86,4 +102,9 @@ public sealed class MultiEventConsumer
 public sealed class SingleEventConsumer : IIntegrationEventHandler<ThirdEvent>
 {
 	public Task HandleAsync(ThirdEvent @event, CancellationToken cancellationToken = default) => Task.CompletedTask;
+}
+
+public sealed class TestModuleEventConsumer : IModuleEventHandler<TestModuleEvent>
+{
+	public Task HandleAsync(TestModuleEvent @event, CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

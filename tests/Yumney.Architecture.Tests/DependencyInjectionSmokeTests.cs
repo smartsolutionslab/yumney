@@ -16,7 +16,8 @@ namespace SmartSolutionsLab.Yumney.Architecture.Tests;
 /// <summary>
 /// Locks in the auto-discovered DI registrations behind the Phase 2 helpers.
 /// For each module, builds the same DI graph the real Program.cs assembles
-/// (minus Aspire/Keycloak), then asserts that every <c>IIntegrationEventHandler&lt;T&gt;</c>
+/// (minus Aspire/Keycloak), then asserts that every
+/// <c>IIntegrationEventHandler&lt;T&gt;</c> and <c>IModuleEventHandler&lt;T&gt;</c>
 /// implementation discoverable in {Module}.Application + {Module}.Infrastructure
 /// is resolvable as each of the interfaces it implements.
 /// Catches the case where the assembly-scanner type-arg drifts away from the
@@ -59,7 +60,7 @@ public class DependencyInjectionSmokeTests
 
 	private static void AssertEveryHandlerInterfaceIsRegistered(IServiceCollection services, IReadOnlyList<string> assemblyNames)
 	{
-		var openHandler = typeof(IIntegrationEventHandler<>);
+		Type[] openHandlers = [typeof(IIntegrationEventHandler<>), typeof(IModuleEventHandler<>)];
 		List<(Type Implementation, Type Interface)> expected = [];
 		foreach (var assemblyName in assemblyNames)
 		{
@@ -67,7 +68,7 @@ public class DependencyInjectionSmokeTests
 			expected.AddRange(assembly.GetTypes()
 				.Where(type => type is { IsAbstract: false, IsInterface: false })
 				.SelectMany(type => type.GetInterfaces()
-					.Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == openHandler)
+					.Where(iface => iface.IsGenericType && openHandlers.Contains(iface.GetGenericTypeDefinition()))
 					.Select(iface => (Implementation: type, Interface: iface))));
 		}
 

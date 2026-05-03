@@ -70,7 +70,7 @@ public class HappyPathJourneyTests(AspireFixture fixture) : IAsyncLifetime
 		// 5. Wait for the merged shopping list projection (RabbitMQ → shoppingdb read model).
 		await AssertMergedListContainsIngredientsAsync(shoppingClient);
 
-		// 6. Mark the meal as cooked — emits MealMarkedAsCookedIntegrationEvent and
+		// 6. Mark the meal as cooked — emits MealMarkedAsCookedModuleEvent and
 		// re-fetches ingredients from recipes-api (still JWT-forwarded).
 		await ConfirmMealAsCookedAsync(mealplanClient);
 

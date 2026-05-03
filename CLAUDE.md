@@ -148,10 +148,13 @@ Rules:
 
 ### Event Communication
 
-Two event types with distinct purposes:
+Three event types with distinct purposes:
 
 - **Domain Events** (`IDomainEvent` → `IDomainEventHandler<T>`) — within a module, dispatched by `IDomainEventDispatcher` after EF Core `SaveChanges`. Example: `RecipeImportedEvent` triggers side effects inside the Recipes module.
-- **Integration Events** (`IIntegrationEvent` → `IIntegrationEventHandler<T>`) — cross-module, published via `IEventBus`. Example: Recipes module publishes → Shopping module subscribes.
+- **Integration Events** (`IIntegrationEvent` → `IIntegrationEventHandler<T>`) — **cross-module** public contract, published via `IEventBus`. Live in `Yumney.Shared.Events.CrossModule`. Fields must be primitives or shared types only — never a module's Domain types. Example: Recipes publishes `RecipeDeletedIntegrationEvent` → Shopping subscribes.
+- **Module Events** (`IModuleEvent` → `IModuleEventHandler<T>`) — **in-module** bus envelope wrapping a Domain event so projection handlers can subscribe asynchronously. Live in `Yumney.{Module}.Infrastructure/Persistence/EventStore/` and named `*ModuleEvent`. They MUST NOT cross module boundaries; the wrapper exists so the read-model pipeline can ride the same bus as integration events. Example: `EfCoreShoppingEventStore` publishes `ShoppingItemConsumedModuleEvent` → `ShoppingLedgerProjectionHandler` updates the read model.
+
+Both `IIntegrationEvent` and `IModuleEvent` extend `IBusEvent`, the common tag carried by anything `IEventBus.PublishAsync(...)` accepts. Use the specialised marker on concrete types — never `IBusEvent` directly.
 
 In-process implementations (`InProcessDomainEventDispatcher`, `InProcessEventBus`) resolve handlers from DI. Register via `builder.Services.AddInProcessEventBus()` in the composition root. Swappable to RabbitMQ/MassTransit later without changing module code.
 

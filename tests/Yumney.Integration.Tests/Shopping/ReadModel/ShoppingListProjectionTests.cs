@@ -99,7 +99,7 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{
-			await new ShoppingListProjection(ctx).HandleAsync(new ListItemCheckedIntegrationEvent(
+			await new ShoppingListProjection(ctx).HandleAsync(new ListItemCheckedModuleEvent(
 				owner.Value, aggregateId, new ListItemChecked(ShoppingListItemIdentifier.From(itemId))));
 		}
 
@@ -117,7 +117,7 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{
-			await new ShoppingListProjection(ctx).HandleAsync(new AllItemsCheckedIntegrationEvent(
+			await new ShoppingListProjection(ctx).HandleAsync(new AllItemsCheckedModuleEvent(
 				owner.Value, aggregateId, new AllItemsChecked()));
 		}
 
@@ -142,12 +142,12 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{
 			var projection = new ShoppingListProjection(ctx);
-			await projection.HandleAsync(new ShoppingListCreatedIntegrationEvent(owner.Value, aggregateId, inner));
+			await projection.HandleAsync(new ShoppingListCreatedModuleEvent(owner.Value, aggregateId, inner));
 		}
 
 		await using (var ctx = await fixture.CreateShoppingDbContextAsync())
 		{
-			await new ShoppingListProjection(ctx).HandleAsync(new RecipeReferenceClearedIntegrationEvent(
+			await new ShoppingListProjection(ctx).HandleAsync(new RecipeReferenceClearedModuleEvent(
 				owner.Value, aggregateId, new RecipeReferenceCleared()));
 		}
 
@@ -174,7 +174,7 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 		rows.Should().Be(1);
 	}
 
-	private ShoppingListCreatedIntegrationEvent CreatedEvent() =>
+	private ShoppingListCreatedModuleEvent CreatedEvent() =>
 		new(owner.Value, aggregateId, new ShoppingListCreated(
 			ShoppingListIdentifier.From(aggregateId),
 			ShoppingListTitle.From("Weekly Groceries"),
@@ -182,7 +182,7 @@ public class ShoppingListProjectionTests(AspireFixture fixture) : IAsyncLifetime
 			RecipeReference: null,
 			CreatedAt: DateTime.UtcNow));
 
-	private ListItemAddedIntegrationEvent ItemAddedEvent(ShoppingListItemIdentifier itemId, string name) =>
+	private ListItemAddedModuleEvent ItemAddedEvent(ShoppingListItemIdentifier itemId, string name) =>
 		new(owner.Value, aggregateId, new ListItemAdded(
 			itemId,
 			ItemName.From(name),

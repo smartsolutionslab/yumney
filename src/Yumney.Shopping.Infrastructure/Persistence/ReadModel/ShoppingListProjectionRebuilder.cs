@@ -50,7 +50,7 @@ public sealed partial class ShoppingListProjectionRebuilder(
 				continue;
 			}
 
-			var integrationEvent = ShoppingListIntegrationEventMapper.Map(ownerId, stored.AggregateId, domainEvent);
+			var integrationEvent = ShoppingListModuleEventMapper.Map(ownerId, stored.AggregateId, domainEvent);
 			if (integrationEvent is null)
 			{
 				skippedUnknownType++;
@@ -59,25 +59,25 @@ public sealed partial class ShoppingListProjectionRebuilder(
 
 			switch (integrationEvent)
 			{
-				case ShoppingListCreatedIntegrationEvent e:
+				case ShoppingListCreatedModuleEvent e:
 					await projection.HandleAsync(e, cancellationToken);
 					break;
-				case ListItemAddedIntegrationEvent e:
+				case ListItemAddedModuleEvent e:
 					await projection.HandleAsync(e, cancellationToken);
 					break;
-				case ListItemCheckedIntegrationEvent e:
+				case ListItemCheckedModuleEvent e:
 					await projection.HandleAsync(e, cancellationToken);
 					break;
-				case ListItemUncheckedIntegrationEvent e:
+				case ListItemUncheckedModuleEvent e:
 					await projection.HandleAsync(e, cancellationToken);
 					break;
-				case AllItemsCheckedIntegrationEvent e:
+				case AllItemsCheckedModuleEvent e:
 					await projection.HandleAsync(e, cancellationToken);
 					break;
-				case AllItemsUncheckedIntegrationEvent e:
+				case AllItemsUncheckedModuleEvent e:
 					await projection.HandleAsync(e, cancellationToken);
 					break;
-				case RecipeReferenceClearedIntegrationEvent e:
+				case RecipeReferenceClearedModuleEvent e:
 					await projection.HandleAsync(e, cancellationToken);
 					break;
 				default:

@@ -104,7 +104,7 @@ public class MealConfirmedLedgerConsumptionTests(AspireFixture fixture) : IAsync
 
 		// 7. The IngredientBalance read model should reflect the consumption
 		//    across the same projection pipeline. ConsumedTotal is
-		//    incremented by ShoppingItemConsumedIntegrationEvent.
+		//    incremented by ShoppingItemConsumedModuleEvent.
 		await Eventually.AssertAsync(
 			async () =>
 			{

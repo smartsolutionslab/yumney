@@ -10,19 +10,19 @@ public static class IntegrationEventHandlerRegistration
 
 	public static IServiceCollection AddIntegrationEventHandlers(this IServiceCollection services, Assembly assembly)
 	{
-		var openHandler = typeof(IIntegrationEventHandler<>);
+		Type[] openHandlers = [typeof(IIntegrationEventHandler<>), typeof(IModuleEventHandler<>)];
 
 		var implementations = assembly.GetTypes()
 			.Where(type => type is { IsAbstract: false, IsInterface: false })
 			.Select(type => (Implementation: type, Interfaces: type.GetInterfaces()
-				.Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == openHandler)
+				.Where(iface => iface.IsGenericType && openHandlers.Contains(iface.GetGenericTypeDefinition()))
 				.ToArray()))
 			.Where(pair => pair.Interfaces.Length > 0);
 
 		// Register the concrete handler once as scoped, then point every
-		// IIntegrationEventHandler<TEvent> at that single instance per scope.
-		// Without the concrete registration, a handler that consumes N events
-		// would be instantiated N times per scope.
+		// IIntegrationEventHandler<TEvent> / IModuleEventHandler<TEvent> at that
+		// single instance per scope. Without the concrete registration, a handler
+		// that consumes N events would be instantiated N times per scope.
 		foreach (var (implementation, interfaces) in implementations)
 		{
 			services.AddScoped(implementation);

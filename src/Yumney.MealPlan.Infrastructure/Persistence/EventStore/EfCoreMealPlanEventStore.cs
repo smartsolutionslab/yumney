@@ -135,26 +135,26 @@ public sealed partial class EfCoreMealPlanEventStore(
 	{
 		foreach (var @event in events)
 		{
-			IIntegrationEvent? integrationEvent = @event switch
+			IModuleEvent? moduleEvent = @event switch
 			{
-				WeeklyPlanCreated created => new WeeklyPlanCreatedIntegrationEvent(ownerId, week, created),
-				ExtendedModeEnabled enabled => new ExtendedModeEnabledIntegrationEvent(ownerId, week, enabled),
-				ExtendedModeDisabled disabled => new ExtendedModeDisabledIntegrationEvent(ownerId, week, disabled),
-				RecipeAssigned assigned => new RecipeAssignedIntegrationEvent(ownerId, week, assigned),
-				MealSetAsFreetext freetext => new MealSetAsFreetextIntegrationEvent(ownerId, week, freetext),
-				LeftoverAssigned leftover => new LeftoverAssignedIntegrationEvent(ownerId, week, leftover),
-				MealSlotCleared cleared => new MealSlotClearedIntegrationEvent(ownerId, week, cleared),
-				ServingsAdjusted adjusted => new ServingsAdjustedIntegrationEvent(ownerId, week, adjusted),
-				MealMarkedAsCooked cooked => new MealMarkedAsCookedIntegrationEvent(ownerId, week, cooked),
-				MealMarkedAsSkipped skipped => new MealMarkedAsSkippedIntegrationEvent(ownerId, week, skipped),
-				MealResetToPlanned reset => new MealResetToPlannedIntegrationEvent(ownerId, week, reset),
-				MealSlotsSwapped swapped => new MealSlotsSwappedIntegrationEvent(ownerId, week, swapped),
+				WeeklyPlanCreated created => new WeeklyPlanCreatedModuleEvent(ownerId, week, created),
+				ExtendedModeEnabled enabled => new ExtendedModeEnabledModuleEvent(ownerId, week, enabled),
+				ExtendedModeDisabled disabled => new ExtendedModeDisabledModuleEvent(ownerId, week, disabled),
+				RecipeAssigned assigned => new RecipeAssignedModuleEvent(ownerId, week, assigned),
+				MealSetAsFreetext freetext => new MealSetAsFreetextModuleEvent(ownerId, week, freetext),
+				LeftoverAssigned leftover => new LeftoverAssignedModuleEvent(ownerId, week, leftover),
+				MealSlotCleared cleared => new MealSlotClearedModuleEvent(ownerId, week, cleared),
+				ServingsAdjusted adjusted => new ServingsAdjustedModuleEvent(ownerId, week, adjusted),
+				MealMarkedAsCooked cooked => new MealMarkedAsCookedModuleEvent(ownerId, week, cooked),
+				MealMarkedAsSkipped skipped => new MealMarkedAsSkippedModuleEvent(ownerId, week, skipped),
+				MealResetToPlanned reset => new MealResetToPlannedModuleEvent(ownerId, week, reset),
+				MealSlotsSwapped swapped => new MealSlotsSwappedModuleEvent(ownerId, week, swapped),
 				_ => null,
 			};
 
-			if (integrationEvent is not null)
+			if (moduleEvent is not null)
 			{
-				await PublishAsync(integrationEvent, cancellationToken);
+				await PublishAsync(moduleEvent, cancellationToken);
 			}
 
 			if (@event is MealMarkedAsCooked confirmed && confirmed.Recipe is not null)
@@ -173,10 +173,10 @@ public sealed partial class EfCoreMealPlanEventStore(
 		}
 	}
 
-	private async Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken)
-		where T : class, IIntegrationEvent
+	private async Task PublishAsync<T>(T busEvent, CancellationToken cancellationToken)
+		where T : class, IBusEvent
 	{
-		await eventBus.PublishAsync(integrationEvent, cancellationToken);
+		await eventBus.PublishAsync(busEvent, cancellationToken);
 	}
 
 	private static IDomainEvent? DeserializeEvent(StoredEvent stored)

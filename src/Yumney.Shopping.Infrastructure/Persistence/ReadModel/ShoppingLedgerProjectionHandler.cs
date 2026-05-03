@@ -16,14 +16,14 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 /// See PROFILING.md alongside this file for the expected query budget per event.
 /// </summary>
 public sealed class ShoppingLedgerProjectionHandler(ShoppingDbContext context)
-	: IIntegrationEventHandler<ShoppingItemAddedIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemBoughtIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemConsumedIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemRemovedIntegrationEvent>,
-	  IIntegrationEventHandler<ShoppingItemQuantityAdjustedIntegrationEvent>
+	: IModuleEventHandler<ShoppingItemAddedModuleEvent>,
+	  IModuleEventHandler<ShoppingItemBoughtModuleEvent>,
+	  IModuleEventHandler<ShoppingItemConsumedModuleEvent>,
+	  IModuleEventHandler<ShoppingItemRemovedModuleEvent>,
+	  IModuleEventHandler<ShoppingItemQuantityAdjustedModuleEvent>
 {
 	/// <inheritdoc />
-	public Task HandleAsync(ShoppingItemAddedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemAddedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 
@@ -37,7 +37,7 @@ public sealed class ShoppingLedgerProjectionHandler(ShoppingDbContext context)
 	}
 
 	/// <inheritdoc />
-	public Task HandleAsync(ShoppingItemBoughtIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemBoughtModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 
@@ -51,14 +51,14 @@ public sealed class ShoppingLedgerProjectionHandler(ShoppingDbContext context)
 	}
 
 	/// <inheritdoc />
-	public Task HandleAsync(ShoppingItemConsumedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemConsumedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		return UpdateAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, _ => { }, cancellationToken);
 	}
 
 	/// <inheritdoc />
-	public Task HandleAsync(ShoppingItemRemovedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemRemovedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 
@@ -75,7 +75,7 @@ public sealed class ShoppingLedgerProjectionHandler(ShoppingDbContext context)
 	}
 
 	/// <inheritdoc />
-	public Task HandleAsync(ShoppingItemQuantityAdjustedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemQuantityAdjustedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 

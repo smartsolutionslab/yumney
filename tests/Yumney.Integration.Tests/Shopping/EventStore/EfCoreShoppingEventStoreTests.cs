@@ -108,7 +108,7 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 	}
 
 	[Fact]
-	public async Task SaveAsync_PublishesIntegrationEventsForKnownEvents()
+	public async Task SaveAsync_PublishesModuleEventsForKnownEvents()
 	{
 		await using var context = await fixture.CreateShoppingDbContextAsync();
 		var bus = Substitute.For<IEventBus>();
@@ -119,7 +119,7 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 		await store.SaveAsync(ledger);
 
 		await bus.Received(1).PublishAsync(
-			Arg.Is<ShoppingItemAddedIntegrationEvent>(e => e.OwnerId == owner.Value),
+			Arg.Is<ShoppingItemAddedModuleEvent>(e => e.OwnerId == owner.Value),
 			Arg.Any<CancellationToken>());
 	}
 
@@ -269,7 +269,7 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 	}
 
 	[Fact]
-	public async Task SaveAsync_MultipleEventTypes_PublishesIntegrationEventForEach()
+	public async Task SaveAsync_MultipleEventTypes_PublishesModuleEventForEach()
 	{
 		var milk = ItemName.From("Milk");
 		var litre = Unit.From("l");
@@ -287,15 +287,15 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 
 		await store.SaveAsync(ledger);
 
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemAddedIntegrationEvent>(), Arg.Any<CancellationToken>());
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemBoughtIntegrationEvent>(), Arg.Any<CancellationToken>());
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemConsumedIntegrationEvent>(), Arg.Any<CancellationToken>());
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemQuantityAdjustedIntegrationEvent>(), Arg.Any<CancellationToken>());
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemRemovedIntegrationEvent>(), Arg.Any<CancellationToken>());
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemAddedModuleEvent>(), Arg.Any<CancellationToken>());
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemBoughtModuleEvent>(), Arg.Any<CancellationToken>());
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemConsumedModuleEvent>(), Arg.Any<CancellationToken>());
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemQuantityAdjustedModuleEvent>(), Arg.Any<CancellationToken>());
+		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemRemovedModuleEvent>(), Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
-	public async Task SaveAsync_UndoBought_PublishesUndoBoughtIntegrationEvent()
+	public async Task SaveAsync_UndoBought_PublishesUndoBoughtModuleEvent()
 	{
 		var milk = ItemName.From("Milk");
 		var litre = Unit.From("l");
@@ -312,12 +312,12 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 		await store.SaveAsync(ledger);
 
 		await bus.Received(1).PublishAsync(
-			Arg.Is<ShoppingItemUndoBoughtIntegrationEvent>(e => e.OwnerId == owner.Value),
+			Arg.Is<ShoppingItemUndoBoughtModuleEvent>(e => e.OwnerId == owner.Value),
 			Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
-	public async Task SaveAsync_MarkedAsFrozen_PublishesMarkedAsFrozenIntegrationEvent()
+	public async Task SaveAsync_MarkedAsFrozen_PublishesMarkedAsFrozenModuleEvent()
 	{
 		var chicken = ItemName.From("Chicken");
 		var grams = Unit.From("g");
@@ -332,13 +332,13 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 		await store.SaveAsync(ledger);
 
 		await bus.Received(1).PublishAsync(
-			Arg.Is<ShoppingItemMarkedAsFrozenIntegrationEvent>(e =>
+			Arg.Is<ShoppingItemMarkedAsFrozenModuleEvent>(e =>
 				e.OwnerId == owner.Value && e.Inner.ItemName.Value == "Chicken"),
 			Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
-	public async Task SaveAsync_AddedAsAtHome_PublishesAddedAsAtHomeIntegrationEvent()
+	public async Task SaveAsync_AddedAsAtHome_PublishesAddedAsAtHomeModuleEvent()
 	{
 		var butter = ItemName.From("Butter");
 		var grams = Unit.From("g");
@@ -352,7 +352,7 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 		await store.SaveAsync(ledger);
 
 		await bus.Received(1).PublishAsync(
-			Arg.Is<ShoppingItemAddedAsAtHomeIntegrationEvent>(e =>
+			Arg.Is<ShoppingItemAddedAsAtHomeModuleEvent>(e =>
 				e.OwnerId == owner.Value && e.Inner.ItemName.Value == "Butter"),
 			Arg.Any<CancellationToken>());
 	}

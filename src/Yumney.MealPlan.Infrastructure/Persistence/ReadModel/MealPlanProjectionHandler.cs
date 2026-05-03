@@ -11,18 +11,18 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel
 /// integration events published by the event store.
 /// </summary>
 public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
-	: IIntegrationEventHandler<WeeklyPlanCreatedIntegrationEvent>,
-	  IIntegrationEventHandler<ExtendedModeEnabledIntegrationEvent>,
-	  IIntegrationEventHandler<ExtendedModeDisabledIntegrationEvent>,
-	  IIntegrationEventHandler<RecipeAssignedIntegrationEvent>,
-	  IIntegrationEventHandler<MealSetAsFreetextIntegrationEvent>,
-	  IIntegrationEventHandler<LeftoverAssignedIntegrationEvent>,
-	  IIntegrationEventHandler<MealSlotClearedIntegrationEvent>,
-	  IIntegrationEventHandler<ServingsAdjustedIntegrationEvent>,
-	  IIntegrationEventHandler<MealMarkedAsCookedIntegrationEvent>,
-	  IIntegrationEventHandler<MealMarkedAsSkippedIntegrationEvent>,
-	  IIntegrationEventHandler<MealResetToPlannedIntegrationEvent>,
-	  IIntegrationEventHandler<MealSlotsSwappedIntegrationEvent>
+	: IModuleEventHandler<WeeklyPlanCreatedModuleEvent>,
+	  IModuleEventHandler<ExtendedModeEnabledModuleEvent>,
+	  IModuleEventHandler<ExtendedModeDisabledModuleEvent>,
+	  IModuleEventHandler<RecipeAssignedModuleEvent>,
+	  IModuleEventHandler<MealSetAsFreetextModuleEvent>,
+	  IModuleEventHandler<LeftoverAssignedModuleEvent>,
+	  IModuleEventHandler<MealSlotClearedModuleEvent>,
+	  IModuleEventHandler<ServingsAdjustedModuleEvent>,
+	  IModuleEventHandler<MealMarkedAsCookedModuleEvent>,
+	  IModuleEventHandler<MealMarkedAsSkippedModuleEvent>,
+	  IModuleEventHandler<MealResetToPlannedModuleEvent>,
+	  IModuleEventHandler<MealSlotsSwappedModuleEvent>
 {
 #pragma warning disable SA1311
 	private static readonly DayOfWeek[] allDays =
@@ -37,7 +37,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	];
 #pragma warning restore SA1311
 
-	public async Task HandleAsync(WeeklyPlanCreatedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(WeeklyPlanCreatedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var ownerId = @event.OwnerId;
 		var week = @event.Week;
@@ -64,7 +64,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		}
 	}
 
-	public async Task HandleAsync(ExtendedModeEnabledIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(ExtendedModeEnabledModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var ownerId = @event.OwnerId;
 		var week = @event.Week;
@@ -85,7 +85,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		}
 	}
 
-	public async Task HandleAsync(ExtendedModeDisabledIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(ExtendedModeDisabledModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var weekItem = await GetTrackedWeekAsync(@event.OwnerId, @event.Week, cancellationToken);
 		if (weekItem is null) return;
@@ -95,7 +95,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(RecipeAssignedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(RecipeAssignedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
@@ -116,7 +116,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(MealSetAsFreetextIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(MealSetAsFreetextModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
@@ -132,7 +132,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(LeftoverAssignedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(LeftoverAssignedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
@@ -153,7 +153,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(MealSlotClearedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(MealSlotClearedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
@@ -169,7 +169,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(ServingsAdjustedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(ServingsAdjustedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
@@ -179,7 +179,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(MealMarkedAsCookedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(MealMarkedAsCookedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
@@ -189,7 +189,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(MealMarkedAsSkippedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(MealMarkedAsSkippedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
@@ -199,7 +199,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(MealResetToPlannedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(MealResetToPlannedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
@@ -209,7 +209,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	public async Task HandleAsync(MealSlotsSwappedIntegrationEvent @event, CancellationToken cancellationToken = default)
+	public async Task HandleAsync(MealSlotsSwappedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
 		var slot1 = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day1, inner.MealType, cancellationToken);

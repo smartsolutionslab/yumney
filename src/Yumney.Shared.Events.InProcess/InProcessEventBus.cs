@@ -7,19 +7,43 @@ namespace SmartSolutionsLab.Yumney.Shared.Events;
 #pragma warning disable SA1601
 public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, ILogger<InProcessEventBus> logger) : IEventBus
 {
-	public async Task PublishAsync<TEvent>(TEvent integrationEvent, CancellationToken cancellationToken = default)
-		where TEvent : IIntegrationEvent
+	public async Task PublishAsync<TEvent>(TEvent busEvent, CancellationToken cancellationToken = default)
+		where TEvent : IBusEvent
 	{
 		// Resolve handlers by the runtime concrete type, not the compile-time
 		// generic argument. Without this, callers that publish via an
-		// `IIntegrationEvent` static type (e.g. from a `... switch { ... }`
+		// `IBusEvent` / `IIntegrationEvent` static type (e.g. from a `... switch { ... }`
 		// mapping that returns the marker interface) would inadvertently bind
 		// TEvent to the interface and miss every concrete-type subscriber.
-		var eventType = integrationEvent.GetType();
-		var handlerInterface = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
-		var handleMethod = handlerInterface.GetMethod(nameof(IIntegrationEventHandler<TEvent>.HandleAsync))!;
-		var handlers = serviceProvider.GetServices(handlerInterface);
+		var eventType = busEvent.GetType();
 		var eventName = eventType.Name;
+
+		// Cross-module integration events route to IIntegrationEventHandler<>;
+		// in-module envelopes route to IModuleEventHandler<>. The two markers
+		// are mutually exclusive on a concrete type, so at most one of these
+		// lookups returns subscribers — the other is a cheap empty enumerable.
+		if (busEvent is IIntegrationEvent)
+		{
+			await DispatchAsync(typeof(IIntegrationEventHandler<>), busEvent, eventType, eventName, cancellationToken);
+		}
+
+		if (busEvent is IModuleEvent)
+		{
+			await DispatchAsync(typeof(IModuleEventHandler<>), busEvent, eventType, eventName, cancellationToken);
+		}
+	}
+
+	private async Task DispatchAsync<TEvent>(
+		Type openHandlerInterface,
+		TEvent busEvent,
+		Type eventType,
+		string eventName,
+		CancellationToken cancellationToken)
+		where TEvent : IBusEvent
+	{
+		var handlerInterface = openHandlerInterface.MakeGenericType(eventType);
+		var handleMethod = handlerInterface.GetMethod("HandleAsync")!;
+		var handlers = serviceProvider.GetServices(handlerInterface);
 
 		foreach (var handler in handlers)
 		{
@@ -35,7 +59,7 @@ public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, 
 
 			try
 			{
-				await (Task)handleMethod.Invoke(handler, [integrationEvent, cancellationToken])!;
+				await (Task)handleMethod.Invoke(handler, [busEvent, cancellationToken])!;
 				var elapsed = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
 				activity?.SetTag("event.result", "success");
 				activity?.SetStatus(ActivityStatusCode.Ok);

@@ -123,21 +123,21 @@ public sealed partial class EfCoreShoppingEventStore(
 		foreach (var @event in events)
 		{
 			if (@event is ShoppingItemAdded added)
-				await eventBus.PublishAsync(new ShoppingItemAddedIntegrationEvent(ownerId, added), cancellationToken);
+				await eventBus.PublishAsync(new ShoppingItemAddedModuleEvent(ownerId, added), cancellationToken);
 			else if (@event is ShoppingItemBought bought)
-				await eventBus.PublishAsync(new ShoppingItemBoughtIntegrationEvent(ownerId, bought), cancellationToken);
+				await eventBus.PublishAsync(new ShoppingItemBoughtModuleEvent(ownerId, bought), cancellationToken);
 			else if (@event is ShoppingItemConsumed consumed)
-				await eventBus.PublishAsync(new ShoppingItemConsumedIntegrationEvent(ownerId, consumed), cancellationToken);
+				await eventBus.PublishAsync(new ShoppingItemConsumedModuleEvent(ownerId, consumed), cancellationToken);
 			else if (@event is ShoppingItemRemoved removed)
-				await eventBus.PublishAsync(new ShoppingItemRemovedIntegrationEvent(ownerId, removed), cancellationToken);
+				await eventBus.PublishAsync(new ShoppingItemRemovedModuleEvent(ownerId, removed), cancellationToken);
 			else if (@event is ShoppingItemQuantityAdjusted adjusted)
-				await eventBus.PublishAsync(new ShoppingItemQuantityAdjustedIntegrationEvent(ownerId, adjusted), cancellationToken);
+				await eventBus.PublishAsync(new ShoppingItemQuantityAdjustedModuleEvent(ownerId, adjusted), cancellationToken);
 			else if (@event is ShoppingItemAddedAsAtHome atHome)
-				await eventBus.PublishAsync(new ShoppingItemAddedAsAtHomeIntegrationEvent(ownerId, atHome), cancellationToken);
+				await eventBus.PublishAsync(new ShoppingItemAddedAsAtHomeModuleEvent(ownerId, atHome), cancellationToken);
 			else if (@event is ShoppingItemUndoBought undo)
-				await eventBus.PublishAsync(new ShoppingItemUndoBoughtIntegrationEvent(ownerId, undo), cancellationToken);
+				await eventBus.PublishAsync(new ShoppingItemUndoBoughtModuleEvent(ownerId, undo), cancellationToken);
 			else if (@event is ShoppingItemMarkedAsFrozen frozen)
-				await eventBus.PublishAsync(new ShoppingItemMarkedAsFrozenIntegrationEvent(ownerId, frozen), cancellationToken);
+				await eventBus.PublishAsync(new ShoppingItemMarkedAsFrozenModuleEvent(ownerId, frozen), cancellationToken);
 		}
 	}
 
