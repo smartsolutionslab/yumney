@@ -1,5 +1,7 @@
 import { test, expect } from '../fixtures/auth.fixture';
+import { CreateShoppingListDialogPage } from '../pages/create-shopping-list-dialog.page';
 import { RecipeDetailPage } from '../pages/recipe-detail.page';
+import { ShoppingDetailPage } from '../pages/shopping-detail.page';
 import { setupSharedRecipe } from '../helpers/shared-recipe';
 
 test.describe('Create shopping list from recipe (US-080)', () => {
@@ -10,6 +12,7 @@ test.describe('Create shopping list from recipe (US-080)', () => {
 
   test('opens dialog with scaled preview and auto-name', async ({ authenticatedPage }) => {
     const detail = new RecipeDetailPage(authenticatedPage);
+    const dialog = new CreateShoppingListDialogPage(authenticatedPage);
     await detail.goto(recipe().identifier);
 
     await detail.increaseServingsButton.click();
@@ -18,28 +21,22 @@ test.describe('Create shopping list from recipe (US-080)', () => {
 
     await detail.shoppingListButton.click();
 
-    const dialog = authenticatedPage.locator('[data-testid="create-shopping-list-dialog"]');
-    await expect(dialog).toBeVisible();
-
-    const suggestedTitle = dialog.locator('[data-testid="create-shopping-list-suggested-title"]');
-    await expect(suggestedTitle).toHaveText(`${recipe().title} (x6)`);
-
-    const previewItems = dialog.locator('.preview-list li');
-    await expect(previewItems).not.toHaveCount(0);
+    await expect(dialog.root).toBeVisible();
+    await expect(dialog.suggestedTitle).toHaveText(`${recipe().title} (x6)`);
+    await expect(dialog.previewItems).not.toHaveCount(0);
   });
 
   test('confirms and navigates to the new shopping list', async ({ authenticatedPage }) => {
     const detail = new RecipeDetailPage(authenticatedPage);
+    const dialog = new CreateShoppingListDialogPage(authenticatedPage);
+    const shoppingDetail = new ShoppingDetailPage(authenticatedPage);
     await detail.goto(recipe().identifier);
 
     await detail.shoppingListButton.click();
 
-    const confirmButton = authenticatedPage.locator('[data-testid="create-shopping-list-confirm"]');
-    await confirmButton.click();
+    await dialog.confirmButton.click();
 
     await expect(authenticatedPage).toHaveURL(/\/shopping\/lists\/[\w-]+/);
-    await expect(authenticatedPage.getByRole('heading', { level: 1 })).toContainText(
-      `${recipe().title} (x4)`,
-    );
+    await expect(shoppingDetail.heading).toContainText(`${recipe().title} (x4)`);
   });
 });

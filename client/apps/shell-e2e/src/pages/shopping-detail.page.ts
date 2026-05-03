@@ -1,5 +1,9 @@
 import { type Page, type Locator } from '@playwright/test';
 
+/**
+ * Single shopping list at /shopping/lists/{id}. Distinct from
+ * ShoppingMergedPage (/shopping) and ShoppingListsPage (/shopping/lists).
+ */
 export class ShoppingDetailPage {
   readonly heading: Locator;
   readonly itemCheckboxes: Locator;
@@ -9,6 +13,8 @@ export class ShoppingDetailPage {
   readonly resetButton: Locator;
   readonly progress: Locator;
   readonly backLink: Locator;
+  readonly addInput: Locator;
+  readonly exportButton: Locator;
 
   constructor(private page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -19,6 +25,8 @@ export class ShoppingDetailPage {
     this.resetButton = page.getByRole('button', { name: /reset/i });
     this.progress = page.locator('.progress-text');
     this.backLink = page.locator('.back-link');
+    this.addInput = page.locator('.add-input');
+    this.exportButton = page.getByRole('button', { name: /export/i });
   }
 
   async goto(identifier: string): Promise<void> {

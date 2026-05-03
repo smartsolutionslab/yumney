@@ -10,6 +10,8 @@ test.describe('Dashboard — Share Intent (US-124)', () => {
   });
 
   test('should auto-start import when ?url is provided', async ({ authenticatedPage }) => {
+    const dashboard = new DashboardPage(authenticatedPage);
+
     await authenticatedPage.route('**/api/v1/recipes/import/stream*', (route) =>
       route.fulfill({
         status: 200,
@@ -20,9 +22,7 @@ test.describe('Dashboard — Share Intent (US-124)', () => {
 
     await authenticatedPage.goto('/dashboard?url=https://example.com/recipe');
 
-    await expect(authenticatedPage.getByText(/fetching|extracting|loading/i)).toBeVisible({
-      timeout: 5_000,
-    });
+    await expect(dashboard.importStatusMessage).toBeVisible({ timeout: 5_000 });
   });
 
   test('should extract URL from ?text query param', async ({ authenticatedPage }) => {
@@ -37,7 +37,7 @@ test.describe('Dashboard — Share Intent (US-124)', () => {
     await dashboard.goto();
 
     await expect(dashboard.urlInput).toHaveValue('');
-    await expect(authenticatedPage.getByText(/fetching|extracting/i)).not.toBeVisible();
+    await expect(dashboard.fetchingMessage).not.toBeVisible();
   });
 
   test('should not auto-import when ?text has no URL', async ({ authenticatedPage }) => {

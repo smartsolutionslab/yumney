@@ -1,4 +1,5 @@
 import { test, expect } from '../fixtures/auth.fixture';
+import { AppShellPage } from '../pages/app-shell.page';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 /**
@@ -30,7 +31,8 @@ const PROBE_PAGES = [
 const LITERAL_KEY = /^[a-z][a-zA-Z0-9]*(\.[a-zA-Z0-9]+)+$/;
 
 async function readH1(page: import('@playwright/test').Page): Promise<string> {
-  const h1 = page.getByRole('heading', { level: 1 }).first();
+  const shell = new AppShellPage(page);
+  const h1 = shell.heading.first();
   await expect(h1).toBeVisible({ timeout: TIMEOUTS.default });
   const text = (await h1.textContent())?.trim() ?? '';
   return text;

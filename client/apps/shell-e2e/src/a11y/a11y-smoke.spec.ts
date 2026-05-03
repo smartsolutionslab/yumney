@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from '../fixtures/auth.fixture';
+import { AppShellPage } from '../pages/app-shell.page';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 /**
@@ -33,17 +34,17 @@ async function runAxe(page: import('@playwright/test').Page): Promise<void> {
     .disableRules(DISABLED_RULES_PENDING_443)
     .analyze();
 
-  const blocking = results.violations.filter((v) =>
-    SERIOUS_OR_CRITICAL.includes(v.impact as (typeof SERIOUS_OR_CRITICAL)[number]),
+  const blocking = results.violations.filter((violation) =>
+    SERIOUS_OR_CRITICAL.includes(violation.impact as (typeof SERIOUS_OR_CRITICAL)[number]),
   );
 
   if (blocking.length > 0) {
-    const summary = blocking.map((v) => ({
-      id: v.id,
-      impact: v.impact,
-      help: v.help,
-      nodes: v.nodes.length,
-      sample: v.nodes[0]?.target,
+    const summary = blocking.map((violation) => ({
+      id: violation.id,
+      impact: violation.impact,
+      help: violation.help,
+      nodes: violation.nodes.length,
+      sample: violation.nodes[0]?.target,
     }));
     // Surface the violations in the test failure context.
     // eslint-disable-next-line no-console
@@ -55,43 +56,38 @@ async function runAxe(page: import('@playwright/test').Page): Promise<void> {
 
 test.describe('A11y smoke (#411)', () => {
   test('dashboard', async ({ authenticatedPage }) => {
+    const shell = new AppShellPage(authenticatedPage);
     await authenticatedPage.goto('/dashboard');
-    await expect(authenticatedPage.getByRole('heading', { level: 1 })).toBeVisible({
-      timeout: TIMEOUTS.default,
-    });
+    await expect(shell.heading).toBeVisible({ timeout: TIMEOUTS.default });
     await runAxe(authenticatedPage);
   });
 
   test('recipes list', async ({ authenticatedPage }) => {
+    const shell = new AppShellPage(authenticatedPage);
     await authenticatedPage.goto('/recipes');
-    await expect(authenticatedPage.getByRole('heading', { level: 1 })).toBeVisible({
-      timeout: TIMEOUTS.default,
-    });
+    await expect(shell.heading).toBeVisible({ timeout: TIMEOUTS.default });
     await runAxe(authenticatedPage);
   });
 
   test('shopping', async ({ authenticatedPage }) => {
+    const shell = new AppShellPage(authenticatedPage);
     await authenticatedPage.goto('/shopping');
-    await expect(authenticatedPage.locator('app-root, yn-root, main').first()).toBeVisible({
-      timeout: TIMEOUTS.default,
-    });
+    await expect(shell.mainContent).toBeVisible({ timeout: TIMEOUTS.default });
     await runAxe(authenticatedPage);
   });
 
   test('meal planner', async ({ authenticatedPage }) => {
+    const shell = new AppShellPage(authenticatedPage);
     await authenticatedPage.goto('/meal-planner');
-    await expect(authenticatedPage.getByRole('heading', { level: 1 })).toBeVisible({
-      timeout: TIMEOUTS.default,
-    });
+    await expect(shell.heading).toBeVisible({ timeout: TIMEOUTS.default });
     await runAxe(authenticatedPage);
   });
 
   test('account profile', async ({ authenticatedPage }) => {
+    const shell = new AppShellPage(authenticatedPage);
     // /account is the profile-settings route — mirrors profile-settings.spec.ts
     await authenticatedPage.goto('/account');
-    await expect(authenticatedPage.getByRole('heading', { level: 1 })).toBeVisible({
-      timeout: TIMEOUTS.default,
-    });
+    await expect(shell.heading).toBeVisible({ timeout: TIMEOUTS.default });
     await runAxe(authenticatedPage);
   });
 });

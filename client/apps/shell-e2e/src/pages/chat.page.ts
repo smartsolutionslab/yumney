@@ -1,5 +1,4 @@
 import { type Page, type Locator } from '@playwright/test';
-import { SELECTORS } from '../helpers/selectors';
 
 export class ChatPage {
   readonly fab: Locator;
@@ -11,17 +10,23 @@ export class ChatPage {
   readonly input: Locator;
   readonly welcome: Locator;
   readonly examples: Locator;
+  private readonly userMessages: Locator;
+  private readonly assistantMessages: Locator;
 
   constructor(private page: Page) {
-    this.fab = page.locator(SELECTORS.chat.fab);
-    this.panel = page.locator(SELECTORS.chat.panel);
-    this.backdrop = page.locator(SELECTORS.chat.backdrop);
-    this.closeButton = page.locator(SELECTORS.chat.close);
-    this.clearButton = page.locator(SELECTORS.chat.clear);
-    this.sendButton = page.locator(SELECTORS.chat.send);
-    this.input = page.locator(SELECTORS.chat.input);
-    this.welcome = page.locator(SELECTORS.chat.welcome);
-    this.examples = page.locator(SELECTORS.chat.examples);
+    this.fab = page.locator('[data-testid="chat-fab"]');
+    this.panel = page.locator('[data-testid="chat-panel"]');
+    this.backdrop = page.locator('[data-testid="chat-backdrop"]');
+    this.closeButton = page.locator('[data-testid="chat-close"]');
+    this.clearButton = page.locator('[data-testid="chat-clear"]');
+    this.sendButton = page.locator('[data-testid="chat-send"]');
+    this.input = page.locator('[data-testid="chat-input"]');
+    this.welcome = page.locator('[data-testid="chat-welcome"]');
+    // Multi-element / state-based — each li is a separate item, role-based
+    // bubbles distinguish user vs assistant.
+    this.examples = page.locator('.chat-examples li');
+    this.userMessages = page.locator('.chat-message.role-user .chat-bubble');
+    this.assistantMessages = page.locator('.chat-message.role-assistant .chat-bubble');
   }
 
   async open(): Promise<void> {
@@ -42,10 +47,10 @@ export class ChatPage {
   }
 
   userMessage(index = 0): Locator {
-    return this.page.locator(SELECTORS.chat.userMessage).nth(index);
+    return this.userMessages.nth(index);
   }
 
   assistantMessage(index = 0): Locator {
-    return this.page.locator(SELECTORS.chat.assistantMessage).nth(index);
+    return this.assistantMessages.nth(index);
   }
 }

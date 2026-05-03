@@ -1,5 +1,6 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { DashboardPage } from '../pages/dashboard.page';
+import { RecipeEditPage } from '../pages/recipe-edit.page';
 import { mockApiError } from '../helpers/error-mock';
 import { TIMEOUTS } from '../helpers/timeouts';
 
@@ -16,9 +17,11 @@ import { TIMEOUTS } from '../helpers/timeouts';
  */
 test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
   let dashboard: DashboardPage;
+  let editForm: RecipeEditPage;
 
   test.beforeEach(async ({ authenticatedPage }) => {
     dashboard = new DashboardPage(authenticatedPage);
+    editForm = new RecipeEditPage(authenticatedPage);
     await dashboard.goto();
   });
 
@@ -31,27 +34,23 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
 
     await dashboard.createButton.click();
     await expect(dashboard.recipePreview).toBeVisible({ timeout: TIMEOUTS.default });
-    await expect(authenticatedPage.locator('#preview-title')).toBeVisible({
-      timeout: TIMEOUTS.default,
-    });
+    await expect(editForm.titleInput).toBeVisible({ timeout: TIMEOUTS.default });
 
-    await fillMinimalRecipeForm(authenticatedPage, 'E2E 500 Test');
+    await editForm.fillMinimal('E2E 500 Test');
 
-    // Scope save-btn to within the recipe-preview so we don't accidentally
-    // hit another .save-btn elsewhere on the dashboard. Wait for the
-    // POST response before asserting the banner so we know the click
-    // actually fired the request the mock is supposed to fulfill.
+    // Wait for the POST response before asserting the banner so we know
+    // the click actually fired the request the mock is supposed to fulfill.
     const savePost = authenticatedPage.waitForResponse(
       (res) =>
         new URL(res.url()).pathname === '/api/v1/recipes' && res.request().method() === 'POST',
       { timeout: TIMEOUTS.default },
     );
-    await dashboard.recipePreview.locator('.save-btn').click();
+    await dashboard.previewSaveButton.click();
     await savePost;
 
     await expect(dashboard.errorBanner).toBeVisible({ timeout: TIMEOUTS.default });
     // Form must survive the error so the user can retry without retyping.
-    await expect(authenticatedPage.locator('#preview-title')).toHaveValue('E2E 500 Test');
+    await expect(editForm.titleInput).toHaveValue('E2E 500 Test');
   });
 
   test('shows error banner when save returns 422 with validation errors', async ({
@@ -66,45 +65,19 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
 
     await dashboard.createButton.click();
     await expect(dashboard.recipePreview).toBeVisible({ timeout: TIMEOUTS.default });
-    await expect(authenticatedPage.locator('#preview-title')).toBeVisible({
-      timeout: TIMEOUTS.default,
-    });
+    await expect(editForm.titleInput).toBeVisible({ timeout: TIMEOUTS.default });
 
-    await fillMinimalRecipeForm(authenticatedPage, 'E2E 422 Test');
+    await editForm.fillMinimal('E2E 422 Test');
 
     const savePost = authenticatedPage.waitForResponse(
       (res) =>
         new URL(res.url()).pathname === '/api/v1/recipes' && res.request().method() === 'POST',
       { timeout: TIMEOUTS.default },
     );
-    await dashboard.recipePreview.locator('.save-btn').click();
+    await dashboard.previewSaveButton.click();
     await savePost;
 
     await expect(dashboard.errorBanner).toBeVisible({ timeout: TIMEOUTS.default });
-    await expect(authenticatedPage.locator('#preview-title')).toHaveValue('E2E 422 Test');
+    await expect(editForm.titleInput).toHaveValue('E2E 422 Test');
   });
 });
-
-async function fillMinimalRecipeForm(
-  page: import('@playwright/test').Page,
-  title: string,
-): Promise<void> {
-  // The manual-create flow pre-populates one empty ingredient row and one
-  // empty step row; only need to fill them so client-side validation
-  // doesn't block the submit. Ingredient amount is optional per the form,
-  // but ingredient.name and step.description are required.
-  //
-  // Scope ingredient/step selectors to their row containers — the recipe
-  // also has a top-level description textarea with formControlName="description"
-  // that would otherwise match before the step row.
-  await page.locator('#preview-title').fill(title);
-  await page.locator('#preview-servings').fill('4');
-  // formControlName="name" is unique to ingredient rows; .first() is fine.
-  await page.locator('input[formControlName="name"]').first().fill('Salt');
-  // Scope description textarea to .step-fields — there is also a
-  // recipe-level textarea#preview-description with the same formControlName.
-  await page
-    .locator('.step-fields textarea[formControlName="description"]')
-    .first()
-    .fill('Mix everything.');
-}

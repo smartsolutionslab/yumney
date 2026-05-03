@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { AppShellPage } from '../pages/app-shell.page';
 import {
   setupKeycloakMock,
   waitForServiceWorker,
@@ -28,8 +29,8 @@ test.describe('Offline Caching', () => {
     await context.setOffline(true);
     await page.reload({ waitUntil: 'domcontentloaded' });
 
-    const root = page.locator('yn-root');
-    await expect(root).toBeAttached({ timeout: TIMEOUTS.default });
+    const shell = new AppShellPage(page);
+    await expect(shell.root).toBeAttached({ timeout: TIMEOUTS.default });
   });
 
   test('should serve cached i18n translations when offline', async ({ page, context }) => {

@@ -6,11 +6,15 @@ export class DashboardPage {
   readonly urlInput: Locator;
   readonly importButton: Locator;
   readonly createButton: Locator;
+  readonly discardButton: Locator;
   readonly photoUploadInput: Locator;
   readonly photoUploadLabel: Locator;
   readonly recipePreview: Locator;
   readonly successBanner: Locator;
   readonly errorBanner: Locator;
+  readonly importStatusMessage: Locator;
+  readonly fetchingMessage: Locator;
+  readonly previewSaveButton: Locator;
 
   constructor(private page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -18,11 +22,19 @@ export class DashboardPage {
     this.urlInput = page.locator('#url');
     this.importButton = page.getByRole('button', { name: /import recipe/i });
     this.createButton = page.locator('[data-testid="create-recipe-btn"]');
+    this.discardButton = page.getByRole('button', { name: /discard/i });
     this.photoUploadInput = page.locator('[data-testid="photo-upload-input"]');
     this.photoUploadLabel = page.locator('[data-testid="photo-upload-btn"]');
     this.recipePreview = page.locator('yn-recipe-preview');
     this.successBanner = page.locator('.success-banner');
     this.errorBanner = page.locator('[role="alert"]');
+    // Surfaced by the import-stream SSE handler while the request is in
+    // flight ("Fetching page…", "Extracting recipe…", etc.).
+    this.importStatusMessage = page.getByText(/fetching|extracting|loading/i);
+    this.fetchingMessage = page.getByText(/fetching|extracting/i);
+    // Save button inside the recipe-preview — scoped to avoid colliding
+    // with other .save-btn instances elsewhere on the dashboard.
+    this.previewSaveButton = this.recipePreview.locator('.save-btn');
   }
 
   async goto(): Promise<void> {

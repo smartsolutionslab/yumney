@@ -1,6 +1,5 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { MealPlannerPage } from '../pages/meal-planner.page';
-import { SELECTORS } from '../helpers/selectors';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Meal Planner Interactions', () => {
@@ -9,12 +8,12 @@ test.describe('Meal Planner Interactions', () => {
     await planner.goto();
     await expect(planner.dayCards.first()).toBeVisible({ timeout: TIMEOUTS.default });
 
-    const hasMeals = (await authenticatedPage.locator('.meal-title').count()) > 0;
+    const hasMeals = (await planner.mealTitles.count()) > 0;
     if (hasMeals) {
-      const mealCard = authenticatedPage.locator('.day-card.has-meal').first();
+      const mealCard = planner.dayCardsWithMeal.first();
       await mealCard.hover();
 
-      const clearBtn = mealCard.locator(SELECTORS.mealPlanner.clearBtn);
+      const clearBtn = planner.clearButtonOnCard(mealCard);
       await expect(clearBtn).toBeVisible({ timeout: TIMEOUTS.short });
     }
   });
@@ -25,10 +24,9 @@ test.describe('Meal Planner Interactions', () => {
     await expect(planner.dayCards.first()).toBeVisible({ timeout: TIMEOUTS.default });
 
     // If any slots have been confirmed, they should show state badges
-    const stateBadges = authenticatedPage.locator(SELECTORS.mealPlanner.mealState);
-    const count = await stateBadges.count();
+    const count = await planner.mealStateBadges.count();
     if (count > 0) {
-      const badge = stateBadges.first();
+      const badge = planner.mealStateBadges.first();
       const text = await badge.textContent();
       expect(['Cooked', 'Skipped']).toContain(text?.trim());
     }
@@ -39,10 +37,9 @@ test.describe('Meal Planner Interactions', () => {
     await planner.goto();
     await expect(planner.dayCards.first()).toBeVisible({ timeout: TIMEOUTS.default });
 
-    const servingsLabels = authenticatedPage.locator(SELECTORS.mealPlanner.mealServings);
-    const count = await servingsLabels.count();
+    const count = await planner.mealServingsLabels.count();
     if (count > 0) {
-      const text = await servingsLabels.first().textContent();
+      const text = await planner.mealServingsLabels.first().textContent();
       expect(text).toMatch(/\d+.*servings/i);
     }
   });
@@ -52,10 +49,9 @@ test.describe('Meal Planner Interactions', () => {
     await planner.goto();
     await expect(planner.dayCards.first()).toBeVisible({ timeout: TIMEOUTS.default });
 
-    const freetextSlots = authenticatedPage.locator(SELECTORS.mealPlanner.mealFreetext);
-    const count = await freetextSlots.count();
+    const count = await planner.mealFreetextSlots.count();
     if (count > 0) {
-      await expect(freetextSlots.first()).toBeVisible();
+      await expect(planner.mealFreetextSlots.first()).toBeVisible();
     }
   });
 
@@ -66,10 +62,9 @@ test.describe('Meal Planner Interactions', () => {
     await planner.goto();
     await expect(planner.dayCards.first()).toBeVisible({ timeout: TIMEOUTS.default });
 
-    const emptySlots = authenticatedPage.locator(SELECTORS.mealPlanner.emptySlot);
-    const count = await emptySlots.count();
+    const count = await planner.emptySlots.count();
     if (count > 0) {
-      await expect(emptySlots.first()).toBeVisible();
+      await expect(planner.emptySlots.first()).toBeVisible();
     }
   });
 

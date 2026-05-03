@@ -60,12 +60,11 @@ test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', ()
     await expect(dashboard.recipePreview).toBeVisible();
   });
 
-  test('should discard manual recipe preview', async ({ authenticatedPage }) => {
+  test('should discard manual recipe preview', async () => {
     await dashboard.createButton.click();
     await expect(dashboard.recipePreview).toBeVisible();
 
-    const discardButton = authenticatedPage.getByRole('button', { name: /discard/i });
-    await discardButton.click();
+    await dashboard.discardButton.click();
 
     await expect(dashboard.recipePreview).not.toBeVisible();
   });
