@@ -14,9 +14,7 @@ export class CreateShoppingListDialogPage {
 
   constructor(private page: Page) {
     this.root = page.locator('[data-testid="create-shopping-list-dialog"]');
-    this.suggestedTitle = this.root.locator(
-      '[data-testid="create-shopping-list-suggested-title"]',
-    );
+    this.suggestedTitle = this.root.locator('[data-testid="create-shopping-list-suggested-title"]');
     this.previewItems = this.root.locator('.preview-list li');
     this.confirmButton = page.locator('[data-testid="create-shopping-list-confirm"]');
   }
