@@ -39,6 +39,28 @@ public static class ShoppingEndpoints
 			return result.ToCreated($"/api/v1/shopping-lists/{result.Value?.Identifier}");
 		}
 
+		group.MapPost("/from-recipes", CreateFromRecipes)
+			.WithName("CreateShoppingListFromRecipes")
+			.WithTags("Shopping")
+			.Produces<ShoppingListDetailDto>(StatusCodes.Status201Created)
+			.ProducesValidationProblem();
+
+		static async Task<IResult> CreateFromRecipes(
+			Requests.CreateFromRecipes request,
+			IValidator<Requests.CreateFromRecipes> validator,
+			ICommandHandler<CreateShoppingListFromRecipesCommand, Result<ShoppingListDetailDto>> handler,
+			CancellationToken cancellationToken)
+		{
+			var validation = await validator.ValidateAsync(request, cancellationToken);
+			if (validation.HasFailed()) return validation.ToValidationProblem();
+
+			var (title, recipes) = request.ToValueObjects();
+			var command = new CreateShoppingListFromRecipesCommand(title, recipes);
+
+			var result = await handler.HandleAsync(command, cancellationToken);
+			return result.ToCreated($"/api/v1/shopping-lists/{result.Value?.Identifier}");
+		}
+
 		group.MapGet("/", GetAll)
 			.WithName("GetShoppingLists")
 			.WithTags("Shopping")

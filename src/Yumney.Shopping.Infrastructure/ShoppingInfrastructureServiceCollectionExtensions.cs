@@ -31,6 +31,8 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IShoppingListProjectionRebuilder, ShoppingListProjectionRebuilder>();
 		services.AddScoped<IIngredientBalanceReadModelRepository, IngredientBalanceReadModelRepository>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
+		services.AddScoped<IRecipeIngredientLookup, HttpRecipeIngredientLookup>();
+		services.AddYumneyServiceClient("recipes-api");
 		services.AddScoped<IInboxStore, EfCoreInboxStore<ShoppingDbContext>>();
 		services.AddIntegrationEventHandlersFromAssemblyContaining<ShoppingListProjection>();
 		services.AddYumneyServiceClient("users-api");
