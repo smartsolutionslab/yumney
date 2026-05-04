@@ -20,7 +20,9 @@ public static class RecipeMappingExtensions
 			recipe.Ingredients.ToDtos(),
 			recipe.Steps.ToDtos(),
 			recipe.Tags.Select(tag => tag.Value).ToList(),
-			isFavorite);
+			isFavorite,
+			recipe.Rating?.Value,
+			recipe.Notes?.Value);
 
 	public static RecipeListItemDto ToListItemDto(this Recipe recipe, bool isFavorite = false) =>
 		new(
@@ -34,7 +36,9 @@ public static class RecipeMappingExtensions
 			recipe.ImageUrl?.Value,
 			recipe.CreatedAt,
 			recipe.Tags.Select(tag => tag.Value).ToList(),
-			isFavorite);
+			isFavorite,
+			recipe.Rating?.Value,
+			recipe.Notes is not null);
 
 	public static SavedRecipeDto ToSavedDto(this Recipe recipe) =>
 		new(recipe.Id.Value, recipe.Title.Value, recipe.CreatedAt);

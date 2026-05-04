@@ -30,6 +30,10 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 
 	public DateTime CreatedAt { get; private set; }
 
+	public Rating? Rating { get; private set; }
+
+	public Notes? Notes { get; private set; }
+
 	public IReadOnlyList<Ingredient> Ingredients => ingredients.AsReadOnly();
 
 	public IReadOnlyList<Step> Steps => steps.AsReadOnly();
@@ -124,6 +128,20 @@ public sealed class Recipe : AggregateRoot<RecipeIdentifier>
 	public Recipe MarkAsDeleted()
 	{
 		AddDomainEvent(new RecipeDeletedEvent(Id, Title, Owner));
+		return this;
+	}
+
+	public Recipe RateAs(Rating rating)
+	{
+		Rating = rating;
+		AddDomainEvent(new RecipeRatedEvent(Id, rating));
+		return this;
+	}
+
+	public Recipe UpdateNotes(Notes? notes)
+	{
+		Notes = notes;
+		AddDomainEvent(new RecipeNotesUpdatedEvent(Id, notes is not null));
 		return this;
 	}
 }

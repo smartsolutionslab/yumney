@@ -11,4 +11,6 @@ public sealed record RecipeListItemDto(
 	string? ImageUrl,
 	DateTime CreatedAt,
 	IReadOnlyList<string> Tags,
-	bool IsFavorite);
+	bool IsFavorite,
+	int? Rating,
+	bool HasNotes);
