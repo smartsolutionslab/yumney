@@ -12,12 +12,10 @@ concurrency:
 permissions:
   id-token: write
   contents: read
-  packages: write
 
 env:
   DOTNET_VERSION: '10.0.x'
   NODE_VERSION: '22'
-  REGISTRY: ghcr.io
 
 jobs:
   test:
@@ -120,13 +118,6 @@ jobs:
         run: |
           sed -i "s|__GATEWAY_URL__|${{ vars.GATEWAY_URL }}|g" src/Yumney.AppHost/Realms/yumney-realm.json
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Azure login
         uses: azure/login@v2
         with:
@@ -136,13 +127,7 @@ jobs:
 
       - name: Deploy to Azure
         working-directory: src/Yumney.AppHost
-        run: |
-          aspire deploy \
-            -- \
-            RegistryEndpoint=ghcr.io \
-            RegistryRepository=${{ github.repository }} \
-            GhcrUser=${{ github.actor }} \
-            GhcrToken=${{ secrets.GHCR_PAT }}
+        run: aspire deploy
         env:
           ASPNETCORE_ENVIRONMENT: ${{ needs.version.outputs.environment == 'production' && 'Production' || 'Staging' }}
           Azure__SubscriptionId: ${{ vars.AZURE_SUBSCRIPTION_ID }}

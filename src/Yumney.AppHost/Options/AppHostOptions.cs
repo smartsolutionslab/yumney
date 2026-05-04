@@ -6,18 +6,9 @@ internal sealed record AppHostOptions(
 	bool DatabaseOnly,
 	bool E2ETests,
 	LlmProvider LlmProvider,
-	string OpenAiModelId,
-	string? RegistryEndpoint,
-	string? RegistryRepository,
-	string? GhcrUser,
-	string? GhcrToken)
+	string OpenAiModelId)
 {
 	public bool UseOllama => LlmProvider == LlmProvider.Ollama;
-
-	public bool UseGhcr => !string.IsNullOrWhiteSpace(RegistryEndpoint);
-
-	public bool UseGhcrPullCredentials =>
-		!string.IsNullOrWhiteSpace(GhcrUser) && !string.IsNullOrWhiteSpace(GhcrToken);
 
 	public static AppHostOptions FromConfiguration(IConfiguration config)
 	{
@@ -30,10 +21,6 @@ internal sealed record AppHostOptions(
 			DatabaseOnly: config.GetValue<bool>("DatabaseOnly"),
 			E2ETests: config.GetValue<bool>("E2ETests"),
 			LlmProvider: provider,
-			OpenAiModelId: config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini",
-			RegistryEndpoint: config.GetValue<string>("RegistryEndpoint"),
-			RegistryRepository: config.GetValue<string>("RegistryRepository"),
-			GhcrUser: config.GetValue<string>("GhcrUser"),
-			GhcrToken: config.GetValue<string>("GhcrToken"));
+			OpenAiModelId: config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini");
 	}
 }
