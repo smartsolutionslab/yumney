@@ -23,6 +23,7 @@ public static partial class RecipesEndpoints
 		MapCrudEndpoints(group);
 		MapImportEndpoints(group);
 		MapChatEndpoints(group);
+		MapHistoryEndpoints(group);
 
 		return app;
 	}

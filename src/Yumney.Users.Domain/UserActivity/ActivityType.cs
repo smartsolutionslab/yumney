@@ -7,6 +7,7 @@ public sealed record ActivityType : IValueObject<string>
 {
 	public static readonly ActivityType RecipeImported = new("recipe_imported");
 	public static readonly ActivityType RecipeViewed = new("recipe_viewed");
+	public static readonly ActivityType RecipeCooked = new("recipe_cooked");
 	public static readonly ActivityType RecipeEdited = new("recipe_edited");
 	public static readonly ActivityType RecipeDeleted = new("recipe_deleted");
 	public static readonly ActivityType ShoppingListCreated = new("shopping_list_created");
@@ -17,6 +18,7 @@ public sealed record ActivityType : IValueObject<string>
 	[
 		RecipeImported.Value,
 		RecipeViewed.Value,
+		RecipeCooked.Value,
 		RecipeEdited.Value,
 		RecipeDeleted.Value,
 		ShoppingListCreated.Value
