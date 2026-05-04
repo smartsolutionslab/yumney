@@ -23,4 +23,11 @@ public sealed class AppUserProfileRepository(UsersDbContext context) : IAppUserP
 	{
 		await profiles.AddAsync(profile, cancellationToken);
 	}
+
+	public async Task<int> DeleteByKeycloakUserIdAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default)
+	{
+		return await profiles
+			.Where(profile => profile.KeycloakUserId == keycloakUserId)
+			.ExecuteDeleteAsync(cancellationToken);
+	}
 }

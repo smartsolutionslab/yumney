@@ -39,6 +39,7 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IInboxStore, EfCoreInboxStore<ShoppingDbContext>>();
 		services.AddBusEventHandlersFromAssemblyContaining<ShoppingListProjection>();
 		services.AddYumneyServiceClient("users-api");
+		services.AddScoped<IShoppingUserDataPurger, EfCoreShoppingUserDataPurger>();
 		services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");
 
 		AddShoppingItemCategorizer(services, configuration);

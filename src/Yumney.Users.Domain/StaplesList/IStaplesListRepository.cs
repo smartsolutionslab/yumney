@@ -8,4 +8,7 @@ public interface IStaplesListRepository
 	Task<StaplesList> GetByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
 
 	Task AddAsync(StaplesList staplesList, CancellationToken cancellationToken = default);
+
+	// Idempotent. Returns the number of rows removed.
+	Task<int> DeleteByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
 }
