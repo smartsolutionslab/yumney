@@ -17,6 +17,6 @@ public sealed class GetUserProfileQueryHandler(IAppUserProfileRepository profile
 
 		if (profile is null) return new ApiError("PROFILE_NOT_FOUND", "User profile not found.", 404);
 
-		return profile.ToDto();
+		return profile.ToDto(currentUser.Email);
 	}
 }

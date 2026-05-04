@@ -39,6 +39,35 @@ internal sealed class AppUserProfileConfiguration : IEntityTypeConfiguration<App
 			.HasDefaultValue(DefaultServings.Default)
 			.IsRequired();
 
+		entity.Property(e => e.Theme)
+			.HasConversion<ThemeConverter>()
+			.HasMaxLength(Theme.MaxLength)
+			.HasDefaultValue(Theme.System)
+			.IsRequired();
+
+		entity.OwnsOne(e => e.VoiceSettings, voice =>
+		{
+			voice.Property(v => v.Enabled).HasColumnName("VoiceEnabled").HasDefaultValue(true);
+			voice.Property(v => v.Speed)
+				.HasConversion<VoiceSpeedConverter>()
+				.HasMaxLength(VoiceSpeed.MaxLength)
+				.HasColumnName("VoiceSpeed")
+				.HasDefaultValue(VoiceSpeed.Normal);
+			voice.Property(v => v.AutoReadInCookMode)
+				.HasColumnName("VoiceAutoReadInCookMode")
+				.HasDefaultValue(false);
+		});
+
+		entity.OwnsOne(e => e.NotificationPreferences, notifications =>
+		{
+			notifications.Property(n => n.TimerHapticFeedback)
+				.HasColumnName("TimerHapticFeedback")
+				.HasDefaultValue(true);
+			notifications.Property(n => n.TimerSoundAlerts)
+				.HasColumnName("TimerSoundAlerts")
+				.HasDefaultValue(true);
+		});
+
 		entity.OwnsOne(e => e.DietaryProfile, dietary =>
 		{
 			dietary.Property(d => d.DietaryType)

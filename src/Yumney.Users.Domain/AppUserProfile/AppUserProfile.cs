@@ -16,6 +16,12 @@ public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
 
 	public DietaryProfile DietaryProfile { get; private set; } = DietaryProfile.Empty;
 
+	public Theme Theme { get; private set; } = Theme.System;
+
+	public VoiceSettings VoiceSettings { get; private set; } = VoiceSettings.Default;
+
+	public NotificationPreferences NotificationPreferences { get; private set; } = NotificationPreferences.Default;
+
 	private AppUserProfile()
 	{
 	}
@@ -57,6 +63,24 @@ public sealed class AppUserProfile : AggregateRoot<AppUserProfileIdentifier>
 	public AppUserProfile UpdateDietaryProfile(DietaryProfile dietaryProfile)
 	{
 		DietaryProfile = dietaryProfile;
+		return this;
+	}
+
+	public AppUserProfile SwitchThemeTo(Theme theme)
+	{
+		Theme = theme;
+		return this;
+	}
+
+	public AppUserProfile UpdateVoiceSettings(VoiceSettings voiceSettings)
+	{
+		VoiceSettings = voiceSettings;
+		return this;
+	}
+
+	public AppUserProfile UpdateNotificationPreferences(NotificationPreferences notificationPreferences)
+	{
+		NotificationPreferences = notificationPreferences;
 		return this;
 	}
 }
