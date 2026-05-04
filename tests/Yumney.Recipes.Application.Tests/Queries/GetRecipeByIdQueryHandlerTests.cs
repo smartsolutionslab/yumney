@@ -1,5 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -15,13 +16,14 @@ public class GetRecipeByIdQueryHandlerTests
 {
 	private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
 	private readonly IRecipeFavoriteRepository favorites = Substitute.For<IRecipeFavoriteRepository>();
+	private readonly IRecipeViewTracker viewTracker = Substitute.For<IRecipeViewTracker>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly GetRecipeByIdQueryHandler handler;
 
 	public GetRecipeByIdQueryHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new GetRecipeByIdQueryHandler(recipes, favorites, currentUser);
+		handler = new GetRecipeByIdQueryHandler(recipes, favorites, viewTracker, currentUser);
 	}
 
 	[Fact]

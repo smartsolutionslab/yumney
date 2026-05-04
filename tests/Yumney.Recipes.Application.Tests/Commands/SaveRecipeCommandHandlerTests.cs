@@ -4,6 +4,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using Xunit;
 
@@ -14,13 +15,14 @@ public class SaveRecipeCommandHandlerTests
 	private readonly IRecipeRepository recipes = Substitute.For<IRecipeRepository>();
 	private readonly IRecipesUnitOfWork unitOfWork = Substitute.For<IRecipesUnitOfWork>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
+	private readonly IEventBus eventBus = Substitute.For<IEventBus>();
 	private readonly SaveRecipeCommandHandler handler;
 
 	public SaveRecipeCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
 		unitOfWork.Recipes.Returns(recipes);
-		handler = new SaveRecipeCommandHandler(unitOfWork, currentUser);
+		handler = new SaveRecipeCommandHandler(unitOfWork, currentUser, eventBus);
 	}
 
 	[Fact]

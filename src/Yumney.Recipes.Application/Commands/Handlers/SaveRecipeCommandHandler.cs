@@ -2,13 +2,16 @@ using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
 public sealed class SaveRecipeCommandHandler(
 	IRecipesUnitOfWork unitOfWork,
-	ICurrentUser currentUser)
+	ICurrentUser currentUser,
+	IEventBus eventBus)
 	: ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>>
 {
 	public async Task<Result<SavedRecipeDto>> HandleAsync(SaveRecipeCommand command, CancellationToken cancellationToken = default)
@@ -42,6 +45,10 @@ public sealed class SaveRecipeCommandHandler(
 
 		await unitOfWork.Recipes.AddAsync(recipe, cancellationToken);
 		await unitOfWork.SaveChangesAsync(cancellationToken);
+
+		await eventBus.PublishAsync(
+			new RecipeImportedIntegrationEvent(owner.Value, recipe.Id.Value, recipe.Title.Value),
+			cancellationToken);
 
 		return recipe.ToSavedDto();
 	}
