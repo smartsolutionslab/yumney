@@ -13,8 +13,10 @@ public sealed class GetRecentActivityQueryHandler(IUserActivityRepository activi
 	{
 		var owner = currentUser.AsOwner();
 
-		var recentActivities = await activities.GetRecentAsync(owner, query.Limit, cancellationToken);
+		var entries = query.Type is null
+			? await activities.GetRecentAsync(owner, query.Limit, cancellationToken)
+			: await activities.GetRecentByTypeAsync(owner, query.Type, query.Limit, cancellationToken);
 
-		return Result.Success(recentActivities.ToDtos());
+		return Result.Success(entries.ToDtos());
 	}
 }

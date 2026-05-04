@@ -5,5 +5,9 @@ using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Queries;
 
-public sealed record GetRecentActivityQuery(ActivityLimit Limit)
+/// <summary>
+/// Returns the current user's most recent activity entries (US-121). When
+/// <see cref="Type"/> is non-null only entries of that type are included.
+/// </summary>
+public sealed record GetRecentActivityQuery(ActivityLimit Limit, ActivityType? Type = null)
 	: IQuery<Result<IReadOnlyList<UserActivityDto>>>;
