@@ -8,7 +8,6 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
@@ -18,7 +17,7 @@ import {
   type MealSlot,
   type GenerateShoppingListResult,
 } from '@yumney/shared/api-client';
-import { UI } from '@yumney/shared/models';
+import { createAsyncState, ERROR_MAPS, UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 
 const WEEKS_PER_YEAR = 52;
@@ -42,13 +41,16 @@ export class MealPlannerComponent {
   private transloco = inject(TranslocoService);
   private router = inject(Router);
   private host = inject(ElementRef<HTMLElement>);
+  private loadState = createAsyncState(this.destroyRef);
+  private generateState = createAsyncState(this.destroyRef);
+  private clearSlotState = createAsyncState(this.destroyRef);
 
   protected year = signal(new Date().getFullYear());
   protected weekNumber = signal(this.getCurrentWeek());
   protected plan = signal<WeeklyPlan | null>(null);
-  protected loading = signal(false);
+  protected loading = this.loadState.isLoading;
   protected error = signal<string | null>(null);
-  protected generatingList = signal(false);
+  protected generatingList = this.generateState.isLoading;
   protected shoppingResult = signal<GenerateShoppingListResult | null>(null);
 
   protected weekLabel = computed(
@@ -95,24 +97,18 @@ export class MealPlannerComponent {
   );
 
   protected onGenerateShoppingList(): void {
-    this.generatingList.set(true);
     this.shoppingResult.set(null);
     this.error.set(null);
 
-    this.api
-      .generateShoppingList(this.year(), this.weekNumber())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (result) => {
-          this.shoppingResult.set(result);
-          this.generatingList.set(false);
-          setTimeout(() => this.shoppingResult.set(null), UI.RESULT_DISPLAY_MS);
-        },
-        error: () => {
-          this.error.set(this.transloco.translate('mealPlanner.errors.generateFailed'));
-          this.generatingList.set(false);
-        },
-      });
+    this.generateState.execute(
+      this.api.generateShoppingList(this.year(), this.weekNumber()),
+      ERROR_MAPS.mealPlanner.generateShoppingList,
+      (result) => {
+        this.shoppingResult.set(result);
+        setTimeout(() => this.shoppingResult.set(null), UI.RESULT_DISPLAY_MS);
+      },
+      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+    );
   }
 
   protected onSelectSlot(day: string): void {
@@ -124,32 +120,25 @@ export class MealPlannerComponent {
   }
 
   protected onClearSlot(day: string): void {
-    this.api
-      .clearSlot(this.year(), this.weekNumber(), { day })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (plan) => this.plan.set(plan),
-        error: () => this.error.set(this.transloco.translate('mealPlanner.errors.clearFailed')),
-      });
+    this.clearSlotState.execute(
+      this.api.clearSlot(this.year(), this.weekNumber(), { day }),
+      ERROR_MAPS.mealPlanner.clearSlot,
+      (plan) => this.plan.set(plan),
+      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+    );
   }
 
   private loadPlan(): void {
-    this.loading.set(true);
     this.error.set(null);
-    this.api
-      .getWeeklyPlan(this.year(), this.weekNumber())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (plan) => {
-          this.plan.set(plan);
-          this.loading.set(false);
-          queueMicrotask(() => this.scrollTodayIntoView());
-        },
-        error: () => {
-          this.error.set(this.transloco.translate('mealPlanner.errors.loadFailed'));
-          this.loading.set(false);
-        },
-      });
+    this.loadState.execute(
+      this.api.getWeeklyPlan(this.year(), this.weekNumber()),
+      ERROR_MAPS.mealPlanner.load,
+      (plan) => {
+        this.plan.set(plan);
+        queueMicrotask(() => this.scrollTodayIntoView());
+      },
+      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+    );
   }
 
   private scrollTodayIntoView(): void {

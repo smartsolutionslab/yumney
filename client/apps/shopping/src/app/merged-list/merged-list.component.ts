@@ -8,11 +8,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { ShoppingApiService, type MergedShoppingList, type MergedShoppingItem } from '../api';
-import { TranslocoService } from '@jsverse/transloco';
-import { ToastService } from '@yumney/shared/models';
+import { createAsyncState, ERROR_MAPS, ToastService } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 
 interface CategoryGroup {
@@ -34,6 +33,7 @@ export class MergedListComponent {
   private destroyRef = inject(DestroyRef);
   private transloco = inject(TranslocoService);
   private toasts = inject(ToastService);
+  private mutationState = createAsyncState(this.destroyRef);
 
   protected list = signal<MergedShoppingList | null>(null);
   protected loading = signal(false);
@@ -84,51 +84,48 @@ export class MergedListComponent {
     if (!name) return;
 
     this.newItemName.set('');
-    this.api
-      .addItem({ name })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.loadList(),
-        error: () => this.error.set(this.transloco.translate('shopping.errors.addFailed')),
-      });
+    this.mutationState.execute(
+      this.api.addItem({ name }),
+      ERROR_MAPS.shopping.merged.add,
+      () => this.loadList(),
+      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+    );
   }
 
   protected onRemoveItem(itemName: string): void {
-    this.api
-      .removeItem({ name: itemName })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.loadList(),
-        error: () => this.error.set(this.transloco.translate('shopping.errors.removeFailed')),
-      });
+    this.mutationState.execute(
+      this.api.removeItem({ name: itemName }),
+      ERROR_MAPS.shopping.merged.remove,
+      () => this.loadList(),
+      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+    );
   }
 
   protected onExport(): void {
-    this.api
-      .exportList()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (text) => {
-          if (text.trim().length === 0) {
-            this.toasts.info('shopping.export.nothing');
-            return;
-          }
+    this.mutationState.execute(
+      this.api.exportList(),
+      ERROR_MAPS.shopping.merged.export,
+      (text) => {
+        if (text.trim().length === 0) {
+          this.toasts.info('shopping.export.nothing');
+          return;
+        }
 
-          if (navigator.share) {
-            navigator
-              .share({ text })
-              .then(() => this.toasts.success('shopping.export.shared'))
-              .catch((err: unknown) => {
-                // AbortError = user dismissed share sheet; do not fall back.
-                if (err instanceof DOMException && err.name === 'AbortError') return;
-                this.copyToClipboard(text);
-              });
-          } else {
-            this.copyToClipboard(text);
-          }
-        },
-        error: () => this.error.set(this.transloco.translate('shopping.errors.exportFailed')),
-      });
+        if (navigator.share) {
+          navigator
+            .share({ text })
+            .then(() => this.toasts.success('shopping.export.shared'))
+            .catch((shareError: unknown) => {
+              // AbortError = user dismissed share sheet; do not fall back.
+              if (shareError instanceof DOMException && shareError.name === 'AbortError') return;
+              this.copyToClipboard(text);
+            });
+        } else {
+          this.copyToClipboard(text);
+        }
+      },
+      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+    );
   }
 
   protected onKeydown(event: KeyboardEvent): void {
