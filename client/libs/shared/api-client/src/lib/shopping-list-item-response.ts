@@ -3,5 +3,6 @@ export interface ShoppingListItemResponse {
   name: string;
   amount: number | null;
   unit: string | null;
+  category: string;
   isChecked: boolean;
 }

@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     byIdentifier: (identifier: string) => `${API_BASE}/shopping-lists/${identifier}`,
     checkItem: (listIdentifier: string, itemIdentifier: string) =>
       `${API_BASE}/shopping-lists/${listIdentifier}/items/${itemIdentifier}/check`,
+    itemCategory: (listIdentifier: string, itemIdentifier: string) =>
+      `${API_BASE}/shopping-lists/${listIdentifier}/items/${itemIdentifier}/category`,
     checkAll: (listIdentifier: string) => `${API_BASE}/shopping-lists/${listIdentifier}/check-all`,
     merged: `${API_BASE}/shopping-lists/merged`,
     items: `${API_BASE}/shopping-lists/items`,

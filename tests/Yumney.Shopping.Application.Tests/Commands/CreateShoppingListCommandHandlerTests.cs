@@ -131,6 +131,50 @@ public class CreateShoppingListCommandHandlerTests
 	}
 
 	[Fact]
+	public async Task HandleAsync_AppliesCategoriesReturnedByCategorizer()
+	{
+		var milk = ItemName.From("Milk");
+		var bread = ItemName.From("Bread");
+		categorizer
+			.CategorizeManyAsync(Arg.Any<IReadOnlyCollection<ItemName>>(), Arg.Any<CancellationToken>())
+			.Returns(Task.FromResult<IReadOnlyDictionary<ItemName, IngredientCategory>>(
+				new Dictionary<ItemName, IngredientCategory>
+				{
+					[milk] = IngredientCategory.Dairy,
+					[bread] = IngredientCategory.Bakery,
+				}));
+
+		var command = new CreateShoppingListCommand(
+			ShoppingListTitle.From("Breakfast"),
+			[
+				new ShoppingListItem(milk, Quantity.Of(Amount.From(1), Unit.Liter)),
+				new ShoppingListItem(bread, null),
+			]);
+
+		var result = await handler.HandleAsync(command);
+
+		result.Value.Items.Single(item => item.Name == "Milk").Category.Should().Be("dairy");
+		result.Value.Items.Single(item => item.Name == "Bread").Category.Should().Be("bakery");
+	}
+
+	[Fact]
+	public async Task HandleAsync_CategorizerReturnsNothing_ItemsDefaultToOther()
+	{
+		categorizer
+			.CategorizeManyAsync(Arg.Any<IReadOnlyCollection<ItemName>>(), Arg.Any<CancellationToken>())
+			.Returns(Task.FromResult<IReadOnlyDictionary<ItemName, IngredientCategory>>(
+				new Dictionary<ItemName, IngredientCategory>()));
+
+		var command = new CreateShoppingListCommand(
+			ShoppingListTitle.From("Mystery"),
+			[new ShoppingListItem(ItemName.From("Foo"), null)]);
+
+		var result = await handler.HandleAsync(command);
+
+		result.Value.Items.Single().Category.Should().Be(IngredientCategory.Other.Value);
+	}
+
+	[Fact]
 	public async Task HandleAsync_ItemsPreserveAmountAndUnit()
 	{
 		var command = new CreateShoppingListCommand(

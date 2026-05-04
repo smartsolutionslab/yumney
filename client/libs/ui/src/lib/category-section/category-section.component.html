@@ -1,0 +1,26 @@
+<section class="category-section" *transloco="let t">
+  <button
+    type="button"
+    class="category-header"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-label]="t('shopping.category.' + category())"
+    (click)="onHeaderClick()"
+  >
+    <span class="category-icon">
+      <lucide-icon [name]="icon" [size]="20" />
+    </span>
+    <span class="category-label">{{ t('shopping.category.' + category()) }}</span>
+    <span class="category-count" [attr.aria-label]="itemCount() + ' items'">
+      {{ itemCount() }}
+    </span>
+    <span class="category-chevron" aria-hidden="true">
+      <lucide-icon [name]="isOpen() ? 'chevron-up' : 'chevron-down'" [size]="18" />
+    </span>
+  </button>
+
+  @if (isOpen()) {
+    <div class="category-body">
+      <ng-content />
+    </div>
+  }
+</section>

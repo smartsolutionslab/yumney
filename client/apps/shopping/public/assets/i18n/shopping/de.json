@@ -33,6 +33,7 @@
     "viewRecipe": "Rezept anzeigen",
     "checkAll": "Alle abhaken",
     "reset": "Zurücksetzen",
+    "changeCategory": "Kategorie ändern",
     "errors": {
       "notFound": "Einkaufsliste nicht gefunden.",
       "generic": "Einkaufsliste konnte nicht geladen werden. Bitte versuche es später erneut."
@@ -68,6 +69,7 @@
     "frozen": "Tiefkühl",
     "beverages": "Getränke",
     "pantry": "Vorratskammer",
+    "spices": "Gewürze",
     "household": "Haushalt",
     "other": "Sonstiges"
   },

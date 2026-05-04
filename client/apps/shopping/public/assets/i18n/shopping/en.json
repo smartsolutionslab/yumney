@@ -33,6 +33,7 @@
     "viewRecipe": "View Recipe",
     "checkAll": "Check all",
     "reset": "Reset",
+    "changeCategory": "Change category",
     "errors": {
       "notFound": "Shopping list not found.",
       "generic": "Failed to load shopping list. Please try again later."
@@ -68,6 +69,7 @@
     "frozen": "Frozen",
     "beverages": "Beverages",
     "pantry": "Pantry",
+    "spices": "Spices",
     "household": "Household",
     "other": "Other"
   },
