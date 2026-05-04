@@ -38,47 +38,13 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 		activity?.SetTag("chat.history_length", history.Count);
 
 		var userRecipes = await LoadUserRecipeContextAsync(owner, cancellationToken);
+		var chatHistory = BuildChatHistory(message, history, userRecipes);
 
-		var chatHistory = new ChatHistory();
-		chatHistory.AddSystemMessage(BuildSystemPrompt(userRecipes));
+		var replyResult = await GetChatReplyAsync(chatHistory, activity, cancellationToken);
+		if (replyResult.IsFailure) return replyResult.Error!;
 
-		foreach (var (role, content) in history)
-		{
-			if (role == ChatRole.User)
-			{
-				chatHistory.AddUserMessage(content.Value);
-			}
-			else if (role == ChatRole.Assistant)
-			{
-				chatHistory.AddAssistantMessage(content.Value);
-			}
-		}
-
-		chatHistory.AddUserMessage(message.Value);
-
-		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
-
-		string reply;
-		try
-		{
-			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
-			reply = result.Content ?? string.Empty;
-			activity?.SetTag("llm.response_length", reply.Length);
-		}
-		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-		{
-			throw;
-		}
-		catch (Exception ex)
-		{
-			activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-			LogChatFailed(ex.Message);
-			return ImportRecipeErrors.ExtractionFailed;
-		}
-
-		var suggestions = MatchRecipesByMention(reply, userRecipes);
-
-		return new ChatResponseDto(reply, suggestions);
+		var suggestions = MatchRecipesByMention(replyResult.Value, userRecipes);
+		return new ChatResponseDto(replyResult.Value, suggestions);
 	}
 
 	internal static List<ChatRecipeSuggestionDto> MatchRecipesByMention(string reply, IReadOnlyList<Recipe> userRecipes)
@@ -100,6 +66,56 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 		}
 
 		return suggestions;
+	}
+
+	private static ChatHistory BuildChatHistory(
+		ChatMessageContent message,
+		IReadOnlyList<DomainChatHistoryEntry> history,
+		IReadOnlyList<Recipe> userRecipes)
+	{
+		var chatHistory = new ChatHistory();
+		chatHistory.AddSystemMessage(BuildSystemPrompt(userRecipes));
+
+		foreach (var (role, content) in history)
+		{
+			if (role == ChatRole.User)
+			{
+				chatHistory.AddUserMessage(content.Value);
+			}
+			else if (role == ChatRole.Assistant)
+			{
+				chatHistory.AddAssistantMessage(content.Value);
+			}
+		}
+
+		chatHistory.AddUserMessage(message.Value);
+		return chatHistory;
+	}
+
+	private async Task<Result<string>> GetChatReplyAsync(
+		ChatHistory chatHistory,
+		Activity? activity,
+		CancellationToken cancellationToken)
+	{
+		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
+
+		try
+		{
+			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
+			var reply = result.Content ?? string.Empty;
+			activity?.SetTag("llm.response_length", reply.Length);
+			return reply;
+		}
+		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+		{
+			throw;
+		}
+		catch (Exception ex)
+		{
+			activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+			LogChatFailed(ex.Message);
+			return ImportRecipeErrors.ExtractionFailed;
+		}
 	}
 
 	private static string BuildSystemPrompt(IReadOnlyList<Recipe> userRecipes)
