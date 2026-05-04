@@ -36,7 +36,25 @@ public sealed partial class ModuleEventConsumer<TEvent>(
 			}
 
 			LogHandlingEvent(typeof(TEvent).Name, handler.GetType().Name);
-			await handler.HandleAsync(message, cancellationToken);
+			try
+			{
+				await handler.HandleAsync(message, cancellationToken);
+			}
+			catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				// The inbox row was committed before this handler ran, so on
+				// redelivery the (messageId, consumerName) pair will be
+				// recognised as already processed and the handler will be
+				// skipped. The side effects are effectively lost — the only
+				// signal that this happened is this log line. Tracking issue:
+				// https://github.com/smartsolutionslab/yumney/issues/571
+				LogHandlerFailedAfterMark(ex, typeof(TEvent).Name, consumerName, message.EventIdentifier);
+				throw;
+			}
 		}
 	}
 
@@ -45,4 +63,7 @@ public sealed partial class ModuleEventConsumer<TEvent>(
 
 	[LoggerMessage(Level = LogLevel.Information, Message = "Skipping duplicate module event {EventType} for {ConsumerName} (id {MessageId})")]
 	private partial void LogSkippingDuplicate(string eventType, string consumerName, Guid messageId);
+
+	[LoggerMessage(Level = LogLevel.Error, Message = "Module handler {ConsumerName} for {EventType} (id {MessageId}) threw after the inbox mark was committed; the handler will not be retried — manual reprocessing may be required")]
+	private partial void LogHandlerFailedAfterMark(Exception exception, string eventType, string consumerName, Guid messageId);
 }
