@@ -142,40 +142,11 @@ if (!options.DatabaseOnly)
 		.WithReference(shoppingApi)
 		.WithReference(usersApi);
 
-	// ── Container Registry (GHCR for CI/CD) ──
-#pragma warning disable ASPIRECOMPUTE003
-	var registry = options.UseGhcr
-		? builder.AddContainerRegistry("ghcr", options.RegistryEndpoint!, options.RegistryRepository!)
-		: null;
-
-	if (registry is not null)
-	{
-		migrationRunner.WithContainerRegistry(registry);
-		recipesApi.WithContainerRegistry(registry);
-		shoppingApi.WithContainerRegistry(registry);
-		usersApi.WithContainerRegistry(registry);
-		mealplanApi.WithContainerRegistry(registry);
-	}
-#pragma warning restore ASPIRECOMPUTE003
-
-	// ── ACA Scaling + GHCR pull credentials ──
+	// Images are pushed to the ACR provisioned by AddAzureContainerAppEnvironment("cae");
+	// ACA pulls them via the environment's managed identity, so no registry credentials
+	// are baked into the container app revisions.
 	void ConfigureContainerApp(AzureResourceInfrastructure infra, ContainerApp app, int minReplicas, int maxReplicas, int? concurrentRequests = null)
 	{
-		if (options.UseGhcrPullCredentials)
-		{
-			app.Configuration.Registries.Add(new ContainerAppRegistryCredentials
-			{
-				Server = "ghcr.io",
-				Username = options.GhcrUser!,
-				PasswordSecretRef = "ghcr-token",
-			});
-			app.Configuration.Secrets.Add(new ContainerAppWritableSecret
-			{
-				Name = "ghcr-token",
-				Value = options.GhcrToken!,
-			});
-		}
-
 		app.Template.Scale.MinReplicas = minReplicas;
 		app.Template.Scale.MaxReplicas = maxReplicas;
 
@@ -248,13 +219,6 @@ if (!options.DatabaseOnly)
 		var frontend = builder
 			.AddDockerfile("yumney-frontend", "../../client", "docker/Dockerfile")
 			.WithHttpEndpoint(targetPort: 80);
-
-#pragma warning disable ASPIRECOMPUTE003
-		if (registry is not null)
-		{
-			frontend.WithContainerRegistry(registry);
-		}
-#pragma warning restore ASPIRECOMPUTE003
 
 		builder
 			.AddYarp("yumney-gateway")
