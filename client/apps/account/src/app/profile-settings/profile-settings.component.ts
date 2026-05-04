@@ -1,4 +1,11 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
 import { createAsyncState, ERROR_MAPS, UI } from '@yumney/shared/models';
@@ -62,15 +69,11 @@ export class ProfileSettingsComponent {
       cookingEffort: this.cookingEffort() || null,
     };
 
-    this.saveState.execute(
-      this.api.updateProfile(request),
-      ERROR_MAPS.account.save,
-      (updated) => {
-        this.profile.set(updated);
-        this.saved.set(true);
-        setTimeout(() => this.saved.set(false), UI.SAVED_INDICATOR_MS);
-      },
-    );
+    this.saveState.execute(this.api.updateProfile(request), ERROR_MAPS.account.save, (updated) => {
+      this.profile.set(updated);
+      this.saved.set(true);
+      setTimeout(() => this.saved.set(false), UI.SAVED_INDICATOR_MS);
+    });
   }
 
   protected onToggleRestriction(restriction: string): void {
@@ -87,18 +90,14 @@ export class ProfileSettingsComponent {
   }
 
   private loadProfile(): void {
-    this.loadState.execute(
-      this.api.getProfile(),
-      ERROR_MAPS.account.load,
-      (profile) => {
-        this.profile.set(profile);
-        this.defaultServings.set(profile.defaultServings);
-        this.dietaryType.set(profile.dietaryProfile.dietaryType ?? '');
-        this.restrictions.set([...profile.dietaryProfile.restrictions]);
-        this.minVeggieMeals.set(profile.dietaryProfile.minVeggieMeals);
-        this.maxRedMeatMeals.set(profile.dietaryProfile.maxRedMeatMeals);
-        this.cookingEffort.set(profile.dietaryProfile.cookingEffort ?? '');
-      },
-    );
+    this.loadState.execute(this.api.getProfile(), ERROR_MAPS.account.load, (profile) => {
+      this.profile.set(profile);
+      this.defaultServings.set(profile.defaultServings);
+      this.dietaryType.set(profile.dietaryProfile.dietaryType ?? '');
+      this.restrictions.set([...profile.dietaryProfile.restrictions]);
+      this.minVeggieMeals.set(profile.dietaryProfile.minVeggieMeals);
+      this.maxRedMeatMeals.set(profile.dietaryProfile.maxRedMeatMeals);
+      this.cookingEffort.set(profile.dietaryProfile.cookingEffort ?? '');
+    });
   }
 }
