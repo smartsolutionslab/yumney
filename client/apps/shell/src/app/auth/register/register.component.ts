@@ -52,9 +52,9 @@ export class RegisterComponent {
         [
           Validators.required,
           Validators.minLength(VALIDATION.USERS.PASSWORD.MIN_LENGTH),
-          Validators.pattern(/[A-Z]/),
-          Validators.pattern(/[a-z]/),
-          Validators.pattern(/[0-9]/),
+          Validators.pattern(new RegExp(VALIDATION.USERS.PASSWORD.UPPERCASE_PATTERN)),
+          Validators.pattern(new RegExp(VALIDATION.USERS.PASSWORD.LOWERCASE_PATTERN)),
+          Validators.pattern(new RegExp(VALIDATION.USERS.PASSWORD.DIGIT_PATTERN)),
         ],
       ],
       confirmPassword: ['', [Validators.required]],

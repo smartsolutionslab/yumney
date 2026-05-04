@@ -77,6 +77,8 @@
     "loading": "Loading recipe...",
     "success": "Recipe \"{{title}}\" updated successfully!",
     "discardConfirm": "You have unsaved changes. Discard them?",
+    "discardConfirmButton": "Discard",
+    "discardCancelButton": "Keep editing",
     "errors": {
       "notFound": "Recipe not found.",
       "generic": "Failed to update recipe. Please try again later."

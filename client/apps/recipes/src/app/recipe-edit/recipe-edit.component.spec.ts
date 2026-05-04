@@ -230,15 +230,29 @@ describe('RecipeEditComponent', () => {
     expect((data as Record<string, unknown>)['createdAt']).toBeUndefined();
   }));
 
-  it('should navigate to detail on discard', fakeAsync(() => {
+  it('should open discard confirm dialog and navigate on confirm', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockRecipeDetail)));
     fixture.detectChanges();
     tick();
 
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     component.onDiscard();
+    expect(component.showDiscardConfirm()).toBe(true);
 
+    component.onDiscardConfirmed();
+    expect(component.showDiscardConfirm()).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/recipes', 'abc-123']);
+  }));
+
+  it('should not navigate when discard is cancelled', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipeDetail)));
+    fixture.detectChanges();
+    tick();
+
+    component.onDiscard();
+    component.onDiscardCancelled();
+
+    expect(component.showDiscardConfirm()).toBe(false);
+    expect(router.navigate).not.toHaveBeenCalled();
   }));
 
   it('should call updateRecipe on save', fakeAsync(() => {

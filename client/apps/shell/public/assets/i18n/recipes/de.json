@@ -77,6 +77,8 @@
     "loading": "Rezept wird geladen...",
     "success": "Rezept \"{{title}}\" erfolgreich aktualisiert!",
     "discardConfirm": "Du hast ungespeicherte Änderungen. Verwerfen?",
+    "discardConfirmButton": "Verwerfen",
+    "discardCancelButton": "Weiter bearbeiten",
     "errors": {
       "notFound": "Rezept nicht gefunden.",
       "generic": "Rezept konnte nicht aktualisiert werden. Bitte versuche es später erneut."

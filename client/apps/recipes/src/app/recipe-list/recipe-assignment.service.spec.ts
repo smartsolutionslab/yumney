@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { NEVER, of, throwError } from 'rxjs';
 import { MealPlanApiService, RecipeListItem } from '../api';
 import { RecipeAssignmentService } from './recipe-assignment.service';
 
@@ -92,8 +92,7 @@ describe('RecipeAssignmentService', () => {
   });
 
   it('should set assigning true while the request is in flight', () => {
-    assignRecipe = vi.fn().mockReturnValue(of({}));
-    const service = setup('2026-W1-tuesday');
+    const service = setup('2026-W1-tuesday', NEVER);
     service.initFromRoute();
 
     service.assign(recipe);

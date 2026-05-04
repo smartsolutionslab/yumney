@@ -2,13 +2,10 @@ import {
   Component,
   ChangeDetectionStrategy,
   computed,
-  effect,
-  ElementRef,
   inject,
   OnInit,
   DestroyRef,
   signal,
-  viewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime } from 'rxjs';
@@ -27,9 +24,8 @@ import {
   EMPTY_FILTER,
   FilterPanelComponent,
   InfiniteScrollDirective,
-  prefersReducedMotion,
   type RecipeFilterValue,
-  staggerFadeIn,
+  StaggerNewItemsDirective,
 } from '@yumney/ui';
 import { RecipeCardComponent } from './recipe-card/recipe-card.component';
 import { SortMenuComponent, SortMenuOption } from './sort-menu/sort-menu.component';
@@ -49,6 +45,7 @@ interface SortOption extends SortMenuOption {
     RouterLink,
     LucideAngularModule,
     InfiniteScrollDirective,
+    StaggerNewItemsDirective,
     FilterPanelComponent,
     RecipeCardComponent,
     SortMenuComponent,
@@ -74,8 +71,6 @@ export class RecipeListComponent implements OnInit {
   private asyncState = createAsyncState(this.destroyRef);
   private searchSubject = new Subject<string>();
   private loadRequestId = 0;
-  private previousCardCount = 0;
-  private recipeCards = viewChildren<ElementRef>('recipeCard');
 
   protected assignment = inject(RecipeAssignmentService);
   protected multiSelect = inject(MultiRecipeShoppingListService);
@@ -113,25 +108,6 @@ export class RecipeListComponent implements OnInit {
     if (f.favoritesOnly) count += 1;
     return count;
   });
-
-  constructor() {
-    effect(() => {
-      const count = this.recipes().length;
-      if (count > this.previousCardCount && !prefersReducedMotion()) {
-        const prev = this.previousCardCount;
-        this.previousCardCount = count;
-        requestAnimationFrame(() => {
-          const cards = this.recipeCards();
-          const newCards = cards.slice(prev).map((ref) => ref.nativeElement);
-          if (newCards.length > 0) {
-            staggerFadeIn(newCards as Element[]);
-          }
-        });
-      } else {
-        this.previousCardCount = count;
-      }
-    });
-  }
 
   ngOnInit(): void {
     this.assignment.initFromRoute();

@@ -1,8 +1,7 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { createAsyncState, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
 import { MealPlanApiService, RecipeListItem } from '../api';
-import { ROUTES } from '@yumney/shared/models';
 
 const ASSIGN_TO_PATTERN = /^(\d{4})-W(\d{1,2})-(\w+)$/;
 
@@ -12,10 +11,12 @@ export class RecipeAssignmentService {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private assignState = createAsyncState(this.destroyRef);
 
   readonly assignTo = signal<string | null>(null);
   readonly assignMode = computed(() => this.assignTo() !== null);
-  readonly assigning = signal(false);
+  readonly assigning = this.assignState.isLoading;
+  readonly serverError = this.assignState.serverError;
 
   initFromRoute(): void {
     this.assignTo.set(this.route.snapshot.queryParamMap.get('assignTo'));
@@ -29,19 +30,16 @@ export class RecipeAssignmentService {
     if (!match) return;
 
     const [, yearStr, weekStr, day] = match;
-    this.assigning.set(true);
 
-    this.mealPlanApi
-      .assignRecipe(Number(yearStr), Number(weekStr), {
+    this.assignState.execute(
+      this.mealPlanApi.assignRecipe(Number(yearStr), Number(weekStr), {
         day,
         recipeIdentifier: recipe.identifier,
         recipeTitle: recipe.title,
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.router.navigate([ROUTES.mealPlanner]),
-        error: () => this.assigning.set(false),
-      });
+      }),
+      ERROR_MAPS.mealPlanner.assign,
+      () => this.router.navigate([ROUTES.mealPlanner]),
+    );
   }
 
   cancel(): void {

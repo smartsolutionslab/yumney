@@ -49,6 +49,19 @@ export const ERROR_MAPS = {
       default: 'shopping.create.errors.createFailed',
     } satisfies HttpErrorMap,
   },
+  mealPlanner: {
+    assign: {
+      default: 'mealPlanner.errors.assignFailed',
+    } satisfies HttpErrorMap,
+  },
+  account: {
+    load: {
+      default: 'account.settings.errors.loadFailed',
+    } satisfies HttpErrorMap,
+    save: {
+      default: 'account.settings.errors.saveFailed',
+    } satisfies HttpErrorMap,
+  },
   auth: {
     register: {
       409: 'auth.register.errors.emailAlreadyExists',

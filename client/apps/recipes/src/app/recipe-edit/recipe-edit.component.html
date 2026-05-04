@@ -18,4 +18,14 @@
       (discard)="onDiscard()"
     />
   }
+
+  @if (showDiscardConfirm()) {
+    <yn-confirm-dialog
+      [message]="t('recipes.edit.discardConfirm')"
+      [confirmLabel]="t('recipes.edit.discardConfirmButton')"
+      [cancelLabel]="t('recipes.edit.discardCancelButton')"
+      (confirmed)="onDiscardConfirmed()"
+      (cancelled)="onDiscardCancelled()"
+    />
+  }
 </div>

@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '../api';
 import {
   createAsyncState,
@@ -16,11 +16,22 @@ import {
   ERROR_MAPS,
   ROUTES,
 } from '@yumney/shared/models';
-import { BackLinkComponent, LoadingSpinnerComponent, RecipePreviewComponent } from '@yumney/ui';
+import {
+  BackLinkComponent,
+  ConfirmDialogComponent,
+  LoadingSpinnerComponent,
+  RecipePreviewComponent,
+} from '@yumney/ui';
 
 @Component({
   selector: 'yn-recipe-edit',
-  imports: [TranslocoModule, BackLinkComponent, LoadingSpinnerComponent, RecipePreviewComponent],
+  imports: [
+    TranslocoModule,
+    BackLinkComponent,
+    ConfirmDialogComponent,
+    LoadingSpinnerComponent,
+    RecipePreviewComponent,
+  ],
   templateUrl: './recipe-edit.component.html',
   styleUrl: './recipe-edit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,12 +42,12 @@ export class RecipeEditComponent implements OnInit {
   private router = inject(Router);
   private loadState = createAsyncState(inject(DestroyRef));
   private saveState = createAsyncState(inject(DestroyRef));
-  private transloco = inject(TranslocoService);
 
   recipeData = signal<ImportRecipeResponse | null>(null);
   isLoading = this.loadState.isLoading;
   isSaving = this.saveState.isLoading;
   serverError = signal<string | null>(null);
+  showDiscardConfirm = signal(false);
 
   identifier = signal('');
 
@@ -69,8 +80,16 @@ export class RecipeEditComponent implements OnInit {
   }
 
   onDiscard(): void {
-    if (window.confirm(this.transloco.translate('recipes.edit.discardConfirm'))) {
-      this.router.navigate([ROUTES.recipes.list, this.identifier()]);
-    }
+    if (this.isSaving()) return;
+    this.showDiscardConfirm.set(true);
+  }
+
+  onDiscardConfirmed(): void {
+    this.showDiscardConfirm.set(false);
+    this.router.navigate([ROUTES.recipes.list, this.identifier()]);
+  }
+
+  onDiscardCancelled(): void {
+    this.showDiscardConfirm.set(false);
   }
 }
