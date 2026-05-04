@@ -60,6 +60,13 @@ internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
 
 		entity.Property(e => e.CreatedAt).IsRequired();
 
+		entity.Property(e => e.Rating)
+			.HasConversion<RatingConverter>();
+
+		entity.Property(e => e.Notes)
+			.HasConversion<NotesConverter>()
+			.HasMaxLength(Notes.MaxLength);
+
 		entity.OwnsMany(e => e.Ingredients, ingredient =>
 		{
 			ingredient.ToTable("RecipeIngredients");

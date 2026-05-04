@@ -24,6 +24,7 @@ public static partial class RecipesEndpoints
 		MapImportEndpoints(group);
 		MapChatEndpoints(group);
 		MapHistoryEndpoints(group);
+		MapRatingAndNotesEndpoints(group);
 
 		return app;
 	}

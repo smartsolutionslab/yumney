@@ -15,4 +15,6 @@ public sealed record RecipeDetailDto(
 	IReadOnlyList<RecipeIngredientDto> Ingredients,
 	IReadOnlyList<RecipeStepDto> Steps,
 	IReadOnlyList<string> Tags,
-	bool IsFavorite);
+	bool IsFavorite,
+	int? Rating,
+	string? Notes);

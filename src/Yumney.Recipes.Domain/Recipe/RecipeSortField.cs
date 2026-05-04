@@ -10,4 +10,7 @@ public enum RecipeSortField
 
 	/// <summary>Sort by creation date.</summary>
 	Date,
+
+	/// <summary>Sort by personal rating (highest first).</summary>
+	Rating,
 }
