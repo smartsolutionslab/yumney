@@ -11,9 +11,6 @@ export const accountRoutes: Route[] = [
     // root providers. Without this, keys like account.settings.title render
     // as their literal path.
     providers: [provideTranslocoScope('account')],
-    loadComponent: () =>
-      import('./profile-settings/profile-settings.component').then(
-        (m) => m.ProfileSettingsComponent,
-      ),
+    loadComponent: () => import('./profile-settings').then((m) => m.ProfileSettingsComponent),
   },
 ];
