@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Converters;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;

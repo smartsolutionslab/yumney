@@ -7,7 +7,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Yumney.Shared\Yumney.Shared.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.Abstractions\Yumney.Shared.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.CQRS\Yumney.Shared.CQRS.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.Paging\Yumney.Shared.Paging.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.Quantities\Yumney.Shared.Quantities.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.Outcomes\Yumney.Shared.Outcomes.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Persistence\Yumney.Shared.Persistence.csproj" />
   </ItemGroup>

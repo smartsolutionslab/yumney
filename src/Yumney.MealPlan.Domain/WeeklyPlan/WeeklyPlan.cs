@@ -1,5 +1,5 @@
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 

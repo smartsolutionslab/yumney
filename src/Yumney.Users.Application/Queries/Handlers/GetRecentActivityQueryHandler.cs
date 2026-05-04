@@ -1,5 +1,6 @@
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Users.Application.DTOs;
 using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 

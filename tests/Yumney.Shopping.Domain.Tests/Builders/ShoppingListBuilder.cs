@@ -1,4 +1,3 @@
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using ShoppingListAggregate = SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.ShoppingList;
 

@@ -7,6 +7,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Chat;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;

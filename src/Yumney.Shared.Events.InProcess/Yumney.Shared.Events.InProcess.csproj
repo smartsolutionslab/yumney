@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Shared.Events\Yumney.Shared.Events.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Outcomes\Yumney.Shared.Outcomes.csproj" />
   </ItemGroup>
 
   <ItemGroup>

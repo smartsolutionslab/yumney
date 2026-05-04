@@ -4,7 +4,8 @@ using System.Text;
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;

@@ -2,10 +2,10 @@ using System.Diagnostics.Metrics;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.CQRS.Decorators;
 using SmartSolutionsLab.Yumney.Shared.CQRS.Diagnostics;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shared.Tests.CQRS;

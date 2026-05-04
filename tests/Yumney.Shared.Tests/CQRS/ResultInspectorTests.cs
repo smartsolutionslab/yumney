@@ -1,6 +1,6 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS.Decorators;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shared.Tests.CQRS;

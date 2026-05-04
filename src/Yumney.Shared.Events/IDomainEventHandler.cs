@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events;
 
