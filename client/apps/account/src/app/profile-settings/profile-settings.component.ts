@@ -1,6 +1,6 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { TranslocoModule } from '@jsverse/transloco';
 import { createAsyncState, ERROR_MAPS, UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 import { UserProfileApiService, type UserProfile, type UpdateProfileRequest } from '../api';
@@ -16,14 +16,13 @@ import { UserProfileApiService, type UserProfile, type UpdateProfileRequest } fr
 export class ProfileSettingsComponent {
   private api = inject(UserProfileApiService);
   private destroyRef = inject(DestroyRef);
-  private transloco = inject(TranslocoService);
   private loadState = createAsyncState(this.destroyRef);
   private saveState = createAsyncState(this.destroyRef);
 
   protected profile = signal<UserProfile | null>(null);
   protected loading = this.loadState.isLoading;
   protected saving = this.saveState.isLoading;
-  protected error = signal<string | null>(null);
+  protected error = computed(() => this.loadState.serverError() ?? this.saveState.serverError());
   protected saved = signal(false);
 
   protected defaultServings = signal(4);
@@ -53,7 +52,6 @@ export class ProfileSettingsComponent {
   protected onSave(): void {
     if (this.saving()) return;
     this.saved.set(false);
-    this.error.set(null);
 
     const request: UpdateProfileRequest = {
       defaultServings: this.defaultServings(),
@@ -72,7 +70,6 @@ export class ProfileSettingsComponent {
         this.saved.set(true);
         setTimeout(() => this.saved.set(false), UI.SAVED_INDICATOR_MS);
       },
-      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
     );
   }
 
@@ -90,7 +87,6 @@ export class ProfileSettingsComponent {
   }
 
   private loadProfile(): void {
-    this.error.set(null);
     this.loadState.execute(
       this.api.getProfile(),
       ERROR_MAPS.account.load,
@@ -103,7 +99,6 @@ export class ProfileSettingsComponent {
         this.maxRedMeatMeals.set(profile.dietaryProfile.maxRedMeatMeals);
         this.cookingEffort.set(profile.dietaryProfile.cookingEffort ?? '');
       },
-      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
     );
   }
 }

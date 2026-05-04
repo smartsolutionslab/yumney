@@ -9,7 +9,7 @@ import {
   computed,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   MealPlanApiService,
@@ -38,7 +38,6 @@ const JS_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 export class MealPlannerComponent {
   private api = inject(MealPlanApiService);
   private destroyRef = inject(DestroyRef);
-  private transloco = inject(TranslocoService);
   private router = inject(Router);
   private host = inject(ElementRef<HTMLElement>);
   private loadState = createAsyncState(this.destroyRef);
@@ -49,7 +48,12 @@ export class MealPlannerComponent {
   protected weekNumber = signal(this.getCurrentWeek());
   protected plan = signal<WeeklyPlan | null>(null);
   protected loading = this.loadState.isLoading;
-  protected error = signal<string | null>(null);
+  protected error = computed(
+    () =>
+      this.loadState.serverError() ??
+      this.generateState.serverError() ??
+      this.clearSlotState.serverError(),
+  );
   protected generatingList = this.generateState.isLoading;
   protected shoppingResult = signal<GenerateShoppingListResult | null>(null);
 
@@ -98,7 +102,6 @@ export class MealPlannerComponent {
 
   protected onGenerateShoppingList(): void {
     this.shoppingResult.set(null);
-    this.error.set(null);
 
     this.generateState.execute(
       this.api.generateShoppingList(this.year(), this.weekNumber()),
@@ -107,7 +110,6 @@ export class MealPlannerComponent {
         this.shoppingResult.set(result);
         setTimeout(() => this.shoppingResult.set(null), UI.RESULT_DISPLAY_MS);
       },
-      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
     );
   }
 
@@ -124,12 +126,10 @@ export class MealPlannerComponent {
       this.api.clearSlot(this.year(), this.weekNumber(), { day }),
       ERROR_MAPS.mealPlanner.clearSlot,
       (plan) => this.plan.set(plan),
-      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
     );
   }
 
   private loadPlan(): void {
-    this.error.set(null);
     this.loadState.execute(
       this.api.getWeeklyPlan(this.year(), this.weekNumber()),
       ERROR_MAPS.mealPlanner.load,
@@ -137,7 +137,6 @@ export class MealPlannerComponent {
         this.plan.set(plan);
         queueMicrotask(() => this.scrollTodayIntoView());
       },
-      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
     );
   }
 

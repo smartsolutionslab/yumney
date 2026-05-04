@@ -88,7 +88,7 @@ export class MergedListComponent {
       this.api.addItem({ name }),
       ERROR_MAPS.shopping.merged.add,
       () => this.loadList(),
-      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+      (errorKey) => this.error.set(errorKey),
     );
   }
 
@@ -97,7 +97,7 @@ export class MergedListComponent {
       this.api.removeItem({ name: itemName }),
       ERROR_MAPS.shopping.merged.remove,
       () => this.loadList(),
-      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+      (errorKey) => this.error.set(errorKey),
     );
   }
 
@@ -124,7 +124,7 @@ export class MergedListComponent {
           this.copyToClipboard(text);
         }
       },
-      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+      (errorKey) => this.error.set(errorKey),
     );
   }
 
@@ -158,7 +158,7 @@ export class MergedListComponent {
         },
         error: () => {
           if (requestId !== this.loadRequestId) return;
-          this.error.set(this.transloco.translate('shopping.errors.loadFailed'));
+          this.error.set('shopping.errors.loadFailed');
           this.loading.set(false);
         },
       });
@@ -168,8 +168,6 @@ export class MergedListComponent {
     navigator.clipboard
       .writeText(text)
       .then(() => this.toasts.success('shopping.export.copied'))
-      .catch(() => {
-        this.error.set(this.transloco.translate('shopping.errors.exportFailed'));
-      });
+      .catch(() => this.error.set('shopping.errors.exportFailed'));
   }
 }
