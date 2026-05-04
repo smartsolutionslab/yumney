@@ -1,6 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  computed,
   inject,
   OnInit,
   DestroyRef,
@@ -46,15 +47,19 @@ export class RecipeEditComponent implements OnInit {
   recipeData = signal<ImportRecipeResponse | null>(null);
   isLoading = this.loadState.isLoading;
   isSaving = this.saveState.isLoading;
-  serverError = signal<string | null>(null);
   showDiscardConfirm = signal(false);
+
+  private notFoundError = signal<string | null>(null);
+  serverError = computed(
+    () => this.notFoundError() ?? this.loadState.serverError() ?? this.saveState.serverError(),
+  );
 
   identifier = signal('');
 
   ngOnInit(): void {
     this.identifier.set(this.route.snapshot.paramMap.get('identifier') ?? '');
     if (!this.identifier()) {
-      this.serverError.set('recipes.edit.errors.notFound');
+      this.notFoundError.set('recipes.edit.errors.notFound');
       return;
     }
 
@@ -62,20 +67,16 @@ export class RecipeEditComponent implements OnInit {
       this.recipeApi.getRecipeById(this.identifier()),
       ERROR_MAPS.recipes.edit,
       (recipe) => this.recipeData.set(mapDetailToImportResponse(recipe)),
-      (error) => this.serverError.set(error),
     );
   }
 
   onSave(recipe: ImportRecipeResponse): void {
     const request = mapToUpdateRecipeRequest(recipe);
 
-    this.serverError.set(null);
-
     this.saveState.execute(
       this.recipeApi.updateRecipe(this.identifier(), request),
       ERROR_MAPS.recipes.edit,
       () => this.router.navigate([ROUTES.recipes.list, this.identifier()]),
-      (error) => this.serverError.set(error),
     );
   }
 

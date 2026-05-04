@@ -11,7 +11,7 @@ import { TranslocoModule } from '@jsverse/transloco';
     }
     @if (error(); as err) {
       <div class="error" role="alert">
-        {{ err }}
+        {{ err | transloco }}
         <button class="retry-btn" (click)="retry.emit()">
           {{ retryKey() | transloco }}
         </button>
