@@ -28,6 +28,7 @@ internal static class ShoppingListEventSerializer
 			new RecipeReferenceJsonConverter(),
 			new AmountJsonConverter(),
 			new UnitJsonConverter(),
+			new IngredientCategoryJsonConverter(),
 		},
 	};
 
@@ -37,6 +38,7 @@ internal static class ShoppingListEventSerializer
 		[nameof(ListItemAdded)] = typeof(ListItemAdded),
 		[nameof(ListItemChecked)] = typeof(ListItemChecked),
 		[nameof(ListItemUnchecked)] = typeof(ListItemUnchecked),
+		[nameof(ListItemCategoryChanged)] = typeof(ListItemCategoryChanged),
 		[nameof(AllItemsChecked)] = typeof(AllItemsChecked),
 		[nameof(AllItemsUnchecked)] = typeof(AllItemsUnchecked),
 		[nameof(RecipeReferenceCleared)] = typeof(RecipeReferenceCleared),

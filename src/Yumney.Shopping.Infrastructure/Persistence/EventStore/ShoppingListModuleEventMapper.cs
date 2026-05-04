@@ -17,6 +17,7 @@ internal static class ShoppingListModuleEventMapper
 		ListItemAdded added => new ListItemAddedModuleEvent(ownerId, aggregateId, added),
 		ListItemChecked checked_ => new ListItemCheckedModuleEvent(ownerId, aggregateId, checked_),
 		ListItemUnchecked unchecked_ => new ListItemUncheckedModuleEvent(ownerId, aggregateId, unchecked_),
+		ListItemCategoryChanged categoryChanged => new ListItemCategoryChangedModuleEvent(ownerId, aggregateId, categoryChanged),
 		AllItemsChecked allChecked => new AllItemsCheckedModuleEvent(ownerId, aggregateId, allChecked),
 		AllItemsUnchecked allUnchecked => new AllItemsUncheckedModuleEvent(ownerId, aggregateId, allUnchecked),
 		RecipeReferenceCleared cleared => new RecipeReferenceClearedModuleEvent(ownerId, aggregateId, cleared),

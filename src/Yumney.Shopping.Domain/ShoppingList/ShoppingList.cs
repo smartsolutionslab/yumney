@@ -24,6 +24,7 @@ public sealed class ShoppingList : EventSourcedAggregate<ShoppingListIdentifier>
 		On<ListItemAdded>(OnListItemAdded);
 		On<ListItemChecked>(OnListItemChecked);
 		On<ListItemUnchecked>(OnListItemUnchecked);
+		On<ListItemCategoryChanged>(OnListItemCategoryChanged);
 		On<AllItemsChecked>(_ => OnAllItemsChecked());
 		On<AllItemsUnchecked>(_ => OnAllItemsUnchecked());
 		On<RecipeReferenceCleared>(_ => OnRecipeReferenceCleared());
@@ -47,7 +48,7 @@ public sealed class ShoppingList : EventSourcedAggregate<ShoppingListIdentifier>
 
 		foreach (var item in items)
 		{
-			list.RaiseEvent(new ListItemAdded(item.Id, item.Name, item.Quantity));
+			list.RaiseEvent(new ListItemAdded(item.Id, item.Name, item.Quantity, item.Category));
 		}
 
 		return list;
@@ -89,6 +90,13 @@ public sealed class ShoppingList : EventSourcedAggregate<ShoppingListIdentifier>
 		return this;
 	}
 
+	public ShoppingList ChangeItemCategory(ShoppingListItemIdentifier itemId, IngredientCategory category)
+	{
+		EnsureItemExists(itemId);
+		RaiseEvent(new ListItemCategoryChanged(itemId, category));
+		return this;
+	}
+
 	public ShoppingList ClearRecipeReference()
 	{
 		RaiseEvent(new RecipeReferenceCleared());
@@ -106,7 +114,12 @@ public sealed class ShoppingList : EventSourcedAggregate<ShoppingListIdentifier>
 
 	private void OnListItemAdded(ListItemAdded e)
 	{
-		items.Add(ShoppingListItem.Hydrate(e.ItemId, e.Name, e.Quantity));
+		items.Add(ShoppingListItem.Hydrate(e.ItemId, e.Name, e.Quantity, e.Category));
+	}
+
+	private void OnListItemCategoryChanged(ListItemCategoryChanged e)
+	{
+		FindItem(e.ItemId).ChangeCategoryTo(e.Category);
 	}
 
 	private void OnListItemChecked(ListItemChecked e)

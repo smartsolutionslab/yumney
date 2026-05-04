@@ -28,6 +28,7 @@ public static class ShoppingListMappingExtensions
 			item.Name.Value,
 			item.Quantity?.Amount.Value,
 			item.Quantity?.Unit?.Value,
+			item.Category.Value,
 			item.IsChecked);
 
 	public static IReadOnlyList<ShoppingListItemDto> ToDtos(this IEnumerable<ShoppingListItem> items) =>
