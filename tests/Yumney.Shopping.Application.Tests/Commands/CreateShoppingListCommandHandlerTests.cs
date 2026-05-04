@@ -4,6 +4,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
+using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
 using ShoppingListItem = SmartSolutionsLab.Yumney.Shopping.Application.Commands.ShoppingListItem;
@@ -13,13 +14,23 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Commands;
 public class CreateShoppingListCommandHandlerTests
 {
 	private readonly IShoppingListEventStore eventStore = Substitute.For<IShoppingListEventStore>();
+	private readonly IShoppingItemCategorizer categorizer = Substitute.For<IShoppingItemCategorizer>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
 	private readonly CreateShoppingListCommandHandler handler;
 
 	public CreateShoppingListCommandHandlerTests()
 	{
 		currentUser.UserId.Returns("user-123");
-		handler = new CreateShoppingListCommandHandler(eventStore, currentUser);
+		categorizer
+			.CategorizeManyAsync(Arg.Any<IReadOnlyCollection<ItemName>>(), Arg.Any<CancellationToken>())
+			.Returns(call =>
+			{
+				IReadOnlyDictionary<ItemName, IngredientCategory> map = ((IReadOnlyCollection<ItemName>)call[0])
+					.DistinctBy(name => name.Value)
+					.ToDictionary(name => name, _ => IngredientCategory.Other);
+				return Task.FromResult(map);
+			});
+		handler = new CreateShoppingListCommandHandler(eventStore, categorizer, currentUser);
 	}
 
 	[Fact]

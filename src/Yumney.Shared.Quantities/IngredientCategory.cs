@@ -12,7 +12,7 @@ public sealed record IngredientCategory : IValueObject<string>
 
 #pragma warning disable SA1202
 	private static readonly string[] allowedValues =
-		["produce", "dairy", "meat-fish", "bakery", "frozen", "beverages", "pantry", "household", "other"];
+		["produce", "dairy", "meat-fish", "bakery", "frozen", "beverages", "pantry", "spices", "household", "other"];
 
 	public static readonly IngredientCategory Produce = new("produce");
 	public static readonly IngredientCategory Dairy = new("dairy");
@@ -21,6 +21,7 @@ public sealed record IngredientCategory : IValueObject<string>
 	public static readonly IngredientCategory Frozen = new("frozen");
 	public static readonly IngredientCategory Beverages = new("beverages");
 	public static readonly IngredientCategory Pantry = new("pantry");
+	public static readonly IngredientCategory Spices = new("spices");
 	public static readonly IngredientCategory Household = new("household");
 	public static readonly IngredientCategory Other = new("other");
 #pragma warning restore SA1202
@@ -42,7 +43,7 @@ public sealed record IngredientCategory : IValueObject<string>
 	public static IngredientCategory From(string value) => new(value);
 
 	public static IReadOnlyList<IngredientCategory> All { get; } =
-		[Produce, Dairy, MeatFish, Bakery, Frozen, Beverages, Pantry, Household, Other];
+		[Produce, Dairy, MeatFish, Bakery, Frozen, Beverages, Pantry, Spices, Household, Other];
 
 	public static implicit operator string(IngredientCategory obj) => obj.Value;
 }
