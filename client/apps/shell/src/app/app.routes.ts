@@ -11,8 +11,7 @@ export const appRoutes: Route[] = [
     path: 'dashboard',
     title: 'Dashboard — Yumney',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
+    loadComponent: () => import('./dashboard').then((m) => m.DashboardComponent),
   },
   {
     path: 'recipes',
@@ -30,8 +29,7 @@ export const appRoutes: Route[] = [
     path: 'meal-planner',
     title: 'Meal Planner — Yumney',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./meal-planner/meal-planner.component').then((m) => m.MealPlannerComponent),
+    loadComponent: () => import('./meal-planner').then((m) => m.MealPlannerComponent),
   },
   {
     path: 'account',

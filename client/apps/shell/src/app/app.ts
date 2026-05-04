@@ -8,7 +8,7 @@ import {
   ToastHostComponent,
 } from '@yumney/ui';
 import { ChatStateService } from '@yumney/shared/models';
-import { OfflineIndicatorComponent } from './layout/offline-indicator/offline-indicator.component';
+import { OfflineIndicatorComponent } from './layout/offline-indicator';
 import { filter } from 'rxjs';
 
 @Component({

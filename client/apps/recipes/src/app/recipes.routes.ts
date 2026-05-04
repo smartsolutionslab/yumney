@@ -12,27 +12,24 @@ export const recipesRoutes: Route[] = [
     path: ':identifier/edit',
     title: 'Edit Recipe — Yumney',
     providers: RECIPES_SCOPE_PROVIDERS,
-    loadComponent: () =>
-      import('./recipe-edit/recipe-edit.component').then((m) => m.RecipeEditComponent),
+    loadComponent: () => import('./recipe-edit').then((m) => m.RecipeEditComponent),
   },
   {
     path: ':identifier/cook',
     title: 'Cook Mode — Yumney',
     providers: RECIPES_SCOPE_PROVIDERS,
-    loadComponent: () => import('./cook-mode/cook-mode.component').then((m) => m.CookModeComponent),
+    loadComponent: () => import('./cook-mode').then((m) => m.CookModeComponent),
   },
   {
     path: ':identifier',
     title: 'Recipe — Yumney',
     providers: RECIPES_SCOPE_PROVIDERS,
-    loadComponent: () =>
-      import('./recipe-detail/recipe-detail.component').then((m) => m.RecipeDetailComponent),
+    loadComponent: () => import('./recipe-detail').then((m) => m.RecipeDetailComponent),
   },
   {
     path: '',
     title: 'My Recipes — Yumney',
     providers: RECIPES_SCOPE_PROVIDERS,
-    loadComponent: () =>
-      import('./recipe-list/recipe-list.component').then((m) => m.RecipeListComponent),
+    loadComponent: () => import('./recipe-list').then((m) => m.RecipeListComponent),
   },
 ];
