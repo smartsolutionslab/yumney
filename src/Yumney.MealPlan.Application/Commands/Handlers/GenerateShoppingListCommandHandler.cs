@@ -24,9 +24,19 @@ public sealed class GenerateShoppingListCommandHandler(
 		var planned = await readModel.GetPlannedRecipesAsync(owner, week, cancellationToken);
 		if (planned.Recipes.Count == 0) return GenerateShoppingListErrors.NoRecipes;
 
+		var merged = await MergeIngredientsAsync(planned.Recipes, cancellationToken);
+		(int staplesSkipped, List<ShoppingItemRequest> itemsToAdd) = await FilterOutStaplesAsync(owner, merged, cancellationToken);
+
+		return new GenerateShoppingListResultDto(itemsToAdd.Count, staplesSkipped);
+	}
+
+	private async Task<Dictionary<string, MergedItem>> MergeIngredientsAsync(
+		IReadOnlyList<PlannedRecipeDto> recipes,
+		CancellationToken cancellationToken)
+	{
 		Dictionary<string, MergedItem> merged = new(StringComparer.OrdinalIgnoreCase);
 
-		foreach (var recipe in planned.Recipes)
+		foreach (var recipe in recipes)
 		{
 			var recipeRef = SlotRecipeIdentifier.From(recipe.RecipeIdentifier);
 			var ingredients = await recipeIngredients.LookupAsync(recipeRef, cancellationToken);
@@ -51,9 +61,7 @@ public sealed class GenerateShoppingListCommandHandler(
 			}
 		}
 
-		(int staplesSkipped, List<ShoppingItemRequest> itemsToAdd) = await FilterOutStaplesAsync(owner, merged, cancellationToken);
-
-		return new GenerateShoppingListResultDto(itemsToAdd.Count, staplesSkipped);
+		return merged;
 	}
 
 	private async Task<(int StaplesSkipped, List<ShoppingItemRequest> ItemsToAdd)> FilterOutStaplesAsync(
