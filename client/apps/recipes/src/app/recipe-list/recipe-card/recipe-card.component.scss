@@ -156,3 +156,11 @@
     transition: none;
   }
 }
+
+.meta-item--rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yn-space-1);
+  color: var(--yn-color-rating, gold);
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,27 @@
+<div
+  class="star-rating"
+  role="radiogroup"
+  *transloco="let t"
+  [attr.aria-label]="t('shared.rating.label')"
+  [attr.aria-readonly]="readonly()"
+  (mouseleave)="onLeave()"
+>
+  @for (value of stars; track value) {
+    <button
+      type="button"
+      class="star-rating__star"
+      #star
+      [class.star-rating__star--filled]="value <= highlight()"
+      [class.star-rating__star--readonly]="readonly()"
+      [attr.aria-checked]="value === rating()"
+      [attr.aria-label]="t('shared.rating.value', { value })"
+      role="radio"
+      [disabled]="readonly()"
+      (click)="onClick(value)"
+      (mouseenter)="onEnter(value)"
+      (focus)="onEnter(value)"
+    >
+      <lucide-icon name="star" [size]="22" />
+    </button>
+  }
+</div>

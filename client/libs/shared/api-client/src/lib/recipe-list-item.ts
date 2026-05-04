@@ -10,4 +10,6 @@ export interface RecipeListItem {
   createdAt: string;
   tags: string[];
   isFavorite: boolean;
+  rating: number | null;
+  hasNotes: boolean;
 }

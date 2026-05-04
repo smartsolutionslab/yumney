@@ -7,8 +7,10 @@ import {
   signal,
   computed,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
+<<<<<<< HEAD
 import {
   ActivityApiService,
   CreateShoppingListItem,
@@ -17,6 +19,11 @@ import {
   RecipeDetail,
   ShoppingApiService,
 } from '../api';
+=======
+import { Subject, debounceTime } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CreateShoppingListItem, RecipeApiService, RecipeDetail, ShoppingApiService } from '../api';
+>>>>>>> a50fba7d (feat(recipes): star rating + cooking notes on recipe detail (US-120))
 import {
   createAsyncState,
   scaleIngredients,
@@ -30,12 +37,16 @@ import {
   ConfirmDialogComponent,
   FavoriteButtonComponent,
   LoadingSpinnerComponent,
+  StarRatingComponent,
 } from '@yumney/ui';
 import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog/create-shopping-list-dialog.component';
+
+const NOTES_AUTOSAVE_DEBOUNCE_MS = 400;
 
 @Component({
   selector: 'yn-recipe-detail',
   imports: [
+    FormsModule,
     TranslocoModule,
     RouterLink,
     ConfirmDialogComponent,
@@ -43,6 +54,7 @@ import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog
     BackLinkComponent,
     LoadingSpinnerComponent,
     FavoriteButtonComponent,
+    StarRatingComponent,
   ],
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
@@ -70,6 +82,10 @@ export class RecipeDetailComponent implements OnInit {
   desiredServings = signal<number | null>(null);
   showDeleteConfirm = signal(false);
   showCreateShoppingListConfirm = signal(false);
+
+  notesDraft = signal<string>('');
+  notesSaved = signal(false);
+  private notesAutosave$ = new Subject<string>();
 
   scaledIngredients = computed(() => {
     const recipe = this.recipe();
@@ -103,6 +119,10 @@ export class RecipeDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.notesAutosave$
+      .pipe(debounceTime(NOTES_AUTOSAVE_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => this.persistNotes(value));
+
     const identifier = this.route.snapshot.paramMap.get('identifier');
     if (!identifier) {
       this.serverError.set('recipes.detail.notFound');
@@ -121,9 +141,42 @@ export class RecipeDetailComponent implements OnInit {
       (recipe) => {
         this.recipe.set(recipe);
         this.desiredServings.set(recipe.servings);
+        this.notesDraft.set(recipe.notes ?? '');
       },
       (error) => this.serverError.set(error),
     );
+  }
+
+  onRatingChange(rating: number): void {
+    const recipe = this.recipe();
+    if (!recipe) return;
+    // Optimistic update so the star fill stays put while the network call runs.
+    this.recipe.set({ ...recipe, rating });
+    this.recipeApi.rateRecipe(recipe.identifier, rating).subscribe({
+      error: () => this.recipe.set(recipe),
+    });
+  }
+
+  onNotesInput(value: string): void {
+    this.notesDraft.set(value);
+    this.notesSaved.set(false);
+    this.notesAutosave$.next(value);
+  }
+
+  private persistNotes(value: string): void {
+    const recipe = this.recipe();
+    if (!recipe) return;
+    const trimmed = value.trim();
+    const payload = trimmed.length === 0 ? null : trimmed;
+    if (payload === (recipe.notes ?? null)) return;
+
+    this.recipeApi.updateRecipeNotes(recipe.identifier, payload).subscribe({
+      next: () => {
+        this.recipe.set({ ...recipe, notes: payload });
+        this.notesSaved.set(true);
+        setTimeout(() => this.notesSaved.set(false), 2000);
+      },
+    });
   }
 
   totalTime = computed(() => {

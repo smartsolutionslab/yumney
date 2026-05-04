@@ -16,4 +16,6 @@ export interface RecipeDetail {
   steps: RecipeStep[];
   tags: string[];
   isFavorite: boolean;
+  rating: number | null;
+  notes: string | null;
 }

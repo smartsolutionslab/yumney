@@ -18,6 +18,7 @@
       "moveDown": "Move down",
       "remove": "Remove"
     },
+<<<<<<< HEAD
     "activity": {
       "empty": "No activity yet — start cooking!",
       "deletedRecipe": "Deleted recipe",
@@ -36,6 +37,11 @@
         "days": "{{value}} d ago",
         "weeks": "{{value}} w ago"
       }
+=======
+    "rating": {
+      "label": "Rating",
+      "value": "Rate {{value}} of 5"
+>>>>>>> a50fba7d (feat(recipes): star rating + cooking notes on recipe detail (US-120))
     }
   },
   "dashboard": {

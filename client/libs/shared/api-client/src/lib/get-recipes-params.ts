@@ -3,7 +3,7 @@ import type { PaginationParams } from '@yumney/shared/models';
 export type RecipeDifficulty = 'easy' | 'medium' | 'hard';
 
 export interface GetRecipesParams extends PaginationParams {
-  sortBy?: 'Name' | 'Date';
+  sortBy?: 'Name' | 'Date' | 'Rating';
   search?: string;
   tags?: string[];
   difficulty?: RecipeDifficulty;

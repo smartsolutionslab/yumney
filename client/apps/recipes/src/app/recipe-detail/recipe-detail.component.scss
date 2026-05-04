@@ -346,6 +346,7 @@
   }
 }
 
+<<<<<<< HEAD
 .cook-stats {
   margin: 0 0 var(--yn-space-3);
   padding: var(--yn-space-2) var(--yn-space-3);
@@ -361,4 +362,60 @@
 
 .cook-stats__separator {
   opacity: 0.6;
+=======
+.rating-section {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-4);
+  margin: var(--yn-space-5) 0;
+  padding: var(--yn-space-3) var(--yn-space-4);
+  background: var(--yn-glass-bg);
+  border: 1px solid var(--yn-glass-border-subtle);
+  border-radius: var(--yn-radius-card);
+}
+
+.rating-section__label {
+  font-weight: 600;
+  color: var(--yn-text);
+}
+
+.notes-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-2);
+  margin: var(--yn-space-5) 0;
+
+  textarea {
+    width: 100%;
+    padding: var(--yn-space-3) var(--yn-space-4);
+    border-radius: var(--yn-radius-input);
+    border: 1px solid var(--yn-glass-border);
+    background: var(--yn-glass-bg);
+    color: var(--yn-text);
+    font: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: var(--yn-primary);
+    }
+  }
+}
+
+.notes-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  label {
+    font-weight: 600;
+    color: var(--yn-text);
+  }
+}
+
+.notes-section__saved {
+  font-size: var(--yn-text-sm);
+  color: var(--yn-success);
+>>>>>>> a50fba7d (feat(recipes): star rating + cooking notes on recipe detail (US-120))
 }

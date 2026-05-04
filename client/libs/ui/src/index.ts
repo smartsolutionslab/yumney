@@ -48,6 +48,7 @@ export {
   type ActivityTypeKey,
   relativeTimeFromNow,
 } from './lib/activity-timeline/activity-timeline.component';
+export { StarRatingComponent } from './lib/star-rating/star-rating.component';
 
 // Icons
 export { provideYumneyIcons } from './lib/icons/provide-icons';
