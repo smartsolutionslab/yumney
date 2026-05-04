@@ -18,6 +18,8 @@ public sealed class ShoppingListItemReadItem
 
 	public string? QuantityUnit { get; set; }
 
+	public string Category { get; set; } = "other";
+
 	public bool IsChecked { get; set; }
 
 	public DateTime CreatedAt { get; set; }

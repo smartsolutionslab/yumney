@@ -13,6 +13,7 @@ internal sealed class ShoppingListItemReadItemConfiguration : IEntityTypeConfigu
 		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();
 		entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
 		entity.Property(e => e.QuantityUnit).HasMaxLength(50);
+		entity.Property(e => e.Category).HasMaxLength(50).IsRequired().HasDefaultValue("other");
 		entity.Property(e => e.CreatedAt).IsRequired();
 		entity.Property(e => e.LastUpdated).IsRequired();
 

@@ -8,30 +8,38 @@ public sealed class ShoppingListItem : Entity<ShoppingListItemIdentifier>
 
 	public Quantity? Quantity { get; private set; }
 
+	public IngredientCategory Category { get; private set; } = IngredientCategory.Other;
+
 	public bool IsChecked { get; private set; }
 
 	private ShoppingListItem()
 	{
 	}
 
-	public static ShoppingListItem Create(ItemName name, Quantity? quantity)
+	public static ShoppingListItem Create(ItemName name, Quantity? quantity, IngredientCategory? category = null)
 	{
 		return new ShoppingListItem
 		{
 			Id = ShoppingListItemIdentifier.New(),
 			Name = name,
 			Quantity = quantity,
+			Category = category ?? IngredientCategory.Other,
 			IsChecked = false,
 		};
 	}
 
-	internal static ShoppingListItem Hydrate(ShoppingListItemIdentifier id, ItemName name, Quantity? quantity)
+	internal static ShoppingListItem Hydrate(
+		ShoppingListItemIdentifier id,
+		ItemName name,
+		Quantity? quantity,
+		IngredientCategory? category = null)
 	{
 		return new ShoppingListItem
 		{
 			Id = id,
 			Name = name,
 			Quantity = quantity,
+			Category = category ?? IngredientCategory.Other,
 			IsChecked = false,
 		};
 	}
@@ -45,6 +53,12 @@ public sealed class ShoppingListItem : Entity<ShoppingListItemIdentifier>
 	internal ShoppingListItem MarkUnchecked()
 	{
 		IsChecked = false;
+		return this;
+	}
+
+	internal ShoppingListItem ChangeCategoryTo(IngredientCategory category)
+	{
+		Category = category;
 		return this;
 	}
 }

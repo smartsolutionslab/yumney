@@ -5,4 +5,5 @@ public sealed record ShoppingListItemDto(
 	string Name,
 	decimal? Amount,
 	string? Unit,
+	string Category,
 	bool IsChecked);

@@ -14,6 +14,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 	  IModuleEventHandler<ListItemAddedModuleEvent>,
 	  IModuleEventHandler<ListItemCheckedModuleEvent>,
 	  IModuleEventHandler<ListItemUncheckedModuleEvent>,
+	  IModuleEventHandler<ListItemCategoryChangedModuleEvent>,
 	  IModuleEventHandler<AllItemsCheckedModuleEvent>,
 	  IModuleEventHandler<AllItemsUncheckedModuleEvent>,
 	  IModuleEventHandler<RecipeReferenceClearedModuleEvent>
@@ -65,6 +66,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 				Name = inner.Name.Value,
 				QuantityAmount = inner.Quantity?.Amount.Value,
 				QuantityUnit = inner.Quantity?.Unit?.Value,
+				Category = (inner.Category ?? Shared.Common.IngredientCategory.Other).Value,
 				IsChecked = false,
 				CreatedAt = DateTime.UtcNow,
 				LastUpdated = DateTime.UtcNow,
@@ -102,6 +104,18 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 	public async Task HandleAsync(AllItemsUncheckedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		await SetAllCheckedAsync(@event.AggregateId, false, cancellationToken);
+		await TouchSummaryAsync(@event.AggregateId, cancellationToken);
+		await context.SaveChangesAsync(cancellationToken);
+	}
+
+	public async Task HandleAsync(ListItemCategoryChangedModuleEvent @event, CancellationToken cancellationToken = default)
+	{
+		var item = await context.Set<ShoppingListItemReadItem>()
+			.FirstOrDefaultAsync(i => i.Id == @event.Inner.ItemId.Value, cancellationToken);
+		if (item is null) return;
+
+		item.Category = @event.Inner.Category.Value;
+		item.LastUpdated = DateTime.UtcNow;
 		await TouchSummaryAsync(@event.AggregateId, cancellationToken);
 		await context.SaveChangesAsync(cancellationToken);
 	}
