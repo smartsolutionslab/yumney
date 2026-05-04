@@ -8,6 +8,21 @@ namespace SmartSolutionsLab.Yumney.Shared.Events;
 /// </summary>
 public sealed class NoOpInboxStore : IInboxStore
 {
-	public Task<bool> TryMarkProcessedAsync(Guid messageId, string consumerName, CancellationToken cancellationToken = default)
-		=> Task.FromResult(true);
+	public Task<IInboxScope> BeginAsync(Guid messageId, string consumerName, CancellationToken cancellationToken = default)
+		=> Task.FromResult<IInboxScope>(NoOpInboxScope.Instance);
+}
+
+internal sealed class NoOpInboxScope : IInboxScope
+{
+	public static readonly NoOpInboxScope Instance = new();
+
+	public bool ShouldProcess => true;
+
+	public Task CommitAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+	public Task RollbackAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+	public bool IsDuplicateInboxViolation(Exception exception) => false;
+
+	public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

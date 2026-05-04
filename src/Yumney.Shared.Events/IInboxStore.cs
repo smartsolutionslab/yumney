@@ -1,12 +1,14 @@
 namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 /// <summary>
-/// Deduplication store for integration-event consumers. Implementations are
-/// expected to persist a (messageId, consumerName) pair atomically and return
-/// <c>true</c> only when the pair was not already present. Consumers that
-/// receive <c>false</c> must skip the handler to avoid replaying side effects.
+/// Deduplication store for integration- and module-event consumers.
+/// Implementations open a scope that gates the handler invocation: if the
+/// (messageId, consumerName) row is already present the scope reports
+/// <see cref="IInboxScope.ShouldProcess"/> = <c>false</c>; otherwise the
+/// scope stages the row so it commits atomically with the handler's own
+/// writes when <see cref="IInboxScope.CommitAsync"/> is called.
 /// </summary>
 public interface IInboxStore
 {
-	Task<bool> TryMarkProcessedAsync(Guid messageId, string consumerName, CancellationToken cancellationToken = default);
+	Task<IInboxScope> BeginAsync(Guid messageId, string consumerName, CancellationToken cancellationToken = default);
 }

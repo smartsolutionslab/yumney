@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using Xunit;
@@ -11,32 +10,61 @@ namespace SmartSolutionsLab.Yumney.Shared.Events.Tests;
 public class IntegrationEventConsumerTests
 {
 	[Fact]
-	public async Task HandleAsync_NewMessage_InvokesHandlerOnce()
+	public async Task HandleAsync_NewMessage_InvokesHandlerAndCommitsScope()
 	{
-		var handler = Substitute.For<IIntegrationEventHandler<TestEvent>>();
-		var inbox = new NoOpInboxStore();
+		var handler = new RecordingHandler();
+		var inbox = new TestInboxStore();
 		var consumer = CreateConsumer(handler, inbox);
 		var message = new TestEvent();
 
 		await consumer.HandleAsync(message, CancellationToken.None);
 
-		await handler.Received(1).HandleAsync(message, Arg.Any<CancellationToken>());
+		handler.CallCount.Should().Be(1);
+		inbox.Scopes.Should().HaveCount(1);
+		inbox.Scopes[0].Committed.Should().BeTrue();
+		inbox.Scopes[0].RolledBack.Should().BeFalse();
 	}
 
 	[Fact]
-	public async Task HandleAsync_DuplicateMessage_SkipsHandler()
+	public async Task HandleAsync_DuplicateMessage_SkipsHandlerWithoutCommit()
 	{
-		var handler = Substitute.For<IIntegrationEventHandler<TestEvent>>();
-		var inbox = Substitute.For<IInboxStore>();
-		inbox.TryMarkProcessedAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-			.Returns(false);
-
+		var handler = new RecordingHandler();
+		var inbox = new TestInboxStore(shouldProcessSequence: [false]);
 		var consumer = CreateConsumer(handler, inbox);
-		var message = new TestEvent();
 
-		await consumer.HandleAsync(message, CancellationToken.None);
+		await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
 
-		await handler.DidNotReceive().HandleAsync(Arg.Any<TestEvent>(), Arg.Any<CancellationToken>());
+		handler.CallCount.Should().Be(0);
+		inbox.Scopes[0].Committed.Should().BeFalse();
+		inbox.Scopes[0].RolledBack.Should().BeFalse();
+	}
+
+	[Fact]
+	public async Task HandleAsync_HandlerThrows_RollsBackAndPropagates()
+	{
+		var handler = new RecordingHandler { ThrowOnCall = new InvalidOperationException("boom") };
+		var inbox = new TestInboxStore();
+		var consumer = CreateConsumer(handler, inbox);
+
+		var act = async () => await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
+
+		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
+		inbox.Scopes[0].Committed.Should().BeFalse();
+		inbox.Scopes[0].RolledBack.Should().BeTrue();
+	}
+
+	[Fact]
+	public async Task HandleAsync_DuplicateRaceOnCommit_RollsBackAndSwallows()
+	{
+		var raceException = new InvalidOperationException("unique violation");
+		var handler = new RecordingHandler { ThrowOnCall = raceException };
+		var inbox = new TestInboxStore(isDuplicate: ex => ReferenceEquals(ex, raceException));
+		var consumer = CreateConsumer(handler, inbox);
+
+		await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
+
+		inbox.Scopes[0].Committed.Should().BeFalse();
+		inbox.Scopes[0].RolledBack.Should().BeTrue();
 	}
 
 	[Fact]
@@ -44,10 +72,7 @@ public class IntegrationEventConsumerTests
 	{
 		var handlerA = new RecordingHandler();
 		var handlerB = new RecordingHandler();
-
-		var inbox = Substitute.For<IInboxStore>();
-		inbox.TryMarkProcessedAsync(Arg.Any<Guid>(), Arg.Is<string>(n => n.Contains(nameof(RecordingHandler))), Arg.Any<CancellationToken>())
-			.Returns(true, false);
+		var inbox = new TestInboxStore(shouldProcessSequence: [true, false]);
 
 		var services = new ServiceCollection();
 		services.AddSingleton<IIntegrationEventHandler<TestEvent>>(handlerA);
@@ -61,25 +86,15 @@ public class IntegrationEventConsumerTests
 
 		await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
 
-		var totalCalls = handlerA.CallCount + handlerB.CallCount;
-		totalCalls.Should().Be(1, "exactly one handler runs when the inbox allows one and blocks the other");
-	}
-
-	private sealed class RecordingHandler : IIntegrationEventHandler<TestEvent>
-	{
-		public int CallCount { get; private set; }
-
-		public Task HandleAsync(TestEvent integrationEvent, CancellationToken cancellationToken = default)
-		{
-			CallCount++;
-			return Task.CompletedTask;
-		}
+		(handlerA.CallCount + handlerB.CallCount).Should().Be(1);
+		inbox.Scopes.Should().HaveCount(2);
+		inbox.Scopes.Count(scope => scope.Committed).Should().Be(1);
 	}
 
 	[Fact]
 	public async Task HandleAsync_NoRegisteredHandlers_DoesNothing()
 	{
-		var inbox = Substitute.For<IInboxStore>();
+		var inbox = new TestInboxStore();
 		var provider = new ServiceCollection().BuildServiceProvider();
 
 		var consumer = new IntegrationEventConsumer<TestEvent>(
@@ -89,19 +104,33 @@ public class IntegrationEventConsumerTests
 
 		await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
 
-		await inbox.DidNotReceive().TryMarkProcessedAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+		inbox.Scopes.Should().BeEmpty();
 	}
 
 	[Fact]
-	public async Task NoOpInboxStore_AlwaysReturnsTrue()
+	public async Task NoOpInboxStore_AlwaysReturnsProcessableScope()
 	{
 		var inbox = new NoOpInboxStore();
 
-		var first = await inbox.TryMarkProcessedAsync(Guid.NewGuid(), "consumer");
-		var second = await inbox.TryMarkProcessedAsync(Guid.NewGuid(), "consumer");
+		await using var first = await inbox.BeginAsync(Guid.NewGuid(), "consumer");
+		await using var second = await inbox.BeginAsync(Guid.NewGuid(), "consumer");
 
-		first.Should().BeTrue();
-		second.Should().BeTrue();
+		first.ShouldProcess.Should().BeTrue();
+		second.ShouldProcess.Should().BeTrue();
+	}
+
+	private sealed class RecordingHandler : IIntegrationEventHandler<TestEvent>
+	{
+		public int CallCount { get; private set; }
+
+		public Exception? ThrowOnCall { get; init; }
+
+		public Task HandleAsync(TestEvent integrationEvent, CancellationToken cancellationToken = default)
+		{
+			CallCount++;
+			if (ThrowOnCall is not null) throw ThrowOnCall;
+			return Task.CompletedTask;
+		}
 	}
 
 	private static IntegrationEventConsumer<TestEvent> CreateConsumer(
