@@ -48,10 +48,30 @@ export const ERROR_MAPS = {
     create: {
       default: 'shopping.create.errors.createFailed',
     } satisfies HttpErrorMap,
+    merged: {
+      add: {
+        default: 'shopping.errors.addFailed',
+      } satisfies HttpErrorMap,
+      remove: {
+        default: 'shopping.errors.removeFailed',
+      } satisfies HttpErrorMap,
+      export: {
+        default: 'shopping.errors.exportFailed',
+      } satisfies HttpErrorMap,
+    },
   },
   mealPlanner: {
     assign: {
       default: 'mealPlanner.errors.assignFailed',
+    } satisfies HttpErrorMap,
+    load: {
+      default: 'mealPlanner.errors.loadFailed',
+    } satisfies HttpErrorMap,
+    clearSlot: {
+      default: 'mealPlanner.errors.clearFailed',
+    } satisfies HttpErrorMap,
+    generateShoppingList: {
+      default: 'mealPlanner.errors.generateFailed',
     } satisfies HttpErrorMap,
   },
   account: {
