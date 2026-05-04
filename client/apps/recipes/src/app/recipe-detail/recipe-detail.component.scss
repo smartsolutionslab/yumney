@@ -345,3 +345,20 @@
     }
   }
 }
+
+.cook-stats {
+  margin: 0 0 var(--yn-space-3);
+  padding: var(--yn-space-2) var(--yn-space-3);
+  background: var(--yn-glass-bg);
+  border: 1px solid var(--yn-glass-border-subtle);
+  border-radius: var(--yn-radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yn-space-2);
+  font-size: var(--yn-text-sm);
+  color: var(--yn-text-muted);
+}
+
+.cook-stats__separator {
+  opacity: 0.6;
+}

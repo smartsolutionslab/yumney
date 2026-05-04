@@ -103,6 +103,13 @@
     },
     "loading": "Loading recipe...",
     "notFound": "Recipe not found.",
+    "stats": {
+      "cookCount": "Cooked {{count}} times",
+      "lastCookedToday": "Last cooked today",
+      "lastCookedYesterday": "Last cooked yesterday",
+      "lastCookedDays": "Last cooked {{value}} days ago",
+      "lastCookedWeeks": "Last cooked {{value}} weeks ago"
+    },
     "delete": {
       "confirm": "Are you sure you want to delete \"{{title}}\"? This cannot be undone.",
       "confirmButton": "Delete",

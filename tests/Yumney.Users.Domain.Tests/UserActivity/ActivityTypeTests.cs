@@ -10,6 +10,7 @@ public class ActivityTypeTests
 	[Theory]
 	[InlineData("recipe_imported")]
 	[InlineData("recipe_viewed")]
+	[InlineData("recipe_cooked")]
 	[InlineData("recipe_edited")]
 	[InlineData("recipe_deleted")]
 	[InlineData("shopping_list_created")]
@@ -44,6 +45,7 @@ public class ActivityTypeTests
 	{
 		ActivityType.RecipeImported.Value.Should().Be("recipe_imported");
 		ActivityType.RecipeViewed.Value.Should().Be("recipe_viewed");
+		ActivityType.RecipeCooked.Value.Should().Be("recipe_cooked");
 		ActivityType.RecipeEdited.Value.Should().Be("recipe_edited");
 		ActivityType.RecipeDeleted.Value.Should().Be("recipe_deleted");
 		ActivityType.ShoppingListCreated.Value.Should().Be("shopping_list_created");

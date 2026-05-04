@@ -17,6 +17,25 @@
       "moveUp": "Move up",
       "moveDown": "Move down",
       "remove": "Remove"
+    },
+    "activity": {
+      "empty": "No activity yet — start cooking!",
+      "deletedRecipe": "Deleted recipe",
+      "type": {
+        "recipe_imported": "Imported",
+        "recipe_viewed": "Viewed",
+        "recipe_cooked": "Cooked",
+        "recipe_edited": "Edited",
+        "recipe_deleted": "Deleted",
+        "shopping_list_created": "Created shopping list"
+      },
+      "relative": {
+        "justNow": "Just now",
+        "minutes": "{{value}} min ago",
+        "hours": "{{value}} h ago",
+        "days": "{{value}} d ago",
+        "weeks": "{{value}} w ago"
+      }
     }
   },
   "dashboard": {

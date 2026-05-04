@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
     importFromText: `${API_BASE}/recipes/import-from-text`,
     byIdentifier: (identifier: string) => `${API_BASE}/recipes/${identifier}`,
     favorite: (identifier: string) => `${API_BASE}/recipes/${identifier}/favorite`,
+    cooked: (identifier: string) => `${API_BASE}/recipes/${identifier}/cooked`,
   },
   shoppingLists: {
     base: `${API_BASE}/shopping-lists`,
@@ -53,6 +54,8 @@ export const API_ENDPOINTS = {
   },
   users: {
     activity: `${API_BASE}/users/me/activity`,
+    activityRecipeStats: (identifier: string) =>
+      `${API_BASE}/users/me/activity/recipes/${identifier}/stats`,
     suggestions: `${API_BASE}/users/me/suggestions`,
     profile: `${API_BASE}/users/me/profile`,
     me: `${API_BASE}/users/me`,

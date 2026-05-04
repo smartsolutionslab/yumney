@@ -25,6 +25,7 @@
       "loadFailed": "Profil konnte nicht geladen werden."
     }
   },
+<<<<<<< HEAD
   "danger": {
     "title": "Gefahrenzone",
     "lead": "Unumkehrbare Vorgänge an deinem Konto.",
@@ -41,5 +42,21 @@
     "confirmAria": "Bestätigungswort eingeben",
     "deleting": "Wird gelöscht…",
     "retry": "Erneut versuchen"
+=======
+  "activity": {
+    "title": "Aktivität",
+    "lead": "Alles, was du importiert, angesehen, gekocht, bearbeitet und gelöscht hast — neueste zuerst.",
+    "loading": "Aktivität wird geladen…",
+    "retry": "Erneut versuchen",
+    "filterAria": "Aktivität nach Typ filtern",
+    "filter": {
+      "all": "Alle",
+      "imported": "Importiert",
+      "viewed": "Angesehen",
+      "cooked": "Gekocht",
+      "edited": "Bearbeitet",
+      "deleted": "Gelöscht"
+    }
+>>>>>>> 9ff921ba (feat(ui): activity timeline + recipe cook stats badge (US-121))
   }
 }

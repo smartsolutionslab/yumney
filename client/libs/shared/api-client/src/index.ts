@@ -71,8 +71,15 @@ export type {
 
 // --- Dashboard ---
 export { DashboardApiService } from './lib/dashboard-api.service';
-export type { UserActivityItem } from './lib/user-activity';
+export type {
+  UserActivityItem,
+  ActivityTypeKey,
+  RecipeActivityStats,
+} from './lib/user-activity';
 export type { SuggestionItem, SuggestionsResponse } from './lib/suggestion';
+
+// --- Activity ---
+export { ActivityApiService } from './lib/activity-api.service';
 
 // --- User Profile ---
 export { UserProfileApiService } from './lib/user-profile-api.service';

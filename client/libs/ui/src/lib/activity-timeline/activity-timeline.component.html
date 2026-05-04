@@ -1,0 +1,24 @@
+<ol class="activity-timeline" *transloco="let t">
+  @for (entry of view(); track entry.occurredAt + entry.type) {
+    <li class="activity-timeline__item">
+      <span class="activity-timeline__icon" aria-hidden="true">
+        <lucide-icon [name]="entry.icon" [size]="18" />
+      </span>
+      <div class="activity-timeline__body">
+        <span class="activity-timeline__type">{{ t('shared.activity.type.' + entry.type) }}</span>
+        @if (entry.recipeTitle) {
+          <span class="activity-timeline__title">{{ entry.recipeTitle }}</span>
+        } @else if (entry.type === 'recipe_deleted') {
+          <span class="activity-timeline__title activity-timeline__title--muted">
+            {{ t('shared.activity.deletedRecipe') }}
+          </span>
+        }
+      </div>
+      <time class="activity-timeline__time" [attr.datetime]="entry.occurredAt">
+        {{ t(entry.relative.key, { value: entry.relative.value }) }}
+      </time>
+    </li>
+  } @empty {
+    <li class="activity-timeline__empty">{{ t('shared.activity.empty') }}</li>
+  }
+</ol>
