@@ -17,6 +17,25 @@
       "moveUp": "Nach oben",
       "moveDown": "Nach unten",
       "remove": "Entfernen"
+    },
+    "activity": {
+      "empty": "Noch keine Aktivität — leg los!",
+      "deletedRecipe": "Gelöschtes Rezept",
+      "type": {
+        "recipe_imported": "Importiert",
+        "recipe_viewed": "Angesehen",
+        "recipe_cooked": "Gekocht",
+        "recipe_edited": "Bearbeitet",
+        "recipe_deleted": "Gelöscht",
+        "shopping_list_created": "Einkaufsliste erstellt"
+      },
+      "relative": {
+        "justNow": "Gerade eben",
+        "minutes": "Vor {{value}} Min.",
+        "hours": "Vor {{value}} Std.",
+        "days": "Vor {{value}} Tag(en)",
+        "weeks": "Vor {{value}} Woche(n)"
+      }
     }
   },
   "dashboard": {

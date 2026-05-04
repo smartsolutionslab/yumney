@@ -9,7 +9,14 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { CreateShoppingListItem, RecipeApiService, RecipeDetail, ShoppingApiService } from '../api';
+import {
+  ActivityApiService,
+  CreateShoppingListItem,
+  RecipeApiService,
+  RecipeActivityStats,
+  RecipeDetail,
+  ShoppingApiService,
+} from '../api';
 import {
   createAsyncState,
   scaleIngredients,
@@ -46,6 +53,7 @@ export class RecipeDetailComponent implements OnInit {
 
   private recipeApi = inject(RecipeApiService);
   private shoppingApi = inject(ShoppingApiService);
+  private activityApi = inject(ActivityApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
@@ -54,6 +62,7 @@ export class RecipeDetailComponent implements OnInit {
   private createShoppingListState = createAsyncState(this.destroyRef);
 
   recipe = signal<RecipeDetail | null>(null);
+  recipeStats = signal<RecipeActivityStats | null>(null);
   isLoading = this.loadState.isLoading;
   isDeleting = this.deleteState.isLoading;
   isCreatingShoppingList = this.createShoppingListState.isLoading;
@@ -81,12 +90,30 @@ export class RecipeDetailComponent implements OnInit {
     return recipe?.servings != null && desired != null && desired !== recipe.servings;
   });
 
+  lastCookedRelative = computed(() => {
+    const stats = this.recipeStats();
+    if (!stats?.lastCookedAt) return null;
+    const diffMs = Date.now() - new Date(stats.lastCookedAt).getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays < 1) return { key: 'recipes.detail.stats.lastCookedToday', value: 0 };
+    if (diffDays === 1) return { key: 'recipes.detail.stats.lastCookedYesterday', value: 1 };
+    if (diffDays < 7) return { key: 'recipes.detail.stats.lastCookedDays', value: diffDays };
+    const weeks = Math.floor(diffDays / 7);
+    return { key: 'recipes.detail.stats.lastCookedWeeks', value: weeks };
+  });
+
   ngOnInit(): void {
     const identifier = this.route.snapshot.paramMap.get('identifier');
     if (!identifier) {
       this.serverError.set('recipes.detail.notFound');
       return;
     }
+
+    // Stats can fail silently — the page is still useful without the badge.
+    this.activityApi.getRecipeStats(identifier).subscribe({
+      next: (stats) => this.recipeStats.set(stats),
+      error: () => this.recipeStats.set(null),
+    });
 
     this.loadState.execute(
       this.recipeApi.getRecipeById(identifier),

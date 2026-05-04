@@ -211,6 +211,12 @@ export class RecipeApiService {
     });
   }
 
+  // Records a cook-mode completion (US-121). The server publishes a
+  // RecipeCookedIntegrationEvent which the Users module persists as activity.
+  trackCooked(identifier: string): Observable<void> {
+    return this.http.post<void>(API_ENDPOINTS.recipes.cooked(identifier), {});
+  }
+
   toggleFavorite(identifier: string): Observable<FavoriteState> {
     // Invalidate the in-memory shareReplay cache so a subsequent
     // getRecipeById refetches with the new isFavorite — without this the

@@ -6,6 +6,7 @@ export {
   RecipeApiService,
   MealPlanApiService,
   ShoppingApiService,
+  ActivityApiService,
   type RecipeListItem,
   type RecipeListResponse,
   type RecipeDetail,
@@ -13,4 +14,5 @@ export {
   type GetRecipesParams,
   type CreateShoppingListItem,
   type ShoppingListDetail,
+  type RecipeActivityStats,
 } from '@yumney/shared/api-client';

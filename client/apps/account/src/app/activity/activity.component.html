@@ -1,0 +1,32 @@
+<section class="activity-page" *transloco="let t">
+  <header class="activity-page__header">
+    <h1>{{ t('account.activity.title') }}</h1>
+    <p class="activity-page__lead">{{ t('account.activity.lead') }}</p>
+  </header>
+
+  <nav class="activity-page__filters" [attr.aria-label]="t('account.activity.filterAria')">
+    @for (option of filterOptions; track option.value) {
+      <button
+        type="button"
+        class="activity-page__chip"
+        [class.activity-page__chip--active]="activeFilter() === option.value"
+        [attr.aria-pressed]="activeFilter() === option.value"
+        (click)="onFilterChange(option.value)"
+      >
+        {{ t(option.labelKey) }}
+      </button>
+    }
+  </nav>
+
+  <yn-async-state
+    [loading]="loading()"
+    [error]="error()"
+    loadingKey="account.activity.loading"
+    retryKey="account.activity.retry"
+    (retry)="onRetry()"
+  />
+
+  @if (!loading() && !error()) {
+    <yn-activity-timeline [entries]="timelineEntries()" />
+  }
+</section>

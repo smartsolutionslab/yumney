@@ -144,7 +144,19 @@ export class CookModeComponent implements OnInit, OnDestroy {
   }
 
   exit(): void {
-    const id = this.recipe()?.identifier;
+    const recipe = this.recipe();
+    const id = recipe?.identifier;
+
+    // Treat reaching the last step as "I cooked this" (US-121). Fire-and-forget
+    // — failing to log shouldn't block the navigation. The server collapses
+    // multiple opens within a window via dedup; cook tracking is intentionally
+    // not deduped because each cook is a discrete completion.
+    if (recipe && this.totalSteps() > 0 && this.currentStepIndex() >= this.totalSteps() - 1) {
+      this.recipeApi.trackCooked(recipe.identifier).subscribe({
+        error: () => undefined,
+      });
+    }
+
     if (id) {
       void this.router.navigate([ROUTES.recipes.detail(id)]);
     } else {

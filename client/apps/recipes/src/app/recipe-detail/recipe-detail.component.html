@@ -108,6 +108,18 @@
       </div>
     }
 
+    @if (recipeStats(); as stats) {
+      @if (stats.cookCount > 0) {
+        <p class="cook-stats" data-testid="recipe-cook-stats">
+          {{ t('recipes.detail.stats.cookCount', { count: stats.cookCount }) }}
+          @if (lastCookedRelative(); as last) {
+            <span class="cook-stats__separator">·</span>
+            <span>{{ t(last.key, { value: last.value }) }}</span>
+          }
+        </p>
+      }
+    }
+
     <div class="actions-bar">
       <yn-favorite-button [isFavorite]="recipe.isFavorite" (toggled)="onToggleFavorite()" />
       <a class="btn-cook" [routerLink]="ROUTES.recipes.cook(recipe.identifier)">

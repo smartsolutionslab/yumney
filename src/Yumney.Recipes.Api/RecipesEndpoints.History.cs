@@ -13,14 +13,14 @@ public static partial class RecipesEndpoints
 {
 	private static void MapHistoryEndpoints(RouteGroupBuilder group)
 	{
-		group.MapPost("/{identifier:guid}/cooked", TrackCooked)
+		group.MapPost("/{identifier:guid}/cooked", TrackCookedAsync)
 			.WithName("TrackRecipeCooked")
 			.WithTags("Recipes")
 			.Produces(StatusCodes.Status204NoContent)
 			.ProducesProblem(StatusCodes.Status404NotFound);
 	}
 
-	private static async Task<IResult> TrackCooked(
+	private static async Task<IResult> TrackCookedAsync(
 		Guid identifier,
 		ICommandHandler<TrackRecipeCookedCommand, Result> handler,
 		CancellationToken cancellationToken)

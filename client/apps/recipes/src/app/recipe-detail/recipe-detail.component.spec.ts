@@ -3,7 +3,13 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError, EMPTY } from 'rxjs';
 import { RecipeDetailComponent } from './recipe-detail.component';
-import { RecipeApiService, RecipeDetail, ShoppingApiService, ShoppingListDetail } from '../api';
+import {
+  ActivityApiService,
+  RecipeApiService,
+  RecipeDetail,
+  ShoppingApiService,
+  ShoppingListDetail,
+} from '../api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 
@@ -94,6 +100,9 @@ describe('RecipeDetailComponent', () => {
   let shoppingApiMock: {
     createShoppingList: ReturnType<typeof vi.fn>;
   };
+  let activityApiMock: {
+    getRecipeStats: ReturnType<typeof vi.fn>;
+  };
 
   function setupTestBed(
     getRecipeByIdReturn: ReturnType<typeof vi.fn> = vi.fn(),
@@ -106,6 +115,9 @@ describe('RecipeDetailComponent', () => {
     shoppingApiMock = {
       createShoppingList: vi.fn().mockReturnValue(EMPTY),
     };
+    activityApiMock = {
+      getRecipeStats: vi.fn().mockReturnValue(EMPTY),
+    };
 
     TestBed.configureTestingModule({
       imports: [RecipeDetailComponent, setupTranslocoTesting(en)],
@@ -114,6 +126,7 @@ describe('RecipeDetailComponent', () => {
         provideRouter([]),
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: ShoppingApiService, useValue: shoppingApiMock },
+        { provide: ActivityApiService, useValue: activityApiMock },
         {
           provide: ActivatedRoute,
           useValue: {

@@ -14,9 +14,16 @@ export const accountRoutes: Route[] = [
     loadComponent: () => import('./profile-settings').then((m) => m.ProfileSettingsComponent),
   },
   {
+<<<<<<< HEAD
     path: 'danger-zone',
     title: 'Danger Zone — Yumney',
     providers: [provideTranslocoScope('account')],
     loadComponent: () => import('./danger-zone').then((m) => m.DangerZoneComponent),
+=======
+    path: 'activity',
+    title: 'Activity — Yumney',
+    providers: [provideTranslocoScope('account')],
+    loadComponent: () => import('./activity').then((m) => m.ActivityComponent),
+>>>>>>> 9ff921ba (feat(ui): activity timeline + recipe cook stats badge (US-121))
   },
 ];

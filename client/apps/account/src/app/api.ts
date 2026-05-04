@@ -4,6 +4,9 @@
 // imports from the shared lib out of account/**.
 export {
   UserProfileApiService,
+  ActivityApiService,
   type UserProfile,
   type UpdateProfileRequest,
+  type UserActivityItem,
+  type ActivityTypeKey,
 } from '@yumney/shared/api-client';

@@ -103,6 +103,13 @@
     },
     "loading": "Rezept wird geladen...",
     "notFound": "Rezept nicht gefunden.",
+    "stats": {
+      "cookCount": "{{count}}× gekocht",
+      "lastCookedToday": "Heute zuletzt gekocht",
+      "lastCookedYesterday": "Gestern zuletzt gekocht",
+      "lastCookedDays": "Vor {{value}} Tagen zuletzt gekocht",
+      "lastCookedWeeks": "Vor {{value}} Wochen zuletzt gekocht"
+    },
     "delete": {
       "confirm": "Möchtest du \"{{title}}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden.",
       "confirmButton": "Löschen",
