@@ -24,5 +24,22 @@
       "saveFailed": "Failed to save profile.",
       "loadFailed": "Failed to load profile."
     }
+  },
+  "danger": {
+    "title": "Danger Zone",
+    "lead": "Irreversible operations on your account.",
+    "deleteAccount": "Delete account",
+    "deleteIntro": "Deleting your account is permanent. The following data will be erased immediately and cannot be recovered:",
+    "consequence": {
+      "recipes": "All saved and imported recipes, including favorites.",
+      "shoppingLists": "Every shopping list you created and your purchase history.",
+      "mealPlans": "Your weekly meal plans and cooking history.",
+      "profile": "Your profile, preferences, dietary settings, and activity log.",
+      "signIn": "Your sign-in account — you will be signed out and unable to log in again."
+    },
+    "confirmInstruction": "Type {{token}} to confirm",
+    "confirmAria": "Type the confirmation token",
+    "deleting": "Deleting…",
+    "retry": "Try again"
   }
 }

@@ -24,5 +24,22 @@
       "saveFailed": "Profil konnte nicht gespeichert werden.",
       "loadFailed": "Profil konnte nicht geladen werden."
     }
+  },
+  "danger": {
+    "title": "Gefahrenzone",
+    "lead": "Unumkehrbare Vorgänge an deinem Konto.",
+    "deleteAccount": "Konto löschen",
+    "deleteIntro": "Das Löschen deines Kontos ist endgültig. Folgende Daten werden sofort und unwiderruflich entfernt:",
+    "consequence": {
+      "recipes": "Alle gespeicherten und importierten Rezepte einschließlich Favoriten.",
+      "shoppingLists": "Jede angelegte Einkaufsliste und deine Kaufhistorie.",
+      "mealPlans": "Deine Wochenpläne und Kochhistorie.",
+      "profile": "Dein Profil, deine Präferenzen, Ernährungseinstellungen und das Aktivitätsprotokoll.",
+      "signIn": "Dein Anmeldekonto — du wirst abgemeldet und kannst dich nicht erneut anmelden."
+    },
+    "confirmInstruction": "Tippe {{token}} zum Bestätigen",
+    "confirmAria": "Bestätigungswort eingeben",
+    "deleting": "Wird gelöscht…",
+    "retry": "Erneut versuchen"
   }
 }

@@ -53,5 +53,6 @@ export const API_ENDPOINTS = {
     activity: `${API_BASE}/users/me/activity`,
     suggestions: `${API_BASE}/users/me/suggestions`,
     profile: `${API_BASE}/users/me/profile`,
+    me: `${API_BASE}/users/me`,
   },
 } as const;

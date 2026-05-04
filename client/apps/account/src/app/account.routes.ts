@@ -13,4 +13,10 @@ export const accountRoutes: Route[] = [
     providers: [provideTranslocoScope('account')],
     loadComponent: () => import('./profile-settings').then((m) => m.ProfileSettingsComponent),
   },
+  {
+    path: 'danger-zone',
+    title: 'Danger Zone — Yumney',
+    providers: [provideTranslocoScope('account')],
+    loadComponent: () => import('./danger-zone').then((m) => m.DangerZoneComponent),
+  },
 ];
