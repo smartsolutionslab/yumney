@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;

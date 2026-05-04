@@ -3,6 +3,8 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 

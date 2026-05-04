@@ -1,7 +1,8 @@
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using Xunit;
 using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 

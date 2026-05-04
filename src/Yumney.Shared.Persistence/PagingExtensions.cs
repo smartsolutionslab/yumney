@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 
 namespace SmartSolutionsLab.Yumney.Shared.Persistence;
 

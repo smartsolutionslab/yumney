@@ -3,8 +3,8 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using Requests = SmartSolutionsLab.Yumney.MealPlan.Api.Requests;
 

@@ -1,5 +1,5 @@
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries;

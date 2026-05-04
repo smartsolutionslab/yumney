@@ -1,5 +1,6 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shared.Tests.Common;

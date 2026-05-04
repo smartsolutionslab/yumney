@@ -1,5 +1,4 @@
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using WeeklyPlanAggregate = SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.WeeklyPlan;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.Tests.Builders;

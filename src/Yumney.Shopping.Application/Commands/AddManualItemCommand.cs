@@ -1,5 +1,5 @@
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;

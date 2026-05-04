@@ -1,4 +1,3 @@
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using AppUserProfileAggregate = SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile.AppUserProfile;
 

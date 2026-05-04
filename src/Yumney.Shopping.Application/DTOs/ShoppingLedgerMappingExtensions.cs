@@ -1,4 +1,4 @@
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 

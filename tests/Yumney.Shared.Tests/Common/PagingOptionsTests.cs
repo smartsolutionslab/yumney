@@ -1,5 +1,5 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shared.Tests.Common;

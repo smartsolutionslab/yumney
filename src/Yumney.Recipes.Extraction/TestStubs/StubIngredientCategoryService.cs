@@ -1,5 +1,5 @@
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.TestStubs;
 

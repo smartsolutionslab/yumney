@@ -1,5 +1,5 @@
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 

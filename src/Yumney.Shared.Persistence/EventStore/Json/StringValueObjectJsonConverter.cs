@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
 
 namespace SmartSolutionsLab.Yumney.Shared.Persistence.EventStore.Json;
 

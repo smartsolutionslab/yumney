@@ -2,6 +2,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;

@@ -1,7 +1,7 @@
 using System.Reflection;
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Architecture.Tests;
