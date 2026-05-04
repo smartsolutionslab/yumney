@@ -10,6 +10,7 @@ public static class UsersEndpoints
 		app.MapUserActivityEndpoints();
 		app.MapProfileEndpoints();
 		app.MapStaplesEndpoints();
+		app.MapDangerZoneEndpoints();
 
 		return app;
 	}

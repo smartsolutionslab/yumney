@@ -1,12 +1,15 @@
 using SmartSolutionsLab.Yumney.MealPlan.Api;
 using SmartSolutionsLab.Yumney.MealPlan.Application;
+using SmartSolutionsLab.Yumney.MealPlan.Application.IntegrationEventHandlers;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddYumneyDefaults(typeof(MealPlanInfrastructureServiceCollectionExtensions).Assembly);
+builder.AddYumneyDefaults(
+	typeof(MealPlanInfrastructureServiceCollectionExtensions).Assembly,
+	typeof(UserAccountDeletedHandler).Assembly);
 
 builder.Services
 	.AddMealPlanApi()

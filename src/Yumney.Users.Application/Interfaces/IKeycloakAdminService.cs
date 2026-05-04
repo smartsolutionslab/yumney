@@ -10,4 +10,11 @@ public interface IKeycloakAdminService
 	Task<Result<KeycloakUserId>> FindUserByEmailAsync(Email email, CancellationToken cancellationToken = default);
 
 	Task<Result> SendVerificationEmailAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default);
+
+	/// <summary>
+	/// Permanently removes the user from the Keycloak realm. Treats a 404 from Keycloak
+	/// as success so the call is idempotent — the caller can retry safely after a
+	/// partial failure.
+	/// </summary>
+	Task<Result> DeleteUserAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default);
 }

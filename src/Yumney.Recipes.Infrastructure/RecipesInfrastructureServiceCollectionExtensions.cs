@@ -24,6 +24,7 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 		services.AddScoped<IRecipeRepository, RecipeRepository>();
 		services.AddScoped<IRecipeFavoriteRepository, RecipeFavoriteRepository>();
 		services.AddScoped<IRecipesUnitOfWork, RecipesUnitOfWork>();
+		services.AddScoped<IRecipesUserDataPurger, EfCoreRecipesUserDataPurger>();
 		services.AddScoped<IIngredientBalanceProvider, HttpIngredientBalanceProvider>();
 		services.AddScoped<IDietaryProfileProvider, HttpDietaryProfileProvider>();
 		services.AddYumneyServiceClient("shopping-api");

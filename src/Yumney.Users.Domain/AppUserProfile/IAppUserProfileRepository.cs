@@ -8,4 +8,8 @@ public interface IAppUserProfileRepository
 	Task<AppUserProfile> GetByKeycloakUserIdAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default);
 
 	Task AddAsync(AppUserProfile profile, CancellationToken cancellationToken = default);
+
+	// Idempotent: returns the number of rows removed (0 if already gone).
+	// Used by the GDPR account-deletion flow (US-101).
+	Task<int> DeleteByKeycloakUserIdAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default);
 }

@@ -24,4 +24,9 @@ public sealed class UserActivityRepository(UsersDbContext context) : IUserActivi
 			.Take(limit.Value)
 			.ToListAsync(cancellationToken);
 	}
+
+	public async Task<int> DeleteAllByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
+	{
+		return await activities.Where(activity => activity.Owner == owner).ExecuteDeleteAsync(cancellationToken);
+	}
 }

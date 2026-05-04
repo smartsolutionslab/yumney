@@ -28,4 +28,9 @@ public sealed class StaplesListRepository(UsersDbContext context) : IStaplesList
 	{
 		await staplesLists.AddAsync(staplesList, cancellationToken);
 	}
+
+	public async Task<int> DeleteByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
+	{
+		return await staplesLists.Where(list => list.Owner == owner).ExecuteDeleteAsync(cancellationToken);
+	}
 }
