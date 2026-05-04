@@ -16,7 +16,8 @@ internal sealed record AppHostOptions(
 
 	public bool UseGhcr => !string.IsNullOrWhiteSpace(RegistryEndpoint);
 
-	public bool UseGhcrPullCredentials => !string.IsNullOrWhiteSpace(GhcrUser);
+	public bool UseGhcrPullCredentials =>
+		!string.IsNullOrWhiteSpace(GhcrUser) && !string.IsNullOrWhiteSpace(GhcrToken);
 
 	public static AppHostOptions FromConfiguration(IConfiguration config)
 	{
