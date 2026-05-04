@@ -15,4 +15,13 @@ export class UserProfileApiService {
   updateProfile(request: UpdateProfileRequest): Observable<UserProfile> {
     return this.http.put<UserProfile>(API_ENDPOINTS.users.profile, request);
   }
+
+  // Permanently erases the current user's account (GDPR Art. 17, US-101).
+  // Returns 204 on success or 503 if Keycloak deletion fails after local data
+  // is already erased — in that case the user is already logged-out for all
+  // practical purposes; their PII is gone but support may need to clean up
+  // the dangling Keycloak account.
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(API_ENDPOINTS.users.me);
+  }
 }

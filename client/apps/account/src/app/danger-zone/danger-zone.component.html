@@ -1,0 +1,48 @@
+<section class="danger-zone" *transloco="let t">
+  <header>
+    <h2>{{ t('account.danger.title') }}</h2>
+    <p class="danger-zone__lead">{{ t('account.danger.lead') }}</p>
+  </header>
+
+  <div class="danger-zone__card">
+    <h3>{{ t('account.danger.deleteAccount') }}</h3>
+    <p>{{ t('account.danger.deleteIntro') }}</p>
+    <ul class="danger-zone__consequences">
+      <li>{{ t('account.danger.consequence.recipes') }}</li>
+      <li>{{ t('account.danger.consequence.shoppingLists') }}</li>
+      <li>{{ t('account.danger.consequence.mealPlans') }}</li>
+      <li>{{ t('account.danger.consequence.profile') }}</li>
+      <li>{{ t('account.danger.consequence.signIn') }}</li>
+    </ul>
+
+    <label class="danger-zone__field">
+      <span>{{ t('account.danger.confirmInstruction', { token: confirmationToken }) }}</span>
+      <input
+        type="text"
+        [ngModel]="confirmationInput()"
+        (ngModelChange)="confirmationInput.set($event)"
+        [attr.aria-label]="t('account.danger.confirmAria')"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </label>
+
+    <yn-async-state
+      [loading]="false"
+      [error]="error()"
+      loadingKey="account.danger.deleting"
+      retryKey="account.danger.retry"
+      (retry)="onDelete()"
+    />
+
+    <button
+      type="button"
+      class="danger-zone__btn"
+      [disabled]="!canDelete()"
+      (click)="onDelete()"
+      data-testid="delete-account-btn"
+    >
+      {{ deleting() ? t('account.danger.deleting') : t('account.danger.deleteAccount') }}
+    </button>
+  </div>
+</section>
