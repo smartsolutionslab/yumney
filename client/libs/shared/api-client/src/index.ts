@@ -79,4 +79,11 @@ export { ActivityApiService } from './lib/activity-api.service';
 
 // --- User Profile ---
 export { UserProfileApiService } from './lib/user-profile-api.service';
-export type { UserProfile, DietaryProfileDto, UpdateProfileRequest } from './lib/user-profile';
+export type {
+  UserProfile,
+  DietaryProfileDto,
+  UpdateProfileRequest,
+  VoiceSettingsDto,
+  NotificationPreferencesDto,
+  ThemePreference,
+} from './lib/user-profile';

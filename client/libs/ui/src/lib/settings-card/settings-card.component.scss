@@ -1,0 +1,63 @@
+.settings-card {
+  border-radius: var(--yn-radius-card);
+  background: var(--yn-glass-bg);
+  border: 1px solid var(--yn-glass-border-subtle);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
+  margin-bottom: var(--yn-space-4);
+  overflow: hidden;
+}
+
+.settings-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-3);
+  width: 100%;
+  padding: var(--yn-space-4) var(--yn-space-5);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--yn-glass-bg-elevated);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--yn-color-accent);
+    outline-offset: -2px;
+  }
+}
+
+.settings-card__heading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-1);
+}
+
+.settings-card__title {
+  font-weight: 600;
+  font-size: var(--yn-text-lg);
+}
+
+.settings-card__description {
+  font-size: var(--yn-text-sm);
+  color: var(--yn-text-muted);
+}
+
+.settings-card__chevron {
+  display: inline-flex;
+  color: var(--yn-text-muted);
+}
+
+.settings-card__body {
+  padding: 0 var(--yn-space-5) var(--yn-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-4);
+}

@@ -7,19 +7,89 @@
     "title": "Profile Settings",
     "loading": "Loading profile…",
     "retry": "Retry",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "none": "None",
+
+    "identity": "Identity",
+    "identityHint": "Your name and contact email.",
+    "displayName": "Display name",
+    "email": "Email",
+    "emailHint": "Email is managed by your sign-in provider.",
+
+    "languageUnits": "Language & Units",
+    "languageUnitsHint": "Adapt the UI to your language and measurement system.",
+    "preferredLanguage": "Preferred language",
+    "preferredUnitSystem": "Unit system",
+    "lang": {
+      "en": "English",
+      "de": "German"
+    },
+    "unitSystem": {
+      "metric": "Metric (g, ml, °C)",
+      "imperial": "Imperial (oz, fl oz, °F)"
+    },
+
+    "appearance": "Appearance",
+    "appearanceHint": "Pick a theme or follow your operating system.",
+    "theme": "Theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+
+    "cooking": "Cooking Preferences",
+    "cookingHint": "Defaults that personalise recipes and shopping lists.",
     "household": "Household",
     "defaultServings": "Default servings",
     "dietary": "Dietary Preferences",
     "dietaryType": "Dietary type",
-    "none": "None",
+    "dietaryTypes": {
+      "omnivore": "Omnivore",
+      "vegetarian": "Vegetarian",
+      "vegan": "Vegan",
+      "pescatarian": "Pescatarian",
+      "flexitarian": "Flexitarian"
+    },
     "restrictions": "Restrictions & allergies",
+    "restriction": {
+      "gluten-free": "Gluten-free",
+      "lactose-free": "Lactose-free",
+      "nut-allergy": "Nut allergy",
+      "egg-free": "Egg-free",
+      "soy-free": "Soy-free",
+      "shellfish-allergy": "Shellfish allergy",
+      "halal": "Halal",
+      "kosher": "Kosher"
+    },
     "cookingEffort": "Cooking effort",
+    "cookingEffortOption": {
+      "quick-weekdays": "Quick weekdays",
+      "balanced": "Balanced",
+      "elaborate-weekends": "Elaborate weekends"
+    },
     "weeklyGoals": "Weekly Goals",
     "minVeggie": "Min. veggie meals",
     "maxMeat": "Max. red-meat meals",
-    "save": "Save",
-    "saving": "Saving…",
-    "saved": "Saved!",
+
+    "voice": "Voice Assistant",
+    "voiceHint": "Read steps aloud and listen for voice commands in cook mode.",
+    "voiceEnabled": "Enable voice features",
+    "voiceSpeed": "Voice speed",
+    "voiceSpeedOption": {
+      "slow": "Slow",
+      "normal": "Normal",
+      "fast": "Fast"
+    },
+    "voiceAutoRead": "Auto-read steps in cook mode",
+
+    "notifications": "Notifications",
+    "notificationsHint": "How timers grab your attention.",
+    "timerHaptic": "Vibrate when a timer ends",
+    "timerSound": "Play a sound when a timer ends",
+
     "errors": {
       "saveFailed": "Failed to save profile.",
       "loadFailed": "Failed to load profile."

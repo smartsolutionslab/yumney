@@ -7,9 +7,20 @@ import type { UserProfile, UpdateProfileRequest } from './user-profile';
 
 const mockProfile: UserProfile = {
   displayName: 'Heiko',
+  email: 'heiko@example.com',
   preferredLanguage: 'de',
   preferredUnitSystem: 'metric',
   defaultServings: 4,
+  theme: 'system',
+  voiceSettings: {
+    enabled: true,
+    speed: 'normal',
+    autoReadInCookMode: false,
+  },
+  notificationPreferences: {
+    timerHapticFeedback: true,
+    timerSoundAlerts: true,
+  },
   dietaryProfile: {
     dietaryType: null,
     restrictions: [],
@@ -51,23 +62,30 @@ describe('UserProfileApiService', () => {
   describe('updateProfile', () => {
     it('should PUT to /api/v1/users/me/profile', () => {
       const request: UpdateProfileRequest = {
+        displayName: null,
+        preferredLanguage: null,
+        preferredUnitSystem: null,
         defaultServings: 2,
+        theme: 'dark',
+        voiceSettings: null,
+        notificationPreferences: null,
         dietaryType: 'vegetarian',
-        restrictions: ['gluten'],
+        restrictions: ['gluten-free'],
         minVeggieMeals: 3,
         maxRedMeatMeals: null,
-        cookingEffort: 'quick',
+        cookingEffort: 'quick-weekdays',
       };
 
       const updatedProfile: UserProfile = {
         ...mockProfile,
         defaultServings: 2,
+        theme: 'dark',
         dietaryProfile: {
           dietaryType: 'vegetarian',
-          restrictions: ['gluten'],
+          restrictions: ['gluten-free'],
           minVeggieMeals: 3,
           maxRedMeatMeals: null,
-          cookingEffort: 'quick',
+          cookingEffort: 'quick-weekdays',
         },
       };
 
