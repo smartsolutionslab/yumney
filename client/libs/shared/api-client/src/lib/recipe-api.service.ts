@@ -217,6 +217,18 @@ export class RecipeApiService {
     return this.http.post<void>(API_ENDPOINTS.recipes.cooked(identifier), {});
   }
 
+  rateRecipe(identifier: string, rating: number): Observable<void> {
+    return this.http
+      .post<void>(API_ENDPOINTS.recipes.rating(identifier), { rating })
+      .pipe(tap(() => this.invalidateRecipeCache(identifier)));
+  }
+
+  updateRecipeNotes(identifier: string, notes: string | null): Observable<void> {
+    return this.http
+      .put<void>(API_ENDPOINTS.recipes.notes(identifier), { notes })
+      .pipe(tap(() => this.invalidateRecipeCache(identifier)));
+  }
+
   toggleFavorite(identifier: string): Observable<FavoriteState> {
     // Invalidate the in-memory shareReplay cache so a subsequent
     // getRecipeById refetches with the new isFavorite — without this the

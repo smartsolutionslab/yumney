@@ -9,8 +9,11 @@
       "dateDesc": "Newest first",
       "dateAsc": "Oldest first",
       "nameAsc": "Name A-Z",
-      "nameDesc": "Name Z-A"
+      "nameDesc": "Name Z-A",
+      "ratingDesc": "Highest rated",
+      "ratingAsc": "Lowest rated"
     },
+    "ratingAria": "Rated {{value}} of 5 stars",
     "servings": "{{count}} servings",
     "prepTime": "Prep {{minutes}} min",
     "cookTime": "Cook {{minutes}} min",
@@ -103,12 +106,22 @@
     },
     "loading": "Loading recipe...",
     "notFound": "Recipe not found.",
+<<<<<<< HEAD
     "stats": {
       "cookCount": "Cooked {{count}} times",
       "lastCookedToday": "Last cooked today",
       "lastCookedYesterday": "Last cooked yesterday",
       "lastCookedDays": "Last cooked {{value}} days ago",
       "lastCookedWeeks": "Last cooked {{value}} weeks ago"
+=======
+    "rating": {
+      "label": "Your rating"
+    },
+    "notes": {
+      "label": "Cooking notes",
+      "placeholder": "How did it turn out? Any tweaks for next time?",
+      "saved": "Saved"
+>>>>>>> a50fba7d (feat(recipes): star rating + cooking notes on recipe detail (US-120))
     },
     "delete": {
       "confirm": "Are you sure you want to delete \"{{title}}\"? This cannot be undone.",

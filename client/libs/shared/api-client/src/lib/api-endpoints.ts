@@ -13,7 +13,12 @@ export const API_ENDPOINTS = {
     importFromText: `${API_BASE}/recipes/import-from-text`,
     byIdentifier: (identifier: string) => `${API_BASE}/recipes/${identifier}`,
     favorite: (identifier: string) => `${API_BASE}/recipes/${identifier}/favorite`,
+<<<<<<< HEAD
     cooked: (identifier: string) => `${API_BASE}/recipes/${identifier}/cooked`,
+=======
+    rating: (identifier: string) => `${API_BASE}/recipes/${identifier}/rating`,
+    notes: (identifier: string) => `${API_BASE}/recipes/${identifier}/notes`,
+>>>>>>> a50fba7d (feat(recipes): star rating + cooking notes on recipe detail (US-120))
   },
   shoppingLists: {
     base: `${API_BASE}/shopping-lists`,

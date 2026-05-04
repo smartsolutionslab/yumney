@@ -34,7 +34,7 @@ import { MultiRecipePreviewDialogComponent } from './multi-recipe-preview-dialog
 import { MultiRecipeShoppingListService } from './multi-recipe-shopping-list.service';
 
 interface SortOption extends SortMenuOption {
-  by: 'Name' | 'Date';
+  by: 'Name' | 'Date' | 'Rating';
   dir: 'Ascending' | 'Descending';
 }
 
@@ -64,6 +64,8 @@ export class RecipeListComponent implements OnInit {
     { value: 'date-asc', by: 'Date', dir: 'Ascending', labelKey: 'recipes.list.sort.dateAsc' },
     { value: 'name-asc', by: 'Name', dir: 'Ascending', labelKey: 'recipes.list.sort.nameAsc' },
     { value: 'name-desc', by: 'Name', dir: 'Descending', labelKey: 'recipes.list.sort.nameDesc' },
+    { value: 'rating-desc', by: 'Rating', dir: 'Descending', labelKey: 'recipes.list.sort.ratingDesc' },
+    { value: 'rating-asc', by: 'Rating', dir: 'Ascending', labelKey: 'recipes.list.sort.ratingAsc' },
   ];
 
   private recipeApi = inject(RecipeApiService);
@@ -79,7 +81,7 @@ export class RecipeListComponent implements OnInit {
   totalCount = signal(0);
   currentPage = signal(1);
   pageSize = signal(UI.DEFAULT_PAGE_SIZE);
-  sortBy = signal<'Name' | 'Date'>('Date');
+  sortBy = signal<'Name' | 'Date' | 'Rating'>('Date');
   sortDirection = signal<'Ascending' | 'Descending'>('Descending');
   isLoading = this.asyncState.isLoading;
   serverError = computed(() => this.multiSelect.serverError() ?? this.asyncState.serverError());

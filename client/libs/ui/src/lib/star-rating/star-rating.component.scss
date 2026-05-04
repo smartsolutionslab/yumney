@@ -1,0 +1,41 @@
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yn-space-1);
+}
+
+.star-rating__star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yn-space-1);
+  border: 0;
+  background: transparent;
+  color: var(--yn-text-muted);
+  cursor: pointer;
+  border-radius: var(--yn-radius-pill);
+  transition: color var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    color: var(--yn-color-rating, gold);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--yn-color-accent);
+    outline-offset: 2px;
+  }
+
+  &--filled {
+    color: var(--yn-color-rating, gold);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--yn-color-rating, gold) 40%, transparent));
+  }
+
+  &--readonly {
+    cursor: default;
+  }
+
+  &:disabled {
+    opacity: 0.85;
+  }
+}

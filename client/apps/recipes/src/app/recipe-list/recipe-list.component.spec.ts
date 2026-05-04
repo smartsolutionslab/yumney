@@ -491,7 +491,7 @@ describe('RecipeListComponent', () => {
     fixture.detectChanges();
 
     const items = fixture.nativeElement.querySelectorAll('.sort-menu-item');
-    expect(items.length).toBe(4);
+    expect(items.length).toBe(6);
   }));
 
   it('should display recipe description when present', fakeAsync(() => {
