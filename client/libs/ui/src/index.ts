@@ -7,6 +7,7 @@ export {
   CategorySectionComponent,
   type CategoryKey,
 } from './lib/category-section/category-section.component';
+export { SettingsCardComponent } from './lib/settings-card/settings-card.component';
 export { ConfirmDialogComponent } from './lib/confirm-dialog/confirm-dialog.component';
 export { HeaderComponent } from './lib/header/header.component';
 export { AppLayoutComponent } from './lib/app-layout/app-layout.component';

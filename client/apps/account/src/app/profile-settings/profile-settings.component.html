@@ -1,5 +1,18 @@
 <div class="profile-settings" *transloco="let t">
-  <h1 data-testid="profile-settings-title">{{ t('account.settings.title') }}</h1>
+  <header class="profile-settings__header">
+    <h1 data-testid="profile-settings-title">{{ t('account.settings.title') }}</h1>
+    @if (saving()) {
+      <span class="profile-settings__status" role="status">{{ t('account.settings.saving') }}</span>
+    } @else if (saved()) {
+      <span
+        class="profile-settings__status profile-settings__status--saved"
+        data-testid="profile-saved-indicator"
+        role="status"
+      >
+        {{ t('account.settings.saved') }}
+      </span>
+    }
+  </header>
 
   <yn-async-state
     [loading]="loading()"
@@ -9,10 +22,92 @@
     (retry)="onRetry()"
   />
 
-  @if (profile(); as p) {
-    <form (submit)="$event.preventDefault(); onSave()">
-      <section class="settings-section" data-testid="profile-settings-section">
-        <h2>{{ t('account.settings.household') }}</h2>
+  @if (profile()) {
+    <form class="profile-settings__form" (submit)="$event.preventDefault()">
+      <yn-settings-card
+        titleKey="account.settings.identity"
+        descriptionKey="account.settings.identityHint"
+      >
+        <div class="form-field">
+          <label for="displayName">{{ t('account.settings.displayName') }}</label>
+          <input
+            id="displayName"
+            type="text"
+            maxlength="100"
+            [ngModel]="displayName()"
+            (ngModelChange)="displayName.set($event); onChange()"
+            name="displayName"
+          />
+        </div>
+        <div class="form-field">
+          <label for="email">{{ t('account.settings.email') }}</label>
+          <input
+            id="email"
+            type="email"
+            [value]="email()"
+            readonly
+            name="email"
+            [attr.aria-readonly]="true"
+          />
+          <small class="form-field__hint">{{ t('account.settings.emailHint') }}</small>
+        </div>
+      </yn-settings-card>
+
+      <yn-settings-card
+        titleKey="account.settings.languageUnits"
+        descriptionKey="account.settings.languageUnitsHint"
+      >
+        <div class="form-field">
+          <label for="preferredLanguage">{{ t('account.settings.preferredLanguage') }}</label>
+          <select
+            id="preferredLanguage"
+            [ngModel]="preferredLanguage()"
+            (ngModelChange)="preferredLanguage.set($event); onChange()"
+            name="preferredLanguage"
+          >
+            @for (lang of languages; track lang) {
+              <option [value]="lang">{{ t('account.settings.lang.' + lang) }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="preferredUnitSystem">{{ t('account.settings.preferredUnitSystem') }}</label>
+          <select
+            id="preferredUnitSystem"
+            [ngModel]="preferredUnitSystem()"
+            (ngModelChange)="preferredUnitSystem.set($event); onChange()"
+            name="preferredUnitSystem"
+          >
+            @for (unit of unitSystems; track unit) {
+              <option [value]="unit">{{ t('account.settings.unitSystem.' + unit) }}</option>
+            }
+          </select>
+        </div>
+      </yn-settings-card>
+
+      <yn-settings-card
+        titleKey="account.settings.appearance"
+        descriptionKey="account.settings.appearanceHint"
+      >
+        <div class="form-field">
+          <label for="theme">{{ t('account.settings.theme') }}</label>
+          <select
+            id="theme"
+            [ngModel]="themeChoice()"
+            (ngModelChange)="themeChoice.set($event); onChange()"
+            name="theme"
+          >
+            @for (option of themes; track option) {
+              <option [value]="option">{{ t('account.settings.themes.' + option) }}</option>
+            }
+          </select>
+        </div>
+      </yn-settings-card>
+
+      <yn-settings-card
+        titleKey="account.settings.cooking"
+        descriptionKey="account.settings.cookingHint"
+      >
         <div class="form-field">
           <label for="servings">{{ t('account.settings.defaultServings') }}</label>
           <input
@@ -21,29 +116,24 @@
             min="1"
             max="12"
             [ngModel]="defaultServings()"
-            (ngModelChange)="defaultServings.set($event)"
+            (ngModelChange)="defaultServings.set($event); onChange()"
             name="servings"
           />
         </div>
-      </section>
-
-      <section class="settings-section" data-testid="profile-settings-section">
-        <h2>{{ t('account.settings.dietary') }}</h2>
         <div class="form-field">
           <label for="dietaryType">{{ t('account.settings.dietaryType') }}</label>
           <select
             id="dietaryType"
             [ngModel]="dietaryType()"
-            (ngModelChange)="dietaryType.set($event)"
+            (ngModelChange)="dietaryType.set($event); onChange()"
             name="dietaryType"
           >
             <option value="">{{ t('account.settings.none') }}</option>
             @for (type of dietaryTypes; track type) {
-              <option [value]="type">{{ type }}</option>
+              <option [value]="type">{{ t('account.settings.dietaryTypes.' + type) }}</option>
             }
           </select>
         </div>
-
         <div class="form-field">
           <label>{{ t('account.settings.restrictions') }}</label>
           <div class="checkbox-group">
@@ -54,30 +144,11 @@
                   [checked]="restrictions().includes(r)"
                   (change)="onToggleRestriction(r)"
                 />
-                {{ r }}
+                {{ t('account.settings.restriction.' + r) }}
               </label>
             }
           </div>
         </div>
-
-        <div class="form-field">
-          <label for="cookingEffort">{{ t('account.settings.cookingEffort') }}</label>
-          <select
-            id="cookingEffort"
-            [ngModel]="cookingEffort()"
-            (ngModelChange)="cookingEffort.set($event)"
-            name="cookingEffort"
-          >
-            <option value="">{{ t('account.settings.none') }}</option>
-            @for (effort of cookingEfforts; track effort) {
-              <option [value]="effort">{{ effort }}</option>
-            }
-          </select>
-        </div>
-      </section>
-
-      <section class="settings-section" data-testid="profile-settings-section">
-        <h2>{{ t('account.settings.weeklyGoals') }}</h2>
         <div class="form-row">
           <div class="form-field">
             <label for="minVeggie">{{ t('account.settings.minVeggie') }}</label>
@@ -87,7 +158,7 @@
               min="0"
               max="7"
               [ngModel]="minVeggieMeals()"
-              (ngModelChange)="minVeggieMeals.set($event)"
+              (ngModelChange)="minVeggieMeals.set($event); onChange()"
               name="minVeggie"
             />
           </div>
@@ -99,23 +170,85 @@
               min="0"
               max="7"
               [ngModel]="maxRedMeatMeals()"
-              (ngModelChange)="maxRedMeatMeals.set($event)"
+              (ngModelChange)="maxRedMeatMeals.set($event); onChange()"
               name="maxMeat"
             />
           </div>
         </div>
-      </section>
+        <div class="form-field">
+          <label for="cookingEffort">{{ t('account.settings.cookingEffort') }}</label>
+          <select
+            id="cookingEffort"
+            [ngModel]="cookingEffort()"
+            (ngModelChange)="cookingEffort.set($event); onChange()"
+            name="cookingEffort"
+          >
+            <option value="">{{ t('account.settings.none') }}</option>
+            @for (effort of cookingEfforts; track effort) {
+              <option [value]="effort">{{ t('account.settings.cookingEffortOption.' + effort) }}</option>
+            }
+          </select>
+        </div>
+      </yn-settings-card>
 
-      <div class="form-actions">
-        <button type="submit" class="save-btn" data-testid="profile-save-btn" [disabled]="saving()">
-          {{ saving() ? t('account.settings.saving') : t('account.settings.save') }}
-        </button>
-        @if (saved()) {
-          <span class="saved-indicator" data-testid="profile-saved-indicator">{{
-            t('account.settings.saved')
-          }}</span>
-        }
-      </div>
+      <yn-settings-card
+        titleKey="account.settings.voice"
+        descriptionKey="account.settings.voiceHint"
+      >
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="voiceEnabled()"
+            (change)="voiceEnabled.set($any($event.target).checked); onChange()"
+          />
+          {{ t('account.settings.voiceEnabled') }}
+        </label>
+        <div class="form-field">
+          <label for="voiceSpeed">{{ t('account.settings.voiceSpeed') }}</label>
+          <select
+            id="voiceSpeed"
+            [ngModel]="voiceSpeed()"
+            (ngModelChange)="voiceSpeed.set($event); onChange()"
+            name="voiceSpeed"
+            [disabled]="!voiceEnabled()"
+          >
+            @for (speed of voiceSpeeds; track speed) {
+              <option [value]="speed">{{ t('account.settings.voiceSpeedOption.' + speed) }}</option>
+            }
+          </select>
+        </div>
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="voiceAutoRead()"
+            [disabled]="!voiceEnabled()"
+            (change)="voiceAutoRead.set($any($event.target).checked); onChange()"
+          />
+          {{ t('account.settings.voiceAutoRead') }}
+        </label>
+      </yn-settings-card>
+
+      <yn-settings-card
+        titleKey="account.settings.notifications"
+        descriptionKey="account.settings.notificationsHint"
+      >
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="timerHaptic()"
+            (change)="timerHaptic.set($any($event.target).checked); onChange()"
+          />
+          {{ t('account.settings.timerHaptic') }}
+        </label>
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [checked]="timerSound()"
+            (change)="timerSound.set($any($event.target).checked); onChange()"
+          />
+          {{ t('account.settings.timerSound') }}
+        </label>
+      </yn-settings-card>
     </form>
   }
 </div>

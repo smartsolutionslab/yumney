@@ -1,0 +1,24 @@
+<section class="settings-card" *transloco="let t">
+  <button
+    type="button"
+    class="settings-card__header"
+    [attr.aria-expanded]="isOpen()"
+    (click)="onHeaderClick()"
+  >
+    <div class="settings-card__heading">
+      <span class="settings-card__title">{{ t(titleKey()) }}</span>
+      @if (descriptionKey(); as descKey) {
+        <span class="settings-card__description">{{ t(descKey) }}</span>
+      }
+    </div>
+    <span class="settings-card__chevron" aria-hidden="true">
+      <lucide-icon [name]="isOpen() ? 'chevron-up' : 'chevron-down'" [size]="18" />
+    </span>
+  </button>
+
+  @if (isOpen()) {
+    <div class="settings-card__body">
+      <ng-content />
+    </div>
+  }
+</section>

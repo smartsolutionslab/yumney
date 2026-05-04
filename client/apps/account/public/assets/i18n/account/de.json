@@ -1,25 +1,95 @@
 {
   "placeholder": {
-    "title": "Kontoeinstellungen",
-    "message": "Kontoverwaltungsfunktionen folgen in Kürze."
+    "title": "Konto-Einstellungen",
+    "message": "Verwaltungsfunktionen für Konten folgen demnächst."
   },
   "settings": {
-    "title": "Profileinstellungen",
-    "loading": "Profil wird geladen…",
+    "title": "Profil-Einstellungen",
+    "loading": "Profil wird geladen …",
     "retry": "Erneut versuchen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert …",
+    "saved": "Gespeichert",
+    "none": "Keine",
+
+    "identity": "Identität",
+    "identityHint": "Dein Name und deine Kontakt-E-Mail.",
+    "displayName": "Anzeigename",
+    "email": "E-Mail",
+    "emailHint": "Die E-Mail wird über deinen Anmeldeanbieter verwaltet.",
+
+    "languageUnits": "Sprache & Einheiten",
+    "languageUnitsHint": "Passe die Oberfläche an deine Sprache und dein Einheitensystem an.",
+    "preferredLanguage": "Bevorzugte Sprache",
+    "preferredUnitSystem": "Einheitensystem",
+    "lang": {
+      "en": "Englisch",
+      "de": "Deutsch"
+    },
+    "unitSystem": {
+      "metric": "Metrisch (g, ml, °C)",
+      "imperial": "Imperial (oz, fl oz, °F)"
+    },
+
+    "appearance": "Erscheinungsbild",
+    "appearanceHint": "Wähle ein Theme oder folge deinem Betriebssystem.",
+    "theme": "Theme",
+    "themes": {
+      "light": "Hell",
+      "dark": "Dunkel",
+      "system": "System"
+    },
+
+    "cooking": "Koch-Einstellungen",
+    "cookingHint": "Voreinstellungen für personalisierte Rezepte und Einkaufslisten.",
     "household": "Haushalt",
     "defaultServings": "Standard-Portionen",
-    "dietary": "Ernährungspräferenzen",
-    "dietaryType": "Ernährungstyp",
-    "none": "Keine",
+    "dietary": "Ernährungsweise",
+    "dietaryType": "Ernährungsform",
+    "dietaryTypes": {
+      "omnivore": "Allesesser",
+      "vegetarian": "Vegetarisch",
+      "vegan": "Vegan",
+      "pescatarian": "Pescetarisch",
+      "flexitarian": "Flexitarisch"
+    },
     "restrictions": "Einschränkungen & Allergien",
-    "cookingEffort": "Kochaufwand",
+    "restriction": {
+      "gluten-free": "Glutenfrei",
+      "lactose-free": "Laktosefrei",
+      "nut-allergy": "Nussallergie",
+      "egg-free": "Eifrei",
+      "soy-free": "Sojafrei",
+      "shellfish-allergy": "Schalentier-Allergie",
+      "halal": "Halal",
+      "kosher": "Koscher"
+    },
+    "cookingEffort": "Aufwand beim Kochen",
+    "cookingEffortOption": {
+      "quick-weekdays": "Schnell unter der Woche",
+      "balanced": "Ausgewogen",
+      "elaborate-weekends": "Aufwendig am Wochenende"
+    },
     "weeklyGoals": "Wochenziele",
-    "minVeggie": "Min. vegetarische Gerichte",
-    "maxMeat": "Max. Rotfleisch-Gerichte",
-    "save": "Speichern",
-    "saving": "Speichert…",
-    "saved": "Gespeichert!",
+    "minVeggie": "Min. Gemüsemahlzeiten",
+    "maxMeat": "Max. Mahlzeiten mit rotem Fleisch",
+
+    "voice": "Sprachassistent",
+    "voiceHint": "Schritte vorlesen lassen und Sprachbefehle im Kochmodus verwenden.",
+    "voiceEnabled": "Sprachfunktionen aktivieren",
+    "voiceSpeed": "Sprechgeschwindigkeit",
+    "voiceSpeedOption": {
+      "slow": "Langsam",
+      "normal": "Normal",
+      "fast": "Schnell"
+    },
+    "voiceAutoRead": "Schritte im Kochmodus automatisch vorlesen",
+
+    "notifications": "Benachrichtigungen",
+    "notificationsHint": "Wie Timer dich auf sich aufmerksam machen.",
+    "timerHaptic": "Vibrieren, wenn ein Timer abläuft",
+    "timerSound": "Ton abspielen, wenn ein Timer abläuft",
+
     "errors": {
       "saveFailed": "Profil konnte nicht gespeichert werden.",
       "loadFailed": "Profil konnte nicht geladen werden."
