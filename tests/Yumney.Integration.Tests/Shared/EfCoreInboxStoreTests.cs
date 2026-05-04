@@ -13,9 +13,9 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Shared;
 
 /// <summary>
 /// Integration tests for <see cref="EfCoreInboxStore{TContext}"/> using the
-/// Shopping module's DbContext (the first module to activate the inbox
-/// per #280). Real PostgreSQL is required so the unique constraint on
-/// (MessageId, ConsumerName) fires for the duplicate-insert path.
+/// Shopping module's DbContext. Exercises the scope-based atomic contract:
+/// commit persists the inbox row, rollback discards it (and any handler
+/// writes), and a duplicate pre-check is observed without inserting.
 /// </summary>
 [Collection(AspireCollection.Name)]
 public class EfCoreInboxStoreTests(AspireFixture fixture) : IAsyncLifetime
@@ -42,25 +42,67 @@ public class EfCoreInboxStoreTests(AspireFixture fixture) : IAsyncLifetime
 	}
 
 	[Fact]
-	public async Task TryMarkProcessedAsync_NewPair_ReturnsTrueAndPersists()
+	public async Task BeginAsync_NewPair_AllowsProcessAndPersistsOnCommit()
 	{
 		var messageId = Guid.NewGuid();
 		var consumerName = $"consumer-{Guid.NewGuid():N}";
 		recorded.Add((messageId, consumerName));
 
-		await using var context = await fixture.CreateShoppingDbContextAsync();
-		var store = new EfCoreInboxStore<ShoppingDbContext>(context);
+		await using (var context = await fixture.CreateShoppingDbContextAsync())
+		{
+			var store = new EfCoreInboxStore<ShoppingDbContext>(context);
+			await using var scope = await store.BeginAsync(messageId, consumerName);
 
-		var result = await store.TryMarkProcessedAsync(messageId, consumerName);
+			scope.ShouldProcess.Should().BeTrue();
+			await scope.CommitAsync();
+		}
 
-		result.Should().BeTrue();
 		await using var verify = await fixture.CreateShoppingDbContextAsync();
 		(await verify.InboxMessages.AnyAsync(m => m.MessageId == messageId && m.ConsumerName == consumerName))
 			.Should().BeTrue();
 	}
 
 	[Fact]
-	public async Task TryMarkProcessedAsync_DuplicatePair_ReturnsFalse()
+	public async Task BeginAsync_RollbackBeforeCommit_DropsTheRow()
+	{
+		var messageId = Guid.NewGuid();
+		var consumerName = $"consumer-{Guid.NewGuid():N}";
+
+		await using (var context = await fixture.CreateShoppingDbContextAsync())
+		{
+			var store = new EfCoreInboxStore<ShoppingDbContext>(context);
+			await using var scope = await store.BeginAsync(messageId, consumerName);
+
+			scope.ShouldProcess.Should().BeTrue();
+			await scope.RollbackAsync();
+		}
+
+		await using var verify = await fixture.CreateShoppingDbContextAsync();
+		(await verify.InboxMessages.AnyAsync(m => m.MessageId == messageId && m.ConsumerName == consumerName))
+			.Should().BeFalse();
+	}
+
+	[Fact]
+	public async Task BeginAsync_DisposeWithoutCommit_RollsBack()
+	{
+		var messageId = Guid.NewGuid();
+		var consumerName = $"consumer-{Guid.NewGuid():N}";
+
+		await using (var context = await fixture.CreateShoppingDbContextAsync())
+		{
+			var store = new EfCoreInboxStore<ShoppingDbContext>(context);
+			await using var scope = await store.BeginAsync(messageId, consumerName);
+
+			scope.ShouldProcess.Should().BeTrue();
+		}
+
+		await using var verify = await fixture.CreateShoppingDbContextAsync();
+		(await verify.InboxMessages.AnyAsync(m => m.MessageId == messageId && m.ConsumerName == consumerName))
+			.Should().BeFalse();
+	}
+
+	[Fact]
+	public async Task BeginAsync_DuplicatePair_ReportsAlreadyProcessed()
 	{
 		var messageId = Guid.NewGuid();
 		var consumerName = $"consumer-{Guid.NewGuid():N}";
@@ -69,36 +111,19 @@ public class EfCoreInboxStoreTests(AspireFixture fixture) : IAsyncLifetime
 		await using (var firstContext = await fixture.CreateShoppingDbContextAsync())
 		{
 			var first = new EfCoreInboxStore<ShoppingDbContext>(firstContext);
-			(await first.TryMarkProcessedAsync(messageId, consumerName)).Should().BeTrue();
+			await using var scope = await first.BeginAsync(messageId, consumerName);
+			await scope.CommitAsync();
 		}
 
 		await using var secondContext = await fixture.CreateShoppingDbContextAsync();
 		var second = new EfCoreInboxStore<ShoppingDbContext>(secondContext);
-		var duplicateResult = await second.TryMarkProcessedAsync(messageId, consumerName);
+		await using var duplicateScope = await second.BeginAsync(messageId, consumerName);
 
-		duplicateResult.Should().BeFalse();
+		duplicateScope.ShouldProcess.Should().BeFalse();
 	}
 
 	[Fact]
-	public async Task TryMarkProcessedAsync_DuplicatePair_DetachesFailedEntity()
-	{
-		var messageId = Guid.NewGuid();
-		var consumerName = $"consumer-{Guid.NewGuid():N}";
-		recorded.Add((messageId, consumerName));
-
-		await using (var first = await fixture.CreateShoppingDbContextAsync())
-		{
-			await new EfCoreInboxStore<ShoppingDbContext>(first).TryMarkProcessedAsync(messageId, consumerName);
-		}
-
-		await using var context = await fixture.CreateShoppingDbContextAsync();
-		await new EfCoreInboxStore<ShoppingDbContext>(context).TryMarkProcessedAsync(messageId, consumerName);
-
-		context.ChangeTracker.Entries<InboxMessage>().Should().BeEmpty();
-	}
-
-	[Fact]
-	public async Task TryMarkProcessedAsync_SameMessageDifferentConsumer_ReturnsTrueForBoth()
+	public async Task BeginAsync_SameMessageDifferentConsumer_AllowsBoth()
 	{
 		var messageId = Guid.NewGuid();
 		var consumerA = $"consumer-a-{Guid.NewGuid():N}";
@@ -106,10 +131,18 @@ public class EfCoreInboxStoreTests(AspireFixture fixture) : IAsyncLifetime
 		recorded.Add((messageId, consumerA));
 		recorded.Add((messageId, consumerB));
 
-		await using var context = await fixture.CreateShoppingDbContextAsync();
-		var store = new EfCoreInboxStore<ShoppingDbContext>(context);
+		await using (var contextA = await fixture.CreateShoppingDbContextAsync())
+		{
+			var storeA = new EfCoreInboxStore<ShoppingDbContext>(contextA);
+			await using var scopeA = await storeA.BeginAsync(messageId, consumerA);
+			scopeA.ShouldProcess.Should().BeTrue();
+			await scopeA.CommitAsync();
+		}
 
-		(await store.TryMarkProcessedAsync(messageId, consumerA)).Should().BeTrue();
-		(await store.TryMarkProcessedAsync(messageId, consumerB)).Should().BeTrue();
+		await using var contextB = await fixture.CreateShoppingDbContextAsync();
+		var storeB = new EfCoreInboxStore<ShoppingDbContext>(contextB);
+		await using var scopeB = await storeB.BeginAsync(messageId, consumerB);
+		scopeB.ShouldProcess.Should().BeTrue();
+		await scopeB.CommitAsync();
 	}
 }

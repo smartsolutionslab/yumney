@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using Xunit;
@@ -11,32 +10,44 @@ namespace SmartSolutionsLab.Yumney.Shared.Events.Tests;
 public class ModuleEventConsumerTests
 {
 	[Fact]
-	public async Task HandleAsync_NewMessage_InvokesHandlerOnce()
+	public async Task HandleAsync_NewMessage_InvokesHandlerAndCommitsScope()
 	{
-		var handler = Substitute.For<IModuleEventHandler<TestModuleEvent>>();
-		var inbox = new NoOpInboxStore();
+		var handler = new RecordingHandler();
+		var inbox = new TestInboxStore();
 		var consumer = CreateConsumer(handler, inbox);
 		var message = new TestModuleEvent("owner-1");
 
 		await consumer.HandleAsync(message, CancellationToken.None);
 
-		await handler.Received(1).HandleAsync(message, Arg.Any<CancellationToken>());
+		handler.CallCount.Should().Be(1);
+		inbox.Scopes[0].Committed.Should().BeTrue();
 	}
 
 	[Fact]
 	public async Task HandleAsync_DuplicateMessage_SkipsHandler()
 	{
-		var handler = Substitute.For<IModuleEventHandler<TestModuleEvent>>();
-		var inbox = Substitute.For<IInboxStore>();
-		inbox.TryMarkProcessedAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-			.Returns(false);
-
+		var handler = new RecordingHandler();
+		var inbox = new TestInboxStore(shouldProcessSequence: [false]);
 		var consumer = CreateConsumer(handler, inbox);
-		var message = new TestModuleEvent("owner-1");
 
-		await consumer.HandleAsync(message, CancellationToken.None);
+		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
-		await handler.DidNotReceive().HandleAsync(Arg.Any<TestModuleEvent>(), Arg.Any<CancellationToken>());
+		handler.CallCount.Should().Be(0);
+		inbox.Scopes[0].Committed.Should().BeFalse();
+	}
+
+	[Fact]
+	public async Task HandleAsync_HandlerThrows_RollsBackAndPropagates()
+	{
+		var handler = new RecordingHandler { ThrowOnCall = new InvalidOperationException("boom") };
+		var inbox = new TestInboxStore();
+		var consumer = CreateConsumer(handler, inbox);
+
+		var act = async () => await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
+
+		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
+		inbox.Scopes[0].RolledBack.Should().BeTrue();
+		inbox.Scopes[0].Committed.Should().BeFalse();
 	}
 
 	[Fact]
@@ -44,10 +55,7 @@ public class ModuleEventConsumerTests
 	{
 		var handlerA = new RecordingHandler();
 		var handlerB = new RecordingHandler();
-
-		var inbox = Substitute.For<IInboxStore>();
-		inbox.TryMarkProcessedAsync(Arg.Any<Guid>(), Arg.Is<string>(n => n.Contains(nameof(RecordingHandler))), Arg.Any<CancellationToken>())
-			.Returns(true, false);
+		var inbox = new TestInboxStore(shouldProcessSequence: [true, false]);
 
 		var services = new ServiceCollection();
 		services.AddSingleton<IModuleEventHandler<TestModuleEvent>>(handlerA);
@@ -61,14 +69,14 @@ public class ModuleEventConsumerTests
 
 		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
-		var totalCalls = handlerA.CallCount + handlerB.CallCount;
-		totalCalls.Should().Be(1, "exactly one handler runs when the inbox allows one and blocks the other");
+		(handlerA.CallCount + handlerB.CallCount).Should().Be(1);
+		inbox.Scopes.Count(scope => scope.Committed).Should().Be(1);
 	}
 
 	[Fact]
 	public async Task HandleAsync_NoRegisteredHandlers_DoesNothing()
 	{
-		var inbox = Substitute.For<IInboxStore>();
+		var inbox = new TestInboxStore();
 		var provider = new ServiceCollection().BuildServiceProvider();
 
 		var consumer = new ModuleEventConsumer<TestModuleEvent>(
@@ -78,16 +86,19 @@ public class ModuleEventConsumerTests
 
 		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
-		await inbox.DidNotReceive().TryMarkProcessedAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+		inbox.Scopes.Should().BeEmpty();
 	}
 
 	private sealed class RecordingHandler : IModuleEventHandler<TestModuleEvent>
 	{
 		public int CallCount { get; private set; }
 
+		public Exception? ThrowOnCall { get; init; }
+
 		public Task HandleAsync(TestModuleEvent moduleEvent, CancellationToken cancellationToken = default)
 		{
 			CallCount++;
+			if (ThrowOnCall is not null) throw ThrowOnCall;
 			return Task.CompletedTask;
 		}
 	}
