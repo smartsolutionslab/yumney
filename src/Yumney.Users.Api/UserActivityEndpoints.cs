@@ -22,10 +22,27 @@ public static class UserActivityEndpoints
 		static async Task<IResult> GetRecentActivity(
 			IQueryHandler<GetRecentActivityQuery, Result<IReadOnlyList<UserActivityDto>>> handler,
 			int limit = 5,
+			string? type = null,
 			CancellationToken cancellationToken = default)
 		{
-			var query = new GetRecentActivityQuery(ActivityLimit.From(limit));
+			var typeFilter = string.IsNullOrWhiteSpace(type) ? null : ActivityType.From(type);
+			var query = new GetRecentActivityQuery(ActivityLimit.From(limit), typeFilter);
 			var result = await handler.HandleAsync(query, cancellationToken);
+			return result.ToOk();
+		}
+
+		group.MapGet("/activity/recipes/{identifier:guid}/stats", GetRecipeStats)
+			.RequireAuthorization()
+			.WithName("GetRecipeActivityStats")
+			.WithTags("Users")
+			.Produces<RecipeActivityStatsDto>();
+
+		static async Task<IResult> GetRecipeStats(
+			Guid identifier,
+			IQueryHandler<GetRecipeActivityStatsQuery, Result<RecipeActivityStatsDto>> handler,
+			CancellationToken cancellationToken)
+		{
+			var result = await handler.HandleAsync(new GetRecipeActivityStatsQuery(identifier), cancellationToken);
 			return result.ToOk();
 		}
 
