@@ -313,7 +313,8 @@
     "errors": {
       "loadFailed": "Essensplan konnte nicht geladen werden.",
       "clearFailed": "Slot konnte nicht geleert werden.",
-      "generateFailed": "Einkaufsliste konnte nicht erstellt werden."
+      "generateFailed": "Einkaufsliste konnte nicht erstellt werden.",
+      "assignFailed": "Rezept konnte nicht zum Essensplan hinzugefügt werden."
     }
   },
   "common": {

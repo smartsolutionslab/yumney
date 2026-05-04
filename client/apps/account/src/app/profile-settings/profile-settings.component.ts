@@ -1,10 +1,9 @@
 import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { UserProfileApiService, type UserProfile, type UpdateProfileRequest } from '../api';
-import { UI } from '@yumney/shared/models';
+import { createAsyncState, ERROR_MAPS, UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
+import { UserProfileApiService, type UserProfile, type UpdateProfileRequest } from '../api';
 
 @Component({
   selector: 'yn-profile-settings',
@@ -18,10 +17,12 @@ export class ProfileSettingsComponent {
   private api = inject(UserProfileApiService);
   private destroyRef = inject(DestroyRef);
   private transloco = inject(TranslocoService);
+  private loadState = createAsyncState(this.destroyRef);
+  private saveState = createAsyncState(this.destroyRef);
 
   protected profile = signal<UserProfile | null>(null);
-  protected loading = signal(false);
-  protected saving = signal(false);
+  protected loading = this.loadState.isLoading;
+  protected saving = this.saveState.isLoading;
   protected error = signal<string | null>(null);
   protected saved = signal(false);
 
@@ -51,7 +52,6 @@ export class ProfileSettingsComponent {
 
   protected onSave(): void {
     if (this.saving()) return;
-    this.saving.set(true);
     this.saved.set(false);
     this.error.set(null);
 
@@ -64,27 +64,22 @@ export class ProfileSettingsComponent {
       cookingEffort: this.cookingEffort() || null,
     };
 
-    this.api
-      .updateProfile(request)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (updated) => {
-          this.profile.set(updated);
-          this.saving.set(false);
-          this.saved.set(true);
-          setTimeout(() => this.saved.set(false), UI.SAVED_INDICATOR_MS);
-        },
-        error: () => {
-          this.error.set(this.transloco.translate('account.settings.errors.saveFailed'));
-          this.saving.set(false);
-        },
-      });
+    this.saveState.execute(
+      this.api.updateProfile(request),
+      ERROR_MAPS.account.save,
+      (updated) => {
+        this.profile.set(updated);
+        this.saved.set(true);
+        setTimeout(() => this.saved.set(false), UI.SAVED_INDICATOR_MS);
+      },
+      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+    );
   }
 
   protected onToggleRestriction(restriction: string): void {
     const current = this.restrictions();
     if (current.includes(restriction)) {
-      this.restrictions.set(current.filter((r) => r !== restriction));
+      this.restrictions.set(current.filter((entry) => entry !== restriction));
     } else {
       this.restrictions.set([...current, restriction]);
     }
@@ -95,26 +90,20 @@ export class ProfileSettingsComponent {
   }
 
   private loadProfile(): void {
-    this.loading.set(true);
     this.error.set(null);
-    this.api
-      .getProfile()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (profile) => {
-          this.profile.set(profile);
-          this.defaultServings.set(profile.defaultServings);
-          this.dietaryType.set(profile.dietaryProfile.dietaryType ?? '');
-          this.restrictions.set([...profile.dietaryProfile.restrictions]);
-          this.minVeggieMeals.set(profile.dietaryProfile.minVeggieMeals);
-          this.maxRedMeatMeals.set(profile.dietaryProfile.maxRedMeatMeals);
-          this.cookingEffort.set(profile.dietaryProfile.cookingEffort ?? '');
-          this.loading.set(false);
-        },
-        error: () => {
-          this.error.set(this.transloco.translate('account.settings.errors.loadFailed'));
-          this.loading.set(false);
-        },
-      });
+    this.loadState.execute(
+      this.api.getProfile(),
+      ERROR_MAPS.account.load,
+      (profile) => {
+        this.profile.set(profile);
+        this.defaultServings.set(profile.defaultServings);
+        this.dietaryType.set(profile.dietaryProfile.dietaryType ?? '');
+        this.restrictions.set([...profile.dietaryProfile.restrictions]);
+        this.minVeggieMeals.set(profile.dietaryProfile.minVeggieMeals);
+        this.maxRedMeatMeals.set(profile.dietaryProfile.maxRedMeatMeals);
+        this.cookingEffort.set(profile.dietaryProfile.cookingEffort ?? '');
+      },
+      (errorKey) => this.error.set(this.transloco.translate(errorKey)),
+    );
   }
 }

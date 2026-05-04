@@ -313,7 +313,8 @@
     "errors": {
       "loadFailed": "Failed to load meal plan.",
       "clearFailed": "Failed to clear slot.",
-      "generateFailed": "Failed to generate shopping list."
+      "generateFailed": "Failed to generate shopping list.",
+      "assignFailed": "Failed to assign recipe to meal plan."
     }
   },
   "common": {

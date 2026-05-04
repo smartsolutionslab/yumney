@@ -44,3 +44,4 @@ export { provideYumneyIcons } from './lib/icons/provide-icons';
 
 // Directives
 export { InfiniteScrollDirective } from './lib/directives/infinite-scroll.directive';
+export { StaggerNewItemsDirective } from './lib/directives/stagger-new-items.directive';

@@ -103,10 +103,9 @@
   }
 
   @if (recipes().length > 0) {
-    <div class="recipe-grid">
+    <div class="recipe-grid" ynStaggerNewItems>
       @for (recipe of recipes(); track recipe.identifier) {
         <yn-recipe-card
-          #recipeCard
           [recipe]="recipe"
           [assignMode]="assignment.assignMode()"
           [multiSelectMode]="multiSelect.multiSelectMode()"

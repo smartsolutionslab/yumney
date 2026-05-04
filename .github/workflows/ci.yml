@@ -94,6 +94,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Verify i18n in sync
+        run: yarn sync:i18n:check
+
       - name: Lint
         run: yarn nx run-many -t lint
 
