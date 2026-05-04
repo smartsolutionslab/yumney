@@ -84,8 +84,8 @@
       "languageDe": "Deutsch",
       "languageEn": "English",
       "openChat": "Rezept-Chat öffnen",
-      "switchToDark": "Heller Modus",
-      "switchToLight": "Dunkler Modus"
+      "switchToDark": "Zu dunklem Modus wechseln",
+      "switchToLight": "Zu hellem Modus wechseln"
     },
     "offlineIndicator": {
       "offline": "Du bist offline. Einige Funktionen sind nicht verfügbar.",
