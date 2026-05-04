@@ -60,21 +60,19 @@ h1 {
   }
 }
 
-// ── Items list ──
+// ── Items list (rendered inside category sections) ──
 .items-list {
-  @include glass.glass-card;
   list-style: none;
-  padding: var(--yn-space-5);
-  margin: 0 0 var(--yn-space-8);
+  padding: 0;
+  margin: 0;
 
   li {
     display: flex;
     align-items: center;
     gap: var(--yn-space-3);
-    padding: var(--yn-space-4) var(--yn-space-3);
+    padding: var(--yn-space-3) var(--yn-space-2);
     border-bottom: 1px solid var(--yn-border-light);
     font-size: var(--yn-text-md);
-    cursor: pointer;
     border-radius: var(--yn-radius-md);
     transition:
       background var(--yn-duration-fast) var(--yn-ease-glass),
@@ -110,6 +108,28 @@ h1 {
     accent-color: var(--yn-primary);
     cursor: pointer;
     flex-shrink: 0;
+  }
+
+  .item-name {
+    cursor: pointer;
+    flex: 1;
+  }
+
+  .category-picker {
+    margin-left: auto;
+    padding: var(--yn-space-1) var(--yn-space-2);
+    background: var(--yn-glass-bg);
+    border: 1px solid var(--yn-glass-border-subtle);
+    border-radius: var(--yn-radius-pill);
+    color: var(--yn-text-muted);
+    font-size: var(--yn-text-xs);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--yn-glass-bg-elevated);
+      color: var(--yn-text);
+    }
   }
 }
 

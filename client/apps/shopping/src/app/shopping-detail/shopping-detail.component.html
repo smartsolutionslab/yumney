@@ -38,26 +38,40 @@
       </div>
     }
 
-    <ul class="items-list">
-      @for (item of list.items; track item.identifier) {
-        <li [class.checked]="item.isChecked" (click)="onToggleItem(item)">
-          <input
-            type="checkbox"
-            [checked]="item.isChecked"
-            [attr.aria-label]="item.name"
-            (click)="$event.stopPropagation()"
-            (change)="onToggleItem(item)"
-          />
-          @if (item.amount) {
-            <span class="item-amount">{{ item.amount }}</span>
+    @for (group of groupedItems(); track group.category) {
+      <yn-category-section [category]="group.category" [itemCount]="group.items.length">
+        <ul class="items-list">
+          @for (item of group.items; track item.identifier) {
+            <li [class.checked]="item.isChecked">
+              <input
+                type="checkbox"
+                [checked]="item.isChecked"
+                [attr.aria-label]="item.name"
+                (change)="onToggleItem(item)"
+              />
+              @if (item.amount) {
+                <span class="item-amount">{{ item.amount }}</span>
+              }
+              @if (item.unit) {
+                <span class="item-unit">{{ item.unit }}</span>
+              }
+              <span class="item-name" (click)="onToggleItem(item)">{{ item.name }}</span>
+              <select
+                class="category-picker"
+                [value]="group.category"
+                [attr.aria-label]="t('shopping.detail.changeCategory')"
+                (change)="onChangeCategory(item, $any($event.target).value)"
+                (click)="$event.stopPropagation()"
+              >
+                @for (option of availableCategories; track option) {
+                  <option [value]="option">{{ t('shopping.category.' + option) }}</option>
+                }
+              </select>
+            </li>
           }
-          @if (item.unit) {
-            <span class="item-unit">{{ item.unit }}</span>
-          }
-          <span class="item-name">{{ item.name }}</span>
-        </li>
-      }
-    </ul>
+        </ul>
+      </yn-category-section>
+    }
 
     @if (list.recipeIdentifier) {
       <div class="source-link">
