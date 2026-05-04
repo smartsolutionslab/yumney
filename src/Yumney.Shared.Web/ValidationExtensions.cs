@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using HttpResults = Microsoft.AspNetCore.Http.Results;
 
 namespace SmartSolutionsLab.Yumney.Shared.Web;
 
@@ -13,7 +12,7 @@ public static class ValidationExtensions
 	{
 		LogValidationFailure(result);
 
-		return HttpResults.ValidationProblem(
+		return Results.ValidationProblem(
 			result.ToDictionary(),
 			statusCode: StatusCodes.Status422UnprocessableEntity,
 			extensions: BuildTraceExtensions());
