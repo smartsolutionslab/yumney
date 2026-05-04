@@ -13,11 +13,12 @@ using Requests = SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
 
-public static class ShoppingEndpoints
+public static partial class ShoppingEndpoints
 {
 	public static IEndpointRouteBuilder MapShoppingEndpoints(this IEndpointRouteBuilder app)
 	{
 		var group = app.MapGroup("/shopping-lists");
+		MapCategoryEndpoints(group);
 
 		group.MapPost("/", Create)
 			.WithName("CreateShoppingList")
