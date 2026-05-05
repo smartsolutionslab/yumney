@@ -16,5 +16,8 @@ public interface IKeycloakAdminService
 	/// as success so the call is idempotent — the caller can retry safely after a
 	/// partial failure.
 	/// </summary>
+	/// <param name="keycloakUserId">The Keycloak user identifier to delete.</param>
+	/// <param name="cancellationToken">Token to cancel the in-flight request.</param>
+	/// <returns>Success on deletion (or 404); failure when Keycloak is unreachable.</returns>
 	Task<Result> DeleteUserAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default);
 }
