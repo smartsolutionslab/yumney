@@ -19,9 +19,9 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.CrossModule;
 /// Locks in that Shopping's <c>EfCoreInboxStore</c> is actually consulted by
 /// the Wolverine consumer pipeline — not just registered in DI. The generic
 /// <c>IntegrationEventConsumer&lt;T&gt;</c> calls
-/// <c>IInboxStore.TryMarkProcessedAsync</c> *before* invoking each handler;
-/// a successful call leaves a row keyed by (messageId, fully-qualified
-/// handler type name) in the <c>InboxMessages</c> table.
+/// <c>IInboxStore.TryProcessAsync</c>, which on success commits a row keyed
+/// by (messageId, fully-qualified handler type name) in the
+/// <c>InboxMessages</c> table together with the handler's writes.
 ///
 /// Without this test, a misconfigured DI graph (e.g. `TryAddScoped` losing
 /// to a later `NoOpInboxStore` registration, or the consumer skipping the
@@ -64,7 +64,7 @@ public class InboxPipelineInvocationTests(AspireFixture fixture) : IAsyncLifetim
 		await ConfirmMealCookedAsync(mealplanClient);
 
 		// Wolverine routes MealConfirmedIntegrationEvent → IntegrationEventConsumer<T>
-		// → IInboxStore.TryMarkProcessedAsync(messageId, "...MealConfirmedHandler")
+		// → IInboxStore.TryProcessAsync(messageId, "...MealConfirmedHandler", handler)
 		// → MealConfirmedHandler. Poll the inbox table until the dedup row lands.
 		var expectedConsumer = typeof(MealConfirmedHandler).FullName!;
 

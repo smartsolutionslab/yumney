@@ -7,8 +7,9 @@ namespace SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 /// <summary>
 /// Generic Wolverine handler that delegates to <see cref="IModuleEventHandler{TEvent}"/>
 /// implementations. Counterpart to <see cref="IntegrationEventConsumer{TEvent}"/> for
-/// in-module bus envelopes. Each invocation runs inside an <see cref="IInboxScope"/>
-/// so the inbox row and the handler's writes share a single transaction.
+/// in-module bus envelopes. Each invocation goes through
+/// <see cref="IInboxStore.TryProcessAsync"/> so the handler's writes and the inbox
+/// dedup row share a single transactional fate.
 /// </summary>
 /// <typeparam name="TEvent">The module event type to handle.</typeparam>
 #pragma warning disable SA1601
@@ -35,31 +36,31 @@ public sealed partial class ModuleEventConsumer<TEvent>(
 		string consumerName,
 		CancellationToken cancellationToken)
 	{
-		await using var scope = await inboxStore.BeginAsync(message.EventIdentifier, consumerName, cancellationToken);
-
-		if (!scope.ShouldProcess)
-		{
-			LogSkippingDuplicate(typeof(TEvent).Name, consumerName, message.EventIdentifier);
-			return;
-		}
-
 		LogHandlingEvent(typeof(TEvent).Name, handler.GetType().Name);
 
+		InboxOutcome outcome;
 		try
 		{
-			await handler.HandleAsync(message, cancellationToken);
-			await scope.CommitAsync(cancellationToken);
-		}
-		catch (Exception exception) when (scope.IsDuplicateInboxViolation(exception))
-		{
-			await scope.RollbackAsync(cancellationToken);
-			LogSkippingDuplicateRace(typeof(TEvent).Name, consumerName, message.EventIdentifier);
+			outcome = await inboxStore.TryProcessAsync(
+				message.EventIdentifier,
+				consumerName,
+				ct => handler.HandleAsync(message, ct),
+				cancellationToken);
 		}
 		catch (Exception exception)
 		{
-			await scope.RollbackAsync(cancellationToken);
 			LogHandlerFailed(exception, typeof(TEvent).Name, handler.GetType().Name, message.EventIdentifier);
 			throw;
+		}
+
+		switch (outcome)
+		{
+			case InboxOutcome.AlreadyProcessed:
+				LogSkippingDuplicate(typeof(TEvent).Name, consumerName, message.EventIdentifier);
+				break;
+			case InboxOutcome.DuplicateRace:
+				LogSkippingDuplicateRace(typeof(TEvent).Name, consumerName, message.EventIdentifier);
+				break;
 		}
 	}
 
@@ -69,9 +70,9 @@ public sealed partial class ModuleEventConsumer<TEvent>(
 	[LoggerMessage(Level = LogLevel.Information, Message = "Skipping duplicate module event {EventType} for {ConsumerName} (id {MessageId})")]
 	private partial void LogSkippingDuplicate(string eventType, string consumerName, Guid messageId);
 
-	[LoggerMessage(Level = LogLevel.Information, Message = "Concurrent peer already recorded module event {EventType} for {ConsumerName} (id {MessageId}); rolling back and skipping")]
+	[LoggerMessage(Level = LogLevel.Information, Message = "Concurrent peer already recorded module event {EventType} for {ConsumerName} (id {MessageId}); rolled back local transaction")]
 	private partial void LogSkippingDuplicateRace(string eventType, string consumerName, Guid messageId);
 
-	[LoggerMessage(Level = LogLevel.Error, Message = "Handler {HandlerType} for module event {EventType} (id {MessageId}) threw — inbox row rolled back, message will be retried")]
+	[LoggerMessage(Level = LogLevel.Error, Message = "Handler {HandlerType} for module event {EventType} (id {MessageId}) threw — inbox transaction rolled back, message will be retried")]
 	private partial void LogHandlerFailed(Exception exception, string eventType, string handlerType, Guid messageId);
 }

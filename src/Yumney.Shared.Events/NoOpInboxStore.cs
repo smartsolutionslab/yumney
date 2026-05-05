@@ -1,28 +1,20 @@
 namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 /// <summary>
-/// Pass-through inbox that never records anything and always allows the
-/// consumer to handle the message. This is the default binding and
-/// preserves pre-inbox behaviour for modules that have not yet run
-/// the migration needed by a persistent store.
+/// Pass-through inbox that runs the handler with no dedup. Default binding
+/// for modules that have not yet adopted the EF Core inbox; preserves the
+/// pre-inbox at-least-once behaviour where a handler exception propagates
+/// to Wolverine and the message is redelivered.
 /// </summary>
 public sealed class NoOpInboxStore : IInboxStore
 {
-	public Task<IInboxScope> BeginAsync(Guid messageId, string consumerName, CancellationToken cancellationToken = default)
-		=> Task.FromResult<IInboxScope>(NoOpInboxScope.Instance);
-}
-
-internal sealed class NoOpInboxScope : IInboxScope
-{
-	public static readonly NoOpInboxScope Instance = new();
-
-	public bool ShouldProcess => true;
-
-	public Task CommitAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-	public Task RollbackAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-	public bool IsDuplicateInboxViolation(Exception exception) => false;
-
-	public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+	public async Task<InboxOutcome> TryProcessAsync(
+		Guid messageId,
+		string consumerName,
+		Func<CancellationToken, Task> handler,
+		CancellationToken cancellationToken = default)
+	{
+		await handler(cancellationToken);
+		return InboxOutcome.Processed;
+	}
 }

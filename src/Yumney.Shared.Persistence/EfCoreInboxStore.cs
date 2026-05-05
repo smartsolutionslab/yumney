@@ -1,101 +1,65 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 
 namespace SmartSolutionsLab.Yumney.Shared.Persistence;
 
 /// <summary>
-/// EF Core-backed <see cref="IInboxStore"/>. Each <see cref="BeginAsync"/>
-/// call opens a database transaction on the supplied context and stages an
-/// <see cref="InboxMessage"/> row when the (messageId, consumerName) pair
-/// is not already present. The caller (event consumer) commits the scope
-/// only after the handler succeeds, so the inbox row and the handler's
-/// writes share a single transactional fate. On handler failure the scope
-/// rolls back, leaving the inbox empty for the next delivery to retry.
+/// EF Core-backed <see cref="IInboxStore"/>. Wraps the
+/// begin → dedup-check → handler → save → commit sequence in
+/// <see cref="Microsoft.EntityFrameworkCore.IExecutionStrategy.ExecuteAsync(Func{Task})"/>
+/// so the configured retrying execution strategy can replay the whole unit
+/// on transient failures. The handler's writes (queued through the same
+/// <typeparamref name="TContext"/>) and the inbox row share a single
+/// transaction — a handler exception rolls both back, and a redelivery
+/// re-runs the handler from scratch.
 /// </summary>
-/// <typeparam name="TContext">The DbContext that holds the InboxMessages set.</typeparam>
+/// <typeparam name="TContext">DbContext that owns the InboxMessages set.</typeparam>
 public sealed class EfCoreInboxStore<TContext>(TContext context) : IInboxStore
 	where TContext : DbContext
 {
-	public async Task<IInboxScope> BeginAsync(Guid messageId, string consumerName, CancellationToken cancellationToken = default)
+	public async Task<InboxOutcome> TryProcessAsync(
+		Guid messageId,
+		string consumerName,
+		Func<CancellationToken, Task> handler,
+		CancellationToken cancellationToken = default)
 	{
-		var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+		var strategy = context.Database.CreateExecutionStrategy();
 
-		var alreadyProcessed = await context.Set<InboxMessage>()
-			.AsNoTracking()
-			.AnyAsync(message => message.MessageId == messageId && message.ConsumerName == consumerName, cancellationToken);
-
-		if (alreadyProcessed)
+		try
 		{
-			return new EfCoreInboxScope(context, transaction, shouldProcess: false, stagedEntry: null);
-		}
-
-		var entry = context.Set<InboxMessage>().Add(new InboxMessage
-		{
-			MessageId = messageId,
-			ConsumerName = consumerName,
-		});
-
-		return new EfCoreInboxScope(context, transaction, shouldProcess: true, stagedEntry: entry.Entity);
-	}
-
-	private sealed class EfCoreInboxScope(
-		TContext context,
-		IDbContextTransaction transaction,
-		bool shouldProcess,
-		InboxMessage? stagedEntry) : IInboxScope
-	{
-		private bool finalized;
-
-		public bool ShouldProcess => shouldProcess;
-
-		public async Task CommitAsync(CancellationToken cancellationToken = default)
-		{
-			if (finalized) return;
-			finalized = true;
-
-			await context.SaveChangesAsync(cancellationToken);
-			await transaction.CommitAsync(cancellationToken);
-		}
-
-		public async Task RollbackAsync(CancellationToken cancellationToken = default)
-		{
-			if (finalized) return;
-			finalized = true;
-
-			DetachStagedEntry();
-			await transaction.RollbackAsync(cancellationToken);
-		}
-
-		public bool IsDuplicateInboxViolation(Exception exception)
-		{
-			return exception is DbUpdateException dbUpdate && dbUpdate.IsUniqueViolation();
-		}
-
-		public async ValueTask DisposeAsync()
-		{
-			if (!finalized)
+			return await strategy.ExecuteAsync(async () =>
 			{
-				finalized = true;
-				DetachStagedEntry();
-				await transaction.RollbackAsync();
-			}
+				await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
 
-			await transaction.DisposeAsync();
+				var alreadyProcessed = await context.Set<InboxMessage>()
+					.AsNoTracking()
+					.AnyAsync(message => message.MessageId == messageId && message.ConsumerName == consumerName, cancellationToken);
+
+				if (alreadyProcessed)
+				{
+					return InboxOutcome.AlreadyProcessed;
+				}
+
+				context.Set<InboxMessage>().Add(new InboxMessage
+				{
+					MessageId = messageId,
+					ConsumerName = consumerName,
+				});
+
+				await handler(cancellationToken);
+				await context.SaveChangesAsync(cancellationToken);
+				await transaction.CommitAsync(cancellationToken);
+				return InboxOutcome.Processed;
+			});
 		}
-
-		private void DetachStagedEntry()
+		catch (DbUpdateException dbUpdate) when (dbUpdate.IsUniqueViolation())
 		{
-			if (stagedEntry is null) return;
-
-			var tracked = context.ChangeTracker.Entries<InboxMessage>()
-				.FirstOrDefault(entry => ReferenceEquals(entry.Entity, stagedEntry));
-
-			if (tracked is { } trackedEntry)
-			{
-				trackedEntry.State = EntityState.Detached;
-			}
+			// A concurrent peer committed the same (messageId, consumerName)
+			// pair between our pre-check and our save. The transaction (and
+			// thus the handler's writes) rolled back; the peer's row is now
+			// the source of truth.
+			return InboxOutcome.DuplicateRace;
 		}
 	}
 }
