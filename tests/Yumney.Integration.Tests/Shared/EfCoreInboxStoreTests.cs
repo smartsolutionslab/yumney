@@ -151,7 +151,7 @@ public class EfCoreInboxStoreTests(AspireFixture fixture) : IAsyncLifetime
 		await using var localContext = await fixture.CreateShoppingDbContextAsync();
 		var store = new EfCoreInboxStore<ShoppingDbContext>(localContext);
 
-		var outcome = await store.TryProcessAsync(messageId, consumerName, async _ =>
+		var outcome = await store.TryProcessAsync(messageId, consumerName, async ct =>
 		{
 			await using var peerContext = await fixture.CreateShoppingDbContextAsync();
 			peerContext.InboxMessages.Add(new InboxMessage
@@ -159,7 +159,7 @@ public class EfCoreInboxStoreTests(AspireFixture fixture) : IAsyncLifetime
 				MessageId = messageId,
 				ConsumerName = consumerName,
 			});
-			await peerContext.SaveChangesAsync();
+			await peerContext.SaveChangesAsync(ct);
 		});
 
 		outcome.Should().Be(InboxOutcome.DuplicateRace);
