@@ -10,9 +10,7 @@ using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
-using SmartSolutionsLab.Yumney.Shared.Paging;
 using SmartSolutionsLab.Yumney.Shared.Web;
-using Requests = SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
