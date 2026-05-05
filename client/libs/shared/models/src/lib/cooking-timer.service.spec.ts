@@ -1,6 +1,45 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CookingTimerService } from './cooking-timer.service';
+import { UserPreferencesService } from './user-preferences.service';
 import { VoiceService } from './voice.service';
+
+interface PrefsStub {
+  timerHapticFeedback: ReturnType<typeof signal<boolean>>;
+  timerSoundAlerts: ReturnType<typeof signal<boolean>>;
+  ensureLoaded: () => void;
+  refresh: () => void;
+}
+
+function makePrefsStub(haptic = true, sound = true): PrefsStub {
+  return {
+    timerHapticFeedback: signal(haptic),
+    timerSoundAlerts: signal(sound),
+    ensureLoaded: vi.fn(),
+    refresh: vi.fn(),
+  };
+}
+
+function configure(prefs: PrefsStub): {
+  service: CookingTimerService;
+  voiceSpeak: ReturnType<typeof vi.fn>;
+  vibrate: ReturnType<typeof vi.fn>;
+} {
+  const voiceSpeak = vi.fn();
+  const vibrate = vi.fn();
+  Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrate });
+
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({
+    providers: [
+      CookingTimerService,
+      { provide: VoiceService, useValue: { speak: voiceSpeak } },
+      { provide: UserPreferencesService, useValue: prefs },
+    ],
+  });
+
+  return { service: TestBed.inject(CookingTimerService), voiceSpeak, vibrate };
+}
 
 describe('CookingTimerService', () => {
   let service: CookingTimerService;
@@ -8,11 +47,9 @@ describe('CookingTimerService', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    voiceSpeak = vi.fn();
-    TestBed.configureTestingModule({
-      providers: [CookingTimerService, { provide: VoiceService, useValue: { speak: voiceSpeak } }],
-    });
-    service = TestBed.inject(CookingTimerService);
+    const wired = configure(makePrefsStub());
+    service = wired.service;
+    voiceSpeak = wired.voiceSpeak;
   });
 
   afterEach(() => {
@@ -81,5 +118,55 @@ describe('CookingTimerService', () => {
     service.cancelAll();
 
     expect(service.all()).toHaveLength(0);
+  });
+
+  describe('NotificationPreferences gating', () => {
+    afterEach(() => {
+      service.cancelAll();
+    });
+
+    it('should fire both vibrate and speak when both prefs are on', () => {
+      const wired = configure(makePrefsStub(true, true));
+      service = wired.service;
+
+      wired.service.start('Quick', 1 / 60);
+      vi.advanceTimersByTime(1100);
+
+      expect(wired.vibrate).toHaveBeenCalled();
+      expect(wired.voiceSpeak).toHaveBeenCalledWith('Timer done');
+    });
+
+    it('should stay silent when both prefs are off', () => {
+      const wired = configure(makePrefsStub(false, false));
+      service = wired.service;
+
+      wired.service.start('Quick', 1 / 60);
+      vi.advanceTimersByTime(1100);
+
+      expect(wired.vibrate).not.toHaveBeenCalled();
+      expect(wired.voiceSpeak).not.toHaveBeenCalled();
+    });
+
+    it('should only vibrate when haptic is on and sound is off', () => {
+      const wired = configure(makePrefsStub(true, false));
+      service = wired.service;
+
+      wired.service.start('Quick', 1 / 60);
+      vi.advanceTimersByTime(1100);
+
+      expect(wired.vibrate).toHaveBeenCalled();
+      expect(wired.voiceSpeak).not.toHaveBeenCalled();
+    });
+
+    it('should only speak when sound is on and haptic is off', () => {
+      const wired = configure(makePrefsStub(false, true));
+      service = wired.service;
+
+      wired.service.start('Quick', 1 / 60);
+      vi.advanceTimersByTime(1100);
+
+      expect(wired.vibrate).not.toHaveBeenCalled();
+      expect(wired.voiceSpeak).toHaveBeenCalledWith('Timer done');
+    });
   });
 });
