@@ -133,7 +133,10 @@
           <span class="meta-item">{{ recipe().difficulty }}</span>
         }
         @if (recipe().rating) {
-          <span class="meta-item meta-item--rating" [attr.aria-label]="t('recipes.list.ratingAria', { value: recipe().rating })">
+          <span
+            class="meta-item meta-item--rating"
+            [attr.aria-label]="t('recipes.list.ratingAria', { value: recipe().rating })"
+          >
             <i-lucide name="star" size="14" aria-hidden="true"></i-lucide>
             {{ recipe().rating }}
           </span>

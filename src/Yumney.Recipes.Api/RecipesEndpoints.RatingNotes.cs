@@ -3,6 +3,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using Requests = SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 
@@ -14,14 +15,14 @@ public static partial class RecipesEndpoints
 {
 	private static void MapRatingAndNotesEndpoints(RouteGroupBuilder group)
 	{
-		group.MapPost("/{identifier:guid}/rating", RateRecipe)
+		group.MapPost("/{identifier:guid}/rating", RateRecipeAsync)
 			.WithName("RateRecipe")
 			.WithTags("Recipes")
 			.Produces(StatusCodes.Status204NoContent)
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status404NotFound);
 
-		group.MapPut("/{identifier:guid}/notes", UpdateRecipeNotes)
+		group.MapPut("/{identifier:guid}/notes", UpdateRecipeNotesAsync)
 			.WithName("UpdateRecipeNotes")
 			.WithTags("Recipes")
 			.Produces(StatusCodes.Status204NoContent)
@@ -29,7 +30,7 @@ public static partial class RecipesEndpoints
 			.ProducesProblem(StatusCodes.Status404NotFound);
 	}
 
-	private static async Task<IResult> RateRecipe(
+	private static async Task<IResult> RateRecipeAsync(
 		Guid identifier,
 		Requests.RateRecipeRequest request,
 		IValidator<Requests.RateRecipeRequest> validator,
@@ -44,7 +45,7 @@ public static partial class RecipesEndpoints
 		return result.ToNoContent();
 	}
 
-	private static async Task<IResult> UpdateRecipeNotes(
+	private static async Task<IResult> UpdateRecipeNotesAsync(
 		Guid identifier,
 		Requests.UpdateRecipeNotesRequest request,
 		IValidator<Requests.UpdateRecipeNotesRequest> validator,

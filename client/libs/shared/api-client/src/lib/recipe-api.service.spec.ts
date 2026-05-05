@@ -245,4 +245,34 @@ describe('RecipeApiService', () => {
       req.flush(mockListResponse);
     });
   });
+
+  describe('rateRecipe', () => {
+    it('should POST rating to /api/v1/recipes/{id}/rating', () => {
+      service.rateRecipe('recipe-abc', 4).subscribe();
+
+      const req = httpTesting.expectOne('/api/v1/recipes/recipe-abc/rating');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ rating: 4 });
+      req.flush(null);
+    });
+  });
+
+  describe('updateRecipeNotes', () => {
+    it('should PUT notes to /api/v1/recipes/{id}/notes', () => {
+      service.updateRecipeNotes('recipe-abc', 'cook longer next time').subscribe();
+
+      const req = httpTesting.expectOne('/api/v1/recipes/recipe-abc/notes');
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({ notes: 'cook longer next time' });
+      req.flush(null);
+    });
+
+    it('should send null notes to clear them', () => {
+      service.updateRecipeNotes('recipe-abc', null).subscribe();
+
+      const req = httpTesting.expectOne('/api/v1/recipes/recipe-abc/notes');
+      expect(req.request.body).toEqual({ notes: null });
+      req.flush(null);
+    });
+  });
 });
