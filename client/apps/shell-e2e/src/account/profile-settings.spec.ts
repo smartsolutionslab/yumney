@@ -15,7 +15,8 @@ test.describe('Profile Settings (US-302)', () => {
     await account.goto();
 
     await expect(account.title).toBeVisible({ timeout: TIMEOUTS.default });
-    await expect(account.settingsSections).toHaveCount(3); // Household, Dietary, Weekly Goals
+    // US-100 redesign: profile, language/units, theme, household/dietary, voice, notifications.
+    await expect(account.settingsSections).toHaveCount(6);
   });
 
   test('should display servings input with default value', async ({ authenticatedPage }) => {
@@ -46,20 +47,19 @@ test.describe('Profile Settings (US-302)', () => {
     expect(count).toBeGreaterThanOrEqual(1);
   });
 
-  test('should have a save button', async ({ authenticatedPage }) => {
+  test('should auto-save changes and show saved indicator', async ({ authenticatedPage }) => {
+    // US-100 replaced the explicit Save button with debounced auto-save.
+    // Changing any field triggers a save; the saved indicator appears once
+    // the round-trip completes.
     const account = new AccountPage(authenticatedPage);
     await account.goto();
 
-    await expect(account.saveButton).toBeVisible({ timeout: TIMEOUTS.default });
-  });
+    await expect(account.servingsInput).toBeVisible({ timeout: TIMEOUTS.default });
 
-  test('should save profile and show success indicator', async ({ authenticatedPage }) => {
-    const account = new AccountPage(authenticatedPage);
-    await account.goto();
-
-    await expect(account.saveButton).toBeVisible({ timeout: TIMEOUTS.default });
-
-    await account.saveButton.click();
+    const current = await account.servingsInput.inputValue();
+    const next = Number(current) === 4 ? 3 : 4;
+    await account.servingsInput.fill(String(next));
+    await account.servingsInput.blur();
 
     await expect(account.savedIndicator).toBeVisible({ timeout: TIMEOUTS.default });
   });

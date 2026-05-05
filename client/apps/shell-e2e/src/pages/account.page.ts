@@ -1,10 +1,12 @@
 import { type Page, type Locator } from '@playwright/test';
 
 /**
- * Profile-settings page at /account. Backing component renders three
- * settings sections (household, dietary, weekly goals), each marked with
- * the [data-testid="profile-settings-section"] testid; loading / error /
- * retry are owned by the shared yn-async-state component (class-only).
+ * Profile-settings page at /account. After the US-100 redesign the page
+ * renders six collapsible yn-settings-card sections (profile, language &
+ * units, theme, household & dietary, voice, notifications), each marked
+ * with [data-testid="profile-settings-section"]. Saving is debounced
+ * auto-save — there is no explicit Save button. Loading / error / retry
+ * are owned by the shared yn-async-state component (class-only).
  */
 export class AccountPage {
   readonly heading: Locator;
@@ -14,7 +16,6 @@ export class AccountPage {
   readonly dietaryTypeSelect: Locator;
   readonly cookingEffortSelect: Locator;
   readonly checkboxLabels: Locator;
-  readonly saveButton: Locator;
   readonly savedIndicator: Locator;
   readonly loading: Locator;
   readonly error: Locator;
@@ -28,7 +29,6 @@ export class AccountPage {
     this.dietaryTypeSelect = page.locator('#dietaryType');
     this.cookingEffortSelect = page.locator('#cookingEffort');
     this.checkboxLabels = page.locator('.checkbox-label');
-    this.saveButton = page.locator('[data-testid="profile-save-btn"]');
     this.savedIndicator = page.locator('[data-testid="profile-saved-indicator"]');
     this.loading = page.locator('.loading');
     this.error = page.locator('.error');
