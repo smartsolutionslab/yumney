@@ -10,17 +10,16 @@ namespace SmartSolutionsLab.Yumney.Shared.Events.Tests;
 public class ModuleEventConsumerTests
 {
 	[Fact]
-	public async Task HandleAsync_NewMessage_InvokesHandlerAndCommitsScope()
+	public async Task HandleAsync_NewMessage_InvokesHandler()
 	{
 		var handler = new RecordingHandler();
 		var inbox = new TestInboxStore();
 		var consumer = CreateConsumer(handler, inbox);
-		var message = new TestModuleEvent("owner-1");
 
-		await consumer.HandleAsync(message, CancellationToken.None);
+		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
 		handler.CallCount.Should().Be(1);
-		inbox.Scopes[0].Committed.Should().BeTrue();
+		inbox.Invocations[0].HandlerCompleted.Should().BeTrue();
 	}
 
 	[Fact]
@@ -33,11 +32,11 @@ public class ModuleEventConsumerTests
 		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
 		handler.CallCount.Should().Be(0);
-		inbox.Scopes[0].Committed.Should().BeFalse();
+		inbox.Invocations[0].HandlerCompleted.Should().BeFalse();
 	}
 
 	[Fact]
-	public async Task HandleAsync_HandlerThrows_RollsBackAndPropagates()
+	public async Task HandleAsync_HandlerThrows_PropagatesException()
 	{
 		var handler = new RecordingHandler { ThrowOnCall = new InvalidOperationException("boom") };
 		var inbox = new TestInboxStore();
@@ -46,8 +45,7 @@ public class ModuleEventConsumerTests
 		var act = async () => await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
 		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
-		inbox.Scopes[0].RolledBack.Should().BeTrue();
-		inbox.Scopes[0].Committed.Should().BeFalse();
+		inbox.Invocations[0].HandlerCompleted.Should().BeFalse();
 	}
 
 	[Fact]
@@ -70,7 +68,7 @@ public class ModuleEventConsumerTests
 		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
 		(handlerA.CallCount + handlerB.CallCount).Should().Be(1);
-		inbox.Scopes.Count(scope => scope.Committed).Should().Be(1);
+		inbox.Invocations.Count(invocation => invocation.HandlerCompleted).Should().Be(1);
 	}
 
 	[Fact]
@@ -86,7 +84,7 @@ public class ModuleEventConsumerTests
 
 		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
-		inbox.Scopes.Should().BeEmpty();
+		inbox.Invocations.Should().BeEmpty();
 	}
 
 	private sealed class RecordingHandler : IModuleEventHandler<TestModuleEvent>

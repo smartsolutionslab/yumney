@@ -10,23 +10,21 @@ namespace SmartSolutionsLab.Yumney.Shared.Events.Tests;
 public class IntegrationEventConsumerTests
 {
 	[Fact]
-	public async Task HandleAsync_NewMessage_InvokesHandlerAndCommitsScope()
+	public async Task HandleAsync_NewMessage_InvokesHandler()
 	{
 		var handler = new RecordingHandler();
 		var inbox = new TestInboxStore();
 		var consumer = CreateConsumer(handler, inbox);
-		var message = new TestEvent();
 
-		await consumer.HandleAsync(message, CancellationToken.None);
+		await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
 
 		handler.CallCount.Should().Be(1);
-		inbox.Scopes.Should().HaveCount(1);
-		inbox.Scopes[0].Committed.Should().BeTrue();
-		inbox.Scopes[0].RolledBack.Should().BeFalse();
+		inbox.Invocations.Should().HaveCount(1);
+		inbox.Invocations[0].HandlerCompleted.Should().BeTrue();
 	}
 
 	[Fact]
-	public async Task HandleAsync_DuplicateMessage_SkipsHandlerWithoutCommit()
+	public async Task HandleAsync_DuplicateMessage_SkipsHandler()
 	{
 		var handler = new RecordingHandler();
 		var inbox = new TestInboxStore(shouldProcessSequence: [false]);
@@ -35,12 +33,12 @@ public class IntegrationEventConsumerTests
 		await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
 
 		handler.CallCount.Should().Be(0);
-		inbox.Scopes[0].Committed.Should().BeFalse();
-		inbox.Scopes[0].RolledBack.Should().BeFalse();
+		inbox.Invocations[0].ShouldProcess.Should().BeFalse();
+		inbox.Invocations[0].HandlerCompleted.Should().BeFalse();
 	}
 
 	[Fact]
-	public async Task HandleAsync_HandlerThrows_RollsBackAndPropagates()
+	public async Task HandleAsync_HandlerThrows_PropagatesException()
 	{
 		var handler = new RecordingHandler { ThrowOnCall = new InvalidOperationException("boom") };
 		var inbox = new TestInboxStore();
@@ -49,12 +47,11 @@ public class IntegrationEventConsumerTests
 		var act = async () => await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
 
 		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
-		inbox.Scopes[0].Committed.Should().BeFalse();
-		inbox.Scopes[0].RolledBack.Should().BeTrue();
+		inbox.Invocations[0].HandlerCompleted.Should().BeFalse();
 	}
 
 	[Fact]
-	public async Task HandleAsync_DuplicateRaceOnCommit_RollsBackAndSwallows()
+	public async Task HandleAsync_DuplicateRaceOnHandlerWrite_SwallowsAndContinues()
 	{
 		var raceException = new InvalidOperationException("unique violation");
 		var handler = new RecordingHandler { ThrowOnCall = raceException };
@@ -63,8 +60,8 @@ public class IntegrationEventConsumerTests
 
 		await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
 
-		inbox.Scopes[0].Committed.Should().BeFalse();
-		inbox.Scopes[0].RolledBack.Should().BeTrue();
+		inbox.Invocations[0].DuplicateRace.Should().BeTrue();
+		inbox.Invocations[0].HandlerCompleted.Should().BeFalse();
 	}
 
 	[Fact]
@@ -87,8 +84,8 @@ public class IntegrationEventConsumerTests
 		await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
 
 		(handlerA.CallCount + handlerB.CallCount).Should().Be(1);
-		inbox.Scopes.Should().HaveCount(2);
-		inbox.Scopes.Count(scope => scope.Committed).Should().Be(1);
+		inbox.Invocations.Should().HaveCount(2);
+		inbox.Invocations.Count(invocation => invocation.HandlerCompleted).Should().Be(1);
 	}
 
 	[Fact]
@@ -104,19 +101,29 @@ public class IntegrationEventConsumerTests
 
 		await consumer.HandleAsync(new TestEvent(), CancellationToken.None);
 
-		inbox.Scopes.Should().BeEmpty();
+		inbox.Invocations.Should().BeEmpty();
 	}
 
 	[Fact]
-	public async Task NoOpInboxStore_AlwaysReturnsProcessableScope()
+	public async Task NoOpInboxStore_AlwaysRunsHandler()
 	{
 		var inbox = new NoOpInboxStore();
+		var calls = 0;
 
-		await using var first = await inbox.BeginAsync(Guid.NewGuid(), "consumer");
-		await using var second = await inbox.BeginAsync(Guid.NewGuid(), "consumer");
+		var firstRan = await inbox.ProcessAsync(Guid.NewGuid(), "consumer", () =>
+		{
+			calls++;
+			return Task.CompletedTask;
+		});
+		var secondRan = await inbox.ProcessAsync(Guid.NewGuid(), "consumer", () =>
+		{
+			calls++;
+			return Task.CompletedTask;
+		});
 
-		first.ShouldProcess.Should().BeTrue();
-		second.ShouldProcess.Should().BeTrue();
+		firstRan.Should().BeTrue();
+		secondRan.Should().BeTrue();
+		calls.Should().Be(2);
 	}
 
 	private sealed class RecordingHandler : IIntegrationEventHandler<TestEvent>
