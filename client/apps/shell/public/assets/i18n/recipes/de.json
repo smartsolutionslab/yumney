@@ -106,14 +106,13 @@
     },
     "loading": "Rezept wird geladen...",
     "notFound": "Rezept nicht gefunden.",
-<<<<<<< HEAD
     "stats": {
       "cookCount": "{{count}}× gekocht",
       "lastCookedToday": "Heute zuletzt gekocht",
       "lastCookedYesterday": "Gestern zuletzt gekocht",
       "lastCookedDays": "Vor {{value}} Tagen zuletzt gekocht",
       "lastCookedWeeks": "Vor {{value}} Wochen zuletzt gekocht"
-=======
+    },
     "rating": {
       "label": "Deine Bewertung"
     },
@@ -121,7 +120,6 @@
       "label": "Kochnotizen",
       "placeholder": "Wie ist es geworden? Anpassungen für nächstes Mal?",
       "saved": "Gespeichert"
->>>>>>> a50fba7d (feat(recipes): star rating + cooking notes on recipe detail (US-120))
     },
     "delete": {
       "confirm": "Möchtest du \"{{title}}\" wirklich löschen? Dies kann nicht rückgängig gemacht werden.",
