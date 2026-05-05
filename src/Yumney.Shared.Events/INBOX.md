@@ -1,18 +1,47 @@
 # Integration-event inbox
 
 Every `IIntegrationEventHandler<T>` (and `IModuleEventHandler<T>`)
-invocation runs inside an `IInboxScope` opened by the registered
-`IInboxStore`. The scope owns a transaction wrapping both the inbox
-`(messageId, consumerName)` row and the handler's own writes — the row
-only commits if the handler succeeds, and a thrown handler rolls the row
-back so a redelivery can retry the work cleanly.
+invocation goes through `IInboxStore.TryProcessAsync(messageId,
+consumerName, handler)`. The store decides whether to invoke the
+handler and shares a single transactional fate with the handler's
+writes — the inbox `(messageId, consumerName)` row only commits if the
+handler succeeds, and a thrown handler rolls the row back so a
+redelivery can retry the work cleanly.
+
+The contract is **delegate-shaped** rather than scope-returning. EF
+Core's retrying execution strategies (Npgsql's `EnableRetryOnFailure`)
+require the whole begin–work–commit sequence to live inside an
+`IExecutionStrategy.ExecuteAsync(...)` lambda owned by the strategy;
+returning a transaction handle to the caller throws
+`InvalidOperationException: The configured execution strategy ...
+does not support user-initiated transactions`. Threading the handler
+through a delegate keeps the transaction inside the strategy boundary
+and lets the strategy retry transient failures end-to-end.
+
+## Outcomes
+
+`TryProcessAsync` returns one of:
+
+- `Processed` — the handler ran, the inbox row + handler writes
+  committed atomically.
+- `AlreadyProcessed` — the pre-check found an existing row; the
+  handler was not invoked.
+- `DuplicateRace` — a concurrent peer committed the same
+  `(messageId, consumerName)` pair between pre-check and commit; the
+  unique constraint fired and the entire local transaction
+  (handler writes included) rolled back. The consumer logs and skips.
+
+If the handler itself throws, the exception propagates out of
+`TryProcessAsync`. The caller (the Wolverine event consumer) logs and
+rethrows so the transport can retry the message; the retry will see no
+inbox row and run the handler again.
 
 ## Default: `NoOpInboxStore`
 
-The Wolverine bus registers `NoOpInboxStore` by default. Its scope
-always reports `ShouldProcess = true` and commit / rollback are no-ops,
-matching pre-inbox behaviour. No schema change is required to adopt the
-abstraction; modules opt in to real deduplication on their own timeline.
+The Wolverine bus registers `NoOpInboxStore` by default. It just
+invokes the handler and reports `Processed`, matching pre-inbox
+behaviour. No schema change is required to adopt the abstraction;
+modules opt in to real deduplication on their own timeline.
 
 ## Activating the EF Core store per module
 
@@ -36,28 +65,8 @@ abstraction; modules opt in to real deduplication on their own timeline.
    services.AddScoped<IInboxStore, EfCoreInboxStore<MyDbContext>>();
    ```
 
-## Atomicity contract
-
-`EfCoreInboxStore<TContext>` opens a database transaction on the supplied
-context inside `BeginAsync`. While that transaction is open it pre-checks
-the inbox; if the row is already present the scope reports
-`ShouldProcess = false` and the consumer skips the handler.
-
-If the row is absent the scope stages the `InboxMessage` add and hands
-control to the consumer, which invokes the handler and calls
-`scope.CommitAsync()`. Commit flushes pending changes on the same
-context (handler writes + the staged inbox row) and commits the
-transaction in one shot. Handler exceptions cause `scope.RollbackAsync()`,
-which discards the staged row alongside any partial handler writes — the
-next delivery sees a clean inbox and retries.
-
-For this to work the handler must use the same `DbContext` the inbox
-store was registered with. In Yumney every module's projection /
-event-store handlers resolve the same `Scoped` DbContext as the inbox
-store, so the transaction wraps both writes naturally.
-
-A concurrent peer that commits the same `(messageId, consumerName)` row
-between our pre-check and our commit shows up as a unique-constraint
-violation. The consumer detects this via `scope.IsDuplicateInboxViolation`
-and treats it as a duplicate — rollback, log, skip, no rethrow — so
-Wolverine does not retry an already-completed message.
+For the single-transaction guarantee to hold, the handler must use the
+same `DbContext` the inbox store was registered with. In Yumney every
+module's projection / event-store handlers resolve the same `Scoped`
+`DbContext` as the inbox store, so the transaction wraps both writes
+naturally.

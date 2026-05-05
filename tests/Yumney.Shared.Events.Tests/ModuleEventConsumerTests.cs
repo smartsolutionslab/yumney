@@ -10,34 +10,34 @@ namespace SmartSolutionsLab.Yumney.Shared.Events.Tests;
 public class ModuleEventConsumerTests
 {
 	[Fact]
-	public async Task HandleAsync_NewMessage_InvokesHandlerAndCommitsScope()
+	public async Task HandleAsync_NewMessage_InvokesHandlerAndRecordsProcessedOutcome()
 	{
 		var handler = new RecordingHandler();
 		var inbox = new TestInboxStore();
 		var consumer = CreateConsumer(handler, inbox);
-		var message = new TestModuleEvent("owner-1");
 
-		await consumer.HandleAsync(message, CancellationToken.None);
+		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
 		handler.CallCount.Should().Be(1);
-		inbox.Scopes[0].Committed.Should().BeTrue();
+		inbox.Invocations[0].Outcome.Should().Be(InboxOutcome.Processed);
+		inbox.Invocations[0].HandlerInvoked.Should().BeTrue();
 	}
 
 	[Fact]
-	public async Task HandleAsync_DuplicateMessage_SkipsHandler()
+	public async Task HandleAsync_AlreadyProcessed_SkipsHandler()
 	{
 		var handler = new RecordingHandler();
-		var inbox = new TestInboxStore(shouldProcessSequence: [false]);
+		var inbox = new TestInboxStore(outcomeSequence: [InboxOutcome.AlreadyProcessed]);
 		var consumer = CreateConsumer(handler, inbox);
 
 		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
 		handler.CallCount.Should().Be(0);
-		inbox.Scopes[0].Committed.Should().BeFalse();
+		inbox.Invocations[0].HandlerInvoked.Should().BeFalse();
 	}
 
 	[Fact]
-	public async Task HandleAsync_HandlerThrows_RollsBackAndPropagates()
+	public async Task HandleAsync_HandlerThrows_PropagatesAfterStoreRollsBack()
 	{
 		var handler = new RecordingHandler { ThrowOnCall = new InvalidOperationException("boom") };
 		var inbox = new TestInboxStore();
@@ -46,8 +46,8 @@ public class ModuleEventConsumerTests
 		var act = async () => await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
 		await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("boom");
-		inbox.Scopes[0].RolledBack.Should().BeTrue();
-		inbox.Scopes[0].Committed.Should().BeFalse();
+		inbox.Invocations[0].HandlerInvoked.Should().BeTrue();
+		inbox.Invocations[0].HandlerThrew.Should().BeTrue();
 	}
 
 	[Fact]
@@ -55,7 +55,7 @@ public class ModuleEventConsumerTests
 	{
 		var handlerA = new RecordingHandler();
 		var handlerB = new RecordingHandler();
-		var inbox = new TestInboxStore(shouldProcessSequence: [true, false]);
+		var inbox = new TestInboxStore(outcomeSequence: [InboxOutcome.Processed, InboxOutcome.AlreadyProcessed]);
 
 		var services = new ServiceCollection();
 		services.AddSingleton<IModuleEventHandler<TestModuleEvent>>(handlerA);
@@ -70,7 +70,7 @@ public class ModuleEventConsumerTests
 		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
 		(handlerA.CallCount + handlerB.CallCount).Should().Be(1);
-		inbox.Scopes.Count(scope => scope.Committed).Should().Be(1);
+		inbox.Invocations.Count(invocation => invocation.HandlerInvoked).Should().Be(1);
 	}
 
 	[Fact]
@@ -86,7 +86,7 @@ public class ModuleEventConsumerTests
 
 		await consumer.HandleAsync(new TestModuleEvent("owner-1"), CancellationToken.None);
 
-		inbox.Scopes.Should().BeEmpty();
+		inbox.Invocations.Should().BeEmpty();
 	}
 
 	private sealed class RecordingHandler : IModuleEventHandler<TestModuleEvent>

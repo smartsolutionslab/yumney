@@ -3,71 +3,68 @@ using SmartSolutionsLab.Yumney.Shared.Events;
 namespace SmartSolutionsLab.Yumney.Shared.Events.Tests;
 
 /// <summary>
-/// Hand-written fake inbox so tests can drive scope outcomes
-/// (ShouldProcess true/false, optional duplicate-race detection) and assert
-/// Commit / Rollback ordering without standing up an EF Core context.
+/// Hand-written fake inbox so tests can drive outcomes
+/// (Processed / AlreadyProcessed / DuplicateRace) and observe whether the
+/// handler delegate ran, without standing up an EF Core context.
 /// </summary>
 public sealed class TestInboxStore : IInboxStore
 {
-	private readonly Queue<bool> shouldProcessQueue = new();
-	private readonly Func<Exception, bool> isDuplicate;
+	private readonly Queue<InboxOutcome> outcomeQueue = new();
 
-	public TestInboxStore(IEnumerable<bool>? shouldProcessSequence = null, Func<Exception, bool>? isDuplicate = null)
+	public TestInboxStore(IEnumerable<InboxOutcome>? outcomeSequence = null)
 	{
-		if (shouldProcessSequence is not null)
+		if (outcomeSequence is not null)
 		{
-			foreach (var value in shouldProcessSequence)
+			foreach (var value in outcomeSequence)
 			{
-				shouldProcessQueue.Enqueue(value);
+				outcomeQueue.Enqueue(value);
+			}
+		}
+	}
+
+	public List<TestInboxInvocation> Invocations { get; } = [];
+
+	public async Task<InboxOutcome> TryProcessAsync(
+		Guid messageId,
+		string consumerName,
+		Func<CancellationToken, Task> handler,
+		CancellationToken cancellationToken = default)
+	{
+		var outcome = outcomeQueue.Count > 0 ? outcomeQueue.Dequeue() : InboxOutcome.Processed;
+		var invocation = new TestInboxInvocation(messageId, consumerName, outcome);
+		Invocations.Add(invocation);
+
+		// Processed and DuplicateRace both invoke the handler; the latter
+		// only differs in that the commit fails on the way out (modeled here
+		// by flipping the outcome — the handler still ran). AlreadyProcessed
+		// short-circuits before the handler.
+		if (outcome != InboxOutcome.AlreadyProcessed)
+		{
+			invocation.HandlerInvoked = true;
+			try
+			{
+				await handler(cancellationToken);
+			}
+			catch
+			{
+				invocation.HandlerThrew = true;
+				throw;
 			}
 		}
 
-		this.isDuplicate = isDuplicate ?? (_ => false);
-	}
-
-	public List<TestInboxScope> Scopes { get; } = [];
-
-	public Task<IInboxScope> BeginAsync(Guid messageId, string consumerName, CancellationToken cancellationToken = default)
-	{
-		var shouldProcess = shouldProcessQueue.Count > 0 ? shouldProcessQueue.Dequeue() : true;
-		var scope = new TestInboxScope(messageId, consumerName, shouldProcess, isDuplicate);
-		Scopes.Add(scope);
-		return Task.FromResult<IInboxScope>(scope);
+		return outcome;
 	}
 }
 
-public sealed class TestInboxScope(Guid messageId, string consumerName, bool shouldProcess, Func<Exception, bool> isDuplicate)
-	: IInboxScope
+public sealed class TestInboxInvocation(Guid messageId, string consumerName, InboxOutcome outcome)
 {
 	public Guid MessageId { get; } = messageId;
 
 	public string ConsumerName { get; } = consumerName;
 
-	public bool ShouldProcess { get; } = shouldProcess;
+	public InboxOutcome Outcome { get; } = outcome;
 
-	public bool Committed { get; private set; }
+	public bool HandlerInvoked { get; set; }
 
-	public bool RolledBack { get; private set; }
-
-	public bool Disposed { get; private set; }
-
-	public Task CommitAsync(CancellationToken cancellationToken = default)
-	{
-		Committed = true;
-		return Task.CompletedTask;
-	}
-
-	public Task RollbackAsync(CancellationToken cancellationToken = default)
-	{
-		RolledBack = true;
-		return Task.CompletedTask;
-	}
-
-	public bool IsDuplicateInboxViolation(Exception exception) => isDuplicate(exception);
-
-	public ValueTask DisposeAsync()
-	{
-		Disposed = true;
-		return ValueTask.CompletedTask;
-	}
+	public bool HandlerThrew { get; set; }
 }
