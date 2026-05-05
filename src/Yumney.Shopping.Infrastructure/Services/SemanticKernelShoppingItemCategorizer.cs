@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 

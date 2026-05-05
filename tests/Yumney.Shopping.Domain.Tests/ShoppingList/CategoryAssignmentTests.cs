@@ -1,5 +1,6 @@
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
 using Xunit;

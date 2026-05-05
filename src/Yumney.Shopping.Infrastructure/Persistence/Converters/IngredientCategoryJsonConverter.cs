@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Converters;
 

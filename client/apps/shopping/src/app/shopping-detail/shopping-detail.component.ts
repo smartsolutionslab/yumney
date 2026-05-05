@@ -136,9 +136,7 @@ export class ShoppingDetailComponent implements OnInit {
 
   private normalize(category: string | undefined | null): CategoryKey {
     const value = (category ?? 'other').toLowerCase();
-    return (CATEGORY_ORDER as readonly string[]).includes(value)
-      ? (value as CategoryKey)
-      : 'other';
+    return (CATEGORY_ORDER as readonly string[]).includes(value) ? (value as CategoryKey) : 'other';
   }
 
   private optimisticBatchUpdate(checked: boolean): void {

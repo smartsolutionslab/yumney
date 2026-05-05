@@ -15,6 +15,7 @@ public class IngredientCategoryTests
 	[InlineData("frozen")]
 	[InlineData("beverages")]
 	[InlineData("pantry")]
+	[InlineData("spices")]
 	[InlineData("household")]
 	[InlineData("other")]
 	public void From_ValidValue_CreatesInstance(string value)
@@ -36,9 +37,9 @@ public class IngredientCategoryTests
 	}
 
 	[Fact]
-	public void All_Contains9Categories()
+	public void All_Contains10Categories()
 	{
-		IngredientCategory.All.Should().HaveCount(9);
+		IngredientCategory.All.Should().HaveCount(10);
 	}
 
 	[Fact]
@@ -50,7 +51,7 @@ public class IngredientCategoryTests
 	[Fact]
 	public void DisplayOrder_OtherIsLast()
 	{
-		IngredientCategory.Other.DisplayOrder.Should().Be(8);
+		IngredientCategory.Other.DisplayOrder.Should().Be(9);
 	}
 
 	[Fact]
