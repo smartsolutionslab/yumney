@@ -60,7 +60,8 @@ else
 
 if (!options.DatabaseOnly)
 {
-	var migrationRunner = builder.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
+	var migrationRunner = builder
+		.AddProject<Projects.Yumney_MigrationRunner>("yumney-migrations")
 		.WithReference(recipesDb)
 		.WithReference(shoppingDb)
 		.WithReference(usersDb)
@@ -74,13 +75,17 @@ if (!options.DatabaseOnly)
 	// task. Each sits idle until the dev clicks Start in the dashboard.
 	if (isRunMode)
 	{
-		DashboardResetEntries.AddShoppingAndMealPlanResetEntries(
-			builder, recipesDb, shoppingDb, usersDb, mealplanDb);
+		DashboardResetEntries.AddShoppingAndMealPlanResetEntries(builder, recipesDb, shoppingDb, usersDb, mealplanDb);
 	}
 
 	// ── Infrastructure ── (persistent with data volumes for dev, ephemeral for E2E)
-	var redis = builder.AddRedis("redis", password: redisPassword).WithImageTag("alpine");
-	var messaging = builder.AddRabbitMQ("messaging", password: messagingPassword).WithImageTag("4-management-alpine").WithManagementPlugin();
+	var redis = builder
+		.AddRedis("redis", password: redisPassword)
+		.WithImageTag("alpine");
+	var messaging = builder
+		.AddRabbitMQ("messaging", password: messagingPassword)
+		.WithImageTag("4-management-alpine")
+		.WithManagementPlugin();
 	var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
 
 	if (isRunMode && !options.E2ETests)
@@ -94,7 +99,8 @@ if (!options.DatabaseOnly)
 
 	if (isRunMode && !options.E2ETests)
 	{
-		builder.AddContainer("mailpit", "axllent/mailpit", "v1.22")
+		builder
+			.AddContainer("mailpit", "axllent/mailpit", "v1.22")
 			.WithHttpEndpoint(port: 8025, targetPort: 8025, name: "ui")
 			.WithEndpoint(port: 1025, targetPort: 1025, name: "smtp")
 			.WithLifetime(ContainerLifetime.Persistent);

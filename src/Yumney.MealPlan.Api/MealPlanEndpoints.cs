@@ -6,7 +6,6 @@ using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Web;
-using Requests = SmartSolutionsLab.Yumney.MealPlan.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Api;
 
@@ -28,8 +27,8 @@ public static class MealPlanEndpoints
 			CancellationToken cancellationToken)
 		{
 			var week = WeekIdentifier.From(year, weekNumber);
-			var result = await handler.HandleAsync(new GetWeeklyPlanQuery(week), cancellationToken);
 
+			var result = await handler.HandleAsync(new GetWeeklyPlanQuery(week), cancellationToken);
 			return result.ToOk();
 		}
 

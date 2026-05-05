@@ -2,13 +2,11 @@ using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
-using SmartSolutionsLab.Yumney.Recipes.Domain.Chat;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Paging;
 using SmartSolutionsLab.Yumney.Shared.Web;
-using Requests = SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
