@@ -106,7 +106,7 @@ export class ProfileSettingsComponent {
     effect(() => {
       // Push theme + voice settings into local services so the change is
       // visible immediately, even before the server round-trip resolves.
-      this.theme.setTheme(this.themeChoice() === 'dark' ? 'dark' : 'light');
+      this.theme.setTheme(this.themeChoice());
       this.voice.setMuted(!this.voiceEnabled());
       this.voice.setLanguage(this.preferredLanguage());
       const lang = this.preferredLanguage();
