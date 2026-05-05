@@ -108,7 +108,6 @@
       </div>
     }
 
-<<<<<<< HEAD
     @if (recipeStats(); as stats) {
       @if (stats.cookCount > 0) {
         <p class="cook-stats" data-testid="recipe-cook-stats">
@@ -120,7 +119,7 @@
         </p>
       }
     }
-=======
+
     <section class="rating-section" data-testid="recipe-rating">
       <span class="rating-section__label">{{ t('recipes.detail.rating.label') }}</span>
       <yn-star-rating [rating]="recipe.rating" (ratingChange)="onRatingChange($event)" />
@@ -145,7 +144,6 @@
         (ngModelChange)="onNotesInput($event)"
       ></textarea>
     </section>
->>>>>>> a50fba7d (feat(recipes): star rating + cooking notes on recipe detail (US-120))
 
     <div class="actions-bar">
       <yn-favorite-button [isFavorite]="recipe.isFavorite" (toggled)="onToggleFavorite()" />

@@ -10,7 +10,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-<<<<<<< HEAD
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime } from 'rxjs';
 import {
   ActivityApiService,
   CreateShoppingListItem,
@@ -19,11 +20,6 @@ import {
   RecipeDetail,
   ShoppingApiService,
 } from '../api';
-=======
-import { Subject, debounceTime } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CreateShoppingListItem, RecipeApiService, RecipeDetail, ShoppingApiService } from '../api';
->>>>>>> a50fba7d (feat(recipes): star rating + cooking notes on recipe detail (US-120))
 import {
   createAsyncState,
   scaleIngredients,

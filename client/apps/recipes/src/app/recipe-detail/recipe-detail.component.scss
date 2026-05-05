@@ -346,7 +346,6 @@
   }
 }
 
-<<<<<<< HEAD
 .cook-stats {
   margin: 0 0 var(--yn-space-3);
   padding: var(--yn-space-2) var(--yn-space-3);
@@ -362,7 +361,8 @@
 
 .cook-stats__separator {
   opacity: 0.6;
-=======
+}
+
 .rating-section {
   display: flex;
   align-items: center;
@@ -417,5 +417,4 @@
 .notes-section__saved {
   font-size: var(--yn-text-sm);
   color: var(--yn-success);
->>>>>>> a50fba7d (feat(recipes): star rating + cooking notes on recipe detail (US-120))
 }
