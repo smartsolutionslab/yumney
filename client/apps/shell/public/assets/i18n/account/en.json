@@ -25,7 +25,6 @@
       "loadFailed": "Failed to load profile."
     }
   },
-<<<<<<< HEAD
   "danger": {
     "title": "Danger Zone",
     "lead": "Irreversible operations on your account.",
@@ -42,7 +41,7 @@
     "confirmAria": "Type the confirmation token",
     "deleting": "Deleting…",
     "retry": "Try again"
-=======
+  },
   "activity": {
     "title": "Activity",
     "lead": "Everything you've imported, viewed, cooked, edited, and deleted — newest first.",
@@ -57,6 +56,5 @@
       "edited": "Edited",
       "deleted": "Deleted"
     }
->>>>>>> 9ff921ba (feat(ui): activity timeline + recipe cook stats badge (US-121))
   }
 }
