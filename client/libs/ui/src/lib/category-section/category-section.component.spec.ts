@@ -23,11 +23,7 @@ const en = {
 
 @Component({
   template: `
-    <yn-category-section
-      [category]="category()"
-      [itemCount]="itemCount()"
-      (toggle)="onToggle()"
-    >
+    <yn-category-section [category]="category()" [itemCount]="itemCount()" (toggle)="onToggle()">
       <span class="projected">Projected</span>
     </yn-category-section>
   `,

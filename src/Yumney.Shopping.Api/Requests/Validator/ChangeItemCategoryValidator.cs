@@ -1,5 +1,5 @@
 using FluentValidation;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api.Requests.Validator;
 

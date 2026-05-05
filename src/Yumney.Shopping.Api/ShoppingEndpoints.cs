@@ -13,6 +13,10 @@ using Requests = SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
 
+/// <summary>
+/// Maps the Shopping module's HTTP endpoints. Split into partial files per
+/// concern (lists, items, category) so each file stays under the 300-line cap.
+/// </summary>
 public static partial class ShoppingEndpoints
 {
 	public static IEndpointRouteBuilder MapShoppingEndpoints(this IEndpointRouteBuilder app)

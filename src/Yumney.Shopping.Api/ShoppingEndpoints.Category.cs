@@ -1,6 +1,8 @@
 using FluentValidation;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -8,11 +10,14 @@ using Requests = SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
 
+/// <content>
+/// Category-related endpoints (US-083): re-categorize a shopping list item.
+/// </content>
 public static partial class ShoppingEndpoints
 {
 	private static void MapCategoryEndpoints(RouteGroupBuilder group)
 	{
-		group.MapPost("/{identifier:guid}/items/{itemId:guid}/category", ChangeItemCategory)
+		group.MapPost("/{identifier:guid}/items/{itemId:guid}/category", ChangeItemCategoryAsync)
 			.WithName("ChangeItemCategory")
 			.WithTags("Shopping")
 			.Produces(StatusCodes.Status204NoContent)
@@ -20,7 +25,7 @@ public static partial class ShoppingEndpoints
 			.ProducesProblem(StatusCodes.Status404NotFound);
 	}
 
-	private static async Task<IResult> ChangeItemCategory(
+	private static async Task<IResult> ChangeItemCategoryAsync(
 		Guid identifier,
 		Guid itemId,
 		Requests.ChangeItemCategory request,

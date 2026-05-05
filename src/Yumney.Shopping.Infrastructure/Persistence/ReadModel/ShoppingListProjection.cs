@@ -66,7 +66,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 				Name = inner.Name.Value,
 				QuantityAmount = inner.Quantity?.Amount.Value,
 				QuantityUnit = inner.Quantity?.Unit?.Value,
-				Category = (inner.Category ?? Shared.Common.IngredientCategory.Other).Value,
+				Category = (inner.Category ?? Shared.Quantities.IngredientCategory.Other).Value,
 				IsChecked = false,
 				CreatedAt = DateTime.UtcNow,
 				LastUpdated = DateTime.UtcNow,
