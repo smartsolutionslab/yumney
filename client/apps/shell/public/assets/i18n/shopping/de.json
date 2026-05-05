@@ -39,7 +39,12 @@
       "generic": "Einkaufsliste konnte nicht geladen werden. Bitte versuche es später erneut."
     },
     "allDone": "Alles erledigt!",
-    "allDoneMessage": "Alles auf deiner Liste ist abgehakt."
+    "allDoneMessage": "Alles auf deiner Liste ist abgehakt.",
+    "bring": {
+      "sendButton": "An Bring! senden",
+      "sent": "{{count}} Artikel an Bring! gesendet",
+      "notInstalled": "Bring! konnte nicht geöffnet werden. Hol dir die App: {{fallbackUrl}}"
+    }
   },
   "title": "Einkaufsliste",
   "loading": "Wird geladen...",

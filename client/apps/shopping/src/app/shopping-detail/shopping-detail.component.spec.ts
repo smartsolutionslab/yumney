@@ -5,7 +5,7 @@ import { of, throwError, Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ShoppingDetailComponent } from './shopping-detail.component';
 import { ShoppingApiService, ShoppingListDetail } from '../api';
-import { setupTranslocoTesting } from '@yumney/shared/models';
+import { setupTranslocoTesting, ToastService } from '@yumney/shared/models';
 
 const mockDetail: ShoppingListDetail = {
   identifier: 'list-123',
@@ -24,9 +24,16 @@ const en = {
       back: 'Back',
       loading: 'Loading...',
       viewRecipe: 'View Recipe',
+      checkAll: 'Check all',
+      reset: 'Reset',
       errors: {
         notFound: 'Shopping list not found.',
         generic: 'Failed to load shopping list.',
+      },
+      bring: {
+        sendButton: 'Send to Bring!',
+        sent: 'Sent {{count}} items to Bring!',
+        notInstalled: 'Get Bring! at {{fallbackUrl}}',
       },
     },
   },
@@ -133,4 +140,85 @@ describe('ShoppingDetailComponent', () => {
 
     expect(component.isLoading()).toBe(false);
   }));
+
+  describe('Send to Bring!', () => {
+    let navigateSpy: ReturnType<typeof vi.fn>;
+
+    function stubNavigate() {
+      navigateSpy = vi.fn();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (component as any).navigate = navigateSpy;
+    }
+
+    it('should disable the button until at least one item is unchecked', fakeAsync(() => {
+      const allChecked: ShoppingListDetail = {
+        ...mockDetail,
+        items: mockDetail.items.map((item) => ({ ...item, isChecked: true })),
+      };
+      setupTestBed(vi.fn().mockReturnValue(of(allChecked)));
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      const btn: HTMLButtonElement = fixture.nativeElement.querySelector(
+        '[data-testid="send-to-bring-btn"]',
+      );
+      expect(btn.disabled).toBe(true);
+    }));
+
+    it('should navigate to a bring:// URL with unchecked items only', fakeAsync(() => {
+      setupTestBed();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+      stubNavigate();
+
+      fixture.nativeElement.querySelector('[data-testid="send-to-bring-btn"]').click();
+
+      expect(navigateSpy).toHaveBeenCalledTimes(1);
+      const url = navigateSpy.mock.calls[0][0] as string;
+      expect(url).toMatch(/^bring:\/\/import\?items=/);
+      expect(decodeURIComponent(url)).toContain('Spaghetti');
+      expect(decodeURIComponent(url)).toContain('Eggs');
+
+      // Drain the visibility-probe timeout so the fakeAsync zone settles.
+      tick(1500);
+    }));
+
+    it('should show a "sent" toast immediately', fakeAsync(() => {
+      setupTestBed();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+      stubNavigate();
+
+      const toast = TestBed.inject(ToastService);
+      const successSpy = vi.spyOn(toast, 'success');
+
+      fixture.nativeElement.querySelector('[data-testid="send-to-bring-btn"]').click();
+
+      expect(successSpy).toHaveBeenCalledWith('shopping.detail.bring.sent', { count: 2 });
+      tick(1500);
+    }));
+
+    it('should show fallback toast if the document is still visible after the probe window', fakeAsync(() => {
+      setupTestBed();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+      stubNavigate();
+
+      const toast = TestBed.inject(ToastService);
+      const warningSpy = vi.spyOn(toast, 'warning');
+
+      // jsdom returns 'visible' by default; explicit assert + then trigger.
+      expect(document.visibilityState).toBe('visible');
+
+      fixture.nativeElement.querySelector('[data-testid="send-to-bring-btn"]').click();
+
+      tick(1500);
+      expect(warningSpy).toHaveBeenCalled();
+      expect(warningSpy.mock.calls[0][0]).toBe('shopping.detail.bring.notInstalled');
+    }));
+  });
 });
