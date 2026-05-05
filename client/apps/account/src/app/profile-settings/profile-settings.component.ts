@@ -11,13 +11,15 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, debounceTime } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { createAsyncState, ERROR_MAPS, ThemeService, UI, VoiceService } from '@yumney/shared/models';
-import { AsyncStateComponent, SettingsCardComponent } from '@yumney/ui';
 import {
-  UserProfileApiService,
-  type UpdateProfileRequest,
-  type UserProfile,
-} from '../api';
+  createAsyncState,
+  ERROR_MAPS,
+  ThemeService,
+  UI,
+  VoiceService,
+} from '@yumney/shared/models';
+import { AsyncStateComponent, SettingsCardComponent } from '@yumney/ui';
+import { UserProfileApiService, type UpdateProfileRequest, type UserProfile } from '../api';
 
 const AUTOSAVE_DEBOUNCE_MS = 400;
 

@@ -52,6 +52,8 @@ describe('SettingsCardComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.projected')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.settings-card__header').getAttribute('aria-expanded')).toBe('false');
+    expect(
+      fixture.nativeElement.querySelector('.settings-card__header').getAttribute('aria-expanded'),
+    ).toBe('false');
   });
 });
