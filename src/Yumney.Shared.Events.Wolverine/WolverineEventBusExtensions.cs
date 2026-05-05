@@ -4,8 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Guards;
 using Wolverine;
 using Wolverine.RabbitMQ;
 
@@ -28,18 +28,21 @@ public static class WolverineEventBusExtensions
 		this WebApplicationBuilder builder,
 		params Assembly[] eventHandlerAssemblies)
 	{
+		// Aspire's AddRabbitMQ("messaging") in the AppHost wires this in both
+		// run and publish mode. A null/empty value here means misconfiguration
+		// — fail fast at composition time so the deploy reports the error
+		// before any traffic hits the API and silently no-ops every publish.
 		var connectionString = builder.Configuration.GetConnectionString("messaging");
+		Ensure.That(connectionString)
+			.IsNotNullOrWhiteSpace();
 
 		builder.Host.UseWolverine(opts =>
 		{
 			opts.Discovery.DisableConventionalDiscovery();
 
-			if (connectionString.HasValue())
-			{
-				opts.UseRabbitMq(new Uri(connectionString!))
-					.AutoProvision()
-					.UseConventionalRouting();
-			}
+			opts.UseRabbitMq(new Uri(connectionString!))
+				.AutoProvision()
+				.UseConventionalRouting();
 
 			foreach (var assembly in eventHandlerAssemblies)
 			{

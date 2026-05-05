@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Shared.Events\Yumney.Shared.Events.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Events.InProcess\Yumney.Shared.Events.InProcess.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Guards\Yumney.Shared.Guards.csproj" />
   </ItemGroup>
 
   <ItemGroup>

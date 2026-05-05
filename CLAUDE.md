@@ -156,7 +156,7 @@ Three event types with distinct purposes:
 
 Both `IIntegrationEvent` and `IModuleEvent` extend `IBusEvent`, the common tag carried by anything `IEventBus.PublishAsync(...)` accepts. Use the specialised marker on concrete types — never `IBusEvent` directly.
 
-In-process implementations (`InProcessDomainEventDispatcher`, `InProcessEventBus`) resolve handlers from DI. Register via `builder.Services.AddInProcessEventBus()` in the composition root. Swappable to RabbitMQ/MassTransit later without changing module code.
+In-process implementations (`InProcessDomainEventDispatcher`, `InProcessEventBus`) resolve handlers from DI. The dispatcher is always registered via `AddInProcessDomainEventDispatcher()`; the bus is registered via `AddInProcessEventBus()` only when no distributed bus is in play (today, `AddWolverineEventBus(...)` in `AddYumneyDefaults` provides `IEventBus` for production hosts). Swappable to RabbitMQ/MassTransit later without changing module code.
 
 ### Centralized Package Management
 
