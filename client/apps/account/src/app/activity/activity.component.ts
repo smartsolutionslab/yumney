@@ -8,11 +8,7 @@ import {
 } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { createAsyncState, ERROR_MAPS } from '@yumney/shared/models';
-import {
-  ActivityTimelineComponent,
-  AsyncStateComponent,
-  type ActivityEntry,
-} from '@yumney/ui';
+import { ActivityTimelineComponent, AsyncStateComponent, type ActivityEntry } from '@yumney/ui';
 import { ActivityApiService, type ActivityTypeKey, type UserActivityItem } from '../api';
 
 const FILTER_OPTIONS: ReadonlyArray<{ value: ActivityTypeKey | 'all'; labelKey: string }> = [

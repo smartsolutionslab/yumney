@@ -53,13 +53,17 @@ const WEEK = 7 * DAY;
 
 // Locale-agnostic relative-time formatter — returns the raw key + count so the
 // caller's i18n layer can pluralize. Keeps the component free of date-fns.
-export function relativeTimeFromNow(when: Date, now: Date = new Date()): {
+export function relativeTimeFromNow(
+  when: Date,
+  now: Date = new Date(),
+): {
   key: string;
   value: number;
 } {
   const diff = now.getTime() - when.getTime();
   if (diff < MINUTE) return { key: 'shared.activity.relative.justNow', value: 0 };
-  if (diff < HOUR) return { key: 'shared.activity.relative.minutes', value: Math.floor(diff / MINUTE) };
+  if (diff < HOUR)
+    return { key: 'shared.activity.relative.minutes', value: Math.floor(diff / MINUTE) };
   if (diff < DAY) return { key: 'shared.activity.relative.hours', value: Math.floor(diff / HOUR) };
   if (diff < WEEK) return { key: 'shared.activity.relative.days', value: Math.floor(diff / DAY) };
   return { key: 'shared.activity.relative.weeks', value: Math.floor(diff / WEEK) };
