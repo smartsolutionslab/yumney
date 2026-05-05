@@ -32,8 +32,10 @@ public static class WolverineEventBusExtensions
 		// run and publish mode. A null/empty value here means misconfiguration
 		// — fail fast at composition time so the deploy reports the error
 		// before any traffic hits the API and silently no-ops every publish.
+		// `!` is a compile-time hint to satisfy the GuardClause<string> overload —
+		// the runtime check below is what actually rejects null/empty/whitespace.
 		var connectionString = builder.Configuration.GetConnectionString("messaging");
-		Ensure.That(connectionString)
+		Ensure.That(connectionString!)
 			.IsNotNullOrWhiteSpace();
 
 		builder.Host.UseWolverine(opts =>
