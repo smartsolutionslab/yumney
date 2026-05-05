@@ -37,6 +37,18 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 		var recipeId = await CreateRecipeAsync(recipesClient);
 		var listId = await CreateShoppingListAsync(shoppingClient, recipeId);
 
+		// Wait for the shopping projection to index the recipe reference before
+		// deleting. RecipeDeletedHandler queries the projection to find lists,
+		// so the projection MUST have the row indexed before the delete event
+		// arrives or the handler will return zero matches and bail out.
+		await WaitForAsync(async () =>
+		{
+			await using var ctx = await fixture.CreateShoppingReadDbContextAsync();
+			var summary = await ctx.ShoppingListSummaryReadItems
+				.SingleOrDefaultAsync(s => s.Id == listId);
+			return summary is not null && summary.RecipeIdentifier == recipeId;
+		});
+
 		var delete = await recipesClient.DeleteAsync($"/api/v1/recipes/{recipeId}");
 		delete.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
