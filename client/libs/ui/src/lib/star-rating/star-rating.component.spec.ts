@@ -15,11 +15,7 @@ const en = {
 
 @Component({
   template: `
-    <yn-star-rating
-      [rating]="rating()"
-      [readonly]="readonly()"
-      (ratingChange)="onChange($event)"
-    />
+    <yn-star-rating [rating]="rating()" [readonly]="readonly()" (ratingChange)="onChange($event)" />
   `,
   imports: [StarRatingComponent],
 })
@@ -56,7 +52,9 @@ describe('StarRatingComponent', () => {
     host.rating.set(3);
     fixture.detectChanges();
 
-    const filled = getStars().filter((star) => star.classList.contains('star-rating__star--filled'));
+    const filled = getStars().filter((star) =>
+      star.classList.contains('star-rating__star--filled'),
+    );
     expect(filled).toHaveLength(3);
   });
 
@@ -72,7 +70,9 @@ describe('StarRatingComponent', () => {
     getStars()[4].dispatchEvent(new MouseEvent('mouseenter'));
     fixture.detectChanges();
 
-    const filled = getStars().filter((star) => star.classList.contains('star-rating__star--filled'));
+    const filled = getStars().filter((star) =>
+      star.classList.contains('star-rating__star--filled'),
+    );
     expect(filled).toHaveLength(5);
   });
 

@@ -64,8 +64,18 @@ export class RecipeListComponent implements OnInit {
     { value: 'date-asc', by: 'Date', dir: 'Ascending', labelKey: 'recipes.list.sort.dateAsc' },
     { value: 'name-asc', by: 'Name', dir: 'Ascending', labelKey: 'recipes.list.sort.nameAsc' },
     { value: 'name-desc', by: 'Name', dir: 'Descending', labelKey: 'recipes.list.sort.nameDesc' },
-    { value: 'rating-desc', by: 'Rating', dir: 'Descending', labelKey: 'recipes.list.sort.ratingDesc' },
-    { value: 'rating-asc', by: 'Rating', dir: 'Ascending', labelKey: 'recipes.list.sort.ratingAsc' },
+    {
+      value: 'rating-desc',
+      by: 'Rating',
+      dir: 'Descending',
+      labelKey: 'recipes.list.sort.ratingDesc',
+    },
+    {
+      value: 'rating-asc',
+      by: 'Rating',
+      dir: 'Ascending',
+      labelKey: 'recipes.list.sort.ratingAsc',
+    },
   ];
 
   private recipeApi = inject(RecipeApiService);
