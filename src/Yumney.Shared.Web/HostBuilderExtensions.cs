@@ -58,10 +58,12 @@ public static class HostBuilderExtensions
 		builder.Services.AddHttpContextAccessor();
 		builder.Services.AddScoped<ICurrentUser, CurrentUserProvider>();
 
-		// Domain events: dispatched in-process (same transaction boundary)
-		// Integration events: published via Wolverine/RabbitMQ (cross-instance)
-		// Wolverine registration overrides InProcessEventBus for IEventBus (last-wins in DI)
-		builder.Services.AddInProcessEventBus();
+		// Domain events: dispatched in-process (same transaction boundary).
+		// Integration events: published via Wolverine/RabbitMQ (cross-instance).
+		// AddInProcessEventBus() is intentionally not called here — Wolverine
+		// owns the IEventBus binding, and registering an in-process one only
+		// to immediately override it is wasted DI churn.
+		builder.Services.AddInProcessDomainEventDispatcher();
 		builder.AddWolverineEventBus(eventHandlerAssemblies);
 
 		builder.Services.AddScoped<DomainEventDispatchInterceptor>();
