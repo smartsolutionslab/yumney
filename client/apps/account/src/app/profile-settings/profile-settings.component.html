@@ -185,7 +185,9 @@
           >
             <option value="">{{ t('account.settings.none') }}</option>
             @for (effort of cookingEfforts; track effort) {
-              <option [value]="effort">{{ t('account.settings.cookingEffortOption.' + effort) }}</option>
+              <option [value]="effort">
+                {{ t('account.settings.cookingEffortOption.' + effort) }}
+              </option>
             }
           </select>
         </div>
