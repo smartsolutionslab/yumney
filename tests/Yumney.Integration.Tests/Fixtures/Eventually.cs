@@ -15,7 +15,13 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 /// </summary>
 public static class Eventually
 {
-	private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(5);
+	// 15s is a deliberate trade between fast feedback and tolerance for
+	// suite-wide load. Wolverine handlers race the polling assert; with the
+	// full integration suite running, RabbitMQ + projection workers can stack
+	// up enough that a single check-off event needs more than 5s to surface
+	// in the read model. 15s leaves headroom without making a real failure
+	// (a handler bug that never converges) feel sluggish.
+	private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(15);
 	private static readonly TimeSpan DefaultPollInterval = TimeSpan.FromMilliseconds(100);
 
 	public static async Task AssertAsync(
