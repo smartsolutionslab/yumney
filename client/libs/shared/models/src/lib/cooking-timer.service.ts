@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { UserPreferencesService } from './user-preferences.service';
 import { VoiceService } from './voice.service';
 
 export interface CookingTimer {
@@ -16,11 +17,17 @@ export class CookingTimerService {
   private readonly timers = signal<CookingTimer[]>([]);
   private readonly intervals = new Map<string, ReturnType<typeof setInterval>>();
   private voice = inject(VoiceService);
+  private preferences = inject(UserPreferencesService);
 
   readonly all = computed(() => this.timers());
   readonly hasActive = computed(() => this.timers().some((t) => t.status === 'running'));
 
   start(name: string, minutes: number): string {
+    // Lazy-fetch the user's notification preferences the first time a
+    // timer starts; the eventual completion will read whatever signal
+    // values are present at that point.
+    this.preferences.ensureLoaded();
+
     const id = `timer-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const totalSeconds = Math.max(1, Math.floor(minutes * 60));
     const timer: CookingTimer = {
@@ -70,8 +77,12 @@ export class CookingTimerService {
         t.id === id ? { ...t, remainingSeconds: 0, status: 'completed' as const } : t,
       ),
     );
-    this.triggerHaptics();
-    this.voice.speak('Timer done');
+    if (this.preferences.timerHapticFeedback()) {
+      this.triggerHaptics();
+    }
+    if (this.preferences.timerSoundAlerts()) {
+      this.voice.speak('Timer done');
+    }
   }
 
   private clearInterval(id: string): void {
