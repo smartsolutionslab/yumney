@@ -14,9 +14,7 @@ export interface BringItem {
 }
 
 export function buildBringImportUrl(items: ReadonlyArray<BringItem>): string {
-  const formatted = items
-    .map(formatItem)
-    .filter((value): value is string => value !== null);
+  const formatted = items.map(formatItem).filter((value): value is string => value !== null);
 
   if (formatted.length === 0) {
     // Bring! gracefully handles an empty payload by opening to the import

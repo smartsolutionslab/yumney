@@ -6,11 +6,7 @@ describe('buildBringImportUrl', () => {
   });
 
   it('skips items with empty or whitespace-only names', () => {
-    const url = buildBringImportUrl([
-      { name: '  ' },
-      { name: '' },
-      { name: 'Apples' },
-    ]);
+    const url = buildBringImportUrl([{ name: '  ' }, { name: '' }, { name: 'Apples' }]);
     expect(url).toBe('bring://import?items=Apples');
   });
 
@@ -30,13 +26,8 @@ describe('buildBringImportUrl', () => {
   });
 
   it('joins multiple items with a comma', () => {
-    const url = buildBringImportUrl([
-      { name: 'Flour', amount: 500, unit: 'g' },
-      { name: 'Salt' },
-    ]);
-    expect(url).toBe(
-      `bring://import?items=${encodeURIComponent('500 g Flour')},Salt`,
-    );
+    const url = buildBringImportUrl([{ name: 'Flour', amount: 500, unit: 'g' }, { name: 'Salt' }]);
+    expect(url).toBe(`bring://import?items=${encodeURIComponent('500 g Flour')},Salt`);
   });
 
   it('URL-encodes special characters in item names', () => {
