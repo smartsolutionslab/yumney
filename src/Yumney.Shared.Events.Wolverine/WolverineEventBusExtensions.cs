@@ -38,13 +38,24 @@ public static class WolverineEventBusExtensions
 		Ensure.That(connectionString!)
 			.IsNotNullOrWhiteSpace();
 
+		// Each consuming app needs its OWN queue bound to the per-event fanout
+		// exchange — otherwise Wolverine's default conventional routing names
+		// queues by event type alone, so two modules subscribing to the same
+		// event share one queue and become competing consumers (only one
+		// module's handler runs per message). Prefixing with the application
+		// name gives each module an isolated queue that receives every message.
+		var moduleQueuePrefix = builder.Environment.ApplicationName ?? "yumney-app";
+
 		builder.Host.UseWolverine(opts =>
 		{
 			opts.Discovery.DisableConventionalDiscovery();
 
 			opts.UseRabbitMq(new Uri(connectionString!))
 				.AutoProvision()
-				.UseConventionalRouting();
+				.UseConventionalRouting(routing =>
+				{
+					routing.QueueNameForListener(eventType => $"{moduleQueuePrefix}.{eventType.FullName}");
+				});
 
 			foreach (var assembly in eventHandlerAssemblies)
 			{
