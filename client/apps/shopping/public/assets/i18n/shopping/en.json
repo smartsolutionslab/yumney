@@ -39,7 +39,12 @@
       "generic": "Failed to load shopping list. Please try again later."
     },
     "allDone": "All done!",
-    "allDoneMessage": "Everything on your list is checked off."
+    "allDoneMessage": "Everything on your list is checked off.",
+    "bring": {
+      "sendButton": "Send to Bring!",
+      "sent": "Sent {{count}} items to Bring!",
+      "notInstalled": "Couldn't open Bring! Get the app at {{fallbackUrl}}"
+    }
   },
   "title": "Shopping List",
   "loading": "Loading...",

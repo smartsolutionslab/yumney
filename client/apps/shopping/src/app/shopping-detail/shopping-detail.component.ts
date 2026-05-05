@@ -11,10 +11,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { ShoppingApiService, ShoppingListDetail, ShoppingListItemResponse } from '../api';
 import {
+  BRING_FALLBACK_URL,
+  buildBringImportUrl,
   createAsyncState,
   ERROR_MAPS,
   optimisticSignalUpdate,
   ROUTES,
+  ToastService,
 } from '@yumney/shared/models';
 import {
   BackLinkComponent,
@@ -41,6 +44,12 @@ interface CategoryGroup {
   items: ShoppingListItemResponse[];
 }
 
+// How long to give the OS to launch the Bring! app before assuming it isn't
+// installed and falling back to the marketing site. 1.5 s is the de-facto
+// industry value for app-link probes — short enough to feel responsive,
+// long enough that a slow handoff doesn't false-positive.
+const BRING_LAUNCH_PROBE_MS = 1500;
+
 @Component({
   selector: 'yn-shopping-detail',
   imports: [
@@ -59,6 +68,7 @@ export class ShoppingDetailComponent implements OnInit {
   protected readonly availableCategories = CATEGORY_ORDER;
 
   private shoppingApi = inject(ShoppingApiService);
+  private toast = inject(ToastService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private asyncState = createAsyncState(this.destroyRef);
@@ -88,6 +98,10 @@ export class ShoppingDetailComponent implements OnInit {
       items: groups.get(category) ?? [],
     }));
   });
+
+  // Items still to buy — already-checked items have been added to the cart, so
+  // sending them to Bring! would re-add things the user has already grabbed.
+  uncheckedItems = computed(() => this.shoppingList()?.items.filter((i) => !i.isChecked) ?? []);
 
   ngOnInit(): void {
     const identifier = this.route.snapshot.paramMap.get('identifier');
@@ -132,6 +146,40 @@ export class ShoppingDetailComponent implements OnInit {
 
   onReset(): void {
     this.optimisticBatchUpdate(false);
+  }
+
+  onSendToBring(): void {
+    const items = this.uncheckedItems();
+    if (items.length === 0) return;
+
+    const url = buildBringImportUrl(
+      items.map((item) => ({
+        name: item.name,
+        amount: item.amount,
+        unit: item.unit,
+      })),
+    );
+
+    // Probe the deep link by navigating to it. If the app handles the URL the
+    // browser tab loses visibility (the OS hands off to Bring!); if not, the
+    // tab stays visible and we surface the marketing-site fallback.
+    if (typeof document === 'undefined' || typeof window === 'undefined') return;
+
+    this.navigate(url);
+    this.toast.success('shopping.detail.bring.sent', { count: items.length });
+
+    setTimeout(() => {
+      if (document.visibilityState === 'visible') {
+        this.toast.warning('shopping.detail.bring.notInstalled', {
+          fallbackUrl: BRING_FALLBACK_URL,
+        });
+      }
+    }, BRING_LAUNCH_PROBE_MS);
+  }
+
+  // Indirection so tests can stub the navigation; jsdom's location is immutable.
+  protected navigate(url: string): void {
+    window.location.href = url;
   }
 
   private normalize(category: string | undefined | null): CategoryKey {

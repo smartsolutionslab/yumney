@@ -29,6 +29,15 @@
       <button class="btn-secondary" (click)="onReset()">
         {{ t('shopping.detail.reset') }}
       </button>
+      <button
+        type="button"
+        class="btn-secondary"
+        data-testid="send-to-bring-btn"
+        [disabled]="uncheckedItems().length === 0"
+        (click)="onSendToBring()"
+      >
+        {{ t('shopping.detail.bring.sendButton') }}
+      </button>
     </div>
 
     @if (checkedCount() === totalItemCount() && totalItemCount() > 0) {
