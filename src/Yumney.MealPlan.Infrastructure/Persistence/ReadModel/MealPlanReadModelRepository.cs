@@ -9,10 +9,6 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel
 
 public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) : IMealPlanReadModelRepository
 {
-#pragma warning disable SA1303
-	private const int maxSearchTermLength = 100;
-#pragma warning restore SA1303
-
 	public async Task<WeeklyPlanDto> GetByOwnerAndWeekAsync(
 		OwnerIdentifier owner,
 		WeekIdentifier week,
@@ -64,7 +60,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 
 	public async Task<PagedResult<MealHistoryEntryDto>> SearchCookedHistoryAsync(
 		OwnerIdentifier owner,
-		string? term,
+		SearchTerm? term,
 		PagingOptions paging,
 		CancellationToken cancellationToken = default)
 	{
@@ -75,11 +71,9 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 			.AsNoTracking()
 			.Where(slot => slot.OwnerId == ownerId && slot.State == cookedState && slot.RecipeTitle != null);
 
-		var trimmed = term?.Trim();
-		if (!string.IsNullOrEmpty(trimmed))
+		if (term is not null)
 		{
-			if (trimmed.Length > maxSearchTermLength) trimmed = trimmed[..maxSearchTermLength];
-			var pattern = $"%{trimmed}%";
+			var pattern = $"%{term.Value}%";
 			query = query.Where(slot => EF.Functions.ILike(slot.RecipeTitle!, pattern));
 		}
 

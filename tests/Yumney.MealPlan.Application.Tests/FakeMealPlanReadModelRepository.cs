@@ -41,7 +41,7 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 		return Task.FromResult(new WeeklyPlannedRecipesDto(week.Value, recipes));
 	}
 
-	public Task<PagedResult<MealHistoryEntryDto>> SearchCookedHistoryAsync(OwnerIdentifier owner, string? term, PagingOptions paging, CancellationToken cancellationToken = default)
+	public Task<PagedResult<MealHistoryEntryDto>> SearchCookedHistoryAsync(OwnerIdentifier owner, SearchTerm? term, PagingOptions paging, CancellationToken cancellationToken = default)
 	{
 		IEnumerable<MealHistoryEntryDto> rows = store
 			.Where(kv => kv.Key.Owner == owner.Value)
@@ -54,9 +54,9 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 					slot.Day.ToString(),
 					slot.MealType.ToString())));
 
-		if (!string.IsNullOrWhiteSpace(term))
+		if (term is not null)
 		{
-			rows = rows.Where(entry => entry.RecipeTitle.Contains(term.Trim(), StringComparison.OrdinalIgnoreCase));
+			rows = rows.Where(entry => entry.RecipeTitle.Contains(term.Value, StringComparison.OrdinalIgnoreCase));
 		}
 
 		var ordered = rows
