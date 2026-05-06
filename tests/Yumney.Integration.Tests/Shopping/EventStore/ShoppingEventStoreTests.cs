@@ -19,7 +19,7 @@ using Xunit;
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Shopping.EventStore;
 
 [Collection(AspireCollection.Name)]
-public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
+public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 {
 	private static readonly ItemSource Source = ItemSource.From("manual");
 
@@ -403,11 +403,11 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 		loaded.Items.Values.Single().OnList.Value.Should().Be(53m);
 	}
 
-	private static EfCoreShoppingEventStore CreateStore(ShoppingDbContext context, IEventBus? bus = null)
+	private static ShoppingEventStore CreateStore(ShoppingDbContext context, IEventBus? bus = null)
 	{
-		return new EfCoreShoppingEventStore(
+		return new ShoppingEventStore(
 			context,
 			bus ?? Substitute.For<IEventBus>(),
-			NullLogger<EfCoreShoppingEventStore>.Instance);
+			NullLogger<ShoppingEventStore>.Instance);
 	}
 }

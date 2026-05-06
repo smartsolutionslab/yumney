@@ -23,7 +23,7 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 			"__MealPlanMigrationsHistory",
 			typeof(QueryCountingInterceptor));
 
-		services.AddScoped<IMealPlanEventStore, EfCoreMealPlanEventStore>();
+		services.AddScoped<IMealPlanEventStore, MealPlanEventStore>();
 		services.AddScoped<IMealPlanReadModelRepository, MealPlanReadModelRepository>();
 		services.AddScoped<IMealPlanUserDataPurger, EfCoreMealPlanUserDataPurger>();
 		services.AddBusEventHandlersFromAssemblyContaining<MealPlanProjectionHandler>();

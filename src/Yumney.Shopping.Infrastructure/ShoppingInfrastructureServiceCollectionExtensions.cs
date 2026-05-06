@@ -27,8 +27,8 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 			"__ShoppingMigrationsHistory",
 			typeof(QueryCountingInterceptor));
 
-		services.AddScoped<IShoppingListEventStore, EfCoreShoppingListEventStore>();
-		services.AddScoped<IShoppingEventStore, EfCoreShoppingEventStore>();
+		services.AddScoped<IShoppingListEventStore, ShoppingListEventStore>();
+		services.AddScoped<IShoppingEventStore, ShoppingEventStore>();
 		services.AddScoped<IShoppingLedgerReadModelRepository, ShoppingLedgerReadModelRepository>();
 		services.AddScoped<IShoppingListProjectionRepository, EfCoreShoppingListProjectionRepository>();
 		services.AddScoped<IShoppingListProjectionRebuilder, ShoppingListProjectionRebuilder>();

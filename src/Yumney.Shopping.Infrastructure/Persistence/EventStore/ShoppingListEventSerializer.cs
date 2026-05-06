@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore.Json;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
@@ -32,7 +33,7 @@ internal static class ShoppingListEventSerializer
 		},
 	};
 
-	private static readonly Dictionary<string, Type> eventTypeMap = new()
+	private static readonly Dictionary<string, Type> EventTypeMap = new()
 	{
 		[nameof(ShoppingListCreated)] = typeof(ShoppingListCreated),
 		[nameof(ListItemAdded)] = typeof(ListItemAdded),
@@ -44,14 +45,10 @@ internal static class ShoppingListEventSerializer
 		[nameof(RecipeReferenceCleared)] = typeof(RecipeReferenceCleared),
 	};
 
+	public static IEventSerializer Instance { get; } = new JsonEventSerializer(Options, EventTypeMap);
+
 #pragma warning restore SA1311
 
-	public static string Serialize(IDomainEvent @event) =>
-		JsonSerializer.Serialize(@event, @event.GetType(), Options);
-
 	public static IDomainEvent? Deserialize(string eventType, string eventData)
-	{
-		if (!eventTypeMap.TryGetValue(eventType, out var type)) return null;
-		return JsonSerializer.Deserialize(eventData, type, Options) as IDomainEvent;
-	}
+		=> Instance.Deserialize(eventType, eventData);
 }
