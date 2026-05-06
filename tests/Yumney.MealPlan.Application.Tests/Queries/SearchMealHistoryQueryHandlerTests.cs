@@ -64,7 +64,7 @@ public class SearchMealHistoryQueryHandlerTests
 		plan.MarkAsCooked(DayOfWeek.Tuesday);
 		readModel.Seed(plan);
 
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging, "LASAGNA"));
+		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging, SearchTerm.From("LASAGNA")));
 
 		result.Value.Items.Should().ContainSingle().Which.RecipeTitle.Should().Be("Lasagna");
 	}
@@ -77,7 +77,7 @@ public class SearchMealHistoryQueryHandlerTests
 		plan.MarkAsCooked(DayOfWeek.Monday);
 		readModel.Seed(plan);
 
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging, "Tacos"));
+		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging, SearchTerm.From("Tacos")));
 
 		result.Value.Items.Should().BeEmpty();
 	}

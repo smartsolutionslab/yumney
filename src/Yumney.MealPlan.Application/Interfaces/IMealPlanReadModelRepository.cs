@@ -18,7 +18,7 @@ public interface IMealPlanReadModelRepository
 
 	Task<PagedResult<MealHistoryEntryDto>> SearchCookedHistoryAsync(
 		OwnerIdentifier owner,
-		string? term,
+		SearchTerm? term,
 		PagingOptions paging,
 		CancellationToken cancellationToken = default);
 }
