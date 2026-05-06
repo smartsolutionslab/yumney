@@ -170,14 +170,17 @@ public static partial class RecipesEndpoints
 		group.MapGet("/what-can-i-cook", WhatCanICook)
 			.WithName("WhatCanICook")
 			.WithTags("Recipes")
-			.Produces<IReadOnlyList<CookableRecipeDto>>();
+			.Produces<PagedResult<CookableRecipeDto>>();
 
 		static async Task<IResult> WhatCanICook(
-			IQueryHandler<GetCookableRecipesQuery, Result<IReadOnlyList<CookableRecipeDto>>> handler,
+			IQueryHandler<GetCookableRecipesQuery, Result<PagedResult<CookableRecipeDto>>> handler,
 			CancellationToken cancellationToken,
+			int page = PagingOptions.DefaultPage,
+			int pageSize = PagingOptions.DefaultPageSize,
 			bool fullMatchOnly = false)
 		{
-			var result = await handler.HandleAsync(new GetCookableRecipesQuery(fullMatchOnly), cancellationToken);
+			var query = new GetCookableRecipesQuery(PagingOptions.From(page, pageSize), fullMatchOnly);
+			var result = await handler.HandleAsync(query, cancellationToken);
 			return result.ToOk();
 		}
 

@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
@@ -127,13 +128,13 @@ public class HttpIngredientBalanceProviderTests
 	}
 
 	[Fact]
-	public async Task GetAvailableIngredientsAsync_HttpError_PropagatesException()
+	public async Task GetAvailableIngredientsAsync_HttpError_ReturnsEmptyForDegradedMode()
 	{
 		var provider = CreateProvider(string.Empty, HttpStatusCode.InternalServerError);
 
-		var act = () => provider.GetAvailableIngredientsAsync();
+		var result = await provider.GetAvailableIngredientsAsync();
 
-		await act.Should().ThrowAsync<HttpRequestException>();
+		result.Should().BeEmpty();
 	}
 
 	private static HttpIngredientBalanceProvider CreateProvider(string responseBody, HttpStatusCode status = HttpStatusCode.OK)
@@ -144,7 +145,7 @@ public class HttpIngredientBalanceProviderTests
 		var factory = Substitute.For<IHttpClientFactory>();
 		factory.CreateClient("shopping-api").Returns(client);
 
-		return new HttpIngredientBalanceProvider(factory);
+		return new HttpIngredientBalanceProvider(factory, Substitute.For<ILogger<HttpIngredientBalanceProvider>>());
 	}
 
 	private sealed class StubHttpMessageHandler(string body, HttpStatusCode status) : HttpMessageHandler

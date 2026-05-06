@@ -7,6 +7,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
 using Xunit;
 
@@ -33,10 +34,10 @@ public class GetCookableRecipesQueryHandlerTests
 		ConfigureBalance("salt", "pepper");
 		ConfigureRecipes();
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().BeEmpty();
+		result.Value.Items.Should().BeEmpty();
 	}
 
 	[Fact]
@@ -45,9 +46,9 @@ public class GetCookableRecipesQueryHandlerTests
 		ConfigureBalance("flour", "eggs", "milk");
 		ConfigureRecipes(MakeRecipe("Pancakes", "Flour", "Eggs", "Milk"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		var match = result.Value.Should().ContainSingle().Subject;
+		var match = result.Value.Items.Should().ContainSingle().Subject;
 		match.Title.Should().Be("Pancakes");
 		match.Tier.Should().Be(CookableRecipeMatchTier.Full);
 		match.MissingIngredients.Should().BeEmpty();
@@ -59,9 +60,9 @@ public class GetCookableRecipesQueryHandlerTests
 		ConfigureBalance("flour", "eggs");
 		ConfigureRecipes(MakeRecipe("Pancakes", "Flour", "Eggs", "Milk"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		var match = result.Value.Should().ContainSingle().Subject;
+		var match = result.Value.Items.Should().ContainSingle().Subject;
 		match.Tier.Should().Be(CookableRecipeMatchTier.Near);
 		match.MissingIngredients.Should().BeEquivalentTo(["Milk"]);
 	}
@@ -72,9 +73,9 @@ public class GetCookableRecipesQueryHandlerTests
 		ConfigureBalance("flour");
 		ConfigureRecipes(MakeRecipe("Carbonara", "Pasta", "Egg", "Pancetta", "Cheese"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Should().BeEmpty();
+		result.Value.Items.Should().BeEmpty();
 	}
 
 	[Fact]
@@ -85,9 +86,9 @@ public class GetCookableRecipesQueryHandlerTests
 			MakeRecipe("Pancakes", "Flour", "Eggs", "Milk"),
 			MakeRecipe("Crepes", "Flour", "Eggs"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery(FullMatchOnly: true));
+		var result = await handler.HandleAsync(Query(fullMatchOnly: true));
 
-		result.Value.Should().ContainSingle().Which.Title.Should().Be("Crepes");
+		result.Value.Items.Should().ContainSingle().Which.Title.Should().Be("Crepes");
 	}
 
 	[Fact]
@@ -96,9 +97,9 @@ public class GetCookableRecipesQueryHandlerTests
 		ConfigureBalance("salt", "pepper", "tomato");
 		ConfigureRecipes(MakeRecipe("Tomato Salt", "Tomato", "Salt", "Pepper"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Should().ContainSingle().Which.Tier.Should().Be(CookableRecipeMatchTier.Full);
+		result.Value.Items.Should().ContainSingle().Which.Tier.Should().Be(CookableRecipeMatchTier.Full);
 	}
 
 	[Fact]
@@ -107,9 +108,9 @@ public class GetCookableRecipesQueryHandlerTests
 		ConfigureBalance("FLOUR", "EGGS");
 		ConfigureRecipes(MakeRecipe("Crepes", "flour", "eggs"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Should().ContainSingle().Which.Tier.Should().Be(CookableRecipeMatchTier.Full);
+		result.Value.Items.Should().ContainSingle().Which.Tier.Should().Be(CookableRecipeMatchTier.Full);
 	}
 
 	[Fact]
@@ -120,9 +121,9 @@ public class GetCookableRecipesQueryHandlerTests
 			MakeRecipe("Pancakes", "Flour", "Eggs", "Milk"),
 			MakeRecipe("Crepes", "Flour", "Eggs"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Select(recipe => recipe.Title).Should().Equal("Crepes", "Pancakes");
+		result.Value.Items.Select(recipe => recipe.Title).Should().Equal("Crepes", "Pancakes");
 	}
 
 	[Fact]
@@ -133,9 +134,9 @@ public class GetCookableRecipesQueryHandlerTests
 			MakeRecipe("RecipeA", "Flour", "Eggs", "Milk"),
 			MakeRecipe("RecipeB", "Flour", "Sugar"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Select(recipe => recipe.Title).Should().Equal("RecipeB", "RecipeA");
+		result.Value.Items.Select(recipe => recipe.Title).Should().Equal("RecipeB", "RecipeA");
 	}
 
 	[Fact]
@@ -146,9 +147,9 @@ public class GetCookableRecipesQueryHandlerTests
 			MakeRecipe("Zuppa", "Flour", "Eggs", "Milk"),
 			MakeRecipe("Apple Pie", "Flour", "Eggs", "Milk"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Select(recipe => recipe.Title).Should().Equal("Apple Pie", "Zuppa");
+		result.Value.Items.Select(recipe => recipe.Title).Should().Equal("Apple Pie", "Zuppa");
 	}
 
 	[Fact]
@@ -159,9 +160,9 @@ public class GetCookableRecipesQueryHandlerTests
 			MakeRecipe("FreshOnly", "Flour", "Eggs"),
 			MakeRecipe("UsesMilk", "Flour", "Milk"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Select(recipe => recipe.Title).Should().Equal("UsesMilk", "FreshOnly");
+		result.Value.Items.Select(recipe => recipe.Title).Should().Equal("UsesMilk", "FreshOnly");
 	}
 
 	[Fact]
@@ -175,9 +176,9 @@ public class GetCookableRecipesQueryHandlerTests
 			MakeRecipe("OneUrgent", "Flour", "Milk"),
 			MakeRecipe("TwoUrgent", "Milk", "Chicken"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Select(recipe => recipe.Title).Should().Equal("TwoUrgent", "OneUrgent");
+		result.Value.Items.Select(recipe => recipe.Title).Should().Equal("TwoUrgent", "OneUrgent");
 	}
 
 	[Fact]
@@ -188,9 +189,9 @@ public class GetCookableRecipesQueryHandlerTests
 			MakeRecipe("StaplesOnly", "Salt"),
 			MakeRecipe("UsesMilk", "Milk"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Select(recipe => recipe.Title).Should().Equal("UsesMilk", "StaplesOnly");
+		result.Value.Items.Select(recipe => recipe.Title).Should().Equal("UsesMilk", "StaplesOnly");
 	}
 
 	[Fact]
@@ -202,9 +203,9 @@ public class GetCookableRecipesQueryHandlerTests
 			MakeRecipe("FullMatchFresh", "Flour"),
 			MakeRecipe("NearMatchUrgent", "Milk", "Sugar"));
 
-		var result = await handler.HandleAsync(new GetCookableRecipesQuery());
+		var result = await handler.HandleAsync(Query());
 
-		result.Value.Select(recipe => recipe.Title).Should().Equal("FullMatchFresh", "NearMatchUrgent");
+		result.Value.Items.Select(recipe => recipe.Title).Should().Equal("FullMatchFresh", "NearMatchUrgent");
 	}
 
 	[Fact]
@@ -213,10 +214,13 @@ public class GetCookableRecipesQueryHandlerTests
 		ConfigureBalance(Array.Empty<string>());
 		ConfigureRecipes();
 
-		await handler.HandleAsync(new GetCookableRecipesQuery());
+		await handler.HandleAsync(Query());
 
 		await balanceProvider.Received(1).GetAvailableIngredientsAsync(Arg.Any<CancellationToken>());
 	}
+
+	private static GetCookableRecipesQuery Query(bool fullMatchOnly = false)
+		=> new(PagingOptions.From(PagingOptions.DefaultPage, PagingOptions.DefaultPageSize), fullMatchOnly);
 
 	private static Recipe MakeRecipe(string title, params string[] ingredientNames)
 	{
