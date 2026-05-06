@@ -1,17 +1,16 @@
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 
-public sealed class RecipesUnitOfWork(
-	RecipesDbContext context,
-	IRecipeRepository recipes,
-	IRecipeFavoriteRepository favorites) : IRecipesUnitOfWork
+public sealed class RecipesUnitOfWork(RecipesDbContext context)
+	: UnitOfWork<RecipesDbContext>(context), IRecipesUnitOfWork
 {
-	public IRecipeRepository Recipes => recipes;
+	private IRecipeRepository? recipeRepository;
+	private IRecipeFavoriteRepository? favoriteRepository;
 
-	public IRecipeFavoriteRepository Favorites => favorites;
+	public IRecipeRepository Recipes => recipeRepository ??= new RecipeRepository(Context);
 
-	public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-		=> context.SaveChangesAsync(cancellationToken);
+	public IRecipeFavoriteRepository Favorites => favoriteRepository ??= new RecipeFavoriteRepository(Context);
 }

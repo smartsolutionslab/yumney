@@ -61,8 +61,9 @@ public sealed class UserActivityRepository(UsersDbContext context) : IUserActivi
 		return new RecipeActivityStats(cookCount, lastCookedAt, viewCount);
 	}
 
-	public async Task<int> DeleteAllByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
+	public async Task DeleteAllByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
-		return await activities.Where(activity => activity.Owner == owner).ExecuteDeleteAsync(cancellationToken);
+		var matches = await activities.Where(activity => activity.Owner == owner).ToListAsync(cancellationToken);
+		activities.RemoveRange(matches);
 	}
 }

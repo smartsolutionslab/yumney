@@ -23,6 +23,7 @@ public sealed class EnsureUserProfileCommandHandler(IUsersUnitOfWork unitOfWork,
 		var profile = AppUserProfile.Create(keycloakId, displayName);
 		await unitOfWork.Profiles.AddAsync(profile, cancellationToken);
 		await unitOfWork.SaveChangesAsync(cancellationToken);
+
 		return Result.Success();
 	}
 }

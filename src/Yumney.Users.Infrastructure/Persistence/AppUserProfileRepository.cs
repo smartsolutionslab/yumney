@@ -24,10 +24,11 @@ public sealed class AppUserProfileRepository(UsersDbContext context) : IAppUserP
 		await profiles.AddAsync(profile, cancellationToken);
 	}
 
-	public async Task<int> DeleteByKeycloakUserIdAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default)
+	public async Task DeleteByKeycloakUserIdAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default)
 	{
-		return await profiles
+		var matches = await profiles
 			.Where(profile => profile.KeycloakUserId == keycloakUserId)
-			.ExecuteDeleteAsync(cancellationToken);
+			.ToListAsync(cancellationToken);
+		profiles.RemoveRange(matches);
 	}
 }

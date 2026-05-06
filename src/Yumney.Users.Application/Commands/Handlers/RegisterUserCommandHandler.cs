@@ -6,9 +6,8 @@ using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Commands.Handlers;
 
-public sealed class RegisterUserCommandHandler(
-	IKeycloakAdminService keycloakAdmin,
-	IUsersUnitOfWork unitOfWork) : ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>
+public sealed class RegisterUserCommandHandler(IKeycloakAdminService keycloakAdmin, IUsersUnitOfWork unitOfWork)
+	: ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>>
 {
 	public async Task<Result<RegisterUserResultDto>> HandleAsync(RegisterUserCommand command, CancellationToken cancellationToken = default)
 	{
@@ -19,7 +18,6 @@ public sealed class RegisterUserCommandHandler(
 		if (keycloakResult.IsFailure) return keycloakResult.Error!;
 
 		var keycloakUserId = keycloakResult.Value;
-
 		var profile = AppUserProfile.Create(keycloakUserId, displayName);
 		await unitOfWork.Profiles.AddAsync(profile, cancellationToken);
 		await unitOfWork.SaveChangesAsync(cancellationToken);

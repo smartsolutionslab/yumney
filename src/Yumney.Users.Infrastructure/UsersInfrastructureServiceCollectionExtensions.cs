@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
@@ -26,10 +25,11 @@ public static class UsersInfrastructureServiceCollectionExtensions
 			"__UsersMigrationsHistory",
 			typeof(DomainEventDispatchInterceptor));
 
-		services.AddScoped<IAppUserProfileRepository, AppUserProfileRepository>();
-		services.AddScoped<IUserActivityRepository, UserActivityRepository>();
-		services.AddScoped<IStaplesListRepository, StaplesListRepository>();
-		services.AddScoped<IUsersUnitOfWork, UsersUnitOfWork>();
+		services.AddScoped<UsersUnitOfWork>();
+		services.AddScoped<IUsersUnitOfWork>(sp => sp.GetRequiredService<UsersUnitOfWork>());
+		services.AddScoped<IAppUserProfileRepository>(sp => sp.GetRequiredService<UsersUnitOfWork>().Profiles);
+		services.AddScoped<IUserActivityRepository>(sp => sp.GetRequiredService<UsersUnitOfWork>().Activities);
+		services.AddScoped<IStaplesListRepository>(sp => sp.GetRequiredService<UsersUnitOfWork>().StaplesLists);
 		services.AddScoped<IStaplesProvider, StaplesProvider>();
 
 		services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client =>

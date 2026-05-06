@@ -24,6 +24,7 @@ public class DeleteAccountCommandHandlerTests
 	private readonly IAppUserProfileRepository profiles = Substitute.For<IAppUserProfileRepository>();
 	private readonly IUserActivityRepository activities = Substitute.For<IUserActivityRepository>();
 	private readonly IStaplesListRepository staplesLists = Substitute.For<IStaplesListRepository>();
+	private readonly IUsersUnitOfWork users = Substitute.For<IUsersUnitOfWork>();
 	private readonly IKeycloakAdminService keycloak = Substitute.For<IKeycloakAdminService>();
 	private readonly IEventBus eventBus = Substitute.For<IEventBus>();
 	private readonly ICurrentUser currentUser = Substitute.For<ICurrentUser>();
@@ -34,8 +35,11 @@ public class DeleteAccountCommandHandlerTests
 		currentUser.UserId.Returns(KeycloakId);
 		keycloak.DeleteUserAsync(Arg.Any<KeycloakUserId>(), Arg.Any<CancellationToken>())
 			.Returns(Result.Success());
+		users.Profiles.Returns(profiles);
+		users.Activities.Returns(activities);
+		users.StaplesLists.Returns(staplesLists);
 		handler = new DeleteAccountCommandHandler(
-			profiles, activities, staplesLists, keycloak, eventBus, currentUser, NullLogger<DeleteAccountCommandHandler>.Instance);
+			users, keycloak, eventBus, currentUser, NullLogger<DeleteAccountCommandHandler>.Instance);
 	}
 
 	[Fact]

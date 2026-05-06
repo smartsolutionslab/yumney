@@ -21,9 +21,10 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 			"__RecipesMigrationsHistory",
 			typeof(DomainEventDispatchInterceptor));
 
-		services.AddScoped<IRecipeRepository, RecipeRepository>();
-		services.AddScoped<IRecipeFavoriteRepository, RecipeFavoriteRepository>();
-		services.AddScoped<IRecipesUnitOfWork, RecipesUnitOfWork>();
+		services.AddScoped<RecipesUnitOfWork>();
+		services.AddScoped<IRecipesUnitOfWork>(sp => sp.GetRequiredService<RecipesUnitOfWork>());
+		services.AddScoped<IRecipeRepository>(sp => sp.GetRequiredService<RecipesUnitOfWork>().Recipes);
+		services.AddScoped<IRecipeFavoriteRepository>(sp => sp.GetRequiredService<RecipesUnitOfWork>().Favorites);
 		services.AddScoped<IRecipesUserDataPurger, EfCoreRecipesUserDataPurger>();
 		services.AddScoped<IIngredientBalanceProvider, HttpIngredientBalanceProvider>();
 		services.AddScoped<IDietaryProfileProvider, HttpDietaryProfileProvider>();
