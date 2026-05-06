@@ -8,7 +8,11 @@ Yumney is a Progressive Web App that extracts recipes from any URL using LLM, ge
 
 ## Architecture
 
-### Style: Modular Monolith with DDD
+### Style: Modular monolith with per-module hosts (Aspire-orchestrated)
+
+Each module ships its own ASP.NET Core host (`Yumney.{Module}.Api`). They run as independent processes — one per module — orchestrated locally and in production by .NET Aspire (`Yumney.AppHost`). A single YARP reverse proxy (`Yumney.Gateway`) is the public entry point and fans out to the module hosts. EF migrations across all module DBs are run by a dedicated one-shot worker (`Yumney.MigrationRunner`).
+
+The "monolith" framing is intentional: modules share the same repo, the same release pipeline, and the same Aspire deployment unit. Each module owns its own database; cross-module communication is the consumer-defined-contracts / integration-events pattern documented below — never direct DbContext access. See [docs/adr/0001-persistence-paradigm-per-aggregate.md](docs/adr/0001-persistence-paradigm-per-aggregate.md) for the rationale on why Shopping is event-sourced while the rest stay state-based.
 
 - **Backend:** ASP.NET Core 10, Minimal APIs, Clean Architecture, .NET Aspire
 - **Frontend:** Angular 19+ Micro-Frontends (Native Federation), Nx Monorepo
@@ -22,46 +26,80 @@ Yumney is a Progressive Web App that extracts recipes from any URL using LLM, ge
 ```
 yumney/
 ├── src/
-│   ├── Yumney.AppHost/              # .NET Aspire orchestration (Keycloak + PostgreSQL + Redis)
-│   ├── Yumney.ServiceDefaults/      # Shared Aspire defaults
-│   ├── Yumney.Gateway/             # YARP reverse proxy (public entry point, CORS, routing)
-│   ├── Yumney.Api/                  # API Host (Startup, DI, Middleware, Auth — internal)
-│   ├── Yumney.Shared/              # Cross-cutting: Guards, Result, Entity, AggregateRoot, ICurrentUser
+│   ├── Yumney.AppHost/              # .NET Aspire orchestration (Postgres x4, Keycloak, Redis, RabbitMQ, all module hosts, Gateway)
+│   ├── Yumney.ServiceDefaults/      # Shared Aspire host defaults (telemetry, health, resilience)
+│   ├── Yumney.Gateway/              # YARP reverse proxy (public entry point, CORS, routing to module hosts)
+│   ├── Yumney.MigrationRunner/      # One-shot worker that runs EF migrations across all module DBs at startup
+│   ├── Yumney.Shared/               # Cross-cutting helpers (EnumExtensions, ICurrentUser-style abstractions)
+│   ├── Yumney.Shared.Abstractions/  # Domain primitives: AggregateRoot, Entity, IDomainEvent, IValueObject, …
+│   ├── Yumney.Shared.Outcomes/      # Result / Result<T> / ApiError
+│   ├── Yumney.Shared.Paging/        # Page, PageSize, PagedResult, SortingOptions
+│   ├── Yumney.Shared.Quantities/    # IngredientCategory, Freshness, ShelfLife, QuantityRounder
+│   ├── Yumney.Shared.Persistence/   # IUnitOfWork, EF event-store + inbox helpers
+│   ├── Yumney.Shared.Events/        # IEventBus, IIntegrationEvent / IModuleEvent / IDomainEvent + handler interfaces
+│   ├── Yumney.Shared.Events.InProcess/ # InProcessDomainEventDispatcher (single-host swap-in)
+│   ├── Yumney.Shared.Events.Wolverine/ # Wolverine + RabbitMQ implementation of IEventBus / consumers
+│   ├── Yumney.Shared.CQRS/          # ICommandHandler / IQueryHandler + logging decorators
+│   ├── Yumney.Shared.Guards/        # Ensure.That(...) parameter-validation DSL
+│   ├── Yumney.Shared.Web/           # Per-host wiring: AddYumneyDefaults, ResultExtensions, ValidationExtensions, etc.
 │   │
-│   ├── Yumney.Recipes.Domain/      # Value objects, aggregates, events, rules
-│   ├── Yumney.Recipes.Application/ # Commands, Queries, DTOs, Interfaces
-│   ├── Yumney.Recipes.Infrastructure/ # EF Core, Semantic Kernel, Web scraping
-│   ├── Yumney.Recipes.Api/         # Minimal API endpoints
+│   ├── Yumney.Recipes.Domain/       # Value objects, aggregates, events, rules
+│   ├── Yumney.Recipes.Application/  # Commands, Queries, DTOs, Interfaces, integration-event handlers
+│   ├── Yumney.Recipes.Infrastructure/ # EF Core, web scraping, Recipes-specific persistence
+│   ├── Yumney.Recipes.Extraction/   # Semantic Kernel chat/extraction adapters
+│   ├── Yumney.Recipes.Api/          # ASP.NET Core host — Recipes Minimal API
 │   │
-│   ├── Yumney.Shopping.Domain/
+│   ├── Yumney.Shopping.Domain/      # Event-sourced (see ADR 0001)
 │   ├── Yumney.Shopping.Application/
-│   ├── Yumney.Shopping.Infrastructure/
-│   ├── Yumney.Shopping.Api/
+│   ├── Yumney.Shopping.Infrastructure/ # Event store (ShoppingDbContext) + read model (ShoppingReadDbContext)
+│   ├── Yumney.Shopping.Api/         # ASP.NET Core host — Shopping Minimal API
+│   ├── Yumney.Shopping.Host/        # Aspire host project (composition root for the Shopping process)
 │   │
-│   ├── Yumney.Users.Domain/        # Minimal: AppUserProfile, preferences
+│   ├── Yumney.MealPlan.Domain/
+│   ├── Yumney.MealPlan.Application/
+│   ├── Yumney.MealPlan.Infrastructure/
+│   ├── Yumney.MealPlan.Api/         # ASP.NET Core host — MealPlan Minimal API
+│   │
+│   ├── Yumney.Users.Domain/         # Minimal: AppUserProfile, preferences, activity
 │   ├── Yumney.Users.Application/
-│   ├── Yumney.Users.Infrastructure/ # CurrentUserProvider, DB persistence
-│   └── Yumney.Users.Api/
+│   ├── Yumney.Users.Infrastructure/ # CurrentUserProvider, Keycloak admin, DB persistence
+│   ├── Yumney.Users.Api/            # ASP.NET Core host — Users Minimal API
+│   └── Yumney.Users.Host/           # Aspire host project (composition root for the Users process)
 ├── tests/
-│   ├── Yumney.Shared.Tests/
+│   ├── Yumney.Shared.Tests/                  # Shared.* libs aggregate test project
+│   ├── Yumney.Shared.Guards.Tests/
+│   ├── Yumney.Shared.Events.Tests/
 │   ├── Yumney.Recipes.Domain.Tests/
 │   ├── Yumney.Recipes.Application.Tests/
+│   ├── Yumney.Recipes.Infrastructure.Tests/
+│   ├── Yumney.Recipes.Api.Tests/
 │   ├── Yumney.Shopping.Domain.Tests/
 │   ├── Yumney.Shopping.Application.Tests/
+│   ├── Yumney.Shopping.Infrastructure.Tests/
+│   ├── Yumney.Shopping.Api.Tests/
+│   ├── Yumney.MealPlan.Domain.Tests/
+│   ├── Yumney.MealPlan.Application.Tests/
+│   ├── Yumney.MealPlan.Infrastructure.Tests/
 │   ├── Yumney.Users.Domain.Tests/
 │   ├── Yumney.Users.Application.Tests/
-│   ├── Yumney.Integration.Tests/
-│   └── Yumney.Architecture.Tests/
-├── client/                          # Angular Nx workspace
-│   ├── apps/shell/                  # Host app
-│   ├── apps/recipes/                # Recipes MFE
-│   ├── apps/shopping/               # Shopping MFE
-│   ├── apps/account/                # Account MFE
+│   ├── Yumney.Users.Infrastructure.Tests/
+│   ├── Yumney.Users.Api.Tests/
+│   ├── Yumney.Integration.Tests/             # Aspire-fixture-driven cross-module + contract tests
+│   └── Yumney.Architecture.Tests/            # CLAUDE.md rule enforcement (layer deps, naming, void methods, …)
+├── docs/
+│   └── adr/                                  # Architecture Decision Records (start with 0001)
+├── client/                                   # Angular Nx workspace
+│   ├── apps/shell/                           # Host app (Native Federation shell)
+│   ├── apps/recipes/                         # Recipes MFE
+│   ├── apps/shopping/                        # Shopping MFE
+│   ├── apps/account/                         # Account MFE
 │   └── libs/
-│       ├── shared/                  # Models, API client, Auth, i18n, State
-│       └── ui/                      # Shared UI components (Storybook)
-└── .github/workflows/              # CI/CD
+│       ├── shared/                           # Models, API client, Auth, i18n, State
+│       └── ui/                               # Shared UI components (Storybook)
+└── .github/workflows/                        # CI/CD
 ```
+
+Per-module databases (`recipesdb`, `shoppingdb`, `usersdb`, `mealplandb`) are provisioned as separate Postgres resources in the AppHost. Cross-module queries are forbidden at the persistence layer — see "Cross-Module Dependencies" below for the supported communication shapes.
 
 ### Module Structure (4 projects per module)
 
@@ -97,9 +135,10 @@ Application    → Domain + Shared (+ FluentValidation)
 Infrastructure → Application + Domain + Shared (+ EF Core, external libs)
 Api            → Application + Shared only (NOT Domain directly, NOT Infrastructure)
 
-Yumney.Api (host) → all *.Api + all *.Infrastructure (composition root)
-Yumney.Gateway    → ServiceDefaults + YARP (reverse proxy, CORS — no domain logic)
-Yumney.AppHost    → Yumney.Api + Yumney.Gateway + ServiceDefaults (Aspire orchestration)
+Yumney.{Module}.Api (host) → Yumney.{Module}.Application + Yumney.{Module}.Infrastructure + Shared.Web (composition root for that module's process)
+Yumney.Gateway             → ServiceDefaults + YARP (reverse proxy, CORS — no domain logic)
+Yumney.MigrationRunner     → all *.Infrastructure (one-shot migrator across module DBs)
+Yumney.AppHost             → all *.Api + Gateway + MigrationRunner + ServiceDefaults (Aspire orchestration of the full topology)
 ```
 
 ```
