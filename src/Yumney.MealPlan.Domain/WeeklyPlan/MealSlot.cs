@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
+
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
 public sealed record MealSlot(
@@ -10,7 +12,7 @@ public sealed record MealSlot(
 	LeftoverLabel? LeftoverLabel,
 	DayOfWeek? LeftoverSourceDay,
 	MealType? LeftoverSourceMealType,
-	MealState State)
+	MealState State) : IEntity
 {
 	public bool IsEmpty => ContentType == SlotContentType.Empty;
 
