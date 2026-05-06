@@ -40,7 +40,7 @@ public sealed class GetCookableRecipesQueryHandler(
 
 		IReadOnlyList<CookableRecipeDto> page = [.. ranked
 			.Skip(paging.Skip)
-			.Take(query.Paging.PageSize.Value)];
+			.Take(paging.PageSize.Value)];
 
 		return page.AsPagedResult(ItemCount.From(ranked.Count), paging);
 	}
