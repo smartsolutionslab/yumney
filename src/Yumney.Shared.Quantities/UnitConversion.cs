@@ -14,7 +14,8 @@ namespace SmartSolutionsLab.Yumney.Shared.Quantities;
 /// </summary>
 public static class UnitConversion
 {
-	private static readonly IReadOnlyDictionary<string, ConversionRule> MetricToImperialRules = new Dictionary<string, ConversionRule>(StringComparer.OrdinalIgnoreCase)
+#pragma warning disable SA1311 // editorconfig requires camelCase for private fields
+	private static readonly IReadOnlyDictionary<string, ConversionRule> metricToImperialRules = new Dictionary<string, ConversionRule>(StringComparer.OrdinalIgnoreCase)
 	{
 		["g"] = new("oz", 1m / 28.3495m),
 		["kg"] = new("lb", 2.20462m),
@@ -24,7 +25,7 @@ public static class UnitConversion
 		["l"] = new("cup", 1000m / 236.588m),
 	};
 
-	private static readonly IReadOnlyDictionary<string, ConversionRule> ImperialToMetricRules = new Dictionary<string, ConversionRule>(StringComparer.OrdinalIgnoreCase)
+	private static readonly IReadOnlyDictionary<string, ConversionRule> imperialToMetricRules = new Dictionary<string, ConversionRule>(StringComparer.OrdinalIgnoreCase)
 	{
 		["oz"] = new("g", 28.3495m),
 		["lb"] = new("g", 453.592m),
@@ -33,21 +34,26 @@ public static class UnitConversion
 		["tsp"] = new("ml", 4.92892m),
 		["tbsp"] = new("ml", 14.7868m),
 	};
+#pragma warning restore SA1311
 
 	public static ConvertedAmount ToImperial(decimal amount, string? unit) =>
-		Apply(amount, unit, MetricToImperialRules);
+		Apply(amount, unit, metricToImperialRules);
 
 	public static ConvertedAmount ToMetric(decimal amount, string? unit) =>
-		Apply(amount, unit, ImperialToMetricRules);
+		Apply(amount, unit, imperialToMetricRules);
 
 	public static ConvertedAmount ToSystem(decimal amount, string? unit, UnitSystem target) =>
 		target == UnitSystem.Imperial ? ToImperial(amount, unit) : ToMetric(amount, unit);
 
 	/// <summary>Celsius → Fahrenheit. Symmetric helper for oven-temperature conversion.</summary>
+	/// <param name="celsius">Temperature in Celsius.</param>
+	/// <returns>The same temperature in Fahrenheit, rounded to the nearest whole degree.</returns>
 	public static int CelsiusToFahrenheit(int celsius) =>
 		(int)Math.Round((celsius * 9d / 5d) + 32d);
 
 	/// <summary>Fahrenheit → Celsius.</summary>
+	/// <param name="fahrenheit">Temperature in Fahrenheit.</param>
+	/// <returns>The same temperature in Celsius, rounded to the nearest whole degree.</returns>
 	public static int FahrenheitToCelsius(int fahrenheit) =>
 		(int)Math.Round((fahrenheit - 32) * 5d / 9d);
 
@@ -56,6 +62,8 @@ public static class UnitConversion
 	/// The thresholds mirror what real cookbooks do — no <c>0.34 oz</c>,
 	/// no <c>127.4 g</c>. Exposed for spec coverage.
 	/// </summary>
+	/// <param name="value">Raw decimal amount, typically the product of a unit conversion.</param>
+	/// <returns>The cooking-friendly rounded amount.</returns>
 	public static decimal SmartRound(decimal value)
 	{
 		var absolute = Math.Abs(value);
