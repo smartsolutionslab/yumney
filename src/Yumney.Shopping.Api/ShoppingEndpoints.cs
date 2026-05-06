@@ -9,7 +9,6 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
-using Requests = SmartSolutionsLab.Yumney.Shopping.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Api;
 
@@ -84,8 +83,8 @@ public static partial class ShoppingEndpoints
 			var query = new GetShoppingListsQuery(
 				PagingOptions.From(page, pageSize),
 				SortingOptions<ShoppingListSortField>.Parse(sortBy, sortDirection, ShoppingListSortField.Date));
-			var result = await handler.HandleAsync(query, cancellationToken);
 
+			var result = await handler.HandleAsync(query, cancellationToken);
 			return result.ToOk();
 		}
 
