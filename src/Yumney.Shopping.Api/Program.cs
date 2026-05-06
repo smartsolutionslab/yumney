@@ -1,28 +1,10 @@
-using SmartSolutionsLab.Yumney.Shared.CQRS;
-using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shared.Hosting;
 using SmartSolutionsLab.Yumney.Shopping.Api;
 using SmartSolutionsLab.Yumney.Shopping.Application;
-using SmartSolutionsLab.Yumney.Shopping.Application.IntegrationEventHandlers;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.AddYumneyDefaults(
-	typeof(ShoppingInfrastructureServiceCollectionExtensions).Assembly,
-	typeof(RecipeDeletedHandler).Assembly);
-
-builder.Services
-	.AddShoppingApi()
-	.AddShoppingApplication()
-	.AddShoppingInfrastructure(builder.Configuration)
-	.AddCqrsLoggingDecorators();
-
-var app = builder.Build();
-
-app.UseYumneyDefaults();
-
-app.MapGroup("/api/v1")
-	.RequireAuthorization()
-	.MapShoppingEndpoints();
-
-app.Run();
+ModuleHost.Run(
+	args,
+	new ShoppingApiModule(),
+	new ShoppingApplicationModule(),
+	new ShoppingInfrastructureModule());

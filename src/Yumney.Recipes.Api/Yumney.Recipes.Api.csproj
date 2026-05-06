@@ -5,6 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Yumney.Shared.Hosting\Yumney.Shared.Hosting.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
     <ProjectReference Include="..\Yumney.Recipes.Application\Yumney.Recipes.Application.csproj" />
     <ProjectReference Include="..\Yumney.Recipes.Infrastructure\Yumney.Recipes.Infrastructure.csproj" />
