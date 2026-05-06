@@ -1,6 +1,5 @@
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
-using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
@@ -9,8 +8,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 public sealed class GetRecipeSuggestionsQueryHandler(
 	IIngredientBalanceProvider balanceProvider,
 	IDietaryProfileProvider dietaryProvider,
-	IRecipeSuggestionService suggestionService,
-	ICurrentUser currentUser)
+	IRecipeSuggestionService suggestionService)
 	: IQueryHandler<GetRecipeSuggestionsQuery, Result<IReadOnlyList<ExtractedRecipeDto>>>
 {
 #pragma warning disable SA1303
@@ -21,10 +19,9 @@ public sealed class GetRecipeSuggestionsQueryHandler(
 	public async Task<Result<IReadOnlyList<ExtractedRecipeDto>>> HandleAsync(GetRecipeSuggestionsQuery query, CancellationToken cancellationToken = default)
 	{
 		var count = Math.Clamp(query.Count, minCount, maxCount);
-		var owner = currentUser.AsOwner();
 
 		var availableTask = balanceProvider.GetAvailableIngredientsAsync(cancellationToken);
-		var dietaryTask = dietaryProvider.GetAsync(owner, cancellationToken);
+		var dietaryTask = dietaryProvider.GetAsync(cancellationToken);
 		await Task.WhenAll(availableTask, dietaryTask);
 
 		var available = availableTask.Result;
