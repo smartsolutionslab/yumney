@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.Queries;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 using SmartSolutionsLab.Yumney.Shared.Web;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Api;
@@ -134,15 +135,17 @@ public static class MealPlanEndpoints
 		group.MapGet("/history/search", SearchHistory)
 			.WithName("SearchMealHistory")
 			.WithTags("MealPlan")
-			.Produces<IReadOnlyList<MealHistoryEntryDto>>();
+			.Produces<PagedResult<MealHistoryEntryDto>>();
 
 		static async Task<IResult> SearchHistory(
-			IQueryHandler<SearchMealHistoryQuery, Result<IReadOnlyList<MealHistoryEntryDto>>> handler,
+			IQueryHandler<SearchMealHistoryQuery, Result<PagedResult<MealHistoryEntryDto>>> handler,
 			CancellationToken cancellationToken,
-			string? term = null,
-			int limit = 20)
+			int page = PagingOptions.DefaultPage,
+			int pageSize = PagingOptions.DefaultPageSize,
+			string? term = null)
 		{
-			var result = await handler.HandleAsync(new SearchMealHistoryQuery(term, limit), cancellationToken);
+			var query = new SearchMealHistoryQuery(PagingOptions.From(page, pageSize), term);
+			var result = await handler.HandleAsync(query, cancellationToken);
 			return result.ToOk();
 		}
 

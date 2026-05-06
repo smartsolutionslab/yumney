@@ -2,18 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel;
 
 public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) : IMealPlanReadModelRepository
 {
-#pragma warning disable SA1311
-	private static readonly DayOfWeek[] allDays =
-	[
-		DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday,
-		DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday,
-	];
-#pragma warning restore SA1311
+#pragma warning disable SA1303
+	private const int maxSearchTermLength = 100;
+#pragma warning restore SA1303
 
 	public async Task<WeeklyPlanDto> GetByOwnerAndWeekAsync(
 		OwnerIdentifier owner,
@@ -24,6 +22,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		var weekValue = week.Value;
 
 		var weekItem = await context.MealPlanWeekReadItems
+			.AsNoTracking()
 			.FirstOrDefaultAsync(weekRow => weekRow.OwnerId == ownerId && weekRow.Week == weekValue, cancellationToken);
 
 		if (weekItem is null)
@@ -32,6 +31,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		}
 
 		var slotRows = await context.MealPlanSlotReadItems
+			.AsNoTracking()
 			.Where(slot => slot.OwnerId == ownerId && slot.Week == weekValue)
 			.ToListAsync(cancellationToken);
 
@@ -52,6 +52,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		var recipeContent = SlotContentType.Recipe.ToString();
 
 		var slotRows = await context.MealPlanSlotReadItems
+			.AsNoTracking()
 			.Where(slot => slot.OwnerId == ownerId
 				&& slot.Week == weekValue
 				&& slot.ContentType == recipeContent
@@ -61,36 +62,49 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		return new WeeklyPlannedRecipesDto(weekValue, slotRows.ToPlannedRecipeDtos());
 	}
 
-	public async Task<IReadOnlyList<MealHistoryEntryDto>> SearchCookedHistoryAsync(
+	public async Task<PagedResult<MealHistoryEntryDto>> SearchCookedHistoryAsync(
 		OwnerIdentifier owner,
 		string? term,
-		int limit,
+		PagingOptions paging,
 		CancellationToken cancellationToken = default)
 	{
 		var ownerId = owner.Value;
 		var cookedState = MealState.Cooked.ToString();
 
 		var query = context.MealPlanSlotReadItems
+			.AsNoTracking()
 			.Where(slot => slot.OwnerId == ownerId && slot.State == cookedState && slot.RecipeTitle != null);
 
-		if (!string.IsNullOrWhiteSpace(term))
+		var trimmed = term?.Trim();
+		if (!string.IsNullOrEmpty(trimmed))
 		{
-			var pattern = $"%{term.Trim()}%";
+			if (trimmed.Length > maxSearchTermLength) trimmed = trimmed[..maxSearchTermLength];
+			var pattern = $"%{trimmed}%";
 			query = query.Where(slot => EF.Functions.ILike(slot.RecipeTitle!, pattern));
 		}
 
+		var totalCount = await query.CountAsync(cancellationToken);
+
+		// Day and MealType columns store enum names (strings); ordering at SQL would
+		// be alphabetical (Friday, Monday, …). Page by Week at SQL, sort precisely
+		// in memory after parsing.
 		var rows = await query
 			.OrderByDescending(slot => slot.Week)
-			.ThenBy(slot => slot.Day)
-			.ThenBy(slot => slot.MealType)
-			.Take(limit)
+			.Skip(paging.Skip)
+			.Take(paging.PageSize.Value)
 			.ToListAsync(cancellationToken);
 
-		return rows.ToHistoryEntryDtos();
+		var sorted = rows
+			.OrderByDescending(slot => slot.Week)
+			.ThenBy(slot => Enum.Parse<DayOfWeek>(slot.Day))
+			.ThenBy(slot => Enum.Parse<MealType>(slot.MealType))
+			.ToList();
+
+		return sorted.ToHistoryEntryDtos().AsPagedResult(ItemCount.From(totalCount), paging);
 	}
 
 	private static List<MealSlotDto> EmptyDinnerSlots(int defaultServings) =>
-		allDays
+		WeekDays.MondayToSunday
 			.Select(day => new MealSlotDto(
 				day.ToString(),
 				MealType.Dinner.ToString(),
