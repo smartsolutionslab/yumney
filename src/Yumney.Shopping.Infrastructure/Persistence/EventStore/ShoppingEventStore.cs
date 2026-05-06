@@ -4,7 +4,6 @@ using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
@@ -14,9 +13,15 @@ public sealed partial class ShoppingEventStore(ShoppingDbContext context, IEvent
 	: EfCoreEventStoreBase<ShoppingLedger, ShoppingLedgerIdentifier, AggregateMetadata, StoredEvent>(
 		context,
 		eventBus,
-		ShoppingLedgerEventSerializer.Instance),
+		ShoppingLedgerEventSerializer.Instance,
+		logger),
 	IShoppingEventStore
 {
+#pragma warning disable SA1311
+	private static readonly IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> moduleEventWrappers =
+		ModuleEventConvention.BuildMap(typeof(ShoppingEventStore).Assembly, typeof(string));
+#pragma warning restore SA1311
+
 	public async Task<ShoppingLedger> LoadAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default)
 		=> await FindAsync(ownerId, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(ShoppingLedger), ownerId.Value);
@@ -34,8 +39,6 @@ public sealed partial class ShoppingEventStore(ShoppingDbContext context, IEvent
 		return ShoppingLedger.FromEvents(ShoppingLedgerIdentifier.From(metadata.AggregateId), ownerId, events);
 	}
 
-	protected override string AggregateName => nameof(ShoppingLedger);
-
 	protected override Guid GetAggregateId(ShoppingLedger aggregate) => aggregate.Identifier;
 
 	protected override AggregateMetadata BuildMetadata(ShoppingLedger aggregate) =>
@@ -45,31 +48,17 @@ public sealed partial class ShoppingEventStore(ShoppingDbContext context, IEvent
 			OwnerId = aggregate.OwnerId,
 		};
 
-	protected override async Task PublishEventsAsync(
-		ShoppingLedger aggregate,
-		IReadOnlyList<IDomainEvent> events,
-		CancellationToken cancellationToken)
+	protected override async Task PublishEventsAsync(ShoppingLedger aggregate, IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
 	{
 		LogEventsSaved(aggregate.OwnerId, events.Count, aggregate.Version);
 
+		object[] context = [aggregate.OwnerId];
+
 		foreach (var @event in events)
 		{
-			IModuleEvent? moduleEvent = @event switch
+			if (moduleEventWrappers.TryGetValue(@event.GetType(), out var factory))
 			{
-				ShoppingItemAdded added => new ShoppingItemAddedModuleEvent(aggregate.OwnerId, added),
-				ShoppingItemBought bought => new ShoppingItemBoughtModuleEvent(aggregate.OwnerId, bought),
-				ShoppingItemConsumed consumed => new ShoppingItemConsumedModuleEvent(aggregate.OwnerId, consumed),
-				ShoppingItemRemoved removed => new ShoppingItemRemovedModuleEvent(aggregate.OwnerId, removed),
-				ShoppingItemQuantityAdjusted adjusted => new ShoppingItemQuantityAdjustedModuleEvent(aggregate.OwnerId, adjusted),
-				ShoppingItemAddedAsAtHome atHome => new ShoppingItemAddedAsAtHomeModuleEvent(aggregate.OwnerId, atHome),
-				ShoppingItemUndoBought undo => new ShoppingItemUndoBoughtModuleEvent(aggregate.OwnerId, undo),
-				ShoppingItemMarkedAsFrozen frozen => new ShoppingItemMarkedAsFrozenModuleEvent(aggregate.OwnerId, frozen),
-				_ => null,
-			};
-
-			if (moduleEvent is not null)
-			{
-				await EventBus.PublishAsync(moduleEvent, cancellationToken);
+				await EventBus.PublishAsync(factory(context, @event), cancellationToken);
 			}
 		}
 	}

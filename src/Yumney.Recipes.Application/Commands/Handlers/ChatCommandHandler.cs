@@ -6,9 +6,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-public sealed class ChatCommandHandler(
-	IChatService chatService,
-	ICurrentUser currentUser) : ICommandHandler<ChatCommand, Result<ChatResponseDto>>
+public sealed class ChatCommandHandler(IChatService chatService, ICurrentUser currentUser) : ICommandHandler<ChatCommand, Result<ChatResponseDto>>
 {
 	public async Task<Result<ChatResponseDto>> HandleAsync(ChatCommand command, CancellationToken cancellationToken = default)
 	{

@@ -5,8 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-public sealed class RecognizeIngredientsCommandHandler(
-	IIngredientRecognitionService recognitionService)
+public sealed class RecognizeIngredientsCommandHandler(IIngredientRecognitionService recognitionService)
 	: ICommandHandler<RecognizeIngredientsCommand, Result<RecognizedIngredientsResponseDto>>
 {
 	public async Task<Result<RecognizedIngredientsResponseDto>> HandleAsync(

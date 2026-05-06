@@ -16,39 +16,30 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStor
 internal static class ShoppingListEventSerializer
 {
 #pragma warning disable SA1311
-	public static JsonSerializerOptions Options { get; } = new()
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		Converters =
-		{
-			new StringValueObjectJsonConverter<OwnerIdentifier>(OwnerIdentifier.From),
-			new StringValueObjectJsonConverter<ShoppingListTitle>(ShoppingListTitle.From),
-			new StringValueObjectJsonConverter<ItemName>(ItemName.From),
-			new ShoppingListIdentifierJsonConverter(),
-			new ShoppingListItemIdentifierJsonConverter(),
-			new RecipeReferenceJsonConverter(),
-			new AmountJsonConverter(),
-			new UnitJsonConverter(),
-			new IngredientCategoryJsonConverter(),
-		},
-	};
+	public static JsonSerializerOptions Options { get; } = BuildOptions();
 
-	private static readonly Dictionary<string, Type> EventTypeMap = new()
-	{
-		[nameof(ShoppingListCreated)] = typeof(ShoppingListCreated),
-		[nameof(ListItemAdded)] = typeof(ListItemAdded),
-		[nameof(ListItemChecked)] = typeof(ListItemChecked),
-		[nameof(ListItemUnchecked)] = typeof(ListItemUnchecked),
-		[nameof(ListItemCategoryChanged)] = typeof(ListItemCategoryChanged),
-		[nameof(AllItemsChecked)] = typeof(AllItemsChecked),
-		[nameof(AllItemsUnchecked)] = typeof(AllItemsUnchecked),
-		[nameof(RecipeReferenceCleared)] = typeof(RecipeReferenceCleared),
-	};
-
-	public static IEventSerializer Instance { get; } = new JsonEventSerializer(Options, EventTypeMap);
-
+	public static IEventSerializer Instance { get; } = new JsonEventSerializer(
+		Options,
+		EventTypeRegistry.BuildFromAssembly(
+			typeof(ShoppingListCreated).Assembly,
+			type => type.Namespace == typeof(ShoppingListCreated).Namespace));
 #pragma warning restore SA1311
 
 	public static IDomainEvent? Deserialize(string eventType, string eventData)
 		=> Instance.Deserialize(eventType, eventData);
+
+	private static JsonSerializerOptions BuildOptions()
+	{
+		var options = EventSerializerDefaults.Options();
+		options.Converters.Add(new StringValueObjectJsonConverter<OwnerIdentifier>(OwnerIdentifier.From));
+		options.Converters.Add(new StringValueObjectJsonConverter<ShoppingListTitle>(ShoppingListTitle.From));
+		options.Converters.Add(new StringValueObjectJsonConverter<ItemName>(ItemName.From));
+		options.Converters.Add(new ShoppingListIdentifierJsonConverter());
+		options.Converters.Add(new ShoppingListItemIdentifierJsonConverter());
+		options.Converters.Add(new RecipeReferenceJsonConverter());
+		options.Converters.Add(new AmountJsonConverter());
+		options.Converters.Add(new UnitJsonConverter());
+		options.Converters.Add(new IngredientCategoryJsonConverter());
+		return options;
+	}
 }

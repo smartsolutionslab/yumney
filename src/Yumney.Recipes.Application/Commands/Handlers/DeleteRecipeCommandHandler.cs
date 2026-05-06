@@ -7,10 +7,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-public sealed class DeleteRecipeCommandHandler(
-	IRecipesUnitOfWork unitOfWork,
-	ICurrentUser currentUser,
-	IEventBus eventBus)
+public sealed class DeleteRecipeCommandHandler(IRecipesUnitOfWork unitOfWork, ICurrentUser currentUser, IEventBus eventBus)
 	: ICommandHandler<DeleteRecipeCommand, Result>
 {
 	public async Task<Result> HandleAsync(DeleteRecipeCommand command, CancellationToken cancellationToken = default)

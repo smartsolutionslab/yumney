@@ -8,10 +8,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-public sealed class SaveRecipeCommandHandler(
-	IRecipesUnitOfWork unitOfWork,
-	ICurrentUser currentUser,
-	IEventBus eventBus)
+public sealed class SaveRecipeCommandHandler(IRecipesUnitOfWork unitOfWork, ICurrentUser currentUser, IEventBus eventBus)
 	: ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>>
 {
 	public async Task<Result<SavedRecipeDto>> HandleAsync(SaveRecipeCommand command, CancellationToken cancellationToken = default)

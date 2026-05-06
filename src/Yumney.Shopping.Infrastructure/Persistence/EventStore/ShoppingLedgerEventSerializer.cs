@@ -8,33 +8,23 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStor
 internal static class ShoppingLedgerEventSerializer
 {
 #pragma warning disable SA1311
-	public static JsonSerializerOptions Options { get; } = new()
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		Converters =
-		{
-			new ItemNameJsonConverter(),
-			new AmountJsonConverter(),
-			new UnitJsonConverter(),
-			new RemovalReasonJsonConverter(),
-			new ItemSourceJsonConverter(),
-		},
-	};
+	public static JsonSerializerOptions Options { get; } = BuildOptions();
 
-	private static readonly Dictionary<string, Type> EventTypeMap = new()
-	{
-		[nameof(ShoppingItemAdded)] = typeof(ShoppingItemAdded),
-		[nameof(ShoppingItemBought)] = typeof(ShoppingItemBought),
-		[nameof(ShoppingItemConsumed)] = typeof(ShoppingItemConsumed),
-		[nameof(ShoppingItemRemoved)] = typeof(ShoppingItemRemoved),
-		[nameof(ShoppingItemQuantityAdjusted)] = typeof(ShoppingItemQuantityAdjusted),
-		[nameof(ShoppingItemUndoBought)] = typeof(ShoppingItemUndoBought),
-		[nameof(ShoppingItemAddedAsAtHome)] = typeof(ShoppingItemAddedAsAtHome),
-		[nameof(ShoppingItemMarkedAsFrozen)] = typeof(ShoppingItemMarkedAsFrozen),
-		[nameof(ShoppingModeStarted)] = typeof(ShoppingModeStarted),
-		[nameof(ShoppingModeEnded)] = typeof(ShoppingModeEnded),
-	};
-
-	public static IEventSerializer Instance { get; } = new JsonEventSerializer(Options, EventTypeMap);
+	public static IEventSerializer Instance { get; } = new JsonEventSerializer(
+		Options,
+		EventTypeRegistry.BuildFromAssembly(
+			typeof(ShoppingItemAdded).Assembly,
+			type => type.Namespace == typeof(ShoppingItemAdded).Namespace));
 #pragma warning restore SA1311
+
+	private static JsonSerializerOptions BuildOptions()
+	{
+		var options = EventSerializerDefaults.Options();
+		options.Converters.Add(new ItemNameJsonConverter());
+		options.Converters.Add(new AmountJsonConverter());
+		options.Converters.Add(new UnitJsonConverter());
+		options.Converters.Add(new RemovalReasonJsonConverter());
+		options.Converters.Add(new ItemSourceJsonConverter());
+		return options;
+	}
 }
