@@ -3,22 +3,25 @@ using SmartSolutionsLab.Yumney.Shared.Modules;
 
 namespace SmartSolutionsLab.Yumney.Shared.Hosting;
 
-public static class ModuleHost
+public static class ModuleRegistrationExtensions
 {
-	public static void Run(string[] args, params IModule[] modules)
+	public static WebApplicationBuilder RegisterServices(this WebApplicationBuilder builder, params IModule[] modules)
 	{
-		var builder = WebApplication.CreateBuilder(args);
 		foreach (var module in modules)
 		{
 			module.RegisterServices(builder);
 		}
 
-		var app = builder.Build();
+		return builder;
+	}
+
+	public static WebApplication RegisterEndpoints(this WebApplication app, params IModule[] modules)
+	{
 		foreach (var module in modules.OfType<IEndpointModule>())
 		{
 			module.RegisterEndpoints(app);
 		}
 
-		app.Run();
+		return app;
 	}
 }
