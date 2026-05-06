@@ -21,6 +21,6 @@ public sealed class SwapMealSlotsCommandHandler(IMealPlanEventStore eventStore, 
 		plan.SwapSlots(sourceDay, targetDay, mealType);
 		await eventStore.SaveAsync(plan, cancellationToken);
 
-		return plan.ToDto(week);
+		return plan.ToDto();
 	}
 }

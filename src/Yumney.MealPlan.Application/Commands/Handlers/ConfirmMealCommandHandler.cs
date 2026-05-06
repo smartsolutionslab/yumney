@@ -42,7 +42,7 @@ public sealed class ConfirmMealCommandHandler(
 
 		await eventStore.SaveAsync(plan, cancellationToken);
 
-		return plan.ToDto(week);
+		return plan.ToDto();
 	}
 
 	private async Task<IReadOnlyList<CookedIngredient>> FetchIngredientsAsync(SlotRecipeIdentifier recipe, CancellationToken cancellationToken)

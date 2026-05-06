@@ -5,8 +5,8 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 
 public static class WeeklyPlanMappingExtensions
 {
-	public static WeeklyPlanDto ToDto(this WeeklyPlan plan, WeekIdentifier week) =>
-		new(week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToDtos());
+	public static WeeklyPlanDto ToDto(this WeeklyPlan plan) =>
+		new(plan.Week.Value, plan.IsExtendedMode, plan.GetVisibleSlots().ToDtos());
 
 	public static MealSlotDto ToDto(this MealSlot slot) =>
 		new(

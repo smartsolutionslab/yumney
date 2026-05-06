@@ -12,11 +12,11 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 	{
 		if (store.TryGetValue((owner.Value, week.Value), out var plan))
 		{
-			return Task.FromResult(plan.ToDto(week));
+			return Task.FromResult(plan.ToDto());
 		}
 
 		var emptyPlan = WeeklyPlan.Create(owner, week);
-		return Task.FromResult(emptyPlan.ToDto(week));
+		return Task.FromResult(emptyPlan.ToDto());
 	}
 
 	public Task<WeeklyPlannedRecipesDto> GetPlannedRecipesAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
