@@ -87,7 +87,7 @@ public class GetIngredientBalanceQueryHandlerTests
 		await handler.HandleAsync(new GetIngredientBalanceQuery());
 
 		await readModel.Received(1).GetAtHomeItemsAsync("user-123", Arg.Any<CancellationToken>());
-		await staplesProvider.Received(1).GetStapleNamesAsync(Arg.Is<OwnerIdentifier>(owner => owner.Value == "user-123"), Arg.Any<CancellationToken>());
+		await staplesProvider.Received(1).GetStapleNamesAsync(Arg.Any<CancellationToken>());
 	}
 
 	[Fact]
@@ -110,7 +110,7 @@ public class GetIngredientBalanceQueryHandlerTests
 	private void ConfigureRepositories(IReadOnlyList<IngredientBalanceItemDto> atHome, IReadOnlyCollection<string> staples)
 	{
 		readModel.GetAtHomeItemsAsync("user-123", Arg.Any<CancellationToken>()).Returns(atHome);
-		staplesProvider.GetStapleNamesAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+		staplesProvider.GetStapleNamesAsync(Arg.Any<CancellationToken>())
 			.Returns(staples.ToHashSet(StringComparer.OrdinalIgnoreCase));
 	}
 }
