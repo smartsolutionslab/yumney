@@ -44,7 +44,7 @@ public static class CqrsServiceCollectionExtensions
 	{
 		var descriptors = services
 			.Where(descriptor => descriptor.ServiceType.IsGenericType
-			                     && descriptor.ServiceType.GetGenericTypeDefinition() == openGenericInterface)
+								 && descriptor.ServiceType.GetGenericTypeDefinition() == openGenericInterface)
 			.ToList();
 
 		foreach (var descriptor in descriptors)
