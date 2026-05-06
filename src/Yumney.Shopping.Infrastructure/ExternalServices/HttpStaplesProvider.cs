@@ -6,9 +6,8 @@ using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.ExternalServices;
 
 #pragma warning disable SA1601
-public sealed partial class HttpStaplesProvider(
-	IHttpClientFactory httpClientFactory,
-	ILogger<HttpStaplesProvider> logger) : IStaplesProvider
+public sealed partial class HttpStaplesProvider(IHttpClientFactory httpClientFactory, ILogger<HttpStaplesProvider> logger)
+	: IStaplesProvider
 {
 #pragma warning disable SA1311
 	private static readonly JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
@@ -19,7 +18,8 @@ public sealed partial class HttpStaplesProvider(
 		try
 		{
 			var client = httpClientFactory.CreateClient("users-api");
-			var staples = await client.GetFromJsonAsync<List<string>>("/api/v1/users/staples", jsonOptions, cancellationToken) ?? [];
+			var url = "/api/v1/users/staples";
+			var staples = await client.GetFromJsonAsync<List<string>>(url, jsonOptions, cancellationToken) ?? [];
 
 			return staples.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		}

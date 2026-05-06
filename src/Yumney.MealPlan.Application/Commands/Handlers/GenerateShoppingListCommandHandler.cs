@@ -87,7 +87,7 @@ public sealed class GenerateShoppingListCommandHandler(
 
 		if (itemsToAdd.Count > 0)
 		{
-			await shoppingListWriter.AddItemsAsync(owner, itemsToAdd, cancellationToken);
+			await shoppingListWriter.AddItemsAsync(itemsToAdd, cancellationToken);
 		}
 
 		return (staplesSkipped, itemsToAdd);
