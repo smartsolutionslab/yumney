@@ -1,5 +1,3 @@
-using System;
-
 namespace SmartSolutionsLab.Yumney.Shared.Quantities;
 
 /// <summary>
@@ -16,13 +14,11 @@ public static class QuantityRounder
 	/// <returns>The rounded display quantity and the original exact value.</returns>
 	public static RoundedQuantity RoundUp(decimal quantity, string? unit)
 	{
-		if (quantity <= 0)
-			return new RoundedQuantity(quantity, quantity);
+		if (quantity <= 0) return new RoundedQuantity(quantity, quantity);
 
 		var rounded = Math.Ceiling(quantity);
 
-		if (rounded == quantity)
-			return new RoundedQuantity(quantity, quantity);
+		if (rounded == quantity) return new RoundedQuantity(quantity, quantity);
 
 		return new RoundedQuantity(rounded, quantity);
 	}

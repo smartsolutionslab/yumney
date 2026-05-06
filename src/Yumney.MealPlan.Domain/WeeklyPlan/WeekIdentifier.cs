@@ -26,7 +26,7 @@ public sealed record WeekIdentifier : IValueObject<string>
 	public static WeekIdentifier FromDate(DateOnly date)
 	{
 		var cal = CultureInfo.InvariantCulture.Calendar;
-		var week = cal.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue), CalendarWeekRule.FirstFourDayWeek, System.DayOfWeek.Monday);
+		var week = cal.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue), CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
 		var year = date.Year;
 		if (week == 1 && date.Month == 12)
 		{
