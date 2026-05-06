@@ -34,6 +34,8 @@ public sealed partial class KeycloakAdminService(
 	};
 
 	private static readonly TimeSpan tokenExpiryBuffer = TimeSpan.FromSeconds(30);
+	private static readonly TimeSpan minTokenCacheLifetime = TimeSpan.FromSeconds(5);
+	private static readonly SemaphoreSlim tokenRefreshGate = new(1, 1);
 	private static readonly string[] verifyEmailActions = ["VERIFY_EMAIL"];
 
 	public async Task<Result<KeycloakUserId>> CreateUserAsync(Email email, Password password, DisplayName displayName, CancellationToken cancellationToken = default)
@@ -41,16 +43,18 @@ public sealed partial class KeycloakAdminService(
 		using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.create_user");
 		activity?.SetTag("keycloak.email", email.Value);
 
-		var token = await GetServiceAccountTokenAsync(cancellationToken);
-		if (token.IsFailure)
+		var url = $"/admin/realms/{options.Value.Realm}/users";
+		var content = JsonContent.Create(BuildUserPayload(email, password, displayName), options: jsonOptions);
+
+		var response = await SendAuthenticatedAsync(HttpMethod.Post, url, content, "create_user", RegistrationErrors.IdentityProviderUnavailable, cancellationToken);
+		if (response.IsFailure)
 		{
-			activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
-			return token.Error!;
+			activity?.SetStatus(ActivityStatusCode.Error, response.Error!.Message);
+			return response.Error!;
 		}
 
-		var result = await CreateKeycloakUserAsync(email, password, displayName, token.Value, cancellationToken);
+		var result = await HandleUserCreationResponseAsync(response.Value, cancellationToken);
 		activity?.SetStatus(result.IsSuccess ? ActivityStatusCode.Ok : ActivityStatusCode.Error, result.Error?.Message);
-
 		return result;
 	}
 
@@ -59,86 +63,58 @@ public sealed partial class KeycloakAdminService(
 		using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.find_user");
 		activity?.SetTag("keycloak.email", email.Value);
 
-		var token = await GetServiceAccountTokenAsync(cancellationToken);
-		if (token.IsFailure)
-		{
-			activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
-			return VerificationErrors.IdentityProviderUnavailable;
-		}
-
 		var encodedEmail = Uri.EscapeDataString(email.Value);
 		var url = $"/admin/realms/{options.Value.Realm}/users?email={encodedEmail}&exact=true";
 
-		using var request = new HttpRequestMessage(HttpMethod.Get, url);
-		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
-
-		try
+		var response = await SendAuthenticatedAsync(HttpMethod.Get, url, null, "search_users", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
+		if (response.IsFailure)
 		{
-			var response = await httpClient.SendAsync(request, cancellationToken);
-
-			if (!response.IsSuccessStatusCode)
-			{
-				LogSearchUsersFailed(response.StatusCode);
-				return VerificationErrors.IdentityProviderUnavailable;
-			}
-
-			var users = await response.Content.ReadFromJsonAsync<KeycloakUserRepresentation[]>(jsonOptions, cancellationToken);
-
-			if (users is null || users.Length == 0)
-			{
-				activity?.SetStatus(ActivityStatusCode.Error, "User not found");
-				return VerificationErrors.UserNotFound;
-			}
-
-			activity?.SetStatus(ActivityStatusCode.Ok);
-			return KeycloakUserId.From(users[0].Id);
+			activity?.SetStatus(ActivityStatusCode.Error, response.Error!.Message);
+			return response.Error!;
 		}
-		catch (HttpRequestException ex)
+
+		if (!response.Value.IsSuccessStatusCode)
 		{
-			activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-			LogSearchUsersHttpError(ex);
+			LogSearchUsersFailed(response.Value.StatusCode);
+			activity?.SetStatus(ActivityStatusCode.Error, $"HTTP {response.Value.StatusCode}");
 			return VerificationErrors.IdentityProviderUnavailable;
 		}
+
+		var users = await response.Value.Content.ReadFromJsonAsync<KeycloakUserRepresentation[]>(jsonOptions, cancellationToken);
+		if (users is null || users.Length == 0)
+		{
+			activity?.SetStatus(ActivityStatusCode.Error, "User not found");
+			return VerificationErrors.UserNotFound;
+		}
+
+		activity?.SetStatus(ActivityStatusCode.Ok);
+		return KeycloakUserId.From(users[0].Id);
 	}
 
 	public async Task<Result> SendVerificationEmailAsync(KeycloakUserId keycloakUserId, CancellationToken cancellationToken = default)
 	{
 		using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.send_verification_email");
 
-		var token = await GetServiceAccountTokenAsync(cancellationToken);
-		if (token.IsFailure)
-		{
-			activity?.SetStatus(ActivityStatusCode.Error, "Token acquisition failed");
-			return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
-		}
-
 		var url = $"/admin/realms/{options.Value.Realm}/users/{keycloakUserId.Value}/execute-actions-email";
+		var content = JsonContent.Create(verifyEmailActions, options: jsonOptions);
 
-		using var request = new HttpRequestMessage(HttpMethod.Put, url);
-		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
-		request.Content = JsonContent.Create(verifyEmailActions, options: jsonOptions);
-
-		try
+		var response = await SendAuthenticatedAsync(HttpMethod.Put, url, content, "send_verification", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
+		if (response.IsFailure)
 		{
-			var response = await httpClient.SendAsync(request, cancellationToken);
-
-			if (!response.IsSuccessStatusCode)
-			{
-				var body = await response.Content.ReadAsStringAsync(cancellationToken);
-				activity?.SetStatus(ActivityStatusCode.Error, $"HTTP {response.StatusCode}");
-				LogSendVerificationFailed(response.StatusCode, body);
-				return Result.Failure(VerificationErrors.SendFailed);
-			}
-
-			activity?.SetStatus(ActivityStatusCode.Ok);
-			return Result.Success();
+			activity?.SetStatus(ActivityStatusCode.Error, response.Error!.Message);
+			return Result.Failure(response.Error!);
 		}
-		catch (HttpRequestException ex)
+
+		if (!response.Value.IsSuccessStatusCode)
 		{
-			activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-			LogSendVerificationHttpError(ex);
-			return Result.Failure(VerificationErrors.IdentityProviderUnavailable);
+			var body = await response.Value.Content.ReadAsStringAsync(cancellationToken);
+			activity?.SetStatus(ActivityStatusCode.Error, $"HTTP {response.Value.StatusCode}");
+			LogSendVerificationFailed(response.Value.StatusCode, body);
+			return Result.Failure(VerificationErrors.SendFailed);
 		}
+
+		activity?.SetStatus(ActivityStatusCode.Ok);
+		return Result.Success();
 	}
 
 	private static object BuildUserPayload(Email email, Password password, DisplayName displayName)
@@ -150,7 +126,7 @@ public sealed partial class KeycloakAdminService(
 			enabled = true,
 			emailVerified = false,
 			firstName = displayName.Value,
-			requiredActions = new[] { "VERIFY_EMAIL" },
+			requiredActions = verifyEmailActions,
 			credentials = new[]
 			{
 				new { type = "password", value = password.Value, temporary = false },
@@ -158,11 +134,53 @@ public sealed partial class KeycloakAdminService(
 		};
 	}
 
+	private async Task<Result<HttpResponseMessage>> SendAuthenticatedAsync(
+		HttpMethod method,
+		string url,
+		HttpContent? content,
+		string operation,
+		ApiError transportFailureError,
+		CancellationToken cancellationToken)
+	{
+		var token = await GetServiceAccountTokenAsync(cancellationToken);
+		if (token.IsFailure) return transportFailureError;
+
+		using var request = new HttpRequestMessage(method, url);
+		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+		if (content is not null) request.Content = content;
+
+		try
+		{
+			return await httpClient.SendAsync(request, cancellationToken);
+		}
+		catch (HttpRequestException ex)
+		{
+			LogTransportError(ex, operation);
+			return transportFailureError;
+		}
+	}
+
 	private async Task<Result<string>> GetServiceAccountTokenAsync(CancellationToken cancellationToken)
 	{
 		var cachedToken = await cache.GetStringAsync(tokenCacheKey, cancellationToken);
 		if (cachedToken.HasValue()) return cachedToken!;
 
+		await tokenRefreshGate.WaitAsync(cancellationToken);
+		try
+		{
+			cachedToken = await cache.GetStringAsync(tokenCacheKey, cancellationToken);
+			if (cachedToken.HasValue()) return cachedToken!;
+
+			return await FetchAndCacheTokenAsync(cancellationToken);
+		}
+		finally
+		{
+			tokenRefreshGate.Release();
+		}
+	}
+
+	private async Task<Result<string>> FetchAndCacheTokenAsync(CancellationToken cancellationToken)
+	{
 		var content = new FormUrlEncodedContent(new Dictionary<string, string>
 		{
 			["grant_type"] = "client_credentials",
@@ -182,43 +200,26 @@ public sealed partial class KeycloakAdminService(
 			}
 
 			var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
-			var absoluteExpirationRelativeToNow = TimeSpan.FromSeconds(tokenResponse!.ExpiresIn) - tokenExpiryBuffer;
+			if (tokenResponse is null || !tokenResponse.AccessToken.HasValue())
+			{
+				LogTokenResponseMalformed();
+				return RegistrationErrors.IdentityProviderUnavailable;
+			}
+
+			var lifetime = TimeSpan.FromSeconds(tokenResponse.ExpiresIn) - tokenExpiryBuffer;
+			if (lifetime < minTokenCacheLifetime) lifetime = minTokenCacheLifetime;
+
 			await cache.SetStringAsync(
 				tokenCacheKey,
-				tokenResponse!.AccessToken,
-				new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow },
+				tokenResponse.AccessToken,
+				new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = lifetime },
 				cancellationToken);
 
 			return tokenResponse.AccessToken;
 		}
 		catch (HttpRequestException ex)
 		{
-			LogTokenAcquisitionHttpError(ex);
-			return RegistrationErrors.IdentityProviderUnavailable;
-		}
-	}
-
-	private async Task<Result<KeycloakUserId>> CreateKeycloakUserAsync(
-		Email email,
-		Password password,
-		DisplayName displayName,
-		string accessToken,
-		CancellationToken cancellationToken)
-	{
-		var url = $"/admin/realms/{options.Value.Realm}/users";
-
-		using var request = new HttpRequestMessage(HttpMethod.Post, url);
-		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-		request.Content = JsonContent.Create(BuildUserPayload(email, password, displayName), options: jsonOptions);
-
-		try
-		{
-			var response = await httpClient.SendAsync(request, cancellationToken);
-			return await HandleUserCreationResponseAsync(response, cancellationToken);
-		}
-		catch (HttpRequestException ex)
-		{
-			LogCreateUserHttpError(ex);
+			LogTransportError(ex, "token_acquisition");
 			return RegistrationErrors.IdentityProviderUnavailable;
 		}
 	}
@@ -267,23 +268,17 @@ public sealed partial class KeycloakAdminService(
 	[LoggerMessage(Level = LogLevel.Error, Message = "Failed to search Keycloak users. Status: {StatusCode}")]
 	private partial void LogSearchUsersFailed(HttpStatusCode statusCode);
 
-	[LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while searching Keycloak users")]
-	private partial void LogSearchUsersHttpError(Exception ex);
-
 	[LoggerMessage(Level = LogLevel.Error, Message = "Failed to send verification email. Status: {StatusCode}, Body: {Body}")]
 	private partial void LogSendVerificationFailed(HttpStatusCode statusCode, string body);
-
-	[LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while sending verification email")]
-	private partial void LogSendVerificationHttpError(Exception ex);
 
 	[LoggerMessage(Level = LogLevel.Error, Message = "Failed to obtain service account token. Status: {StatusCode}")]
 	private partial void LogTokenAcquisitionFailed(HttpStatusCode statusCode);
 
-	[LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while obtaining service account token")]
-	private partial void LogTokenAcquisitionHttpError(Exception ex);
+	[LoggerMessage(Level = LogLevel.Error, Message = "Keycloak token endpoint returned a malformed or empty body")]
+	private partial void LogTokenResponseMalformed();
 
-	[LoggerMessage(Level = LogLevel.Error, Message = "HTTP error while creating Keycloak user")]
-	private partial void LogCreateUserHttpError(Exception ex);
+	[LoggerMessage(Level = LogLevel.Error, Message = "Keycloak HTTP transport error during {Operation}")]
+	private partial void LogTransportError(Exception ex, string operation);
 
 	[LoggerMessage(Level = LogLevel.Error, Message = "Failed to create Keycloak user. Status: {StatusCode}, Body: {Body}")]
 	private partial void LogCreateUserFailed(HttpStatusCode statusCode, string body);
