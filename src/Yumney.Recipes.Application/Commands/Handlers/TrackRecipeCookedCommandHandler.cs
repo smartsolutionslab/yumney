@@ -7,10 +7,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-public sealed class TrackRecipeCookedCommandHandler(
-	IRecipesUnitOfWork unitOfWork,
-	ICurrentUser currentUser,
-	IEventBus eventBus)
+public sealed class TrackRecipeCookedCommandHandler(IRecipesUnitOfWork unitOfWork, ICurrentUser currentUser, IEventBus eventBus)
 	: ICommandHandler<TrackRecipeCookedCommand, Result>
 {
 	public async Task<Result> HandleAsync(TrackRecipeCookedCommand command, CancellationToken cancellationToken = default)

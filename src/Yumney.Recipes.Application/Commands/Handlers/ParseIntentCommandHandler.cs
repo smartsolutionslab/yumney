@@ -5,8 +5,8 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-public sealed class ParseIntentCommandHandler(
-	IIntentParserService intentParser) : ICommandHandler<ParseIntentCommand, Result<ParsedIntentDto>>
+public sealed class ParseIntentCommandHandler(IIntentParserService intentParser)
+	: ICommandHandler<ParseIntentCommand, Result<ParsedIntentDto>>
 {
 	public async Task<Result<ParsedIntentDto>> HandleAsync(ParseIntentCommand command, CancellationToken cancellationToken = default)
 	{

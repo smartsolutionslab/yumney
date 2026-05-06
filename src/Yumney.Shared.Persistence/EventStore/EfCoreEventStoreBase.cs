@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
 
@@ -7,7 +8,8 @@ namespace SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 public abstract class EfCoreEventStoreBase<TAggregate, TIdentifier, TMetadata, TStoredEvent>(
 	DbContext context,
 	IEventBus eventBus,
-	IEventSerializer serializer)
+	IEventSerializer serializer,
+	ILogger logger)
 	where TAggregate : EventSourcedAggregate<TIdentifier>
 	where TIdentifier : notnull
 	where TMetadata : class, IAggregateMetadata, new()
@@ -67,7 +69,7 @@ public abstract class EfCoreEventStoreBase<TAggregate, TIdentifier, TMetadata, T
 
 	protected IEventSerializer Serializer { get; } = serializer;
 
-	protected abstract string AggregateName { get; }
+	protected virtual string AggregateName => typeof(TAggregate).Name;
 
 	protected abstract Guid GetAggregateId(TAggregate aggregate);
 
@@ -86,9 +88,30 @@ public abstract class EfCoreEventStoreBase<TAggregate, TIdentifier, TMetadata, T
 			.OrderBy(row => row.Version)
 			.ToListAsync(cancellationToken);
 
-		return [.. stored
-			.Select(row => Serializer.Deserialize(row.EventType, row.EventData))
-			.Where(deserialized => deserialized is not null)
-			.Cast<IDomainEvent>()];
+		var events = new List<IDomainEvent>(stored.Count);
+		HashSet<string>? unknownTypes = null;
+		foreach (var row in stored)
+		{
+			var deserialized = Serializer.Deserialize(row.EventType, row.EventData);
+			if (deserialized is null)
+			{
+				(unknownTypes ??= []).Add(row.EventType);
+				continue;
+			}
+
+			events.Add(deserialized);
+		}
+
+		if (unknownTypes is not null)
+		{
+			logger.LogWarning(
+				"{Aggregate} {AggregateId}: skipped {Count} unknown stored event type(s): {Types}",
+				AggregateName,
+				aggregateId,
+				unknownTypes.Count,
+				string.Join(", ", unknownTypes));
+		}
+
+		return events;
 	}
 }

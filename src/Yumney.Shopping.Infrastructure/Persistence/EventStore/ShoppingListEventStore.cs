@@ -2,10 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
@@ -14,9 +12,15 @@ public sealed partial class ShoppingListEventStore(ShoppingDbContext context, IE
 	: EfCoreEventStoreBase<ShoppingList, ShoppingListIdentifier, ShoppingListAggregateMetadata, ShoppingListStoredEvent>(
 		context,
 		eventBus,
-		ShoppingListEventSerializer.Instance),
+		ShoppingListEventSerializer.Instance,
+		logger),
 	IShoppingListEventStore
 {
+#pragma warning disable SA1311
+	private static readonly IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> crossModuleMappers =
+		CrossModuleEventConvention.BuildMap(typeof(ShoppingListEventStore).Assembly);
+#pragma warning restore SA1311
+
 	public async Task<ShoppingList> LoadAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default)
 		=> await FindAsync(identifier, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
@@ -37,8 +41,6 @@ public sealed partial class ShoppingListEventStore(ShoppingDbContext context, IE
 		return ShoppingList.FromEvents(identifier, events);
 	}
 
-	protected override string AggregateName => nameof(ShoppingList);
-
 	protected override Guid GetAggregateId(ShoppingList aggregate) => aggregate.Identifier.Value;
 
 	protected override ShoppingListAggregateMetadata BuildMetadata(ShoppingList aggregate) =>
@@ -58,6 +60,8 @@ public sealed partial class ShoppingListEventStore(ShoppingDbContext context, IE
 
 		LogEventsSaved(aggregateId, events.Count, aggregate.Version);
 
+		object[] context = [ownerId, aggregateId];
+
 		foreach (var domainEvent in events)
 		{
 			var moduleEvent = ShoppingListModuleEventMapper.Map(ownerId, aggregateId, domainEvent);
@@ -66,28 +70,16 @@ public sealed partial class ShoppingListEventStore(ShoppingDbContext context, IE
 				await EventBus.PublishAsync(moduleEvent, cancellationToken);
 			}
 
-			var crossModuleEvent = MapToCrossModuleEvent(ownerId, aggregateId, domainEvent);
-			if (crossModuleEvent is not null)
+			if (crossModuleMappers.TryGetValue(domainEvent.GetType(), out var factory))
 			{
-				await EventBus.PublishAsync(crossModuleEvent, cancellationToken);
+				var crossModuleEvent = factory(context, domainEvent);
+				if (crossModuleEvent is not null)
+				{
+					await EventBus.PublishAsync(crossModuleEvent, cancellationToken);
+				}
 			}
 		}
 	}
-
-	private static IIntegrationEvent? MapToCrossModuleEvent(string ownerId, Guid aggregateId, IDomainEvent domainEvent) =>
-		domainEvent switch
-		{
-			ShoppingListCreated created => new ShoppingListCreatedCrossModuleIntegrationEvent(
-				ownerId,
-				aggregateId,
-				created.Title.Value,
-				created.RecipeReference?.Value,
-				created.CreatedAt),
-			RecipeReferenceCleared => new ShoppingListRecipeReferenceClearedCrossModuleIntegrationEvent(
-				ownerId,
-				aggregateId),
-			_ => null,
-		};
 
 	[LoggerMessage(Level = LogLevel.Information, Message = "Saved {Count} ShoppingList events for aggregate {AggregateId}, version now {Version}")]
 	private partial void LogEventsSaved(Guid aggregateId, int count, int version);

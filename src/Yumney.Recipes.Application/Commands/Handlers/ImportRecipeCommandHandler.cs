@@ -5,9 +5,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-public sealed class ImportRecipeCommandHandler(
-	IWebScraper scraper,
-	IRecipeExtractionService extraction)
+public sealed class ImportRecipeCommandHandler(IWebScraper scraper, IRecipeExtractionService extraction)
 	: ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>>
 {
 	public async Task<Result<ExtractedRecipeDto>> HandleAsync(ImportRecipeCommand command, CancellationToken cancellationToken = default)

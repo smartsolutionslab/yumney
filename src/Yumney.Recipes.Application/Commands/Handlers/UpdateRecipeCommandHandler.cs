@@ -6,9 +6,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-public sealed class UpdateRecipeCommandHandler(
-	IRecipesUnitOfWork unitOfWork,
-	ICurrentUser currentUser)
+public sealed class UpdateRecipeCommandHandler(IRecipesUnitOfWork unitOfWork, ICurrentUser currentUser)
 	: ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>>
 {
 	public async Task<Result<RecipeDetailDto>> HandleAsync(UpdateRecipeCommand command, CancellationToken cancellationToken = default)

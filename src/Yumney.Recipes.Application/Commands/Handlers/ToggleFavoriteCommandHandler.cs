@@ -7,9 +7,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands.Handlers;
 
-public sealed class ToggleFavoriteCommandHandler(
-	IRecipesUnitOfWork unitOfWork,
-	ICurrentUser currentUser)
+public sealed class ToggleFavoriteCommandHandler(IRecipesUnitOfWork unitOfWork, ICurrentUser currentUser)
 	: ICommandHandler<ToggleFavoriteCommand, Result<FavoriteStateDto>>
 {
 	public async Task<Result<FavoriteStateDto>> HandleAsync(ToggleFavoriteCommand command, CancellationToken cancellationToken = default)

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Converters;
@@ -11,37 +10,24 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStor
 internal static class MealPlanEventSerializer
 {
 #pragma warning disable SA1311
-	public static JsonSerializerOptions Options { get; } = new()
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		Converters =
-		{
-			new JsonStringEnumConverter(),
-			new StringValueObjectJsonConverter<OwnerIdentifier>(OwnerIdentifier.From),
-			new StringValueObjectJsonConverter<FreetextLabel>(FreetextLabel.From),
-			new StringValueObjectJsonConverter<SlotRecipeTitle>(SlotRecipeTitle.From),
-			new IntValueObjectJsonConverter<SlotServings>(SlotServings.From),
-			new WeekIdentifierJsonConverter(),
-			new SlotRecipeReferenceJsonConverter(),
-		},
-	};
+	public static JsonSerializerOptions Options { get; } = BuildOptions();
 
-	private static readonly Dictionary<string, Type> EventTypeMap = new()
-	{
-		[nameof(WeeklyPlanCreated)] = typeof(WeeklyPlanCreated),
-		[nameof(ExtendedModeEnabled)] = typeof(ExtendedModeEnabled),
-		[nameof(ExtendedModeDisabled)] = typeof(ExtendedModeDisabled),
-		[nameof(RecipeAssigned)] = typeof(RecipeAssigned),
-		[nameof(MealSetAsFreetext)] = typeof(MealSetAsFreetext),
-		[nameof(LeftoverAssigned)] = typeof(LeftoverAssigned),
-		[nameof(MealSlotCleared)] = typeof(MealSlotCleared),
-		[nameof(ServingsAdjusted)] = typeof(ServingsAdjusted),
-		[nameof(MealMarkedAsCooked)] = typeof(MealMarkedAsCooked),
-		[nameof(MealMarkedAsSkipped)] = typeof(MealMarkedAsSkipped),
-		[nameof(MealResetToPlanned)] = typeof(MealResetToPlanned),
-		[nameof(MealSlotsSwapped)] = typeof(MealSlotsSwapped),
-	};
-
-	public static IEventSerializer Instance { get; } = new JsonEventSerializer(Options, EventTypeMap);
+	public static IEventSerializer Instance { get; } = new JsonEventSerializer(
+		Options,
+		EventTypeRegistry.BuildFromAssembly(
+			typeof(WeeklyPlanCreated).Assembly,
+			type => type.Namespace == typeof(WeeklyPlanCreated).Namespace));
 #pragma warning restore SA1311
+
+	private static JsonSerializerOptions BuildOptions()
+	{
+		var options = EventSerializerDefaults.Options();
+		options.Converters.Add(new StringValueObjectJsonConverter<OwnerIdentifier>(OwnerIdentifier.From));
+		options.Converters.Add(new StringValueObjectJsonConverter<FreetextLabel>(FreetextLabel.From));
+		options.Converters.Add(new StringValueObjectJsonConverter<SlotRecipeTitle>(SlotRecipeTitle.From));
+		options.Converters.Add(new IntValueObjectJsonConverter<SlotServings>(SlotServings.From));
+		options.Converters.Add(new WeekIdentifierJsonConverter());
+		options.Converters.Add(new SlotRecipeReferenceJsonConverter());
+		return options;
+	}
 }
