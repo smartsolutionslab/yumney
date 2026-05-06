@@ -15,16 +15,12 @@ public sealed class ResendVerificationEmailCommandHandler(IKeycloakAdminService 
 
 		if (findResult.IsFailure)
 		{
-			if (findResult.Error == VerificationErrors.UserNotFound)
-			{
-				return Result.Success();
-			}
+			if (findResult.Error == VerificationErrors.UserNotFound) return Result.Success();
 
 			return Result.Failure(findResult.Error!);
 		}
 
 		var keycloakUserId = findResult.Value;
-
 		var sendResult = await keycloakAdmin.SendVerificationEmailAsync(keycloakUserId, cancellationToken);
 
 		if (sendResult.IsFailure) return Result.Failure(sendResult.Error!);

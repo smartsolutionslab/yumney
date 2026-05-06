@@ -29,8 +29,12 @@ public sealed class StaplesListRepository(UsersDbContext context) : IStaplesList
 		await staplesLists.AddAsync(staplesList, cancellationToken);
 	}
 
-	public async Task<int> DeleteByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
+	public async Task DeleteByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
-		return await staplesLists.Where(list => list.Owner == owner).ExecuteDeleteAsync(cancellationToken);
+		var matches = await staplesLists
+			.Include(list => list.Items)
+			.Where(list => list.Owner == owner)
+			.ToListAsync(cancellationToken);
+		staplesLists.RemoveRange(matches);
 	}
 }

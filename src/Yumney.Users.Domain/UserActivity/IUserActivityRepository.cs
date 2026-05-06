@@ -19,8 +19,9 @@ public interface IUserActivityRepository
 		RecipeIdentifierSnapshot recipeIdentifier,
 		CancellationToken cancellationToken = default);
 
-	// Idempotent. Returns the number of rows removed.
-	Task<int> DeleteAllByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
+	// Stages a delete via the change tracker; caller commits via IUnitOfWork.SaveChangesAsync.
+	// Idempotent — no-op if no activity rows exist for the owner.
+	Task DeleteAllByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
 }
 
 public sealed record RecipeActivityStats(int CookCount, DateTime? LastCookedAt, int ViewCount);

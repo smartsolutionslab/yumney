@@ -6,8 +6,6 @@ using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
-using SmartSolutionsLab.Yumney.Users.Domain.StaplesList;
-using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 using ActivityOwner = SmartSolutionsLab.Yumney.Users.Domain.UserActivity.OwnerIdentifier;
 using StaplesOwner = SmartSolutionsLab.Yumney.Users.Domain.StaplesList.OwnerIdentifier;
 
@@ -15,9 +13,7 @@ namespace SmartSolutionsLab.Yumney.Users.Application.Commands.Handlers;
 
 #pragma warning disable SA1601
 public sealed partial class DeleteAccountCommandHandler(
-	IAppUserProfileRepository profiles,
-	IUserActivityRepository activities,
-	IStaplesListRepository staplesLists,
+	IUsersUnitOfWork unitOfWork,
 	IKeycloakAdminService keycloak,
 	IEventBus eventBus,
 	ICurrentUser currentUser,
@@ -33,10 +29,13 @@ public sealed partial class DeleteAccountCommandHandler(
 		// must be idempotent — see UserAccountDeletedIntegrationEvent docstring.
 		await eventBus.PublishAsync(new UserAccountDeletedIntegrationEvent(keycloakId.Value), cancellationToken);
 
-		// 2. Erase Users-module-owned data (profile, activity, staples).
-		await activities.DeleteAllByOwnerAsync(ActivityOwner.From(keycloakId.Value), cancellationToken);
-		await staplesLists.DeleteByOwnerAsync(StaplesOwner.From(keycloakId.Value), cancellationToken);
-		await profiles.DeleteByKeycloakUserIdAsync(keycloakId, cancellationToken);
+		// 2. Erase Users-module-owned data (profile, activity, staples). The repos
+		// stage the deletes via the change tracker; SaveChangesAsync commits them
+		// in a single transaction so a partial failure rolls back automatically.
+		await unitOfWork.Activities.DeleteAllByOwnerAsync(ActivityOwner.From(keycloakId.Value), cancellationToken);
+		await unitOfWork.StaplesLists.DeleteByOwnerAsync(StaplesOwner.From(keycloakId.Value), cancellationToken);
+		await unitOfWork.Profiles.DeleteByKeycloakUserIdAsync(keycloakId, cancellationToken);
+		await unitOfWork.SaveChangesAsync(cancellationToken);
 
 		// 3. Finally, drop the Keycloak account. If this fails the user is locked
 		// out (no profile, no Keycloak user) but their PII is already gone, which

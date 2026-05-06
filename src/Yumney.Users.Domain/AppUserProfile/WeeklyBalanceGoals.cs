@@ -19,10 +19,14 @@ public sealed record WeeklyBalanceGoals : IValueObject
 	private WeeklyBalanceGoals(int? minVeggieMeals, int? maxRedMeatMeals)
 	{
 		if (minVeggieMeals.HasValue)
+		{
 			Ensure.That(minVeggieMeals.Value).IsInRange(MinMeals, MaxMeals);
+		}
 
 		if (maxRedMeatMeals.HasValue)
+		{
 			Ensure.That(maxRedMeatMeals.Value).IsInRange(MinMeals, MaxMeals);
+		}
 
 		MinVeggieMeals = minVeggieMeals;
 		MaxRedMeatMeals = maxRedMeatMeals;

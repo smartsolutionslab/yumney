@@ -9,6 +9,7 @@ public interface IStaplesListRepository
 
 	Task AddAsync(StaplesList staplesList, CancellationToken cancellationToken = default);
 
-	// Idempotent. Returns the number of rows removed.
-	Task<int> DeleteByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
+	// Stages a delete via the change tracker; caller commits via IUnitOfWork.SaveChangesAsync.
+	// Idempotent — no-op if no list exists for the owner.
+	Task DeleteByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
 }
