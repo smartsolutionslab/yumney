@@ -6,7 +6,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStor
 
 /// <summary>
 /// Maps a ShoppingList domain event to its in-module bus envelope. Shared by
-/// <see cref="EfCoreShoppingListEventStore"/> at publish time and by the
+/// <see cref="ShoppingListEventStore"/> at publish time and by the
 /// projection rebuilder during replay.
 /// </summary>
 internal static class ShoppingListModuleEventMapper

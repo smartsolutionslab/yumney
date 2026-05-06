@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
+
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStor
 /// but maps to its own table so the ShoppingList stream stays separate from the
 /// ShoppingLedger stream.
 /// </summary>
-public sealed class ShoppingListStoredEvent
+public sealed class ShoppingListStoredEvent : IStoredEvent
 {
 	public Guid Id { get; set; }
 

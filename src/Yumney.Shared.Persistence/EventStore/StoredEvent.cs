@@ -5,7 +5,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 /// to its own table (e.g. <c>ShoppingEvents</c>, <c>MealPlanEvents</c>) via its
 /// own <see cref="Microsoft.EntityFrameworkCore.IEntityTypeConfiguration{TEntity}"/>.
 /// </summary>
-public sealed class StoredEvent
+public sealed class StoredEvent : IStoredEvent
 {
 	public Guid Id { get; set; }
 

@@ -95,7 +95,7 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 	{
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
 		var bus = Substitute.For<IEventBus>();
-		var store = new EfCoreShoppingListEventStore(ctx, bus, NullLogger<EfCoreShoppingListEventStore>.Instance);
+		var store = new ShoppingListEventStore(ctx, bus, NullLogger<ShoppingListEventStore>.Instance);
 
 		var items = itemNames
 			.Select(name => ShoppingListItem.Create(ItemName.From(name), Quantity.Of(Amount.From(1), Unit.Gram)))
@@ -109,7 +109,7 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 	{
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
 		var bus = Substitute.For<IEventBus>();
-		var store = new EfCoreShoppingListEventStore(ctx, bus, NullLogger<EfCoreShoppingListEventStore>.Instance);
+		var store = new ShoppingListEventStore(ctx, bus, NullLogger<ShoppingListEventStore>.Instance);
 
 		var list = await store.LoadAsync(listId) ?? throw new InvalidOperationException("seeded list missing");
 		list.CheckOffItem(list.Items[0].Id);

@@ -14,7 +14,7 @@ using Xunit;
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Shopping.EventStore;
 
 [Collection(AspireCollection.Name)]
-public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLifetime
+public class ShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 {
 	private readonly OwnerIdentifier owner = OwnerIdentifier.From($"listevtstore-{Guid.NewGuid():N}");
 
@@ -145,8 +145,8 @@ public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLi
 		await act.Should().ThrowAsync<ConcurrencyConflictException>();
 	}
 
-	private static EfCoreShoppingListEventStore CreateStore(ShoppingDbContext context) =>
-		new(context, Substitute.For<IEventBus>(), NullLogger<EfCoreShoppingListEventStore>.Instance);
+	private static ShoppingListEventStore CreateStore(ShoppingDbContext context) =>
+		new(context, Substitute.For<IEventBus>(), NullLogger<ShoppingListEventStore>.Instance);
 
 	private ShoppingList CreateList()
 	{
