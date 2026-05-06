@@ -23,7 +23,8 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 		   ?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
 
 	public async Task<Recipe> GetByIdForUpdateAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
-		=> await recipes.IncludeFullGraph()
+		=> await recipes
+			   .IncludeFullGraph()
 			   .FirstOrDefaultAsync(recipe => recipe.Id == identifier, cancellationToken)
 		   ?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
 
