@@ -1,7 +1,6 @@
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
-using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
@@ -24,13 +23,14 @@ public sealed class GetCookableRecipesQueryHandler(
 		GetCookableRecipesQuery query,
 		CancellationToken cancellationToken = default)
 	{
+		var (paging, fullMatchOnly) = query;
 		var owner = currentUser.AsOwner();
 
 		var allRecipes = await recipes.GetAllByOwnerWithIngredientsAsync(owner, cancellationToken);
 		var availableIngredients = await balanceProvider.GetAvailableIngredientsAsync(cancellationToken);
 
 		IReadOnlyList<CookableRecipeDto> ranked = [.. allRecipes
-			.Select(recipe => TryRank(recipe, availableIngredients, query.FullMatchOnly))
+			.Select(recipe => TryRank(recipe, availableIngredients, fullMatchOnly))
 			.OfType<RankedMatch>()
 			.OrderBy(match => match.Dto.Tier == CookableRecipeMatchTier.Full ? 0 : 1)
 			.ThenByDescending(match => match.UrgentIngredientCount)
@@ -39,10 +39,10 @@ public sealed class GetCookableRecipesQueryHandler(
 			.Select(match => match.Dto)];
 
 		IReadOnlyList<CookableRecipeDto> page = [.. ranked
-			.Skip(query.Paging.Skip)
+			.Skip(paging.Skip)
 			.Take(query.Paging.PageSize.Value)];
 
-		return page.AsPagedResult(ItemCount.From(ranked.Count), query.Paging);
+		return page.AsPagedResult(ItemCount.From(ranked.Count), paging);
 	}
 
 	private static RankedMatch? TryRank(Recipe recipe, IReadOnlyDictionary<string, Freshness> available, bool fullMatchOnly)
