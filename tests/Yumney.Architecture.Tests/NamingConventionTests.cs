@@ -11,7 +11,7 @@ public partial class NamingConventionTests
 	[Fact]
 	public void NoSourceFile_HasSingleLetterLambdaParameter()
 	{
-		var srcRoot = LocateRepoFolder("src");
+		var srcRoot = SolutionRoot.Src;
 		var pattern = SingleLetterLambdaPattern();
 
 		var violations = Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
@@ -29,7 +29,7 @@ public partial class NamingConventionTests
 	[Fact]
 	public void NoTestFile_HasSingleLetterLambdaParameter()
 	{
-		var testsRoot = LocateRepoFolder("tests");
+		var testsRoot = SolutionRoot.Tests;
 		var pattern = SingleLetterLambdaPattern();
 
 		var violations = Directory.EnumerateFiles(testsRoot, "*.cs", SearchOption.AllDirectories)
@@ -46,7 +46,7 @@ public partial class NamingConventionTests
 	[Fact]
 	public void NoTestFile_BindsSut()
 	{
-		var testsRoot = LocateRepoFolder("tests");
+		var testsRoot = SolutionRoot.Tests;
 		var pattern = SutBindingPattern();
 
 		var violations = Directory.EnumerateFiles(testsRoot, "*.cs", SearchOption.AllDirectories)
@@ -79,7 +79,7 @@ public partial class NamingConventionTests
 			if (IsCommentLine(line)) continue;
 			if (!pattern.IsMatch(line)) continue;
 
-			yield return $"{Path.GetRelativePath(LocateRepoRoot(), path)}:{lineIndex + 1}  {line.Trim()}";
+			yield return $"{Path.GetRelativePath(SolutionRoot.Path, path)}:{lineIndex + 1}  {line.Trim()}";
 		}
 	}
 
@@ -97,34 +97,5 @@ public partial class NamingConventionTests
 			&& !normalized.Contains("/Migrations/", StringComparison.OrdinalIgnoreCase)
 			&& !path.EndsWith(".Designer.cs", StringComparison.OrdinalIgnoreCase)
 			&& !path.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase);
-	}
-
-	private static string LocateRepoFolder(string folderName)
-	{
-		var current = new DirectoryInfo(AppContext.BaseDirectory);
-		while (current is not null)
-		{
-			var candidate = Path.Combine(current.FullName, folderName);
-			if (Directory.Exists(candidate)) return candidate;
-			current = current.Parent;
-		}
-
-		throw new DirectoryNotFoundException($"Could not locate '{folderName}' relative to test assembly.");
-	}
-
-	private static string LocateRepoRoot()
-	{
-		var current = new DirectoryInfo(AppContext.BaseDirectory);
-		while (current is not null)
-		{
-			if (Directory.Exists(Path.Combine(current.FullName, "src")) && Directory.Exists(Path.Combine(current.FullName, "tests")))
-			{
-				return current.FullName;
-			}
-
-			current = current.Parent;
-		}
-
-		throw new DirectoryNotFoundException("Could not locate repository root relative to test assembly.");
 	}
 }

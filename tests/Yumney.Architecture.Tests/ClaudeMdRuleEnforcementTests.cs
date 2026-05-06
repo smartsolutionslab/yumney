@@ -11,7 +11,7 @@ public partial class ClaudeMdRuleEnforcementTests
 	[Fact]
 	public void NoSourceFileInInfrastructureOrApi_CallsEnsureThat()
 	{
-		var srcRoot = LocateRepoFolder("src");
+		var srcRoot = SolutionRoot.Src;
 		var pattern = EnsureThatPattern();
 
 		var violations = Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
@@ -30,7 +30,7 @@ public partial class ClaudeMdRuleEnforcementTests
 	[Fact]
 	public void NoSourceFile_DeclaresRepositoryVariableWithRedundantSuffix()
 	{
-		var srcRoot = LocateRepoFolder("src");
+		var srcRoot = SolutionRoot.Src;
 		var pattern = RedundantRepositoryNamePattern();
 
 		var violations = Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
@@ -48,7 +48,7 @@ public partial class ClaudeMdRuleEnforcementTests
 	[Fact]
 	public void NoSourceFile_ProjectsInlineDtoInsideLinqSelect()
 	{
-		var srcRoot = LocateRepoFolder("src");
+		var srcRoot = SolutionRoot.Src;
 		var pattern = InlineDtoProjectionPattern();
 
 		var violations = Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
@@ -67,7 +67,7 @@ public partial class ClaudeMdRuleEnforcementTests
 	[Fact]
 	public void NoDomainAggregateOrEntity_HasPublicOrInternalVoidMethod()
 	{
-		var srcRoot = LocateRepoFolder("src");
+		var srcRoot = SolutionRoot.Src;
 		var pattern = PublicOrInternalVoidMethodPattern();
 
 		var violations = Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
@@ -87,7 +87,7 @@ public partial class ClaudeMdRuleEnforcementTests
 	[Fact]
 	public void NoCommandOrQueryRecord_TakesPrimitiveWhereVoIsExpected()
 	{
-		var srcRoot = LocateRepoFolder("src");
+		var srcRoot = SolutionRoot.Src;
 		var pattern = PrimitiveInsteadOfVoPattern();
 
 		var violations = Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
@@ -129,7 +129,7 @@ public partial class ClaudeMdRuleEnforcementTests
 			if (IsCommentLine(line)) continue;
 			if (!pattern.IsMatch(line)) continue;
 
-			yield return $"{Path.GetRelativePath(LocateRepoRoot(), path)}:{lineIndex + 1}  {line.Trim()}";
+			yield return $"{Path.GetRelativePath(SolutionRoot.Path, path)}:{lineIndex + 1}  {line.Trim()}";
 		}
 	}
 
@@ -186,34 +186,5 @@ public partial class ClaudeMdRuleEnforcementTests
 		return !normalized.Contains("/Events/", StringComparison.OrdinalIgnoreCase)
 			&& !normalized.Contains("/Rules/", StringComparison.OrdinalIgnoreCase)
 			&& !normalized.Contains("/Handlers/", StringComparison.OrdinalIgnoreCase);
-	}
-
-	private static string LocateRepoFolder(string folderName)
-	{
-		var current = new DirectoryInfo(AppContext.BaseDirectory);
-		while (current is not null)
-		{
-			var candidate = Path.Combine(current.FullName, folderName);
-			if (Directory.Exists(candidate)) return candidate;
-			current = current.Parent;
-		}
-
-		throw new DirectoryNotFoundException($"Could not locate '{folderName}' relative to test assembly.");
-	}
-
-	private static string LocateRepoRoot()
-	{
-		var current = new DirectoryInfo(AppContext.BaseDirectory);
-		while (current is not null)
-		{
-			if (Directory.Exists(Path.Combine(current.FullName, "src")) && Directory.Exists(Path.Combine(current.FullName, "tests")))
-			{
-				return current.FullName;
-			}
-
-			current = current.Parent;
-		}
-
-		throw new DirectoryNotFoundException("Could not locate repository root relative to test assembly.");
 	}
 }
