@@ -18,6 +18,6 @@ public sealed class AssignRecipeCommandHandler(IMealPlanEventStore eventStore, I
 		plan.AssignRecipe(day, recipe, mealType, servings);
 		await eventStore.SaveAsync(plan, cancellationToken);
 
-		return plan.ToDto(week);
+		return plan.ToDto();
 	}
 }

@@ -21,6 +21,6 @@ public sealed class ClearMealSlotCommandHandler(IMealPlanEventStore eventStore, 
 		plan.ClearSlot(day, mealType);
 		await eventStore.SaveAsync(plan, cancellationToken);
 
-		return plan.ToDto(week);
+		return plan.ToDto();
 	}
 }
