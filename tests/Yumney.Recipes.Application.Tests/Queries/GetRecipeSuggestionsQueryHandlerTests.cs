@@ -25,9 +25,9 @@ public class GetRecipeSuggestionsQueryHandlerTests
 	public GetRecipeSuggestionsQueryHandlerTests()
 	{
 		currentUser.UserId.Returns(OwnerId);
-		dietaryProvider.GetAsync(Arg.Is<OwnerIdentifier>(owner => owner.Value == OwnerId), Arg.Any<CancellationToken>())
+		dietaryProvider.GetAsync(Arg.Any<CancellationToken>())
 			.Returns(DietaryProfileSnapshot.Empty);
-		handler = new GetRecipeSuggestionsQueryHandler(balanceProvider, dietaryProvider, suggestionService, currentUser);
+		handler = new GetRecipeSuggestionsQueryHandler(balanceProvider, dietaryProvider, suggestionService);
 	}
 
 	[Fact]
@@ -113,7 +113,7 @@ public class GetRecipeSuggestionsQueryHandlerTests
 	public async Task HandleAsync_NoDietaryPreferences_PassesNullDietaryType()
 	{
 		ConfigureBalance("apple");
-		dietaryProvider.GetAsync(Arg.Is<OwnerIdentifier>(owner => owner.Value == OwnerId), Arg.Any<CancellationToken>())
+		dietaryProvider.GetAsync(Arg.Any<CancellationToken>())
 			.Returns(DietaryProfileSnapshot.Empty);
 		suggestionService.SuggestAsync(
 			Arg.Any<IReadOnlyCollection<string>>(),
@@ -188,7 +188,7 @@ public class GetRecipeSuggestionsQueryHandlerTests
 		await handler.HandleAsync(new GetRecipeSuggestionsQuery());
 
 		await balanceProvider.Received(1).GetAvailableIngredientsAsync(Arg.Any<CancellationToken>());
-		await dietaryProvider.Received(1).GetAsync(Arg.Is<OwnerIdentifier>(owner => owner.Value == OwnerId), Arg.Any<CancellationToken>());
+		await dietaryProvider.Received(1).GetAsync(Arg.Any<CancellationToken>());
 	}
 
 	private void ConfigureBalance(params string[] names)
@@ -201,7 +201,7 @@ public class GetRecipeSuggestionsQueryHandlerTests
 
 	private void ConfigureDietary(string? dietaryType, IReadOnlyList<string> restrictions)
 	{
-		dietaryProvider.GetAsync(Arg.Is<OwnerIdentifier>(owner => owner.Value == OwnerId), Arg.Any<CancellationToken>())
+		dietaryProvider.GetAsync(Arg.Any<CancellationToken>())
 			.Returns(new DietaryProfileSnapshot(dietaryType, restrictions));
 	}
 }
