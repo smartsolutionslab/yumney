@@ -1,11 +1,9 @@
-using FluentValidation;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using SmartSolutionsLab.Yumney.Users.Application.DTOs;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
-using Requests = SmartSolutionsLab.Yumney.Users.Api.Requests;
 
 namespace SmartSolutionsLab.Yumney.Users.Api;
 
@@ -20,6 +18,7 @@ public static class AuthEndpoints
 			.RequireRateLimiting(RateLimitPolicies.AnonymousAuth)
 			.WithName("RegisterUser")
 			.WithTags("Auth")
+			.WithValidation<Requests.RegisterUser>()
 			.Produces<RegisterUserResultDto>(StatusCodes.Status201Created)
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status409Conflict)
@@ -27,13 +26,9 @@ public static class AuthEndpoints
 
 		static async Task<IResult> Register(
 			Requests.RegisterUser request,
-			IValidator<Requests.RegisterUser> validator,
 			ICommandHandler<RegisterUserCommand, Result<RegisterUserResultDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var (email, password, displayName) = request.ToValueObjects();
 			var command = new RegisterUserCommand(email, password, displayName);
 			var result = await handler.HandleAsync(command, cancellationToken);
@@ -45,20 +40,17 @@ public static class AuthEndpoints
 			.RequireRateLimiting(RateLimitPolicies.AnonymousAuth)
 			.WithName("ResendVerificationEmail")
 			.WithTags("Auth")
+			.WithValidation<Requests.ResendVerificationEmail>()
 			.Produces<ResendVerificationEmailResultDto>()
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status429TooManyRequests);
 
 		static async Task<IResult> ResendVerificationEmail(
 			Requests.ResendVerificationEmail request,
-			IValidator<Requests.ResendVerificationEmail> validator,
 			ICommandHandler<ResendVerificationEmailCommand, Result> handler,
 			ILoggerFactory loggerFactory,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var command = new ResendVerificationEmailCommand(Email.From(request.Email));
 
 			// The endpoint is intentionally indistinguishable for "user found",

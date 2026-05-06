@@ -1,4 +1,3 @@
-using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
@@ -26,18 +25,15 @@ public static partial class ShoppingEndpoints
 		group.MapPost("/", Create)
 			.WithName("CreateShoppingList")
 			.WithTags("Shopping")
+			.WithValidation<Requests.CreateShoppingList>()
 			.Produces<ShoppingListDetailDto>(StatusCodes.Status201Created)
 			.ProducesValidationProblem();
 
 		static async Task<IResult> Create(
 			Requests.CreateShoppingList request,
-			IValidator<Requests.CreateShoppingList> validator,
 			ICommandHandler<CreateShoppingListCommand, Result<ShoppingListDetailDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var (title, items, recipeReference) = request.ToValueObjects();
 			var command = new CreateShoppingListCommand(title, items, recipeReference);
 
@@ -48,18 +44,15 @@ public static partial class ShoppingEndpoints
 		group.MapPost("/from-recipes", CreateFromRecipes)
 			.WithName("CreateShoppingListFromRecipes")
 			.WithTags("Shopping")
+			.WithValidation<Requests.CreateFromRecipes>()
 			.Produces<ShoppingListDetailDto>(StatusCodes.Status201Created)
 			.ProducesValidationProblem();
 
 		static async Task<IResult> CreateFromRecipes(
 			Requests.CreateFromRecipes request,
-			IValidator<Requests.CreateFromRecipes> validator,
 			ICommandHandler<CreateShoppingListFromRecipesCommand, Result<ShoppingListDetailDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var (title, recipes) = request.ToValueObjects();
 			var command = new CreateShoppingListFromRecipesCommand(title, recipes);
 
@@ -148,18 +141,15 @@ public static partial class ShoppingEndpoints
 		group.MapPost("/items", AddManualItem)
 			.WithName("AddManualItem")
 			.WithTags("Shopping")
+			.WithValidation<Requests.AddManualItem>()
 			.Produces<AddedItemDto>(StatusCodes.Status201Created)
 			.ProducesProblem(StatusCodes.Status400BadRequest);
 
 		static async Task<IResult> AddManualItem(
 			Requests.AddManualItem request,
-			IValidator<Requests.AddManualItem> validator,
 			ICommandHandler<AddManualItemCommand, Result<AddedItemDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var (itemName, quantity, source) = request;
 			var command = new AddManualItemCommand(itemName, quantity, source);
 
@@ -172,18 +162,15 @@ public static partial class ShoppingEndpoints
 		group.MapDelete("/items", RemoveItem)
 			.WithName("RemoveShoppingItem")
 			.WithTags("Shopping")
+			.WithValidation<Requests.RemoveItem>()
 			.Produces(StatusCodes.Status204NoContent)
 			.ProducesProblem(StatusCodes.Status400BadRequest);
 
 		static async Task<IResult> RemoveItem(
 			[FromBody] Requests.RemoveItem request,
-			IValidator<Requests.RemoveItem> validator,
 			ICommandHandler<RemoveShoppingItemCommand, Result> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var (itemName, quantity, reason) = request;
 			var command = new RemoveShoppingItemCommand(itemName, quantity, reason);
 
@@ -237,18 +224,15 @@ public static partial class ShoppingEndpoints
 		group.MapPost("/items/freeze", MarkAsFrozen)
 			.WithName("MarkItemAsFrozen")
 			.WithTags("Shopping")
+			.WithValidation<Requests.MarkAsFrozen>()
 			.Produces(StatusCodes.Status204NoContent)
 			.ProducesValidationProblem();
 
 		static async Task<IResult> MarkAsFrozen(
 			Requests.MarkAsFrozen request,
-			IValidator<Requests.MarkAsFrozen> validator,
 			ICommandHandler<MarkAsFrozenCommand, Result> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var (itemName, unit) = request.ToValueObjects();
 			var command = new MarkAsFrozenCommand(itemName, unit);
 

@@ -1,4 +1,3 @@
-using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
@@ -18,19 +17,16 @@ public static partial class RecipesEndpoints
 		group.MapPost("/chat", Chat)
 			.WithName("RecipeChat")
 			.WithTags("Recipes")
+			.WithValidation<ChatRequestDto>()
 			.Produces<ChatResponseDto>()
 			.ProducesProblem(StatusCodes.Status429TooManyRequests)
 			.RequireRateLimiting("RecipeImport");
 
 		static async Task<IResult> Chat(
 			ChatRequestDto request,
-			IValidator<ChatRequestDto> validator,
 			ICommandHandler<ChatCommand, Result<ChatResponseDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var (message, history) = request;
 
 			var command = new ChatCommand(
@@ -44,19 +40,16 @@ public static partial class RecipesEndpoints
 		group.MapPost("/parse-intent", ParseIntent)
 			.WithName("ParseIntent")
 			.WithTags("Recipes")
+			.WithValidation<ParseIntentRequestDto>()
 			.Produces<ParsedIntentDto>()
 			.ProducesProblem(StatusCodes.Status400BadRequest)
 			.RequireRateLimiting("RecipeImport");
 
 		static async Task<IResult> ParseIntent(
 			ParseIntentRequestDto request,
-			IValidator<ParseIntentRequestDto> validator,
 			ICommandHandler<ParseIntentCommand, Result<ParsedIntentDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var command = new ParseIntentCommand(request.Message, request.Context);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
@@ -66,6 +59,7 @@ public static partial class RecipesEndpoints
 		group.MapPost("/import-from-text", ImportFromText)
 			.WithName("ImportRecipeFromText")
 			.WithTags("Recipes")
+			.WithValidation<ImportFromTextRequestDto>()
 			.Produces<ExtractedRecipeDto>()
 			.ProducesProblem(StatusCodes.Status400BadRequest)
 			.ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -73,13 +67,9 @@ public static partial class RecipesEndpoints
 
 		static async Task<IResult> ImportFromText(
 			ImportFromTextRequestDto request,
-			IValidator<ImportFromTextRequestDto> validator,
 			ICommandHandler<ImportRecipeFromTextCommand, Result<ExtractedRecipeDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var command = new ImportRecipeFromTextCommand(request.Text);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
