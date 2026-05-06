@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
+    <ProjectReference Include="..\Yumney.Shared.Hosting\Yumney.Shared.Hosting.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
     <ProjectReference Include="..\Yumney.Users.Application\Yumney.Users.Application.csproj" />
     <ProjectReference Include="..\Yumney.Users.Infrastructure\Yumney.Users.Infrastructure.csproj" />

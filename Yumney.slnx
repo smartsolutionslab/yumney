@@ -17,6 +17,8 @@
     <Project Path="src/Yumney.Shared.Events/Yumney.Shared.Events.csproj" />
     <Project Path="src/Yumney.Shared.Events.InProcess/Yumney.Shared.Events.InProcess.csproj" />
     <Project Path="src/Yumney.Shared.Guards/Yumney.Shared.Guards.csproj" />
+    <Project Path="src/Yumney.Shared.Hosting/Yumney.Shared.Hosting.csproj" />
+    <Project Path="src/Yumney.Shared.Modules/Yumney.Shared.Modules.csproj" />
     <Project Path="src/Yumney.Shared.Persistence/Yumney.Shared.Persistence.csproj" />
     <Project Path="src/Yumney.Shared.Web/Yumney.Shared.Web.csproj" />
   </Folder>

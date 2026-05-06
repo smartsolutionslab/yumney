@@ -104,13 +104,13 @@ public class EventConsumerRegistrationTests
 			.Select(assembly => assembly.GetName().Name!)
 			.ToHashSet();
 
-		var programText = File.ReadAllText(Path.Combine(SolutionRoot.Src, $"Yumney.{module}.Api", "Program.cs"));
-		var argumentList = ExtractAddYumneyDefaultsArguments(programText);
+		var apiModuleText = File.ReadAllText(Path.Combine(SolutionRoot.Src, $"Yumney.{module}.Api", $"{module}ApiModule.cs"));
+		var argumentList = ExtractAddYumneyDefaultsArguments(apiModuleText);
 		var coveredAssemblies = ResolveTypeofAssemblyNames(argumentList, moduleAssemblies);
 
 		foreach (var required in requiredAssemblies)
 		{
-			var because = $"src/Yumney.{module}.Api/Program.cs must pass typeof(SomethingIn{required}).Assembly to AddYumneyDefaults — " +
+			var because = $"src/Yumney.{module}.Api/{module}ApiModule.cs must pass typeof(SomethingIn{required}).Assembly to AddYumneyDefaults(...) — " +
 				$"otherwise event handlers in {required} will never be wired into Wolverine.";
 			coveredAssemblies.Should().Contain(required, because);
 		}
@@ -136,25 +136,25 @@ public class EventConsumerRegistrationTests
 			.SelectMany(type => type.GetInterfaces())
 			.Any(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == handlerInterfaceType);
 
-	private static string ExtractAddYumneyDefaultsArguments(string programText)
+	private static string ExtractAddYumneyDefaultsArguments(string apiModuleText)
 	{
 		const string startMarker = "AddYumneyDefaults(";
-		var startIndex = programText.IndexOf(startMarker, StringComparison.Ordinal);
-		startIndex.Should().BeGreaterThanOrEqualTo(0, "Program.cs must call AddYumneyDefaults(...)");
+		var startIndex = apiModuleText.IndexOf(startMarker, StringComparison.Ordinal);
+		startIndex.Should().BeGreaterThanOrEqualTo(0, "the module file must call AddYumneyDefaults(...)");
 
 		var contentStart = startIndex + startMarker.Length;
 		var depth = 1;
 		var index = contentStart;
-		while (index < programText.Length && depth > 0)
+		while (index < apiModuleText.Length && depth > 0)
 		{
-			var ch = programText[index];
+			var ch = apiModuleText[index];
 			if (ch == '(') depth++;
 			else if (ch == ')') depth--;
 			if (depth == 0) break;
 			index++;
 		}
 
-		return programText[contentStart..index];
+		return apiModuleText[contentStart..index];
 	}
 
 	private static HashSet<string> ResolveTypeofAssemblyNames(string argumentList, IEnumerable<Assembly> candidateAssemblies)
