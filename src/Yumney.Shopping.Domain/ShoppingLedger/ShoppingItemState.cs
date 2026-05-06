@@ -1,9 +1,10 @@
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 
 #pragma warning disable SA1600
-public sealed record ShoppingItemState
+public sealed record ShoppingItemState : IEntity
 {
 	public ItemName ItemName { get; init; } = default!;
 

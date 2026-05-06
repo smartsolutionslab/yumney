@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
+
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 /// Either or both components may be null when unknown. The object
 /// itself is null when neither value is provided.
 /// </summary>
-public sealed record TimingInfo
+public sealed record TimingInfo : IValueObject
 {
 	public PreparationTime? Preparation { get; }
 
