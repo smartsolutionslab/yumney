@@ -34,9 +34,8 @@ public static class WolverineEventBusExtensions
 		// before any traffic hits the API and silently no-ops every publish.
 		// `!` is a compile-time hint to satisfy the GuardClause<string> overload —
 		// the runtime check below is what actually rejects null/empty/whitespace.
-		var connectionString = builder.Configuration.GetConnectionString("messaging");
-		Ensure.That(connectionString!)
-			.IsNotNullOrWhiteSpace();
+		var connectionString = builder.Configuration.GetConnectionString("messaging") ?? string.Empty;
+		Ensure.That(connectionString).IsNotNullOrWhiteSpace();
 
 		// Each consuming app needs its OWN queue bound to the per-event fanout
 		// exchange — otherwise Wolverine's default conventional routing names
@@ -50,7 +49,7 @@ public static class WolverineEventBusExtensions
 		{
 			opts.Discovery.DisableConventionalDiscovery();
 
-			opts.UseRabbitMq(new Uri(connectionString!))
+			opts.UseRabbitMq(new Uri(connectionString))
 				.AutoProvision()
 				.UseConventionalRouting(routing =>
 				{

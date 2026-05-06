@@ -17,24 +17,16 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 /// swap for a Redis-backed implementation when we horizontally scale.
 /// </summary>
 #pragma warning disable SA1311
-public sealed class InMemoryExtractionResultCache : IExtractionResultCache
+public sealed class InMemoryExtractionResultCache(TimeSpan ttl, int maxEntries) : IExtractionResultCache
 {
 	private static readonly TimeSpan defaultTtl = TimeSpan.FromHours(24);
 #pragma warning restore SA1311
 
 	private readonly ConcurrentDictionary<string, Entry> entries = new();
-	private readonly TimeSpan ttl;
-	private readonly int maxEntries;
 
 	public InMemoryExtractionResultCache()
 		: this(defaultTtl, maxEntries: 1_000)
 	{
-	}
-
-	public InMemoryExtractionResultCache(TimeSpan ttl, int maxEntries)
-	{
-		this.ttl = ttl;
-		this.maxEntries = maxEntries;
 	}
 
 	public string ComputeKey(string cleanedText)

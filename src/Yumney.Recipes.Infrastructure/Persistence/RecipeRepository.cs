@@ -35,7 +35,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 
 	public void Remove(Recipe recipe)
 	{
-		context.Recipes.Remove(recipe);
+		recipes.Remove(recipe);
 	}
 
 	public async Task<IReadOnlyList<Recipe>> GetAllByOwnerWithIngredientsAsync(

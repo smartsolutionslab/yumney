@@ -24,19 +24,6 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 	  IModuleEventHandler<MealResetToPlannedModuleEvent>,
 	  IModuleEventHandler<MealSlotsSwappedModuleEvent>
 {
-#pragma warning disable SA1311
-	private static readonly DayOfWeek[] allDays =
-	[
-		DayOfWeek.Monday,
-		DayOfWeek.Tuesday,
-		DayOfWeek.Wednesday,
-		DayOfWeek.Thursday,
-		DayOfWeek.Friday,
-		DayOfWeek.Saturday,
-		DayOfWeek.Sunday,
-	];
-#pragma warning restore SA1311
-
 	public async Task HandleAsync(WeeklyPlanCreatedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var ownerId = @event.OwnerId;
@@ -58,7 +45,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 			await context.SaveChangesAsync(cancellationToken);
 		}
 
-		foreach (var day in allDays)
+		foreach (var day in WeekDays.MondayToSunday)
 		{
 			await UpsertSlotAsync(ownerId, week, day.ToString(), nameof(MealType.Dinner), defaultServings, cancellationToken);
 		}
@@ -78,7 +65,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 			await context.SaveChangesAsync(cancellationToken);
 		}
 
-		foreach (var day in allDays)
+		foreach (var day in WeekDays.MondayToSunday)
 		{
 			await UpsertSlotAsync(ownerId, week, day.ToString(), nameof(MealType.Breakfast), defaultServings, cancellationToken);
 			await UpsertSlotAsync(ownerId, week, day.ToString(), nameof(MealType.Lunch), defaultServings, cancellationToken);

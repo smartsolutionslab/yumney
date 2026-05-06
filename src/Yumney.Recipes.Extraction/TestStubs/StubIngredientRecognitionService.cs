@@ -10,8 +10,8 @@ internal sealed class StubIngredientRecognitionService : IIngredientRecognitionS
 	{
 		IReadOnlyList<RecognizedIngredientDto> recognized =
 		[
-			new RecognizedIngredientDto("tomato", 0.95, "produce"),
-			new RecognizedIngredientDto("onion", 0.90, "produce"),
+			new("tomato", 0.95, "produce"),
+			new("onion", 0.90, "produce"),
 		];
 		return Task.FromResult(Result<RecognizedIngredientsResponseDto>.Success(new RecognizedIngredientsResponseDto(recognized)));
 	}
