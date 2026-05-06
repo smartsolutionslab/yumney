@@ -3,25 +3,21 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Queries.Handlers;
 
 public sealed class SearchMealHistoryQueryHandler(IMealPlanReadModelRepository readModel, ICurrentUser currentUser)
-	: IQueryHandler<SearchMealHistoryQuery, Result<IReadOnlyList<MealHistoryEntryDto>>>
+	: IQueryHandler<SearchMealHistoryQuery, Result<PagedResult<MealHistoryEntryDto>>>
 {
-#pragma warning disable SA1303
-	private const int minLimit = 1;
-	private const int maxLimit = 100;
-#pragma warning restore SA1303
-
-	public async Task<Result<IReadOnlyList<MealHistoryEntryDto>>> HandleAsync(
+	public async Task<Result<PagedResult<MealHistoryEntryDto>>> HandleAsync(
 		SearchMealHistoryQuery query,
 		CancellationToken cancellationToken = default)
 	{
-		var owner = currentUser.AsOwner();
-		var limit = Math.Clamp(query.Limit, minLimit, maxLimit);
+		var (paging, term) = query;
 
-		var result = await readModel.SearchCookedHistoryAsync(owner, query.Term, limit, cancellationToken);
-		return Result<IReadOnlyList<MealHistoryEntryDto>>.Success(result);
+		var owner = currentUser.AsOwner();
+		var page = await readModel.SearchCookedHistoryAsync(owner, term, paging, cancellationToken);
+		return Result<PagedResult<MealHistoryEntryDto>>.Success(page);
 	}
 }

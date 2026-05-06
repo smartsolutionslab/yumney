@@ -1,5 +1,6 @@
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 
@@ -15,9 +16,9 @@ public interface IMealPlanReadModelRepository
 		WeekIdentifier week,
 		CancellationToken cancellationToken = default);
 
-	Task<IReadOnlyList<MealHistoryEntryDto>> SearchCookedHistoryAsync(
+	Task<PagedResult<MealHistoryEntryDto>> SearchCookedHistoryAsync(
 		OwnerIdentifier owner,
 		string? term,
-		int limit,
+		PagingOptions paging,
 		CancellationToken cancellationToken = default);
 }

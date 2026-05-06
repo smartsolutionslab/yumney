@@ -1,6 +1,8 @@
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests;
 
@@ -39,7 +41,7 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 		return Task.FromResult(new WeeklyPlannedRecipesDto(week.Value, recipes));
 	}
 
-	public Task<IReadOnlyList<MealHistoryEntryDto>> SearchCookedHistoryAsync(OwnerIdentifier owner, string? term, int limit, CancellationToken cancellationToken = default)
+	public Task<PagedResult<MealHistoryEntryDto>> SearchCookedHistoryAsync(OwnerIdentifier owner, string? term, PagingOptions paging, CancellationToken cancellationToken = default)
 	{
 		IEnumerable<MealHistoryEntryDto> rows = store
 			.Where(kv => kv.Key.Owner == owner.Value)
@@ -57,12 +59,14 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 			rows = rows.Where(entry => entry.RecipeTitle.Contains(term.Trim(), StringComparison.OrdinalIgnoreCase));
 		}
 
-		return Task.FromResult<IReadOnlyList<MealHistoryEntryDto>>(rows
+		var ordered = rows
 			.OrderByDescending(entry => entry.Week)
-			.ThenBy(entry => entry.Day)
-			.ThenBy(entry => entry.MealType)
-			.Take(limit)
-			.ToList());
+			.ThenBy(entry => Enum.Parse<DayOfWeek>(entry.Day))
+			.ThenBy(entry => Enum.Parse<MealType>(entry.MealType))
+			.ToList();
+
+		IReadOnlyList<MealHistoryEntryDto> page = [.. ordered.Skip(paging.Skip).Take(paging.PageSize.Value)];
+		return Task.FromResult(page.AsPagedResult(ItemCount.From(ordered.Count), paging));
 	}
 
 	public void Seed(WeeklyPlan plan)

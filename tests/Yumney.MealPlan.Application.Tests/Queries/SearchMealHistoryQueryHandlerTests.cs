@@ -2,6 +2,7 @@ using FluentAssertions;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.Shared.Paging;
 using Xunit;
 using static SmartSolutionsLab.Yumney.MealPlan.Application.Tests.MealPlanTestFixture;
 
@@ -9,6 +10,8 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests.Queries;
 
 public class SearchMealHistoryQueryHandlerTests
 {
+	private static readonly PagingOptions DefaultPaging = PagingOptions.From(1, 20);
+
 	private readonly FakeMealPlanReadModelRepository readModel = new();
 	private readonly SearchMealHistoryQueryHandler handler;
 
@@ -20,10 +23,10 @@ public class SearchMealHistoryQueryHandlerTests
 	[Fact]
 	public async Task HandleAsync_NoCookedMeals_ReturnsEmpty()
 	{
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery());
+		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging));
 
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().BeEmpty();
+		result.Value.Items.Should().BeEmpty();
 	}
 
 	[Fact]
@@ -33,9 +36,9 @@ public class SearchMealHistoryQueryHandlerTests
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe("Pasta"));
 		readModel.Seed(plan);
 
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery());
+		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging));
 
-		result.Value.Should().BeEmpty();
+		result.Value.Items.Should().BeEmpty();
 	}
 
 	[Fact]
@@ -46,9 +49,9 @@ public class SearchMealHistoryQueryHandlerTests
 		plan.MarkAsCooked(DayOfWeek.Monday);
 		readModel.Seed(plan);
 
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery());
+		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging));
 
-		result.Value.Should().ContainSingle().Which.RecipeTitle.Should().Be("Lasagna");
+		result.Value.Items.Should().ContainSingle().Which.RecipeTitle.Should().Be("Lasagna");
 	}
 
 	[Fact]
@@ -61,9 +64,9 @@ public class SearchMealHistoryQueryHandlerTests
 		plan.MarkAsCooked(DayOfWeek.Tuesday);
 		readModel.Seed(plan);
 
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery("LASAGNA"));
+		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging, "LASAGNA"));
 
-		result.Value.Should().ContainSingle().Which.RecipeTitle.Should().Be("Lasagna");
+		result.Value.Items.Should().ContainSingle().Which.RecipeTitle.Should().Be("Lasagna");
 	}
 
 	[Fact]
@@ -74,9 +77,9 @@ public class SearchMealHistoryQueryHandlerTests
 		plan.MarkAsCooked(DayOfWeek.Monday);
 		readModel.Seed(plan);
 
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery("Tacos"));
+		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging, "Tacos"));
 
-		result.Value.Should().BeEmpty();
+		result.Value.Items.Should().BeEmpty();
 	}
 
 	[Fact]
@@ -91,21 +94,13 @@ public class SearchMealHistoryQueryHandlerTests
 		readModel.Seed(oldPlan);
 		readModel.Seed(newPlan);
 
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery());
+		var result = await handler.HandleAsync(new SearchMealHistoryQuery(DefaultPaging));
 
-		result.Value.Select(entry => entry.RecipeTitle).Should().Equal("New Soup", "Old Soup");
+		result.Value.Items.Select(entry => entry.RecipeTitle).Should().Equal("New Soup", "Old Soup");
 	}
 
 	[Fact]
-	public async Task HandleAsync_LimitClampedToOneHundred()
-	{
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery(Limit: 999));
-
-		result.IsSuccess.Should().BeTrue();
-	}
-
-	[Fact]
-	public async Task HandleAsync_LimitReturnedHonored()
+	public async Task HandleAsync_PageSizeHonored()
 	{
 		var plan = CreatePlan();
 		plan.EnableExtendedMode();
@@ -117,8 +112,9 @@ public class SearchMealHistoryQueryHandlerTests
 		plan.MarkAsCooked(DayOfWeek.Wednesday);
 		readModel.Seed(plan);
 
-		var result = await handler.HandleAsync(new SearchMealHistoryQuery(Limit: 2));
+		var result = await handler.HandleAsync(new SearchMealHistoryQuery(PagingOptions.From(1, 2)));
 
-		result.Value.Should().HaveCount(2);
+		result.Value.Items.Should().HaveCount(2);
+		result.Value.TotalCount.Should().Be(3);
 	}
 }

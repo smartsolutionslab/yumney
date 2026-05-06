@@ -6,16 +6,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 #pragma warning disable SA1311
 public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 {
-	private static readonly DayOfWeek[] allDays =
-	[
-		DayOfWeek.Monday,
-		DayOfWeek.Tuesday,
-		DayOfWeek.Wednesday,
-		DayOfWeek.Thursday,
-		DayOfWeek.Friday,
-		DayOfWeek.Saturday,
-		DayOfWeek.Sunday,
-	];
+	private static readonly DayOfWeek[] allDays = WeekDays.MondayToSunday;
 
 	private readonly Dictionary<SlotKey, MealSlot> slots = [];
 	private SlotServings defaultServings = SlotServings.Default();
