@@ -59,11 +59,11 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(context);
 		var filter = new RecipeFilter(Difficulty: Difficulty.From("easy"));
 
-		var (items, totalCount) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Should().Be(ItemCount.From(1));
-		items.Should().ContainSingle(r => r.Title.Value == "Quick Vegan Salad");
+		page.TotalCount.Should().Be(1);
+		page.Items.Should().ContainSingle(r => r.Title.Value == "Quick Vegan Salad");
 	}
 
 	[Fact]
@@ -73,10 +73,10 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(context);
 		var filter = new RecipeFilter(MaxPrepTime: PreparationTime.From(20));
 
-		var (items, _) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		items.Select(recipe => recipe.Title.Value).Should()
+		page.Items.Select(recipe => recipe.Title.Value).Should()
 			.Contain("Quick Vegan Salad")
 			.And.Contain("Vegan Curry")
 			.And.NotContain("Beef Wellington")
@@ -90,10 +90,10 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(context);
 		var filter = new RecipeFilter(MaxCookTime: CookingTime.From(45));
 
-		var (items, _) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		items.Select(recipe => recipe.Title.Value).Should()
+		page.Items.Select(recipe => recipe.Title.Value).Should()
 			.Contain("Quick Vegan Salad")
 			.And.Contain("Vegan Curry")
 			.And.NotContain("Beef Wellington");
@@ -106,11 +106,11 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(context);
 		var filter = new RecipeFilter(Tags: [RecipeTag.From("vegan")]);
 
-		var (items, totalCount) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Should().Be(ItemCount.From(2));
-		items.Select(recipe => recipe.Title.Value).Should()
+		page.TotalCount.Should().Be(2);
+		page.Items.Select(recipe => recipe.Title.Value).Should()
 			.Contain("Quick Vegan Salad")
 			.And.Contain("Vegan Curry");
 	}
@@ -122,11 +122,11 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(context);
 		var filter = new RecipeFilter(Tags: [RecipeTag.From("vegan"), RecipeTag.From("quick")]);
 
-		var (items, totalCount) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Should().Be(ItemCount.From(1));
-		items.Should().ContainSingle(r => r.Title.Value == "Quick Vegan Salad");
+		page.TotalCount.Should().Be(1);
+		page.Items.Should().ContainSingle(r => r.Title.Value == "Quick Vegan Salad");
 	}
 
 	[Fact]
@@ -140,11 +140,11 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 			MaxPrepTime: PreparationTime.From(30),
 			MaxCookTime: CookingTime.From(60));
 
-		var (items, totalCount) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Should().Be(ItemCount.From(1));
-		items.Should().ContainSingle(r => r.Title.Value == "Vegan Curry");
+		page.TotalCount.Should().Be(1);
+		page.Items.Should().ContainSingle(r => r.Title.Value == "Vegan Curry");
 	}
 
 	[Fact]
@@ -153,10 +153,10 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		await using var context = await fixture.CreateRecipesDbContextAsync();
 		var recipes = new RecipeRepository(context);
 
-		var (_, totalCount) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: null);
 
-		totalCount.Should().Be(ItemCount.From(4));
+		page.TotalCount.Should().Be(4);
 	}
 
 	[Fact]
@@ -166,10 +166,10 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(context);
 		var filter = new RecipeFilter();
 
-		var (_, totalCount) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Should().Be(ItemCount.From(4));
+		page.TotalCount.Should().Be(4);
 	}
 
 	[Fact]
@@ -179,11 +179,11 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		var recipes = new RecipeRepository(context);
 		var filter = new RecipeFilter(Tags: [RecipeTag.From("dessert")]);
 
-		var (items, totalCount) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner, DefaultPaging, DefaultSorting, search: null, filter: filter);
 
-		totalCount.Should().Be(ItemCount.From(0));
-		items.Should().BeEmpty();
+		page.TotalCount.Should().Be(0);
+		page.Items.Should().BeEmpty();
 	}
 
 	private Recipe BuildRecipe(

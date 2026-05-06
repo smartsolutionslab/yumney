@@ -92,15 +92,15 @@ public class RecipeFavoriteTests(AspireFixture fixture) : IAsyncLifetime
 		await favorites.AddAsync(RecipeFavorite.Create(lasagne.Id, owner));
 		await context.SaveChangesAsync();
 
-		var (items, totalCount) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner,
 			DefaultPaging,
 			DefaultSorting,
 			search: null,
 			filter: new RecipeFilter(FavoritesOnly: true));
 
-		totalCount.Should().Be(ItemCount.From(1));
-		items.Should().ContainSingle(r => r.Id == lasagne.Id);
+		page.TotalCount.Should().Be(1);
+		page.Items.Should().ContainSingle(r => r.Id == lasagne.Id);
 	}
 
 	[Fact]
@@ -109,13 +109,13 @@ public class RecipeFavoriteTests(AspireFixture fixture) : IAsyncLifetime
 		await using var context = await fixture.CreateRecipesDbContextAsync();
 		var recipes = new RecipeRepository(context);
 
-		var (_, totalCount) = await recipes.GetByOwnerAsync(
+		var page = await recipes.GetByOwnerAsync(
 			owner,
 			DefaultPaging,
 			DefaultSorting,
 			search: null,
 			filter: new RecipeFilter(FavoritesOnly: false));
 
-		totalCount.Should().Be(ItemCount.From(2));
+		page.TotalCount.Should().Be(2);
 	}
 }

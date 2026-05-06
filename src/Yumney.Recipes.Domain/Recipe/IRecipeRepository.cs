@@ -15,7 +15,7 @@ public interface IRecipeRepository
 	// Tracked fetch for update / delete flows. Throws EntityNotFoundException if not found.
 	Task<Recipe> GetByIdForUpdateAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default);
 
-	Task<(IReadOnlyList<Recipe> Items, ItemCount TotalCount)> GetByOwnerAsync(
+	Task<PagedResult<Recipe>> GetByOwnerAsync(
 		OwnerIdentifier owner,
 		PagingOptions paging,
 		SortingOptions<RecipeSortField> sorting,

@@ -421,6 +421,10 @@ public class GetRecipesQueryHandlerTests
 			Arg.Any<SearchTerm?>(),
 			Arg.Any<RecipeFilter?>(),
 			Arg.Any<CancellationToken>())
-			.Returns((items, ItemCount.From(totalCount)));
+			.Returns(call =>
+			{
+				var paging = call.Arg<PagingOptions>();
+				return new PagedResult<Recipe>(items, totalCount, paging.Page.Value, paging.PageSize.Value);
+			});
 	}
 }
