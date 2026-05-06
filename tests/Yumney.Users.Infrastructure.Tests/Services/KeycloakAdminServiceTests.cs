@@ -161,9 +161,11 @@ public class KeycloakAdminServiceTests
 				HttpStatusCode.Created,
 				new Dictionary<string, string> { { "Location", "/admin/realms/test-realm/users/kc-123" } });
 
-		// Simulate cache miss on first call, cache hit on second
+		// First call: outer probe + inner double-check probe inside the single-flight gate, both miss.
+		// Second call: cache hit (token populated by the first call's fetch).
 		cache.GetAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
 			.Returns(
+				(byte[]?)null,
 				(byte[]?)null,
 				System.Text.Encoding.UTF8.GetBytes("fake-token"));
 
