@@ -261,19 +261,13 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 
 	private void EnsureSlotExists(DayOfWeek day, MealType mealType)
 	{
-		if (!slots.ContainsKey(new SlotKey(day, mealType)))
-		{
-			throw new EntityNotFoundException(nameof(MealSlot), $"{day}/{mealType}");
-		}
+		if (!slots.ContainsKey(new SlotKey(day, mealType))) throw new EntityNotFoundException(nameof(MealSlot), $"{day}/{mealType}");
 	}
 
 	private MealSlot FindSlot(DayOfWeek day, MealType mealType)
 	{
 		var key = new SlotKey(day, mealType);
-		if (!slots.TryGetValue(key, out var slot))
-		{
-			throw new EntityNotFoundException(nameof(MealSlot), $"{day}/{mealType}");
-		}
+		if (!slots.TryGetValue(key, out var slot)) throw new EntityNotFoundException(nameof(MealSlot), $"{day}/{mealType}");
 
 		return slot;
 	}

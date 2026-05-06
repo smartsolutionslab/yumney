@@ -1,6 +1,6 @@
 namespace SmartSolutionsLab.Yumney.Shared.Abstractions;
 
-public abstract class Entity<TId>
+public abstract class Entity<TId> : IEntity
 	where TId : notnull
 {
 	public TId Id { get; protected set; } = default!;
