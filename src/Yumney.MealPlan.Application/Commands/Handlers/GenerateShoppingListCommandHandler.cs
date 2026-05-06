@@ -70,7 +70,7 @@ public sealed class GenerateShoppingListCommandHandler(
 		Dictionary<string, MergedItem> merged,
 		CancellationToken cancellationToken = default)
 	{
-		var staples = await staplesProvider.GetStapleNamesAsync(owner, cancellationToken);
+		var staples = await staplesProvider.GetStapleNamesAsync(cancellationToken);
 		var staplesSkipped = 0;
 		List<ShoppingItemRequest> itemsToAdd = [];
 

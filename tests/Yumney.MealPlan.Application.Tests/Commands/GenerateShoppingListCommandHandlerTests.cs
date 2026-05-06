@@ -21,7 +21,7 @@ public class GenerateShoppingListCommandHandlerTests
 
 	public GenerateShoppingListCommandHandlerTests()
 	{
-		staplesProvider.GetStapleNamesAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+		staplesProvider.GetStapleNamesAsync(Arg.Any<CancellationToken>())
 			.Returns(new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "salt", "pepper", "flour" });
 		handler = new GenerateShoppingListCommandHandler(readModel, recipeIngredients, staplesProvider, shoppingListWriter, CreateCurrentUser());
 	}
