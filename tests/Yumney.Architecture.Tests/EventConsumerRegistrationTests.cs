@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Shared.Events;
@@ -105,7 +104,7 @@ public class EventConsumerRegistrationTests
 			.Select(assembly => assembly.GetName().Name!)
 			.ToHashSet();
 
-		var programText = File.ReadAllText(Path.Combine(SolutionRoot.Path, "src", $"Yumney.{module}.Api", "Program.cs"));
+		var programText = File.ReadAllText(Path.Combine(SolutionRoot.Src, $"Yumney.{module}.Api", "Program.cs"));
 		var argumentList = ExtractAddYumneyDefaultsArguments(programText);
 		var coveredAssemblies = ResolveTypeofAssemblyNames(argumentList, moduleAssemblies);
 
@@ -161,7 +160,8 @@ public class EventConsumerRegistrationTests
 	private static HashSet<string> ResolveTypeofAssemblyNames(string argumentList, IEnumerable<Assembly> candidateAssemblies)
 	{
 		HashSet<string> covered = [];
-		foreach (Match match in Regex.Matches(argumentList, @"typeof\s*\(\s*([A-Za-z_][\w.]*)\s*\)"))
+		var matches = Regex.Matches(argumentList, @"typeof\s*\(\s*([A-Za-z_][\w.]*)\s*\)");
+		foreach (Match match in matches)
 		{
 			var typeName = match.Groups[1].Value;
 			var assembly = candidateAssemblies
@@ -173,22 +173,5 @@ public class EventConsumerRegistrationTests
 		}
 
 		return covered;
-	}
-}
-
-internal static class SolutionRoot
-{
-	public static string Path { get; } = Locate();
-
-	private static string Locate([CallerFilePath] string callerFilePath = "")
-	{
-		var directory = new DirectoryInfo(System.IO.Path.GetDirectoryName(callerFilePath)!);
-		while (directory is not null && !File.Exists(System.IO.Path.Combine(directory.FullName, "Yumney.slnx")))
-		{
-			directory = directory.Parent;
-		}
-
-		return directory?.FullName
-			?? throw new InvalidOperationException("Yumney.slnx not found walking up from test source location.");
 	}
 }
