@@ -26,7 +26,7 @@ public class AddManualItemCommandHandlerTests
 	public async Task HandleAsync_WithExplicitQuantity_UsesProvidedValues()
 	{
 		var existingLedger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
 		var command = new AddManualItemCommand(ItemName.From("Potatoes"), Quantity.Of(Amount.From(2), Unit.From("kg")), ItemSource.Manual);
@@ -43,7 +43,7 @@ public class AddManualItemCommandHandlerTests
 	public async Task HandleAsync_WithoutQuantity_ResolvesDefault()
 	{
 		var existingLedger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
 		var command = new AddManualItemCommand(ItemName.From("Milk"), null, ItemSource.Manual);
@@ -59,7 +59,7 @@ public class AddManualItemCommandHandlerTests
 	public async Task HandleAsync_KnownItem_ResolvesCategory()
 	{
 		var existingLedger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
 		var command = new AddManualItemCommand(ItemName.From("Chicken"), Quantity.Of(Amount.From(500), Unit.From("g")), ItemSource.Manual);
@@ -73,7 +73,7 @@ public class AddManualItemCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_NoLedgerExists_CreatesNew()
 	{
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns((ShoppingLedger?)null);
 
 		var command = new AddManualItemCommand(ItemName.From("Salt"), null, ItemSource.Manual);
@@ -88,7 +88,7 @@ public class AddManualItemCommandHandlerTests
 	public async Task HandleAsync_SourceIsManual()
 	{
 		var existingLedger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
 		var command = new AddManualItemCommand(ItemName.From("Bread"), null, ItemSource.Manual);
@@ -102,7 +102,7 @@ public class AddManualItemCommandHandlerTests
 	public async Task HandleAsync_MealPlanSource_TagsItemAsMealPlan()
 	{
 		var existingLedger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
 		var command = new AddManualItemCommand(ItemName.From("Pasta"), null, ItemSource.MealPlan);

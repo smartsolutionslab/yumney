@@ -1,7 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
-using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
@@ -28,7 +27,7 @@ public class RemoveShoppingItemCommandHandlerTests
 		var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
 		ledger.AddItem(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), Unit.From("pc")), ItemSource.Manual);
 		ledger.MarkCommitted();
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
 		var command = new RemoveShoppingItemCommand(ItemName.From("Eggs"), Quantity.Of(Amount.From(6), Unit.From("pc")), RemovalReason.From("not needed"));
 
@@ -41,7 +40,7 @@ public class RemoveShoppingItemCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_NoLedger_ReturnsSuccess()
 	{
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
 
 		var command = new RemoveShoppingItemCommand(ItemName.From("Eggs"), null, null);
 
@@ -57,7 +56,7 @@ public class RemoveShoppingItemCommandHandlerTests
 		var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
 		ledger.AddItem(ItemName.From("Milk"), Quantity.Of(Amount.From(2), Unit.From("L")), ItemSource.Manual);
 		ledger.MarkCommitted();
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
 		var command = new RemoveShoppingItemCommand(ItemName.From("Milk"), null, null);
 

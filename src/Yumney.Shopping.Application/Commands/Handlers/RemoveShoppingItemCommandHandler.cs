@@ -3,7 +3,6 @@ using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shopping.Application.Common;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 
@@ -13,9 +12,9 @@ public sealed class RemoveShoppingItemCommandHandler(IShoppingEventStore eventSt
 	public async Task<Result> HandleAsync(RemoveShoppingItemCommand command, CancellationToken cancellationToken = default)
 	{
 		var (itemName, explicitQuantity, reason) = command;
-		var ownerId = OwnerIdentifier.From(currentUser.UserId);
+		var owner = currentUser.AsOwner();
 
-		var ledger = await eventStore.LoadAsync(ownerId, cancellationToken);
+		var ledger = await eventStore.FindAsync(owner, cancellationToken);
 		if (ledger is null) return Result.Success();
 
 		var quantity = explicitQuantity ?? DefaultQuantityResolver.Resolve(itemName.Value);

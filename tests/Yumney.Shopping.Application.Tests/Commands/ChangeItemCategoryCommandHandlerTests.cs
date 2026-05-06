@@ -1,5 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
@@ -66,7 +67,8 @@ public class ChangeItemCategoryCommandHandlerTests
 	public async Task HandleAsync_ListNotFound_ThrowsEntityNotFoundException()
 	{
 		var listId = ShoppingListIdentifier.New();
-		eventStore.LoadAsync(listId, Arg.Any<CancellationToken>()).Returns((ShoppingList?)null);
+		eventStore.LoadAsync(listId, Arg.Any<CancellationToken>())
+			.ThrowsAsync(new EntityNotFoundException(nameof(ShoppingList), listId.Value));
 
 		var act = () => handler.HandleAsync(
 			new ChangeItemCategoryCommand(listId, ShoppingListItemIdentifier.New(), IngredientCategory.Pantry));

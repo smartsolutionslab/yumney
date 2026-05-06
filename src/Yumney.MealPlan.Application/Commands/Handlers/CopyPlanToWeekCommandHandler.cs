@@ -16,10 +16,10 @@ public sealed class CopyPlanToWeekCommandHandler(IMealPlanEventStore eventStore,
 
 		var owner = currentUser.AsOwner();
 
-		var source = await eventStore.LoadAsync(owner, sourceWeek, cancellationToken);
+		var source = await eventStore.FindAsync(owner, sourceWeek, cancellationToken);
 		if (source is null) return CopyPlanToWeekErrors.SourcePlanNotFound;
 
-		var target = await eventStore.LoadAsync(owner, targetWeek, cancellationToken)
+		var target = await eventStore.FindAsync(owner, targetWeek, cancellationToken)
 			?? WeeklyPlan.Create(owner, targetWeek);
 
 		if (source.IsExtendedMode && !target.IsExtendedMode) target.EnableExtendedMode();

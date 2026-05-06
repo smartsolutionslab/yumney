@@ -15,7 +15,7 @@ public sealed class CookWithLeftoversCommandHandler(IMealPlanEventStore eventSto
 		var owner = currentUser.AsOwner();
 		var leftoverServingsValue = totalServings.Value - eatServings.Value;
 
-		var plan = await eventStore.LoadAsync(owner, week, cancellationToken) ?? WeeklyPlan.Create(owner, week);
+		var plan = await eventStore.FindAsync(owner, week, cancellationToken) ?? WeeklyPlan.Create(owner, week);
 		plan.AssignRecipe(cookDay, recipe, mealType, totalServings);
 
 		if (leftoverServingsValue > 0)

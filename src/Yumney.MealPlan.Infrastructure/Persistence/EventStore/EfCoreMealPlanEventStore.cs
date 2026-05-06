@@ -52,7 +52,11 @@ public sealed partial class EfCoreMealPlanEventStore(
 	};
 #pragma warning restore SA1311
 
-	public async Task<WeeklyPlan?> LoadAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
+	public async Task<WeeklyPlan> LoadAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
+		=> await FindAsync(owner, week, cancellationToken)
+			?? throw new EntityNotFoundException(nameof(WeeklyPlan), $"{owner.Value}/{week.Value}");
+
+	public async Task<WeeklyPlan?> FindAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
 	{
 		var ownerValue = owner.Value;
 		var weekValue = week.Value;

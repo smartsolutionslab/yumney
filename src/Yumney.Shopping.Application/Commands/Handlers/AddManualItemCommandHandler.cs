@@ -15,12 +15,12 @@ public sealed class AddManualItemCommandHandler(IShoppingEventStore eventStore, 
 	public async Task<Result<AddedItemDto>> HandleAsync(AddManualItemCommand command, CancellationToken cancellationToken = default)
 	{
 		var (itemName, explicitQuantity, source) = command;
-		var ownerId = OwnerIdentifier.From(currentUser.UserId);
+		var owner = currentUser.AsOwner();
 
 		var quantity = explicitQuantity ?? DefaultQuantityResolver.Resolve(itemName.Value);
 		var category = IngredientCategoryResolver.Resolve(itemName.Value) ?? IngredientCategory.Other;
 
-		var ledger = await eventStore.LoadAsync(ownerId, cancellationToken) ?? ShoppingLedger.Create(ownerId);
+		var ledger = await eventStore.FindAsync(owner, cancellationToken) ?? ShoppingLedger.Create(owner);
 		ledger.AddItem(itemName, quantity, source);
 
 		await eventStore.SaveAsync(ledger, cancellationToken);

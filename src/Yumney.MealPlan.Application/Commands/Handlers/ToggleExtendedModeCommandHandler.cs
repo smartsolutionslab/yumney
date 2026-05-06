@@ -14,7 +14,7 @@ public sealed class ToggleExtendedModeCommandHandler(IMealPlanEventStore eventSt
 		var (week, enable) = command;
 		var owner = currentUser.AsOwner();
 
-		var plan = await eventStore.LoadAsync(owner, week, cancellationToken) ?? WeeklyPlan.Create(owner, week);
+		var plan = await eventStore.FindAsync(owner, week, cancellationToken) ?? WeeklyPlan.Create(owner, week);
 		if (enable)
 		{
 			plan.EnableExtendedMode();

@@ -2,7 +2,6 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
-using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
@@ -20,8 +19,7 @@ public sealed class ConfirmMealCommandHandler(
 		var (week, day, mealType, newState) = command;
 		var owner = currentUser.AsOwner();
 
-		var plan = await eventStore.LoadAsync(owner, week, cancellationToken)
-			?? throw new EntityNotFoundException(nameof(WeeklyPlan), $"{owner.Value}/{week.Value}");
+		var plan = await eventStore.LoadAsync(owner, week, cancellationToken);
 
 		switch (newState)
 		{

@@ -20,7 +20,7 @@ public sealed class MealConfirmedHandler(IShoppingEventStore eventStore)
 		if (@event.Ingredients.Count == 0) return;
 
 		var owner = OwnerIdentifier.From(@event.OwnerId);
-		var ledger = await eventStore.LoadAsync(owner, cancellationToken);
+		var ledger = await eventStore.FindAsync(owner, cancellationToken);
 		if (ledger is null) return;
 
 		var source = ItemSource.From("meal-plan");
