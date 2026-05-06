@@ -174,9 +174,9 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
 		await using var readContext = await fixture.CreateRecipesDbContextAsync();
 		var recipes = new RecipeRepository(readContext);
-		var (items, _) = await recipes.GetByOwnerAsync(owner, paging, sorting);
+		var page = await recipes.GetByOwnerAsync(owner, paging, sorting);
 
-		items.Single().Tags.Select(tag => tag.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
+		page.Items.Single().Tags.Select(tag => tag.Value).Should().BeEquivalentTo(["italian", "pasta", "comfort-food"]);
 	}
 
 	[Fact]

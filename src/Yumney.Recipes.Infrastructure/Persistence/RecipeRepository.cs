@@ -60,7 +60,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 			.ToListAsync(cancellationToken);
 	}
 
-	public async Task<(IReadOnlyList<Recipe> Items, ItemCount TotalCount)> GetByOwnerAsync(
+	public async Task<PagedResult<Recipe>> GetByOwnerAsync(
 		OwnerIdentifier owner,
 		PagingOptions paging,
 		SortingOptions<RecipeSortField> sorting,
@@ -75,10 +75,12 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 			.ApplyFilter(filter, GetFavoriteRecipeIdsOfUserQuery(owner))
 			.ApplySorting(sorting);
 
-		return await query
+		var (items, totalCount) = await query
 			.Include(recipe => recipe.Tags)
 			.AsSplitQuery()
 			.ToPagedListAsync(paging, cancellationToken);
+
+		return items.With(totalCount, paging);
 	}
 
 	private IQueryable<RecipeIdentifier> GetFavoriteRecipeIdsOfUserQuery(OwnerIdentifier owner)
