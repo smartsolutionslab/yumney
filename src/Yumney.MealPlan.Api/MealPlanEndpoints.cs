@@ -144,7 +144,9 @@ public static class MealPlanEndpoints
 			int pageSize = PagingOptions.DefaultPageSize,
 			string? term = null)
 		{
-			var query = new SearchMealHistoryQuery(PagingOptions.From(page, pageSize), SearchTerm.FromNullable(term));
+			var query = new SearchMealHistoryQuery(
+				PagingOptions.From(page, pageSize),
+				SearchTerm.FromNullable(term));
 			var result = await handler.HandleAsync(query, cancellationToken);
 			return result.ToOk();
 		}

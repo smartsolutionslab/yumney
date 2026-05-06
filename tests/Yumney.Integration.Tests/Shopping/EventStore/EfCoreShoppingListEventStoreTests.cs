@@ -23,12 +23,12 @@ public class EfCoreShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLi
 	public Task DisposeAsync() => fixture.ResetShoppingListEventStoreAsync(owner);
 
 	[Fact]
-	public async Task LoadAsync_NoEventsForIdentifier_ReturnsNull()
+	public async Task FindAsync_NoEventsForIdentifier_ReturnsNull()
 	{
 		await using var context = await fixture.CreateShoppingDbContextAsync();
 		var store = CreateStore(context);
 
-		var loaded = await store.LoadAsync(ShoppingListIdentifier.New());
+		var loaded = await store.FindAsync(ShoppingListIdentifier.New());
 
 		loaded.Should().BeNull();
 	}

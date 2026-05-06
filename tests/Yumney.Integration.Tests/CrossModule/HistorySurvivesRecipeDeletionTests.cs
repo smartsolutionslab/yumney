@@ -148,8 +148,8 @@ public class HistorySurvivesRecipeDeletionTests(AspireFixture fixture) : IAsyncL
 		var response = await mealplanClient.GetAsync(
 			$"/api/v1/meal-plans/history/search?term={Uri.EscapeDataString(term)}");
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
-		var rows = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		return rows.EnumerateArray()
+		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+		return body.GetProperty("items").EnumerateArray()
 			.Select(entry => entry.GetProperty("recipeTitle").GetString())
 			.ToList();
 	}
