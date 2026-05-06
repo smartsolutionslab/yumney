@@ -52,7 +52,7 @@ public sealed partial class ShoppingEventStore(ShoppingDbContext context, IEvent
 	{
 		LogEventsSaved(aggregate.OwnerId, events.Count, aggregate.Version);
 
-		object[] context = [aggregate.OwnerId];
+		object[] context = [aggregate.OwnerId.Value];
 
 		foreach (var @event in events)
 		{

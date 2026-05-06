@@ -75,10 +75,7 @@ public abstract class EfCoreEventStoreBase<TAggregate, TIdentifier, TMetadata, T
 
 	protected abstract TMetadata BuildMetadata(TAggregate aggregate);
 
-	protected abstract Task PublishEventsAsync(
-		TAggregate aggregate,
-		IReadOnlyList<IDomainEvent> events,
-		CancellationToken cancellationToken);
+	protected abstract Task PublishEventsAsync(TAggregate aggregate, IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken);
 
 	protected async Task<IReadOnlyList<IDomainEvent>> LoadEventsAsync(Guid aggregateId, CancellationToken cancellationToken)
 	{

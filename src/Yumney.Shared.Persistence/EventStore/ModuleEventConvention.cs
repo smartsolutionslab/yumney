@@ -57,10 +57,10 @@ public static class ModuleEventConvention
 
 		var indexer = typeof(IReadOnlyList<object>).GetProperty("Item")!;
 		var args = new Expression[contextParameterTypes.Length + 1];
-		for (var i = 0; i < contextParameterTypes.Length; i++)
+		for (var index = 0; index < contextParameterTypes.Length; index++)
 		{
-			var element = Expression.MakeIndex(contextParam, indexer, [Expression.Constant(i)]);
-			args[i] = Expression.Convert(element, contextParameterTypes[i]);
+			var element = Expression.MakeIndex(contextParam, indexer, [Expression.Constant(index)]);
+			args[index] = Expression.Convert(element, contextParameterTypes[index]);
 		}
 
 		var domainType = ctor.GetParameters()[^1].ParameterType;
