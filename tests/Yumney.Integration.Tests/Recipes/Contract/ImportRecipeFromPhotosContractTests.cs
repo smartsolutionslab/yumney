@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
@@ -12,6 +14,21 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes.Contract;
 public class ImportRecipeFromPhotosContractTests(AspireFixture fixture)
 {
 	private const string Endpoint = "/api/v1/recipes/import-from-photos";
+
+	private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+
+	[Fact]
+	public async Task ImportFromPhotos_ValidPhoto_Returns200WithExtractedRecipe()
+	{
+		using var client = await fixture.CreateAuthenticatedClientAsync("recipes-api");
+		using var content = BuildMultipartWithPhotos(1);
+
+		var response = await client.PostAsync(Endpoint, content);
+
+		response.StatusCode.Should().Be(HttpStatusCode.OK);
+		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+		body.GetProperty("title").GetString().Should().Be("Stub Recipe");
+	}
 
 	[Fact]
 	public async Task ImportFromPhotos_WithoutAuth_Returns401()
