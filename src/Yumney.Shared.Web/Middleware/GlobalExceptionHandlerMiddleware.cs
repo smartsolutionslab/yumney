@@ -49,7 +49,11 @@ public sealed partial class GlobalExceptionHandlerMiddleware(
 		}
 	}
 
-	private static async Task WriteProblemDetailsAsync(HttpContext context, HttpStatusCode statusCode, string title, string detail)
+	private static async Task WriteProblemDetailsAsync(
+		HttpContext context,
+		HttpStatusCode statusCode,
+		string title,
+		string detail)
 	{
 		context.Response.StatusCode = (int)statusCode;
 

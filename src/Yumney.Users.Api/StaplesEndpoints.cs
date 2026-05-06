@@ -17,7 +17,10 @@ public static class StaplesEndpoints
 
 		return app;
 
-		static async Task<IResult> GetStaples(IStaplesProvider staplesProvider, ICurrentUser currentUser, CancellationToken cancellationToken)
+		static async Task<IResult> GetStaples(
+			IStaplesProvider staplesProvider,
+			ICurrentUser currentUser,
+			CancellationToken cancellationToken)
 		{
 			var owner = OwnerIdentifier.From(currentUser.UserId);
 			var staples = await staplesProvider.GetStapleNamesAsync(owner, cancellationToken);

@@ -22,6 +22,7 @@ public static class CqrsServiceCollectionExtensions
 		services.AddSingleton<ApplicationMetrics>();
 		DecorateAll(services, typeof(ICommandHandler<,>), typeof(LoggingCommandHandlerDecorator<,>));
 		DecorateAll(services, typeof(IQueryHandler<,>), typeof(LoggingQueryHandlerDecorator<,>));
+
 		return services;
 	}
 
@@ -42,7 +43,8 @@ public static class CqrsServiceCollectionExtensions
 	private static void DecorateAll(IServiceCollection services, Type openGenericInterface, Type openGenericDecorator)
 	{
 		var descriptors = services
-			.Where(descriptor => descriptor.ServiceType.IsGenericType && descriptor.ServiceType.GetGenericTypeDefinition() == openGenericInterface)
+			.Where(descriptor => descriptor.ServiceType.IsGenericType
+			                     && descriptor.ServiceType.GetGenericTypeDefinition() == openGenericInterface)
 			.ToList();
 
 		foreach (var descriptor in descriptors)
@@ -56,7 +58,11 @@ public static class CqrsServiceCollectionExtensions
 			// Re-register the original handler under its concrete type so the decorator can resolve it
 			if (descriptor.ImplementationType is not null)
 			{
-				services.Add(new ServiceDescriptor(descriptor.ImplementationType, descriptor.ImplementationType, descriptor.Lifetime));
+				var serviceDescriptor = new ServiceDescriptor(
+					descriptor.ImplementationType,
+					descriptor.ImplementationType,
+					descriptor.Lifetime);
+				services.Add(serviceDescriptor);
 			}
 
 			services.AddScoped(serviceType, sp =>
