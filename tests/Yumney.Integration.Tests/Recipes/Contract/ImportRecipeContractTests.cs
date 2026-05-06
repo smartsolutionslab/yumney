@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
@@ -12,6 +13,22 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes.Contract;
 public class ImportRecipeContractTests(AspireFixture fixture)
 {
 	private const string Endpoint = "/api/v1/recipes/import";
+
+	private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+
+	[Fact]
+	public async Task Import_ValidUrl_Returns200WithExtractedRecipe()
+	{
+		using var client = await fixture.CreateAuthenticatedClientAsync("recipes-api");
+
+		var response = await client.PostAsJsonAsync(Endpoint, new { url = "https://example.com/recipe" });
+
+		response.StatusCode.Should().Be(HttpStatusCode.OK);
+		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+		body.GetProperty("title").GetString().Should().Be("Stub Recipe");
+		body.GetProperty("ingredients").GetArrayLength().Should().BeGreaterThan(0);
+		body.GetProperty("steps").GetArrayLength().Should().BeGreaterThan(0);
+	}
 
 	[Fact]
 	public async Task Import_WithoutAuth_Returns401()
