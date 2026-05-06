@@ -84,8 +84,32 @@ public partial class ClaudeMdRuleEnforcementTests
 			string.Join(Environment.NewLine, violations.Select(violation => $"  {violation}")));
 	}
 
+	[Fact]
+	public void NoCommandOrQueryRecord_TakesPrimitiveWhereVoIsExpected()
+	{
+		var srcRoot = LocateRepoFolder("src");
+		var pattern = PrimitiveInsteadOfVoPattern();
+
+		var violations = Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
+			.Where(IsTrackedSourceFile)
+			.Where(IsCommandOrQueryFile)
+			.SelectMany(path => FindViolations(path, pattern))
+			.ToList();
+
+		violations.Should().BeEmpty(
+			"Commands and Queries must take value objects for business-meaningful parameters per CLAUDE.md "
+			+ "(\"Value Objects in Commands, Events, and Service Interfaces\"). "
+			+ "Names like Email/Password/DisplayName/Title/Name typed as `string`, or Servings/Amount typed "
+			+ "as primitives, almost always have a matching VO in the same module's Domain. Offenders:{0}{1}",
+			Environment.NewLine,
+			string.Join(Environment.NewLine, violations.Select(violation => $"  {violation}")));
+	}
+
 	[GeneratedRegex(@"\bEnsure\.That\(")]
 	private static partial Regex EnsureThatPattern();
+
+	[GeneratedRegex(@"\b(?:string\s+(?:Email|Password|DisplayName|Title|Name|Url)\b|int\s+(?:Servings|PageSize|Page)\b|decimal\s+Amount\b)")]
+	private static partial Regex PrimitiveInsteadOfVoPattern();
 
 	[GeneratedRegex(@"\bI[A-Z]\w+Repository\s+(?:[a-z]\w*(?:Repository|Repo)\b|repository\b)")]
 	private static partial Regex RedundantRepositoryNamePattern();
@@ -140,6 +164,16 @@ public partial class ClaudeMdRuleEnforcementTests
 		var normalized = path.Replace('\\', '/');
 		return !path.EndsWith("MappingExtensions.cs", StringComparison.OrdinalIgnoreCase)
 			&& !normalized.Contains("/ReadModel/", StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static bool IsCommandOrQueryFile(string path)
+	{
+		var normalized = path.Replace('\\', '/');
+		if (!normalized.Contains(".Application/", StringComparison.OrdinalIgnoreCase)) return false;
+		return (normalized.Contains("/Commands/", StringComparison.OrdinalIgnoreCase)
+				|| normalized.Contains("/Queries/", StringComparison.OrdinalIgnoreCase))
+			&& (path.EndsWith("Command.cs", StringComparison.OrdinalIgnoreCase)
+				|| path.EndsWith("Query.cs", StringComparison.OrdinalIgnoreCase));
 	}
 
 	private static bool IsDomainAggregateOrEntityFile(string path)
