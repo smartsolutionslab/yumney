@@ -28,8 +28,8 @@ public class MealHistoryFlowTests(AspireFixture fixture)
 		var response = await client.GetAsync("/api/v1/meal-plans/history/search");
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
-		var rows = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		rows.ValueKind.Should().Be(JsonValueKind.Array);
+		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+		body.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
 	}
 
 	[Fact]

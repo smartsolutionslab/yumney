@@ -30,12 +30,12 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 	public Task DisposeAsync() => fixture.ResetShoppingEventStoreAsync(owner);
 
 	[Fact]
-	public async Task LoadAsync_NoEventsForOwner_ReturnsNull()
+	public async Task FindAsync_NoEventsForOwner_ReturnsNull()
 	{
 		await using var context = await fixture.CreateShoppingDbContextAsync();
 		var store = CreateStore(context);
 
-		var ledger = await store.LoadAsync(owner);
+		var ledger = await store.FindAsync(owner);
 
 		ledger.Should().BeNull();
 	}
@@ -211,7 +211,7 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 	}
 
 	[Fact]
-	public async Task LoadAsync_OtherOwnerHasEvents_ReturnsNullForThisOwner()
+	public async Task FindAsync_OtherOwnerHasEvents_ReturnsNullForThisOwner()
 	{
 		var otherOwner = OwnerIdentifier.From($"evtstore-other-{Guid.NewGuid():N}");
 		try
@@ -224,7 +224,7 @@ public class EfCoreShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifeti
 			}
 
 			await using var freshContext = await fixture.CreateShoppingDbContextAsync();
-			var loaded = await CreateStore(freshContext).LoadAsync(owner);
+			var loaded = await CreateStore(freshContext).FindAsync(owner);
 
 			loaded.Should().BeNull();
 		}

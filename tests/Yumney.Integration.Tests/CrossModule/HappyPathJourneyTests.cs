@@ -176,8 +176,8 @@ public class HappyPathJourneyTests(AspireFixture fixture) : IAsyncLifetime
 				var response = await mealplanClient.GetAsync(
 					$"/api/v1/meal-plans/history/search?term={Uri.EscapeDataString(recipeTitle)}");
 				response.StatusCode.Should().Be(HttpStatusCode.OK);
-				var rows = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-				var titles = rows.EnumerateArray()
+				var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+				var titles = body.GetProperty("items").EnumerateArray()
 					.Select(entry => entry.GetProperty("recipeTitle").GetString())
 					.ToList();
 				titles.Should().Contain(recipeTitle);

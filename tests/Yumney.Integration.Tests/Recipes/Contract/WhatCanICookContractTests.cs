@@ -32,7 +32,7 @@ public class WhatCanICookContractTests(AspireFixture fixture) : IAsyncLifetime
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		body.GetArrayLength().Should().Be(0);
+		body.GetProperty("items").GetArrayLength().Should().Be(0);
 	}
 
 	[Fact]
@@ -49,7 +49,7 @@ public class WhatCanICookContractTests(AspireFixture fixture) : IAsyncLifetime
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		body.GetArrayLength().Should().Be(0);
+		body.GetProperty("items").GetArrayLength().Should().Be(0);
 	}
 
 	[Fact]
