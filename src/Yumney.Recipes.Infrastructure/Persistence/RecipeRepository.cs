@@ -16,27 +16,16 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 	}
 
 	public async Task<Recipe> GetByIdAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
-	{
-		return await recipes
-			.AsNoTracking()
-			.Include(recipe => recipe.Ingredients)
-			.Include(recipe => recipe.Steps.OrderBy(step => step.Number))
-			.Include(recipe => recipe.Tags)
-			.AsSplitQuery()
-			.FirstOrDefaultAsync(recipe => recipe.Id == identifier, cancellationToken)
-			?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
-	}
+		=> await recipes
+			   .IncludeFullGraph()
+			   .AsNoTracking()
+			   .FirstOrDefaultAsync(recipe => recipe.Id == identifier, cancellationToken)
+		   ?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
 
 	public async Task<Recipe> GetByIdForUpdateAsync(RecipeIdentifier identifier, CancellationToken cancellationToken = default)
-	{
-		return await recipes
-			.Include(recipe => recipe.Ingredients)
-			.Include(recipe => recipe.Steps.OrderBy(step => step.Number))
-			.Include(recipe => recipe.Tags)
-			.AsSplitQuery()
-			.FirstOrDefaultAsync(recipe => recipe.Id == identifier, cancellationToken)
-			?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
-	}
+		=> await recipes.IncludeFullGraph()
+			   .FirstOrDefaultAsync(recipe => recipe.Id == identifier, cancellationToken)
+		   ?? throw new EntityNotFoundException(nameof(Recipe), identifier.Value);
 
 	public async Task<bool> ExistsBySourceUrlAsync(RecipeUrl sourceUrl, OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
@@ -80,7 +69,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 			.AsSplitQuery()
 			.ToPagedListAsync(paging, cancellationToken);
 
-		return items.With(totalCount, paging);
+		return items.AsPagedResult(totalCount, paging);
 	}
 
 	private IQueryable<RecipeIdentifier> GetFavoriteRecipeIdsOfUserQuery(OwnerIdentifier owner)
@@ -90,4 +79,14 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 			.Select(favorite => favorite.RecipeIdentifier);
 		return favoriteRecipeIds;
 	}
+}
+
+internal static class QueryExtensions
+{
+	public static IQueryable<Recipe> IncludeFullGraph(this IQueryable<Recipe> query)
+		=> query
+			.Include(recipe => recipe.Ingredients)
+			.Include(recipe => recipe.Steps.OrderBy(step => step.Number))
+			.Include(recipe => recipe.Tags)
+			.AsSplitQuery();
 }

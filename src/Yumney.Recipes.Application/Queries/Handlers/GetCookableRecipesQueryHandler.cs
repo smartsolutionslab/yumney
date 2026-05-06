@@ -18,7 +18,9 @@ public sealed class GetCookableRecipesQueryHandler(
 	private const int maxMissingForNearMatch = 2;
 #pragma warning restore SA1303
 
-	public async Task<Result<IReadOnlyList<CookableRecipeDto>>> HandleAsync(GetCookableRecipesQuery query, CancellationToken cancellationToken = default)
+	public async Task<Result<IReadOnlyList<CookableRecipeDto>>> HandleAsync(
+		GetCookableRecipesQuery query,
+		CancellationToken cancellationToken = default)
 	{
 		var owner = currentUser.AsOwner();
 

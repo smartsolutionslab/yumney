@@ -17,9 +17,9 @@ public sealed class GetRecipesQueryHandler(IRecipeRepository recipes, IRecipeFav
 		var owner = currentUser.AsOwner();
 
 		var page = await recipes.GetByOwnerAsync(owner, paging, sorting, search, filter, cancellationToken);
-		var idsOfRecpies = page.Items.Select(recipe => recipe.Id).ToList();
+		var idsOfRecipes = page.Items.Select(recipe => recipe.Id).ToList();
 
-		var favoritedIds = await favorites.GetFavoritedIdsAsync(owner, idsOfRecpies, cancellationToken);
+		var favoritedIds = await favorites.GetFavoritedIdsAsync(owner, idsOfRecipes, cancellationToken);
 
 		return page.Map(recipe => recipe.ToListItemDto(favoritedIds.Contains(recipe.Id.Value)));
 	}

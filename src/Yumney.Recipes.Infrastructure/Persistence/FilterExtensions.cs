@@ -47,9 +47,7 @@ public static class FilterExtensions
 			return query;
 		}
 
-		public IQueryable<Recipe> ApplyFavoritesOnly(
-			bool? favoritesOnly,
-			IQueryable<RecipeIdentifier> favoritesRecipesOfUserQuery)
+		public IQueryable<Recipe> ApplyFavoritesOnly(bool? favoritesOnly, IQueryable<RecipeIdentifier> favoritesRecipesOfUserQuery)
 		{
 			if (favoritesOnly != true) return query;
 
@@ -58,9 +56,7 @@ public static class FilterExtensions
 			return query;
 		}
 
-		public IQueryable<Recipe> ApplyFilter(
-			RecipeFilter? filter,
-			IQueryable<RecipeIdentifier> favoriteRecipesOfUserQuery)
+		public IQueryable<Recipe> ApplyFilter(RecipeFilter? filter, IQueryable<RecipeIdentifier> favoriteRecipesOfUserQuery)
 		{
 			if (filter is null || filter.IsEmpty) return query;
 

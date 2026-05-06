@@ -2,8 +2,8 @@ using System.Collections.Generic;
 
 namespace SmartSolutionsLab.Yumney.Shared.Paging;
 
-public sealed record PagedResult<T>(
-	IReadOnlyList<T> Items,
+public sealed record PagedResult<TItem>(
+	IReadOnlyList<TItem> Items,
 	int TotalCount,
 	int Page,
 	int PageSize);
