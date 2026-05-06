@@ -5,9 +5,7 @@ namespace SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 
 public static class EventTypeRegistry
 {
-	public static IReadOnlyDictionary<string, Type> BuildFromAssembly(
-		Assembly assembly,
-		Func<Type, bool>? filter = null)
+	public static IReadOnlyDictionary<string, Type> BuildFromAssembly(Assembly assembly, Func<Type, bool>? filter = null)
 		=> assembly.GetTypes()
 			.Where(type => typeof(IDomainEvent).IsAssignableFrom(type)
 				&& !type.IsAbstract

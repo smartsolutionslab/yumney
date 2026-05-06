@@ -6,9 +6,7 @@ using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.Queries.Handlers;
 
-public sealed class GetRecipeActivityStatsQueryHandler(
-	IUserActivityRepository activities,
-	ICurrentUser currentUser)
+public sealed class GetRecipeActivityStatsQueryHandler(IUserActivityRepository activities, ICurrentUser currentUser)
 	: IQueryHandler<GetRecipeActivityStatsQuery, Result<RecipeActivityStatsDto>>
 {
 	public async Task<Result<RecipeActivityStatsDto>> HandleAsync(GetRecipeActivityStatsQuery query, CancellationToken cancellationToken = default)
