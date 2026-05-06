@@ -25,7 +25,7 @@ public sealed class RecipeDeletedHandler(IShoppingListProjectionRepository proje
 
 		foreach (var listId in listIds)
 		{
-			var list = await eventStore.LoadAsync(listId, cancellationToken);
+			var list = await eventStore.FindAsync(listId, cancellationToken);
 			if (list is null) continue;
 			list.ClearRecipeReference();
 			await eventStore.SaveAsync(list, cancellationToken);

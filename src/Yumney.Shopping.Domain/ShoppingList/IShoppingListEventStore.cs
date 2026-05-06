@@ -8,7 +8,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 /// </summary>
 public interface IShoppingListEventStore
 {
-	Task<ShoppingList?> LoadAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default);
+	Task<ShoppingList> LoadAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default);
+
+	Task<ShoppingList?> FindAsync(ShoppingListIdentifier identifier, CancellationToken cancellationToken = default);
 
 	/// <summary>
 	/// Appends the aggregate's uncommitted events, persists, marks the aggregate

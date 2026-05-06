@@ -46,7 +46,11 @@ public sealed partial class EfCoreShoppingEventStore(
 	};
 #pragma warning restore SA1311
 
-	public async Task<ShoppingLedger?> LoadAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default)
+	public async Task<ShoppingLedger> LoadAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default)
+		=> await FindAsync(ownerId, cancellationToken)
+			?? throw new EntityNotFoundException(nameof(ShoppingLedger), ownerId.Value);
+
+	public async Task<ShoppingLedger?> FindAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default)
 	{
 		var ownerIdValue = ownerId.Value;
 		var metadata = await context.Set<AggregateMetadata>()

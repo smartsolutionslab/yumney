@@ -15,7 +15,13 @@ public sealed partial class EfCoreShoppingListEventStore(
 	IEventBus eventBus,
 	ILogger<EfCoreShoppingListEventStore> logger) : IShoppingListEventStore
 {
-	public async Task<ShoppingList?> LoadAsync(
+	public async Task<ShoppingList> LoadAsync(
+		ShoppingListIdentifier identifier,
+		CancellationToken cancellationToken = default)
+		=> await FindAsync(identifier, cancellationToken)
+			?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
+
+	public async Task<ShoppingList?> FindAsync(
 		ShoppingListIdentifier identifier,
 		CancellationToken cancellationToken = default)
 	{

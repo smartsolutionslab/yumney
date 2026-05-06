@@ -1,7 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
-using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
@@ -26,7 +25,7 @@ public class MarkAsFrozenCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_NoLedger_ReturnsSuccessWithoutSaving()
 	{
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns((ShoppingLedger?)null);
 
 		var result = await handler.HandleAsync(new MarkAsFrozenCommand(ItemName.From("Chicken"), Unit.From("g")));
 
@@ -40,7 +39,7 @@ public class MarkAsFrozenCommandHandlerTests
 		var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
 		ledger.AddAsAtHome(ItemName.From("Chicken"), Quantity.Of(Amount.From(500), Unit.From("g")));
 		ledger.MarkCommitted();
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
 		var result = await handler.HandleAsync(new MarkAsFrozenCommand(ItemName.From("Chicken"), Unit.From("g")));
 
@@ -54,7 +53,7 @@ public class MarkAsFrozenCommandHandlerTests
 	{
 		var ledger = ShoppingLedger.Create(OwnerIdentifier.From("user-123"));
 		ledger.MarkCommitted();
-		eventStore.LoadAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
+		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>()).Returns(ledger);
 
 		await handler.HandleAsync(new MarkAsFrozenCommand(ItemName.From("Eggs"), null));
 

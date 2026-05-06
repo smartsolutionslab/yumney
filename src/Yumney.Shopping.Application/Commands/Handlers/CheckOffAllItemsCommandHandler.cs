@@ -1,4 +1,3 @@
-using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
@@ -13,8 +12,7 @@ public sealed class CheckOffAllItemsCommandHandler(IShoppingListEventStore event
 	{
 		var (listIdentifier, isChecked) = command;
 
-		var shoppingList = await eventStore.LoadAsync(listIdentifier, cancellationToken)
-			?? throw new EntityNotFoundException(nameof(ShoppingList), listIdentifier.Value);
+		var shoppingList = await eventStore.LoadAsync(listIdentifier, cancellationToken);
 
 		var owner = currentUser.AsOwner();
 

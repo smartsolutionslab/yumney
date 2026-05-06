@@ -1,4 +1,5 @@
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests;
 
@@ -10,7 +11,11 @@ internal sealed class FakeMealPlanEventStore : IMealPlanEventStore
 
 	public WeeklyPlan? LastSavedPlan { get; private set; }
 
-	public Task<WeeklyPlan?> LoadAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
+	public async Task<WeeklyPlan> LoadAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
+		=> await FindAsync(owner, week, cancellationToken)
+			?? throw new EntityNotFoundException(nameof(WeeklyPlan), $"{owner.Value}/{week.Value}");
+
+	public Task<WeeklyPlan?> FindAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
 	{
 		store.TryGetValue((owner.Value, week.Value), out var plan);
 		return Task.FromResult(plan);
