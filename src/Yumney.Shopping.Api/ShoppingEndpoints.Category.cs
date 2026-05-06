@@ -1,4 +1,3 @@
-using FluentValidation;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
@@ -18,6 +17,7 @@ public static partial class ShoppingEndpoints
 		group.MapPost("/{identifier:guid}/items/{itemId:guid}/category", ChangeItemCategoryAsync)
 			.WithName("ChangeItemCategory")
 			.WithTags("Shopping")
+			.WithValidation<Requests.ChangeItemCategory>()
 			.Produces(StatusCodes.Status204NoContent)
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status404NotFound);
@@ -27,13 +27,9 @@ public static partial class ShoppingEndpoints
 		Guid identifier,
 		Guid itemId,
 		Requests.ChangeItemCategory request,
-		IValidator<Requests.ChangeItemCategory> validator,
 		ICommandHandler<ChangeItemCategoryCommand, Result> handler,
 		CancellationToken cancellationToken)
 	{
-		var validation = await validator.ValidateAsync(request, cancellationToken);
-		if (validation.HasFailed()) return validation.ToValidationProblem();
-
 		var command = new ChangeItemCategoryCommand(
 			ShoppingListIdentifier.From(identifier),
 			ShoppingListItemIdentifier.From(itemId),

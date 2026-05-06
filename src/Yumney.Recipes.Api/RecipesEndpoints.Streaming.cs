@@ -133,6 +133,7 @@ public static partial class RecipesEndpoints
 		group.MapPost("/import", Import)
 			.WithName("ImportRecipe")
 			.WithTags("Recipes")
+			.WithValidation<Requests.ImportRecipe>()
 			.Produces<ExtractedRecipeDto>()
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status404NotFound)
@@ -145,13 +146,9 @@ public static partial class RecipesEndpoints
 
 		static async Task<IResult> Import(
 			Requests.ImportRecipe request,
-			IValidator<Requests.ImportRecipe> validator,
 			ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var command = new ImportRecipeCommand(RecipeUrl.From(request.Url));
 
 			var result = await handler.HandleAsync(command, cancellationToken);

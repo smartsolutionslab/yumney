@@ -1,4 +1,3 @@
-using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
@@ -77,19 +76,16 @@ public static partial class RecipesEndpoints
 		group.MapPost("/", Save)
 			.WithName("SaveRecipe")
 			.WithTags("Recipes")
+			.WithValidation<Requests.SaveRecipe>()
 			.Produces<SavedRecipeDto>(StatusCodes.Status201Created)
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status409Conflict);
 
 		static async Task<IResult> Save(
 			Requests.SaveRecipe request,
-			IValidator<Requests.SaveRecipe> validator,
 			ICommandHandler<SaveRecipeCommand, Result<SavedRecipeDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var (title, ingredients, steps, description, servings, timing, difficulty, imageUrl, language, sourceUrl, tags) = request;
 
 			var command = new SaveRecipeCommand(
@@ -112,6 +108,7 @@ public static partial class RecipesEndpoints
 		group.MapPut("/{identifier:guid}", Update)
 			.WithName("UpdateRecipe")
 			.WithTags("Recipes")
+			.WithValidation<Requests.UpdateRecipe>()
 			.Produces<RecipeDetailDto>()
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status404NotFound);
@@ -119,13 +116,9 @@ public static partial class RecipesEndpoints
 		static async Task<IResult> Update(
 			Guid identifier,
 			Requests.UpdateRecipe request,
-			IValidator<Requests.UpdateRecipe> validator,
 			ICommandHandler<UpdateRecipeCommand, Result<RecipeDetailDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var validation = await validator.ValidateAsync(request, cancellationToken);
-			if (validation.HasFailed()) return validation.ToValidationProblem();
-
 			var (title, ingredients, steps, description, servings, timing, difficulty, imageUrl, tags) = request;
 			var command = new UpdateRecipeCommand(RecipeIdentifier.From(identifier), title, ingredients, steps, description, servings, timing, difficulty, imageUrl, tags);
 
