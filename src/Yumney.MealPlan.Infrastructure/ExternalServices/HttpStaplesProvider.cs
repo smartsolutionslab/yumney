@@ -1,16 +1,35 @@
 using System.Net.Http.Json;
+using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
-using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.ExternalServices;
 
-public sealed class HttpStaplesProvider(IHttpClientFactory httpClientFactory) : IStaplesProvider
+#pragma warning disable SA1601
+public sealed partial class HttpStaplesProvider(
+	IHttpClientFactory httpClientFactory,
+	ILogger<HttpStaplesProvider> logger) : IStaplesProvider
 {
-	public async Task<IReadOnlySet<string>> GetStapleNamesAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
-	{
-		var client = httpClientFactory.CreateClient("users-api");
-		List<string> staples = await client.GetFromJsonAsync<List<string>>("/api/v1/users/staples", cancellationToken) ?? [];
+#pragma warning disable SA1311
+	private static readonly JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
+#pragma warning restore SA1311
 
-		return staples.ToHashSet(StringComparer.OrdinalIgnoreCase);
+	public async Task<IReadOnlySet<string>> GetStapleNamesAsync(CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			var client = httpClientFactory.CreateClient("users-api");
+			var staples = await client.GetFromJsonAsync<List<string>>("/api/v1/users/staples", jsonOptions, cancellationToken) ?? [];
+
+			return staples.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		}
+		catch (Exception ex) when (ex is not OperationCanceledException)
+		{
+			LogStaplesFetchFailed(ex.Message);
+			return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		}
 	}
+
+	[LoggerMessage(Level = LogLevel.Warning, Message = "Failed to fetch staples from users-api ({Reason}); shopping-list generation continuing without staple filtering.")]
+	private partial void LogStaplesFetchFailed(string reason);
 }
