@@ -28,5 +28,11 @@
 
   @if (!loading() && !error()) {
     <yn-activity-timeline [entries]="timelineEntries()" />
+
+    @if (hasMore()) {
+      <button type="button" class="activity-page__load-more" (click)="onLoadMore()">
+        {{ t('account.activity.loadMore') }}
+      </button>
+    }
   }
 </section>

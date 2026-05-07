@@ -17,16 +17,18 @@ public static class UserActivityEndpoints
 			.RequireAuthorization()
 			.WithName("GetRecentActivity")
 			.WithTags("Users")
-			.Produces<IReadOnlyList<UserActivityDto>>();
+			.Produces<UserActivityPageDto>();
 
 		static async Task<IResult> GetRecentActivity(
-			IQueryHandler<GetRecentActivityQuery, Result<IReadOnlyList<UserActivityDto>>> handler,
+			IQueryHandler<GetRecentActivityQuery, Result<UserActivityPageDto>> handler,
 			int limit = 5,
 			string? type = null,
+			string? cursor = null,
 			CancellationToken cancellationToken = default)
 		{
 			var typeFilter = string.IsNullOrWhiteSpace(type) ? null : ActivityType.From(type);
-			var query = new GetRecentActivityQuery(ActivityLimit.From(limit), typeFilter);
+			var decodedCursor = ActivityCursor.TryDecode(cursor);
+			var query = new GetRecentActivityQuery(ActivityLimit.From(limit), typeFilter, decodedCursor);
 			var result = await handler.HandleAsync(query, cancellationToken);
 			return result.ToOk();
 		}

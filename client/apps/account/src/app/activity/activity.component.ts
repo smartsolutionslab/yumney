@@ -20,6 +20,8 @@ const FILTER_OPTIONS: ReadonlyArray<{ value: ActivityTypeKey | 'all'; labelKey: 
   { value: 'recipe_deleted', labelKey: 'account.activity.filter.deleted' },
 ];
 
+const PAGE_SIZE = 20;
+
 @Component({
   selector: 'yn-activity-page',
   standalone: true,
@@ -39,6 +41,8 @@ export class ActivityComponent {
   protected error = this.state.serverError;
   protected entries = signal<UserActivityItem[]>([]);
   protected activeFilter = signal<ActivityTypeKey | 'all'>('all');
+  protected nextCursor = signal<string | null>(null);
+  protected hasMore = computed(() => this.nextCursor() !== null);
 
   protected timelineEntries = computed<ActivityEntry[]>(() =>
     this.entries().map((entry) => ({
@@ -50,24 +54,41 @@ export class ActivityComponent {
   );
 
   constructor() {
-    this.load();
+    this.loadFirstPage();
   }
 
   protected onFilterChange(value: ActivityTypeKey | 'all'): void {
     if (this.activeFilter() === value) return;
     this.activeFilter.set(value);
-    this.load();
+    this.loadFirstPage();
   }
 
   protected onRetry(): void {
-    this.load();
+    this.loadFirstPage();
   }
 
-  private load(): void {
+  protected onLoadMore(): void {
+    const cursor = this.nextCursor();
+    if (cursor === null) return;
+
     const type = this.activeFilter();
-    const options = type === 'all' ? { limit: 50 } : { limit: 50, type };
-    this.state.execute(this.api.getActivity(options), ERROR_MAPS.account.load, (entries) =>
-      this.entries.set(entries),
-    );
+    const options = type === 'all'
+      ? { limit: PAGE_SIZE, cursor }
+      : { limit: PAGE_SIZE, type, cursor };
+
+    this.state.execute(this.api.getActivity(options), ERROR_MAPS.account.load, (page) => {
+      this.entries.update((current) => [...current, ...page.items]);
+      this.nextCursor.set(page.nextCursor);
+    });
+  }
+
+  private loadFirstPage(): void {
+    const type = this.activeFilter();
+    const options = type === 'all' ? { limit: PAGE_SIZE } : { limit: PAGE_SIZE, type };
+
+    this.state.execute(this.api.getActivity(options), ERROR_MAPS.account.load, (page) => {
+      this.entries.set(page.items);
+      this.nextCursor.set(page.nextCursor);
+    });
   }
 }

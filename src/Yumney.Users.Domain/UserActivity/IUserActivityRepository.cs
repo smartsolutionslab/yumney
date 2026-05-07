@@ -13,6 +13,21 @@ public interface IUserActivityRepository
 		ActivityLimit limit,
 		CancellationToken cancellationToken = default);
 
+	// Keyset pagination for the timeline UI (US-576). cursor=null returns the
+	// latest page; subsequent pages use the encoded (OccurredAt, Id) tuple.
+	Task<IReadOnlyList<UserActivity>> GetRecentByCursorAsync(
+		OwnerIdentifier owner,
+		ActivityLimit limit,
+		ActivityCursor? cursor,
+		CancellationToken cancellationToken = default);
+
+	Task<IReadOnlyList<UserActivity>> GetRecentByTypeAndCursorAsync(
+		OwnerIdentifier owner,
+		ActivityType type,
+		ActivityLimit limit,
+		ActivityCursor? cursor,
+		CancellationToken cancellationToken = default);
+
 	// Per-recipe stats: cook count + last cooked + view count (US-121).
 	Task<RecipeActivityStats> GetRecipeStatsAsync(
 		OwnerIdentifier owner,

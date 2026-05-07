@@ -13,6 +13,11 @@ export interface UserActivityItem {
   occurredAt: string;
 }
 
+export interface UserActivityPage {
+  items: UserActivityItem[];
+  nextCursor: string | null;
+}
+
 export interface RecipeActivityStats {
   cookCount: number;
   lastCookedAt: string | null;
