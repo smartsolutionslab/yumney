@@ -2,11 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from './api-endpoints';
-import type {
-  ActivityTypeKey,
-  RecipeActivityStats,
-  UserActivityPage,
-} from './user-activity';
+import type { ActivityTypeKey, RecipeActivityStats, UserActivityPage } from './user-activity';
 
 @Injectable({ providedIn: 'root' })
 export class ActivityApiService {

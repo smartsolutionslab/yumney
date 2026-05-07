@@ -72,9 +72,8 @@ export class ActivityComponent {
     if (cursor === null) return;
 
     const type = this.activeFilter();
-    const options = type === 'all'
-      ? { limit: PAGE_SIZE, cursor }
-      : { limit: PAGE_SIZE, type, cursor };
+    const options =
+      type === 'all' ? { limit: PAGE_SIZE, cursor } : { limit: PAGE_SIZE, type, cursor };
 
     this.state.execute(this.api.getActivity(options), ERROR_MAPS.account.load, (page) => {
       this.entries.update((current) => [...current, ...page.items]);
