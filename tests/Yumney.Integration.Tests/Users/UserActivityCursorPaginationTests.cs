@@ -95,7 +95,9 @@ public class UserActivityCursorPaginationTests(AspireFixture fixture) : IAsyncLi
 	{
 		var activityType = type ?? ActivityType.From("recipe_imported");
 		var seeded = new UserActivity[count];
-		var baseTime = DateTime.UtcNow.AddMinutes(-(ageMinutes == 0 ? count : ageMinutes));
+		var now = DateTime.UtcNow;
+		var nowMicroseconds = new DateTime(now.Ticks - (now.Ticks % 10), DateTimeKind.Utc);
+		var baseTime = nowMicroseconds.AddMinutes(-(ageMinutes == 0 ? count : ageMinutes));
 
 		for (var index = 0; index < count; index++)
 		{

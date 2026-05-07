@@ -117,6 +117,7 @@
     "lead": "Everything you've imported, viewed, cooked, edited, and deleted — newest first.",
     "loading": "Loading activity…",
     "retry": "Try again",
+    "loadMore": "Load older",
     "filterAria": "Filter activity by type",
     "filter": {
       "all": "All",
