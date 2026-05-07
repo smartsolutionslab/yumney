@@ -10,13 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import {
-  RecipeApiService,
-  ImportRecipeResponse,
-  DashboardApiService,
-  type UserActivityItem,
-  type SuggestionsResponse,
-} from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
 import {
   createAsyncState,
   mapToSaveRecipeRequest,
@@ -27,7 +21,6 @@ import { LucideAngularModule } from 'lucide-angular';
 import {
   RecipePreviewComponent,
   QuickActionsComponent,
-  type QuickAction,
   SuggestionCardComponent,
   RecentActivityComponent,
   CameraCaptureComponent,
@@ -38,6 +31,7 @@ import {
 import { CameraService } from '@yumney/shared/models';
 import type { RecognizedIngredient } from '@yumney/shared/api-client';
 import { UrlImportComponent } from './url-import.component';
+import { DashboardSuggestionsService } from './dashboard-suggestions.service';
 
 @Component({
   selector: 'yn-dashboard',
@@ -57,16 +51,17 @@ import { UrlImportComponent } from './url-import.component';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DashboardSuggestionsService],
 })
 export class DashboardComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private recipeApi = inject(RecipeApiService);
-  private dashboardApi = inject(DashboardApiService);
   protected camera = inject(CameraService);
   private destroyRef = inject(DestroyRef);
   private importState = createAsyncState(this.destroyRef);
   private saveState = createAsyncState(this.destroyRef);
+  private suggestionsState = inject(DashboardSuggestionsService);
 
   protected urlImport = viewChild<UrlImportComponent>(UrlImportComponent);
 
@@ -83,14 +78,16 @@ export class DashboardComponent implements OnInit {
   shareToast = signal<string | null>(null);
   recognizedIngredients = signal<RecognizedIngredient[] | null>(null);
 
-  // Smart dashboard state
-  quickActions = signal<QuickAction[]>([]);
-  suggestions = signal<SuggestionsResponse | null>(null);
-  recentActivity = signal<UserActivityItem[]>([]);
-  suggestionsLoading = signal(true);
+  // Re-exposed so the template (and existing tests) keep their flat access.
+  quickActions = this.suggestionsState.quickActions;
+  suggestions = this.suggestionsState.suggestions;
+  recentActivity = this.suggestionsState.recentActivity;
+  suggestionsLoading = this.suggestionsState.loading;
 
   ngOnInit(): void {
-    this.loadDashboardData();
+    this.suggestionsState.load().subscribe(({ initialDataIsEmpty }) => {
+      if (initialDataIsEmpty) this.importSectionExpanded.set(true);
+    });
 
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const urlParam = params['url'] as string | undefined;
@@ -152,43 +149,6 @@ export class DashboardComponent implements OnInit {
 
   onUrlImportStarted(): void {
     this.resetImportState();
-  }
-
-  private loadDashboardData(): void {
-    this.dashboardApi
-      .getSuggestions()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.suggestions.set(response);
-          this.quickActions.set(this.mapQuickActions(response.quickActions));
-          this.suggestionsLoading.set(false);
-
-          if (response.quickActions.length === 0 && response.suggestions.length === 0) {
-            this.importSectionExpanded.set(true);
-          }
-        },
-        error: () => {
-          // Keep the loading spinner from spinning forever if the API fails.
-          this.suggestionsLoading.set(false);
-          this.importSectionExpanded.set(true);
-        },
-      });
-
-    this.dashboardApi
-      .getRecentActivity(5)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (activity) => this.recentActivity.set(activity),
-        error: () => this.recentActivity.set([]),
-      });
-  }
-
-  private mapQuickActions(keys: string[]): QuickAction[] {
-    return keys.map((key) => ({
-      key,
-      labelKey: 'dashboard.quickActions.' + key,
-    }));
   }
 
   onImportFromPhotos(event: Event): void {
