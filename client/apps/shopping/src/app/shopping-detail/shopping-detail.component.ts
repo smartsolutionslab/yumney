@@ -15,9 +15,11 @@ import {
   buildBringImportUrl,
   createAsyncState,
   ERROR_MAPS,
+  groupByCategory,
   optimisticSignalUpdate,
   ROUTES,
   ToastService,
+  type CategoryGroup,
 } from '@yumney/shared/models';
 import {
   BackLinkComponent,
@@ -38,11 +40,6 @@ const CATEGORY_ORDER: readonly CategoryKey[] = [
   'household',
   'other',
 ];
-
-interface CategoryGroup {
-  category: CategoryKey;
-  items: ShoppingListItemResponse[];
-}
 
 // How long to give the OS to launch the Bring! app before assuming it isn't
 // installed and falling back to the marketing site. 1.5 s is the de-facto
@@ -81,22 +78,12 @@ export class ShoppingDetailComponent implements OnInit {
 
   totalItemCount = computed(() => this.shoppingList()?.items.length ?? 0);
 
-  groupedItems = computed<CategoryGroup[]>(() => {
+  groupedItems = computed<CategoryGroup<ShoppingListItemResponse, CategoryKey>[]>(() => {
     const list = this.shoppingList();
     if (!list) return [];
-
-    const groups = new Map<CategoryKey, ShoppingListItemResponse[]>();
-    for (const item of list.items) {
-      const key = this.normalize(item.category);
-      const bucket = groups.get(key) ?? [];
-      bucket.push(item);
-      groups.set(key, bucket);
-    }
-
-    return CATEGORY_ORDER.filter((category) => groups.has(category)).map((category) => ({
-      category,
-      items: groups.get(category) ?? [],
-    }));
+    return groupByCategory(list.items, (item) => this.normalize(item.category), {
+      order: CATEGORY_ORDER,
+    });
   });
 
   // Items still to buy — already-checked items have been added to the cart, so
