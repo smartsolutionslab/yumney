@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
@@ -22,125 +23,109 @@ public sealed class ShoppingLedgerProjectionHandler(ShoppingDbContext context)
 	  IModuleEventHandler<ShoppingItemRemovedModuleEvent>,
 	  IModuleEventHandler<ShoppingItemQuantityAdjustedModuleEvent>
 {
-	/// <inheritdoc />
 	public Task HandleAsync(ShoppingItemAddedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-
-		Action<ShoppingLedgerReadItem> mutate = readItem =>
-		{
-			readItem.TotalQuantity += inner.Quantity.Amount;
-			AppendSource(readItem, inner.Quantity.Amount, inner.Source);
-		};
-
-		return UpsertAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, mutate, cancellationToken);
+		return UpsertItemAsync(
+			@event.OwnerId,
+			inner.ItemName,
+			inner.Quantity.Unit?.Value,
+			readItem =>
+			{
+				readItem.TotalQuantity += inner.Quantity.Amount;
+				AppendSource(readItem, inner.Quantity.Amount, inner.Source);
+			},
+			cancellationToken);
 	}
 
-	/// <inheritdoc />
 	public Task HandleAsync(ShoppingItemBoughtModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-
-		Action<ShoppingLedgerReadItem> mutate = readItem =>
-		{
-			readItem.IsBought = true;
-			readItem.BoughtAt = DateTime.UtcNow;
-		};
-
-		return UpdateAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, mutate, cancellationToken);
+		return UpdateItemAsync(
+			@event.OwnerId,
+			inner.ItemName,
+			inner.Quantity.Unit?.Value,
+			readItem =>
+			{
+				readItem.IsBought = true;
+				readItem.BoughtAt = DateTime.UtcNow;
+			},
+			cancellationToken);
 	}
 
-	/// <inheritdoc />
 	public Task HandleAsync(ShoppingItemConsumedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		return UpdateAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, _ => { }, cancellationToken);
+		return UpdateItemAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, _ => { }, cancellationToken);
 	}
 
-	/// <inheritdoc />
 	public Task HandleAsync(ShoppingItemRemovedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-
-		Action<ShoppingLedgerReadItem> mutate = readItem =>
-		{
-			readItem.TotalQuantity = Math.Max(0, readItem.TotalQuantity - inner.Quantity.Amount);
-			if (readItem.TotalQuantity <= 0)
+		return UpdateItemAsync(
+			@event.OwnerId,
+			inner.ItemName,
+			inner.Quantity.Unit?.Value,
+			readItem =>
 			{
-				context.Set<ShoppingLedgerReadItem>().Remove(readItem);
-			}
-		};
-
-		return UpdateAsync(@event.OwnerId, inner.ItemName, inner.Quantity.Unit?.Value, mutate, cancellationToken);
+				readItem.TotalQuantity = Math.Max(0, readItem.TotalQuantity - inner.Quantity.Amount);
+				if (readItem.TotalQuantity <= 0)
+				{
+					context.Set<ShoppingLedgerReadItem>().Remove(readItem);
+				}
+			},
+			cancellationToken);
 	}
 
-	/// <inheritdoc />
 	public Task HandleAsync(ShoppingItemQuantityAdjustedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-
-		Action<ShoppingLedgerReadItem> mutate = readItem =>
-		{
-			readItem.TotalQuantity = inner.NewQuantity.Amount;
-		};
-
-		return UpdateAsync(@event.OwnerId, inner.ItemName, inner.NewQuantity.Unit?.Value, mutate, cancellationToken);
+		return UpdateItemAsync(
+			@event.OwnerId,
+			inner.ItemName,
+			inner.NewQuantity.Unit?.Value,
+			readItem => readItem.TotalQuantity = inner.NewQuantity.Amount,
+			cancellationToken);
 	}
 
-	private async Task UpdateAsync(
+	private Task UpsertItemAsync(
 		string ownerId,
 		string itemName,
 		string? unit,
 		Action<ShoppingLedgerReadItem> mutate,
-		CancellationToken cancellationToken)
-	{
-		var readItem = await FindAsync(ownerId, itemName, unit, cancellationToken);
-		if (readItem is null) return;
+		CancellationToken cancellationToken) =>
+		context.UpsertAsync<ShoppingLedgerReadItem>(
+			row => row.OwnerId == ownerId && EF.Functions.ILike(row.ItemName, itemName) && row.Unit == unit,
+			() => new ShoppingLedgerReadItem
+			{
+				Id = Guid.CreateVersion7(),
+				OwnerId = ownerId,
+				ItemName = itemName,
+				Unit = unit,
+				Category = (IngredientCategoryResolver.Resolve(itemName) ?? IngredientCategory.Other).Value,
+				LastUpdated = DateTime.UtcNow,
+			},
+			row =>
+			{
+				mutate(row);
+				row.LastUpdated = DateTime.UtcNow;
+			},
+			cancellationToken);
 
-		mutate(readItem);
-		readItem.LastUpdated = DateTime.UtcNow;
-		await context.SaveChangesAsync(cancellationToken);
-	}
-
-	private async Task UpsertAsync(
+	private Task UpdateItemAsync(
 		string ownerId,
 		string itemName,
 		string? unit,
 		Action<ShoppingLedgerReadItem> mutate,
-		CancellationToken cancellationToken)
-	{
-		var readItem = await FindAsync(ownerId, itemName, unit, cancellationToken)
-			?? Create(ownerId, itemName, unit);
-		mutate(readItem);
-		readItem.LastUpdated = DateTime.UtcNow;
-		await context.SaveChangesAsync(cancellationToken);
-	}
-
-	private ShoppingLedgerReadItem Create(string ownerId, string itemName, string? unit)
-	{
-		var category = IngredientCategoryResolver.Resolve(itemName) ?? IngredientCategory.Other;
-		var readItem = new ShoppingLedgerReadItem
-		{
-			Id = Guid.CreateVersion7(),
-			OwnerId = ownerId,
-			ItemName = itemName,
-			Unit = unit,
-			Category = category.Value,
-			LastUpdated = DateTime.UtcNow,
-		};
-		context.Set<ShoppingLedgerReadItem>().Add(readItem);
-		return readItem;
-	}
-
-	private async Task<ShoppingLedgerReadItem?> FindAsync(string ownerId, string itemName, string? unit, CancellationToken cancellationToken)
-	{
-		return await context.Set<ShoppingLedgerReadItem>()
-			.FirstOrDefaultAsync(
-				r => r.OwnerId == ownerId
-					&& EF.Functions.ILike(r.ItemName, itemName)
-					&& r.Unit == unit,
-				cancellationToken);
-	}
+		CancellationToken cancellationToken) =>
+		context.UpdateAsync<ShoppingLedgerReadItem>(
+			row => row.OwnerId == ownerId && EF.Functions.ILike(row.ItemName, itemName) && row.Unit == unit,
+			row =>
+			{
+				mutate(row);
+				row.LastUpdated = DateTime.UtcNow;
+			},
+			cancellationToken);
 
 #pragma warning disable SA1204
 	private static void AppendSource(ShoppingLedgerReadItem readItem, decimal quantity, string source)
@@ -149,6 +134,7 @@ public sealed class ShoppingLedgerProjectionHandler(ShoppingDbContext context)
 		sources.Add(new SourceEntry(quantity, source, DateTime.UtcNow));
 		readItem.SourcesJson = JsonSerializer.Serialize(sources);
 	}
+#pragma warning restore SA1204
 
 	private sealed record SourceEntry(decimal Quantity, string Source, DateTime OccurredAt);
 }

@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
@@ -86,28 +86,26 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 			cancellationToken);
 	}
 
-	/// <inheritdoc />
-	public async Task HandleAsync(ShoppingItemMarkedAsFrozenModuleEvent @event, CancellationToken cancellationToken = default)
+	public Task HandleAsync(ShoppingItemMarkedAsFrozenModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		// Pure update: don't create a row if the item isn't on the ledger —
 		// freezing a non-existent item is a no-op rather than a phantom entry.
 		var inner = @event.Inner;
 		var nameKey = inner.ItemName.Value.ToLowerInvariant();
 		var unit = inner.Unit?.Value;
-		var row = await context.Set<IngredientBalanceReadItem>()
-			.FirstOrDefaultAsync(
-				r => r.OwnerId == @event.OwnerId && r.NameKey == nameKey && r.Unit == unit,
-				cancellationToken);
-		if (row is null) return;
-
 		var now = timeProvider.GetUtcNow().UtcDateTime;
-		row.Category = IngredientCategory.Frozen.Value;
-		row.LastBoughtAt = now;
-		row.LastUpdated = now;
-		await context.SaveChangesAsync(cancellationToken);
+		return context.UpdateAsync<IngredientBalanceReadItem>(
+			row => row.OwnerId == @event.OwnerId && row.NameKey == nameKey && row.Unit == unit,
+			row =>
+			{
+				row.Category = IngredientCategory.Frozen.Value;
+				row.LastBoughtAt = now;
+				row.LastUpdated = now;
+			},
+			cancellationToken);
 	}
 
-	private async Task UpsertAsync(
+	private Task UpsertAsync(
 		string ownerId,
 		string itemName,
 		string? unit,
@@ -115,30 +113,22 @@ public sealed class IngredientBalanceProjectionHandler(ShoppingDbContext context
 		CancellationToken cancellationToken)
 	{
 		var nameKey = itemName.ToLowerInvariant();
-		var row = await context.Set<IngredientBalanceReadItem>()
-			.FirstOrDefaultAsync(
-				r => r.OwnerId == ownerId
-					&& r.NameKey == nameKey
-					&& r.Unit == unit,
-				cancellationToken);
-
-		if (row is null)
-		{
-			var category = IngredientCategoryResolver.Resolve(itemName) ?? IngredientCategory.Other;
-			row = new IngredientBalanceReadItem
+		return context.UpsertAsync<IngredientBalanceReadItem>(
+			row => row.OwnerId == ownerId && row.NameKey == nameKey && row.Unit == unit,
+			() => new IngredientBalanceReadItem
 			{
 				Id = Guid.CreateVersion7(),
 				OwnerId = ownerId,
 				ItemName = itemName,
 				NameKey = nameKey,
 				Unit = unit,
-				Category = category.Value,
-			};
-			context.Set<IngredientBalanceReadItem>().Add(row);
-		}
-
-		mutate(row);
-		row.LastUpdated = timeProvider.GetUtcNow().UtcDateTime;
-		await context.SaveChangesAsync(cancellationToken);
+				Category = (IngredientCategoryResolver.Resolve(itemName) ?? IngredientCategory.Other).Value,
+			},
+			row =>
+			{
+				mutate(row);
+				row.LastUpdated = timeProvider.GetUtcNow().UtcDateTime;
+			},
+			cancellationToken);
 	}
 }
