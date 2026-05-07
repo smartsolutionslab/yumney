@@ -45,7 +45,7 @@ public class StaplesAndActivityContractTests(AspireFixture fixture)
 	}
 
 	[Fact]
-	public async Task GetRecentActivity_Authenticated_Returns200WithJsonArray()
+	public async Task GetRecentActivity_Authenticated_Returns200WithCursorPage()
 	{
 		using var client = await fixture.CreateAuthenticatedClientAsync("users-api");
 
@@ -53,7 +53,9 @@ public class StaplesAndActivityContractTests(AspireFixture fixture)
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-		body.ValueKind.Should().Be(JsonValueKind.Array);
+		body.ValueKind.Should().Be(JsonValueKind.Object);
+		body.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
+		body.TryGetProperty("nextCursor", out _).Should().BeTrue();
 	}
 
 	[Fact]

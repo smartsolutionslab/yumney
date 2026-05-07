@@ -7,16 +7,20 @@ using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 namespace SmartSolutionsLab.Yumney.Users.Application.Queries.Handlers;
 
 public sealed class GetRecentActivityQueryHandler(IUserActivityRepository activities, ICurrentUser currentUser)
-	: IQueryHandler<GetRecentActivityQuery, Result<IReadOnlyList<UserActivityDto>>>
+	: IQueryHandler<GetRecentActivityQuery, Result<UserActivityPageDto>>
 {
-	public async Task<Result<IReadOnlyList<UserActivityDto>>> HandleAsync(GetRecentActivityQuery query, CancellationToken cancellationToken = default)
+	public async Task<Result<UserActivityPageDto>> HandleAsync(GetRecentActivityQuery query, CancellationToken cancellationToken = default)
 	{
 		var owner = currentUser.AsOwner();
 
 		var entries = query.Type is null
-			? await activities.GetRecentAsync(owner, query.Limit, cancellationToken)
-			: await activities.GetRecentByTypeAsync(owner, query.Type, query.Limit, cancellationToken);
+			? await activities.GetRecentByCursorAsync(owner, query.Limit, query.Cursor, cancellationToken)
+			: await activities.GetRecentByTypeAndCursorAsync(owner, query.Type, query.Limit, query.Cursor, cancellationToken);
 
-		return Result.Success(entries.ToDtos());
+		var nextCursor = entries.Count == query.Limit.Value
+			? ActivityCursor.From(entries[^1].OccurredAt, entries[^1].Id).Encode()
+			: null;
+
+		return Result.Success(new UserActivityPageDto(entries.ToDtos(), nextCursor));
 	}
 }

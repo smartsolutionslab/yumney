@@ -39,6 +39,21 @@ public sealed class UserActivityRepository(UsersDbContext context) : IUserActivi
 			.ToListAsync(cancellationToken);
 	}
 
+	public Task<IReadOnlyList<UserActivity>> GetRecentByCursorAsync(
+		OwnerIdentifier owner,
+		ActivityLimit limit,
+		ActivityCursor? cursor,
+		CancellationToken cancellationToken = default) =>
+		QueryByCursorAsync(activity => activity.Owner == owner, limit, cursor, cancellationToken);
+
+	public Task<IReadOnlyList<UserActivity>> GetRecentByTypeAndCursorAsync(
+		OwnerIdentifier owner,
+		ActivityType type,
+		ActivityLimit limit,
+		ActivityCursor? cursor,
+		CancellationToken cancellationToken = default) =>
+		QueryByCursorAsync(activity => activity.Owner == owner && activity.Type == type, limit, cursor, cancellationToken);
+
 	public async Task<RecipeActivityStats> GetRecipeStatsAsync(
 		OwnerIdentifier owner,
 		RecipeIdentifierSnapshot recipeIdentifier,
@@ -65,5 +80,32 @@ public sealed class UserActivityRepository(UsersDbContext context) : IUserActivi
 	{
 		var matches = await activities.Where(activity => activity.Owner == owner).ToListAsync(cancellationToken);
 		activities.RemoveRange(matches);
+	}
+
+	private async Task<IReadOnlyList<UserActivity>> QueryByCursorAsync(
+		System.Linq.Expressions.Expression<Func<UserActivity, bool>> filter,
+		ActivityLimit limit,
+		ActivityCursor? cursor,
+		CancellationToken cancellationToken)
+	{
+		var query = activities.AsNoTracking().Where(filter);
+
+		if (cursor is not null)
+		{
+			// Strictly older than the cursor's tick. The cursor still carries
+			// an id for transport stability (clients can de-dupe across page
+			// boundaries) but server-side we only compare on OccurredAt —
+			// EF Core can't translate < on a value-converted UserActivityIdentifier.
+			// Same-tick collisions are vanishingly rare for a per-user activity
+			// feed (DateTime.UtcNow ticks at 100ns precision, write rate is
+			// human-paced).
+			var cursorOccurred = cursor.OccurredAt;
+			query = query.Where(activity => activity.OccurredAt < cursorOccurred);
+		}
+
+		return await query
+			.OrderByDescending(activity => activity.OccurredAt)
+			.Take(limit.Value)
+			.ToListAsync(cancellationToken);
 	}
 }
