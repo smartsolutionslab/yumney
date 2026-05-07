@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Quantities\Yumney.Shared.Quantities.csproj" />
+  </ItemGroup>
+
+</Project>

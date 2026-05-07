@@ -1,12 +1,8 @@
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
-using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
+using SmartSolutionsLab.Yumney.Shopping.Client;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;
@@ -14,9 +10,9 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;
 public class HttpIngredientBalanceProviderTests
 {
 	[Fact]
-	public async Task GetAvailableIngredientsAsync_EmptyResponse_ReturnsEmptyDictionary()
+	public async Task GetAvailableIngredientsAsync_NullResponse_ReturnsEmptyDictionary()
 	{
-		var provider = CreateProvider("""{ "items": [] }""");
+		var provider = CreateProvider(balance: null);
 
 		var result = await provider.GetAvailableIngredientsAsync();
 
@@ -24,37 +20,21 @@ public class HttpIngredientBalanceProviderTests
 	}
 
 	[Fact]
-	public async Task GetAvailableIngredientsAsync_NullItems_ReturnsEmptyDictionary()
+	public async Task GetAvailableIngredientsAsync_EmptyItems_ReturnsEmptyDictionary()
 	{
-		var provider = CreateProvider("""{ "items": null }""");
+		var provider = CreateProvider(new ShoppingBalanceResponse([]));
 
 		var result = await provider.GetAvailableIngredientsAsync();
 
 		result.Should().BeEmpty();
-	}
-
-	[Fact]
-	public async Task GetAvailableIngredientsAsync_DeserializesEnumAsString()
-	{
-		var provider = CreateProvider("""
-            {
-              "items": [
-                { "itemName": "Milk", "freshness": "UseSoon" },
-                { "itemName": "Salt", "freshness": "NotTracked" }
-              ]
-            }
-            """);
-
-		var result = await provider.GetAvailableIngredientsAsync();
-
-		result["Milk"].Should().Be(Freshness.UseSoon);
-		result["Salt"].Should().Be(Freshness.NotTracked);
 	}
 
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_LookupIsCaseInsensitive()
 	{
-		var provider = CreateProvider("""{ "items": [ { "itemName": "Milk", "freshness": "Fresh" } ] }""");
+		var provider = CreateProvider(new ShoppingBalanceResponse([
+			new ShoppingBalanceItem("Milk", Freshness.Fresh),
+		]));
 
 		var result = await provider.GetAvailableIngredientsAsync();
 
@@ -65,7 +45,9 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_TrimsWhitespaceFromNames()
 	{
-		var provider = CreateProvider("""{ "items": [ { "itemName": "  Milk  ", "freshness": "Fresh" } ] }""");
+		var provider = CreateProvider(new ShoppingBalanceResponse([
+			new ShoppingBalanceItem("  Milk  ", Freshness.Fresh),
+		]));
 
 		var result = await provider.GetAvailableIngredientsAsync();
 
@@ -75,14 +57,10 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_BlankName_Skipped()
 	{
-		var provider = CreateProvider("""
-            {
-              "items": [
-                { "itemName": "   ", "freshness": "Fresh" },
-                { "itemName": "Eggs", "freshness": "Fresh" }
-              ]
-            }
-            """);
+		var provider = CreateProvider(new ShoppingBalanceResponse([
+			new ShoppingBalanceItem("   ", Freshness.Fresh),
+			new ShoppingBalanceItem("Eggs", Freshness.Fresh),
+		]));
 
 		var result = await provider.GetAvailableIngredientsAsync();
 
@@ -92,17 +70,11 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_DuplicateNameMostUrgentWins()
 	{
-		// Same name with different freshness (e.g. "milk in liters" UseSoon and
-		// "milk in ml" Fresh). The matcher needs the urgent one to surface.
-		var provider = CreateProvider("""
-            {
-              "items": [
-                { "itemName": "Milk", "freshness": "Fresh" },
-                { "itemName": "milk", "freshness": "UseSoon" },
-                { "itemName": "MILK", "freshness": "NotTracked" }
-              ]
-            }
-            """);
+		var provider = CreateProvider(new ShoppingBalanceResponse([
+			new ShoppingBalanceItem("Milk", Freshness.Fresh),
+			new ShoppingBalanceItem("milk", Freshness.UseSoon),
+			new ShoppingBalanceItem("MILK", Freshness.NotTracked),
+		]));
 
 		var result = await provider.GetAvailableIngredientsAsync();
 
@@ -112,51 +84,20 @@ public class HttpIngredientBalanceProviderTests
 	[Fact]
 	public async Task GetAvailableIngredientsAsync_DuplicateNameOrderIndependent()
 	{
-		// Same scenario but reversed order — most-urgent first, then less urgent.
-		var provider = CreateProvider("""
-            {
-              "items": [
-                { "itemName": "Chicken", "freshness": "CheckIt" },
-                { "itemName": "Chicken", "freshness": "Fresh" }
-              ]
-            }
-            """);
+		var provider = CreateProvider(new ShoppingBalanceResponse([
+			new ShoppingBalanceItem("Chicken", Freshness.CheckIt),
+			new ShoppingBalanceItem("Chicken", Freshness.Fresh),
+		]));
 
 		var result = await provider.GetAvailableIngredientsAsync();
 
 		result["Chicken"].Should().Be(Freshness.CheckIt);
 	}
 
-	[Fact]
-	public async Task GetAvailableIngredientsAsync_HttpError_ReturnsEmptyForDegradedMode()
+	private static HttpIngredientBalanceProvider CreateProvider(ShoppingBalanceResponse? balance)
 	{
-		var provider = CreateProvider(string.Empty, HttpStatusCode.InternalServerError);
-
-		var result = await provider.GetAvailableIngredientsAsync();
-
-		result.Should().BeEmpty();
-	}
-
-	private static HttpIngredientBalanceProvider CreateProvider(string responseBody, HttpStatusCode status = HttpStatusCode.OK)
-	{
-		var handler = new StubHttpMessageHandler(responseBody, status);
-		var client = new HttpClient(handler) { BaseAddress = new Uri("http://shopping-api") };
-
-		var factory = Substitute.For<IHttpClientFactory>();
-		factory.CreateClient("shopping-api").Returns(client);
-
-		return new HttpIngredientBalanceProvider(factory, Substitute.For<ILogger<HttpIngredientBalanceProvider>>());
-	}
-
-	private sealed class StubHttpMessageHandler(string body, HttpStatusCode status) : HttpMessageHandler
-	{
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-		{
-			var response = new HttpResponseMessage(status)
-			{
-				Content = new StringContent(body, Encoding.UTF8, "application/json"),
-			};
-			return Task.FromResult(response);
-		}
+		var shopping = Substitute.For<IShoppingClient>();
+		shopping.GetBalanceAsync(Arg.Any<CancellationToken>()).Returns(balance);
+		return new HttpIngredientBalanceProvider(shopping);
 	}
 }

@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
+using SmartSolutionsLab.Yumney.Recipes.Client;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
-using SmartSolutionsLab.Yumney.Shared.Web;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -13,6 +13,7 @@ using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Services;
+using SmartSolutionsLab.Yumney.Users.Client;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure;
 
@@ -35,10 +36,10 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IIngredientBalanceReadModelRepository, IngredientBalanceReadModelRepository>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
 		services.AddScoped<IRecipeIngredientLookup, HttpRecipeIngredientLookup>();
-		services.AddYumneyServiceClient("recipes-api");
+		services.AddRecipesClient();
 		services.AddScoped<IInboxStore, EfCoreInboxStore<ShoppingDbContext>>();
 		services.AddBusEventHandlersFromAssemblyContaining<ShoppingListProjection>();
-		services.AddYumneyServiceClient("users-api");
+		services.AddUsersClient();
 		services.AddScoped<IShoppingUserDataPurger, EfCoreShoppingUserDataPurger>();
 		services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");
 
