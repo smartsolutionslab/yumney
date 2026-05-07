@@ -7,8 +7,8 @@ import {
   DestroyRef,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, debounceTime } from 'rxjs';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, skip } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '../api';
@@ -81,7 +81,8 @@ export class RecipeListComponent implements OnInit {
   private recipeApi = inject(RecipeApiService);
   private destroyRef = inject(DestroyRef);
   private asyncState = createAsyncState(this.destroyRef);
-  private searchSubject = new Subject<string>();
+  private searchInput = signal('');
+  private searchInput$ = toObservable(this.searchInput);
   private loadRequestId = 0;
 
   protected assignment = inject(RecipeAssignmentService);
@@ -126,8 +127,8 @@ export class RecipeListComponent implements OnInit {
     this.multiSelect.initFromRoute();
     this.loadRecipes(false);
 
-    this.searchSubject
-      .pipe(debounceTime(UI.SEARCH_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
+    this.searchInput$
+      .pipe(skip(1), debounceTime(UI.SEARCH_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         this.activeSearch.set(value.trim());
         this.resetAndReload();
@@ -137,7 +138,7 @@ export class RecipeListComponent implements OnInit {
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery.set(value);
-    this.searchSubject.next(value);
+    this.searchInput.set(value);
   }
 
   onSearchClear(): void {

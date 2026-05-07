@@ -10,8 +10,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, debounceTime } from 'rxjs';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, skip } from 'rxjs';
 import {
   ActivityApiService,
   CreateShoppingListItem,
@@ -81,7 +81,8 @@ export class RecipeDetailComponent implements OnInit {
 
   notesDraft = signal<string>('');
   notesSaved = signal(false);
-  private notesAutosave$ = new Subject<string>();
+  private notesAutosaveInput = signal('');
+  private notesAutosave$ = toObservable(this.notesAutosaveInput);
 
   scaledIngredients = computed(() => {
     const recipe = this.recipe();
@@ -116,7 +117,7 @@ export class RecipeDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.notesAutosave$
-      .pipe(debounceTime(NOTES_AUTOSAVE_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
+      .pipe(skip(1), debounceTime(NOTES_AUTOSAVE_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.persistNotes(value));
 
     const identifier = this.route.snapshot.paramMap.get('identifier');
@@ -156,7 +157,7 @@ export class RecipeDetailComponent implements OnInit {
   onNotesInput(value: string): void {
     this.notesDraft.set(value);
     this.notesSaved.set(false);
-    this.notesAutosave$.next(value);
+    this.notesAutosaveInput.set(value);
   }
 
   private persistNotes(value: string): void {

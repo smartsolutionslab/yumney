@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { Subject, debounceTime } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, skip } from 'rxjs';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   createAsyncState,
   ERROR_MAPS,
@@ -39,7 +39,8 @@ export class ProfileSettingsComponent {
   private transloco = inject(TranslocoService);
   private loadState = createAsyncState(this.destroyRef);
   private saveState = createAsyncState(this.destroyRef);
-  private autosave$ = new Subject<void>();
+  private autosaveTick = signal(0);
+  private autosave$ = toObservable(this.autosaveTick);
 
   protected profile = signal<UserProfile | null>(null);
   protected loading = this.loadState.isLoading;
@@ -100,7 +101,7 @@ export class ProfileSettingsComponent {
 
   constructor() {
     this.autosave$
-      .pipe(debounceTime(AUTOSAVE_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
+      .pipe(skip(1), debounceTime(AUTOSAVE_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.persist());
 
     effect(() => {
@@ -120,7 +121,7 @@ export class ProfileSettingsComponent {
 
   protected onChange(): void {
     this.saved.set(false);
-    this.autosave$.next();
+    this.autosaveTick.update((tick) => tick + 1);
   }
 
   protected onToggleRestriction(restriction: string): void {
