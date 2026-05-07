@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 
@@ -27,7 +27,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 
 		if (existing is null)
 		{
-			context.Set<ShoppingListSummaryReadItem>().Add(new ShoppingListSummaryReadItem
+			var item = new ShoppingListSummaryReadItem
 			{
 				Id = @event.AggregateId,
 				OwnerId = @event.OwnerId,
@@ -36,7 +36,8 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 				ItemCount = 0,
 				CreatedAt = inner.CreatedAt,
 				LastUpdated = inner.CreatedAt,
-			});
+			};
+			context.Set<ShoppingListSummaryReadItem>().Add(item);
 		}
 		else
 		{

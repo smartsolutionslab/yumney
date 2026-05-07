@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 

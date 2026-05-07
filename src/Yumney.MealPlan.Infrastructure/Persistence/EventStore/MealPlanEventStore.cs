@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore.Events;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
@@ -9,7 +10,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStor
 
 #pragma warning disable SA1601
 public sealed partial class MealPlanEventStore(MealPlanDbContext context, IEventBus eventBus, ILogger<MealPlanEventStore> logger)
-	: EfCoreEventStoreBase<WeeklyPlan, WeeklyPlanIdentifier, AggregateMetadata, StoredEvent>(
+	: EventStoreBase<WeeklyPlan, WeeklyPlanIdentifier, AggregateMetadata, StoredEvent>(
 		context,
 		eventBus,
 		MealPlanEventSerializer.Instance,

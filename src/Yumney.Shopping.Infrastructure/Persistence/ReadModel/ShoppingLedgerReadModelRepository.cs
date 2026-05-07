@@ -9,7 +9,10 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 
 public sealed class ShoppingLedgerReadModelRepository(ShoppingReadDbContext context) : IShoppingLedgerReadModelRepository
 {
-	public async Task<MergedShoppingListDto> GetByOwnerAsync(OwnerIdentifier owner, bool includePastBought = false, CancellationToken cancellationToken = default)
+	public async Task<MergedShoppingListDto> GetByOwnerAsync(
+		OwnerIdentifier owner,
+		bool includePastBought = false,
+		CancellationToken cancellationToken = default)
 	{
 		var today = DateTime.UtcNow.Date;
 		var ownerValue = owner.Value;

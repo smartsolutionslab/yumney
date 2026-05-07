@@ -31,16 +31,16 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IShoppingListEventStore, ShoppingListEventStore>();
 		services.AddScoped<IShoppingEventStore, ShoppingEventStore>();
 		services.AddScoped<IShoppingLedgerReadModelRepository, ShoppingLedgerReadModelRepository>();
-		services.AddScoped<IShoppingListProjectionRepository, EfCoreShoppingListProjectionRepository>();
+		services.AddScoped<IShoppingListProjectionRepository, ShoppingListProjectionRepository>();
 		services.AddScoped<IShoppingListProjectionRebuilder, ShoppingListProjectionRebuilder>();
 		services.AddScoped<IIngredientBalanceReadModelRepository, IngredientBalanceReadModelRepository>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
 		services.AddScoped<IRecipeIngredientLookup, HttpRecipeIngredientLookup>();
 		services.AddRecipesClient();
-		services.AddScoped<IInboxStore, EfCoreInboxStore<ShoppingDbContext>>();
+		services.AddScoped<IInboxStore, InboxStore<ShoppingDbContext>>();
 		services.AddBusEventHandlersFromAssemblyContaining<ShoppingListProjection>();
 		services.AddUsersClient();
-		services.AddScoped<IShoppingUserDataPurger, EfCoreShoppingUserDataPurger>();
+		services.AddScoped<IShoppingUserDataPurger, ShoppingUserDataPurger>();
 		services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");
 
 		AddShoppingItemCategorizer(services, configuration);
