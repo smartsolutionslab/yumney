@@ -1,0 +1,11 @@
+<ng-container *transloco="let t">
+  @if (offlineStatus.isOffline()) {
+    <div class="offline-banner" role="alert">
+      {{ t('layout.offlineIndicator.offline') }}
+    </div>
+  } @else if (offlineStatus.justCameOnline()) {
+    <div class="online-banner" role="status">
+      {{ t('layout.offlineIndicator.backOnline') }}
+    </div>
+  }
+</ng-container>
