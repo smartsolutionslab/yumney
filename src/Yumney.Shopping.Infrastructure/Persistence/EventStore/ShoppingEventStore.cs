@@ -18,7 +18,7 @@ public sealed partial class ShoppingEventStore(ShoppingDbContext context, IEvent
 	IShoppingEventStore
 {
 #pragma warning disable SA1311
-	private static readonly IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> moduleEventWrappers =
+	private static readonly IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> moduleEventFactories =
 		ModuleEventConvention.BuildMap(typeof(ShoppingEventStore).Assembly, typeof(string));
 #pragma warning restore SA1311
 
@@ -48,21 +48,13 @@ public sealed partial class ShoppingEventStore(ShoppingDbContext context, IEvent
 			OwnerId = aggregate.OwnerId,
 		};
 
-	protected override async Task PublishEventsAsync(ShoppingLedger aggregate, IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
-	{
-		LogEventsSaved(aggregate.OwnerId, events.Count, aggregate.Version);
+	protected override IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> ModuleEventFactories => moduleEventFactories;
 
-		object[] context = [aggregate.OwnerId.Value];
+	protected override object[] BuildEventContext(ShoppingLedger aggregate) => [aggregate.OwnerId.Value];
 
-		foreach (var @event in events)
-		{
-			if (moduleEventWrappers.TryGetValue(@event.GetType(), out var factory))
-			{
-				await EventBus.PublishAsync(factory(context, @event), cancellationToken);
-			}
-		}
-	}
+	protected override void LogEventsSaved(ShoppingLedger aggregate, IReadOnlyList<IDomainEvent> events) =>
+		LogEventsSavedCore(aggregate.OwnerId, events.Count, aggregate.Version);
 
 	[LoggerMessage(Level = LogLevel.Information, Message = "Saved {Count} events for owner {OwnerId}, version now {Version}")]
-	private partial void LogEventsSaved(string ownerId, int count, int version);
+	private partial void LogEventsSavedCore(string ownerId, int count, int version);
 }

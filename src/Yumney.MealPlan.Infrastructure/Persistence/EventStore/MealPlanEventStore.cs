@@ -17,10 +17,10 @@ public sealed partial class MealPlanEventStore(MealPlanDbContext context, IEvent
 	IMealPlanEventStore
 {
 #pragma warning disable SA1311
-	private static readonly IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> moduleEventWrappers =
+	private static readonly IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> moduleEventFactories =
 		ModuleEventConvention.BuildMap(typeof(MealPlanModuleEvent).Assembly, typeof(string), typeof(string));
 
-	private static readonly IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> crossModuleMappers =
+	private static readonly IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> crossModuleEventFactories =
 		CrossModuleEventConvention.BuildMap(typeof(MealPlanEventStore).Assembly);
 #pragma warning restore SA1311
 
@@ -53,33 +53,15 @@ public sealed partial class MealPlanEventStore(MealPlanDbContext context, IEvent
 			Week = aggregate.Week.Value,
 		};
 
-	protected override async Task PublishEventsAsync(WeeklyPlan aggregate, IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
-	{
-		var ownerId = aggregate.Owner.Value;
-		var week = aggregate.Week.Value;
+	protected override IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> ModuleEventFactories => moduleEventFactories;
 
-		LogEventsSaved(ownerId, week, events.Count, aggregate.Version);
+	protected override IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> CrossModuleEventFactories => crossModuleEventFactories;
 
-		object[] context = [ownerId, week];
+	protected override object[] BuildEventContext(WeeklyPlan aggregate) => [aggregate.Owner.Value, aggregate.Week.Value];
 
-		foreach (var @event in events)
-		{
-			if (moduleEventWrappers.TryGetValue(@event.GetType(), out var factory))
-			{
-				await EventBus.PublishAsync(factory(context, @event), cancellationToken);
-			}
-
-			if (crossModuleMappers.TryGetValue(@event.GetType(), out var crossFactory))
-			{
-				var crossEvent = crossFactory(context, @event);
-				if (crossEvent is not null)
-				{
-					await EventBus.PublishAsync(crossEvent, cancellationToken);
-				}
-			}
-		}
-	}
+	protected override void LogEventsSaved(WeeklyPlan aggregate, IReadOnlyList<IDomainEvent> events) =>
+		LogEventsSavedCore(aggregate.Owner.Value, aggregate.Week.Value, events.Count, aggregate.Version);
 
 	[LoggerMessage(Level = LogLevel.Information, Message = "Saved {Count} events for owner {OwnerId} week {Week}, version now {Version}")]
-	private partial void LogEventsSaved(string ownerId, string week, int count, int version);
+	private partial void LogEventsSavedCore(string ownerId, string week, int count, int version);
 }

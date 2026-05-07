@@ -17,7 +17,7 @@ public sealed partial class ShoppingListEventStore(ShoppingDbContext context, IE
 	IShoppingListEventStore
 {
 #pragma warning disable SA1311
-	private static readonly IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> crossModuleMappers =
+	private static readonly IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> crossModuleEventFactories =
 		CrossModuleEventConvention.BuildMap(typeof(ShoppingListEventStore).Assembly);
 #pragma warning restore SA1311
 
@@ -50,37 +50,16 @@ public sealed partial class ShoppingListEventStore(ShoppingDbContext context, IE
 			OwnerId = aggregate.Owner.Value,
 		};
 
-	protected override async Task PublishEventsAsync(
-		ShoppingList aggregate,
-		IReadOnlyList<IDomainEvent> events,
-		CancellationToken cancellationToken)
-	{
-		var ownerId = aggregate.Owner.Value;
-		var aggregateId = aggregate.Identifier.Value;
+	protected override IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> CrossModuleEventFactories => crossModuleEventFactories;
 
-		LogEventsSaved(aggregateId, events.Count, aggregate.Version);
+	protected override object[] BuildEventContext(ShoppingList aggregate) => [aggregate.Owner.Value, aggregate.Identifier.Value];
 
-		object[] context = [ownerId, aggregateId];
+	protected override IModuleEvent? MapModuleEvent(ShoppingList aggregate, IDomainEvent domainEvent) =>
+		ShoppingListModuleEventMapper.Map(aggregate.Owner.Value, aggregate.Identifier.Value, domainEvent);
 
-		foreach (var domainEvent in events)
-		{
-			var moduleEvent = ShoppingListModuleEventMapper.Map(ownerId, aggregateId, domainEvent);
-			if (moduleEvent is not null)
-			{
-				await EventBus.PublishAsync(moduleEvent, cancellationToken);
-			}
-
-			if (crossModuleMappers.TryGetValue(domainEvent.GetType(), out var factory))
-			{
-				var crossModuleEvent = factory(context, domainEvent);
-				if (crossModuleEvent is not null)
-				{
-					await EventBus.PublishAsync(crossModuleEvent, cancellationToken);
-				}
-			}
-		}
-	}
+	protected override void LogEventsSaved(ShoppingList aggregate, IReadOnlyList<IDomainEvent> events) =>
+		LogEventsSavedCore(aggregate.Identifier.Value, events.Count, aggregate.Version);
 
 	[LoggerMessage(Level = LogLevel.Information, Message = "Saved {Count} ShoppingList events for aggregate {AggregateId}, version now {Version}")]
-	private partial void LogEventsSaved(Guid aggregateId, int count, int version);
+	private partial void LogEventsSavedCore(Guid aggregateId, int count, int version);
 }

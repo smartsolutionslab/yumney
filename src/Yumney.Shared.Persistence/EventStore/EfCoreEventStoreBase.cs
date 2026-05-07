@@ -71,11 +71,63 @@ public abstract class EfCoreEventStoreBase<TAggregate, TIdentifier, TMetadata, T
 
 	protected virtual string AggregateName => typeof(TAggregate).Name;
 
+#pragma warning disable SA1311
+	private static readonly IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> emptyModuleFactories =
+		new Dictionary<Type, ModuleEventConvention.ModuleEventFactory>();
+
+	private static readonly IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> emptyCrossModuleFactories =
+		new Dictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory>();
+#pragma warning restore SA1311
+
+	protected virtual IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> ModuleEventFactories =>
+		emptyModuleFactories;
+
+	protected virtual IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> CrossModuleEventFactories =>
+		emptyCrossModuleFactories;
+
 	protected abstract Guid GetAggregateId(TAggregate aggregate);
 
 	protected abstract TMetadata BuildMetadata(TAggregate aggregate);
 
-	protected abstract Task PublishEventsAsync(TAggregate aggregate, IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken);
+	protected virtual object[] BuildEventContext(TAggregate aggregate) => [];
+
+	protected virtual IModuleEvent? MapModuleEvent(TAggregate aggregate, IDomainEvent domainEvent) => null;
+
+	protected virtual void LogEventsSaved(TAggregate aggregate, IReadOnlyList<IDomainEvent> events)
+	{
+	}
+
+	protected virtual async Task PublishEventsAsync(TAggregate aggregate, IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
+	{
+		LogEventsSaved(aggregate, events);
+
+		var context = BuildEventContext(aggregate);
+		var moduleFactories = ModuleEventFactories;
+		var crossFactories = CrossModuleEventFactories;
+
+		foreach (var domainEvent in events)
+		{
+			var moduleEvent = MapModuleEvent(aggregate, domainEvent);
+			if (moduleEvent is null && moduleFactories.TryGetValue(domainEvent.GetType(), out var moduleFactory))
+			{
+				moduleEvent = moduleFactory(context, domainEvent);
+			}
+
+			if (moduleEvent is not null)
+			{
+				await EventBus.PublishAsync(moduleEvent, cancellationToken);
+			}
+
+			if (crossFactories.TryGetValue(domainEvent.GetType(), out var crossFactory))
+			{
+				var crossEvent = crossFactory(context, domainEvent);
+				if (crossEvent is not null)
+				{
+					await EventBus.PublishAsync(crossEvent, cancellationToken);
+				}
+			}
+		}
+	}
 
 	protected async Task<IReadOnlyList<IDomainEvent>> LoadEventsAsync(Guid aggregateId, CancellationToken cancellationToken)
 	{
