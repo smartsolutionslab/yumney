@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { ShoppingApiService, type MergedShoppingList, type MergedShoppingItem } from '../api';
-import { createAsyncState, ERROR_MAPS, ToastService } from '@yumney/shared/models';
+import { createAsyncState, ERROR_MAPS, groupByCategory, ToastService } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 
 interface CategoryGroup {
@@ -44,19 +44,10 @@ export class MergedListComponent {
   private loadRequestId = 0;
 
   protected categoryGroups = computed<CategoryGroup[]>(() => {
-    const l = this.list();
-    if (!l) return [];
-
-    const grouped = new Map<string, MergedShoppingItem[]>();
-    for (const item of l.items) {
-      const existing = grouped.get(item.category) ?? [];
-      existing.push(item);
-      grouped.set(item.category, existing);
-    }
-
-    return Array.from(grouped.entries()).map(([category, items]) => ({
-      category,
-      items,
+    const list = this.list();
+    if (!list) return [];
+    return groupByCategory(list.items, (item) => item.category).map((group) => ({
+      ...group,
       isExpanded: true,
     }));
   });
