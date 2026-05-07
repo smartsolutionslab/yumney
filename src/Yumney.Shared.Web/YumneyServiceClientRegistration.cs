@@ -13,6 +13,8 @@ public static class YumneyServiceClientRegistration
 		services.AddHttpClient(serviceName, client => client.BaseAddress = new Uri($"http://{serviceName}"))
 			.AddHttpMessageHandler(sp => sp.GetRequiredService<AuthTokenDelegatingHandler>());
 
+		services.TryAddSingleton<IModuleHttpClientFactory, ModuleHttpClientFactory>();
+
 		return services;
 	}
 }

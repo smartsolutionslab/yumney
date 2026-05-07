@@ -6,9 +6,11 @@ using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.ExternalServices;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel;
+using SmartSolutionsLab.Yumney.Recipes.Client;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
-using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shopping.Client;
+using SmartSolutionsLab.Yumney.Users.Client;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure;
 
@@ -31,9 +33,9 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 		services.AddScoped<IRecipeIngredientLookup, HttpRecipeIngredientLookup>();
 		services.AddScoped<IShoppingListWriter, HttpShoppingListWriter>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
-		services.AddYumneyServiceClient("recipes-api");
-		services.AddYumneyServiceClient("shopping-api");
-		services.AddYumneyServiceClient("users-api");
+		services.AddRecipesClient();
+		services.AddShoppingClient();
+		services.AddUsersClient();
 		services.AddHealthChecks().AddDbContextCheck<MealPlanDbContext>("mealplandb");
 
 		return services;

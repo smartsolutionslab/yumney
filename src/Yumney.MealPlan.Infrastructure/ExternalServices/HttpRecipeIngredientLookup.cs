@@ -1,20 +1,17 @@
-using System.Net.Http.Json;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.Recipes.Client;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.ExternalServices;
 
-public sealed class HttpRecipeIngredientLookup(IHttpClientFactory httpClientFactory) : IRecipeIngredientLookup
+public sealed class HttpRecipeIngredientLookup(IRecipesClient recipes) : IRecipeIngredientLookup
 {
 	public async Task<IReadOnlyList<RecipeIngredientLookupResult>> LookupAsync(
 		SlotRecipeIdentifier recipe,
 		CancellationToken cancellationToken = default)
 	{
-		var client = httpClientFactory.CreateClient("recipes-api");
-		var url = $"/api/v1/recipes/{recipe.Value}";
-		var response = await client.GetFromJsonAsync<RecipeWireResponse>(url, cancellationToken);
-
+		var response = await recipes.GetRecipeAsync(recipe.Value, cancellationToken);
 		if (response is null) return [];
 
 		return response.Ingredients
@@ -25,8 +22,4 @@ public sealed class HttpRecipeIngredientLookup(IHttpClientFactory httpClientFact
 				response.Servings))
 			.ToList();
 	}
-
-	private sealed record RecipeWireResponse(int? Servings, IReadOnlyList<IngredientWireResponse> Ingredients);
-
-	private sealed record IngredientWireResponse(string Name, decimal? Amount, string? Unit);
 }

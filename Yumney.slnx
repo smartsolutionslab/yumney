@@ -34,18 +34,21 @@
     <Project Path="src/Yumney.Recipes.Infrastructure/Yumney.Recipes.Infrastructure.csproj" />
     <Project Path="src/Yumney.Recipes.Extraction/Yumney.Recipes.Extraction.csproj" />
     <Project Path="src/Yumney.Recipes.Api/Yumney.Recipes.Api.csproj" />
+    <Project Path="src/Yumney.Recipes.Client/Yumney.Recipes.Client.csproj" />
   </Folder>
   <Folder Name="/src/Shopping/">
     <Project Path="src/Yumney.Shopping.Domain/Yumney.Shopping.Domain.csproj" />
     <Project Path="src/Yumney.Shopping.Application/Yumney.Shopping.Application.csproj" />
     <Project Path="src/Yumney.Shopping.Infrastructure/Yumney.Shopping.Infrastructure.csproj" />
     <Project Path="src/Yumney.Shopping.Api/Yumney.Shopping.Api.csproj" />
+    <Project Path="src/Yumney.Shopping.Client/Yumney.Shopping.Client.csproj" />
   </Folder>
   <Folder Name="/src/Users/">
     <Project Path="src/Yumney.Users.Domain/Yumney.Users.Domain.csproj" />
     <Project Path="src/Yumney.Users.Application/Yumney.Users.Application.csproj" />
     <Project Path="src/Yumney.Users.Infrastructure/Yumney.Users.Infrastructure.csproj" />
     <Project Path="src/Yumney.Users.Api/Yumney.Users.Api.csproj" />
+    <Project Path="src/Yumney.Users.Client/Yumney.Users.Client.csproj" />
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/Shared/">
