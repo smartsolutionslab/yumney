@@ -1,7 +1,7 @@
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 

@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -14,6 +10,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore.Events;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Shopping.EventStore;

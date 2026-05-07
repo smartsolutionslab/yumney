@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore.Events;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 using Xunit;
 

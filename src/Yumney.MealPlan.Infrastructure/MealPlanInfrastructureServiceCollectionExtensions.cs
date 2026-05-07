@@ -27,7 +27,7 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 
 		services.AddScoped<IMealPlanEventStore, MealPlanEventStore>();
 		services.AddScoped<IMealPlanReadModelRepository, MealPlanReadModelRepository>();
-		services.AddScoped<IMealPlanUserDataPurger, EfCoreMealPlanUserDataPurger>();
+		services.AddScoped<IMealPlanUserDataPurger, MealPlanUserDataPurger>();
 		services.AddBusEventHandlersFromAssemblyContaining<MealPlanProjectionHandler>();
 
 		services.AddScoped<IRecipeIngredientLookup, HttpRecipeIngredientLookup>();

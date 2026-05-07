@@ -9,7 +9,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStor
 
 #pragma warning disable SA1601
 public sealed partial class ShoppingListEventStore(ShoppingDbContext context, IEventBus eventBus, ILogger<ShoppingListEventStore> logger)
-	: EfCoreEventStoreBase<ShoppingList, ShoppingListIdentifier, ShoppingListAggregateMetadata, ShoppingListStoredEvent>(
+	: EventStoreBase<ShoppingList, ShoppingListIdentifier, ShoppingListAggregateMetadata, ShoppingListStoredEvent>(
 		context,
 		eventBus,
 		ShoppingListEventSerializer.Instance,

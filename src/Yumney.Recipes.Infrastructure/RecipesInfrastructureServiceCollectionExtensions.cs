@@ -26,7 +26,7 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 		services.AddScoped<IRecipesUnitOfWork>(sp => sp.GetRequiredService<RecipesUnitOfWork>());
 		services.AddScoped<IRecipeRepository>(sp => sp.GetRequiredService<RecipesUnitOfWork>().Recipes);
 		services.AddScoped<IRecipeFavoriteRepository>(sp => sp.GetRequiredService<RecipesUnitOfWork>().Favorites);
-		services.AddScoped<IRecipesUserDataPurger, EfCoreRecipesUserDataPurger>();
+		services.AddScoped<IRecipesUserDataPurger, RecipesUserDataPurger>();
 		services.AddScoped<IIngredientBalanceProvider, HttpIngredientBalanceProvider>();
 		services.AddScoped<IDietaryProfileProvider, HttpDietaryProfileProvider>();
 		services.AddScoped<IRecipeViewTracker, CachedRecipeViewTracker>();

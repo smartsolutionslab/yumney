@@ -7,7 +7,9 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel
 
 public sealed class IngredientBalanceReadModelRepository(ShoppingReadDbContext context, TimeProvider timeProvider) : IIngredientBalanceReadModelRepository
 {
-	public async Task<IReadOnlyList<IngredientBalanceItemDto>> GetAtHomeItemsAsync(string ownerId, CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<IngredientBalanceItemDto>> GetAtHomeItemsAsync(
+		string ownerId,
+		CancellationToken cancellationToken = default)
 	{
 		var rows = await context.IngredientBalanceReadItems
 			.Where(row => row.OwnerId == ownerId)

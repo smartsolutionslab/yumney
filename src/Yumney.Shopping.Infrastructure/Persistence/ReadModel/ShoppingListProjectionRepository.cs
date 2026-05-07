@@ -1,0 +1,61 @@
+using Microsoft.EntityFrameworkCore;
+using SmartSolutionsLab.Yumney.Shared.Abstractions;
+using SmartSolutionsLab.Yumney.Shared.Paging;
+using SmartSolutionsLab.Yumney.Shared.Persistence;
+using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+
+namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
+
+public sealed class ShoppingListProjectionRepository(ShoppingReadDbContext context)
+	: IShoppingListProjectionRepository
+{
+	public async Task<(IReadOnlyList<ShoppingListSummary> Items, ItemCount TotalCount)> GetByOwnerAsync(
+		OwnerIdentifier owner,
+		PagingOptions paging,
+		SortingOptions<ShoppingListSortField> sorting,
+		CancellationToken cancellationToken = default)
+	{
+		var query = context.ShoppingListSummaryReadItems
+			.Where(summary => summary.OwnerId == owner.Value)
+			.ApplySorting(sorting);
+
+		return await query
+			.Select(summary => new ShoppingListSummary(
+				ShoppingListIdentifier.From(summary.Id),
+				ShoppingListTitle.From(summary.Title),
+				ItemCount.From(summary.ItemCount),
+				summary.CreatedAt))
+			.ToPagedListAsync(paging, cancellationToken);
+	}
+
+	public async Task<ShoppingListProjectedDetail> GetByIdAsync(
+		ShoppingListIdentifier identifier,
+		CancellationToken cancellationToken = default)
+	{
+		var summary = await context.ShoppingListSummaryReadItems
+			.FirstOrDefaultAsync(row => row.Id == identifier.Value, cancellationToken)
+			?? throw new EntityNotFoundException(nameof(ShoppingList), identifier.Value);
+
+		var itemRows = await context.ShoppingListItemReadItems
+			.Where(item => item.ListId == identifier.Value)
+			.OrderBy(item => item.CreatedAt)
+			.ToListAsync(cancellationToken);
+
+		return new ShoppingListProjectedDetail(summary.OwnerId, summary.ToDetailDto(itemRows.ToDtos()));
+	}
+
+	public async Task<IReadOnlyList<ShoppingListIdentifier>> FindIdsByRecipeAsync(
+		OwnerIdentifier owner,
+		RecipeReference recipeReference,
+		CancellationToken cancellationToken = default)
+	{
+		var ownerValue = owner.Value;
+		var recipeValue = recipeReference.Value;
+		var ids = await context.ShoppingListSummaryReadItems
+			.Where(summary => summary.OwnerId == ownerValue && summary.RecipeIdentifier == recipeValue)
+			.Select(summary => summary.Id)
+			.ToListAsync(cancellationToken);
+		return ids.Select(ShoppingListIdentifier.From).ToList();
+	}
+}

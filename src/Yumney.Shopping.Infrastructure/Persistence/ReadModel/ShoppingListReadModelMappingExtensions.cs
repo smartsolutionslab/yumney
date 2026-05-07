@@ -10,9 +10,7 @@ public static class ShoppingListReadModelMappingExtensions
 	public static IReadOnlyList<ShoppingListItemDto> ToDtos(this IEnumerable<ShoppingListItemReadItem> rows) =>
 		rows.Select(row => row.ToDto()).ToList();
 
-	public static ShoppingListDetailDto ToDetailDto(
-		this ShoppingListSummaryReadItem summary,
-		IReadOnlyList<ShoppingListItemDto> items) =>
+	public static ShoppingListDetailDto ToDetailDto(this ShoppingListSummaryReadItem summary, IReadOnlyList<ShoppingListItemDto> items) =>
 		new(
 			summary.Id,
 			summary.Title,
