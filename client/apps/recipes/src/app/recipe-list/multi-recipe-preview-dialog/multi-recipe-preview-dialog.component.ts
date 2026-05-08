@@ -1,18 +1,6 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  HostListener,
-  computed,
-  input,
-  output,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, HostListener, computed, input, output } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
-import {
-  mergeRecipeIngredients,
-  type MergedIngredient,
-  type RecipeForMerge,
-  type ScalableIngredient,
-} from '@yumney/shared/models';
+import { mergeRecipeIngredients, type MergedIngredient, type RecipeForMerge, type ScalableIngredient } from '@yumney/shared/models';
 import { LoadingSpinnerComponent } from '@yumney/ui';
 
 export interface MultiRecipeSelection {

@@ -1,22 +1,8 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  DestroyRef,
-  ElementRef,
-  HostListener,
-  inject,
-  signal,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, ElementRef, HostListener, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  MealPlanApiService,
-  type WeeklyPlan,
-  type MealSlot,
-  type GenerateShoppingListResult,
-} from '@yumney/shared/api-client';
+import { MealPlanApiService, type WeeklyPlan, type MealSlot, type GenerateShoppingListResult } from '@yumney/shared/api-client';
 import { createAsyncState, ERROR_MAPS, UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 
@@ -48,18 +34,11 @@ export class MealPlannerComponent {
   protected weekNumber = signal(this.getCurrentWeek());
   protected plan = signal<WeeklyPlan | null>(null);
   protected loading = this.loadState.isLoading;
-  protected error = computed(
-    () =>
-      this.loadState.serverError() ??
-      this.generateState.serverError() ??
-      this.clearSlotState.serverError(),
-  );
+  protected error = computed(() => this.loadState.serverError() ?? this.generateState.serverError() ?? this.clearSlotState.serverError());
   protected generatingList = this.generateState.isLoading;
   protected shoppingResult = signal<GenerateShoppingListResult | null>(null);
 
-  protected weekLabel = computed(
-    () => `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}`,
-  );
+  protected weekLabel = computed(() => `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}`);
 
   protected days = DAY_NAMES;
 
