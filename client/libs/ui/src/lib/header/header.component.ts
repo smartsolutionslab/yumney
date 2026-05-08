@@ -1,21 +1,14 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  computed,
-  signal,
-  ElementRef,
-  HostListener,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '@yumney/shared/auth';
 import { LanguageService, ThemeService, ChatStateService, ROUTES } from '@yumney/shared/models';
+import { ClickOutsideDirective } from '../directives/click-outside.directive';
 
 @Component({
   selector: 'yn-header',
-  imports: [TranslocoModule, RouterLink, LucideAngularModule],
+  imports: [TranslocoModule, RouterLink, LucideAngularModule, ClickOutsideDirective],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,8 +20,6 @@ export class HeaderComponent {
   protected languageService = inject(LanguageService);
   protected themeService = inject(ThemeService);
   protected chatState = inject(ChatStateService);
-
-  private elementRef = inject(ElementRef);
 
   protected menuOpen = signal(false);
   protected isDark = computed(() => this.themeService.theme() === 'dark');
@@ -51,18 +42,8 @@ export class HeaderComponent {
     return this.languageService.nextLanguage;
   });
 
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
-    if (this.menuOpen()) {
-      this.menuOpen.set(false);
-    }
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (this.menuOpen() && !this.elementRef.nativeElement.contains(event.target)) {
-      this.menuOpen.set(false);
-    }
+  onDismissMenu(): void {
+    if (this.menuOpen()) this.menuOpen.set(false);
   }
 
   onToggleMenu(): void {

@@ -1,15 +1,7 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  ElementRef,
-  HostListener,
-  input,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, signal } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
+import { ClickOutsideDirective } from '@yumney/ui';
 
 export interface SortMenuOption {
   value: string;
@@ -18,7 +10,7 @@ export interface SortMenuOption {
 
 @Component({
   selector: 'yn-sort-menu',
-  imports: [TranslocoModule, LucideAngularModule],
+  imports: [TranslocoModule, LucideAngularModule, ClickOutsideDirective],
   templateUrl: './sort-menu.component.html',
   styleUrl: './sort-menu.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,14 +22,13 @@ export class SortMenuComponent {
   sortSelect = output<string>();
 
   protected open = signal(false);
-  private dropdown = viewChild<ElementRef>('dropdown');
 
   protected currentLabelKey(): string {
-    return this.options().find((o) => o.value === this.currentValue())?.labelKey ?? '';
+    return this.options().find((option) => option.value === this.currentValue())?.labelKey ?? '';
   }
 
   protected toggle(): void {
-    this.open.update((o) => !o);
+    this.open.update((open) => !open);
   }
 
   protected select(value: string): void {
@@ -45,16 +36,7 @@ export class SortMenuComponent {
     this.sortSelect.emit(value);
   }
 
-  @HostListener('document:keydown.escape')
-  protected onEscape(): void {
+  protected onDismiss(): void {
     if (this.open()) this.open.set(false);
-  }
-
-  @HostListener('document:click', ['$event.target'])
-  protected onDocumentClick(target: EventTarget | null): void {
-    const el = this.dropdown()?.nativeElement;
-    if (this.open() && target instanceof Node && !el?.contains(target)) {
-      this.open.set(false);
-    }
   }
 }
