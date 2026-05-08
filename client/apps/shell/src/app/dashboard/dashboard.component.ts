@@ -5,9 +5,10 @@ import {
   inject,
   DestroyRef,
   OnInit,
+  effect,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
@@ -88,12 +89,13 @@ export class DashboardComponent implements OnInit {
   recentActivity = this.suggestionsState.recentActivity;
   suggestionsLoading = this.suggestionsState.loading;
 
-  ngOnInit(): void {
-    this.suggestionsState.load().subscribe(({ initialDataIsEmpty }) => {
-      if (initialDataIsEmpty) this.importSectionExpanded.set(true);
-    });
+  private readonly queryParams = toSignal(this.route.queryParams, {
+    initialValue: {} as Record<string, string>,
+  });
 
-    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+  constructor() {
+    effect(() => {
+      const params = this.queryParams();
       const urlParam = params['url'] as string | undefined;
       const textParam = params['text'] as string | undefined;
       const sharedText = urlParam || textParam;
@@ -108,6 +110,12 @@ export class DashboardComponent implements OnInit {
         this.serverError.set('dashboard.share.noUrlFound');
         this.importSectionExpanded.set(true);
       }
+    });
+  }
+
+  ngOnInit(): void {
+    this.suggestionsState.load().subscribe(({ initialDataIsEmpty }) => {
+      if (initialDataIsEmpty) this.importSectionExpanded.set(true);
     });
   }
 

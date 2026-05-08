@@ -1,6 +1,4 @@
-import { DestroyRef, Injectable, WritableSignal, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, skip } from 'rxjs';
+import { Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
 import { RecipeApiService, RecipeDetail } from '../api';
 
 const NOTES_AUTOSAVE_DEBOUNCE_MS = 400;
@@ -9,7 +7,6 @@ const SAVED_INDICATOR_MS = 2000;
 @Injectable()
 export class RecipeNotesAutosaveService {
   private api = inject(RecipeApiService);
-  private destroyRef = inject(DestroyRef);
 
   readonly draft = signal('');
   readonly saved = signal(false);
@@ -17,9 +14,16 @@ export class RecipeNotesAutosaveService {
   private recipeRef: WritableSignal<RecipeDetail | null> | null = null;
 
   constructor() {
-    toObservable(this.input)
-      .pipe(skip(1), debounceTime(NOTES_AUTOSAVE_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => this.persist(value));
+    let firstRun = true;
+    effect((onCleanup) => {
+      const value = this.input();
+      if (firstRun) {
+        firstRun = false;
+        return;
+      }
+      const timeoutId = setTimeout(() => this.persist(value), NOTES_AUTOSAVE_DEBOUNCE_MS);
+      onCleanup(() => clearTimeout(timeoutId));
+    });
   }
 
   attach(recipeRef: WritableSignal<RecipeDetail | null>): void {

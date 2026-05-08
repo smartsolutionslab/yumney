@@ -1,5 +1,6 @@
-import { DestroyRef, signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { TestBed, fakeAsync, flushMicrotasks, tick } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { RecipeApiService, RecipeDetail } from '../api';
 import { RecipeNotesAutosaveService } from './recipe-notes-autosave.service';
 
@@ -30,7 +31,6 @@ describe('RecipeNotesAutosaveService', () => {
       providers: [
         RecipeNotesAutosaveService,
         { provide: RecipeApiService, useValue: api },
-        { provide: DestroyRef, useValue: { onDestroy: () => () => undefined } },
       ],
     });
     return TestBed.inject(RecipeNotesAutosaveService);
@@ -65,4 +65,26 @@ describe('RecipeNotesAutosaveService', () => {
     expect(service.draft()).toBe('typed');
     expect(service.saved()).toBe(false);
   });
+
+  it('persists once after the debounce interval elapses', fakeAsync(() => {
+    const updateRecipeNotes = vi.fn().mockReturnValue(of(undefined));
+    const service = createService({ updateRecipeNotes });
+    const recipeRef = signal<RecipeDetail | null>(buildRecipe({ notes: null }));
+    service.attach(recipeRef);
+    TestBed.tick();
+
+    service.update('first');
+    TestBed.tick();
+    service.update('second');
+    TestBed.tick();
+    tick(399);
+
+    expect(updateRecipeNotes).not.toHaveBeenCalled();
+
+    tick(1);
+    flushMicrotasks();
+
+    expect(updateRecipeNotes).toHaveBeenCalledTimes(1);
+    expect(updateRecipeNotes).toHaveBeenCalledWith('r1', 'second');
+  }));
 });
