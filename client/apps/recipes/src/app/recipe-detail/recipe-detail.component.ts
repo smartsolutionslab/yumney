@@ -10,8 +10,6 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, skip } from 'rxjs';
 import {
   ActivityApiService,
   CreateShoppingListItem,
@@ -20,6 +18,7 @@ import {
   RecipeDetail,
   ShoppingApiService,
 } from '../api';
+import { RecipeNotesAutosaveService } from './recipe-notes-autosave.service';
 import {
   createAsyncState,
   scaleIngredients,
@@ -37,8 +36,6 @@ import {
 } from '@yumney/ui';
 import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog/create-shopping-list-dialog.component';
 
-const NOTES_AUTOSAVE_DEBOUNCE_MS = 400;
-
 @Component({
   selector: 'yn-recipe-detail',
   imports: [
@@ -55,6 +52,7 @@ const NOTES_AUTOSAVE_DEBOUNCE_MS = 400;
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [RecipeNotesAutosaveService],
 })
 export class RecipeDetailComponent implements OnInit {
   protected readonly ROUTES = ROUTES;
@@ -68,6 +66,7 @@ export class RecipeDetailComponent implements OnInit {
   private loadState = createAsyncState(this.destroyRef);
   private deleteState = createAsyncState(this.destroyRef);
   private createShoppingListState = createAsyncState(this.destroyRef);
+  private notesAutosave = inject(RecipeNotesAutosaveService);
 
   recipe = signal<RecipeDetail | null>(null);
   recipeStats = signal<RecipeActivityStats | null>(null);
@@ -79,10 +78,8 @@ export class RecipeDetailComponent implements OnInit {
   showDeleteConfirm = signal(false);
   showCreateShoppingListConfirm = signal(false);
 
-  notesDraft = signal<string>('');
-  notesSaved = signal(false);
-  private notesAutosaveInput = signal('');
-  private notesAutosave$ = toObservable(this.notesAutosaveInput);
+  notesDraft = this.notesAutosave.draft;
+  notesSaved = this.notesAutosave.saved;
 
   scaledIngredients = computed(() => {
     const recipe = this.recipe();
@@ -116,10 +113,6 @@ export class RecipeDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.notesAutosave$
-      .pipe(skip(1), debounceTime(NOTES_AUTOSAVE_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => this.persistNotes(value));
-
     const identifier = this.route.snapshot.paramMap.get('identifier');
     if (!identifier) {
       this.serverError.set('recipes.detail.notFound');
@@ -138,7 +131,7 @@ export class RecipeDetailComponent implements OnInit {
       (recipe) => {
         this.recipe.set(recipe);
         this.desiredServings.set(recipe.servings);
-        this.notesDraft.set(recipe.notes ?? '');
+        this.notesAutosave.attach(this.recipe);
       },
       (error) => this.serverError.set(error),
     );
@@ -155,25 +148,7 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onNotesInput(value: string): void {
-    this.notesDraft.set(value);
-    this.notesSaved.set(false);
-    this.notesAutosaveInput.set(value);
-  }
-
-  private persistNotes(value: string): void {
-    const recipe = this.recipe();
-    if (!recipe) return;
-    const trimmed = value.trim();
-    const payload = trimmed.length === 0 ? null : trimmed;
-    if (payload === (recipe.notes ?? null)) return;
-
-    this.recipeApi.updateRecipeNotes(recipe.identifier, payload).subscribe({
-      next: () => {
-        this.recipe.set({ ...recipe, notes: payload });
-        this.notesSaved.set(true);
-        setTimeout(() => this.notesSaved.set(false), 2000);
-      },
-    });
+    this.notesAutosave.update(value);
   }
 
   totalTime = computed(() => {
