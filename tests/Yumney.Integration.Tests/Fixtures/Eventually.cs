@@ -15,13 +15,16 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 /// </summary>
 public static class Eventually
 {
-	// 15s is a deliberate trade between fast feedback and tolerance for
+	// 30s is a deliberate trade between fast feedback and tolerance for
 	// suite-wide load. Wolverine handlers race the polling assert; with the
-	// full integration suite running, RabbitMQ + projection workers can stack
-	// up enough that a single check-off event needs more than 5s to surface
-	// in the read model. 15s leaves headroom without making a real failure
-	// (a handler bug that never converges) feel sluggish.
-	private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(15);
+	// full integration suite running on a cold GitHub Actions runner,
+	// RabbitMQ + projection workers can stack up enough that a single
+	// check-off event needs >15s to surface in the read model — see
+	// issue #606 for the recurrence trail. 30s leaves headroom without
+	// making a real failure (a handler bug that never converges) feel
+	// sluggish; a converging handler typically wins on the first or second
+	// poll, so the timeout is only paid on genuine breakage.
+	private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
 	private static readonly TimeSpan DefaultPollInterval = TimeSpan.FromMilliseconds(100);
 
 	public static async Task AssertAsync(
