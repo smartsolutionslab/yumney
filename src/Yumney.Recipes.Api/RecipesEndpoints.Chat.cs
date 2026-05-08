@@ -30,7 +30,7 @@ public static partial class RecipesEndpoints
 
 			var command = new ChatCommand(
 				ChatMessageContent.From(message),
-				history.MapToChatHistoryEntries().ToList());
+				history.Select(entry => entry.ToHistoryEntry()).ToList());
 
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
