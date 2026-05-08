@@ -10,6 +10,7 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 
 	private readonly Dictionary<SlotKey, MealSlot> slots = [];
 	private SlotServings defaultServings = SlotServings.Default();
+	private IReadOnlyList<MealSlot>? slotsCache;
 
 	public OwnerIdentifier Owner { get; private set; } = default!;
 
@@ -17,12 +18,10 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 
 	public bool IsExtendedMode { get; private set; }
 
-	public IReadOnlyList<MealSlot> Slots =>
-		slots.Values
-			.OrderBy(slot => slot.Day)
-			.ThenBy(slot => slot.MealType)
-			.ToList()
-			.AsReadOnly();
+	// Cached snapshot — rebuilt on first access after any mutation. Apply
+	// handlers route writes through SetSlot so the cache stays in sync; the
+	// list is .AsReadOnly() so callers can't observe the wrapped instance.
+	public IReadOnlyList<MealSlot> Slots => slotsCache ??= BuildSortedSlots();
 
 	private WeeklyPlan()
 	{
@@ -175,7 +174,7 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 		defaultServings = e.DefaultServings;
 		foreach (var day in allDays)
 		{
-			slots[new SlotKey(day, MealType.Dinner)] = MealSlot.Empty(day, MealType.Dinner, defaultServings);
+			SetSlot(new SlotKey(day, MealType.Dinner), MealSlot.Empty(day, MealType.Dinner, defaultServings));
 		}
 	}
 
@@ -186,13 +185,13 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 			var breakfastKey = new SlotKey(day, MealType.Breakfast);
 			if (!slots.ContainsKey(breakfastKey))
 			{
-				slots[breakfastKey] = MealSlot.Empty(day, MealType.Breakfast, e.DefaultServings);
+				SetSlot(breakfastKey, MealSlot.Empty(day, MealType.Breakfast, e.DefaultServings));
 			}
 
 			var lunchKey = new SlotKey(day, MealType.Lunch);
 			if (!slots.ContainsKey(lunchKey))
 			{
-				slots[lunchKey] = MealSlot.Empty(day, MealType.Lunch, e.DefaultServings);
+				SetSlot(lunchKey, MealSlot.Empty(day, MealType.Lunch, e.DefaultServings));
 			}
 		}
 
@@ -204,49 +203,49 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 	private void OnRecipeAssigned(RecipeAssigned e)
 	{
 		var key = new SlotKey(e.Day, e.MealType);
-		slots[key] = slots[key].WithRecipe(e.Recipe, e.Servings);
+		SetSlot(key, slots[key].WithRecipe(e.Recipe, e.Servings));
 	}
 
 	private void OnMealSetAsFreetext(MealSetAsFreetext e)
 	{
 		var key = new SlotKey(e.Day, e.MealType);
-		slots[key] = slots[key].WithFreetext(e.Label);
+		SetSlot(key, slots[key].WithFreetext(e.Label));
 	}
 
 	private void OnLeftoverAssigned(LeftoverAssigned e)
 	{
 		var key = new SlotKey(e.Day, e.MealType);
-		slots[key] = slots[key].WithLeftover(e.SourceDay, e.SourceMealType, e.SourceRecipeTitle, e.Servings);
+		SetSlot(key, slots[key].WithLeftover(e.SourceDay, e.SourceMealType, e.SourceRecipeTitle, e.Servings));
 	}
 
 	private void OnMealSlotCleared(MealSlotCleared e)
 	{
 		var key = new SlotKey(e.Day, e.MealType);
-		slots[key] = slots[key].Cleared();
+		SetSlot(key, slots[key].Cleared());
 	}
 
 	private void OnServingsAdjusted(ServingsAdjusted e)
 	{
 		var key = new SlotKey(e.Day, e.MealType);
-		slots[key] = slots[key].WithServings(e.Servings);
+		SetSlot(key, slots[key].WithServings(e.Servings));
 	}
 
 	private void OnMealMarkedAsCooked(MealMarkedAsCooked e)
 	{
 		var key = new SlotKey(e.Day, e.MealType);
-		slots[key] = slots[key].InState(MealState.Cooked);
+		SetSlot(key, slots[key].InState(MealState.Cooked));
 	}
 
 	private void OnMealMarkedAsSkipped(MealMarkedAsSkipped e)
 	{
 		var key = new SlotKey(e.Day, e.MealType);
-		slots[key] = slots[key].InState(MealState.Skipped);
+		SetSlot(key, slots[key].InState(MealState.Skipped));
 	}
 
 	private void OnMealResetToPlanned(MealResetToPlanned e)
 	{
 		var key = new SlotKey(e.Day, e.MealType);
-		slots[key] = slots[key].InState(MealState.Planned);
+		SetSlot(key, slots[key].InState(MealState.Planned));
 	}
 
 	private void OnMealSlotsSwapped(MealSlotsSwapped e)
@@ -255,8 +254,8 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 		var key2 = new SlotKey(e.Day2, e.MealType);
 		var slot1 = slots[key1];
 		var slot2 = slots[key2];
-		slots[key1] = slot2 with { Day = e.Day1, MealType = e.MealType };
-		slots[key2] = slot1 with { Day = e.Day2, MealType = e.MealType };
+		SetSlot(key1, slot2 with { Day = e.Day1, MealType = e.MealType });
+		SetSlot(key2, slot1 with { Day = e.Day2, MealType = e.MealType });
 	}
 
 	private void EnsureSlotExists(DayOfWeek day, MealType mealType)
@@ -271,6 +270,22 @@ public sealed class WeeklyPlan : EventSourcedAggregate<WeeklyPlanIdentifier>
 
 		return slot;
 	}
+
+	// Single mutation seam — keeps the cached Slots projection in sync with
+	// the underlying dictionary. Apply handlers must go through this helper
+	// instead of writing to slots directly.
+	private void SetSlot(SlotKey key, MealSlot slot)
+	{
+		slots[key] = slot;
+		slotsCache = null;
+	}
+
+	private System.Collections.ObjectModel.ReadOnlyCollection<MealSlot> BuildSortedSlots() =>
+		slots.Values
+			.OrderBy(slot => slot.Day)
+			.ThenBy(slot => slot.MealType)
+			.ToList()
+			.AsReadOnly();
 
 	private readonly record struct SlotKey(DayOfWeek Day, MealType MealType);
 }
