@@ -26,6 +26,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import {
   CookingTimerComponent,
   LoadingSpinnerComponent,
+  MessageBannerComponent,
   StepDisplayComponent,
   VoiceIndicatorComponent,
 } from '@yumney/ui';
@@ -41,6 +42,7 @@ const SWIPE_THRESHOLD = 50;
     CookingTimerComponent,
     VoiceIndicatorComponent,
     LoadingSpinnerComponent,
+    MessageBannerComponent,
   ],
   templateUrl: './cook-mode.component.html',
   styleUrl: './cook-mode.component.scss',

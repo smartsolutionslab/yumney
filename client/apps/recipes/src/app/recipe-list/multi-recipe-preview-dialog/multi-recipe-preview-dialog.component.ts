@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, HostListener, computed, input, output } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { mergeRecipeIngredients, type MergedIngredient, type RecipeForMerge, type ScalableIngredient } from '@yumney/shared/models';
-import { LoadingSpinnerComponent } from '@yumney/ui';
+import { ButtonComponent, LoadingSpinnerComponent } from '@yumney/ui';
 
 export interface MultiRecipeSelection {
   identifier: string;
@@ -13,7 +13,7 @@ export interface MultiRecipeSelection {
 
 @Component({
   selector: 'yn-multi-recipe-preview-dialog',
-  imports: [TranslocoModule, LoadingSpinnerComponent],
+  imports: [TranslocoModule, ButtonComponent, LoadingSpinnerComponent],
   templateUrl: './multi-recipe-preview-dialog.component.html',
   styleUrl: './multi-recipe-preview-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

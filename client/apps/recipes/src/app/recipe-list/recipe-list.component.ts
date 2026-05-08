@@ -24,6 +24,7 @@ import {
   EMPTY_FILTER,
   FilterPanelComponent,
   InfiniteScrollDirective,
+  MessageBannerComponent,
   type RecipeFilterValue,
   StaggerNewItemsDirective,
 } from '@yumney/ui';
@@ -47,6 +48,7 @@ interface SortOption extends SortMenuOption {
     InfiniteScrollDirective,
     StaggerNewItemsDirective,
     FilterPanelComponent,
+    MessageBannerComponent,
     RecipeCardComponent,
     SortMenuComponent,
     MultiRecipePreviewDialogComponent,

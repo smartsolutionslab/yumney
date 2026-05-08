@@ -7,7 +7,7 @@
   <p>{{ t('dashboard.welcome') }}</p>
 
   @if (serverError(); as error) {
-    <div class="error-banner" role="alert">{{ t(error) }}</div>
+    <yn-message-banner tone="error" [message]="error"/>
   }
 
   @if (quickActions().length > 0) {
@@ -48,12 +48,12 @@
           <p class="subtitle">{{ t('dashboard.photoImport.subtitle') }}</p>
           <div class="photo-import-actions">
             @if (camera.cameraSupported()) {
-              <button type="button"class="btn-dashed" [disabled]="isLoading() || isSaving()" (click)="onOpenCamera()">
+              <yn-button variant="dashed" [disabled]="isLoading() || isSaving()" (click)="onOpenCamera()">
                 {{ t('dashboard.photoImport.scanRecipe') }}
-              </button>
-              <button type="button" class="btn-dashed" [disabled]="isLoading() || isSaving()" (click)="onOpenScanner()">
+              </yn-button>
+              <yn-button variant="dashed" [disabled]="isLoading() || isSaving()" (click)="onOpenScanner()">
                 {{ t('dashboard.photoImport.scanIngredients') }}
-              </button>
+              </yn-button>
             }
             <label class="btn-dashed" data-testid="photo-upload-btn" [class.disabled]="isLoading() || isSaving()">
               <input type="file" data-testid="photo-upload-input" accept="image/jpeg,image/png,image/webp" multiple [disabled]="isLoading() || isSaving()" (change)="onImportFromPhotos($event)" hidden/>
@@ -71,22 +71,20 @@
         <section class="manual-create">
           <h3>{{ t('dashboard.create.title') }}</h3>
           <p class="subtitle">{{ t('dashboard.create.subtitle') }}</p>
-          <button type="button" class="btn-dashed create-btn" data-testid="create-recipe-btn" [disabled]="isLoading() || isSaving() || extractedRecipe()" (click)="onCreateManually()">
+          <yn-button variant="dashed" extraClass="create-btn" testId="create-recipe-btn" [disabled]="isLoading() || isSaving() || !!extractedRecipe()" (click)="onCreateManually()">
             {{ t('dashboard.create.submit') }}
-          </button>
+          </yn-button>
         </section>
       </div>
     }
   </section>
 
-  @if (saveSuccess()) {
-    <div class="save-success" role="status" aria-live="polite">
-      <div class="success-banner" data-testid="success-banner">
-        {{ t('dashboard.save.success', { title: saveSuccess() }) }}
-      </div>
-      <button class="btn-ghost import-another" (click)="onDiscardRecipe(); importSectionExpanded.set(true)">
+  @if (saveSuccess(); as savedTitle) {
+    <div class="save-success">
+      <yn-message-banner tone="success" message="dashboard.save.success" [params]="{ title: savedTitle }" testId="success-banner"/>
+      <yn-button variant="ghost" extraClass="import-another" (click)="onDiscardRecipe(); importSectionExpanded.set(true)">
         {{ t('dashboard.save.importAnother') }}
-      </button>
+      </yn-button>
     </div>
   }
   @if (extractedRecipe()) {

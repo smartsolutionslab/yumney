@@ -6,7 +6,7 @@
   }
 
   @if (serverError(); as error) {
-    <div class="error-banner" role="alert">{{ t(error) }}</div>
+    <yn-message-banner tone="error" [message]="error"/>
   }
 
   @if (shoppingList(); as list) {
@@ -23,21 +23,20 @@
     </div>
 
     <div class="actions">
-      <button class="btn-secondary" (click)="onCheckAll()">
+      <yn-button variant="secondary" (click)="onCheckAll()">
         {{ t('shopping.detail.checkAll') }}
-      </button>
-      <button class="btn-secondary" (click)="onReset()">
+      </yn-button>
+      <yn-button variant="secondary" (click)="onReset()">
         {{ t('shopping.detail.reset') }}
-      </button>
-      <button
-        type="button"
-        class="btn-secondary"
-        data-testid="send-to-bring-btn"
+      </yn-button>
+      <yn-button
+        variant="secondary"
+        testId="send-to-bring-btn"
         [disabled]="uncheckedItems().length === 0"
         (click)="onSendToBring()"
       >
         {{ t('shopping.detail.bring.sendButton') }}
-      </button>
+      </yn-button>
     </div>
 
     @if (checkedCount() === totalItemCount() && totalItemCount() > 0) {

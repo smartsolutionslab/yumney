@@ -1,0 +1,8 @@
+<div
+  [class]="bannerClass()"
+  [attr.role]="role()"
+  [attr.aria-live]="ariaLive()"
+  [attr.data-testid]="testId() ?? null"
+>
+  {{ message() | transloco: params() }}
+</div>

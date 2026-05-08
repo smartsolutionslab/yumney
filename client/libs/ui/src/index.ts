@@ -1,5 +1,14 @@
 export { BackLinkComponent } from './lib/back-link/back-link.component';
+export {
+  ButtonComponent,
+  type ButtonVariant,
+  type ButtonType,
+} from './lib/button/button.component';
 export { FormFieldComponent } from './lib/form-field/form-field.component';
+export {
+  MessageBannerComponent,
+  type MessageBannerTone,
+} from './lib/message-banner/message-banner.component';
 export { SubmitButtonComponent } from './lib/submit-button/submit-button.component';
 export { RecipePreviewComponent } from './lib/recipe-preview/recipe-preview.component';
 export { EditableListItemComponent } from './lib/editable-list-item/editable-list-item.component';

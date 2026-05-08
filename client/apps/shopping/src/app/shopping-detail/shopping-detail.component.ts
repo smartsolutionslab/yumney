@@ -23,9 +23,11 @@ import {
 } from '@yumney/shared/models';
 import {
   BackLinkComponent,
+  ButtonComponent,
   CategorySectionComponent,
   CategoryKey,
   LoadingSpinnerComponent,
+  MessageBannerComponent,
 } from '@yumney/ui';
 
 const CATEGORY_ORDER: readonly CategoryKey[] = [
@@ -53,7 +55,9 @@ const BRING_LAUNCH_PROBE_MS = 1500;
     TranslocoModule,
     RouterLink,
     BackLinkComponent,
+    ButtonComponent,
     LoadingSpinnerComponent,
+    MessageBannerComponent,
     CategorySectionComponent,
   ],
   templateUrl: './shopping-detail.component.html',

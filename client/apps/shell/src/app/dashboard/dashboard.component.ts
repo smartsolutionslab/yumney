@@ -19,14 +19,16 @@ import {
 } from '@yumney/shared/models';
 import { LucideAngularModule } from 'lucide-angular';
 import {
-  RecipePreviewComponent,
-  QuickActionsComponent,
-  SuggestionCardComponent,
-  RecentActivityComponent,
+  ButtonComponent,
   CameraCaptureComponent,
   IngredientScannerComponent,
-  ShareToastComponent,
   IngredientsToastComponent,
+  MessageBannerComponent,
+  QuickActionsComponent,
+  RecentActivityComponent,
+  RecipePreviewComponent,
+  ShareToastComponent,
+  SuggestionCardComponent,
 } from '@yumney/ui';
 import { CameraService } from '@yumney/shared/models';
 import type { RecognizedIngredient } from '@yumney/shared/api-client';
@@ -39,6 +41,8 @@ import { DashboardSuggestionsService } from './dashboard-suggestions.service';
     TranslocoModule,
     LucideAngularModule,
     UrlImportComponent,
+    ButtonComponent,
+    MessageBannerComponent,
     RecipePreviewComponent,
     QuickActionsComponent,
     SuggestionCardComponent,

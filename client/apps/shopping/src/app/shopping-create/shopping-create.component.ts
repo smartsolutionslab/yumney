@@ -12,11 +12,11 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, RecipeDetail } from '../api';
 import { ShoppingApiService, CreateShoppingListItem } from '../api';
 import { createAsyncState, ERROR_MAPS, ROUTES, VALIDATION } from '@yumney/shared/models';
-import { BackLinkComponent, LoadingSpinnerComponent } from '@yumney/ui';
+import { BackLinkComponent, LoadingSpinnerComponent, MessageBannerComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-shopping-create',
-  imports: [TranslocoModule, BackLinkComponent, LoadingSpinnerComponent],
+  imports: [TranslocoModule, BackLinkComponent, LoadingSpinnerComponent, MessageBannerComponent],
   templateUrl: './shopping-create.component.html',
   styleUrl: './shopping-create.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
