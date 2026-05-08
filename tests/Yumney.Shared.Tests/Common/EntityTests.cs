@@ -16,6 +16,26 @@ public class EntityTests
 		}
 	}
 
+	private sealed class OtherEntity : Entity<Guid>
+	{
+		public static OtherEntity Create(Guid id)
+		{
+			var e = new OtherEntity();
+			e.Id = id;
+			return e;
+		}
+	}
+
+	[Fact]
+	public void Equals_DifferentConcreteType_SameId_ReturnsFalse()
+	{
+		var id = Guid.NewGuid();
+		var entity = TestEntity.Create(id);
+		var other = OtherEntity.Create(id);
+
+		entity.Equals(other).Should().BeFalse();
+	}
+
 	[Fact]
 	public void Equals_SameId_ReturnsTrue()
 	{

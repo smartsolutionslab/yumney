@@ -13,7 +13,7 @@ public sealed class UpdateRecipeNotesCommandHandler(IRecipesUnitOfWork unitOfWor
 		var (identifier, notes) = command;
 		var recipe = await unitOfWork.Recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
-		if (recipe.Owner != currentUser.AsOwner()) return Result.Failure(RateRecipeErrors.AccessDenied);
+		if (recipe.Owner != currentUser.AsOwner()) return Result.Failure(UpdateRecipeNotesErrors.AccessDenied);
 
 		recipe.UpdateNotes(notes);
 		await unitOfWork.SaveChangesAsync(cancellationToken);

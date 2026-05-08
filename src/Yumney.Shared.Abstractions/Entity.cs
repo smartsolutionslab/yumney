@@ -10,6 +10,12 @@ public abstract class Entity<TId> : IEntity
 		if (obj is not Entity<TId> other) return false;
 		if (ReferenceEquals(this, other)) return true;
 
+		// Two entities of different concrete types must never compare equal,
+		// even when their identifier values collide. Without this guard, mixing
+		// entity subtypes in a HashSet (or any equality-based collection) leads
+		// to silent data conflation.
+		if (GetType() != other.GetType()) return false;
+
 		return Id.Equals(other.Id);
 	}
 

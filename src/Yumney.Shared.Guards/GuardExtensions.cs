@@ -57,7 +57,22 @@ public static class GuardExtensions
 
 		public GuardClause<string> Matches(string pattern, string? message = null)
 		{
-			if (guard.Value is null || !Regex.IsMatch(guard.Value, pattern))
+			// Cap regex evaluation so a malicious or accidentally catastrophic
+			// pattern (or input) can't burn a request thread for seconds. A
+			// timeout throws RegexMatchTimeoutException; map it to the same
+			// guard failure so callers see a consistent error.
+			bool matches;
+			try
+			{
+				matches = guard.Value is not null
+					&& Regex.IsMatch(guard.Value, pattern, RegexOptions.None, TimeSpan.FromSeconds(1));
+			}
+			catch (RegexMatchTimeoutException)
+			{
+				matches = false;
+			}
+
+			if (!matches)
 			{
 				throw new GuardException(
 					guard.ParameterName,
