@@ -10,7 +10,10 @@ namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1311
-public sealed partial class InProcessDomainEventDispatcher(IServiceProvider serviceProvider, ILogger<InProcessDomainEventDispatcher> logger)
+public sealed partial class InProcessDomainEventDispatcher(
+	IServiceProvider serviceProvider,
+	EventMetrics metrics,
+	ILogger<InProcessDomainEventDispatcher> logger)
 	: IDomainEventDispatcher
 {
 	private static readonly ConcurrentDictionary<Type, (Type HandlerType, MethodInfo Method)> handlerCache = new();
@@ -45,6 +48,7 @@ public sealed partial class InProcessDomainEventDispatcher(IServiceProvider serv
 					var elapsed = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
 					activity?.SetTag("event.result", "success");
 					activity?.SetStatus(ActivityStatusCode.Ok);
+					metrics.RecordCompletion("domain", eventType.Name, handlerName, succeeded: true);
 					LogHandlerCompleted(eventType.Name, handlerName, elapsed);
 				}
 				catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -58,6 +62,10 @@ public sealed partial class InProcessDomainEventDispatcher(IServiceProvider serv
 					activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 
 					// Isolate handlers — one failing handler must not block the others.
+					// Bump the failure counter so the swallowed exception still has an
+					// SLO surface (alerts can fire on yumney.events.handler.completed
+					// with result=failure).
+					metrics.RecordCompletion("domain", eventType.Name, handlerName, succeeded: false);
 					LogHandlerFailed(ex, eventType.Name, handlerName, elapsed);
 				}
 			}

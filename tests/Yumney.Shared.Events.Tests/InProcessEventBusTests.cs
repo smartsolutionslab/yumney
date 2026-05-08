@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -130,10 +131,15 @@ public class InProcessEventBusTests
 	private static InProcessEventBus CreateEventBus(Action<IServiceCollection> configureServices)
 	{
 		var services = new ServiceCollection();
+		services.AddMetrics();
 		configureServices(services);
 		var serviceProvider = services.BuildServiceProvider();
 
-		return new InProcessEventBus(serviceProvider, NullLogger<InProcessEventBus>.Instance);
+		var meterFactory = serviceProvider.GetRequiredService<IMeterFactory>();
+		return new InProcessEventBus(
+			serviceProvider,
+			new EventMetrics(meterFactory),
+			NullLogger<InProcessEventBus>.Instance);
 	}
 
 	private sealed record TestIntegrationEvent : IntegrationEvent;

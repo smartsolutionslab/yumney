@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events;
 
@@ -16,6 +17,10 @@ public static class EventingServiceCollectionExtensions
 	/// <returns>The service collection for chaining.</returns>
 	public static IServiceCollection AddInProcessDomainEventDispatcher(this IServiceCollection services)
 	{
+		// Counters used by the dispatcher and the in-process bus. Registered
+		// as singleton because Counter<T> instances from a Meter are
+		// thread-safe and meant to be reused across the process lifetime.
+		services.TryAddSingleton<EventMetrics>();
 		services.AddScoped<IDomainEventDispatcher, InProcessDomainEventDispatcher>();
 
 		return services;
@@ -31,6 +36,7 @@ public static class EventingServiceCollectionExtensions
 	/// <returns>The service collection for chaining.</returns>
 	public static IServiceCollection AddInProcessEventBus(this IServiceCollection services)
 	{
+		services.TryAddSingleton<EventMetrics>();
 		services.AddScoped<IEventBus, InProcessEventBus>();
 
 		return services;
