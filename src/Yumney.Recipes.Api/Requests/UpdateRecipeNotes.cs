@@ -1,3 +1,3 @@
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 
-public sealed record RateRecipeRequest(int Rating);
+public sealed record UpdateRecipeNotes(string? Notes);

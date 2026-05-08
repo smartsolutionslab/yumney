@@ -4,9 +4,9 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests.Validator;
 
-public class ParseIntentRequestValidatorTests
+public class ParseIntentValidatorTests
 {
-	private readonly Api.Requests.Validator.ParseIntentRequestValidator validator = new();
+	private readonly Api.Requests.Validator.ParseIntentValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_HasNoErrors()
@@ -35,7 +35,7 @@ public class ParseIntentRequestValidatorTests
 
 		var result = validator.TestValidate(request);
 
-		result.ShouldNotHaveValidationErrorFor(x => x.Context);
+		result.ShouldNotHaveValidationErrorFor(request => request.Context);
 	}
 
 	[Theory]
@@ -48,6 +48,6 @@ public class ParseIntentRequestValidatorTests
 
 		var result = validator.TestValidate(request);
 
-		result.ShouldHaveValidationErrorFor(x => x.Message);
+		result.ShouldHaveValidationErrorFor(request => request.Message);
 	}
 }

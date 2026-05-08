@@ -15,7 +15,7 @@ public static partial class RecipesEndpoints
 		group.MapPost("/{identifier:guid}/rating", RateRecipeAsync)
 			.WithName("RateRecipe")
 			.WithTags("Recipes")
-			.WithValidation<Requests.RateRecipeRequest>()
+			.WithValidation<Requests.RateRecipe>()
 			.Produces(StatusCodes.Status204NoContent)
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status404NotFound);
@@ -23,7 +23,7 @@ public static partial class RecipesEndpoints
 		group.MapPut("/{identifier:guid}/notes", UpdateRecipeNotesAsync)
 			.WithName("UpdateRecipeNotes")
 			.WithTags("Recipes")
-			.WithValidation<Requests.UpdateRecipeNotesRequest>()
+			.WithValidation<Requests.UpdateRecipeNotes>()
 			.Produces(StatusCodes.Status204NoContent)
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status404NotFound);
@@ -31,7 +31,7 @@ public static partial class RecipesEndpoints
 
 	private static async Task<IResult> RateRecipeAsync(
 		Guid identifier,
-		Requests.RateRecipeRequest request,
+		Requests.RateRecipe request,
 		ICommandHandler<RateRecipeCommand, Result> handler,
 		CancellationToken cancellationToken)
 	{
@@ -42,7 +42,7 @@ public static partial class RecipesEndpoints
 
 	private static async Task<IResult> UpdateRecipeNotesAsync(
 		Guid identifier,
-		Requests.UpdateRecipeNotesRequest request,
+		Requests.UpdateRecipeNotes request,
 		ICommandHandler<UpdateRecipeNotesCommand, Result> handler,
 		CancellationToken cancellationToken)
 	{
