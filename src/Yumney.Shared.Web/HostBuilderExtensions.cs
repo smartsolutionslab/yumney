@@ -29,7 +29,11 @@ namespace SmartSolutionsLab.Yumney.Shared.Web;
 
 public static class HostBuilderExtensions
 {
-	public static WebApplicationBuilder AddYumneyDefaults(this WebApplicationBuilder builder, params Assembly[] eventHandlerAssemblies)
+	public static WebApplicationBuilder AddYumneyDefaults(
+		this WebApplicationBuilder builder,
+		string outboxConnectionName,
+		string outboxSchema,
+		params Assembly[] eventHandlerAssemblies)
 	{
 		builder.AddServiceDefaults();
 		builder.AddRedisDistributedCache("redis");
@@ -45,13 +49,24 @@ public static class HostBuilderExtensions
 			options.ShutdownTimeout = TimeSpan.FromSeconds(30);
 		});
 
+		var isDevelopment = builder.Environment.IsDevelopment();
 		builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(options =>
 			{
 				options.Authority = KeycloakDefaults.RealmUrl(builder.Configuration);
 				options.Audience = KeycloakDefaults.Audience;
-				options.RequireHttpsMetadata = false;
-				options.TokenValidationParameters.ValidateIssuer = false;
+
+				// Outside Development we require HTTPS metadata and validate the
+				// token issuer against the configured Keycloak realm URL. Development
+				// keeps both relaxed because the Aspire Keycloak runs on plain HTTP
+				// and its discovery-doc issuer can differ from the URL we call
+				// (container hostname vs localhost).
+				options.RequireHttpsMetadata = !isDevelopment;
+				options.TokenValidationParameters.ValidateIssuer = !isDevelopment;
+				if (!isDevelopment)
+				{
+					options.TokenValidationParameters.ValidIssuer = KeycloakDefaults.RealmUrl(builder.Configuration);
+				}
 			});
 
 		builder.Services.AddAuthorization();
@@ -64,7 +79,7 @@ public static class HostBuilderExtensions
 		// owns the IEventBus binding, and registering an in-process one only
 		// to immediately override it is wasted DI churn.
 		builder.Services.AddInProcessDomainEventDispatcher();
-		builder.AddWolverineEventBus(eventHandlerAssemblies);
+		builder.AddWolverineEventBus(outboxConnectionName, outboxSchema, eventHandlerAssemblies);
 
 		builder.Services.AddScoped<DomainEventDispatchInterceptor>();
 		builder.Services.AddQueryCounting();
@@ -168,20 +183,26 @@ public static class HostBuilderExtensions
 			});
 		});
 
-		// Trust X-Forwarded-* from the immediate proxy (Yumney.Gateway). The gateway sits
-		// at a private/loopback address that varies per environment (loopback in Aspire
-		// dev, a Container Apps internal IP in Azure), so we trust any direct caller and
-		// rely on Container Apps' internal-only ingress to ensure the API is unreachable
-		// except via the gateway. ForwardLimit = 1 means only the gateway's claim is
-		// honoured; chained X-Forwarded-For values further upstream are discarded.
+		// Trust X-Forwarded-* only from the immediate proxy (Yumney.Gateway). The gateway
+		// sits at a private/loopback address that varies per environment (loopback in
+		// Aspire dev, a Container Apps internal IP in Azure), so we trust the standard
+		// private-network ranges plus loopback. Trusting 0.0.0.0/0 would let any caller
+		// that reaches the API directly spoof X-Forwarded-For and bypass the per-IP
+		// rate limit on anonymous endpoints (e.g. Register, ResendVerification).
+		// ForwardLimit = 1 means only the gateway's claim is honoured; chained
+		// X-Forwarded-For values further upstream are discarded.
 		builder.Services.Configure<ForwardedHeadersOptions>(options =>
 		{
 			options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 			options.ForwardLimit = 1;
 			options.KnownIPNetworks.Clear();
 			options.KnownProxies.Clear();
-			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("0.0.0.0/0"));
-			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("::/0"));
+			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("127.0.0.0/8"));
+			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("10.0.0.0/8"));
+			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("172.16.0.0/12"));
+			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("192.168.0.0/16"));
+			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("::1/128"));
+			options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse("fc00::/7"));
 		});
 
 		builder.Services.AddHttpClient();

@@ -14,12 +14,25 @@ public sealed class AuthTokenDelegatingHandler(IHttpContextAccessor httpContextA
 {
 	protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
-		var authHeader = httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-		if (authHeader.HasValue())
+		if (ShouldForwardAuth(request))
 		{
-			request.Headers.Authorization = AuthenticationHeaderValue.Parse(authHeader!);
+			var authHeader = httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
+			if (authHeader.HasValue())
+			{
+				request.Headers.Authorization = AuthenticationHeaderValue.Parse(authHeader!);
+			}
 		}
 
 		return base.SendAsync(request, cancellationToken);
+	}
+
+	// Only forward the bearer to internal Yumney services. Aspire service-discovery
+	// hostnames are bare labels ("users-api", "shopping-api") with no dots; anything
+	// dotted is publicly resolvable and never an internal target — refuse to leak
+	// the user's token to it even if a typed client is misconfigured.
+	private static bool ShouldForwardAuth(HttpRequestMessage request)
+	{
+		var host = request.RequestUri?.Host;
+		return !string.IsNullOrEmpty(host) && !host.Contains('.');
 	}
 }
