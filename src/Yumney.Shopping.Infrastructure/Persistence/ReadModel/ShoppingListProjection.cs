@@ -143,14 +143,18 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 
 	private async Task SetAllCheckedAsync(Guid listId, bool isChecked, CancellationToken cancellationToken)
 	{
-		var items = await context.Set<ShoppingListItemReadItem>()
+		// SQL-side bulk update — no per-item materialise. Runs in its own
+		// transaction (ExecuteUpdateAsync doesn't enlist the change tracker)
+		// which is fine here because the surrounding handler does its own
+		// SaveChangesAsync only to commit the touched summary row.
+		var now = DateTime.UtcNow;
+		await context.Set<ShoppingListItemReadItem>()
 			.Where(item => item.ListId == listId)
-			.ToListAsync(cancellationToken);
-		foreach (var item in items)
-		{
-			item.IsChecked = isChecked;
-			item.LastUpdated = DateTime.UtcNow;
-		}
+			.ExecuteUpdateAsync(
+				setters => setters
+					.SetProperty(item => item.IsChecked, isChecked)
+					.SetProperty(item => item.LastUpdated, now),
+				cancellationToken);
 	}
 
 	private async Task IncrementItemCountAsync(Guid listId, CancellationToken cancellationToken)
