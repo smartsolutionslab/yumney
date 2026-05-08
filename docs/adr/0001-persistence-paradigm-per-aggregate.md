@@ -2,6 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-04-20
+- Last revised: 2026-05-08
 - Context: Architecture review US-000
 
 ## Context
@@ -9,18 +10,21 @@
 Yumney currently uses two persistence paradigms in parallel:
 
 - **State-based (EF Core)** — the write model is the current state of the
-  aggregate. `Recipe`, `WeeklyPlan`, `AppUserProfile`, `ShoppingList`,
-  and all other aggregates today store a row per entity; EF Core tracks
-  changes and emits UPDATE statements. Domain events are raised by
-  aggregate methods and dispatched via `DomainEventDispatchInterceptor`
-  after `SaveChanges`. Base class: `AggregateRoot<TId>`.
+  aggregate. `Recipe`, `RecipeFavorite`, `AppUserProfile`, `StaplesList`,
+  and similar aggregates store a row per entity; EF Core tracks changes
+  and emits UPDATE statements. Domain events are raised by aggregate
+  methods and dispatched via `DomainEventDispatchInterceptor` after
+  `SaveChanges`. Base class: `AggregateRoot<TId>`.
 
 - **Event-sourced** — the aggregate is rebuilt by replaying a stream of
-  domain events. `ShoppingLedger` is the only event-sourced aggregate:
-  `EfCoreShoppingEventStore` persists events; `ShoppingListProjection`
-  maintains the read model via `IIntegrationEventHandler` instances.
-  Base class: `EventSourcedAggregate<TId>`, versioned with
-  `AggregateVersion`.
+  domain events. As of the last revision, three aggregates are
+  event-sourced: `ShoppingLedger`, `ShoppingList` (Shopping module),
+  and `WeeklyPlan` (MealPlan module). Each has its own
+  `EventStoreBase`-derived store; the corresponding projection handlers
+  (`ShoppingLedgerProjectionHandler`, `ShoppingListProjection`,
+  `MealPlanProjectionHandler`) maintain the read model via
+  `IModuleEventHandler` subscriptions. Base class:
+  `EventSourcedAggregate<TId>`, versioned with `AggregateVersion`.
 
 The architecture review flagged the inconsistency as a risk: newcomers
 can't tell from a module what paradigm applies, the two models have
@@ -51,10 +55,12 @@ existing one:
 - Schema evolution via EF migrations is cheaper than event-stream
   versioning for the team.
 
-For modules that mix usage (e.g. Shopping has a state-based
-`ShoppingList` and an event-sourced `ShoppingLedger`), keep the two
-aggregates in separate folders under `Domain/`, with a short README
-in the module describing why each paradigm was chosen.
+For modules that mix usage (e.g. Recipes mixes a state-based `Recipe`
+with state-based `RecipeFavorite`, while Shopping has two event-sourced
+aggregates — `ShoppingList` and `ShoppingLedger` — that share a single
+event store database), keep the aggregates in separate folders under
+`Domain/`, with a short README in the module describing why each
+paradigm was chosen.
 
 ## Consequences
 
@@ -85,5 +91,15 @@ in the module describing why each paradigm was chosen.
 - When a future aggregate is proposed, require the design notes to
   reference this ADR and state the decision explicitly.
 - Revisit this ADR if the ratio of event-sourced aggregates crosses
-  30% — at that point a third option (uniform event-sourcing with
+  50% — at that point a third option (uniform event-sourcing with
   opt-in snapshots) becomes plausible.
+
+## Revision history
+
+- **2026-05-08** — Updated context to reflect that `ShoppingList`
+  (migration `20260428212832_AddShoppingListEventStore`) and
+  `WeeklyPlan` (migration `20260428145622_ReplaceWeeklyPlanWithEventSourcing`)
+  were converted to event sourcing after this ADR was originally
+  accepted. Raised the revisit threshold from 30% to 50% because the
+  current ratio (3 of ~7 aggregates) already brushes the original
+  trigger without indicating a need to re-decide.
