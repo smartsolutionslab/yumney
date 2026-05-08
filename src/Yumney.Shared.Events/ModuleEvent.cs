@@ -7,7 +7,11 @@ namespace SmartSolutionsLab.Yumney.Shared.Events;
 /// </summary>
 public abstract record ModuleEvent(string OwnerId) : IModuleEvent
 {
-	public Guid EventIdentifier { get; } = Guid.NewGuid();
+	// `init` is required so System.Text.Json can round-trip these values when
+	// the event is rehydrated from a Wolverine envelope. Without it the
+	// inbox-dedup key (EventIdentifier) is regenerated on every redelivery,
+	// breaking exactly-once semantics, and OccurredOn is reset to "now".
+	public Guid EventIdentifier { get; init; } = Guid.NewGuid();
 
-	public DateTime OccurredOn { get; } = DateTime.UtcNow;
+	public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
 }
