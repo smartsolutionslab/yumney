@@ -94,7 +94,7 @@ describe('CreateShoppingListDialogComponent', () => {
     let emitted = 0;
     component.cancelled.subscribe(() => emitted++);
 
-    component.onEscapeKey();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
     expect(emitted).toBe(0);
   });
@@ -104,7 +104,7 @@ describe('CreateShoppingListDialogComponent', () => {
     let emitted = 0;
     component.cancelled.subscribe(() => emitted++);
 
-    component.onEscapeKey();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
     expect(emitted).toBe(1);
   });
@@ -114,7 +114,7 @@ describe('CreateShoppingListDialogComponent', () => {
     let emitted = 0;
     component.cancelled.subscribe(() => emitted++);
 
-    const overlay = fixture.nativeElement.querySelector('.create-shopping-list-overlay');
+    const overlay = fixture.nativeElement.querySelector('.yn-dialog-overlay');
     overlay.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(emitted).toBe(1);
@@ -125,7 +125,7 @@ describe('CreateShoppingListDialogComponent', () => {
     let emitted = 0;
     component.cancelled.subscribe(() => emitted++);
 
-    const overlay = fixture.nativeElement.querySelector('.create-shopping-list-overlay');
+    const overlay = fixture.nativeElement.querySelector('.yn-dialog-overlay');
     overlay.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(emitted).toBe(0);
