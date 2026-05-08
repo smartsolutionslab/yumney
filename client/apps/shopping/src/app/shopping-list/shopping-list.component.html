@@ -11,10 +11,7 @@
 
   @if (!isLoading() && !serverError()) {
     @if (lists().length === 0) {
-      <div class="empty-state">
-        <h2>{{ t('shopping.list.empty.title') }}</h2>
-        <p>{{ t('shopping.list.empty.message') }}</p>
-      </div>
+      <yn-empty-state title="shopping.list.empty.title" message="shopping.list.empty.message"/>
     } @else {
       <div class="lists-grid">
         @for (list of lists(); track list.identifier) {

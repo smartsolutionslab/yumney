@@ -1,0 +1,43 @@
+@use 'glass';
+
+yn-empty-state {
+  display: block;
+}
+
+.empty-state {
+  text-align: center;
+
+  &--card {
+    @include glass.glass-card;
+    display: flex;
+    flex-direction: column;
+    gap: var(--yn-space-5);
+    padding: 4rem var(--yn-space-8);
+    animation: yn-fade-in var(--yn-duration-normal) var(--yn-ease-glass) both;
+
+    h2 {
+      margin: 0;
+      font-size: var(--yn-text-2xl);
+      font-weight: var(--yn-font-semibold);
+    }
+
+    p {
+      margin: 0;
+      color: var(--yn-text-muted);
+      font-size: var(--yn-text-base);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  &--minimal {
+    color: var(--yn-text-muted);
+    padding: var(--yn-space-7);
+
+    p {
+      margin: 0;
+    }
+  }
+}

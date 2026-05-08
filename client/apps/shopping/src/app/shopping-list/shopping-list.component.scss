@@ -17,30 +17,6 @@ h1 {
   padding: 4rem 0;
 }
 
-.empty-state {
-  @include glass.glass-card;
-  text-align: center;
-  padding: 4rem var(--yn-space-5);
-  animation: yn-fade-in var(--yn-duration-normal) var(--yn-ease-glass) both;
-
-  h2 {
-    margin: 0 0 var(--yn-space-3);
-    font-size: var(--yn-text-2xl);
-    font-weight: var(--yn-font-semibold);
-    color: var(--yn-text-secondary);
-  }
-
-  p {
-    margin: 0;
-    font-size: var(--yn-text-md);
-    color: var(--yn-text-light);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
 .lists-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

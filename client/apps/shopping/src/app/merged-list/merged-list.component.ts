@@ -12,7 +12,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { ShoppingApiService, type MergedShoppingList, type MergedShoppingItem } from '../api';
 import { createAsyncState, ERROR_MAPS, groupByCategory, ToastService } from '@yumney/shared/models';
-import { AsyncStateComponent } from '@yumney/ui';
+import { AsyncStateComponent, EmptyStateComponent } from '@yumney/ui';
 
 interface CategoryGroup {
   category: string;
@@ -23,7 +23,7 @@ interface CategoryGroup {
 @Component({
   selector: 'yn-merged-list',
   standalone: true,
-  imports: [FormsModule, TranslocoModule, LucideAngularModule, AsyncStateComponent],
+  imports: [FormsModule, TranslocoModule, LucideAngularModule, AsyncStateComponent, EmptyStateComponent],
   templateUrl: './merged-list.component.html',
   styleUrl: './merged-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

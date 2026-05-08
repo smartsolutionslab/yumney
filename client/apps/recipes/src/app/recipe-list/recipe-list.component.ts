@@ -21,7 +21,9 @@ import {
 } from '@yumney/shared/models';
 import { RouterLink } from '@angular/router';
 import {
+  ButtonComponent,
   EMPTY_FILTER,
+  EmptyStateComponent,
   FilterPanelComponent,
   InfiniteScrollDirective,
   MessageBannerComponent,
@@ -47,6 +49,8 @@ interface SortOption extends SortMenuOption {
     LucideAngularModule,
     InfiniteScrollDirective,
     StaggerNewItemsDirective,
+    ButtonComponent,
+    EmptyStateComponent,
     FilterPanelComponent,
     MessageBannerComponent,
     RecipeCardComponent,

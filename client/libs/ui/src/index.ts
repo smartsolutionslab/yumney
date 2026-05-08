@@ -10,6 +10,10 @@ export {
   type DialogRole,
   type DialogSize,
 } from './lib/dialog-shell/dialog-shell.component';
+export {
+  EmptyStateComponent,
+  type EmptyStateVariant,
+} from './lib/empty-state/empty-state.component';
 export { FormFieldComponent } from './lib/form-field/form-field.component';
 export {
   MessageBannerComponent,

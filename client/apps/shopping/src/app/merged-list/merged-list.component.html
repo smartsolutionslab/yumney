@@ -81,8 +81,10 @@
   }
 
   @if (!loading() && totalItems() === 0) {
-    <div class="empty-state" data-testid="shopping-empty-state">
-      <p>{{ t(showPastPurchases() ? 'shopping.history.empty' : 'shopping.empty') }}</p>
-    </div>
+    <yn-empty-state
+      variant="minimal"
+      testId="shopping-empty-state"
+      [message]="showPastPurchases() ? 'shopping.history.empty' : 'shopping.empty'"
+    />
   }
 </div>

@@ -86,19 +86,18 @@
   }
 
   @if (!isLoading() && recipes().length === 0 && !serverError()) {
-    @if (activeSearch()) {
-      <div class="empty-state">
-        <h2>{{ t('recipes.list.search.noResults') }}</h2>
-        <p>{{ t('recipes.list.search.noResultsMessage', { query: activeSearch() }) }}</p>
-      </div>
+    @if (activeSearch(); as query) {
+      <yn-empty-state
+        title="recipes.list.search.noResults"
+        message="recipes.list.search.noResultsMessage"
+        [messageParams]="{ query }"
+      />
     } @else {
-      <div class="empty-state">
-        <h2>{{ t('recipes.list.empty.title') }}</h2>
-        <p>{{ t('recipes.list.empty.message') }}</p>
-        <a [routerLink]="ROUTES.dashboard" class="cta-button">
+      <yn-empty-state title="recipes.list.empty.title" message="recipes.list.empty.message">
+        <yn-button variant="primary" [routerLink]="ROUTES.dashboard">
           {{ t('recipes.list.empty.cta') }}
-        </a>
-      </div>
+        </yn-button>
+      </yn-empty-state>
     }
   }
 
