@@ -1,4 +1,3 @@
-using SmartSolutionsLab.Yumney.Recipes.Api.Requests;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Chat;
@@ -56,17 +55,17 @@ public static partial class RecipesEndpoints
 			return result.ToOk();
 		}
 
-		group.MapPost("/import-from-text", ImportFromText)
+		group.MapPost("/import-from-text", ImportRecipeFromText)
 			.WithName("ImportRecipeFromText")
 			.WithTags("Recipes")
-			.WithValidation<ImportFromTextRequestDto>()
+			.WithValidation<Requests.ImportFromText>()
 			.Produces<ExtractedRecipeDto>()
 			.ProducesProblem(StatusCodes.Status400BadRequest)
 			.ProducesProblem(StatusCodes.Status500InternalServerError)
 			.RequireRateLimiting("RecipeImport");
 
-		static async Task<IResult> ImportFromText(
-			ImportFromTextRequestDto request,
+		static async Task<IResult> ImportRecipeFromText(
+			Requests.ImportFromText request,
 			ICommandHandler<ImportRecipeFromTextCommand, Result<ExtractedRecipeDto>> handler,
 			CancellationToken cancellationToken)
 		{

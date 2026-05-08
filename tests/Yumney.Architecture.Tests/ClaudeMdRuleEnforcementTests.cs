@@ -105,6 +105,26 @@ public partial class ClaudeMdRuleEnforcementTests
 			string.Join(Environment.NewLine, violations.Select(violation => $"  {violation}")));
 	}
 
+	[Fact]
+	public void NoApiRequestType_HasRequestSuffixOrInfix()
+	{
+		var srcRoot = SolutionRoot.Src;
+		var pattern = ApiRequestTypeWithRequestNamePattern();
+
+		var violations = Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
+			.Where(IsTrackedSourceFile)
+			.Where(IsApiRequestFile)
+			.SelectMany(path => FindViolations(path, pattern))
+			.ToList();
+
+		violations.Should().BeEmpty(
+			"Types declared in `*.Api/Requests/` (including the `Validator/` subfolder) must not contain `Request` in their name "
+			+ "per CLAUDE.md (\"API request types — no Request suffix\"). The `Requests` namespace already conveys intent. "
+			+ "Rename e.g. `RateRecipeRequest` → `RateRecipe` and `ChatRequestValidator` → `ChatValidator`. Offenders:{0}{1}",
+			Environment.NewLine,
+			string.Join(Environment.NewLine, violations.Select(violation => $"  {violation}")));
+	}
+
 	[GeneratedRegex(@"\bEnsure\.That\(")]
 	private static partial Regex EnsureThatPattern();
 
@@ -119,6 +139,9 @@ public partial class ClaudeMdRuleEnforcementTests
 
 	[GeneratedRegex(@"^\s*(?:public|internal)\s+(?!static\s)(?!abstract\s)(?!override\s)(?:async\s+)?void\s+\w+\s*\(")]
 	private static partial Regex PublicOrInternalVoidMethodPattern();
+
+	[GeneratedRegex(@"\b(?:public|internal)\s+(?:(?:sealed|partial|abstract|static)\s+)*(?:record|class)\s+\w*Request\w*\b")]
+	private static partial Regex ApiRequestTypeWithRequestNamePattern();
 
 	private static IEnumerable<string> FindViolations(string path, Regex pattern)
 	{
@@ -174,6 +197,12 @@ public partial class ClaudeMdRuleEnforcementTests
 				|| normalized.Contains("/Queries/", StringComparison.OrdinalIgnoreCase))
 			&& (path.EndsWith("Command.cs", StringComparison.OrdinalIgnoreCase)
 				|| path.EndsWith("Query.cs", StringComparison.OrdinalIgnoreCase));
+	}
+
+	private static bool IsApiRequestFile(string path)
+	{
+		var normalized = path.Replace('\\', '/');
+		return normalized.Contains(".Api/Requests/", StringComparison.OrdinalIgnoreCase);
 	}
 
 	private static bool IsDomainAggregateOrEntityFile(string path)

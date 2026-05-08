@@ -5,9 +5,9 @@ using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests.Requests.Validator;
 
-public class ChatRequestValidatorTests
+public class ChatValidatorTests
 {
-	private readonly ChatRequestValidator validator = new();
+	private readonly ChatValidator validator = new();
 
 	[Fact]
 	public void Validate_ValidRequest_HasNoErrors()
@@ -44,6 +44,6 @@ public class ChatRequestValidatorTests
 
 		var result = validator.TestValidate(request);
 
-		result.ShouldHaveValidationErrorFor(x => x.Message);
+		result.ShouldHaveValidationErrorFor(request => request.Message);
 	}
 }

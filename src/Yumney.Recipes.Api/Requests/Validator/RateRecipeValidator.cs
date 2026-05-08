@@ -3,7 +3,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Requests.Validator;
 
-public sealed class RateRecipeValidator : AbstractValidator<RateRecipeRequest>
+public sealed class RateRecipeValidator : AbstractValidator<RateRecipe>
 {
 	public RateRecipeValidator()
 	{
