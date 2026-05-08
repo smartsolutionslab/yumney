@@ -6,7 +6,7 @@
   }
 
   @if (serverError(); as error) {
-    <div class="error-banner" role="alert">{{ t(error) }}</div>
+    <yn-message-banner tone="error" [message]="error"/>
   }
 
   @if (recipe(); as recipe) {
@@ -150,28 +150,27 @@
       <a class="btn-cook" [routerLink]="ROUTES.recipes.cook(recipe.identifier)">
         {{ t('recipes.detail.actions.startCooking') }}
       </a>
-      <a class="btn-primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
+      <yn-button variant="primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
         {{ t('recipes.detail.actions.edit') }}
-      </a>
-      <button
-        class="btn-danger"
-        data-testid="recipe-delete-btn"
+      </yn-button>
+      <yn-button
+        variant="danger"
+        testId="recipe-delete-btn"
         [disabled]="isDeleting()"
         (click)="onDelete()"
       >
         {{
           isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete')
         }}
-      </button>
-      <button
-        type="button"
-        class="btn-secondary"
-        data-testid="recipe-create-shopping-list-btn"
+      </yn-button>
+      <yn-button
+        variant="secondary"
+        testId="recipe-create-shopping-list-btn"
         [disabled]="isCreatingShoppingList()"
         (click)="onCreateShoppingList()"
       >
         {{ t('recipes.detail.actions.shoppingList') }}
-      </button>
+      </yn-button>
     </div>
 
     <section class="ingredients-section">
@@ -215,18 +214,17 @@
       <a class="btn-cook" [routerLink]="ROUTES.recipes.cook(recipe.identifier)">
         {{ t('recipes.detail.actions.startCooking') }}
       </a>
-      <a class="btn-primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
+      <yn-button variant="primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
         {{ t('recipes.detail.actions.edit') }}
-      </a>
-      <button
-        type="button"
-        class="btn-secondary"
-        data-testid="recipe-create-shopping-list-btn"
+      </yn-button>
+      <yn-button
+        variant="secondary"
+        testId="recipe-create-shopping-list-btn"
         [disabled]="isCreatingShoppingList()"
         (click)="onCreateShoppingList()"
       >
         {{ t('recipes.detail.actions.shoppingList') }}
-      </button>
+      </yn-button>
     </div>
 
     @if (showDeleteConfirm()) {

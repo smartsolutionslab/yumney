@@ -1,0 +1,26 @@
+<ng-template #content><ng-content /></ng-template>
+
+@if (routerLink(); as link) {
+  <a
+    [routerLink]="link"
+    [class]="className()"
+    [attr.aria-label]="ariaLabel() ?? null"
+    [attr.aria-disabled]="disabled() || loading() ? 'true' : null"
+    [attr.data-testid]="testId() ?? null"
+  >
+    <ng-container [ngTemplateOutlet]="content" />
+  </a>
+} @else {
+  <button
+    [type]="type()"
+    [disabled]="disabled() || loading()"
+    [class]="className()"
+    [attr.aria-label]="ariaLabel() ?? null"
+    [attr.data-testid]="testId() ?? null"
+  >
+    @if (loading() && showSpinner()) {
+      <span class="btn-spinner"></span>
+    }
+    <ng-container [ngTemplateOutlet]="content" />
+  </button>
+}

@@ -29,9 +29,11 @@ import {
 } from '@yumney/shared/models';
 import {
   BackLinkComponent,
+  ButtonComponent,
   ConfirmDialogComponent,
   FavoriteButtonComponent,
   LoadingSpinnerComponent,
+  MessageBannerComponent,
   StarRatingComponent,
 } from '@yumney/ui';
 import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog/create-shopping-list-dialog.component';
@@ -42,10 +44,12 @@ import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog
     FormsModule,
     TranslocoModule,
     RouterLink,
+    ButtonComponent,
     ConfirmDialogComponent,
     CreateShoppingListDialogComponent,
     BackLinkComponent,
     LoadingSpinnerComponent,
+    MessageBannerComponent,
     FavoriteButtonComponent,
     StarRatingComponent,
   ],

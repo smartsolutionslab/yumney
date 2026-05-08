@@ -93,16 +93,16 @@
     }
 
     <div class="dialog-actions">
-      <button type="button" class="btn-secondary" [disabled]="isCreating()" (click)="onCancel()" data-testid="multi-recipe-preview-cancel">
+      <yn-button variant="secondary" testId="multi-recipe-preview-cancel" [disabled]="isCreating()" (click)="onCancel()">
         {{ t('recipes.list.multiSelect.preview.cancel') }}
-      </button>
-      <button type="button" class="btn-primary" [disabled]="isCreating() || isLoading() || mergedIngredients().length === 0" (click)="onConfirm()" data-testid="multi-recipe-preview-confirm">
+      </yn-button>
+      <yn-button variant="primary" testId="multi-recipe-preview-confirm" [disabled]="isCreating() || isLoading() || mergedIngredients().length === 0" (click)="onConfirm()">
         {{
           isCreating()
             ? t('recipes.list.multiSelect.preview.creating')
             : t('recipes.list.multiSelect.preview.confirm')
         }}
-      </button>
+      </yn-button>
     </div>
   </div>
 </div>

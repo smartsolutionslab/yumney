@@ -8,10 +8,11 @@ import {
 } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import type { ScalableIngredient } from '@yumney/shared/models';
+import { ButtonComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-create-shopping-list-dialog',
-  imports: [TranslocoModule],
+  imports: [TranslocoModule, ButtonComponent],
   templateUrl: './create-shopping-list-dialog.component.html',
   styleUrl: './create-shopping-list-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

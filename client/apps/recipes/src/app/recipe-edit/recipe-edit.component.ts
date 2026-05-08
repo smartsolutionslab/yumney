@@ -21,6 +21,7 @@ import {
   BackLinkComponent,
   ConfirmDialogComponent,
   LoadingSpinnerComponent,
+  MessageBannerComponent,
   RecipePreviewComponent,
 } from '@yumney/ui';
 
@@ -31,6 +32,7 @@ import {
     BackLinkComponent,
     ConfirmDialogComponent,
     LoadingSpinnerComponent,
+    MessageBannerComponent,
     RecipePreviewComponent,
   ],
   templateUrl: './recipe-edit.component.html',

@@ -48,28 +48,26 @@
     </section>
 
     <div class="dialog-actions">
-      <button
-        type="button"
-        class="btn-secondary"
+      <yn-button
+        variant="secondary"
+        testId="create-shopping-list-cancel"
         [disabled]="isCreating()"
         (click)="onCancel()"
-        data-testid="create-shopping-list-cancel"
       >
         {{ t('recipes.detail.createShoppingList.cancel') }}
-      </button>
-      <button
-        type="button"
-        class="btn-primary"
+      </yn-button>
+      <yn-button
+        variant="primary"
+        testId="create-shopping-list-confirm"
         [disabled]="isCreating()"
         (click)="onConfirm()"
-        data-testid="create-shopping-list-confirm"
       >
         {{
           isCreating()
             ? t('recipes.detail.createShoppingList.creating')
             : t('recipes.detail.createShoppingList.confirm')
         }}
-      </button>
+      </yn-button>
     </div>
   </div>
 </div>

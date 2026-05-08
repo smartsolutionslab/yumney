@@ -6,7 +6,7 @@
   }
 
   @if (serverError(); as error) {
-    <div class="error-banner" role="alert">{{ t(error) }}</div>
+    <yn-message-banner tone="error" [message]="error"/>
   }
 
   @if (recipeData(); as recipe) {

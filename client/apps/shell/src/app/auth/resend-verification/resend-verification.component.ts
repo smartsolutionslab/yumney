@@ -10,7 +10,7 @@ import {
   ERROR_MAPS,
   ROUTES,
 } from '@yumney/shared/models';
-import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
+import { FormFieldComponent, MessageBannerComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-resend-verification',
@@ -19,6 +19,7 @@ import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
     TranslocoModule,
     RouterLink,
     FormFieldComponent,
+    MessageBannerComponent,
     SubmitButtonComponent,
   ],
   templateUrl: './resend-verification.component.html',
