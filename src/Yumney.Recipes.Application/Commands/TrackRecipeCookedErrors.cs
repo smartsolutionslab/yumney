@@ -1,0 +1,8 @@
+using SmartSolutionsLab.Yumney.Shared.Outcomes;
+
+namespace SmartSolutionsLab.Yumney.Recipes.Application.Commands;
+
+public static class TrackRecipeCookedErrors
+{
+	public static readonly ApiError AccessDenied = new("RECIPE_ACCESS_DENIED", "Recipe not found.", 404);
+}

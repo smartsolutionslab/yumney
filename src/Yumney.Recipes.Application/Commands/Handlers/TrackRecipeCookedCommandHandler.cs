@@ -16,7 +16,7 @@ public sealed class TrackRecipeCookedCommandHandler(IRecipesUnitOfWork unitOfWor
 
 		if (recipe.Owner != currentUser.AsOwner())
 		{
-			return Result.Failure(DeleteRecipeErrors.AccessDenied);
+			return Result.Failure(TrackRecipeCookedErrors.AccessDenied);
 		}
 
 		await eventBus.PublishAsync(
