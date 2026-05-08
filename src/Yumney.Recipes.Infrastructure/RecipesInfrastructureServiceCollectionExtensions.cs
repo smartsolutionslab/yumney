@@ -6,6 +6,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Client;
@@ -23,6 +24,12 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 			"__RecipesMigrationsHistory",
 			"wolverine_recipes",
 			typeof(DomainEventDispatchInterceptor));
+
+		// Replace the default WolverineEventBus (registered by AddYumneyDefaults)
+		// with the outbox-backed variant so SaveRecipe / DeleteRecipe /
+		// TrackRecipeCooked publish-before-save patterns become transactional.
+		// Last AddScoped<IEventBus> wins, so this binding takes effect.
+		services.AddScoped<IEventBus, WolverineOutboxEventBus<RecipesDbContext>>();
 
 		services.AddScoped<RecipesUnitOfWork>();
 		services.AddScoped<IRecipesUnitOfWork>(sp => sp.GetRequiredService<RecipesUnitOfWork>());
