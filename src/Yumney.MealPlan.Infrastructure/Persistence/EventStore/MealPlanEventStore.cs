@@ -5,11 +5,16 @@ using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore.Ev
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
+using Wolverine.EntityFrameworkCore;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
 
 #pragma warning disable SA1601
-public sealed partial class MealPlanEventStore(MealPlanDbContext context, IEventBus eventBus, ILogger<MealPlanEventStore> logger)
+public sealed partial class MealPlanEventStore(
+	MealPlanDbContext context,
+	IEventBus eventBus,
+	IDbContextOutbox<MealPlanDbContext> outbox,
+	ILogger<MealPlanEventStore> logger)
 	: EventStoreBase<WeeklyPlan, WeeklyPlanIdentifier, AggregateMetadata, StoredEvent>(
 		context,
 		eventBus,
@@ -59,6 +64,29 @@ public sealed partial class MealPlanEventStore(MealPlanDbContext context, IEvent
 	protected override IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> CrossModuleEventFactories => crossModuleEventFactories;
 
 	protected override object[] BuildEventContext(WeeklyPlan aggregate) => [aggregate.Owner.Value, aggregate.Week.Value];
+
+	// Use Wolverine's typed outbox so the event-store rows and the bus messages
+	// share a single PostgreSQL transaction. PublishAsync stages the message;
+	// SaveChangesAsync commits both event-store rows and the staged outbox
+	// rows; FlushOutgoingMessagesAsync nudges Wolverine to deliver immediately
+	// — a delivery failure leaves the rows in the outbox table for the
+	// background relay to pick up on retry.
+	protected override async Task PersistAndPublishAsync(
+		WeeklyPlan aggregate,
+		IReadOnlyList<IBusEvent> busEvents,
+		CancellationToken cancellationToken)
+	{
+		foreach (var busEvent in busEvents)
+		{
+			await outbox.PublishAsync(busEvent);
+		}
+
+		await Context.SaveChangesAsync(cancellationToken);
+
+		aggregate.MarkCommitted();
+
+		await outbox.FlushOutgoingMessagesAsync();
+	}
 
 	protected override void LogEventsSaved(WeeklyPlan aggregate, IReadOnlyList<IDomainEvent> events) =>
 		LogEventsSavedCore(aggregate.Owner.Value, aggregate.Week.Value, events.Count, aggregate.Version);

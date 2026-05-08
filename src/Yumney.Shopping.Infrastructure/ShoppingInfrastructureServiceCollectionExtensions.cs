@@ -4,6 +4,7 @@ using Microsoft.SemanticKernel;
 using SmartSolutionsLab.Yumney.Recipes.Client;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
@@ -21,7 +22,11 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 {
 	public static IServiceCollection AddShoppingInfrastructure(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddYumneyNpgsqlDbContext<ShoppingDbContext>(configuration, "shoppingdb", "__ShoppingMigrationsHistory");
+		services.AddYumneyNpgsqlDbContextWithOutbox<ShoppingDbContext>(
+			configuration,
+			"shoppingdb",
+			"__ShoppingMigrationsHistory",
+			"wolverine_shopping");
 		services.AddYumneyNpgsqlDbContext<ShoppingReadDbContext>(
 			configuration,
 			"shoppingdb",

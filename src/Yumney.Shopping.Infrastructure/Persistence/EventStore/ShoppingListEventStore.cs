@@ -4,11 +4,16 @@ using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using Wolverine.EntityFrameworkCore;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
 #pragma warning disable SA1601
-public sealed partial class ShoppingListEventStore(ShoppingDbContext context, IEventBus eventBus, ILogger<ShoppingListEventStore> logger)
+public sealed partial class ShoppingListEventStore(
+	ShoppingDbContext context,
+	IEventBus eventBus,
+	IDbContextOutbox<ShoppingDbContext> outbox,
+	ILogger<ShoppingListEventStore> logger)
 	: EventStoreBase<ShoppingList, ShoppingListIdentifier, ShoppingListAggregateMetadata, ShoppingListStoredEvent>(
 		context,
 		eventBus,
@@ -56,6 +61,25 @@ public sealed partial class ShoppingListEventStore(ShoppingDbContext context, IE
 
 	protected override IModuleEvent? MapModuleEvent(ShoppingList aggregate, IDomainEvent domainEvent) =>
 		ShoppingListModuleEventMapper.Map(aggregate.Owner.Value, aggregate.Identifier.Value, domainEvent);
+
+	// See ShoppingEventStore for the rationale on the outbox-aware persist
+	// path. The two stores share the same DbContext and outbox instance.
+	protected override async Task PersistAndPublishAsync(
+		ShoppingList aggregate,
+		IReadOnlyList<IBusEvent> busEvents,
+		CancellationToken cancellationToken)
+	{
+		foreach (var busEvent in busEvents)
+		{
+			await outbox.PublishAsync(busEvent);
+		}
+
+		await Context.SaveChangesAsync(cancellationToken);
+
+		aggregate.MarkCommitted();
+
+		await outbox.FlushOutgoingMessagesAsync();
+	}
 
 	protected override void LogEventsSaved(ShoppingList aggregate, IReadOnlyList<IDomainEvent> events) =>
 		LogEventsSavedCore(aggregate.Identifier.Value, events.Count, aggregate.Version);

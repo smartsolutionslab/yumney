@@ -12,6 +12,8 @@ public sealed class MealPlanApiModule : IEndpointModule
 	public IHostApplicationBuilder RegisterServices(IHostApplicationBuilder builder)
 	{
 		((WebApplicationBuilder)builder).AddYumneyDefaults(
+			outboxConnectionName: "mealplandb",
+			outboxSchema: "wolverine_mealplan",
 			typeof(ExtendedModeDisabledModuleEvent).Assembly,
 			typeof(UserAccountDeletedHandler).Assembly);
 

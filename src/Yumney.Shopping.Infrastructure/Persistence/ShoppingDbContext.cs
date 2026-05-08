@@ -22,5 +22,10 @@ public sealed class ShoppingDbContext(DbContextOptions<ShoppingDbContext> option
 	{
 		modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShoppingDbContext).Assembly);
 		modelBuilder.ApplyConfiguration(new InboxMessageConfiguration());
+
+		// Wolverine's envelope tables (under the wolverine_shopping schema) are
+		// provisioned at API host startup by AutoBuildMessageStorageOnStartup —
+		// not via EF migrations — because Wolverine.EntityFrameworkCore marks
+		// those tables ExcludeFromMigrations() unconditionally.
 	}
 }

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
@@ -19,10 +20,11 @@ public static class UsersInfrastructureServiceCollectionExtensions
 			.ValidateDataAnnotations()
 			.ValidateOnStart();
 
-		services.AddYumneyNpgsqlDbContext<UsersDbContext>(
+		services.AddYumneyNpgsqlDbContextWithOutbox<UsersDbContext>(
 			configuration,
 			"usersdb",
 			"__UsersMigrationsHistory",
+			"wolverine_users",
 			typeof(DomainEventDispatchInterceptor));
 
 		services.AddScoped<UsersUnitOfWork>();

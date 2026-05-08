@@ -5,8 +5,10 @@ using NSubstitute;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Shopping.ReadModel;
@@ -94,7 +96,7 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 	{
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
 		var bus = Substitute.For<IEventBus>();
-		var store = new ShoppingListEventStore(ctx, bus, NullLogger<ShoppingListEventStore>.Instance);
+		var store = new ShoppingListEventStore(ctx, bus, Substitute.For<IDbContextOutbox<ShoppingDbContext>>(), NullLogger<ShoppingListEventStore>.Instance);
 
 		var items = itemNames
 			.Select(name => ShoppingListItem.Create(ItemName.From(name), Quantity.Of(Amount.From(1), Unit.Gram)))
@@ -108,7 +110,7 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 	{
 		await using var ctx = await fixture.CreateShoppingDbContextAsync();
 		var bus = Substitute.For<IEventBus>();
-		var store = new ShoppingListEventStore(ctx, bus, NullLogger<ShoppingListEventStore>.Instance);
+		var store = new ShoppingListEventStore(ctx, bus, Substitute.For<IDbContextOutbox<ShoppingDbContext>>(), NullLogger<ShoppingListEventStore>.Instance);
 
 		var list = await store.LoadAsync(listId) ?? throw new InvalidOperationException("seeded list missing");
 		list.CheckOffItem(list.Items[0].Id);

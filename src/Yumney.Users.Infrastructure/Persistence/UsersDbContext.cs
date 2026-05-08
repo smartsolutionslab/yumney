@@ -16,5 +16,12 @@ public sealed class UsersDbContext(DbContextOptions<UsersDbContext> options) : D
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.ApplyConfigurationsFromAssembly(typeof(UsersDbContext).Assembly);
+
+		// Wolverine's envelope tables (under the wolverine_users schema) are
+		// provisioned at API host startup by AutoBuildMessageStorageOnStartup —
+		// not via EF migrations. State-based DeleteAccountCommandHandler still
+		// uses the legacy save-then-publish pattern; a follow-up will convert
+		// it to publish-then-save (UserAccountDeletedIntegrationEvent is
+		// GDPR-critical).
 	}
 }

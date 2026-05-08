@@ -13,5 +13,11 @@ public sealed class RecipesDbContext(DbContextOptions<RecipesDbContext> options)
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.ApplyConfigurationsFromAssembly(typeof(RecipesDbContext).Assembly);
+
+		// Wolverine's envelope tables (under the wolverine_recipes schema) are
+		// provisioned at API host startup by AutoBuildMessageStorageOnStartup —
+		// not via EF migrations. State-based command handlers in this module
+		// still use the legacy save-then-publish pattern; a follow-up will
+		// convert them to publish-then-save without further schema changes.
 	}
 }

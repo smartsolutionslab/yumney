@@ -13,5 +13,10 @@ public sealed class MealPlanDbContext(DbContextOptions<MealPlanDbContext> option
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.ApplyConfigurationsFromAssembly(typeof(MealPlanDbContext).Assembly);
+
+		// Wolverine's envelope tables (under the wolverine_mealplan schema) are
+		// provisioned at API host startup by AutoBuildMessageStorageOnStartup —
+		// not via EF migrations — because Wolverine.EntityFrameworkCore marks
+		// those tables ExcludeFromMigrations() unconditionally.
 	}
 }
