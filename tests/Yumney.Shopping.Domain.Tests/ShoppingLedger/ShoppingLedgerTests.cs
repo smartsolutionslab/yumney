@@ -465,15 +465,16 @@ public class ShoppingLedgerTests
 	}
 
 	[Fact]
-	public void UndoBought_NeverNegative()
+	public void UndoBought_ExceedsBought_ThrowsBusinessRuleValidation()
 	{
 		var milk = N("Milk");
 		var ledger = Domain.ShoppingLedger.ShoppingLedger.Create(Owner("user-123"));
 		ledger.AddItem(milk, Q(1, "L"), ItemSource.Manual);
 
-		ledger.UndoBought(milk, Q(5, "L"));
+		var act = () => ledger.UndoBought(milk, Q(5, "L"));
 
-		ledger.Items.Values.First().Bought.Should().Be(Amount.From(0));
+		act.Should().Throw<BusinessRuleValidationException>()
+			.WithMessage("Cannot undo more than the recorded bought quantity.");
 	}
 
 	[Theory]

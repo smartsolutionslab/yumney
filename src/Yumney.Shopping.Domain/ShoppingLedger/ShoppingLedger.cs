@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Rules;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
@@ -90,6 +91,15 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
 
 	public ShoppingLedger UndoBought(ItemName itemName, Quantity quantity)
 	{
+		// Refuse to raise the event if it would push Bought negative. The
+		// OnUndoBought apply handler still clamps for replay safety, but new
+		// events should never violate the invariant in the first place — a
+		// silent clamp made misuse invisible to callers.
+		var key = KeyFor(itemName, quantity.Unit);
+		var currentBought = items.TryGetValue(key, out var current) ? current.Bought.Value : 0m;
+		var rule = new UndoCannotExceedBoughtRule(currentBought, quantity.Amount.Value);
+		if (rule.IsBroken()) throw new BusinessRuleValidationException(rule);
+
 		RaiseEvent(new ShoppingItemUndoBought(itemName, quantity));
 		return this;
 	}
