@@ -5,7 +5,10 @@ using Microsoft.Extensions.Logging;
 namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 #pragma warning disable SA1601
-public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, ILogger<InProcessEventBus> logger) : IEventBus
+public sealed partial class InProcessEventBus(
+	IServiceProvider serviceProvider,
+	EventMetrics metrics,
+	ILogger<InProcessEventBus> logger) : IEventBus
 {
 	public async Task PublishAsync<TEvent>(TEvent busEvent, CancellationToken cancellationToken = default)
 		where TEvent : IBusEvent
@@ -24,12 +27,12 @@ public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, 
 		// lookups returns subscribers — the other is a cheap empty enumerable.
 		if (busEvent is IIntegrationEvent)
 		{
-			await DispatchAsync(typeof(IIntegrationEventHandler<>), busEvent, eventType, eventName, cancellationToken);
+			await DispatchAsync(typeof(IIntegrationEventHandler<>), busEvent, eventType, eventName, "integration", cancellationToken);
 		}
 
 		if (busEvent is IModuleEvent)
 		{
-			await DispatchAsync(typeof(IModuleEventHandler<>), busEvent, eventType, eventName, cancellationToken);
+			await DispatchAsync(typeof(IModuleEventHandler<>), busEvent, eventType, eventName, "module", cancellationToken);
 		}
 	}
 
@@ -38,6 +41,7 @@ public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, 
 		TEvent busEvent,
 		Type eventType,
 		string eventName,
+		string eventCategory,
 		CancellationToken cancellationToken)
 		where TEvent : IBusEvent
 	{
@@ -63,6 +67,7 @@ public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, 
 				var elapsed = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
 				activity?.SetTag("event.result", "success");
 				activity?.SetStatus(ActivityStatusCode.Ok);
+				metrics.RecordCompletion(eventCategory, eventName, handlerName, succeeded: true);
 				LogHandlerCompleted(eventName, handlerName, elapsed);
 			}
 			catch (System.Reflection.TargetInvocationException tie) when (tie.InnerException is OperationCanceledException && cancellationToken.IsCancellationRequested)
@@ -80,6 +85,9 @@ public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, 
 				activity?.SetStatus(ActivityStatusCode.Error, tie.InnerException?.Message ?? tie.Message);
 
 				// Isolate handlers — one failing subscriber must not block the others.
+				// Bump the failure counter so the swallowed exception still has an
+				// SLO surface (yumney.events.handler.completed result=failure).
+				metrics.RecordCompletion(eventCategory, eventName, handlerName, succeeded: false);
 				LogHandlerFailed(tie.InnerException ?? tie, eventName, handlerName, elapsed);
 			}
 			catch (Exception ex)
@@ -89,6 +97,9 @@ public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, 
 				activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 
 				// Isolate handlers — one failing subscriber must not block the others.
+				// Bump the failure counter so the swallowed exception still has an
+				// SLO surface (yumney.events.handler.completed result=failure).
+				metrics.RecordCompletion(eventCategory, eventName, handlerName, succeeded: false);
 				LogHandlerFailed(ex, eventName, handlerName, elapsed);
 			}
 		}

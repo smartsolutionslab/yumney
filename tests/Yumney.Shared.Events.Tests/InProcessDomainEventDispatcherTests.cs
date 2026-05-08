@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -86,10 +87,15 @@ public class InProcessDomainEventDispatcherTests
 		Action<IServiceCollection> configureServices)
 	{
 		var services = new ServiceCollection();
+		services.AddMetrics();
 		configureServices(services);
 		var serviceProvider = services.BuildServiceProvider();
 
-		return new InProcessDomainEventDispatcher(serviceProvider, NullLogger<InProcessDomainEventDispatcher>.Instance);
+		var meterFactory = serviceProvider.GetRequiredService<IMeterFactory>();
+		return new InProcessDomainEventDispatcher(
+			serviceProvider,
+			new EventMetrics(meterFactory),
+			NullLogger<InProcessDomainEventDispatcher>.Instance);
 	}
 
 	private sealed record TestDomainEvent : DomainEvent;
