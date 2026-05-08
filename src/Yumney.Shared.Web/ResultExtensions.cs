@@ -33,12 +33,20 @@ public static class ResultExtensions
 		return Results.Problem(
 			detail: error.Message,
 			statusCode: error.HttpStatusCode,
-			extensions: BuildTraceExtensions());
+			extensions: BuildProblemExtensions(error));
 	}
 
-	private static Dictionary<string, object?> BuildTraceExtensions()
+	// Surface the ApiError.Code on the problem-details payload so clients can
+	// programmatically distinguish errors within a single 4xx status (e.g.
+	// RECIPE_ALREADY_IMPORTED vs RECIPE_ACCESS_DENIED both return 4xx but a
+	// human-friendly retry/UX needs to tell them apart). Keeps the trace id
+	// alongside for log correlation.
+	private static Dictionary<string, object?> BuildProblemExtensions(ApiError error)
 	{
-		var extensions = new Dictionary<string, object?>();
+		var extensions = new Dictionary<string, object?>
+		{
+			["code"] = error.Code,
+		};
 
 		var traceId = Activity.Current?.TraceId.ToString();
 		if (traceId is not null)
