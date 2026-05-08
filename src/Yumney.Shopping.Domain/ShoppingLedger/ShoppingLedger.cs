@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger.Events;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
@@ -10,7 +11,11 @@ public sealed class ShoppingLedger : EventSourcedAggregate<ShoppingLedgerIdentif
 
 	public OwnerIdentifier OwnerId { get; private set; } = default!;
 
-	public IReadOnlyDictionary<string, ShoppingItemState> Items => items;
+	// ReadOnlyDictionary wraps the live store so callers can read but can't
+	// downcast to Dictionary<,> and mutate state behind the aggregate's back.
+	// ShoppingItemState is itself an immutable record, so a snapshot copy
+	// would be redundant — the wrapper alone is enough.
+	public IReadOnlyDictionary<string, ShoppingItemState> Items => new ReadOnlyDictionary<string, ShoppingItemState>(items);
 
 	public bool IsInShoppingMode { get; private set; }
 
