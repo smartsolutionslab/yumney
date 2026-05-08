@@ -9,10 +9,9 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { debounceTime, skip } from 'rxjs';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   createAsyncState,
+  debouncedEffect,
   ERROR_MAPS,
   ThemeService,
   UI,
@@ -40,7 +39,6 @@ export class ProfileSettingsComponent {
   private loadState = createAsyncState(this.destroyRef);
   private saveState = createAsyncState(this.destroyRef);
   private autosaveTick = signal(0);
-  private autosave$ = toObservable(this.autosaveTick);
 
   protected profile = signal<UserProfile | null>(null);
   protected loading = this.loadState.isLoading;
@@ -100,9 +98,7 @@ export class ProfileSettingsComponent {
   protected readonly cookingEfforts = ['quick-weekdays', 'balanced', 'elaborate-weekends'];
 
   constructor() {
-    this.autosave$
-      .pipe(skip(1), debounceTime(AUTOSAVE_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.persist());
+    debouncedEffect(this.autosaveTick, AUTOSAVE_DEBOUNCE_MS, () => this.persist());
 
     effect(() => {
       // Push theme + voice settings into local services so the change is

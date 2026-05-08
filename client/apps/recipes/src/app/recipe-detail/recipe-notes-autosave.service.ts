@@ -1,4 +1,5 @@
-import { Injectable, WritableSignal, effect, inject, signal } from '@angular/core';
+import { Injectable, WritableSignal, inject, signal } from '@angular/core';
+import { debouncedEffect } from '@yumney/shared/models';
 import { RecipeApiService, RecipeDetail } from '../api';
 
 const NOTES_AUTOSAVE_DEBOUNCE_MS = 400;
@@ -14,16 +15,7 @@ export class RecipeNotesAutosaveService {
   private recipeRef: WritableSignal<RecipeDetail | null> | null = null;
 
   constructor() {
-    let firstRun = true;
-    effect((onCleanup) => {
-      const value = this.input();
-      if (firstRun) {
-        firstRun = false;
-        return;
-      }
-      const timeoutId = setTimeout(() => this.persist(value), NOTES_AUTOSAVE_DEBOUNCE_MS);
-      onCleanup(() => clearTimeout(timeoutId));
-    });
+    debouncedEffect(this.input, NOTES_AUTOSAVE_DEBOUNCE_MS, (value) => this.persist(value));
   }
 
   attach(recipeRef: WritableSignal<RecipeDetail | null>): void {
