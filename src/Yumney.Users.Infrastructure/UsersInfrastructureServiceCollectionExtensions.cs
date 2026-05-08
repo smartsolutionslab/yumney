@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
@@ -26,6 +27,13 @@ public static class UsersInfrastructureServiceCollectionExtensions
 			"__UsersMigrationsHistory",
 			"wolverine_users",
 			typeof(DomainEventDispatchInterceptor));
+
+		// Replace the default WolverineEventBus (registered by AddYumneyDefaults)
+		// with the outbox-backed variant so DeleteAccount becomes transactional
+		// — UserAccountDeletedIntegrationEvent is GDPR-critical, so a publish
+		// failure that's not paired with the entity write is unacceptable.
+		// Last AddScoped<IEventBus> wins, so this binding takes effect.
+		services.AddScoped<IEventBus, WolverineOutboxEventBus<UsersDbContext>>();
 
 		services.AddScoped<UsersUnitOfWork>();
 		services.AddScoped<IUsersUnitOfWork>(sp => sp.GetRequiredService<UsersUnitOfWork>());

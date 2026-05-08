@@ -41,11 +41,16 @@ public sealed class SaveRecipeCommandHandler(IRecipesUnitOfWork unitOfWork, ICur
 			tags);
 
 		await unitOfWork.Recipes.AddAsync(recipe, cancellationToken);
-		await unitOfWork.SaveChangesAsync(cancellationToken);
 
+		// Publish-before-save so the outbox row commits in the same Postgres
+		// transaction as the Recipe row. With the outbox-backed IEventBus
+		// registered for this module, PublishAsync stages the message and
+		// SaveChangesAsync persists both rows atomically.
 		await eventBus.PublishAsync(
 			new RecipeImportedIntegrationEvent(owner.Value, recipe.Id.Value, recipe.Title.Value),
 			cancellationToken);
+
+		await unitOfWork.SaveChangesAsync(cancellationToken);
 
 		return recipe.ToSavedDto();
 	}
