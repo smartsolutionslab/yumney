@@ -23,7 +23,11 @@ public class Result
 
 	public static Result Failure(ApiError error) => new(false, error);
 
-	public static Result<T> Success<T>(T value) => new(value, true, null);
+	public static Result<T> Success<T>(T value)
+	{
+		ArgumentNullException.ThrowIfNull(value);
+		return new(value, true, null);
+	}
 
 	public static Result<T> Failure<T>(ApiError error) => new(default, false, error);
 }
