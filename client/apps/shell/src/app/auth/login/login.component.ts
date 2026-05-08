@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '@yumney/shared/auth';
 import { ROUTES } from '@yumney/shared/models';
+import { CardComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-login',
-  imports: [TranslocoModule, RouterLink],
+  imports: [TranslocoModule, RouterLink, CardComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

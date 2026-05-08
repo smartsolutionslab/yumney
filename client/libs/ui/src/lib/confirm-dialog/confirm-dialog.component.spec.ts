@@ -70,21 +70,21 @@ describe('ConfirmDialogComponent', () => {
   });
 
   it('should emit cancelled on overlay click', () => {
-    const overlay = fixture.nativeElement.querySelector('.confirm-overlay');
+    const overlay = fixture.nativeElement.querySelector('.yn-dialog-overlay');
     overlay.click();
 
     expect(host.cancelledCount).toBe(1);
   });
 
   it('should not emit cancelled when clicking inside dialog', () => {
-    const dialog = fixture.nativeElement.querySelector('.confirm-dialog');
+    const dialog = fixture.nativeElement.querySelector('.yn-dialog');
     dialog.click();
 
     expect(host.cancelledCount).toBe(0);
   });
 
   it('should have alertdialog role and aria-modal', () => {
-    const dialog = fixture.nativeElement.querySelector('.confirm-dialog');
+    const dialog = fixture.nativeElement.querySelector('.yn-dialog');
     expect(dialog.getAttribute('role')).toBe('alertdialog');
     expect(dialog.getAttribute('aria-modal')).toBe('true');
   });

@@ -1,34 +1,5 @@
-@use 'buttons';
-@use 'glass';
-
-.confirm-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--yn-z-modal);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--yn-overlay);
-  animation: yn-fade-in var(--yn-duration-fast) var(--yn-ease-glass) both;
-}
-
-.confirm-dialog {
-  @include glass.glass-dialog;
-  padding: var(--yn-space-7);
-  max-width: 400px;
-  width: 90%;
-  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .confirm-overlay,
-  .confirm-dialog {
-    animation: none;
-  }
-}
-
 .confirm-message {
-  margin: 0 0 var(--yn-space-7);
+  margin: 0;
   font-size: var(--yn-text-lg);
   line-height: var(--yn-leading-normal);
 }

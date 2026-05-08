@@ -172,7 +172,7 @@ describe('MultiRecipePreviewDialogComponent', () => {
     let count = 0;
     component.cancelled.subscribe(() => count++);
 
-    component.onEscapeKey();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
     expect(count).toBe(0);
   });
@@ -182,7 +182,7 @@ describe('MultiRecipePreviewDialogComponent', () => {
     let count = 0;
     component.cancelled.subscribe(() => count++);
 
-    component.onEscapeKey();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
     expect(count).toBe(1);
   });
@@ -193,7 +193,7 @@ describe('MultiRecipePreviewDialogComponent', () => {
     component.cancelled.subscribe(() => count++);
 
     fixture.nativeElement
-      .querySelector('.multi-preview-overlay')
+      .querySelector('.yn-dialog-overlay')
       .dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(count).toBe(1);

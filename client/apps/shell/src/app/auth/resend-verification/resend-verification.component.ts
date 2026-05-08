@@ -10,7 +10,7 @@ import {
   ERROR_MAPS,
   ROUTES,
 } from '@yumney/shared/models';
-import { FormFieldComponent, MessageBannerComponent, SubmitButtonComponent } from '@yumney/ui';
+import { CardComponent, FormFieldComponent, MessageBannerComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-resend-verification',
@@ -18,6 +18,7 @@ import { FormFieldComponent, MessageBannerComponent, SubmitButtonComponent } fro
     ReactiveFormsModule,
     TranslocoModule,
     RouterLink,
+    CardComponent,
     FormFieldComponent,
     MessageBannerComponent,
     SubmitButtonComponent,

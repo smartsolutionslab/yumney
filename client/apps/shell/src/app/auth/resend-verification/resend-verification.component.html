@@ -1,8 +1,5 @@
 <div class="resend-container" *transloco="let t">
-  <div class="resend-card">
-    <h1>{{ t('auth.resendVerification.title') }}</h1>
-    <p class="subtitle">{{ t('auth.resendVerification.subtitle') }}</p>
-
+  <yn-card title="auth.resendVerification.title" subtitle="auth.resendVerification.subtitle">
     @if (isSuccess()) {
       <div class="success-message" role="status" aria-live="polite">
         <h2>{{ t('auth.resendVerification.success.title') }}</h2>
@@ -34,5 +31,5 @@
     <p class="back-link">
       <a [routerLink]="ROUTES.auth.register">{{ t('auth.resendVerification.backToRegister') }}</a>
     </p>
-  </div>
+  </yn-card>
 </div>

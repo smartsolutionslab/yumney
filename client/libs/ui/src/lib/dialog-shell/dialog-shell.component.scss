@@ -1,0 +1,43 @@
+@use 'glass';
+
+.yn-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yn-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yn-space-5);
+  background: var(--yn-overlay);
+  animation: yn-fade-in var(--yn-duration-fast) var(--yn-ease-glass) both;
+}
+
+.yn-dialog {
+  @include glass.glass-dialog;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-6);
+  padding: var(--yn-space-7);
+  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
+  overflow: hidden;
+
+  &--sm {
+    width: min(400px, 100%);
+  }
+
+  &--md {
+    width: min(560px, 100%);
+  }
+
+  &--lg {
+    width: min(640px, 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yn-dialog-overlay,
+  .yn-dialog {
+    animation: none;
+  }
+}

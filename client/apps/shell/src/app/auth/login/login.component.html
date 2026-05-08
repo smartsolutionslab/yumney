@@ -1,8 +1,5 @@
 <div class="login-container" *transloco="let t">
-  <div class="login-card">
-    <h1>{{ t('auth.login.title') }}</h1>
-    <p class="subtitle">{{ t('auth.login.subtitle') }}</p>
-
+  <yn-card title="auth.login.title" subtitle="auth.login.subtitle">
     <div class="login-form">
       <label class="remember-me">
         <input type="checkbox" [checked]="rememberMe()" (change)="onRememberMeChange($event)" />
@@ -29,5 +26,5 @@
         <a [routerLink]="ROUTES.auth.register">{{ t('auth.login.registerLink') }}</a>
       </p>
     </div>
-  </div>
+  </yn-card>
 </div>

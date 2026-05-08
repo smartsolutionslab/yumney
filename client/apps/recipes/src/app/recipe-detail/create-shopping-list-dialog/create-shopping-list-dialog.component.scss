@@ -1,36 +1,3 @@
-@use 'buttons';
-@use 'glass';
-
-.create-shopping-list-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--yn-z-modal);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--yn-space-5);
-  background: var(--yn-overlay);
-  animation: yn-fade-in var(--yn-duration-fast) var(--yn-ease-glass) both;
-}
-
-.create-shopping-list-dialog {
-  @include glass.glass-dialog;
-  width: min(560px, 100%);
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  gap: var(--yn-space-6);
-  padding: var(--yn-space-7);
-  animation: yn-scale-up var(--yn-duration-normal) var(--yn-ease-spring) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .create-shopping-list-overlay,
-  .create-shopping-list-dialog {
-    animation: none;
-  }
-}
-
 .dialog-header {
   display: flex;
   flex-direction: column;

@@ -5,10 +5,6 @@
   @extend .auth-container;
 }
 
-.login-card {
-  @extend .auth-card;
-}
-
 .remember-me {
   display: flex;
   align-items: center;
