@@ -38,13 +38,16 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 		recipes.Remove(recipe);
 	}
 
-	public async Task<IReadOnlyList<Recipe>> GetAllByOwnerWithIngredientsAsync(
+	public async Task<IReadOnlyList<Recipe>> GetRecentByOwnerWithIngredientsAsync(
 		OwnerIdentifier owner,
+		int maxResults,
 		CancellationToken cancellationToken = default)
 	{
 		return await recipes
 			.AsNoTracking()
 			.Where(recipe => recipe.Owner == owner)
+			.OrderByDescending(recipe => recipe.CreatedAt)
+			.Take(maxResults)
 			.Include(recipe => recipe.Ingredients)
 			.AsSplitQuery()
 			.ToListAsync(cancellationToken);

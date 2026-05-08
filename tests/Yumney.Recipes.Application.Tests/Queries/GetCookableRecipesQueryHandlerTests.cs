@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
@@ -25,7 +26,11 @@ public class GetCookableRecipesQueryHandlerTests
 	public GetCookableRecipesQueryHandlerTests()
 	{
 		currentUser.UserId.Returns(OwnerId);
-		handler = new GetCookableRecipesQueryHandler(recipes, balanceProvider, currentUser);
+		handler = new GetCookableRecipesQueryHandler(
+			recipes,
+			balanceProvider,
+			currentUser,
+			NullLogger<GetCookableRecipesQueryHandler>.Instance);
 	}
 
 	[Fact]
@@ -233,7 +238,7 @@ public class GetCookableRecipesQueryHandlerTests
 
 	private void ConfigureRecipes(params Recipe[] recipeList)
 	{
-		recipes.GetAllByOwnerWithIngredientsAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
+		recipes.GetRecentByOwnerWithIngredientsAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
 			.Returns(recipeList);
 	}
 
