@@ -8,6 +8,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel;
 using SmartSolutionsLab.Yumney.Recipes.Client;
 using SmartSolutionsLab.Yumney.Shared.Events;
+using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Client;
 using SmartSolutionsLab.Yumney.Users.Client;
@@ -18,7 +19,11 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 {
 	public static IServiceCollection AddMealPlanInfrastructure(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddYumneyNpgsqlDbContext<MealPlanDbContext>(configuration, "mealplandb", "__MealPlanMigrationsHistory");
+		services.AddYumneyNpgsqlDbContextWithOutbox<MealPlanDbContext>(
+			configuration,
+			"mealplandb",
+			"__MealPlanMigrationsHistory",
+			"wolverine_mealplan");
 		services.AddYumneyNpgsqlDbContext<MealPlanReadDbContext>(
 			configuration,
 			"mealplandb",

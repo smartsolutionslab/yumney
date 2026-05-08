@@ -5,11 +5,16 @@ using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
+using Wolverine.EntityFrameworkCore;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 
 #pragma warning disable SA1601
-public sealed partial class ShoppingEventStore(ShoppingDbContext context, IEventBus eventBus, ILogger<ShoppingEventStore> logger)
+public sealed partial class ShoppingEventStore(
+	ShoppingDbContext context,
+	IEventBus eventBus,
+	IDbContextOutbox<ShoppingDbContext> outbox,
+	ILogger<ShoppingEventStore> logger)
 	: EventStoreBase<ShoppingLedger, ShoppingLedgerIdentifier, AggregateMetadata, StoredEvent>(
 		context,
 		eventBus,
@@ -51,6 +56,29 @@ public sealed partial class ShoppingEventStore(ShoppingDbContext context, IEvent
 	protected override IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> ModuleEventFactories => moduleEventFactories;
 
 	protected override object[] BuildEventContext(ShoppingLedger aggregate) => [aggregate.OwnerId.Value];
+
+	// Use Wolverine's typed outbox so the event-store rows and the bus messages
+	// share a single PostgreSQL transaction. PublishAsync stages the message;
+	// SaveChangesAsync commits both event-store rows and the staged outbox
+	// rows; FlushOutgoingMessagesAsync nudges Wolverine to deliver immediately
+	// — a delivery failure leaves the rows in the outbox table for the
+	// background relay to pick up on retry.
+	protected override async Task PersistAndPublishAsync(
+		ShoppingLedger aggregate,
+		IReadOnlyList<IBusEvent> busEvents,
+		CancellationToken cancellationToken)
+	{
+		foreach (var busEvent in busEvents)
+		{
+			await outbox.PublishAsync(busEvent);
+		}
+
+		await Context.SaveChangesAsync(cancellationToken);
+
+		aggregate.MarkCommitted();
+
+		await outbox.FlushOutgoingMessagesAsync();
+	}
 
 	protected override void LogEventsSaved(ShoppingLedger aggregate, IReadOnlyList<IDomainEvent> events) =>
 		LogEventsSavedCore(aggregate.OwnerId, events.Count, aggregate.Version);

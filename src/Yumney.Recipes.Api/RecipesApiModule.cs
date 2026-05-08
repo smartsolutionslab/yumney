@@ -12,7 +12,10 @@ public sealed class RecipesApiModule : IEndpointModule
 {
 	public IHostApplicationBuilder RegisterServices(IHostApplicationBuilder builder)
 	{
-		((WebApplicationBuilder)builder).AddYumneyDefaults(typeof(ShoppingListCreatedHandler).Assembly);
+		((WebApplicationBuilder)builder).AddYumneyDefaults(
+			outboxConnectionName: "recipesdb",
+			outboxSchema: "wolverine_recipes",
+			typeof(ShoppingListCreatedHandler).Assembly);
 
 		builder.Services.AddValidatorsFromAssemblyContaining<ImportRecipeValidator>();
 		builder.Services.AddValidatorsFromAssemblyContaining<PhotoDataValidator>();

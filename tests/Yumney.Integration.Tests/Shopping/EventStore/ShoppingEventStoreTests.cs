@@ -11,6 +11,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore.Events;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Shopping.EventStore;
@@ -405,6 +406,7 @@ public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 		return new ShoppingEventStore(
 			context,
 			bus ?? Substitute.For<IEventBus>(),
+			Substitute.For<IDbContextOutbox<ShoppingDbContext>>(),
 			NullLogger<ShoppingEventStore>.Instance);
 	}
 }

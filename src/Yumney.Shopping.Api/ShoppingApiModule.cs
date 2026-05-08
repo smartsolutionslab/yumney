@@ -13,6 +13,8 @@ public sealed class ShoppingApiModule : IEndpointModule
 	public IHostApplicationBuilder RegisterServices(IHostApplicationBuilder builder)
 	{
 		((WebApplicationBuilder)builder).AddYumneyDefaults(
+			outboxConnectionName: "shoppingdb",
+			outboxSchema: "wolverine_shopping",
 			typeof(ShoppingInfrastructureServiceCollectionExtensions).Assembly,
 			typeof(RecipeDeletedHandler).Assembly);
 

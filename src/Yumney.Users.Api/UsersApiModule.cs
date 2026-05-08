@@ -11,7 +11,10 @@ public sealed class UsersApiModule : IEndpointModule
 {
 	public IHostApplicationBuilder RegisterServices(IHostApplicationBuilder builder)
 	{
-		((WebApplicationBuilder)builder).AddYumneyDefaults(typeof(RecipeImportedActivityHandler).Assembly);
+		((WebApplicationBuilder)builder).AddYumneyDefaults(
+			outboxConnectionName: "usersdb",
+			outboxSchema: "wolverine_users",
+			typeof(RecipeImportedActivityHandler).Assembly);
 		builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserValidator>();
 
 		builder.Services.AddCqrsLoggingDecorators();

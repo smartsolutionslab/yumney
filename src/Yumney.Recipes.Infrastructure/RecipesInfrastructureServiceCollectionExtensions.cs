@@ -6,6 +6,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Client;
 using SmartSolutionsLab.Yumney.Users.Client;
@@ -16,10 +17,11 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 {
 	public static IServiceCollection AddRecipesInfrastructure(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddYumneyNpgsqlDbContext<RecipesDbContext>(
+		services.AddYumneyNpgsqlDbContextWithOutbox<RecipesDbContext>(
 			configuration,
 			"recipesdb",
 			"__RecipesMigrationsHistory",
+			"wolverine_recipes",
 			typeof(DomainEventDispatchInterceptor));
 
 		services.AddScoped<RecipesUnitOfWork>();

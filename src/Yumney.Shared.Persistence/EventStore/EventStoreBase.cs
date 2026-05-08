@@ -45,22 +45,18 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 			});
 		}
 
+		var busEvents = BuildBusEvents(aggregate, uncommitted);
+
 		try
 		{
-			await Context.SaveChangesAsync(cancellationToken);
+			await PersistAndPublishAsync(aggregate, busEvents, cancellationToken);
 		}
 		catch (DbUpdateException ex) when (ex.IsUniqueViolation())
 		{
 			throw new ConcurrencyConflictException(AggregateName, aggregateId, ex);
 		}
 
-		// Mark committed BEFORE publishing: events are persisted, so the aggregate is
-		// "clean" from its own perspective. A publish failure propagates to the caller;
-		// the aggregate doesn't keep stale events that would re-stage with conflicting
-		// versions on retry.
-		aggregate.MarkCommitted();
-
-		await PublishEventsAsync(aggregate, uncommitted, cancellationToken);
+		LogEventsSaved(aggregate, uncommitted);
 	}
 
 	protected DbContext Context { get; } = context;
@@ -97,35 +93,26 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 	{
 	}
 
-	protected virtual async Task PublishEventsAsync(TAggregate aggregate, IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
+	// Default implementation has a known dual-write hole: SaveChangesAsync
+	// commits the events; if the bus publish that follows fails, subscribers
+	// never see the message. Modules backed by a transactional outbox
+	// override this to stage messages on IDbContextOutbox<T> *before*
+	// SaveChangesAsync so save and publish share one transaction. Either
+	// path calls MarkCommitted only after the DB commit — that way a
+	// transient publish failure leaves the aggregate's uncommitted buffer
+	// empty and a retry won't try to re-append the same versions.
+	protected virtual async Task PersistAndPublishAsync(
+		TAggregate aggregate,
+		IReadOnlyList<IBusEvent> busEvents,
+		CancellationToken cancellationToken)
 	{
-		LogEventsSaved(aggregate, events);
+		await Context.SaveChangesAsync(cancellationToken);
 
-		var context = BuildEventContext(aggregate);
-		var moduleFactories = ModuleEventFactories;
-		var crossFactories = CrossModuleEventFactories;
+		aggregate.MarkCommitted();
 
-		foreach (var domainEvent in events)
+		foreach (var busEvent in busEvents)
 		{
-			var moduleEvent = MapModuleEvent(aggregate, domainEvent);
-			if (moduleEvent is null && moduleFactories.TryGetValue(domainEvent.GetType(), out var moduleFactory))
-			{
-				moduleEvent = moduleFactory(context, domainEvent);
-			}
-
-			if (moduleEvent is not null)
-			{
-				await EventBus.PublishAsync(moduleEvent, cancellationToken);
-			}
-
-			if (crossFactories.TryGetValue(domainEvent.GetType(), out var crossFactory))
-			{
-				var crossEvent = crossFactory(context, domainEvent);
-				if (crossEvent is not null)
-				{
-					await EventBus.PublishAsync(crossEvent, cancellationToken);
-				}
-			}
+			await EventBus.PublishAsync(busEvent, cancellationToken);
 		}
 	}
 
@@ -162,5 +149,38 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 		}
 
 		return events;
+	}
+
+	private List<IBusEvent> BuildBusEvents(TAggregate aggregate, IReadOnlyList<IDomainEvent> events)
+	{
+		var eventContext = BuildEventContext(aggregate);
+		var moduleFactories = ModuleEventFactories;
+		var crossFactories = CrossModuleEventFactories;
+		var busEvents = new List<IBusEvent>();
+
+		foreach (var domainEvent in events)
+		{
+			var moduleEvent = MapModuleEvent(aggregate, domainEvent);
+			if (moduleEvent is null && moduleFactories.TryGetValue(domainEvent.GetType(), out var moduleFactory))
+			{
+				moduleEvent = moduleFactory(eventContext, domainEvent);
+			}
+
+			if (moduleEvent is not null)
+			{
+				busEvents.Add(moduleEvent);
+			}
+
+			if (crossFactories.TryGetValue(domainEvent.GetType(), out var crossFactory))
+			{
+				var crossEvent = crossFactory(eventContext, domainEvent);
+				if (crossEvent is not null)
+				{
+					busEvents.Add(crossEvent);
+				}
+			}
+		}
+
+		return busEvents;
 	}
 }
