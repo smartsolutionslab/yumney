@@ -175,18 +175,18 @@ public class UpdateUserProfileCommandHandlerTests
 		int? maxRedMeatMeals = null,
 		string? cookingEffort = null) =>
 		new(
-			displayName,
-			preferredLanguage,
-			preferredUnitSystem,
-			defaultServings,
-			theme,
-			voiceSettings,
-			notificationPreferences,
-			dietaryType,
-			restrictions ?? [],
-			minVeggieMeals,
-			maxRedMeatMeals,
-			cookingEffort);
+			displayName is null ? null : DisplayName.From(displayName),
+			preferredLanguage is null ? null : PreferredLanguage.From(preferredLanguage),
+			preferredUnitSystem is null ? null : PreferredUnitSystem.From(preferredUnitSystem),
+			DefaultServings.From(defaultServings),
+			theme is null ? null : Theme.From(theme),
+			voiceSettings is null ? null : new VoiceSettings(voiceSettings.Enabled, VoiceSpeed.From(voiceSettings.Speed), voiceSettings.AutoReadInCookMode),
+			notificationPreferences is null ? null : new NotificationPreferences(notificationPreferences.TimerHapticFeedback, notificationPreferences.TimerSoundAlerts),
+			DietaryProfile.From(
+				dietaryType is null ? null : DietaryType.From(dietaryType),
+				(restrictions ?? []).Select(DietaryRestriction.From).ToList(),
+				WeeklyBalanceGoals.From(minVeggieMeals, maxRedMeatMeals),
+				cookingEffort is null ? null : CookingEffortPreference.From(cookingEffort)));
 
 	private AppUserProfile CreateProfile()
 	{

@@ -14,61 +14,17 @@ public sealed class UpdateUserProfileCommandHandler(IUsersUnitOfWork unitOfWork,
 		var keycloakId = KeycloakUserId.From(currentUser.UserId);
 		var profile = await unitOfWork.Profiles.GetByKeycloakUserIdAsync(keycloakId, cancellationToken);
 
-		ApplyIdentity(profile, command);
-		ApplyPreferences(profile, command);
-		profile.AdjustDefaultServingsTo(DefaultServings.From(command.DefaultServings));
-		profile.UpdateDietaryProfile(BuildDietaryProfile(command));
+		if (command.DisplayName is not null) profile.RenameAs(command.DisplayName);
+		if (command.PreferredLanguage is not null) profile.SwitchLanguageTo(command.PreferredLanguage);
+		if (command.PreferredUnitSystem is not null) profile.SwitchUnitSystemTo(command.PreferredUnitSystem);
+		if (command.Theme is not null) profile.SwitchThemeTo(command.Theme);
+		if (command.VoiceSettings is not null) profile.UpdateVoiceSettings(command.VoiceSettings);
+		if (command.NotificationPreferences is not null) profile.UpdateNotificationPreferences(command.NotificationPreferences);
+		profile.AdjustDefaultServingsTo(command.DefaultServings);
+		profile.UpdateDietaryProfile(command.DietaryProfile);
 
 		await unitOfWork.SaveChangesAsync(cancellationToken);
 
 		return profile.ToDto(currentUser.Email);
-	}
-
-	private static void ApplyIdentity(AppUserProfile profile, UpdateUserProfileCommand command)
-	{
-		if (command.DisplayName is not null)
-		{
-			profile.RenameAs(DisplayName.From(command.DisplayName));
-		}
-	}
-
-	private static void ApplyPreferences(AppUserProfile profile, UpdateUserProfileCommand command)
-	{
-		if (command.PreferredLanguage is not null)
-		{
-			profile.SwitchLanguageTo(PreferredLanguage.From(command.PreferredLanguage));
-		}
-
-		if (command.PreferredUnitSystem is not null)
-		{
-			profile.SwitchUnitSystemTo(PreferredUnitSystem.From(command.PreferredUnitSystem));
-		}
-
-		if (command.Theme is not null)
-		{
-			profile.SwitchThemeTo(Theme.From(command.Theme));
-		}
-
-		if (command.VoiceSettings is not null)
-		{
-			var (enabled, speed, autoRead) = command.VoiceSettings;
-			profile.UpdateVoiceSettings(new VoiceSettings(enabled, VoiceSpeed.From(speed), autoRead));
-		}
-
-		if (command.NotificationPreferences is not null)
-		{
-			var (haptic, sound) = command.NotificationPreferences;
-			profile.UpdateNotificationPreferences(new NotificationPreferences(haptic, sound));
-		}
-	}
-
-	private static DietaryProfile BuildDietaryProfile(UpdateUserProfileCommand command)
-	{
-		var dietaryType = command.DietaryType is not null ? DietaryType.From(command.DietaryType) : null;
-		var restrictions = command.Restrictions.Select(DietaryRestriction.From).ToList();
-		var balanceGoals = WeeklyBalanceGoals.From(command.MinVeggieMeals, command.MaxRedMeatMeals);
-		var cookingEffort = command.CookingEffort is not null ? CookingEffortPreference.From(command.CookingEffort) : null;
-
-		return DietaryProfile.From(dietaryType, restrictions, balanceGoals, cookingEffort);
 	}
 }
