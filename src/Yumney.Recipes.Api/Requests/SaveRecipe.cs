@@ -31,8 +31,8 @@ public sealed record SaveRecipe(
 		out IReadOnlyList<RecipeTag>? tags)
 	{
 		title = RecipeTitle.From(Title);
-		ingredients = Ingredients.MapToRecipeIngredientItems().ToList();
-		steps = Steps.MapToRecipeStepItems().ToList();
+		ingredients = Ingredients.Select(item => item.ToCommandItem()).ToList();
+		steps = Steps.Select(step => step.ToCommandItem()).ToList();
 		description = RecipeDescription.FromNullable(Description);
 		servings = Domain.Recipe.Servings.FromNullable(Servings);
 		timing = TimingInfo.FromNullable(
