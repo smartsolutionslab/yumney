@@ -1,8 +1,5 @@
 <div class="register-container" *transloco="let t">
-  <div class="register-card">
-    <h1>{{ t('auth.register.title') }}</h1>
-    <p class="subtitle">{{ t('auth.register.subtitle') }}</p>
-
+  <yn-card title="auth.register.title" subtitle="auth.register.subtitle">
     @if (isSuccess()) {
       <div class="success-message" role="status" aria-live="polite">
         <h2>{{ t('auth.register.success.title') }}</h2>
@@ -69,5 +66,5 @@
         <yn-submit-button [loading]="isLoading()" label="auth.register.submit" loadingLabel="auth.register.submitting"/>
       </form>
     }
-  </div>
+  </yn-card>
 </div>

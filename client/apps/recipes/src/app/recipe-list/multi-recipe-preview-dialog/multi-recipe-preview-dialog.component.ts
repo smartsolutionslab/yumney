@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, HostListener, computed, input, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, input, output } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { mergeRecipeIngredients, type MergedIngredient, type RecipeForMerge, type ScalableIngredient } from '@yumney/shared/models';
-import { ButtonComponent, LoadingSpinnerComponent } from '@yumney/ui';
+import { ButtonComponent, DialogShellComponent, LoadingSpinnerComponent } from '@yumney/ui';
 
 export interface MultiRecipeSelection {
   identifier: string;
@@ -13,7 +13,7 @@ export interface MultiRecipeSelection {
 
 @Component({
   selector: 'yn-multi-recipe-preview-dialog',
-  imports: [TranslocoModule, ButtonComponent, LoadingSpinnerComponent],
+  imports: [TranslocoModule, ButtonComponent, DialogShellComponent, LoadingSpinnerComponent],
   templateUrl: './multi-recipe-preview-dialog.component.html',
   styleUrl: './multi-recipe-preview-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,25 +38,12 @@ export class MultiRecipePreviewDialogComponent {
     return mergeRecipeIngredients(recipes);
   });
 
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
-    if (!this.isCreating()) {
-      this.cancelled.emit();
-    }
-  }
-
   onConfirm(): void {
     this.confirmed.emit();
   }
 
   onCancel(): void {
     this.cancelled.emit();
-  }
-
-  onOverlayClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget && !this.isCreating()) {
-      this.cancelled.emit();
-    }
   }
 
   onIncrease(identifier: string): void {

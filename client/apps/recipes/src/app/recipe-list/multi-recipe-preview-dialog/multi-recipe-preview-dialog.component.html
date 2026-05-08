@@ -1,108 +1,108 @@
-<div class="multi-preview-overlay" (click)="onOverlayClick($event)" *transloco="let t">
-  <div
-    class="multi-preview-dialog"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="multi-preview-title"
-    data-testid="multi-recipe-preview-dialog"
-  >
-    <header class="dialog-header">
-      <h2 id="multi-preview-title" class="dialog-title">
-        {{ t('recipes.list.multiSelect.preview.title') }}
-      </h2>
-      <p class="dialog-subtitle">
-        {{ t('recipes.list.multiSelect.preview.subtitle', { count: recipes().length }) }}
-      </p>
-    </header>
+<yn-dialog-shell
+  *transloco="let t"
+  size="lg"
+  labelledBy="multi-preview-title"
+  testId="multi-recipe-preview-dialog"
+  [cancelOnBackdrop]="!isCreating()"
+  [cancelOnEscape]="!isCreating()"
+  (cancelled)="onCancel()"
+>
+  <header class="dialog-header">
+    <h2 id="multi-preview-title" class="dialog-title">
+      {{ t('recipes.list.multiSelect.preview.title') }}
+    </h2>
+    <p class="dialog-subtitle">
+      {{ t('recipes.list.multiSelect.preview.subtitle', { count: recipes().length }) }}
+    </p>
+  </header>
 
-    @if (isLoading()) {
-      <div class="dialog-loading">
-        <yn-loading-spinner label="recipes.list.multiSelect.preview.loading" />
-      </div>
-    } @else {
-      <section class="dialog-recipes" aria-labelledby="multi-preview-recipes-heading" data-testid="multi-recipe-preview-recipes">
-        <h3 id="multi-preview-recipes-heading" class="section-heading">
-          {{ t('recipes.list.multiSelect.preview.recipesHeading') }}
-        </h3>
-        <ul class="recipe-list">
-          @for (recipe of recipes(); track recipe.identifier) {
-            <li class="recipe-row">
-              <span class="recipe-row-title">{{ recipe.title }}</span>
-              <div class="servings-control">
-                <button type="button" class="servings-button" data-testid="multi-recipe-decrease-servings" [disabled]="recipe.desiredServings <= 1"
-                  [attr.aria-label]="
-                    t('recipes.list.multiSelect.preview.decreaseAriaLabel', {
-                      title: recipe.title,
-                    })
-                  "
-                  (click)="onDecrease(recipe.identifier)"
-                >
-                  &minus;
-                </button>
-                <span class="servings-value" aria-live="polite">
-                  {{
-                    t('recipes.list.multiSelect.preview.servings', {
-                      count: recipe.desiredServings,
-                    })
-                  }}
-                </span>
-                <button
-                  type="button"
-                  class="servings-button"
-                  data-testid="multi-recipe-increase-servings"
-                  [attr.aria-label]="
-                    t('recipes.list.multiSelect.preview.increaseAriaLabel', {
-                      title: recipe.title,
-                    })
-                  "
-                  (click)="onIncrease(recipe.identifier)"
-                >
-                  +
-                </button>
-              </div>
-            </li>
-          }
-        </ul>
-      </section>
-
-      <section class="dialog-merged" aria-labelledby="multi-preview-merged-heading" data-testid="multi-recipe-preview-merged">
-        <h3 id="multi-preview-merged-heading" class="section-heading">
-          {{
-            t('recipes.list.multiSelect.preview.mergedHeading', {
-              count: mergedIngredients().length,
-            })
-          }}
-        </h3>
-        <ul class="merged-list">
-          @for (
-            ingredient of mergedIngredients();
-            track ingredient.name + (ingredient.unit ?? '')
-          ) {
-            <li>
-              @if (ingredient.amount !== null) {
-                <span class="merged-amount">{{ ingredient.amount }}</span>
-              }
-              @if (ingredient.unit) {
-                <span class="merged-unit">{{ ingredient.unit }}</span>
-              }
-              <span class="merged-name">{{ ingredient.name }}</span>
-            </li>
-          }
-        </ul>
-      </section>
-    }
-
-    <div class="dialog-actions">
-      <yn-button variant="secondary" testId="multi-recipe-preview-cancel" [disabled]="isCreating()" (click)="onCancel()">
-        {{ t('recipes.list.multiSelect.preview.cancel') }}
-      </yn-button>
-      <yn-button variant="primary" testId="multi-recipe-preview-confirm" [disabled]="isCreating() || isLoading() || mergedIngredients().length === 0" (click)="onConfirm()">
-        {{
-          isCreating()
-            ? t('recipes.list.multiSelect.preview.creating')
-            : t('recipes.list.multiSelect.preview.confirm')
-        }}
-      </yn-button>
+  @if (isLoading()) {
+    <div class="dialog-loading">
+      <yn-loading-spinner label="recipes.list.multiSelect.preview.loading" />
     </div>
+  } @else {
+    <section class="dialog-recipes" aria-labelledby="multi-preview-recipes-heading" data-testid="multi-recipe-preview-recipes">
+      <h3 id="multi-preview-recipes-heading" class="section-heading">
+        {{ t('recipes.list.multiSelect.preview.recipesHeading') }}
+      </h3>
+      <ul class="recipe-list">
+        @for (recipe of recipes(); track recipe.identifier) {
+          <li class="recipe-row">
+            <span class="recipe-row-title">{{ recipe.title }}</span>
+            <div class="servings-control">
+              <button type="button" class="servings-button" data-testid="multi-recipe-decrease-servings" [disabled]="recipe.desiredServings <= 1"
+                [attr.aria-label]="
+                  t('recipes.list.multiSelect.preview.decreaseAriaLabel', {
+                    title: recipe.title,
+                  })
+                "
+                (click)="onDecrease(recipe.identifier)"
+              >
+                &minus;
+              </button>
+              <span class="servings-value" aria-live="polite">
+                {{
+                  t('recipes.list.multiSelect.preview.servings', {
+                    count: recipe.desiredServings,
+                  })
+                }}
+              </span>
+              <button
+                type="button"
+                class="servings-button"
+                data-testid="multi-recipe-increase-servings"
+                [attr.aria-label]="
+                  t('recipes.list.multiSelect.preview.increaseAriaLabel', {
+                    title: recipe.title,
+                  })
+                "
+                (click)="onIncrease(recipe.identifier)"
+              >
+                +
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="dialog-merged" aria-labelledby="multi-preview-merged-heading" data-testid="multi-recipe-preview-merged">
+      <h3 id="multi-preview-merged-heading" class="section-heading">
+        {{
+          t('recipes.list.multiSelect.preview.mergedHeading', {
+            count: mergedIngredients().length,
+          })
+        }}
+      </h3>
+      <ul class="merged-list">
+        @for (
+          ingredient of mergedIngredients();
+          track ingredient.name + (ingredient.unit ?? '')
+        ) {
+          <li>
+            @if (ingredient.amount !== null) {
+              <span class="merged-amount">{{ ingredient.amount }}</span>
+            }
+            @if (ingredient.unit) {
+              <span class="merged-unit">{{ ingredient.unit }}</span>
+            }
+            <span class="merged-name">{{ ingredient.name }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <div class="dialog-actions">
+    <yn-button variant="secondary" testId="multi-recipe-preview-cancel" [disabled]="isCreating()" (click)="onCancel()">
+      {{ t('recipes.list.multiSelect.preview.cancel') }}
+    </yn-button>
+    <yn-button variant="primary" testId="multi-recipe-preview-confirm" [disabled]="isCreating() || isLoading() || mergedIngredients().length === 0" (click)="onConfirm()">
+      {{
+        isCreating()
+          ? t('recipes.list.multiSelect.preview.creating')
+          : t('recipes.list.multiSelect.preview.confirm')
+      }}
+    </yn-button>
   </div>
-</div>
+</yn-dialog-shell>

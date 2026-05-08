@@ -8,10 +8,6 @@
   @extend .auth-container;
 }
 
-.register-card {
-  @extend .auth-card;
-}
-
 .success-message {
   @include glass.glass-surface(1);
   text-align: center;

@@ -1,0 +1,11 @@
+<div class="yn-dialog-overlay" (click)="onOverlayClick($event)">
+  <div
+    [class]="dialogClass()"
+    [attr.role]="role()"
+    aria-modal="true"
+    [attr.aria-labelledby]="labelledBy() ?? null"
+    [attr.data-testid]="testId() ?? null"
+  >
+    <ng-content />
+  </div>
+</div>

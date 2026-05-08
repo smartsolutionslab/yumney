@@ -1,0 +1,9 @@
+<div [class]="cardClass()">
+  @if (title(); as titleKey) {
+    <h1>{{ titleKey | transloco }}</h1>
+  }
+  @if (subtitle(); as subtitleKey) {
+    <p class="subtitle">{{ subtitleKey | transloco }}</p>
+  }
+  <ng-content />
+</div>

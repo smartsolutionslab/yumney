@@ -1,73 +1,73 @@
-<div class="create-shopping-list-overlay" (click)="onOverlayClick($event)" *transloco="let t">
-  <div
-    class="create-shopping-list-dialog"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="create-shopping-list-title"
-    data-testid="create-shopping-list-dialog"
-  >
-    <header class="dialog-header">
-      <h2 id="create-shopping-list-title" class="dialog-title">
-        {{ t('recipes.detail.createShoppingList.title') }}
-      </h2>
-      <p class="dialog-subtitle" data-testid="create-shopping-list-suggested-title">
-        {{ suggestedTitle() }}
-      </p>
-    </header>
+<yn-dialog-shell
+  *transloco="let t"
+  size="md"
+  labelledBy="create-shopping-list-title"
+  testId="create-shopping-list-dialog"
+  [cancelOnBackdrop]="!isCreating()"
+  [cancelOnEscape]="!isCreating()"
+  (cancelled)="onCancel()"
+>
+  <header class="dialog-header">
+    <h2 id="create-shopping-list-title" class="dialog-title">
+      {{ t('recipes.detail.createShoppingList.title') }}
+    </h2>
+    <p class="dialog-subtitle" data-testid="create-shopping-list-suggested-title">
+      {{ suggestedTitle() }}
+    </p>
+  </header>
 
-    <section class="dialog-preview" aria-labelledby="create-shopping-list-preview-heading">
-      <h3 id="create-shopping-list-preview-heading" class="preview-heading">
-        @if (desiredServings() !== null) {
-          {{
-            t('recipes.detail.createShoppingList.preview', {
-              count: ingredients().length,
-              servings: desiredServings(),
-            })
-          }}
-        } @else {
-          {{
-            t('recipes.detail.createShoppingList.previewNoServings', {
-              count: ingredients().length,
-            })
-          }}
-        }
-      </h3>
-      <ul class="preview-list">
-        @for (ingredient of ingredients(); track ingredient.name) {
-          <li>
-            @if (ingredient.amount !== null) {
-              <span class="preview-amount">{{ ingredient.amount }}</span>
-            }
-            @if (ingredient.unit) {
-              <span class="preview-unit">{{ ingredient.unit }}</span>
-            }
-            <span class="preview-name">{{ ingredient.name }}</span>
-          </li>
-        }
-      </ul>
-    </section>
-
-    <div class="dialog-actions">
-      <yn-button
-        variant="secondary"
-        testId="create-shopping-list-cancel"
-        [disabled]="isCreating()"
-        (click)="onCancel()"
-      >
-        {{ t('recipes.detail.createShoppingList.cancel') }}
-      </yn-button>
-      <yn-button
-        variant="primary"
-        testId="create-shopping-list-confirm"
-        [disabled]="isCreating()"
-        (click)="onConfirm()"
-      >
+  <section class="dialog-preview" aria-labelledby="create-shopping-list-preview-heading">
+    <h3 id="create-shopping-list-preview-heading" class="preview-heading">
+      @if (desiredServings() !== null) {
         {{
-          isCreating()
-            ? t('recipes.detail.createShoppingList.creating')
-            : t('recipes.detail.createShoppingList.confirm')
+          t('recipes.detail.createShoppingList.preview', {
+            count: ingredients().length,
+            servings: desiredServings(),
+          })
         }}
-      </yn-button>
-    </div>
+      } @else {
+        {{
+          t('recipes.detail.createShoppingList.previewNoServings', {
+            count: ingredients().length,
+          })
+        }}
+      }
+    </h3>
+    <ul class="preview-list">
+      @for (ingredient of ingredients(); track ingredient.name) {
+        <li>
+          @if (ingredient.amount !== null) {
+            <span class="preview-amount">{{ ingredient.amount }}</span>
+          }
+          @if (ingredient.unit) {
+            <span class="preview-unit">{{ ingredient.unit }}</span>
+          }
+          <span class="preview-name">{{ ingredient.name }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <div class="dialog-actions">
+    <yn-button
+      variant="secondary"
+      testId="create-shopping-list-cancel"
+      [disabled]="isCreating()"
+      (click)="onCancel()"
+    >
+      {{ t('recipes.detail.createShoppingList.cancel') }}
+    </yn-button>
+    <yn-button
+      variant="primary"
+      testId="create-shopping-list-confirm"
+      [disabled]="isCreating()"
+      (click)="onConfirm()"
+    >
+      {{
+        isCreating()
+          ? t('recipes.detail.createShoppingList.creating')
+          : t('recipes.detail.createShoppingList.confirm')
+      }}
+    </yn-button>
   </div>
-</div>
+</yn-dialog-shell>

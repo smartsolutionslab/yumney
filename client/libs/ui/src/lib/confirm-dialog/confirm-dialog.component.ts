@@ -1,7 +1,10 @@
-import { Component, ChangeDetectionStrategy, HostListener, input, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { ButtonComponent } from '../button/button.component';
+import { DialogShellComponent } from '../dialog-shell/dialog-shell.component';
 
 @Component({
   selector: 'yn-confirm-dialog',
+  imports: [ButtonComponent, DialogShellComponent],
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -14,22 +17,11 @@ export class ConfirmDialogComponent {
   confirmed = output<void>();
   cancelled = output<void>();
 
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
-    this.cancelled.emit();
-  }
-
   onConfirm(): void {
     this.confirmed.emit();
   }
 
   onCancel(): void {
     this.cancelled.emit();
-  }
-
-  onOverlayClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) {
-      this.cancelled.emit();
-    }
   }
 }

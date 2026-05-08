@@ -4,6 +4,12 @@ export {
   type ButtonVariant,
   type ButtonType,
 } from './lib/button/button.component';
+export { CardComponent, type CardVariant } from './lib/card/card.component';
+export {
+  DialogShellComponent,
+  type DialogRole,
+  type DialogSize,
+} from './lib/dialog-shell/dialog-shell.component';
 export { FormFieldComponent } from './lib/form-field/form-field.component';
 export {
   MessageBannerComponent,

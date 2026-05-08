@@ -1,9 +1,7 @@
-<div class="confirm-overlay" (click)="onOverlayClick($event)">
-  <div class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-msg">
-    <p id="confirm-msg" class="confirm-message">{{ message() }}</p>
-    <div class="confirm-actions">
-      <button class="btn-secondary" (click)="onCancel()">{{ cancelLabel() }}</button>
-      <button class="btn-danger-filled" (click)="onConfirm()">{{ confirmLabel() }}</button>
-    </div>
+<yn-dialog-shell size="sm" role="alertdialog" labelledBy="confirm-msg" (cancelled)="onCancel()">
+  <p id="confirm-msg" class="confirm-message">{{ message() }}</p>
+  <div class="confirm-actions">
+    <yn-button variant="secondary" (click)="onCancel()">{{ cancelLabel() }}</yn-button>
+    <yn-button variant="danger-filled" (click)="onConfirm()">{{ confirmLabel() }}</yn-button>
   </div>
-</div>
+</yn-dialog-shell>
