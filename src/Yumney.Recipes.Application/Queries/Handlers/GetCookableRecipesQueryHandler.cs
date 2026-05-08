@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -9,14 +10,22 @@ using SmartSolutionsLab.Yumney.Shared.Quantities;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 
-public sealed class GetCookableRecipesQueryHandler(
+#pragma warning disable SA1601
+public sealed partial class GetCookableRecipesQueryHandler(
 	IRecipeRepository recipes,
 	IIngredientBalanceProvider balanceProvider,
-	ICurrentUser currentUser)
+	ICurrentUser currentUser,
+	ILogger<GetCookableRecipesQueryHandler> logger)
 	: IQueryHandler<GetCookableRecipesQuery, Result<PagedResult<CookableRecipeDto>>>
 {
 #pragma warning disable SA1303
 	private const int maxMissingForNearMatch = 2;
+
+	// Cap for the per-request candidate set. Ranking depends on live freshness
+	// data so it can't be pushed into SQL; this bound keeps the in-memory
+	// materialise predictable for owners with very large libraries. The most
+	// recent recipes are kept because they're the likely candidates anyway.
+	private const int maxRecipesForRanking = 500;
 #pragma warning restore SA1303
 
 	public async Task<Result<PagedResult<CookableRecipeDto>>> HandleAsync(
@@ -26,7 +35,12 @@ public sealed class GetCookableRecipesQueryHandler(
 		var (paging, fullMatchOnly) = query;
 		var owner = currentUser.AsOwner();
 
-		var allRecipes = await recipes.GetAllByOwnerWithIngredientsAsync(owner, cancellationToken);
+		var allRecipes = await recipes.GetRecentByOwnerWithIngredientsAsync(owner, maxRecipesForRanking, cancellationToken);
+		if (allRecipes.Count == maxRecipesForRanking)
+		{
+			LogPotentiallyTruncated(owner.Value, maxRecipesForRanking);
+		}
+
 		var availableIngredients = await balanceProvider.GetAvailableIngredientsAsync(cancellationToken);
 
 		IReadOnlyList<CookableRecipeDto> ranked = [.. allRecipes
@@ -71,4 +85,9 @@ public sealed class GetCookableRecipesQueryHandler(
 	}
 
 	private sealed record RankedMatch(CookableRecipeDto Dto, int UrgentIngredientCount);
+
+	[LoggerMessage(
+		Level = LogLevel.Information,
+		Message = "Cookable-recipe ranking hit the {Cap}-recipe cap for owner {Owner}; older recipes were excluded from this run.")]
+	private partial void LogPotentiallyTruncated(string owner, int cap);
 }

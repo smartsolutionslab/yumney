@@ -115,7 +115,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 	}
 
 	[Fact]
-	public async Task GetAllByOwnerWithIngredientsAsync_ReturnsRecipesWithIngredientsLoaded()
+	public async Task GetRecentByOwnerWithIngredientsAsync_ReturnsRecipesWithIngredientsLoaded()
 	{
 		var lasagne = RecipeFactory.Lasagne(owner.Value);
 		var soup = RecipeFactory.TomatoSoup(owner.Value);
@@ -123,14 +123,14 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
 		await using var readContext = await fixture.CreateRecipesDbContextAsync();
 		var recipes = new RecipeRepository(readContext);
-		var loaded = await recipes.GetAllByOwnerWithIngredientsAsync(owner);
+		var loaded = await recipes.GetRecentByOwnerWithIngredientsAsync(owner, maxResults: 100);
 
 		loaded.Should().HaveCount(2);
 		loaded.Should().AllSatisfy(r => r.Ingredients.Should().NotBeEmpty());
 	}
 
 	[Fact]
-	public async Task GetAllByOwnerWithIngredientsAsync_OtherOwnersRecipes_NotIncluded()
+	public async Task GetRecentByOwnerWithIngredientsAsync_OtherOwnersRecipes_NotIncluded()
 	{
 		var mine = RecipeFactory.Lasagne(owner.Value);
 		var otherOwner = OwnerIdentifier.From($"other-{Guid.NewGuid():N}");
@@ -141,7 +141,7 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 
 			await using var readContext = await fixture.CreateRecipesDbContextAsync();
 			var recipes = new RecipeRepository(readContext);
-			var loaded = await recipes.GetAllByOwnerWithIngredientsAsync(owner);
+			var loaded = await recipes.GetRecentByOwnerWithIngredientsAsync(owner, maxResults: 100);
 
 			loaded.Should().ContainSingle().Which.Id.Should().Be(mine.Id);
 		}
@@ -154,12 +154,12 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 	}
 
 	[Fact]
-	public async Task GetAllByOwnerWithIngredientsAsync_NoRecipes_ReturnsEmpty()
+	public async Task GetRecentByOwnerWithIngredientsAsync_NoRecipes_ReturnsEmpty()
 	{
 		await using var context = await fixture.CreateRecipesDbContextAsync();
 		var recipes = new RecipeRepository(context);
 
-		var loaded = await recipes.GetAllByOwnerWithIngredientsAsync(owner);
+		var loaded = await recipes.GetRecentByOwnerWithIngredientsAsync(owner, maxResults: 100);
 
 		loaded.Should().BeEmpty();
 	}

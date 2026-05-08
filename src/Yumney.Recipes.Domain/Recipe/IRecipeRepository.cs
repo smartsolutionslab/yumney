@@ -23,11 +23,13 @@ public interface IRecipeRepository
 		RecipeFilter? filter = null,
 		CancellationToken cancellationToken = default);
 
-	// Bulk fetch with ingredients eagerly loaded. Used by the recipe-matching
-	// engine ("What Can I Cook?"). Untracked. Keep in mind this loads the full
-	// recipe set for the owner — caller is responsible for any ranking + cap.
-	Task<IReadOnlyList<Recipe>> GetAllByOwnerWithIngredientsAsync(
+	// Bulk fetch with ingredients eagerly loaded, ordered most-recent first.
+	// Used by the recipe-matching engine ("What Can I Cook?"). Untracked.
+	// `maxResults` caps the slice in SQL — required so callers can't trigger
+	// an unbounded materialise on owners with thousands of recipes.
+	Task<IReadOnlyList<Recipe>> GetRecentByOwnerWithIngredientsAsync(
 		OwnerIdentifier owner,
+		int maxResults,
 		CancellationToken cancellationToken = default);
 
 	void Remove(Recipe recipe);
