@@ -228,7 +228,7 @@ describe('RecipeListComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const cta = fixture.nativeElement.querySelector('.cta-button');
+    const cta = fixture.nativeElement.querySelector('.empty-state a.btn-primary');
     expect(cta).toBeTruthy();
     expect(cta.textContent).toContain('Import a Recipe');
   }));

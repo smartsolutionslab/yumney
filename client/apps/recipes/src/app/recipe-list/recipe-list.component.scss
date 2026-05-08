@@ -141,47 +141,6 @@ yn-filter-panel {
   }
 }
 
-// ── Empty state ──
-.empty-state {
-  @include glass.glass-card;
-  text-align: center;
-  padding: 4rem var(--yn-space-8);
-  animation: yn-fade-in var(--yn-duration-normal) var(--yn-ease-glass) both;
-
-  h2 {
-    margin: 0 0 var(--yn-space-3);
-    font-size: var(--yn-text-2xl);
-    font-weight: var(--yn-font-semibold);
-  }
-
-  p {
-    margin: 0 0 var(--yn-space-7);
-    color: var(--yn-text-muted);
-    font-size: var(--yn-text-base);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
-.cta-button {
-  display: inline-block;
-  padding: var(--yn-button-padding-y) var(--yn-button-padding-x);
-  border-radius: var(--yn-radius-button);
-  background: var(--yn-primary);
-  color: var(--yn-text-inverse);
-  font-size: var(--yn-text-lg);
-  font-weight: var(--yn-font-medium);
-  text-decoration: none;
-  cursor: pointer;
-
-  &:hover {
-    background: var(--yn-primary-hover);
-    box-shadow: var(--yn-shadow-primary-glow);
-  }
-}
-
 // ── Recipe grid ──
 .recipe-grid {
   display: grid;

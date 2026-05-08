@@ -1,0 +1,7 @@
+<div [class]="containerClass()" [attr.data-testid]="testId() ?? null">
+  @if (title(); as titleKey) {
+    <h2>{{ titleKey | transloco }}</h2>
+  }
+  <p>{{ message() | transloco: messageParams() }}</p>
+  <ng-content />
+</div>
