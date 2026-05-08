@@ -20,11 +20,7 @@
         <yn-loading-spinner label="recipes.list.multiSelect.preview.loading" />
       </div>
     } @else {
-      <section
-        class="dialog-recipes"
-        aria-labelledby="multi-preview-recipes-heading"
-        data-testid="multi-recipe-preview-recipes"
-      >
+      <section class="dialog-recipes" aria-labelledby="multi-preview-recipes-heading" data-testid="multi-recipe-preview-recipes">
         <h3 id="multi-preview-recipes-heading" class="section-heading">
           {{ t('recipes.list.multiSelect.preview.recipesHeading') }}
         </h3>
@@ -33,11 +29,7 @@
             <li class="recipe-row">
               <span class="recipe-row-title">{{ recipe.title }}</span>
               <div class="servings-control">
-                <button
-                  type="button"
-                  class="servings-button"
-                  data-testid="multi-recipe-decrease-servings"
-                  [disabled]="recipe.desiredServings <= 1"
+                <button type="button" class="servings-button" data-testid="multi-recipe-decrease-servings" [disabled]="recipe.desiredServings <= 1"
                   [attr.aria-label]="
                     t('recipes.list.multiSelect.preview.decreaseAriaLabel', {
                       title: recipe.title,
@@ -73,11 +65,7 @@
         </ul>
       </section>
 
-      <section
-        class="dialog-merged"
-        aria-labelledby="multi-preview-merged-heading"
-        data-testid="multi-recipe-preview-merged"
-      >
+      <section class="dialog-merged" aria-labelledby="multi-preview-merged-heading" data-testid="multi-recipe-preview-merged">
         <h3 id="multi-preview-merged-heading" class="section-heading">
           {{
             t('recipes.list.multiSelect.preview.mergedHeading', {
@@ -105,22 +93,10 @@
     }
 
     <div class="dialog-actions">
-      <button
-        type="button"
-        class="btn-secondary"
-        [disabled]="isCreating()"
-        (click)="onCancel()"
-        data-testid="multi-recipe-preview-cancel"
-      >
+      <button type="button" class="btn-secondary" [disabled]="isCreating()" (click)="onCancel()" data-testid="multi-recipe-preview-cancel">
         {{ t('recipes.list.multiSelect.preview.cancel') }}
       </button>
-      <button
-        type="button"
-        class="btn-primary"
-        [disabled]="isCreating() || isLoading() || mergedIngredients().length === 0"
-        (click)="onConfirm()"
-        data-testid="multi-recipe-preview-confirm"
-      >
+      <button type="button" class="btn-primary" [disabled]="isCreating() || isLoading() || mergedIngredients().length === 0" (click)="onConfirm()" data-testid="multi-recipe-preview-confirm">
         {{
           isCreating()
             ? t('recipes.list.multiSelect.preview.creating')

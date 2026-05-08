@@ -1,25 +1,13 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { RouterModule } from '@angular/router';
-import {
-  ChatPanelComponent,
-  CommandFabComponent,
-  HeaderComponent,
-  ToastHostComponent,
-} from '@yumney/ui';
+import { ChatPanelComponent, CommandFabComponent, HeaderComponent, ToastHostComponent } from '@yumney/ui';
 import { ChatStateService } from '@yumney/shared/models';
 import { OfflineIndicatorComponent } from './layout/offline-indicator';
 import { filter } from 'rxjs';
 
 @Component({
-  imports: [
-    RouterModule,
-    HeaderComponent,
-    ChatPanelComponent,
-    CommandFabComponent,
-    OfflineIndicatorComponent,
-    ToastHostComponent,
-  ],
+  imports: [RouterModule, HeaderComponent, ChatPanelComponent, CommandFabComponent, OfflineIndicatorComponent, ToastHostComponent],
   selector: 'yn-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -32,8 +20,6 @@ export class App implements OnInit {
   ngOnInit(): void {
     if (!this.swUpdate.isEnabled) return;
 
-    this.swUpdate.versionUpdates
-      .pipe(filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'))
-      .subscribe(() => document.location.reload());
+    this.swUpdate.versionUpdates.pipe(filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY')).subscribe(() => document.location.reload());
   }
 }
