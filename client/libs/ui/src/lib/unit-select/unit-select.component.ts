@@ -5,18 +5,17 @@ import {
   input,
   signal,
   forwardRef,
-  ElementRef,
-  inject,
   HostListener,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { type UnitGroupInfo, type KnownUnit, KNOWN_UNITS } from '@yumney/shared/models';
+import { ClickOutsideDirective } from '../directives/click-outside.directive';
 
 @Component({
   selector: 'yn-unit-select',
-  imports: [TranslocoModule, LucideAngularModule],
+  imports: [TranslocoModule, LucideAngularModule, ClickOutsideDirective],
   templateUrl: './unit-select.component.html',
   styleUrl: './unit-select.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +38,6 @@ export class UnitSelectComponent implements ControlValueAccessor {
 
   protected flatUnits = computed(() => this.unitGroups().flatMap((group) => group.units));
 
-  private elementRef = inject(ElementRef);
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private onChange: (value: string | null) => void = () => {};
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -48,19 +46,11 @@ export class UnitSelectComponent implements ControlValueAccessor {
   get selectedLabel(): string | null {
     const value = this.selectedValue();
     if (!value) return null;
-    const unit = KNOWN_UNITS.find((u) => u.value === value);
+    const unit = KNOWN_UNITS.find((knownUnit) => knownUnit.value === value);
     return unit?.labelKey ?? value;
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
-      this.isOpen.set(false);
-    }
-  }
-
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
+  onDismiss(): void {
     if (this.isOpen()) {
       this.isOpen.set(false);
       this.focusedIndex.set(-1);
