@@ -36,14 +36,25 @@ public static class ProfileEndpoints
 		group.MapPut("/", UpdateProfile)
 			.WithName("UpdateUserProfile")
 			.WithTags("Users")
+			.WithValidation<Requests.UpdateUserProfile>()
 			.Produces<UserProfileDto>()
 			.ProducesValidationProblem();
 
 		static async Task<IResult> UpdateProfile(
-			UpdateUserProfileCommand command,
+			Requests.UpdateUserProfile request,
 			ICommandHandler<UpdateUserProfileCommand, Result<UserProfileDto>> handler,
 			CancellationToken cancellationToken)
 		{
+			var (displayName, preferredLanguage, preferredUnitSystem, defaultServings, theme, voiceSettings, notificationPreferences, dietaryProfile) = request;
+			var command = new UpdateUserProfileCommand(
+				displayName,
+				preferredLanguage,
+				preferredUnitSystem,
+				defaultServings,
+				theme,
+				voiceSettings,
+				notificationPreferences,
+				dietaryProfile);
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
 		}
