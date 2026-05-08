@@ -7,13 +7,12 @@ import {
   DestroyRef,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, skip } from 'rxjs';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { RecipeApiService, RecipeListItem, GetRecipesParams } from '../api';
 import {
   createAsyncState,
+  debouncedEffect,
   ERROR_MAPS,
   ROUTES,
   UI,
@@ -88,8 +87,14 @@ export class RecipeListComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private asyncState = createAsyncState(this.destroyRef);
   private searchInput = signal('');
-  private searchInput$ = toObservable(this.searchInput);
   private loadRequestId = 0;
+
+  constructor() {
+    debouncedEffect(this.searchInput, UI.SEARCH_DEBOUNCE_MS, (value) => {
+      this.activeSearch.set(value.trim());
+      this.resetAndReload();
+    });
+  }
 
   protected assignment = inject(RecipeAssignmentService);
   protected multiSelect = inject(MultiRecipeShoppingListService);
@@ -132,13 +137,6 @@ export class RecipeListComponent implements OnInit {
     this.assignment.initFromRoute();
     this.multiSelect.initFromRoute();
     this.loadRecipes(false);
-
-    this.searchInput$
-      .pipe(skip(1), debounceTime(UI.SEARCH_DEBOUNCE_MS), takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        this.activeSearch.set(value.trim());
-        this.resetAndReload();
-      });
   }
 
   onSearchInput(event: Event): void {
