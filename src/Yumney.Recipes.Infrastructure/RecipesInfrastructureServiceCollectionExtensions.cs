@@ -6,6 +6,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
+using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Client;
@@ -24,16 +25,14 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 			"wolverine_recipes",
 			typeof(DomainEventDispatchInterceptor));
 
-		// State-based handlers (SaveRecipe / DeleteRecipe / TrackRecipeCooked) keep
-		// the default WolverineEventBus from AddYumneyDefaults. Wolverine's typed
-		// IDbContextOutbox<T> only flushes captured messages when the handler
-		// itself calls outbox.SaveChangesAndFlushMessagesAsync — a plain
-		// DbContext.SaveChangesAsync stages but never delivers, so cross-module
-		// integration events (e.g. RecipeDeletedIntegrationEvent) silently
-		// disappear. Wolverine's PersistMessagesWithPostgresql still gives the
-		// regular bus durable at-least-once delivery; closing the strict
-		// publish-before-save dual-write hole is a follow-up that needs the
-		// handlers to use the outbox API directly.
+		// State-based handlers stage cross-module integration events on the typed
+		// outbox (last AddScoped<IEventBus> wins, so this overrides the default
+		// WolverineEventBus from AddYumneyDefaults). RecipesUnitOfWork.SaveChangesAsync
+		// calls outbox.FlushOutgoingMessagesAsync after persisting the entity changes,
+		// which is what actually delivers the staged messages — without the flush
+		// they sit in the outbox table waiting on the polling relay.
+		services.AddScoped<IEventBus, WolverineOutboxEventBus<RecipesDbContext>>();
+
 		services.AddScoped<RecipesUnitOfWork>();
 		services.AddScoped<IRecipesUnitOfWork>(sp => sp.GetRequiredService<RecipesUnitOfWork>());
 		services.AddScoped<IRecipeRepository>(sp => sp.GetRequiredService<RecipesUnitOfWork>().Recipes);

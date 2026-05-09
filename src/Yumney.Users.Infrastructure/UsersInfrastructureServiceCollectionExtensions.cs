@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Users.Application.Interfaces;
@@ -27,15 +28,17 @@ public static class UsersInfrastructureServiceCollectionExtensions
 			"wolverine_users",
 			typeof(DomainEventDispatchInterceptor));
 
-		// DeleteAccount keeps the default WolverineEventBus from AddYumneyDefaults.
-		// Wolverine's typed IDbContextOutbox<T> only flushes captured messages when
-		// the handler calls outbox.SaveChangesAndFlushMessagesAsync — a plain
-		// DbContext.SaveChangesAsync stages but never delivers, so cross-module
-		// integration events (UserAccountDeletedIntegrationEvent is GDPR-critical
-		// and must not silently disappear). Wolverine's PersistMessagesWithPostgresql
-		// still gives the regular bus durable at-least-once delivery; closing the
-		// strict publish-before-save dual-write hole here is a follow-up that needs
-		// the handler to use the outbox API directly.
+		// State-based handlers (DeleteAccount, RegisterUser, UpdateUserProfile,
+		// EnsureUserProfile, ResendVerificationEmail) stage cross-module
+		// integration events on the typed outbox (last AddScoped<IEventBus>
+		// wins, so this overrides the default WolverineEventBus from
+		// AddYumneyDefaults). UsersUnitOfWork.SaveChangesAsync calls
+		// outbox.FlushOutgoingMessagesAsync after persisting the entity
+		// changes, which is what actually delivers the staged messages —
+		// UserAccountDeletedIntegrationEvent is GDPR-critical and must not
+		// sit waiting on the polling relay.
+		services.AddScoped<IEventBus, WolverineOutboxEventBus<UsersDbContext>>();
+
 		services.AddScoped<UsersUnitOfWork>();
 		services.AddScoped<IUsersUnitOfWork>(sp => sp.GetRequiredService<UsersUnitOfWork>());
 		services.AddScoped<IAppUserProfileRepository>(sp => sp.GetRequiredService<UsersUnitOfWork>().Profiles);
