@@ -13,10 +13,22 @@
           invalidUrl: 'dashboard.import.errors.urlInvalid',
         }"
       >
-        <input id="url" type="url" formControlName="url" [placeholder]="t('dashboard.import.placeholder')" [attr.aria-label]="t('dashboard.import.urlLabel')"/>
+        <input
+          id="url"
+          type="url"
+          formControlName="url"
+          [placeholder]="t('dashboard.import.placeholder')"
+          [attr.aria-label]="t('dashboard.import.urlLabel')"
+        />
       </yn-form-field>
 
-      <yn-submit-button [loading]="isLoading()" [disabled]="isSaving()" label="dashboard.import.submit" loadingLabel="dashboard.import.submitting" [showSpinner]="true"/>
+      <yn-submit-button
+        [loading]="isLoading()"
+        [disabled]="isSaving()"
+        label="dashboard.import.submit"
+        loadingLabel="dashboard.import.submitting"
+        [showSpinner]="true"
+      />
     </div>
   </form>
 

@@ -10,7 +10,12 @@ import {
   ERROR_MAPS,
   ROUTES,
 } from '@yumney/shared/models';
-import { CardComponent, FormFieldComponent, MessageBannerComponent, SubmitButtonComponent } from '@yumney/ui';
+import {
+  CardComponent,
+  FormFieldComponent,
+  MessageBannerComponent,
+  SubmitButtonComponent,
+} from '@yumney/ui';
 
 @Component({
   selector: 'yn-resend-verification',

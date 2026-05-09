@@ -1,4 +1,11 @@
-import { Component, ChangeDetectionStrategy, ViewEncapsulation, computed, input, output } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  ViewEncapsulation,
+  computed,
+  input,
+  output,
+} from '@angular/core';
 
 export type DialogSize = 'sm' | 'md' | 'lg';
 export type DialogRole = 'dialog' | 'alertdialog';

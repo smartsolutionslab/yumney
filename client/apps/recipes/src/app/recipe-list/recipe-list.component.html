@@ -82,7 +82,7 @@
   }
 
   @if (serverError(); as error) {
-    <yn-message-banner tone="error" [message]="error"/>
+    <yn-message-banner tone="error" [message]="error" />
   }
 
   @if (!isLoading() && recipes().length === 0 && !serverError()) {

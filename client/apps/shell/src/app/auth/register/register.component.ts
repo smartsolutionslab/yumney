@@ -11,11 +11,24 @@ import {
   ERROR_MAPS,
   ROUTES,
 } from '@yumney/shared/models';
-import { CardComponent, FormFieldComponent, MessageBannerComponent, SubmitButtonComponent } from '@yumney/ui';
+import {
+  CardComponent,
+  FormFieldComponent,
+  MessageBannerComponent,
+  SubmitButtonComponent,
+} from '@yumney/ui';
 
 @Component({
   selector: 'yn-register',
-  imports: [ReactiveFormsModule, TranslocoModule, RouterLink, CardComponent, FormFieldComponent, MessageBannerComponent, SubmitButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoModule,
+    RouterLink,
+    CardComponent,
+    FormFieldComponent,
+    MessageBannerComponent,
+    SubmitButtonComponent,
+  ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

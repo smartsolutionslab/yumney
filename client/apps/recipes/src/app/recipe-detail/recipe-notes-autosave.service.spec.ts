@@ -28,10 +28,7 @@ function buildRecipe(overrides: Partial<RecipeDetail> = {}): RecipeDetail {
 describe('RecipeNotesAutosaveService', () => {
   function createService(api: Partial<RecipeApiService>): RecipeNotesAutosaveService {
     TestBed.configureTestingModule({
-      providers: [
-        RecipeNotesAutosaveService,
-        { provide: RecipeApiService, useValue: api },
-      ],
+      providers: [RecipeNotesAutosaveService, { provide: RecipeApiService, useValue: api }],
     });
     return TestBed.inject(RecipeNotesAutosaveService);
   }
