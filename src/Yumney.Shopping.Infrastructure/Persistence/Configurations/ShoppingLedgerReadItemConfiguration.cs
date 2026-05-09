@@ -21,5 +21,14 @@ internal sealed class ShoppingLedgerReadItemConfiguration : IEntityTypeConfigura
 
 		entity.HasIndex(e => e.OwnerId);
 		entity.HasIndex(e => new { e.OwnerId, e.ItemName, e.Unit });
+
+		// Natural-key uniqueness on (OwnerId, lower(ItemName), COALESCE(Unit, ''))
+		// is enforced by the expression-based unique index added in migration
+		// 20260509125057_AddShoppingLedgerNaturalKeyUniqueIndex. EF Core can't
+		// model an expression-based index without stored generated columns —
+		// more schema bloat than the index is worth — so the migration owns
+		// it directly. ShoppingLedgerProjectionHandler.HandleAsync(Added)
+		// relies on this constraint so two concurrent inserts for the same
+		// logical item collide and fall through to the merge path.
 	}
 }
