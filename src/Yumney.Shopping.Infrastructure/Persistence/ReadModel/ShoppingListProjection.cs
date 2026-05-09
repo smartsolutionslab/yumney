@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using NpgsqlTypes;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore.Events;
 
@@ -22,41 +24,41 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 	public async Task HandleAsync(ShoppingListCreatedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var existing = await context.Set<ShoppingListSummaryReadItem>()
-			.FirstOrDefaultAsync(s => s.Id == @event.AggregateId, cancellationToken);
 
-		// Out-of-order delivery: ListItemAdded module events publish on a separate
-		// RabbitMQ queue from ShoppingListCreated and can arrive first. Their
-		// atomic-increment ExecuteUpdate then matches zero rows (no summary yet).
-		// Reconcile here by counting the already-projected items table so the
-		// initial ItemCount reflects items that landed before this handler ran.
-		var itemCount = await context.Set<ShoppingListItemReadItem>()
-			.CountAsync(item => item.ListId == @event.AggregateId, cancellationToken);
+		// UPSERT-by-metadata: an early-arriving ListItemAdded may already have inserted
+		// the row with empty Title and ItemCount > 0 (see ListItemAdded handler). We
+		// fill in OwnerId/Title/RecipeIdentifier/CreatedAt without ever touching
+		// ItemCount, so the count populated by ListItemAdded handlers is preserved.
+		// EXCLUDED here is the row we tried to INSERT; ON CONFLICT (Id) means an
+		// existing row keeps its primary key and we only overwrite the metadata
+		// columns explicitly listed in the SET clause.
+		// Explicit Npgsql parameters because EF Core's FormattableString path can't
+		// infer a column type from a `Guid?` whose runtime value is null.
+		const string sql = """
+			INSERT INTO "ShoppingListSummaryReadItems"
+				("Id", "OwnerId", "Title", "RecipeIdentifier", "ItemCount", "CreatedAt", "LastUpdated")
+			VALUES (@id, @ownerId, @title, @recipeId, 0, @createdAt, @createdAt)
+			ON CONFLICT ("Id") DO UPDATE
+			SET "OwnerId" = EXCLUDED."OwnerId",
+				"Title" = EXCLUDED."Title",
+				"RecipeIdentifier" = EXCLUDED."RecipeIdentifier",
+				"CreatedAt" = EXCLUDED."CreatedAt",
+				"LastUpdated" = EXCLUDED."LastUpdated"
+			""";
 
-		if (existing is null)
-		{
-			var item = new ShoppingListSummaryReadItem
-			{
-				Id = @event.AggregateId,
-				OwnerId = @event.OwnerId,
-				Title = inner.Title.Value,
-				RecipeIdentifier = inner.RecipeReference?.Value,
-				ItemCount = itemCount,
-				CreatedAt = inner.CreatedAt,
-				LastUpdated = inner.CreatedAt,
-			};
-			context.Set<ShoppingListSummaryReadItem>().Add(item);
-		}
-		else
-		{
-			existing.OwnerId = @event.OwnerId;
-			existing.Title = inner.Title.Value;
-			existing.RecipeIdentifier = inner.RecipeReference?.Value;
-			existing.CreatedAt = inner.CreatedAt;
-			existing.LastUpdated = DateTime.UtcNow;
-		}
-
-		await context.SaveChangesAsync(cancellationToken);
+		await context.Database.ExecuteSqlRawAsync(
+			sql,
+			[
+				new NpgsqlParameter("id", NpgsqlDbType.Uuid) { Value = @event.AggregateId },
+				new NpgsqlParameter("ownerId", NpgsqlDbType.Text) { Value = @event.OwnerId },
+				new NpgsqlParameter("title", NpgsqlDbType.Text) { Value = inner.Title.Value },
+				new NpgsqlParameter("recipeId", NpgsqlDbType.Uuid)
+				{
+					Value = (object?)inner.RecipeReference?.Value ?? DBNull.Value,
+				},
+				new NpgsqlParameter("createdAt", NpgsqlDbType.TimestampTz) { Value = inner.CreatedAt },
+			],
+			cancellationToken);
 	}
 
 	public async Task HandleAsync(ListItemAddedModuleEvent @event, CancellationToken cancellationToken = default)
@@ -84,23 +86,32 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 		});
 		await context.SaveChangesAsync(cancellationToken);
 
-		// Atomic increment via SQL — Wolverine processes messages on a queue with
-		// MaxDegreeOfParallelism = max(processor-count, 5), so two concurrent
-		// ListItemAdded events for the same list would race a read-modify-write
-		// on the summary row. ExecuteUpdate emits "SET ItemCount = ItemCount + 1"
-		// which Postgres re-evaluates against the latest committed row under the
-		// row-level UPDATE lock; both increments land instead of stomping each
-		// other. Updates 0 rows if the summary hasn't been projected yet — that
-		// path is handled by ShoppingListCreated handler reconciling against the
-		// items table when it runs later.
+		// UPSERT-by-count: ListItemAdded and ShoppingListCreated module events fan
+		// out to separate RabbitMQ queues with no cross-queue ordering, so an item
+		// may arrive before the summary row exists. INSERT … ON CONFLICT keeps the
+		// increment idempotent across both orderings: a missing row gets created
+		// with ItemCount=1; an existing one is incremented atomically under
+		// PostgreSQL's row-level UPDATE lock so concurrent adds for the same list
+		// serialize cleanly. The placeholder Title='' on insert is overwritten by
+		// the ShoppingListCreated handler's UPSERT when it eventually runs.
 		var now = DateTime.UtcNow;
-		await context.Set<ShoppingListSummaryReadItem>()
-			.Where(summary => summary.Id == @event.AggregateId)
-			.ExecuteUpdateAsync(
-				setters => setters
-					.SetProperty(summary => summary.ItemCount, summary => summary.ItemCount + 1)
-					.SetProperty(summary => summary.LastUpdated, _ => now),
-				cancellationToken);
+		const string sql = """
+			INSERT INTO "ShoppingListSummaryReadItems"
+				("Id", "OwnerId", "Title", "RecipeIdentifier", "ItemCount", "CreatedAt", "LastUpdated")
+			VALUES (@id, @ownerId, '', NULL, 1, @now, @now)
+			ON CONFLICT ("Id") DO UPDATE
+			SET "ItemCount" = "ShoppingListSummaryReadItems"."ItemCount" + 1,
+				"LastUpdated" = EXCLUDED."LastUpdated"
+			""";
+
+		await context.Database.ExecuteSqlRawAsync(
+			sql,
+			[
+				new NpgsqlParameter("id", NpgsqlDbType.Uuid) { Value = @event.AggregateId },
+				new NpgsqlParameter("ownerId", NpgsqlDbType.Text) { Value = @event.OwnerId },
+				new NpgsqlParameter("now", NpgsqlDbType.TimestampTz) { Value = now },
+			],
+			cancellationToken);
 	}
 
 	public async Task HandleAsync(ListItemCheckedModuleEvent @event, CancellationToken cancellationToken = default)
