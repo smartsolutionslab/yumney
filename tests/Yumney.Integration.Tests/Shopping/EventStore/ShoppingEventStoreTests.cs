@@ -109,16 +109,15 @@ public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 	public async Task SaveAsync_PublishesModuleEventsForKnownEvents()
 	{
 		await using var context = await fixture.CreateShoppingDbContextAsync();
-		var bus = Substitute.For<IEventBus>();
-		var store = CreateStore(context, bus);
+		var outbox = Substitute.For<IDbContextOutbox<ShoppingDbContext>>();
+		var store = CreateStore(context, outbox: outbox);
 		var ledger = ShoppingLedger.Create(owner)
 			.AddItem(ItemName.From("Milk"), Quantity.Of(Amount.From(1), Unit.From("l")), Source);
 
 		await store.SaveAsync(ledger);
 
-		await bus.Received(1).PublishAsync(
-			Arg.Is<ShoppingItemAddedModuleEvent>(e => e.OwnerId == owner.Value),
-			Arg.Any<CancellationToken>());
+		await outbox.Received(1).PublishAsync(
+			Arg.Is<ShoppingItemAddedModuleEvent>(moduleEvent => moduleEvent.OwnerId == owner.Value));
 	}
 
 	[Fact]
@@ -274,8 +273,8 @@ public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 		var oneLitre = Quantity.Of(Amount.From(1), litre);
 
 		await using var context = await fixture.CreateShoppingDbContextAsync();
-		var bus = Substitute.For<IEventBus>();
-		var store = CreateStore(context, bus);
+		var outbox = Substitute.For<IDbContextOutbox<ShoppingDbContext>>();
+		var store = CreateStore(context, outbox: outbox);
 		var ledger = ShoppingLedger.Create(owner)
 			.AddItem(milk, oneLitre, Source)
 			.MarkBought(milk, oneLitre)
@@ -285,11 +284,11 @@ public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 
 		await store.SaveAsync(ledger);
 
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemAddedModuleEvent>(), Arg.Any<CancellationToken>());
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemBoughtModuleEvent>(), Arg.Any<CancellationToken>());
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemConsumedModuleEvent>(), Arg.Any<CancellationToken>());
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemQuantityAdjustedModuleEvent>(), Arg.Any<CancellationToken>());
-		await bus.Received(1).PublishAsync(Arg.Any<ShoppingItemRemovedModuleEvent>(), Arg.Any<CancellationToken>());
+		await outbox.Received(1).PublishAsync(Arg.Any<ShoppingItemAddedModuleEvent>());
+		await outbox.Received(1).PublishAsync(Arg.Any<ShoppingItemBoughtModuleEvent>());
+		await outbox.Received(1).PublishAsync(Arg.Any<ShoppingItemConsumedModuleEvent>());
+		await outbox.Received(1).PublishAsync(Arg.Any<ShoppingItemQuantityAdjustedModuleEvent>());
+		await outbox.Received(1).PublishAsync(Arg.Any<ShoppingItemRemovedModuleEvent>());
 	}
 
 	[Fact]
@@ -300,8 +299,8 @@ public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 		var oneLitre = Quantity.Of(Amount.From(1), litre);
 
 		await using var context = await fixture.CreateShoppingDbContextAsync();
-		var bus = Substitute.For<IEventBus>();
-		var store = CreateStore(context, bus);
+		var outbox = Substitute.For<IDbContextOutbox<ShoppingDbContext>>();
+		var store = CreateStore(context, outbox: outbox);
 		var ledger = ShoppingLedger.Create(owner)
 			.AddItem(milk, oneLitre, Source)
 			.MarkBought(milk, oneLitre)
@@ -309,9 +308,8 @@ public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 
 		await store.SaveAsync(ledger);
 
-		await bus.Received(1).PublishAsync(
-			Arg.Is<ShoppingItemUndoBoughtModuleEvent>(e => e.OwnerId == owner.Value),
-			Arg.Any<CancellationToken>());
+		await outbox.Received(1).PublishAsync(
+			Arg.Is<ShoppingItemUndoBoughtModuleEvent>(moduleEvent => moduleEvent.OwnerId == owner.Value));
 	}
 
 	[Fact]
@@ -321,18 +319,17 @@ public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 		var grams = Unit.From("g");
 
 		await using var context = await fixture.CreateShoppingDbContextAsync();
-		var bus = Substitute.For<IEventBus>();
-		var store = CreateStore(context, bus);
+		var outbox = Substitute.For<IDbContextOutbox<ShoppingDbContext>>();
+		var store = CreateStore(context, outbox: outbox);
 		var ledger = ShoppingLedger.Create(owner)
 			.AddAsAtHome(chicken, Quantity.Of(Amount.From(500), grams))
 			.MarkAsFrozen(chicken, grams);
 
 		await store.SaveAsync(ledger);
 
-		await bus.Received(1).PublishAsync(
-			Arg.Is<ShoppingItemMarkedAsFrozenModuleEvent>(e =>
-				e.OwnerId == owner.Value && e.Inner.ItemName.Value == "Chicken"),
-			Arg.Any<CancellationToken>());
+		await outbox.Received(1).PublishAsync(
+			Arg.Is<ShoppingItemMarkedAsFrozenModuleEvent>(moduleEvent =>
+				moduleEvent.OwnerId == owner.Value && moduleEvent.Inner.ItemName.Value == "Chicken"));
 	}
 
 	[Fact]
@@ -342,17 +339,16 @@ public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 		var grams = Unit.From("g");
 
 		await using var context = await fixture.CreateShoppingDbContextAsync();
-		var bus = Substitute.For<IEventBus>();
-		var store = CreateStore(context, bus);
+		var outbox = Substitute.For<IDbContextOutbox<ShoppingDbContext>>();
+		var store = CreateStore(context, outbox: outbox);
 		var ledger = ShoppingLedger.Create(owner)
 			.AddAsAtHome(butter, Quantity.Of(Amount.From(250), grams));
 
 		await store.SaveAsync(ledger);
 
-		await bus.Received(1).PublishAsync(
-			Arg.Is<ShoppingItemAddedAsAtHomeModuleEvent>(e =>
-				e.OwnerId == owner.Value && e.Inner.ItemName.Value == "Butter"),
-			Arg.Any<CancellationToken>());
+		await outbox.Received(1).PublishAsync(
+			Arg.Is<ShoppingItemAddedAsAtHomeModuleEvent>(moduleEvent =>
+				moduleEvent.OwnerId == owner.Value && moduleEvent.Inner.ItemName.Value == "Butter"));
 	}
 
 	[Fact]
@@ -401,12 +397,15 @@ public class ShoppingEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 		loaded.Items.Values.Single().OnList.Value.Should().Be(53m);
 	}
 
-	private static ShoppingEventStore CreateStore(ShoppingDbContext context, IEventBus? bus = null)
+	private static ShoppingEventStore CreateStore(
+		ShoppingDbContext context,
+		IEventBus? bus = null,
+		IDbContextOutbox<ShoppingDbContext>? outbox = null)
 	{
 		return new ShoppingEventStore(
 			context,
 			bus ?? Substitute.For<IEventBus>(),
-			Substitute.For<IDbContextOutbox<ShoppingDbContext>>(),
+			outbox ?? Substitute.For<IDbContextOutbox<ShoppingDbContext>>(),
 			NullLogger<ShoppingEventStore>.Instance);
 	}
 }
