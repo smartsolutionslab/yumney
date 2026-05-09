@@ -19,8 +19,8 @@ export class ChatHintService {
 
   private currentUrl = toSignal(
     this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map((e) => e.urlAfterRedirects),
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
       startWith(this.router.url),
     ),
     { initialValue: this.router.url },

@@ -87,9 +87,9 @@ export class CameraCaptureComponent implements AfterViewInit, OnDestroy {
 
   protected onDeleteCapture(id: string): void {
     this.captures.update((list) => {
-      const photo = list.find((p) => p.id === id);
+      const photo = list.find((entry) => entry.id === id);
       if (photo) URL.revokeObjectURL(photo.url);
-      return list.filter((p) => p.id !== id);
+      return list.filter((entry) => entry.id !== id);
     });
   }
 
@@ -97,7 +97,9 @@ export class CameraCaptureComponent implements AfterViewInit, OnDestroy {
     const photos = this.captures();
     if (photos.length === 0) return;
 
-    const files = photos.map((p, i) => this.camera.blobToFile(p.blob, `scan-${i + 1}.jpg`));
+    const files = photos.map((photo, index) =>
+      this.camera.blobToFile(photo.blob, `scan-${index + 1}.jpg`),
+    );
     this.capturedReady.emit(files);
   }
 
@@ -136,6 +138,6 @@ export class CameraCaptureComponent implements AfterViewInit, OnDestroy {
   }
 
   private releaseAllPhotos(): void {
-    this.captures().forEach((p) => URL.revokeObjectURL(p.url));
+    this.captures().forEach((photo) => URL.revokeObjectURL(photo.url));
   }
 }

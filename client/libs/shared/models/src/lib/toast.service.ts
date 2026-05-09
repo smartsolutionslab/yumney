@@ -60,7 +60,7 @@ export class ToastService {
   }
 
   dismiss(id: number): void {
-    this._toasts.update((list) => list.filter((t) => t.id !== id));
+    this._toasts.update((list) => list.filter((toast) => toast.id !== id));
   }
 
   clear(): void {

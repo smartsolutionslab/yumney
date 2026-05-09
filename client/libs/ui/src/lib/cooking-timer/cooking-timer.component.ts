@@ -21,16 +21,16 @@ export class CookingTimerComponent {
   protected readonly circumference = CIRCUMFERENCE;
 
   protected readonly displayText = computed(() => {
-    const t = this.timer();
-    const minutes = Math.floor(t.remainingSeconds / 60);
-    const seconds = t.remainingSeconds % 60;
+    const timer = this.timer();
+    const minutes = Math.floor(timer.remainingSeconds / 60);
+    const seconds = timer.remainingSeconds % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   });
 
   protected readonly dashOffset = computed(() => {
-    const t = this.timer();
-    if (t.totalSeconds === 0) return 0;
-    const progress = t.remainingSeconds / t.totalSeconds;
+    const timer = this.timer();
+    if (timer.totalSeconds === 0) return 0;
+    const progress = timer.remainingSeconds / timer.totalSeconds;
     return CIRCUMFERENCE * (1 - progress);
   });
 

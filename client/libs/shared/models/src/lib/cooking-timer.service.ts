@@ -22,7 +22,7 @@ export class CookingTimerService {
   private transloco = inject(TranslocoService);
 
   readonly all = computed(() => this.timers());
-  readonly hasActive = computed(() => this.timers().some((t) => t.status === 'running'));
+  readonly hasActive = computed(() => this.timers().some((timer) => timer.status === 'running'));
 
   start(name: string, minutes: number): string {
     // Lazy-fetch the user's notification preferences the first time a
@@ -48,7 +48,7 @@ export class CookingTimerService {
 
   cancel(id: string): void {
     this.clearInterval(id);
-    this.timers.update((list) => list.filter((t) => t.id !== id));
+    this.timers.update((list) => list.filter((timer) => timer.id !== id));
   }
 
   cancelAll(): void {
@@ -59,7 +59,7 @@ export class CookingTimerService {
   }
 
   private tick(id: string): void {
-    const current = this.timers().find((t) => t.id === id);
+    const current = this.timers().find((timer) => timer.id === id);
     if (!current || current.status === 'completed') return;
 
     const next = current.remainingSeconds - 1;
@@ -67,7 +67,7 @@ export class CookingTimerService {
       this.complete(id);
     } else {
       this.timers.update((list) =>
-        list.map((t) => (t.id === id ? { ...t, remainingSeconds: next } : t)),
+        list.map((timer) => (timer.id === id ? { ...timer, remainingSeconds: next } : timer)),
       );
     }
   }
@@ -75,8 +75,8 @@ export class CookingTimerService {
   private complete(id: string): void {
     this.clearInterval(id);
     this.timers.update((list) =>
-      list.map((t) =>
-        t.id === id ? { ...t, remainingSeconds: 0, status: 'completed' as const } : t,
+      list.map((timer) =>
+        timer.id === id ? { ...timer, remainingSeconds: 0, status: 'completed' as const } : timer,
       ),
     );
     if (this.preferences.timerHapticFeedback()) {

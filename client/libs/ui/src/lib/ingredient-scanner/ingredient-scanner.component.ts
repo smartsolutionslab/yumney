@@ -97,7 +97,7 @@ export class IngredientScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   protected onRemoveIngredient(name: string): void {
-    this.ingredients.update((list) => list.filter((i) => i.name !== name));
+    this.ingredients.update((list) => list.filter((ingredient) => ingredient.name !== name));
   }
 
   protected onToggleFacing(): void {

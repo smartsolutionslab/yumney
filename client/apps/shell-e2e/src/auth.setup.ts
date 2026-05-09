@@ -46,17 +46,17 @@ setup('authenticate via pre-fetched Keycloak tokens', async ({ page }) => {
   // yn_remember_me is 'true', so set that flag too.
   await page.evaluate(
     ({ accessToken, idToken, refreshToken, expiresAt, idTokenExpiresAt, idClaims, scope }) => {
-      const s = localStorage;
-      s.setItem('yn_remember_me', 'true');
-      s.setItem('access_token', accessToken);
-      s.setItem('access_token_stored_at', String(Date.now()));
-      s.setItem('expires_at', expiresAt);
-      s.setItem('id_token', idToken);
-      s.setItem('id_token_claims_obj', JSON.stringify(idClaims));
-      s.setItem('id_token_expires_at', idTokenExpiresAt);
-      s.setItem('id_token_stored_at', String(Date.now()));
-      if (refreshToken) s.setItem('refresh_token', refreshToken);
-      s.setItem('granted_scopes', JSON.stringify((scope ?? '').split(/\s+/).filter(Boolean)));
+      const store = localStorage;
+      store.setItem('yn_remember_me', 'true');
+      store.setItem('access_token', accessToken);
+      store.setItem('access_token_stored_at', String(Date.now()));
+      store.setItem('expires_at', expiresAt);
+      store.setItem('id_token', idToken);
+      store.setItem('id_token_claims_obj', JSON.stringify(idClaims));
+      store.setItem('id_token_expires_at', idTokenExpiresAt);
+      store.setItem('id_token_stored_at', String(Date.now()));
+      if (refreshToken) store.setItem('refresh_token', refreshToken);
+      store.setItem('granted_scopes', JSON.stringify((scope ?? '').split(/\s+/).filter(Boolean)));
     },
     {
       accessToken: tokens.access_token,

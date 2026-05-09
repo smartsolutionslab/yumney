@@ -50,12 +50,12 @@ export class FilterPanelComponent {
   protected readonly difficultyOptions = DIFFICULTY_OPTIONS;
 
   protected activeCount = computed(() => {
-    const v = this.value();
-    let count = v.tags.length;
-    if (v.difficulty !== null) count += 1;
-    if (v.maxPrepTime !== null) count += 1;
-    if (v.maxCookTime !== null) count += 1;
-    if (v.favoritesOnly) count += 1;
+    const filter = this.value();
+    let count = filter.tags.length;
+    if (filter.difficulty !== null) count += 1;
+    if (filter.maxPrepTime !== null) count += 1;
+    if (filter.maxCookTime !== null) count += 1;
+    if (filter.favoritesOnly) count += 1;
     return count;
   });
 
@@ -71,7 +71,7 @@ export class FilterPanelComponent {
   protected toggleTag(tag: string): void {
     const current = this.value();
     const tags = current.tags.includes(tag)
-      ? current.tags.filter((t) => t !== tag)
+      ? current.tags.filter((existing) => existing !== tag)
       : [...current.tags, tag];
     this.valueChange.emit({ ...current, tags });
   }

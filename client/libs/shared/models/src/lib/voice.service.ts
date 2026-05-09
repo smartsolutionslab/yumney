@@ -23,11 +23,11 @@ const COMMAND_PATTERNS: Array<{
   { match: /^(ingredients|zutaten)$/i, build: () => ({ type: 'ingredients' }) },
   {
     match: /^timer\s+(\d{1,3})\s*(?:minutes?|min|minuten|minute)$/i,
-    build: (m) => ({ type: 'timer', minutes: Number(m[1]) }),
+    build: (match) => ({ type: 'timer', minutes: Number(match[1]) }),
   },
   {
     match: /^(\d{1,3})\s*(?:minute|minuten|min)\s+timer$/i,
-    build: (m) => ({ type: 'timer', minutes: Number(m[1]) }),
+    build: (match) => ({ type: 'timer', minutes: Number(match[1]) }),
   },
 ];
 

@@ -65,10 +65,10 @@ export class UnitSelectComponent implements ControlValueAccessor {
 
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.focusedIndex.update((i) => (i + 1) % units.length);
+      this.focusedIndex.update((index) => (index + 1) % units.length);
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this.focusedIndex.update((i) => (i <= 0 ? units.length - 1 : i - 1));
+      this.focusedIndex.update((index) => (index <= 0 ? units.length - 1 : index - 1));
     } else if (event.key === 'Enter') {
       event.preventDefault();
       const idx = this.focusedIndex();

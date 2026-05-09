@@ -7,12 +7,12 @@
     <yn-message-banner tone="error" [message]="error" />
   }
 
-  @if (recipe(); as r) {
+  @if (recipe(); as currentRecipe) {
     <header class="cook-header">
       <button type="button" class="exit-button" (click)="exit()">
         {{ t('recipes.cook.exit') }}
       </button>
-      <h1 class="cook-title">{{ r.title }}</h1>
+      <h1 class="cook-title">{{ currentRecipe.title }}</h1>
       <div class="header-actions">
         <button
           type="button"
@@ -102,7 +102,7 @@
             </button>
           </div>
           <ul class="ingredient-list">
-            @for (ingredient of r.ingredients; track ingredient.name) {
+            @for (ingredient of currentRecipe.ingredients; track ingredient.name) {
               <li>
                 <span class="amount">
                   @if (ingredient.amount !== null) {

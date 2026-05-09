@@ -75,7 +75,9 @@ export class ShoppingCreateComponent implements OnInit {
     this.ingredientSelections.set(this.ingredientSelections().map(() => false));
   }
 
-  hasSelectedIngredients = computed(() => this.ingredientSelections().some((s) => s));
+  hasSelectedIngredients = computed(() =>
+    this.ingredientSelections().some((selected) => selected),
+  );
 
   onCreateShoppingList(): void {
     const recipe = this.recipe();

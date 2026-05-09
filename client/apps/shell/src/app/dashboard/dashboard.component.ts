@@ -138,7 +138,7 @@ export class DashboardComponent implements OnInit {
   }
 
   toggleImportSection(): void {
-    this.importSectionExpanded.update((v) => !v);
+    this.importSectionExpanded.update((open) => !open);
   }
 
   onQuickAction(actionKey: string): void {
