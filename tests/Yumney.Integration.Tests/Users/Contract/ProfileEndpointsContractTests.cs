@@ -92,7 +92,7 @@ public class ProfileEndpointsContractTests(AspireFixture fixture) : IAsyncLifeti
 	}
 
 	[Fact]
-	public async Task UpdateProfile_DefaultServingsOutOfRange_Returns400GuardFailure()
+	public async Task UpdateProfile_DefaultServingsOutOfRange_Returns422ValidationProblem()
 	{
 		await fixture.SeedUserProfilesAsync(AppUserProfile.Create(keycloakId!, DisplayName.From("Test User")));
 		using var client = await fixture.CreateAuthenticatedClientAsync("users-api");
@@ -107,7 +107,7 @@ public class ProfileEndpointsContractTests(AspireFixture fixture) : IAsyncLifeti
 			cookingEffort = (string?)null,
 		});
 
-		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+		response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
 	}
 
 	[Fact]
