@@ -7,7 +7,6 @@ export class RecipeListPage {
   readonly sortToggle: Locator;
   readonly recipeCards: Locator;
   readonly emptyState: Locator;
-  readonly ctaButton: Locator;
   readonly errorBanner: Locator;
   readonly loading: Locator;
   readonly filterToggle: Locator;
@@ -20,7 +19,6 @@ export class RecipeListPage {
     this.sortToggle = page.locator('[data-testid="sort-toggle"]');
     this.recipeCards = page.locator('.recipe-card');
     this.emptyState = page.locator('.empty-state');
-    this.ctaButton = page.locator('.cta-button');
     this.errorBanner = page.locator('[role="alert"]');
     this.loading = page.locator('.loading');
     this.filterToggle = page.locator('[data-testid="recipe-list-filter-toggle"]');
