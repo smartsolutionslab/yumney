@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 import { UserPreferencesService } from './user-preferences.service';
 import { VoiceService } from './voice.service';
 
@@ -18,6 +19,7 @@ export class CookingTimerService {
   private readonly intervals = new Map<string, ReturnType<typeof setInterval>>();
   private voice = inject(VoiceService);
   private preferences = inject(UserPreferencesService);
+  private transloco = inject(TranslocoService);
 
   readonly all = computed(() => this.timers());
   readonly hasActive = computed(() => this.timers().some((t) => t.status === 'running'));
@@ -81,7 +83,7 @@ export class CookingTimerService {
       this.triggerHaptics();
     }
     if (this.preferences.timerSoundAlerts()) {
-      this.voice.speak('Timer done');
+      this.voice.speak(this.transloco.translate('recipes.cook.timer.done'));
     }
   }
 

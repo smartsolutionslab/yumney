@@ -5,6 +5,7 @@ import { signal } from '@angular/core';
 import { CookModeComponent } from './cook-mode.component';
 import { RecipeApiService, type RecipeDetail } from '../api';
 import {
+  UserPreferencesService,
   VoiceService,
   WakeLockService,
   CookingTimerService,
@@ -86,6 +87,16 @@ describe('CookModeComponent', () => {
     all: ReturnType<typeof signal<unknown[]>>;
     hasActive: ReturnType<typeof signal<boolean>>;
   };
+  let preferencesMock: {
+    voiceEnabled: ReturnType<typeof signal<boolean>>;
+    voiceSpeed: ReturnType<typeof signal<'slow' | 'normal' | 'fast'>>;
+    voiceAutoReadInCookMode: ReturnType<typeof signal<boolean>>;
+    timerHapticFeedback: ReturnType<typeof signal<boolean>>;
+    timerSoundAlerts: ReturnType<typeof signal<boolean>>;
+    ensureLoaded: ReturnType<typeof vi.fn>;
+    refresh: ReturnType<typeof vi.fn>;
+    applyProfile: ReturnType<typeof vi.fn>;
+  };
 
   function setupTestBed(
     getRecipeByIdReturn: ReturnType<typeof vi.fn> = vi.fn(),
@@ -122,6 +133,17 @@ describe('CookModeComponent', () => {
       hasActive: signal(false),
     };
 
+    preferencesMock = {
+      voiceEnabled: signal(true),
+      voiceSpeed: signal('normal'),
+      voiceAutoReadInCookMode: signal(false),
+      timerHapticFeedback: signal(true),
+      timerSoundAlerts: signal(true),
+      ensureLoaded: vi.fn(),
+      refresh: vi.fn(),
+      applyProfile: vi.fn(),
+    };
+
     TestBed.configureTestingModule({
       imports: [CookModeComponent, setupTranslocoTesting(en)],
       providers: [
@@ -131,6 +153,7 @@ describe('CookModeComponent', () => {
         { provide: VoiceService, useValue: voiceMock },
         { provide: WakeLockService, useValue: wakeLockMock },
         { provide: CookingTimerService, useValue: timersMock },
+        { provide: UserPreferencesService, useValue: preferencesMock },
         {
           provide: ActivatedRoute,
           useValue: {

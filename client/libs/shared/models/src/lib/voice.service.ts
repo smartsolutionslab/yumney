@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { UserPreferencesService } from './user-preferences.service';
 
 export type VoiceCommand =
   | { type: 'next' }
@@ -45,8 +46,16 @@ interface SpeechRecognitionConstructor {
   new (): SpeechRecognitionLike;
 }
 
+const SPEECH_RATE_BY_SPEED: Record<'slow' | 'normal' | 'fast', number> = {
+  slow: 0.8,
+  normal: 1.0,
+  fast: 1.3,
+};
+
 @Injectable({ providedIn: 'root' })
 export class VoiceService {
+  private preferences = inject(UserPreferencesService);
+
   readonly ttsSupported = signal(this.detectTtsSupport());
   readonly sttSupported = signal(this.detectSttSupport());
   readonly isListening = signal(false);
@@ -67,10 +76,17 @@ export class VoiceService {
     if (!this.ttsSupported() || this.muted() || text.trim() === '') {
       return;
     }
+    // Lazy-load voice prefs the first time we speak, so a cold visit to
+    // cook mode (no detour through settings) still honours enabled/speed.
+    this.preferences.ensureLoaded();
+    if (!this.preferences.voiceEnabled()) {
+      return;
+    }
     const synth = window.speechSynthesis;
     synth.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = this.currentLang;
+    utterance.rate = SPEECH_RATE_BY_SPEED[this.preferences.voiceSpeed()];
     utterance.onstart = () => this.isSpeaking.set(true);
     utterance.onend = () => this.isSpeaking.set(false);
     utterance.onerror = () => this.isSpeaking.set(false);

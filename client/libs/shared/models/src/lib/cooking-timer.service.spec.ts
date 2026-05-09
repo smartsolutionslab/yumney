@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { CookingTimerService } from './cooking-timer.service';
 import { UserPreferencesService } from './user-preferences.service';
 import { VoiceService } from './voice.service';
@@ -29,12 +30,17 @@ function configure(prefs: PrefsStub): {
   const vibrate = vi.fn();
   Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrate });
 
+  const transloco = {
+    translate: vi.fn((key: string) => (key === 'recipes.cook.timer.done' ? 'Timer done' : key)),
+  };
+
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
       CookingTimerService,
       { provide: VoiceService, useValue: { speak: voiceSpeak } },
       { provide: UserPreferencesService, useValue: prefs },
+      { provide: TranslocoService, useValue: transloco },
     ],
   });
 
