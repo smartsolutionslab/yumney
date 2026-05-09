@@ -267,7 +267,7 @@ export class RecipeDetailComponent implements OnInit {
       ERROR_MAPS.recipes.createShoppingList,
       (created) => {
         this.showCreateShoppingListConfirm.set(false);
-        this.router.navigateByUrl(ROUTES.shopping.detail(created.identifier));
+        void this.router.navigateByUrl(ROUTES.shopping.detail(created.identifier));
       },
       (error) => {
         this.showCreateShoppingListConfirm.set(false);

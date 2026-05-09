@@ -89,7 +89,7 @@ export class RecipeEditComponent implements OnInit {
 
   onDiscardConfirmed(): void {
     this.showDiscardConfirm.set(false);
-    this.router.navigate([ROUTES.recipes.list, this.identifier()]);
+    void this.router.navigate([ROUTES.recipes.list, this.identifier()]);
   }
 
   onDiscardCancelled(): void {
