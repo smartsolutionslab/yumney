@@ -93,19 +93,6 @@
   }
 }
 
-.category-group {
-  margin-bottom: var(--yn-space-5);
-}
-
-.category-header {
-  font-size: var(--yn-text-base);
-  font-weight: var(--yn-font-semibold);
-  color: var(--yn-text);
-  margin: 0 0 var(--yn-space-3);
-  padding-bottom: var(--yn-space-2);
-  border-bottom: 1px solid var(--yn-glass-border-subtle);
-}
-
 .item-row {
   @include glass.glass-surface(0);
   display: flex;

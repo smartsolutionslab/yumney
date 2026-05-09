@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   ShoppingApiService,
@@ -16,14 +16,21 @@ import {
   type MergedShoppingItem,
   type AddedItem,
 } from '../api';
-import { createAsyncState, ERROR_MAPS, groupByCategory, ToastService } from '@yumney/shared/models';
-import { AsyncStateComponent, EmptyStateComponent } from '@yumney/ui';
-
-interface CategoryGroup {
-  category: string;
-  items: MergedShoppingItem[];
-  isExpanded: boolean;
-}
+import {
+  createAsyncState,
+  ERROR_MAPS,
+  groupByCategory,
+  type CategoryGroup,
+  ToastService,
+} from '@yumney/shared/models';
+import {
+  AsyncStateComponent,
+  CATEGORY_KEYS,
+  CategorySectionComponent,
+  type CategoryKey,
+  EmptyStateComponent,
+  normalizeCategory,
+} from '@yumney/ui';
 
 @Component({
   selector: 'yn-merged-list',
@@ -33,6 +40,7 @@ interface CategoryGroup {
     TranslocoModule,
     LucideAngularModule,
     AsyncStateComponent,
+    CategorySectionComponent,
     EmptyStateComponent,
   ],
   templateUrl: './merged-list.component.html',
@@ -42,7 +50,6 @@ interface CategoryGroup {
 export class MergedListComponent {
   private api = inject(ShoppingApiService);
   private destroyRef = inject(DestroyRef);
-  private transloco = inject(TranslocoService);
   private toasts = inject(ToastService);
   private mutationState = createAsyncState(this.destroyRef);
 
@@ -54,28 +61,18 @@ export class MergedListComponent {
 
   private loadRequestId = 0;
 
-  protected categoryGroups = computed<CategoryGroup[]>(() => {
+  protected categoryGroups = computed<CategoryGroup<MergedShoppingItem, CategoryKey>[]>(() => {
     const list = this.list();
     if (!list) return [];
-    return groupByCategory(list.items, (item) => item.category).map((group) => ({
-      ...group,
-      isExpanded: true,
-    }));
-  });
-
-  protected categoryLabels = computed<Record<string, string>>(() => {
-    const groups = this.categoryGroups();
-    const labels: Record<string, string> = {};
-    for (const group of groups) {
-      const key = `shopping.category.${group.category}`;
-      const translated = this.transloco.translate(key);
-      labels[group.category] = translated !== key ? translated : group.category;
-    }
-    return labels;
+    return groupByCategory(list.items, (item) => normalizeCategory(item.category), {
+      order: CATEGORY_KEYS,
+    });
   });
 
   protected totalItems = computed(() => this.list()?.items.length ?? 0);
-  protected boughtItems = computed(() => this.list()?.items.filter((i) => i.isBought).length ?? 0);
+  protected boughtItems = computed(
+    () => this.list()?.items.filter((item) => item.isBought).length ?? 0,
+  );
 
   constructor() {
     this.loadList();
@@ -151,7 +148,7 @@ export class MergedListComponent {
   }
 
   protected onTogglePastPurchases(): void {
-    this.showPastPurchases.update((v) => !v);
+    this.showPastPurchases.update((current) => !current);
     this.loadList();
   }
 

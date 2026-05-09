@@ -99,7 +99,9 @@ describe('MergedListComponent', () => {
   });
 
   it('should display items grouped by category', () => {
-    const groups = fixture.nativeElement.querySelectorAll('.category-group');
+    const groups = fixture.nativeElement.querySelectorAll(
+      '[data-testid="shopping-category-group"]',
+    );
     expect(groups.length).toBe(2);
   });
 

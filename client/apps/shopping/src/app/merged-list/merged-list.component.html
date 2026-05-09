@@ -57,9 +57,11 @@
   />
 
   @for (group of categoryGroups(); track group.category) {
-    <div class="category-group" data-testid="shopping-category-group">
-      <h2 class="category-header">{{ categoryLabels()[group.category] ?? group.category }}</h2>
-
+    <yn-category-section
+      [category]="group.category"
+      [itemCount]="group.items.length"
+      data-testid="shopping-category-group"
+    >
       @for (item of group.items; track item.itemName) {
         <div class="item-row" [class.bought]="item.isBought">
           <div class="item-info">
@@ -77,7 +79,7 @@
           </button>
         </div>
       }
-    </div>
+    </yn-category-section>
   }
 
   @if (!loading() && totalItems() === 0) {
