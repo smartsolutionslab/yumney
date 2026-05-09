@@ -1,0 +1,71 @@
+@use 'glass';
+
+.yn-side-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yn-z-modal);
+  background: var(--yn-overlay);
+  animation: yn-fade-in var(--yn-duration-fast) var(--yn-ease-glass) both;
+}
+
+.yn-side-sheet {
+  position: fixed;
+  top: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--yn-space-5);
+  overflow-y: auto;
+  background: var(--yn-glass-bg);
+  backdrop-filter: blur(var(--yn-glass-blur));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur));
+
+  &--right {
+    right: 0;
+    border-left: 1px solid var(--yn-glass-border);
+    animation: yn-slide-in-right var(--yn-duration-normal) var(--yn-ease-glass) both;
+  }
+
+  &--left {
+    left: 0;
+    border-right: 1px solid var(--yn-glass-border);
+    animation: yn-slide-in-left var(--yn-duration-normal) var(--yn-ease-glass) both;
+  }
+
+  &--sm {
+    width: min(280px, 90vw);
+  }
+
+  &--md {
+    width: min(360px, 90vw);
+  }
+
+  &--lg {
+    width: min(480px, 95vw);
+  }
+}
+
+@keyframes yn-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes yn-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yn-side-sheet-overlay,
+  .yn-side-sheet {
+    animation: none;
+  }
+}

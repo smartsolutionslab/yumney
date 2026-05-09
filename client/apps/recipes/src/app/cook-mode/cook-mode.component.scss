@@ -121,22 +121,6 @@ yn-step-display {
   max-width: 800px;
 }
 
-.ingredients-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: min(360px, 90vw);
-  height: 100dvh;
-  padding: var(--yn-space-5);
-  overflow-y: auto;
-  border-left: 1px solid var(--yn-glass-border);
-  background: var(--yn-glass-bg);
-  backdrop-filter: blur(var(--yn-glass-blur));
-  -webkit-backdrop-filter: blur(var(--yn-glass-blur));
-  z-index: 100;
-  animation: slide-in var(--yn-duration-normal) var(--yn-ease-glass);
-}
-
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -188,19 +172,4 @@ yn-step-display {
   border-radius: var(--yn-radius-md);
   background: var(--yn-error-bg);
   color: var(--yn-error);
-}
-
-@keyframes slide-in {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ingredients-panel {
-    animation: none;
-  }
 }

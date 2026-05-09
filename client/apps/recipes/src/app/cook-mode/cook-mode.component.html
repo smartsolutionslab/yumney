@@ -86,11 +86,9 @@
 
     @if (ingredientsPanelOpen()) {
       @defer {
-        <aside
-          class="ingredients-panel"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="cook-mode-ingredients-title"
+        <yn-side-sheet
+          labelledBy="cook-mode-ingredients-title"
+          (cancelled)="toggleIngredientsPanel()"
         >
           <div class="panel-header">
             <h2 id="cook-mode-ingredients-title">{{ t('recipes.cook.ingredients') }}</h2>
@@ -118,7 +116,7 @@
               </li>
             }
           </ul>
-        </aside>
+        </yn-side-sheet>
       }
     }
   }

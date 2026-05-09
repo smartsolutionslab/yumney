@@ -28,6 +28,7 @@ import {
   CookingTimerComponent,
   LoadingSpinnerComponent,
   MessageBannerComponent,
+  SideSheetComponent,
   StepDisplayComponent,
   VoiceIndicatorComponent,
 } from '@yumney/ui';
@@ -44,6 +45,7 @@ const SWIPE_THRESHOLD = 50;
     VoiceIndicatorComponent,
     LoadingSpinnerComponent,
     MessageBannerComponent,
+    SideSheetComponent,
   ],
   templateUrl: './cook-mode.component.html',
   styleUrl: './cook-mode.component.scss',
