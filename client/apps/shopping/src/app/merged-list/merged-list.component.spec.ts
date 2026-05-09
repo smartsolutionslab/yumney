@@ -63,7 +63,16 @@ describe('MergedListComponent', () => {
   beforeEach(async () => {
     apiMock = {
       getMergedList: vi.fn().mockReturnValue(of(mockList)),
-      addItem: vi.fn().mockReturnValue(of({ itemName: 'Eggs' })),
+      addItem: vi.fn().mockReturnValue(
+        of({
+          itemName: 'Eggs',
+          quantity: 1,
+          unit: null,
+          category: 'other',
+          source: 'manual',
+          ledgerIdentifier: '00000000-0000-0000-0000-000000000001',
+        }),
+      ),
       removeItem: vi.fn().mockReturnValue(of(undefined)),
       exportList: vi.fn().mockReturnValue(of('Shopping list text')),
     };
