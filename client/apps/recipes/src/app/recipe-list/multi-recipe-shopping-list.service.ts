@@ -136,7 +136,7 @@ export class MultiRecipeShoppingListService {
         this.previewSelections.set([]);
         this.multiSelectMode.set(false);
         this.selectedRecipeIds.set(new Set<string>());
-        this.router.navigateByUrl(ROUTES.shopping.detail(created.identifier));
+        void this.router.navigateByUrl(ROUTES.shopping.detail(created.identifier));
       },
       (error) => {
         this.showPreviewDialog.set(false);

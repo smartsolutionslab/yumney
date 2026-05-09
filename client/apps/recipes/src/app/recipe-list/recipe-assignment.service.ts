@@ -43,6 +43,6 @@ export class RecipeAssignmentService {
   }
 
   cancel(): void {
-    this.router.navigate([ROUTES.mealPlanner]);
+    void this.router.navigate([ROUTES.mealPlanner]);
   }
 }

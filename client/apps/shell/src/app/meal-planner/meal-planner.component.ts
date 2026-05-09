@@ -114,7 +114,7 @@ export class MealPlannerComponent {
   }
 
   protected onSelectSlot(day: string): void {
-    this.router.navigate(['/recipes'], {
+    void this.router.navigate(['/recipes'], {
       queryParams: {
         assignTo: `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}-${day}`,
       },
