@@ -17,6 +17,7 @@ import {
   mapToSaveRecipeRequest,
   ERROR_MAPS,
   ROUTES,
+  UI,
 } from '@yumney/shared/models';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -67,6 +68,7 @@ export class DashboardComponent implements OnInit {
   private importState = createAsyncState(this.destroyRef);
   private saveState = createAsyncState(this.destroyRef);
   private suggestionsState = inject(DashboardSuggestionsService);
+  private navigateAfterSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected urlImport = viewChild<UrlImportComponent>(UrlImportComponent);
 
@@ -117,6 +119,7 @@ export class DashboardComponent implements OnInit {
     this.suggestionsState.load().subscribe(({ initialDataIsEmpty }) => {
       if (initialDataIsEmpty) this.importSectionExpanded.set(true);
     });
+    this.destroyRef.onDestroy(() => this.cancelNavigateAfterSave());
   }
 
   private handleSharedUrl(sharedUrl: string): void {
@@ -242,22 +245,39 @@ export class DashboardComponent implements OnInit {
 
     this.serverError.set(null);
     this.saveSuccess.set(null);
+    this.cancelNavigateAfterSave();
 
     this.saveState.execute(
       this.recipeApi.saveRecipe(request),
       ERROR_MAPS.dashboard.save,
       (saved) => {
-        this.router.navigate([ROUTES.recipes.detail(saved.identifier)]);
+        // Show the success banner briefly so the user gets a confirmation
+        // beat before we navigate. Clicking "Import another" cancels the
+        // navigation by calling onDiscardRecipe().
+        this.saveSuccess.set(saved.title);
+        this.navigateAfterSaveTimer = setTimeout(() => {
+          this.navigateAfterSaveTimer = null;
+          void this.router.navigate([ROUTES.recipes.detail(saved.identifier)]);
+        }, UI.SAVED_INDICATOR_MS);
       },
       (error) => this.serverError.set(error),
     );
   }
 
   onDiscardRecipe(): void {
+    this.cancelNavigateAfterSave();
     this.extractedRecipe.set(null);
     this.sourceUrl.set(null);
     this.isManualEntry.set(false);
     this.serverError.set(null);
+    this.saveSuccess.set(null);
+  }
+
+  private cancelNavigateAfterSave(): void {
+    if (this.navigateAfterSaveTimer !== null) {
+      clearTimeout(this.navigateAfterSaveTimer);
+      this.navigateAfterSaveTimer = null;
+    }
   }
 
   private extractUrl(text: string | undefined): string | null {
