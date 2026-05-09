@@ -1,3 +1,6 @@
+import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { UserPreferencesService } from './user-preferences.service';
 import { VoiceService } from './voice.service';
 
 describe('VoiceService.parseCommand', () => {
@@ -63,5 +66,121 @@ describe('VoiceService.parseCommand', () => {
 
   it('should return null for empty input', () => {
     expect(VoiceService.parseCommand('')).toBeNull();
+  });
+});
+
+interface PrefsStub {
+  voiceEnabled: ReturnType<typeof signal<boolean>>;
+  voiceSpeed: ReturnType<typeof signal<'slow' | 'normal' | 'fast'>>;
+  ensureLoaded: ReturnType<typeof vi.fn>;
+}
+
+function makePrefsStub(
+  enabled: boolean,
+  speed: 'slow' | 'normal' | 'fast' = 'normal',
+): PrefsStub {
+  return {
+    voiceEnabled: signal(enabled),
+    voiceSpeed: signal(speed),
+    ensureLoaded: vi.fn(),
+  };
+}
+
+interface UtteranceShape {
+  text: string;
+  lang: string;
+  rate: number;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+}
+
+function configureSpeak(prefs: PrefsStub): {
+  service: VoiceService;
+  speak: ReturnType<typeof vi.fn>;
+  cancel: ReturnType<typeof vi.fn>;
+  lastUtterance: { value: UtteranceShape | null };
+} {
+  const speak = vi.fn();
+  const cancel = vi.fn();
+  const lastUtterance = { value: null as UtteranceShape | null };
+  speak.mockImplementation((utterance: UtteranceShape) => {
+    lastUtterance.value = utterance;
+  });
+  // jsdom doesn't ship SpeechSynthesis APIs; stub the bits VoiceService.speak touches.
+  Object.defineProperty(window, 'speechSynthesis', {
+    configurable: true,
+    value: { speak, cancel },
+  });
+  (globalThis as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance =
+    class implements UtteranceShape {
+      lang = '';
+      rate = 1;
+      onstart: (() => void) | null = null;
+      onend: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      constructor(public text: string) {}
+    };
+
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({
+    providers: [
+      VoiceService,
+      { provide: UserPreferencesService, useValue: prefs },
+    ],
+  });
+
+  return { service: TestBed.inject(VoiceService), speak, cancel, lastUtterance };
+}
+
+describe('VoiceService.speak', () => {
+  it('triggers speechSynthesis.speak when voice is enabled', () => {
+    const { service, speak } = configureSpeak(makePrefsStub(true));
+
+    service.speak('hello');
+
+    expect(speak).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips speaking when the voiceEnabled preference is false', () => {
+    const { service, speak } = configureSpeak(makePrefsStub(false));
+
+    service.speak('hello');
+
+    expect(speak).not.toHaveBeenCalled();
+  });
+
+  it('skips speaking when the session mute toggle is on, even if preference is enabled', () => {
+    const { service, speak } = configureSpeak(makePrefsStub(true));
+    service.setMuted(true);
+
+    service.speak('hello');
+
+    expect(speak).not.toHaveBeenCalled();
+  });
+
+  it('applies a slower rate when voiceSpeed preference is "slow"', () => {
+    const { service, lastUtterance } = configureSpeak(makePrefsStub(true, 'slow'));
+
+    service.speak('hello');
+
+    expect(lastUtterance.value?.rate).toBeLessThan(1);
+  });
+
+  it('applies a faster rate when voiceSpeed preference is "fast"', () => {
+    const { service, lastUtterance } = configureSpeak(makePrefsStub(true, 'fast'));
+
+    service.speak('hello');
+
+    expect(lastUtterance.value?.rate).toBeGreaterThan(1);
+  });
+
+  it('lazy-loads preferences the first time speak is called', () => {
+    const prefs = makePrefsStub(true);
+    const { service } = configureSpeak(prefs);
+
+    service.speak('hello');
+
+    expect(prefs.ensureLoaded).toHaveBeenCalledTimes(1);
   });
 });

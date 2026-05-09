@@ -18,6 +18,7 @@ import {
   createAsyncState,
   ERROR_MAPS,
   ROUTES,
+  UserPreferencesService,
   type VoiceCommand,
   VoiceService,
   WakeLockService,
@@ -60,6 +61,7 @@ export class CookModeComponent implements OnInit, OnDestroy {
   protected timers = inject(CookingTimerService);
   private wakeLock = inject(WakeLockService);
   private transloco = inject(TranslocoService);
+  private preferences = inject(UserPreferencesService);
 
   recipe = signal<RecipeDetail | null>(null);
   currentStepIndex = signal(0);
@@ -78,7 +80,7 @@ export class CookModeComponent implements OnInit, OnDestroy {
   constructor() {
     effect(() => {
       const step = this.currentStep();
-      if (step) {
+      if (step && this.preferences.voiceAutoReadInCookMode()) {
         this.voice.speak(step.description);
       }
     });
@@ -91,6 +93,7 @@ export class CookModeComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.preferences.ensureLoaded();
     this.voice.setLanguage(this.transloco.getActiveLang() as 'en' | 'de');
 
     this.loadState.execute(

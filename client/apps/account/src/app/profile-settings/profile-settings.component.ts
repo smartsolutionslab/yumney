@@ -15,6 +15,7 @@ import {
   ERROR_MAPS,
   ThemeService,
   UI,
+  UserPreferencesService,
   VoiceService,
 } from '@yumney/shared/models';
 import { AsyncStateComponent, SettingsCardComponent } from '@yumney/ui';
@@ -35,6 +36,7 @@ export class ProfileSettingsComponent {
   private destroyRef = inject(DestroyRef);
   private theme = inject(ThemeService);
   private voice = inject(VoiceService);
+  private preferences = inject(UserPreferencesService);
   private transloco = inject(TranslocoService);
   private loadState = createAsyncState(this.destroyRef);
   private saveState = createAsyncState(this.destroyRef);
@@ -160,6 +162,7 @@ export class ProfileSettingsComponent {
 
     this.saveState.execute(this.api.updateProfile(request), ERROR_MAPS.account.save, (updated) => {
       this.profile.set(updated);
+      this.preferences.applyProfile(updated);
       this.saved.set(true);
       setTimeout(() => this.saved.set(false), UI.SAVED_INDICATOR_MS);
     });
@@ -168,6 +171,7 @@ export class ProfileSettingsComponent {
   private loadProfile(): void {
     this.loadState.execute(this.api.getProfile(), ERROR_MAPS.account.load, (profile) => {
       this.profile.set(profile);
+      this.preferences.applyProfile(profile);
       this.displayName.set(profile.displayName);
       this.email.set(profile.email);
       this.preferredLanguage.set((profile.preferredLanguage === 'de' ? 'de' : 'en') as 'en' | 'de');
