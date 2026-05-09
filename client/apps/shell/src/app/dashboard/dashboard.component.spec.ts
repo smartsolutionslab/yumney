@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
-import { setupTranslocoTesting } from '@yumney/shared/models';
+import { setupTranslocoTesting, UI } from '@yumney/shared/models';
 import {
   RecipeApiService,
   ImportRecipeResponse,
@@ -201,7 +201,7 @@ describe('DashboardComponent', () => {
     expect(recipeApiMock.saveRecipe).toHaveBeenCalled();
   }));
 
-  it('should navigate to recipe detail on successful save', fakeAsync(() => {
+  it('should show success banner with the saved title before navigating', fakeAsync(() => {
     const savedResponse: SavedRecipeResponse = {
       identifier: '123',
       title: 'Pasta Carbonara',
@@ -213,7 +213,44 @@ describe('DashboardComponent', () => {
     component.onSaveRecipe(mockRecipe);
     tick();
 
+    expect(component.saveSuccess()).toBe('Pasta Carbonara');
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+
+    tick(UI.SAVED_INDICATOR_MS);
+  }));
+
+  it('should navigate to recipe detail after the success-banner delay', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      createdAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.onUrlExtracted({ recipe: mockRecipe, sourceUrl: 'https://example.com/recipe' });
+    component.onSaveRecipe(mockRecipe);
+    tick(UI.SAVED_INDICATOR_MS);
+
     expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes/123']);
+  }));
+
+  it('should cancel the pending navigate when the user clicks Import another', fakeAsync(() => {
+    const savedResponse: SavedRecipeResponse = {
+      identifier: '123',
+      title: 'Pasta Carbonara',
+      createdAt: '2026-03-10T00:00:00Z',
+    };
+    recipeApiMock.saveRecipe.mockReturnValue(of(savedResponse));
+
+    component.onUrlExtracted({ recipe: mockRecipe, sourceUrl: 'https://example.com/recipe' });
+    component.onSaveRecipe(mockRecipe);
+    tick();
+
+    component.onDiscardRecipe();
+    tick(UI.SAVED_INDICATOR_MS);
+
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+    expect(component.saveSuccess()).toBeNull();
   }));
 
   it('should show duplicate error on 409 response', fakeAsync(() => {
@@ -432,7 +469,7 @@ describe('DashboardComponent', () => {
     const draft = component.extractedRecipe();
     if (!draft) throw new Error('extractedRecipe should be set after onCreateManually');
     component.onSaveRecipe({ ...draft, title: 'My Recipe' });
-    tick();
+    tick(UI.SAVED_INDICATOR_MS);
 
     expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
       expect.not.objectContaining({ sourceUrl: expect.anything() }),
