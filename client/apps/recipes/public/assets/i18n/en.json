@@ -4,10 +4,16 @@
       "greeting": "Hi, {{name}}",
       "logout": "Sign out",
       "login": "Sign in",
+      "recipes": "Recipes",
       "myRecipes": "My Recipes",
       "shoppingLists": "Shopping Lists",
+      "mealPlanner": "Meal Planner",
       "navigation": "Main navigation",
+      "settings": "User settings",
       "switchLanguage": "Switch language",
+      "languageDe": "Deutsch",
+      "languageEn": "English",
+      "openChat": "Open recipe chat",
       "switchToDark": "Switch to dark mode",
       "switchToLight": "Switch to light mode"
     }
