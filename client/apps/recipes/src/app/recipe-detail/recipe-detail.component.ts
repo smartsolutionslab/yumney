@@ -7,6 +7,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -124,10 +125,13 @@ export class RecipeDetailComponent implements OnInit {
     }
 
     // Stats can fail silently — the page is still useful without the badge.
-    this.activityApi.getRecipeStats(identifier).subscribe({
-      next: (stats) => this.recipeStats.set(stats),
-      error: () => this.recipeStats.set(null),
-    });
+    this.activityApi
+      .getRecipeStats(identifier)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (stats) => this.recipeStats.set(stats),
+        error: () => this.recipeStats.set(null),
+      });
 
     this.loadState.execute(
       this.recipeApi.getRecipeById(identifier),
@@ -146,9 +150,12 @@ export class RecipeDetailComponent implements OnInit {
     if (!recipe) return;
     // Optimistic update so the star fill stays put while the network call runs.
     this.recipe.set({ ...recipe, rating });
-    this.recipeApi.rateRecipe(recipe.identifier, rating).subscribe({
-      error: () => this.recipe.set(recipe),
-    });
+    this.recipeApi
+      .rateRecipe(recipe.identifier, rating)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => this.recipe.set(recipe),
+      });
   }
 
   onNotesInput(value: string): void {
