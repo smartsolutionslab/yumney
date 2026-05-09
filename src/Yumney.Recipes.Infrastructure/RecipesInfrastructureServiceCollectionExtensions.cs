@@ -6,7 +6,6 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.ExternalServices;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
-using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Client;
@@ -25,12 +24,16 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 			"wolverine_recipes",
 			typeof(DomainEventDispatchInterceptor));
 
-		// Replace the default WolverineEventBus (registered by AddYumneyDefaults)
-		// with the outbox-backed variant so SaveRecipe / DeleteRecipe /
-		// TrackRecipeCooked publish-before-save patterns become transactional.
-		// Last AddScoped<IEventBus> wins, so this binding takes effect.
-		services.AddScoped<IEventBus, WolverineOutboxEventBus<RecipesDbContext>>();
-
+		// State-based handlers (SaveRecipe / DeleteRecipe / TrackRecipeCooked) keep
+		// the default WolverineEventBus from AddYumneyDefaults. Wolverine's typed
+		// IDbContextOutbox<T> only flushes captured messages when the handler
+		// itself calls outbox.SaveChangesAndFlushMessagesAsync — a plain
+		// DbContext.SaveChangesAsync stages but never delivers, so cross-module
+		// integration events (e.g. RecipeDeletedIntegrationEvent) silently
+		// disappear. Wolverine's PersistMessagesWithPostgresql still gives the
+		// regular bus durable at-least-once delivery; closing the strict
+		// publish-before-save dual-write hole is a follow-up that needs the
+		// handlers to use the outbox API directly.
 		services.AddScoped<RecipesUnitOfWork>();
 		services.AddScoped<IRecipesUnitOfWork>(sp => sp.GetRequiredService<RecipesUnitOfWork>());
 		services.AddScoped<IRecipeRepository>(sp => sp.GetRequiredService<RecipesUnitOfWork>().Recipes);
