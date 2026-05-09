@@ -1,12 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Shared.Persistence;
 
-public sealed class DomainEventDispatchInterceptor(IDomainEventDispatcher dispatcher) : SaveChangesInterceptor
+// Registered as a singleton so it can be added to a pooled / root-provider-built
+// DbContextOptions chain (Wolverine.EntityFrameworkCore's AddDbContextWithWolverineIntegration
+// resolves interceptors against the root provider — a scoped interceptor throws
+// InvalidOperationException there). A fresh DI scope is created per SaveChanges
+// to resolve IDomainEventDispatcher, so handlers still see request-scoped
+// services if the host has a current scope.
+public sealed class DomainEventDispatchInterceptor(IServiceScopeFactory scopeFactory) : SaveChangesInterceptor
 {
 	public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
 	{
@@ -35,6 +42,10 @@ public sealed class DomainEventDispatchInterceptor(IDomainEventDispatcher dispat
 			entity.ClearDomainEvents();
 		}
 
-		if (domainEvents.Count > 0) await dispatcher.DispatchAsync(domainEvents, cancellationToken);
+		if (domainEvents.Count == 0) return;
+
+		await using var scope = scopeFactory.CreateAsyncScope();
+		var dispatcher = scope.ServiceProvider.GetRequiredService<IDomainEventDispatcher>();
+		await dispatcher.DispatchAsync(domainEvents, cancellationToken);
 	}
 }

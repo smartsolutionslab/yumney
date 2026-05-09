@@ -81,7 +81,13 @@ public static class HostBuilderExtensions
 		builder.Services.AddInProcessDomainEventDispatcher();
 		builder.AddWolverineEventBus(outboxConnectionName, outboxSchema, eventHandlerAssemblies);
 
-		builder.Services.AddScoped<DomainEventDispatchInterceptor>();
+		// Singleton — required because Wolverine.EntityFrameworkCore's
+		// AddDbContextWithWolverineIntegration builds DbContextOptions
+		// against the root provider, which can't resolve scoped services
+		// when interceptors are added inside the options-builder delegate.
+		// The interceptor itself opens a per-SaveChanges scope to dispatch
+		// domain events, so handlers remain scoped.
+		builder.Services.TryAddSingleton<DomainEventDispatchInterceptor>();
 		builder.Services.AddQueryCounting();
 		builder.Services.TryAddSingleton(TimeProvider.System);
 
