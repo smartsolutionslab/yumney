@@ -5,7 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
 import { setupTranslocoTesting } from '@yumney/shared/models';
-import { RecipeApiService, ImportRecipeResponse, SavedRecipeResponse, DashboardApiService} from '@yumney/shared/api-client';
+import {
+  RecipeApiService,
+  ImportRecipeResponse,
+  SavedRecipeResponse,
+  DashboardApiService,
+} from '@yumney/shared/api-client';
 
 const mockRecipe: ImportRecipeResponse = {
   title: 'Pasta Carbonara',

@@ -8,7 +8,7 @@
     } @else {
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         @if (serverError(); as error) {
-          <yn-message-banner tone="error" [message]="error"/>
+          <yn-message-banner tone="error" [message]="error" />
         }
 
         <yn-form-field
@@ -21,10 +21,20 @@
             maxlength: 'auth.resendVerification.errors.emailMaxLength',
           }"
         >
-          <input id="email" type="email"formControlName="email" autocomplete="email" [placeholder]="t('auth.resendVerification.emailPlaceholder')"/>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            [placeholder]="t('auth.resendVerification.emailPlaceholder')"
+          />
         </yn-form-field>
 
-        <yn-submit-button [loading]="isLoading()" label="auth.resendVerification.submit" loadingLabel="auth.resendVerification.submitting"/>
+        <yn-submit-button
+          [loading]="isLoading()"
+          label="auth.resendVerification.submit"
+          loadingLabel="auth.resendVerification.submitting"
+        />
       </form>
     }
 

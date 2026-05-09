@@ -1,8 +1,20 @@
-import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef, output, input } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  signal,
+  inject,
+  DestroyRef,
+  output,
+  input,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService, ImportRecipeResponse, ImportStreamEvent } from '@yumney/shared/api-client';
+import {
+  RecipeApiService,
+  ImportRecipeResponse,
+  ImportStreamEvent,
+} from '@yumney/shared/api-client';
 import { urlValidator, VALIDATION, ensureFormValid } from '@yumney/shared/models';
 import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 

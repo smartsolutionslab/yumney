@@ -15,7 +15,14 @@ import { EmptyStateComponent, LoadingSpinnerComponent, MessageBannerComponent } 
 
 @Component({
   selector: 'yn-shopping-list',
-  imports: [TranslocoModule, RouterLink, DatePipe, EmptyStateComponent, LoadingSpinnerComponent, MessageBannerComponent],
+  imports: [
+    TranslocoModule,
+    RouterLink,
+    DatePipe,
+    EmptyStateComponent,
+    LoadingSpinnerComponent,
+    MessageBannerComponent,
+  ],
   templateUrl: './shopping-list.component.html',
   styleUrl: './shopping-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -23,7 +23,13 @@ interface CategoryGroup {
 @Component({
   selector: 'yn-merged-list',
   standalone: true,
-  imports: [FormsModule, TranslocoModule, LucideAngularModule, AsyncStateComponent, EmptyStateComponent],
+  imports: [
+    FormsModule,
+    TranslocoModule,
+    LucideAngularModule,
+    AsyncStateComponent,
+    EmptyStateComponent,
+  ],
   templateUrl: './merged-list.component.html',
   styleUrl: './merged-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

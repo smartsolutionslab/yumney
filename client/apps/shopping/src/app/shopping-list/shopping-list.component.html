@@ -6,12 +6,12 @@
   }
 
   @if (serverError(); as error) {
-    <yn-message-banner tone="error" [message]="error"/>
+    <yn-message-banner tone="error" [message]="error" />
   }
 
   @if (!isLoading() && !serverError()) {
     @if (lists().length === 0) {
-      <yn-empty-state title="shopping.list.empty.title" message="shopping.list.empty.message"/>
+      <yn-empty-state title="shopping.list.empty.title" message="shopping.list.empty.message" />
     } @else {
       <div class="lists-grid">
         @for (list of lists(); track list.identifier) {
