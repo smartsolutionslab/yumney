@@ -11,6 +11,11 @@ export {
   type DialogSize,
 } from './lib/dialog-shell/dialog-shell.component';
 export {
+  SideSheetComponent,
+  type SideSheetPosition,
+  type SideSheetSize,
+} from './lib/side-sheet/side-sheet.component';
+export {
   EmptyStateComponent,
   type EmptyStateVariant,
 } from './lib/empty-state/empty-state.component';
