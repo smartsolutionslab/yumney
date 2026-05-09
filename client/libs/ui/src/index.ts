@@ -25,6 +25,8 @@ export { EditableListItemComponent } from './lib/editable-list-item/editable-lis
 export {
   CategorySectionComponent,
   type CategoryKey,
+  CATEGORY_KEYS,
+  normalizeCategory,
 } from './lib/category-section/category-section.component';
 export { SettingsCardComponent } from './lib/settings-card/settings-card.component';
 export { ConfirmDialogComponent } from './lib/confirm-dialog/confirm-dialog.component';
