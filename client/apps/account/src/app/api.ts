@@ -8,5 +8,6 @@ export {
   type UserProfile,
   type UpdateProfileRequest,
   type UserActivityItem,
+  type UserActivityPage,
   type ActivityTypeKey,
 } from '@yumney/shared/api-client';
