@@ -25,6 +25,14 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 		var existing = await context.Set<ShoppingListSummaryReadItem>()
 			.FirstOrDefaultAsync(s => s.Id == @event.AggregateId, cancellationToken);
 
+		// Out-of-order delivery: ListItemAdded module events publish on a separate
+		// RabbitMQ queue from ShoppingListCreated and can arrive first. Their
+		// atomic-increment ExecuteUpdate then matches zero rows (no summary yet).
+		// Reconcile here by counting the already-projected items table so the
+		// initial ItemCount reflects items that landed before this handler ran.
+		var itemCount = await context.Set<ShoppingListItemReadItem>()
+			.CountAsync(item => item.ListId == @event.AggregateId, cancellationToken);
+
 		if (existing is null)
 		{
 			var item = new ShoppingListSummaryReadItem
@@ -33,7 +41,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 				OwnerId = @event.OwnerId,
 				Title = inner.Title.Value,
 				RecipeIdentifier = inner.RecipeReference?.Value,
-				ItemCount = 0,
+				ItemCount = itemCount,
 				CreatedAt = inner.CreatedAt,
 				LastUpdated = inner.CreatedAt,
 			};
@@ -57,28 +65,42 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 		var existing = await context.Set<ShoppingListItemReadItem>()
 			.FirstOrDefaultAsync(i => i.Id == inner.ItemId.Value, cancellationToken);
 
-		if (existing is null)
+		// Idempotency guard — replay or RabbitMQ redelivery should not double-insert
+		// the item row or double-bump the summary's ItemCount.
+		if (existing is not null) return;
+
+		context.Set<ShoppingListItemReadItem>().Add(new ShoppingListItemReadItem
 		{
-			context.Set<ShoppingListItemReadItem>().Add(new ShoppingListItemReadItem
-			{
-				Id = inner.ItemId.Value,
-				ListId = @event.AggregateId,
-				OwnerId = @event.OwnerId,
-				Name = inner.Name.Value,
-				QuantityAmount = inner.Quantity?.Amount.Value,
-				QuantityUnit = inner.Quantity?.Unit?.Value,
-				Category = (inner.Category ?? Shared.Quantities.IngredientCategory.Other).Value,
-				IsChecked = false,
-				CreatedAt = DateTime.UtcNow,
-				LastUpdated = DateTime.UtcNow,
-			});
-
-			// Only increment when the item is newly inserted — otherwise replay/duplicate
-			// delivery would drift the count while the items table stays at 1 row.
-			await IncrementItemCountAsync(@event.AggregateId, cancellationToken);
-		}
-
+			Id = inner.ItemId.Value,
+			ListId = @event.AggregateId,
+			OwnerId = @event.OwnerId,
+			Name = inner.Name.Value,
+			QuantityAmount = inner.Quantity?.Amount.Value,
+			QuantityUnit = inner.Quantity?.Unit?.Value,
+			Category = (inner.Category ?? Shared.Quantities.IngredientCategory.Other).Value,
+			IsChecked = false,
+			CreatedAt = DateTime.UtcNow,
+			LastUpdated = DateTime.UtcNow,
+		});
 		await context.SaveChangesAsync(cancellationToken);
+
+		// Atomic increment via SQL — Wolverine processes messages on a queue with
+		// MaxDegreeOfParallelism = max(processor-count, 5), so two concurrent
+		// ListItemAdded events for the same list would race a read-modify-write
+		// on the summary row. ExecuteUpdate emits "SET ItemCount = ItemCount + 1"
+		// which Postgres re-evaluates against the latest committed row under the
+		// row-level UPDATE lock; both increments land instead of stomping each
+		// other. Updates 0 rows if the summary hasn't been projected yet — that
+		// path is handled by ShoppingListCreated handler reconciling against the
+		// items table when it runs later.
+		var now = DateTime.UtcNow;
+		await context.Set<ShoppingListSummaryReadItem>()
+			.Where(summary => summary.Id == @event.AggregateId)
+			.ExecuteUpdateAsync(
+				setters => setters
+					.SetProperty(summary => summary.ItemCount, summary => summary.ItemCount + 1)
+					.SetProperty(summary => summary.LastUpdated, _ => now),
+				cancellationToken);
 	}
 
 	public async Task HandleAsync(ListItemCheckedModuleEvent @event, CancellationToken cancellationToken = default)
@@ -155,15 +177,6 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 					.SetProperty(item => item.IsChecked, isChecked)
 					.SetProperty(item => item.LastUpdated, now),
 				cancellationToken);
-	}
-
-	private async Task IncrementItemCountAsync(Guid listId, CancellationToken cancellationToken)
-	{
-		var summary = await context.Set<ShoppingListSummaryReadItem>()
-			.FirstOrDefaultAsync(s => s.Id == listId, cancellationToken);
-		if (summary is null) return;
-		summary.ItemCount += 1;
-		summary.LastUpdated = DateTime.UtcNow;
 	}
 
 	private async Task TouchSummaryAsync(Guid listId, CancellationToken cancellationToken)

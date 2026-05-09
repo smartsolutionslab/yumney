@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
@@ -15,7 +16,10 @@ public class DomainEventDispatchInterceptorTests
 
 	public DomainEventDispatchInterceptorTests()
 	{
-		interceptor = new DomainEventDispatchInterceptor(dispatcher);
+		var services = new ServiceCollection();
+		services.AddSingleton(dispatcher);
+		var scopeFactory = services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
+		interceptor = new DomainEventDispatchInterceptor(scopeFactory);
 	}
 
 	[Fact]
