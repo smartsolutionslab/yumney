@@ -37,10 +37,13 @@ export class RecipeDetailPage {
       .locator('[data-testid="recipe-create-shopping-list-btn"]')
       .first();
     this.sourceLink = page.locator('.source-link a');
-    // Target the .confirm-overlay child rather than the host yn-confirm-dialog.
-    // The host has 0x0 dimensions because its child is position:fixed, so
-    // Playwright reports the host as hidden even when the dialog is visible.
-    this.confirmDialog = page.locator('yn-confirm-dialog .confirm-overlay');
+    // Target the overlay div inside yn-dialog-shell rather than the host
+    // yn-confirm-dialog. The host has 0x0 dimensions because its child is
+    // position:fixed, so Playwright reports the host as hidden even when the
+    // dialog is visible. The class is `.yn-dialog-overlay` after the dialog
+    // got refactored to share a common shell — the older `.confirm-overlay`
+    // selector silently matched zero nodes and timed out.
+    this.confirmDialog = page.locator('yn-confirm-dialog .yn-dialog-overlay');
     this.confirmCancelButton = this.confirmDialog.getByRole('button', { name: /cancel/i });
     this.confirmDeleteButton = this.confirmDialog.locator('.btn-danger-filled');
     this.errorBanner = page.locator('[role="alert"]');
