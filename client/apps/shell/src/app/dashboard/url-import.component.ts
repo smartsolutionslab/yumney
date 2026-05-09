@@ -7,6 +7,7 @@ import {
   output,
   input,
 } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -15,7 +16,13 @@ import {
   ImportRecipeResponse,
   ImportStreamEvent,
 } from '@yumney/shared/api-client';
-import { urlValidator, VALIDATION, ensureFormValid } from '@yumney/shared/models';
+import {
+  ERROR_MAPS,
+  urlValidator,
+  VALIDATION,
+  ensureFormValid,
+  mapHttpError,
+} from '@yumney/shared/models';
 import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
@@ -77,10 +84,14 @@ export class UrlImportComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (event: ImportStreamEvent) => this.handleStreamEvent(event, url),
-        error: () => {
+        error: (err: unknown) => {
           this.isLoading.set(false);
           this.streamingStatus.set(null);
-          this.failed.emit('dashboard.import.errors.generic');
+          this.failed.emit(
+            err instanceof HttpErrorResponse
+              ? mapHttpError(err, ERROR_MAPS.dashboard.import)
+              : ERROR_MAPS.dashboard.import.default,
+          );
         },
       });
   }

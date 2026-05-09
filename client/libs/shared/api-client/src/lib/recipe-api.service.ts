@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { shareReplay, tap } from 'rxjs/operators';
 import { AuthService } from '@yumney/shared/auth';
@@ -41,7 +41,9 @@ export class RecipeApiService {
       // calls no-ops so this is safe.
       const timeout = setTimeout(() => {
         abortController.abort();
-        subscriber.error(new Error('Import timed out'));
+        // 504 mirrors the HTTP semantic: upstream took too long. Lets
+        // consumers feed this straight into mapHttpError + ERROR_MAPS.
+        subscriber.error(new HttpErrorResponse({ status: 504, statusText: 'Import timed out' }));
       }, RecipeApiService.SSE_TIMEOUT_MS);
 
       this.fetchSseStream(url, abortController, subscriber).finally(() => clearTimeout(timeout));
@@ -66,13 +68,17 @@ export class RecipeApiService {
       response = await fetch(API_ENDPOINTS.recipes.importStream(url), { headers, signal });
     } catch {
       if (!signal.aborted) {
-        subscriber.error(new Error('Connection failed'));
+        // 502 = couldn't reach the upstream (network failure before we got
+        // any response). Lets mapHttpError pick the unreachable message.
+        subscriber.error(new HttpErrorResponse({ status: 502, statusText: 'Connection failed' }));
       }
       return;
     }
 
     if (!response.ok || !response.body) {
-      subscriber.error(new Error(`HTTP ${response.status}`));
+      subscriber.error(
+        new HttpErrorResponse({ status: response.status, statusText: response.statusText }),
+      );
       return;
     }
 
@@ -119,7 +125,10 @@ export class RecipeApiService {
       subscriber.complete();
     } catch {
       if (!abortController.signal.aborted) {
-        subscriber.error(new Error('Connection lost'));
+        // Stream broke after we'd started reading. Same family as the
+        // pre-response failure above: surface as 502 so consumers route it
+        // through the unreachable error mapping.
+        subscriber.error(new HttpErrorResponse({ status: 502, statusText: 'Connection lost' }));
       }
     }
   }

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 import { UrlImportComponent } from './url-import.component';
@@ -223,10 +224,64 @@ describe('UrlImportComponent', () => {
     expect(component.form.controls.url.value).toBe('');
   }));
 
-  it('should emit failed event on stream error', fakeAsync(() => {
+  it('should emit unreachable error key on 502 from the stream', fakeAsync(() => {
     recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new Error('Connection failed')),
+      throwError(() => new HttpErrorResponse({ status: 502, statusText: 'Connection failed' })),
     );
+    const failedSpy = vi.fn();
+    component.failed.subscribe(failedSpy);
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onSubmit();
+    tick();
+
+    expect(failedSpy).toHaveBeenCalledWith('dashboard.import.errors.unreachable');
+  }));
+
+  it('should emit timeout error key on 504 from the stream', fakeAsync(() => {
+    recipeApiMock.importRecipeStream.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 504, statusText: 'Import timed out' })),
+    );
+    const failedSpy = vi.fn();
+    component.failed.subscribe(failedSpy);
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onSubmit();
+    tick();
+
+    expect(failedSpy).toHaveBeenCalledWith('dashboard.import.errors.timeout');
+  }));
+
+  it('should emit noRecipe error key on 404 from the stream', fakeAsync(() => {
+    recipeApiMock.importRecipeStream.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' })),
+    );
+    const failedSpy = vi.fn();
+    component.failed.subscribe(failedSpy);
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onSubmit();
+    tick();
+
+    expect(failedSpy).toHaveBeenCalledWith('dashboard.import.errors.noRecipe');
+  }));
+
+  it('should fall back to generic error key for an unmapped HTTP status', fakeAsync(() => {
+    recipeApiMock.importRecipeStream.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server error' })),
+    );
+    const failedSpy = vi.fn();
+    component.failed.subscribe(failedSpy);
+
+    component.form.controls.url.setValue('https://example.com/recipe');
+    component.onSubmit();
+    tick();
+
+    expect(failedSpy).toHaveBeenCalledWith('dashboard.import.errors.generic');
+  }));
+
+  it('should fall back to generic error key for a non-HttpErrorResponse error', fakeAsync(() => {
+    recipeApiMock.importRecipeStream.mockReturnValue(throwError(() => new Error('boom')));
     const failedSpy = vi.fn();
     component.failed.subscribe(failedSpy);
 
@@ -239,7 +294,7 @@ describe('UrlImportComponent', () => {
 
   it('should set isLoading to false after error', fakeAsync(() => {
     recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new Error('Connection failed')),
+      throwError(() => new HttpErrorResponse({ status: 502 })),
     );
 
     component.form.controls.url.setValue('https://example.com/recipe');
