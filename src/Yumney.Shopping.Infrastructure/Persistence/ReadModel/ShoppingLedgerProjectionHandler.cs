@@ -1,10 +1,9 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore.Events;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
@@ -201,7 +200,7 @@ public sealed class ShoppingLedgerProjectionHandler(ShoppingDbContext context)
 		string ownerId,
 		string itemName,
 		string? unit,
-		Action<Microsoft.EntityFrameworkCore.Query.UpdateSettersBuilder<ShoppingLedgerReadItem>> updateExisting,
+		Action<UpdateSettersBuilder<ShoppingLedgerReadItem>> updateExisting,
 		Action<ShoppingLedgerReadItem> stubFromExisting,
 		CancellationToken cancellationToken)
 	{
