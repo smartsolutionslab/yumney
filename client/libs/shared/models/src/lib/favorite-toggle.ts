@@ -51,15 +51,15 @@ export function toggleFavoriteInList<T extends Favoritable>(
   apiCall: (identifier: string) => Observable<{ isFavorite: boolean }>,
 ): void {
   const list = state();
-  const idx = list.findIndex((r) => r.identifier === identifier);
-  if (idx === -1) return;
+  const initialIndex = list.findIndex((item) => item.identifier === identifier);
+  if (initialIndex === -1) return;
 
-  const originalFavorite = list[idx].isFavorite;
+  const originalFavorite = list[initialIndex].isFavorite;
   state.update((items) => {
-    const i = items.findIndex((r) => r.identifier === identifier);
-    if (i === -1) return items;
+    const index = items.findIndex((item) => item.identifier === identifier);
+    if (index === -1) return items;
     const next = [...items];
-    next[i] = { ...next[i], isFavorite: !originalFavorite };
+    next[index] = { ...next[index], isFavorite: !originalFavorite };
     return next;
   });
 
@@ -68,19 +68,19 @@ export function toggleFavoriteInList<T extends Favoritable>(
     .subscribe({
       next: (result) => {
         state.update((items) => {
-          const j = items.findIndex((r) => r.identifier === identifier);
-          if (j === -1) return items;
+          const index = items.findIndex((item) => item.identifier === identifier);
+          if (index === -1) return items;
           const next = [...items];
-          next[j] = { ...next[j], isFavorite: result.isFavorite };
+          next[index] = { ...next[index], isFavorite: result.isFavorite };
           return next;
         });
       },
       error: () => {
         state.update((items) => {
-          const j = items.findIndex((r) => r.identifier === identifier);
-          if (j === -1) return items;
+          const index = items.findIndex((item) => item.identifier === identifier);
+          if (index === -1) return items;
           const next = [...items];
-          next[j] = { ...next[j], isFavorite: originalFavorite };
+          next[index] = { ...next[index], isFavorite: originalFavorite };
           return next;
         });
       },

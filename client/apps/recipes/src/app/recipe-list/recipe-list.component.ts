@@ -124,12 +124,12 @@ export class RecipeListComponent implements OnInit {
   readonly sortOptions = RecipeListComponent.sortOptionList;
 
   filterActiveCount = computed(() => {
-    const f = this.filter();
-    let count = f.tags.length;
-    if (f.difficulty !== null) count += 1;
-    if (f.maxPrepTime !== null) count += 1;
-    if (f.maxCookTime !== null) count += 1;
-    if (f.favoritesOnly) count += 1;
+    const filter = this.filter();
+    let count = filter.tags.length;
+    if (filter.difficulty !== null) count += 1;
+    if (filter.maxPrepTime !== null) count += 1;
+    if (filter.maxCookTime !== null) count += 1;
+    if (filter.favoritesOnly) count += 1;
     return count;
   });
 
@@ -152,7 +152,7 @@ export class RecipeListComponent implements OnInit {
   }
 
   onSortSelect(value: string): void {
-    const option = RecipeListComponent.sortOptionList.find((o) => o.value === value);
+    const option = RecipeListComponent.sortOptionList.find((entry) => entry.value === value);
     if (!option) return;
     this.sortBy.set(option.by);
     this.sortDirection.set(option.dir);
@@ -160,7 +160,7 @@ export class RecipeListComponent implements OnInit {
   }
 
   onLoadMore(): void {
-    this.currentPage.update((p) => p + 1);
+    this.currentPage.update((page) => page + 1);
     this.loadRecipes(true);
   }
 
@@ -190,18 +190,18 @@ export class RecipeListComponent implements OnInit {
   private loadRecipes(append: boolean): void {
     const requestId = ++this.loadRequestId;
     const search = this.activeSearch();
-    const f = this.filter();
+    const filter = this.filter();
     const params: GetRecipesParams = {
       page: this.currentPage(),
       pageSize: this.pageSize(),
       sortBy: this.sortBy(),
       sortDirection: this.sortDirection(),
       ...(search !== '' && { search }),
-      ...(f.tags.length > 0 && { tags: f.tags }),
-      ...(f.difficulty !== null && { difficulty: f.difficulty }),
-      ...(f.maxPrepTime !== null && { maxPrepTime: f.maxPrepTime }),
-      ...(f.maxCookTime !== null && { maxCookTime: f.maxCookTime }),
-      ...(f.favoritesOnly && { favorites: true }),
+      ...(filter.tags.length > 0 && { tags: filter.tags }),
+      ...(filter.difficulty !== null && { difficulty: filter.difficulty }),
+      ...(filter.maxPrepTime !== null && { maxPrepTime: filter.maxPrepTime }),
+      ...(filter.maxCookTime !== null && { maxCookTime: filter.maxCookTime }),
+      ...(filter.favoritesOnly && { favorites: true }),
     };
 
     this.asyncState.execute(

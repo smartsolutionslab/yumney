@@ -64,11 +64,11 @@ export class MealPlannerComponent {
   protected days = DAY_NAMES;
 
   protected dinnerSlots = computed(() => {
-    const p = this.plan();
-    if (!p) return this.days.map((d) => ({ day: d, slot: null as MealSlot | null }));
-    return this.days.map((d) => ({
-      day: d,
-      slot: p.slots.find((s) => s.day === d && s.mealType === 'Dinner') ?? null,
+    const plan = this.plan();
+    if (!plan) return this.days.map((day) => ({ day, slot: null as MealSlot | null }));
+    return this.days.map((day) => ({
+      day,
+      slot: plan.slots.find((slot) => slot.day === day && slot.mealType === 'Dinner') ?? null,
     }));
   });
 
@@ -78,26 +78,26 @@ export class MealPlannerComponent {
 
   protected onPreviousWeek(): void {
     if (this.weekNumber() <= 1) {
-      this.year.update((y) => y - 1);
+      this.year.update((year) => year - 1);
       this.weekNumber.set(WEEKS_PER_YEAR);
     } else {
-      this.weekNumber.update((w) => w - 1);
+      this.weekNumber.update((week) => week - 1);
     }
     this.loadPlan();
   }
 
   protected onNextWeek(): void {
     if (this.weekNumber() >= WEEKS_PER_YEAR) {
-      this.year.update((y) => y + 1);
+      this.year.update((year) => year + 1);
       this.weekNumber.set(1);
     } else {
-      this.weekNumber.update((w) => w + 1);
+      this.weekNumber.update((week) => week + 1);
     }
     this.loadPlan();
   }
 
   protected hasRecipeSlots = computed(
-    () => this.plan()?.slots.some((s) => s.contentType === 'Recipe') ?? false,
+    () => this.plan()?.slots.some((slot) => slot.contentType === 'Recipe') ?? false,
   );
 
   protected onGenerateShoppingList(): void {

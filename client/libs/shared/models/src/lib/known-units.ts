@@ -55,6 +55,6 @@ export function getGroupedUnits(): UnitGroupInfo[] {
   return UNIT_GROUPS.map(({ key, labelKey }) => ({
     key,
     labelKey,
-    units: KNOWN_UNITS.filter((u) => u.group === key),
+    units: KNOWN_UNITS.filter((unit) => unit.group === key),
   }));
 }

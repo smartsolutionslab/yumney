@@ -16,7 +16,7 @@ export class ChatStateService {
   }
 
   toggle(): void {
-    this.isOpen.update((v) => !v);
+    this.isOpen.update((open) => !open);
   }
 
   addMessage(message: ChatMessage): void {

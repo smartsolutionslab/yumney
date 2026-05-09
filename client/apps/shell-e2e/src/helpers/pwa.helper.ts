@@ -45,9 +45,9 @@ export async function waitForServiceWorker(page: Page, timeout = 40_000): Promis
     const deadline = Date.now() + ms;
     while (Date.now() < deadline) {
       const registrations = await navigator.serviceWorker.getRegistrations();
-      const active = registrations.find((r) => r.active?.state === 'activated');
+      const active = registrations.find((registration) => registration.active?.state === 'activated');
       if (active) return;
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }, timeout);
 }
@@ -84,7 +84,7 @@ export async function waitForServiceWorkerControl(page: Page, timeout = 120_000)
     // Phase 1: wait for the SW to control fetches.
     const controllerDeadline = Date.now() + controllerBudget;
     while (Date.now() < controllerDeadline && !navigator.serviceWorker.controller) {
-      await new Promise((r) => setTimeout(r, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
     if (!navigator.serviceWorker.controller) {
       const regs = await navigator.serviceWorker.getRegistrations();
@@ -93,10 +93,10 @@ export async function waitForServiceWorkerControl(page: Page, timeout = 120_000)
         reason: 'controller-never-set',
         elapsedMs: controllerBudget,
         registrations: regs.length,
-        states: regs.map((r) => ({
-          active: r.active?.state ?? null,
-          installing: r.installing?.state ?? null,
-          waiting: r.waiting?.state ?? null,
+        states: regs.map((registration) => ({
+          active: registration.active?.state ?? null,
+          installing: registration.installing?.state ?? null,
+          waiting: registration.waiting?.state ?? null,
         })),
       };
     }
@@ -118,7 +118,7 @@ export async function waitForServiceWorkerControl(page: Page, timeout = 120_000)
       }),
     );
 
-    const isShellPath = (p: string): boolean => p === '/index.html' || p === '/';
+    const isShellPath = (path: string): boolean => path === '/index.html' || path === '/';
 
     const cacheDeadline = Date.now() + cacheBudget;
     while (Date.now() < cacheDeadline) {
@@ -127,7 +127,7 @@ export async function waitForServiceWorkerControl(page: Page, timeout = 120_000)
       if (indexHit || rootHit) {
         return { ok: true as const, reason: 'cache-primed' };
       }
-      await new Promise((r) => setTimeout(r, 250));
+      await new Promise((resolve) => setTimeout(resolve, 250));
     }
 
     const cacheNames = await caches.keys();
@@ -175,7 +175,7 @@ export async function isServiceWorkerRegistered(page: Page, timeout = 35_000): P
     while (Date.now() < deadline) {
       const registrations = await navigator.serviceWorker.getRegistrations();
       if (registrations.length > 0) return true;
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
     return false;
   }, timeout);

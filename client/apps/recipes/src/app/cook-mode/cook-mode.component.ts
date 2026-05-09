@@ -73,8 +73,8 @@ export class CookModeComponent implements OnInit, OnDestroy {
 
   totalSteps = computed(() => this.recipe()?.steps.length ?? 0);
   currentStep = computed(() => {
-    const r = this.recipe();
-    return r?.steps[this.currentStepIndex()] ?? null;
+    const recipe = this.recipe();
+    return recipe?.steps[this.currentStepIndex()] ?? null;
   });
 
   private touchStartX: number | null = null;
@@ -117,13 +117,13 @@ export class CookModeComponent implements OnInit, OnDestroy {
 
   next(): void {
     if (this.currentStepIndex() < this.totalSteps() - 1) {
-      this.currentStepIndex.update((i) => i + 1);
+      this.currentStepIndex.update((index) => index + 1);
     }
   }
 
   previous(): void {
     if (this.currentStepIndex() > 0) {
-      this.currentStepIndex.update((i) => i - 1);
+      this.currentStepIndex.update((index) => index - 1);
     }
   }
 
