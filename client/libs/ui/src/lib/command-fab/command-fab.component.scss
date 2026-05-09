@@ -1,4 +1,3 @@
-@use 'glass';
 @use 'breakpoints' as bp;
 
 .command-fab {
@@ -35,10 +34,12 @@
     transform: scale(0.95);
   }
 
+  // While the chat panel is open the FAB would sit on top of the panel's
+  // bottom-right send button. The panel header already provides an X close
+  // button, so hide the FAB to avoid both the overlap and the duplicate
+  // close affordance.
   &.is-open {
-    @include glass.glass-surface(2);
-    color: var(--yn-text);
-    border: 1px solid var(--yn-glass-border);
+    display: none;
   }
 
   @include bp.respond-to('md') {
