@@ -9,12 +9,15 @@
  *
  * Each app also has top-level apps/{app}/public/assets/i18n/{lang}.json files for strings
  * served when the app runs standalone. These overlap (shared layout/header, common toast,
- * etc.) but have no single source of truth — so --check reports any value drift on shared
- * keys for human resolution. Sync mode does not auto-copy these.
+ * etc.) but have no single source of truth — so --check reports both (a) value drift on
+ * shared keys and (b) missing keys on REQUIRED_SHARED_PREFIXES (the chrome that every
+ * app's standalone bootstrap renders, e.g. 'layout.header'; an app that declares the
+ * prefix at all must declare every key under it, otherwise the header renders the raw
+ * key string in standalone mode). Sync mode does not auto-copy these.
  *
  * Usage:
  *   node scripts/sync-i18n.mjs           # copy scoped MFE → shell
- *   node scripts/sync-i18n.mjs --check   # exit 1 if any scoped pair or top-level shared key differs
+ *   node scripts/sync-i18n.mjs --check   # exit 1 if any scoped pair or shared-subtree key differs/is missing
  */
 import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -97,9 +100,21 @@ async function discoverTopLevelFiles() {
   return byLang;
 }
 
+/**
+ * Subtree prefixes that every app's standalone bootstrap renders, so every
+ * top-level i18n file must declare every key the shell declares under them.
+ * Add a prefix here when a new piece of always-on chrome ships.
+ */
+const REQUIRED_SHARED_PREFIXES = ['layout.header', 'common.errors', 'common.toast'];
+
+function startsWithPrefix(flatKey, prefix) {
+  return flatKey === prefix || flatKey.startsWith(`${prefix}.`);
+}
+
 async function findTopLevelDrifts() {
   const byLang = await discoverTopLevelFiles();
-  const drifts = [];
+  const valueDrifts = [];
+  const missing = [];
 
   for (const [lang, files] of byLang) {
     const flatByApp = {};
@@ -119,12 +134,32 @@ async function findTopLevelDrifts() {
       }
       const distinctValues = new Set(Object.values(valuesByApp));
       if (Object.keys(valuesByApp).length > 1 && distinctValues.size > 1) {
-        drifts.push({ lang, key, valuesByApp });
+        valueDrifts.push({ lang, key, valuesByApp });
+      }
+
+      // Required shared chrome: any app that declares the prefix at all
+      // must declare every key under it.
+      const matchedPrefix = REQUIRED_SHARED_PREFIXES.find((prefix) =>
+        startsWithPrefix(key, prefix),
+      );
+      if (matchedPrefix) {
+        const missingApps = [];
+        for (const [app, flat] of Object.entries(flatByApp)) {
+          const ownsPrefix = Object.keys(flat).some((appKey) =>
+            startsWithPrefix(appKey, matchedPrefix),
+          );
+          if (ownsPrefix && !(key in flat)) {
+            missingApps.push(app);
+          }
+        }
+        if (missingApps.length > 0) {
+          missing.push({ lang, key, missingApps });
+        }
       }
     }
   }
 
-  return drifts;
+  return { valueDrifts, missing };
 }
 
 async function main() {
@@ -154,7 +189,7 @@ async function main() {
   }
 
   if (checkMode) {
-    const topLevelDrifts = await findTopLevelDrifts();
+    const { valueDrifts, missing } = await findTopLevelDrifts();
     let failed = false;
 
     if (drifted.length > 0) {
@@ -166,17 +201,28 @@ async function main() {
       console.error('\nRun `yarn sync:i18n` to update the shell copies.');
     }
 
-    if (topLevelDrifts.length > 0) {
+    if (valueDrifts.length > 0) {
       failed = true;
       if (drifted.length > 0) console.error('');
       console.error(
-        `✖ ${topLevelDrifts.length} top-level i18n key(s) drift between apps (no auto-fix; resolve manually):`,
+        `✖ ${valueDrifts.length} top-level i18n key(s) drift between apps (no auto-fix; resolve manually):`,
       );
-      for (const { lang, key, valuesByApp } of topLevelDrifts) {
+      for (const { lang, key, valuesByApp } of valueDrifts) {
         console.error(`  - [${lang}] ${key}`);
         for (const [app, value] of Object.entries(valuesByApp)) {
           console.error(`      ${app}: ${JSON.stringify(value)}`);
         }
+      }
+    }
+
+    if (missing.length > 0) {
+      failed = true;
+      if (drifted.length > 0 || valueDrifts.length > 0) console.error('');
+      console.error(
+        `✖ ${missing.length} shared-subtree i18n key(s) missing from app(s) that own the subtree:`,
+      );
+      for (const { lang, key, missingApps } of missing) {
+        console.error(`  - [${lang}] ${key} — missing from: ${missingApps.join(', ')}`);
       }
     }
 
