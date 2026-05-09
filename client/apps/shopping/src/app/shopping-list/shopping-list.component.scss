@@ -1,4 +1,5 @@
 @use 'banners';
+@use 'card-grid';
 @use 'glass';
 
 .shopping-list-container {
@@ -18,9 +19,7 @@ h1 {
 }
 
 .lists-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--yn-space-5);
+  @include card-grid.card-grid(var(--yn-space-5));
 }
 
 .list-card {

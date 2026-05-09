@@ -1,4 +1,5 @@
 @use 'banners';
+@use 'card-grid';
 @use 'glass';
 
 .recipe-list-container {
@@ -143,9 +144,7 @@ yn-filter-panel {
 
 // ── Recipe grid ──
 .recipe-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--yn-space-7);
+  @include card-grid.card-grid;
 }
 
 yn-recipe-card {
@@ -154,9 +153,7 @@ yn-recipe-card {
 
 // ── Skeleton shimmer for infinite scroll loading ──
 .skeleton-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--yn-space-7);
+  @include card-grid.card-grid;
   margin-top: var(--yn-space-7);
 }
 

@@ -1,0 +1,12 @@
+// ==========================================================================
+// Card grid mixin
+// ==========================================================================
+// Responsive auto-fill grid for card tiles (recipes, shopping lists, etc.).
+// Min track width of 280px collapses to a single column on phones and
+// scales up to as many columns as the container allows.
+
+@mixin card-grid($gap: var(--yn-space-7)) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $gap;
+}
