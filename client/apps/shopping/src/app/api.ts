@@ -12,4 +12,5 @@ export {
   type CreateShoppingListItem,
   type MergedShoppingList,
   type MergedShoppingItem,
+  type AddedItem,
 } from '@yumney/shared/api-client';
