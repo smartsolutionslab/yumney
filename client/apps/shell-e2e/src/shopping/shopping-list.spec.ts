@@ -74,12 +74,12 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
     });
   });
 
-  // The next three tests are fixme'd pending #432: in CI the just-created
-  // list (test 5) doesn't show up at /shopping/lists for reasons we
-  // haven't pinned down — backend contract tests pass, frontend has no
-  // in-memory cache layer, NGSW freshness timeout bump didn't help. Needs
-  // trace artifacts to root-cause.
-  test.fixme('should check off an item with strikethrough', async ({ authenticatedPage }) => {
+  // The next three tests rely on the list created in the previous test
+  // being visible at /shopping/lists. The original symptom traced back to
+  // the ShoppingList projection's out-of-order delivery race that #621
+  // closed via INSERT … ON CONFLICT DO UPDATE in ShoppingListProjection;
+  // un-fixme'd here to let CI confirm the fix held.
+  test('should check off an item with strikethrough', async ({ authenticatedPage }) => {
     const lists = new ShoppingListsPage(authenticatedPage);
     await lists.goto();
     await lists.listCards.first().click();
@@ -94,7 +94,7 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
     await expect(detailPage.checkedItems.first()).toBeVisible();
   });
 
-  test.fixme('should check all items and reset', async ({ authenticatedPage }) => {
+  test('should check all items and reset', async ({ authenticatedPage }) => {
     const lists = new ShoppingListsPage(authenticatedPage);
     await lists.goto();
     await lists.listCards.first().click();
@@ -115,7 +115,7 @@ test.describe('Shopping List — Generate from Recipe (US-040)', () => {
     }
   });
 
-  test.fixme('should show progress counter', async ({ authenticatedPage }) => {
+  test('should show progress counter', async ({ authenticatedPage }) => {
     const lists = new ShoppingListsPage(authenticatedPage);
     await lists.goto();
     await lists.listCards.first().click();
