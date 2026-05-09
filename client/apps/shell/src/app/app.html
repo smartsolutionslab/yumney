@@ -1,10 +1,5 @@
-<yn-header />
-<yn-offline-indicator />
-<main>
-  <router-outlet></router-outlet>
-</main>
-<yn-command-fab />
-@defer (when chatState.isOpen()) {
-<yn-chat-panel />
-}
-<yn-toast-host />
+<yn-app-layout>
+  <yn-offline-indicator ynLayoutBelowHeader />
+  <yn-command-fab ynLayoutFloating />
+  <yn-toast-host ynLayoutFloating />
+</yn-app-layout>

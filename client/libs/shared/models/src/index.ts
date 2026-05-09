@@ -19,7 +19,6 @@ export { optimisticSignalUpdate } from './lib/optimistic-update';
 export { toggleFavoriteOnItem, toggleFavoriteInList } from './lib/favorite-toggle';
 export { groupByCategory, type CategoryGroup } from './lib/group-by-category';
 export { TranslocoHttpLoader } from './lib/transloco-loader';
-export { IS_STANDALONE } from './lib/federation-context';
 export { LanguageService } from './lib/language.service';
 export { UserPreferencesService } from './lib/user-preferences.service';
 export { type LanguageCode, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } from './lib/language-code';
