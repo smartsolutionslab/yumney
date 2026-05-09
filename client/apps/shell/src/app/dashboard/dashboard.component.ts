@@ -8,7 +8,7 @@ import {
   effect,
   viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
@@ -116,9 +116,12 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.suggestionsState.load().subscribe(({ initialDataIsEmpty }) => {
-      if (initialDataIsEmpty) this.importSectionExpanded.set(true);
-    });
+    this.suggestionsState
+      .load()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ initialDataIsEmpty }) => {
+        if (initialDataIsEmpty) this.importSectionExpanded.set(true);
+      });
     this.destroyRef.onDestroy(() => this.cancelNavigateAfterSave());
   }
 
