@@ -32,8 +32,7 @@ internal static class AppHostExtensions
 		IDistributedApplicationBuilder aspireBuilder,
 		AppHostOptions options)
 	{
-		if (options.E2ETests)
-			return builder;
+		if (options.E2ETests) return builder;
 
 		if (options.UseOllama)
 		{

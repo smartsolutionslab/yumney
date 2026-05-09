@@ -188,11 +188,14 @@ if (!options.DatabaseOnly)
 		// flag above still toggles persistent volumes and optional sidecars
 		// (pgAdmin, mailpit); it doesn't affect whether the frontend is registered.
 		var addMfe = (string name, string script, int port) =>
+#pragma warning disable ASPIREBROWSERLOGS001
 			builder.AddJavaScriptApp(name, "../../client", script)
 				.WithYarn()
 				.WithEnvironment("NX_DAEMON", "false")
 				.WithEnvironment("NX_ISOLATE_PLUGINS", "false")
-				.WithHttpEndpoint(targetPort: port);
+				.WithHttpEndpoint(targetPort: port)
+				.WithBrowserLogs();
+#pragma warning restore ASPIREBROWSERLOGS001
 
 		// E2E mode runs against a production build so PWA tests (service
 		// worker, offline cache) and Vite-free fetch behaviour exercise the
