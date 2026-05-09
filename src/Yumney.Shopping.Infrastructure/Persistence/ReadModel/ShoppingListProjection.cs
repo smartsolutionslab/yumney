@@ -64,27 +64,61 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 	public async Task HandleAsync(ListItemAddedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var inner = @event.Inner;
-		var existing = await context.Set<ShoppingListItemReadItem>()
-			.FirstOrDefaultAsync(i => i.Id == inner.ItemId.Value, cancellationToken);
 
-		// Idempotency guard — replay or RabbitMQ redelivery should not double-insert
-		// the item row or double-bump the summary's ItemCount.
-		if (existing is not null) return;
+		// UPSERT-with-stub-recovery: ListItemChecked / ListItemCategoryChanged
+		// fan out on different RabbitMQ queues and can arrive ahead of
+		// ListItemAdded — they create a stub row keyed by ItemId so their state
+		// isn't dropped (see the SetCheckedAsync / ChangeCategoryAsync helpers
+		// below). The WHERE clause on the conflict path filters: only stubs
+		// (Name = '') get filled in; a redelivery against a fully-projected row
+		// becomes a no-op. RETURNING then emits TRUE iff this invocation
+		// produced the first full projection (insert OR stub-fill) — that's
+		// what gates the summary's ItemCount bump. No RETURNING row → no count
+		// drift on redelivery.
+		var now = DateTime.UtcNow;
+		const string upsertSql = """
+			INSERT INTO "ShoppingListItemReadItems"
+				("Id", "ListId", "OwnerId", "Name", "QuantityAmount", "QuantityUnit", "Category", "IsChecked", "CreatedAt", "LastUpdated")
+			VALUES (@id, @listId, @ownerId, @name, @amount, @unit, @category, FALSE, @now, @now)
+			ON CONFLICT ("Id") DO UPDATE
+			SET "ListId" = EXCLUDED."ListId",
+				"OwnerId" = EXCLUDED."OwnerId",
+				"Name" = EXCLUDED."Name",
+				"QuantityAmount" = EXCLUDED."QuantityAmount",
+				"QuantityUnit" = EXCLUDED."QuantityUnit",
+				"Category" = EXCLUDED."Category",
+				"LastUpdated" = EXCLUDED."LastUpdated"
+			WHERE "ShoppingListItemReadItems"."Name" = ''
+			RETURNING TRUE AS "Value"
+			""";
 
-		context.Set<ShoppingListItemReadItem>().Add(new ShoppingListItemReadItem
-		{
-			Id = inner.ItemId.Value,
-			ListId = @event.AggregateId,
-			OwnerId = @event.OwnerId,
-			Name = inner.Name.Value,
-			QuantityAmount = inner.Quantity?.Amount.Value,
-			QuantityUnit = inner.Quantity?.Unit?.Value,
-			Category = (inner.Category ?? Shared.Quantities.IngredientCategory.Other).Value,
-			IsChecked = false,
-			CreatedAt = DateTime.UtcNow,
-			LastUpdated = DateTime.UtcNow,
-		});
-		await context.SaveChangesAsync(cancellationToken);
+		var firstFullProjection = await context.Database
+			.SqlQueryRaw<bool>(
+				upsertSql,
+				new NpgsqlParameter("id", NpgsqlDbType.Uuid) { Value = inner.ItemId.Value },
+				new NpgsqlParameter("listId", NpgsqlDbType.Uuid) { Value = @event.AggregateId },
+				new NpgsqlParameter("ownerId", NpgsqlDbType.Text) { Value = @event.OwnerId },
+				new NpgsqlParameter("name", NpgsqlDbType.Text) { Value = inner.Name.Value },
+				new NpgsqlParameter("amount", NpgsqlDbType.Numeric)
+				{
+					Value = (object?)inner.Quantity?.Amount.Value ?? DBNull.Value,
+				},
+				new NpgsqlParameter("unit", NpgsqlDbType.Text)
+				{
+					Value = (object?)inner.Quantity?.Unit?.Value ?? DBNull.Value,
+				},
+				new NpgsqlParameter("category", NpgsqlDbType.Text)
+				{
+					Value = (inner.Category ?? Shared.Quantities.IngredientCategory.Other).Value,
+				},
+				new NpgsqlParameter("now", NpgsqlDbType.TimestampTz) { Value = now })
+			.AsAsyncEnumerable()
+			.FirstOrDefaultAsync(cancellationToken);
+
+		// RETURNING was empty: either redelivery against a fully-projected row, or
+		// the WHERE clause filtered out the no-op update. Either way nothing new
+		// to count; skip the summary bump.
+		if (!firstFullProjection) return;
 
 		// UPSERT-by-count: ListItemAdded and ShoppingListCreated module events fan
 		// out to separate RabbitMQ queues with no cross-queue ordering, so an item
@@ -94,8 +128,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 		// PostgreSQL's row-level UPDATE lock so concurrent adds for the same list
 		// serialize cleanly. The placeholder Title='' on insert is overwritten by
 		// the ShoppingListCreated handler's UPSERT when it eventually runs.
-		var now = DateTime.UtcNow;
-		const string sql = """
+		const string summarySql = """
 			INSERT INTO "ShoppingListSummaryReadItems"
 				("Id", "OwnerId", "Title", "RecipeIdentifier", "ItemCount", "CreatedAt", "LastUpdated")
 			VALUES (@id, @ownerId, '', NULL, 1, @now, @now)
@@ -105,7 +138,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 			""";
 
 		await context.Database.ExecuteSqlRawAsync(
-			sql,
+			summarySql,
 			[
 				new NpgsqlParameter("id", NpgsqlDbType.Uuid) { Value = @event.AggregateId },
 				new NpgsqlParameter("ownerId", NpgsqlDbType.Text) { Value = @event.OwnerId },
@@ -114,19 +147,11 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 			cancellationToken);
 	}
 
-	public async Task HandleAsync(ListItemCheckedModuleEvent @event, CancellationToken cancellationToken = default)
-	{
-		await SetCheckedAsync(@event.Inner.ItemId.Value, true, cancellationToken);
-		await TouchSummaryAsync(@event.AggregateId, cancellationToken);
-		await context.SaveChangesAsync(cancellationToken);
-	}
+	public Task HandleAsync(ListItemCheckedModuleEvent @event, CancellationToken cancellationToken = default) =>
+		UpsertItemCheckedStateAsync(@event.AggregateId, @event.OwnerId, @event.Inner.ItemId.Value, true, cancellationToken);
 
-	public async Task HandleAsync(ListItemUncheckedModuleEvent @event, CancellationToken cancellationToken = default)
-	{
-		await SetCheckedAsync(@event.Inner.ItemId.Value, false, cancellationToken);
-		await TouchSummaryAsync(@event.AggregateId, cancellationToken);
-		await context.SaveChangesAsync(cancellationToken);
-	}
+	public Task HandleAsync(ListItemUncheckedModuleEvent @event, CancellationToken cancellationToken = default) =>
+		UpsertItemCheckedStateAsync(@event.AggregateId, @event.OwnerId, @event.Inner.ItemId.Value, false, cancellationToken);
 
 	public async Task HandleAsync(AllItemsCheckedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
@@ -144,14 +169,29 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 
 	public async Task HandleAsync(ListItemCategoryChangedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
-		var item = await context.Set<ShoppingListItemReadItem>()
-			.FirstOrDefaultAsync(i => i.Id == @event.Inner.ItemId.Value, cancellationToken);
-		if (item is null) return;
+		// UPSERT pattern matches ListItemAdded — a category change can race
+		// ListItemAdded on the wire; if it lands first, drop a stub so the
+		// category isn't lost when ListItemAdded later fills the rest in.
+		var now = DateTime.UtcNow;
+		const string sql = """
+			INSERT INTO "ShoppingListItemReadItems"
+				("Id", "ListId", "OwnerId", "Name", "QuantityAmount", "QuantityUnit", "Category", "IsChecked", "CreatedAt", "LastUpdated")
+			VALUES (@id, @listId, @ownerId, '', NULL, NULL, @category, FALSE, @now, @now)
+			ON CONFLICT ("Id") DO UPDATE
+			SET "Category" = EXCLUDED."Category",
+				"LastUpdated" = EXCLUDED."LastUpdated"
+			""";
 
-		item.Category = @event.Inner.Category.Value;
-		item.LastUpdated = DateTime.UtcNow;
-		await TouchSummaryAsync(@event.AggregateId, cancellationToken);
-		await context.SaveChangesAsync(cancellationToken);
+		await context.Database.ExecuteSqlRawAsync(
+			sql,
+			[
+				new NpgsqlParameter("id", NpgsqlDbType.Uuid) { Value = @event.Inner.ItemId.Value },
+				new NpgsqlParameter("listId", NpgsqlDbType.Uuid) { Value = @event.AggregateId },
+				new NpgsqlParameter("ownerId", NpgsqlDbType.Text) { Value = @event.OwnerId },
+				new NpgsqlParameter("category", NpgsqlDbType.Text) { Value = @event.Inner.Category.Value },
+				new NpgsqlParameter("now", NpgsqlDbType.TimestampTz) { Value = now },
+			],
+			cancellationToken);
 	}
 
 	public async Task HandleAsync(RecipeReferenceClearedModuleEvent @event, CancellationToken cancellationToken = default)
@@ -165,13 +205,39 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 		await context.SaveChangesAsync(cancellationToken);
 	}
 
-	private async Task SetCheckedAsync(Guid itemId, bool isChecked, CancellationToken cancellationToken)
+	private async Task UpsertItemCheckedStateAsync(
+		Guid listId,
+		string ownerId,
+		Guid itemId,
+		bool isChecked,
+		CancellationToken cancellationToken)
 	{
-		var item = await context.Set<ShoppingListItemReadItem>()
-			.FirstOrDefaultAsync(i => i.Id == itemId, cancellationToken);
-		if (item is null) return;
-		item.IsChecked = isChecked;
-		item.LastUpdated = DateTime.UtcNow;
+		// UPSERT pattern matches ListItemAdded — the check/uncheck state must
+		// survive the case where this event arrives before ListItemAdded does.
+		// When that happens, drop a stub (empty Name placeholder) so the
+		// IsChecked signal isn't dropped; ListItemAdded later fills the rest in
+		// while preserving IsChecked (its UPSERT touches Name/Quantity/Category
+		// only).
+		var now = DateTime.UtcNow;
+		const string sql = """
+			INSERT INTO "ShoppingListItemReadItems"
+				("Id", "ListId", "OwnerId", "Name", "QuantityAmount", "QuantityUnit", "Category", "IsChecked", "CreatedAt", "LastUpdated")
+			VALUES (@id, @listId, @ownerId, '', NULL, NULL, 'other', @isChecked, @now, @now)
+			ON CONFLICT ("Id") DO UPDATE
+			SET "IsChecked" = EXCLUDED."IsChecked",
+				"LastUpdated" = EXCLUDED."LastUpdated"
+			""";
+
+		await context.Database.ExecuteSqlRawAsync(
+			sql,
+			[
+				new NpgsqlParameter("id", NpgsqlDbType.Uuid) { Value = itemId },
+				new NpgsqlParameter("listId", NpgsqlDbType.Uuid) { Value = listId },
+				new NpgsqlParameter("ownerId", NpgsqlDbType.Text) { Value = ownerId },
+				new NpgsqlParameter("isChecked", NpgsqlDbType.Boolean) { Value = isChecked },
+				new NpgsqlParameter("now", NpgsqlDbType.TimestampTz) { Value = now },
+			],
+			cancellationToken);
 	}
 
 	private async Task SetAllCheckedAsync(Guid listId, bool isChecked, CancellationToken cancellationToken)
