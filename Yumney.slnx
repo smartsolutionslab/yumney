@@ -56,6 +56,7 @@
     <Project Path="tests/Yumney.Shared.Tests/Yumney.Shared.Tests.csproj" />
     <Project Path="tests/Yumney.Shared.Guards.Tests/Yumney.Shared.Guards.Tests.csproj" />
     <Project Path="tests/Yumney.Shared.Events.Tests/Yumney.Shared.Events.Tests.csproj" />
+    <Project Path="tests/Yumney.Shared.Events.Contracts.Tests/Yumney.Shared.Events.Contracts.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/MealPlan/">
     <Project Path="tests/Yumney.MealPlan.Application.Tests/Yumney.MealPlan.Application.Tests.csproj" />
