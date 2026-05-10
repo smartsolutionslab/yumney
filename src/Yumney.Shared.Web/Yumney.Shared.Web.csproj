@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Shared\Yumney.Shared.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Abstractions\Yumney.Shared.Abstractions.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Capabilities\Yumney.Shared.Capabilities.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Events.InProcess\Yumney.Shared.Events.InProcess.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Paging\Yumney.Shared.Paging.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Outcomes\Yumney.Shared.Outcomes.csproj" />

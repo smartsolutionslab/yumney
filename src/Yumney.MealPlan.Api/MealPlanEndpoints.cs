@@ -3,10 +3,12 @@ using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.Shared.Capabilities;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Paging;
 using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shared.Web.Capabilities;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Api;
 
@@ -19,6 +21,10 @@ public static class MealPlanEndpoints
 		group.MapGet("/{year:int}/w/{weekNumber:int}", GetWeeklyPlan)
 			.WithName("GetWeeklyPlan")
 			.WithTags("MealPlan")
+			.WithCapability(
+				name: "get_weekly_plan",
+				description: "Fetch the user's planned meals for an ISO week. Use for 'what's for dinner this week?' / 'show me next week's plan'.",
+				surfaces: CapabilitySurface.All)
 			.Produces<WeeklyPlanDto>();
 
 		static async Task<IResult> GetWeeklyPlan(
@@ -36,6 +42,10 @@ public static class MealPlanEndpoints
 		group.MapPost("/{year:int}/w/{weekNumber:int}/slots", AssignRecipe)
 			.WithName("AssignRecipe")
 			.WithTags("MealPlan")
+			.WithCapability(
+				name: "assign_meal",
+				description: "Plan a recipe into a meal slot for an ISO week ('plan carbonara for Wednesday', 'add risotto to Friday lunch'). Requires a recipe identifier from a prior recipe lookup.",
+				surfaces: CapabilitySurface.Chat | CapabilitySurface.Mcp)
 			.Produces<WeeklyPlanDto>()
 			.ProducesProblem(StatusCodes.Status400BadRequest);
 
@@ -117,6 +127,10 @@ public static class MealPlanEndpoints
 		group.MapPut("/{year:int}/w/{weekNumber:int}/slots/confirm", ConfirmMeal)
 			.WithName("ConfirmMeal")
 			.WithTags("MealPlan")
+			.WithCapability(
+				name: "confirm_meal_cooked",
+				description: "Update a planned meal's state to Cooked, Skipped, or Planned ('I made the spaghetti on Wednesday', 'skip Friday's dinner').",
+				surfaces: CapabilitySurface.Chat | CapabilitySurface.Mcp)
 			.Produces<WeeklyPlanDto>()
 			.ProducesProblem(StatusCodes.Status404NotFound);
 
