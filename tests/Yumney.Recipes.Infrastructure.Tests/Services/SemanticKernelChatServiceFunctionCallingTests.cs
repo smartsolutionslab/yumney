@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using NSubstitute;
+using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -255,6 +256,19 @@ public sealed class SemanticKernelChatServiceFunctionCallingTests
 		var searchTool = new SearchRecipesTool(searchHandler, context);
 		var getTool = new GetRecipeTool(getHandler, context);
 		var cookableTool = new GetCookableRecipesTool(cookableHandler, context);
+		var rateTool = new RateRecipeTool(Substitute.For<ICommandHandler<RateRecipeCommand, Result>>());
+		var weeklyPlanTool = new GetWeeklyPlanTool(
+			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IWeeklyPlanLookup>(),
+			context);
+		var assignMealTool = new AssignMealTool(
+			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IMealPlanScheduler>(),
+			context);
+		var confirmMealTool = new ConfirmMealTool(
+			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IMealConfirmation>());
+		var mergedShoppingListTool = new GetMergedShoppingListTool(
+			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListLookup>());
+		var createShoppingListTool = new CreateShoppingListTool(
+			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListCreator>());
 
 		var kernelBuilder = Kernel.CreateBuilder();
 		kernelBuilder.Services.AddSingleton<IChatCompletionService>(fake);
@@ -265,6 +279,12 @@ public sealed class SemanticKernelChatServiceFunctionCallingTests
 			searchTool,
 			getTool,
 			cookableTool,
+			rateTool,
+			weeklyPlanTool,
+			assignMealTool,
+			confirmMealTool,
+			mergedShoppingListTool,
+			createShoppingListTool,
 			context,
 			NullLogger<SemanticKernelChatService>.Instance);
 
