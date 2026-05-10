@@ -44,6 +44,8 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 		services.AddScoped<IWeeklyPlanLookup, HttpWeeklyPlanLookup>();
 		services.AddScoped<IMealPlanScheduler, HttpMealPlanScheduler>();
 		services.AddScoped<IMealConfirmation, HttpMealConfirmation>();
+		services.AddScoped<IShoppingListLookup, HttpShoppingListLookup>();
+		services.AddScoped<IShoppingListCreator, HttpShoppingListCreator>();
 		services.AddScoped<IRecipeViewTracker, CachedRecipeViewTracker>();
 		services.AddShoppingClient();
 		services.AddUsersClient();
