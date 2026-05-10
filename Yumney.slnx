@@ -3,6 +3,7 @@
   <Folder Name="/src/Host/">
     <Project Path="src/Yumney.AppHost/Yumney.AppHost.csproj" />
     <Project Path="src/Yumney.Gateway/Yumney.Gateway.csproj" />
+    <Project Path="src/Yumney.Mcp.Server/Yumney.Mcp.Server.csproj" />
     <Project Path="src/Yumney.ServiceDefaults/Yumney.ServiceDefaults.csproj" />
     <Project Path="src/Yumney.MigrationRunner/Yumney.MigrationRunner.csproj" />
   </Folder>
@@ -86,5 +87,6 @@
   <Folder Name="/tests/Cross-Cutting/">
     <Project Path="tests/Yumney.Architecture.Tests/Yumney.Architecture.Tests.csproj" />
     <Project Path="tests/Yumney.Integration.Tests/Yumney.Integration.Tests.csproj" />
+    <Project Path="tests/Yumney.Mcp.Server.Tests/Yumney.Mcp.Server.Tests.csproj" />
   </Folder>
 </Solution>
