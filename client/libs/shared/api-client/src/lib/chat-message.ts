@@ -14,7 +14,16 @@ export interface ChatRequest {
   history: ChatMessage[];
 }
 
+export type ChatActionType = 'navigate' | 'openRecipe' | 'startCookMode';
+
+export interface ChatAction {
+  type: ChatActionType;
+  route?: string;
+  recipeIdentifier?: string;
+}
+
 export interface ChatResponse {
   reply: string;
   suggestions: ChatRecipeSuggestion[];
+  actions: ChatAction[];
 }

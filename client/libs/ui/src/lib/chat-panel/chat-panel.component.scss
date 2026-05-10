@@ -282,6 +282,50 @@
   }
 }
 
+// ── Action chips ──
+.chat-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yn-space-2);
+}
+
+.chat-action {
+  @include glass.glass-surface(0);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yn-space-2);
+  padding: var(--yn-space-2) var(--yn-space-4);
+  border: 1px solid var(--yn-primary);
+  border-radius: var(--yn-radius-badge);
+  background: transparent;
+  color: var(--yn-primary);
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-medium);
+  cursor: pointer;
+  transition:
+    background var(--yn-duration-fast) var(--yn-ease-glass),
+    transform var(--yn-duration-fast) var(--yn-ease-spring);
+
+  &:hover {
+    background: var(--yn-primary);
+    color: var(--yn-text-inverse);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--yn-ring-primary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
 // ── Error ──
 .chat-error {
   padding: var(--yn-space-3) var(--yn-space-4);

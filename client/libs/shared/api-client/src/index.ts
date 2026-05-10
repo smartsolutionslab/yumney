@@ -47,6 +47,8 @@ export type { ShoppingListSummary } from './lib/shopping-list-summary';
 // --- Chat ---
 export { ChatApiService } from './lib/chat-api.service';
 export type {
+  ChatAction,
+  ChatActionType,
   ChatMessage,
   ChatRecipeSuggestion,
   ChatRequest,

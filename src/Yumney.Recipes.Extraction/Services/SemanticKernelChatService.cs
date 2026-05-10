@@ -45,7 +45,7 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 		if (replyResult.IsFailure) return replyResult.Error!;
 
 		var suggestions = MatchRecipesByMention(replyResult.Value, userRecipes);
-		return new ChatResponseDto(replyResult.Value, suggestions);
+		return new ChatResponseDto(replyResult.Value, suggestions, Actions: []);
 	}
 
 	internal static List<ChatRecipeSuggestionDto> MatchRecipesByMention(string reply, IReadOnlyList<Recipe> userRecipes)
