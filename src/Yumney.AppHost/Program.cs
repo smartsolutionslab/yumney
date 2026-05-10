@@ -181,6 +181,16 @@ if (!options.DatabaseOnly)
 	mealplanApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
 	migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
+	// MCP server: aggregates the per-host capability manifests on startup and
+	// exposes them as MCP tools at /mcp (Phase 4b). Tool invocation returns a
+	// stub until the OAuth bridge + REST proxy land in Phase 4c. Declared
+	// outside the run/publish branches because both gateways route to it.
+	var mcpServer = builder.AddProject<Projects.Yumney_Mcp_Server>("mcp-server")
+		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
+		.WithReference(recipesApi)
+		.WithReference(shoppingApi)
+		.WithReference(mealplanApi);
+
 	if (isRunMode)
 	{
 		// Run mode (including E2E) spawns the Angular dev servers and the gateway
@@ -219,18 +229,10 @@ if (!options.DatabaseOnly)
 			.WithReference(shoppingApi)
 			.WithReference(usersApi)
 			.WithReference(mealplanApi)
+			.WithReference(mcpServer)
 			.WithReference(shell)
 			.WithReference(keycloak)
 			.WaitFor(keycloak);
-
-		// MCP server: aggregates the per-host capability manifests on startup
-		// (Phase 4a). Phase 4b adds the actual ModelContextProtocol surface +
-		// gateway routing. Not yet exposed externally.
-		builder.AddProject<Projects.Yumney_Mcp_Server>("mcp-server")
-			.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
-			.WithReference(recipesApi)
-			.WithReference(shoppingApi)
-			.WithReference(mealplanApi);
 	}
 	else if (!isRunMode)
 	{
@@ -246,6 +248,7 @@ if (!options.DatabaseOnly)
 				yarp.AddRoute("/api/v1/shopping-lists/{**catch-all}", shoppingApi);
 				yarp.AddRoute("/api/v1/auth/{**catch-all}", usersApi);
 				yarp.AddRoute("/api/v1/meal-plans/{**catch-all}", mealplanApi);
+				yarp.AddRoute("/mcp/{**catch-all}", mcpServer);
 				yarp.AddRoute("/{**catch-all}", frontend.GetEndpoint("http"));
 			})
 			.WithExternalHttpEndpoints();
