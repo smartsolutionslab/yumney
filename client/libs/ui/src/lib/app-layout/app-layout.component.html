@@ -4,6 +4,6 @@
   <router-outlet />
 </main>
 <ng-content select="[ynLayoutFloating]" />
-@defer (when chatState.isOpen()) {
+@if (chatState.isOpen()) {
   <yn-chat-panel />
 }
