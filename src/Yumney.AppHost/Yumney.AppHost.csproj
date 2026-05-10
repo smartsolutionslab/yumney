@@ -13,6 +13,7 @@
     <ProjectReference Include="..\Yumney.Users.Api\Yumney.Users.Api.csproj" />
     <ProjectReference Include="..\Yumney.MealPlan.Api\Yumney.MealPlan.Api.csproj" />
     <ProjectReference Include="..\Yumney.Gateway\Yumney.Gateway.csproj" />
+    <ProjectReference Include="..\Yumney.Mcp.Server\Yumney.Mcp.Server.csproj" />
     <ProjectReference Include="..\Yumney.MigrationRunner\Yumney.MigrationRunner.csproj" />
   </ItemGroup>
 
