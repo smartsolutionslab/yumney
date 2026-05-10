@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using SmartSolutionsLab.Yumney.Shared.Capabilities;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Paging;
 using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shared.Web.Capabilities;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
 using SmartSolutionsLab.Yumney.Shopping.Application.Queries;
@@ -45,6 +47,10 @@ public static partial class ShoppingEndpoints
 			.WithName("CreateShoppingListFromRecipes")
 			.WithTags("Shopping")
 			.WithValidation<Requests.CreateFromRecipes>()
+			.WithCapability(
+				name: "create_shopping_list_from_recipes",
+				description: "Create a new shopping list sourced from one or more recipes ('make a shopping list for spaghetti and risotto').",
+				surfaces: CapabilitySurface.Chat | CapabilitySurface.Mcp)
 			.Produces<ShoppingListDetailDto>(StatusCodes.Status201Created)
 			.ProducesValidationProblem();
 
@@ -181,6 +187,10 @@ public static partial class ShoppingEndpoints
 		group.MapGet("/merged", GetMerged)
 			.WithName("GetMergedShoppingList")
 			.WithTags("Shopping")
+			.WithCapability(
+				name: "get_merged_shopping_list",
+				description: "Fetch the user's merged active shopping list across all open lists ('what's on my shopping list?', 'do I still need eggs?').",
+				surfaces: CapabilitySurface.All)
 			.Produces<MergedShoppingListDto>();
 
 		static async Task<IResult> GetMerged(

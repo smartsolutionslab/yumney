@@ -2,10 +2,12 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Capabilities;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Paging;
 using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shared.Web.Capabilities;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
@@ -31,6 +33,10 @@ public static partial class RecipesEndpoints
 		group.MapGet("/", GetAll)
 			.WithName("GetRecipes")
 			.WithTags("Recipes")
+			.WithCapability(
+				name: "search_recipes",
+				description: "Search the user's recipe collection by free text query and optional filters (tags, difficulty, max prep/cook time, favorites). Returns paged recipe summaries.",
+				surfaces: CapabilitySurface.All)
 			.Produces<PagedResult<RecipeListItemDto>>();
 
 		static async Task<IResult> GetAll(
@@ -60,6 +66,10 @@ public static partial class RecipesEndpoints
 		group.MapGet("/{identifier:guid}", GetById)
 			.WithName("GetRecipeById")
 			.WithTags("Recipes")
+			.WithCapability(
+				name: "get_recipe",
+				description: "Fetch full details (ingredients, steps, timings, servings) of one recipe by its identifier.",
+				surfaces: CapabilitySurface.All)
 			.Produces<RecipeDetailDto>()
 			.ProducesProblem(StatusCodes.Status404NotFound);
 
@@ -163,6 +173,10 @@ public static partial class RecipesEndpoints
 		group.MapGet("/what-can-i-cook", WhatCanICook)
 			.WithName("WhatCanICook")
 			.WithTags("Recipes")
+			.WithCapability(
+				name: "get_cookable_recipes",
+				description: "Find recipes the user can cook now or with at most a couple of missing items, ranked by ingredient freshness in their pantry. Use for 'what can I cook?' / 'was kann ich kochen?'.",
+				surfaces: CapabilitySurface.All)
 			.Produces<PagedResult<CookableRecipeDto>>();
 
 		static async Task<IResult> WhatCanICook(

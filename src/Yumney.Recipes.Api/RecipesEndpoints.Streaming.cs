@@ -6,11 +6,13 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Common;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Shared.Capabilities;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shared.Web.Capabilities;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
@@ -134,6 +136,10 @@ public static partial class RecipesEndpoints
 			.WithName("ImportRecipe")
 			.WithTags("Recipes")
 			.WithValidation<Requests.ImportRecipe>()
+			.WithCapability(
+				name: "import_recipe_from_url",
+				description: "Extract a recipe from a URL (recipe site, blog, or video page) and add it to the user's collection. Returns the parsed recipe (title, ingredients, steps).",
+				surfaces: CapabilitySurface.Mcp | CapabilitySurface.Voice)
 			.Produces<ExtractedRecipeDto>()
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status404NotFound)
