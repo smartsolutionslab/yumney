@@ -1,20 +1,11 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
-import {
-  AppLayoutComponent,
-  CommandFabComponent,
-  ToastHostComponent,
-} from '@yumney/ui';
+import { AppLayoutComponent, CommandFabComponent, ToastHostComponent } from '@yumney/ui';
 import { OfflineIndicatorComponent } from './layout/offline-indicator';
 import { filter } from 'rxjs';
 
 @Component({
-  imports: [
-    AppLayoutComponent,
-    CommandFabComponent,
-    OfflineIndicatorComponent,
-    ToastHostComponent,
-  ],
+  imports: [AppLayoutComponent, CommandFabComponent, OfflineIndicatorComponent, ToastHostComponent],
   selector: 'yn-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
