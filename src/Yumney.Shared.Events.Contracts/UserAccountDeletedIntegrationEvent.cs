@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+namespace SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 
 /// <summary>
 /// Published by the Users module when a user erases their account (US-101 / GDPR Art. 17).

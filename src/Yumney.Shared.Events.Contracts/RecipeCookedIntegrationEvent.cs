@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+namespace SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 
 /// <summary>
 /// Published by the Recipes module when the user finishes cook mode for a

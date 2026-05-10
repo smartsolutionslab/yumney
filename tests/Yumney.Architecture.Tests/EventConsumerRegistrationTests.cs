@@ -118,7 +118,11 @@ public class EventConsumerRegistrationTests
 
 	private static (List<Assembly> EventAssemblies, List<Assembly> HandlerAssemblies) LoadAssemblies()
 	{
-		List<Assembly> eventAssemblies = [Assembly.Load("Yumney.Shared.Events")];
+		List<Assembly> eventAssemblies =
+		[
+			Assembly.Load("Yumney.Shared.Events"),
+			Assembly.Load("Yumney.Shared.Events.Contracts"),
+		];
 		eventAssemblies.AddRange(Modules.Select(module => Assembly.Load($"Yumney.{module}.Infrastructure")));
 
 		List<Assembly> handlerAssemblies = [];

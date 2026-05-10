@@ -11,7 +11,7 @@ using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+using SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.CrossModule;

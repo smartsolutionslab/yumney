@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
-using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+using SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 using SmartSolutionsLab.Yumney.Users.Application.IntegrationEventHandlers;
 using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 using Xunit;

@@ -8,6 +8,7 @@
     <ProjectReference Include="..\Yumney.Shopping.Application\Yumney.Shopping.Application.csproj" />
     <ProjectReference Include="..\Yumney.Shopping.Domain\Yumney.Shopping.Domain.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Persistence\Yumney.Shared.Persistence.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.Events.Contracts\Yumney.Shared.Events.Contracts.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Events.Wolverine\Yumney.Shared.Events.Wolverine.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Web\Yumney.Shared.Web.csproj" />
     <ProjectReference Include="..\Yumney.Recipes.Client\Yumney.Recipes.Client.csproj" />

@@ -1,7 +1,7 @@
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+using SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore.CrossModule;
