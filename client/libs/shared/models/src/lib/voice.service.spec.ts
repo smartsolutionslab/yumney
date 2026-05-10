@@ -75,10 +75,7 @@ interface PrefsStub {
   ensureLoaded: ReturnType<typeof vi.fn>;
 }
 
-function makePrefsStub(
-  enabled: boolean,
-  speed: 'slow' | 'normal' | 'fast' = 'normal',
-): PrefsStub {
+function makePrefsStub(enabled: boolean, speed: 'slow' | 'normal' | 'fast' = 'normal'): PrefsStub {
   return {
     voiceEnabled: signal(enabled),
     voiceSpeed: signal(speed),
@@ -124,10 +121,7 @@ function configureSpeak(prefs: PrefsStub): {
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
-    providers: [
-      VoiceService,
-      { provide: UserPreferencesService, useValue: prefs },
-    ],
+    providers: [VoiceService, { provide: UserPreferencesService, useValue: prefs }],
   });
 
   return { service: TestBed.inject(VoiceService), speak, cancel, lastUtterance };

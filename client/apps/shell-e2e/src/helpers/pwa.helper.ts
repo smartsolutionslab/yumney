@@ -45,7 +45,9 @@ export async function waitForServiceWorker(page: Page, timeout = 40_000): Promis
     const deadline = Date.now() + ms;
     while (Date.now() < deadline) {
       const registrations = await navigator.serviceWorker.getRegistrations();
-      const active = registrations.find((registration) => registration.active?.state === 'activated');
+      const active = registrations.find(
+        (registration) => registration.active?.state === 'activated',
+      );
       if (active) return;
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
