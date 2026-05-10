@@ -12,15 +12,12 @@ test.describe('Recipe Chat (US-230, US-303, US-306)', () => {
     await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
   });
 
-  test('should close chat panel when FAB is clicked again', async ({ authenticatedPage }) => {
-    const chat = new ChatPage(authenticatedPage);
-    await chat.open();
-    await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });
-
-    await chat.fab.click();
-
-    await expect(chat.panel).not.toBeVisible();
-  });
+  // FAB-as-close removed in e0f43316: the FAB sat fixed bottom-right with
+  // z-index above the modal, so once the chat panel opened the FAB's X icon
+  // overlapped the panel's send button (also bottom-right) and made send
+  // unreachable. The chat header's own close button is now the canonical
+  // close affordance — covered by 'should close chat panel when close
+  // button is clicked' below.
 
   test('should close chat panel when close button is clicked', async ({ authenticatedPage }) => {
     const chat = new ChatPage(authenticatedPage);
