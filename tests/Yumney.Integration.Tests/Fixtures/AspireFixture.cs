@@ -62,6 +62,9 @@ public sealed class AspireFixture : IAsyncLifetime
 	/// <summary>Gets the pre-configured HttpClient targeting the MealPlan API.</summary>
 	public HttpClient MealPlanApi { get; private set; } = null!;
 
+	/// <summary>Gets the pre-configured HttpClient targeting the MCP server.</summary>
+	public HttpClient McpServer { get; private set; } = null!;
+
 	public async Task InitializeAsync()
 	{
 		await CleanupStaleContainersAsync();
@@ -90,7 +93,7 @@ public sealed class AspireFixture : IAsyncLifetime
 			await app.ResourceNotifications.WaitForResourceAsync("keycloak", KnownResourceStates.Running, cts.Token);
 			await app.ResourceNotifications.WaitForResourceAsync("yumney-migrations", KnownResourceStates.Finished, cts.Token);
 
-			string[] apis = ["recipes-api", "shopping-api", "users-api", "mealplan-api"];
+			string[] apis = ["recipes-api", "shopping-api", "users-api", "mealplan-api", "mcp-server"];
 			var apiTasks = apis.Select(api => app.ResourceNotifications.WaitForResourceAsync(api, KnownResourceStates.Running, cts.Token));
 
 			await Task.WhenAll(apiTasks);
@@ -111,6 +114,7 @@ public sealed class AspireFixture : IAsyncLifetime
 		ShoppingApi = app.CreateHttpClient("shopping-api");
 		UsersApi = app.CreateHttpClient("users-api");
 		MealPlanApi = app.CreateHttpClient("mealplan-api");
+		McpServer = app.CreateHttpClient("mcp-server");
 
 		async Task VerifyKeycloak()
 		{
@@ -138,6 +142,7 @@ public sealed class AspireFixture : IAsyncLifetime
 		ShoppingApi.Dispose();
 		UsersApi.Dispose();
 		MealPlanApi.Dispose();
+		McpServer.Dispose();
 
 		if (app is not null)
 		{
