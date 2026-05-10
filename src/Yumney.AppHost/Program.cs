@@ -222,6 +222,15 @@ if (!options.DatabaseOnly)
 			.WithReference(shell)
 			.WithReference(keycloak)
 			.WaitFor(keycloak);
+
+		// MCP server: aggregates the per-host capability manifests on startup
+		// (Phase 4a). Phase 4b adds the actual ModelContextProtocol surface +
+		// gateway routing. Not yet exposed externally.
+		builder.AddProject<Projects.Yumney_Mcp_Server>("mcp-server")
+			.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
+			.WithReference(recipesApi)
+			.WithReference(shoppingApi)
+			.WithReference(mealplanApi);
 	}
 	else if (!isRunMode)
 	{
