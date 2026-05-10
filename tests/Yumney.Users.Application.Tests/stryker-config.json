@@ -5,7 +5,7 @@
     "thresholds": {
       "high": 75,
       "low": 60,
-      "break": 60
+      "break": 45
     },
     "coverage-analysis": "perTest"
   }

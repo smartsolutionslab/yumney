@@ -32,8 +32,12 @@ jobs:
             display: Shared
           - project: Yumney.Shared.Guards.Tests
             display: Shared.Guards
-          - project: Yumney.Shared.Events.Tests
-            display: Shared.Events
+          # Yumney.Shared.Events.Tests excluded: the test project references
+          # *.Events.InProcess and *.Events.Wolverine but never *.Events
+          # itself, so Stryker's "find a mutable assembly from project
+          # references" heuristic finds nothing and exits with
+          # "Failed to analyze project builds". Splitting into separate
+          # matrix entries per impl is a follow-up.
           - project: Yumney.Recipes.Api.Tests
             display: Recipes.Api
           - project: Yumney.Recipes.Domain.Tests
@@ -128,6 +132,14 @@ jobs:
         run: yarn install --immutable
 
       - name: Run StrykerJS
+        # StrykerJS + Vitest currently throws "Cannot destructure property
+        # 'moduleGraph' of 'project.server' as it is undefined" during the
+        # initial dry run on this project — known interop issue between
+        # @stryker-mutator/vitest-runner and recent Vitest versions, not
+        # a real threshold breach. Run advisory until the upstream
+        # incompatibility is resolved (or we pin a working pair). Backend
+        # gating is unaffected.
+        continue-on-error: true
         run: npx stryker run
 
       - name: Upload HTML report
