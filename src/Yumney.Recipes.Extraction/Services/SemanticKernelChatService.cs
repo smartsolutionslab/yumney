@@ -26,6 +26,7 @@ public sealed partial class SemanticKernelChatService(
 	SearchRecipesTool searchRecipesTool,
 	GetRecipeTool getRecipeTool,
 	GetCookableRecipesTool getCookableRecipesTool,
+	GetWeeklyPlanTool getWeeklyPlanTool,
 	ChatToolContext toolContext,
 	ILogger<SemanticKernelChatService> logger)
 	: IChatService
@@ -125,8 +126,8 @@ public sealed partial class SemanticKernelChatService(
 
 	private const string systemPrompt = """
         You are a friendly, concise cooking assistant for the Yumney recipe app.
-        You can call functions to look up the user's recipes and pantry — prefer
-        calling a function over guessing.
+        You can call functions to look up the user's recipes, pantry, and meal
+        plan — prefer calling a function over guessing.
 
         Tool usage:
         - When the user asks to find or search recipes ("find chicken recipes",
@@ -136,6 +137,10 @@ public sealed partial class SemanticKernelChatService(
           get_cookable_recipes.
         - When the user wants details on a specific recipe (ingredients, steps,
           time), call get_recipe with the identifier from a previous tool call.
+        - When the user asks about their planned meals ("what's for dinner
+          Tuesday?", "show me this week's plan", "was ist nächste Woche
+          geplant?"), call get_weekly_plan. Pass year=0 / weekNumber=0 to
+          mean "this week".
         - For general cooking questions or chit-chat, just reply directly
           without calling tools.
 
@@ -156,6 +161,7 @@ public sealed partial class SemanticKernelChatService(
 		requestKernel.Plugins.AddFromObject(searchRecipesTool, "recipes_search");
 		requestKernel.Plugins.AddFromObject(getRecipeTool, "recipes_detail");
 		requestKernel.Plugins.AddFromObject(getCookableRecipesTool, "recipes_cookable");
+		requestKernel.Plugins.AddFromObject(getWeeklyPlanTool, "mealplan_weekly");
 		return requestKernel;
 	}
 }
