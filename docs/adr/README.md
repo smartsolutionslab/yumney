@@ -8,6 +8,7 @@ applies.
 ## Index
 
 - [0001 — Persistence paradigm per aggregate](0001-persistence-paradigm-per-aggregate.md)
+- [0002 — Capability surface for chat, MCP, and other LLM clients](0002-capability-surface-for-chat-mcp.md)
 
 ## Conventions
 
