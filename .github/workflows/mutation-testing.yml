@@ -81,7 +81,12 @@ jobs:
       - name: Run Stryker
         id: stryker
         working-directory: tests/${{ matrix.project }}
-        run: dotnet stryker || echo "STRYKER_FAILED=true" >> "$GITHUB_ENV"
+        # Stryker exits non-zero when the mutation score drops below the
+        # `break` threshold declared in stryker-config.json. Let that exit
+        # code propagate so the matrix cell — and therefore the workflow —
+        # fails. Add this workflow as a required check on develop to
+        # actually block merges.
+        run: dotnet stryker
 
       - name: Upload HTML report
         if: always()
@@ -123,7 +128,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Run StrykerJS
-        run: npx stryker run || echo "STRYKER_FAILED=true" >> "$GITHUB_ENV"
+        run: npx stryker run
 
       - name: Upload HTML report
         if: always()
@@ -235,7 +240,7 @@ jobs:
             }
 
             body += '\n> **Thresholds:** 🟢 ≥ 80% | 🟡 ≥ 60% | 🔴 < 60%\n';
-            body += '> This is an advisory check — it does not block merging.\n';
+            body += '> Per-project `break` thresholds in `stryker-config.json` gate the matrix cells; once branch protection lists `Mutation Testing` as required, low scores will block merge.\n';
 
             // Find existing comment to update
             const { data: comments } = await github.rest.issues.listComments({

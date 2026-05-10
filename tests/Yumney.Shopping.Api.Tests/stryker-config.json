@@ -1,11 +1,11 @@
 {
   "stryker-config": {
-    "project": "Yumney.Shared.csproj",
+    "project": "Yumney.Shopping.Api.csproj",
     "reporters": ["html", "json", "progress", "cleartext"],
     "thresholds": {
-      "high": 85,
-      "low": 75,
-      "break": 75
+      "high": 65,
+      "low": 50,
+      "break": 50
     },
     "coverage-analysis": "perTest"
   }

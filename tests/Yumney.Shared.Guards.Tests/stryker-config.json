@@ -1,6 +1,6 @@
 {
   "stryker-config": {
-    "project": "Yumney.Shared.csproj",
+    "project": "Yumney.Shared.Guards.csproj",
     "reporters": ["html", "json", "progress", "cleartext"],
     "thresholds": {
       "high": 85,

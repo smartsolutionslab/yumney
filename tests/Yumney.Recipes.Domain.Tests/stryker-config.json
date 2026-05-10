@@ -3,9 +3,9 @@
     "project": "Yumney.Recipes.Domain.csproj",
     "reporters": ["html", "json", "progress", "cleartext"],
     "thresholds": {
-      "high": 80,
-      "low": 60,
-      "break": 0
+      "high": 85,
+      "low": 75,
+      "break": 75
     },
     "coverage-analysis": "perTest"
   }
