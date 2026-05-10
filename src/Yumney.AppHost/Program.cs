@@ -148,6 +148,11 @@ if (!options.DatabaseOnly)
 		.WithReference(shoppingApi)
 		.WithReference(usersApi);
 
+	// Reverse reference: chat tools in Recipes call mealplan-api for get_weekly_plan
+	// (and future planner tools). Cannot inline above because mealplanApi is
+	// declared after recipesApi.
+	recipesApi.WithReference(mealplanApi);
+
 	// Images are pushed to the ACR provisioned by AddAzureContainerAppEnvironment("cae");
 	// ACA pulls them via the environment's managed identity, so no registry credentials
 	// are baked into the container app revisions.

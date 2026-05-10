@@ -26,6 +26,7 @@
   <Folder Name="/src/MealPlan/">
     <Project Path="src/Yumney.MealPlan.Api/Yumney.MealPlan.Api.csproj" />
     <Project Path="src/Yumney.MealPlan.Application/Yumney.MealPlan.Application.csproj" />
+    <Project Path="src/Yumney.MealPlan.Client/Yumney.MealPlan.Client.csproj" />
     <Project Path="src/Yumney.MealPlan.Domain/Yumney.MealPlan.Domain.csproj" />
     <Project Path="src/Yumney.MealPlan.Infrastructure/Yumney.MealPlan.Infrastructure.csproj" />
   </Folder>
