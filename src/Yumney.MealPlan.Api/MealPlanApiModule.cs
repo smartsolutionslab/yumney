@@ -4,6 +4,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore.Ev
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Hosting;
 using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shared.Web.Capabilities;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Api;
 
@@ -28,6 +29,7 @@ public sealed class MealPlanApiModule : IEndpointModule
 			.UseYumneyDefaults()
 			.MapApiV1()
 			.MapMealPlanEndpoints();
+		app.MapCapabilityManifest("mealplan-api");
 		return app;
 	}
 }

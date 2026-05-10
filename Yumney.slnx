@@ -9,6 +9,7 @@
   <Folder Name="/src/Shared/">
     <Project Path="src/Yumney.Shared/Yumney.Shared.csproj" />
     <Project Path="src/Yumney.Shared.Abstractions/Yumney.Shared.Abstractions.csproj" />
+    <Project Path="src/Yumney.Shared.Capabilities/Yumney.Shared.Capabilities.csproj" />
     <Project Path="src/Yumney.Shared.Outcomes/Yumney.Shared.Outcomes.csproj" />
     <Project Path="src/Yumney.Shared.Paging/Yumney.Shared.Paging.csproj" />
     <Project Path="src/Yumney.Shared.Quantities/Yumney.Shared.Quantities.csproj" />

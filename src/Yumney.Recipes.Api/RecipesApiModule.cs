@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.Recipes.Application.IntegrationEventHandlers;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Hosting;
 using SmartSolutionsLab.Yumney.Shared.Web;
+using SmartSolutionsLab.Yumney.Shared.Web.Capabilities;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api;
 
@@ -31,6 +32,7 @@ public sealed class RecipesApiModule : IEndpointModule
 			.UseYumneyDefaults()
 			.MapApiV1()
 			.MapRecipesEndpoints();
+		app.MapCapabilityManifest("recipes-api");
 		return app;
 	}
 }
