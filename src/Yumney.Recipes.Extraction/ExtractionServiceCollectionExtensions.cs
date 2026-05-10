@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.SemanticKernel;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
+using SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.TestStubs;
 using SmartSolutionsLab.Yumney.Shared.Common;
 
@@ -37,6 +38,11 @@ public static class ExtractionServiceCollectionExtensions
 		services.AddScoped<IChatService, SemanticKernelChatService>();
 		services.AddScoped<IIntentParserService, SemanticKernelIntentParserService>();
 		services.AddScoped<IIngredientCategoryService, SemanticKernelIngredientCategoryService>();
+
+		services.AddScoped<ChatToolContext>();
+		services.AddScoped<SearchRecipesTool>();
+		services.AddScoped<GetRecipeTool>();
+		services.AddScoped<GetCookableRecipesTool>();
 
 		var skOptions = configuration
 			.GetSection(SemanticKernelOptions.SectionName)

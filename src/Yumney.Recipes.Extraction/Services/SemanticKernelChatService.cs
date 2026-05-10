@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -12,8 +11,8 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
-using SmartSolutionsLab.Yumney.Shared.Paging;
 using ChatMessageContent = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatMessageContent;
 using ChatRole = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatRole;
 using DomainChatHistoryEntry = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatHistoryEntry;
@@ -21,13 +20,17 @@ using DomainChatHistoryEntry = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.Chat
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
-#pragma warning disable SA1311
-#pragma warning disable SA1204
 #pragma warning disable SA1303
-public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepository recipes, ILogger<SemanticKernelChatService> logger)
+public sealed partial class SemanticKernelChatService(
+	Kernel kernel,
+	SearchRecipesTool searchRecipesTool,
+	GetRecipeTool getRecipeTool,
+	GetCookableRecipesTool getCookableRecipesTool,
+	ChatToolContext toolContext,
+	ILogger<SemanticKernelChatService> logger)
 	: IChatService
 {
-	private const int maxRecipesToInclude = 20;
+	private const int maxActionsToEmit = 3;
 
 	public async Task<Result<ChatResponseDto>> ChatAsync(
 		ChatMessageContent message,
@@ -38,44 +41,40 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("chat.message");
 		activity?.SetTag("chat.history_length", history.Count);
 
-		var userRecipes = await LoadUserRecipeContextAsync(owner, cancellationToken);
-		var chatHistory = BuildChatHistory(message, history, userRecipes);
+		var chatHistory = BuildChatHistory(message, history);
+		var requestKernel = BuildRequestKernel();
 
-		var replyResult = await GetChatReplyAsync(chatHistory, activity, cancellationToken);
+		var replyResult = await GetChatReplyAsync(requestKernel, chatHistory, activity, cancellationToken);
 		if (replyResult.IsFailure) return replyResult.Error!;
 
-		var suggestions = MatchRecipesByMention(replyResult.Value, userRecipes);
-		return new ChatResponseDto(replyResult.Value, suggestions, Actions: []);
+		activity?.SetTag("chat.tool_match_count", toolContext.Matches.Count);
+		var suggestions = toolContext.Matches.ToSuggestions();
+		var actions = BuildActions(toolContext);
+		return new ChatResponseDto(replyResult.Value, suggestions, actions);
 	}
 
-	internal static List<ChatRecipeSuggestionDto> MatchRecipesByMention(string reply, IReadOnlyList<Recipe> userRecipes)
+	private static List<ChatActionDto> BuildActions(ChatToolContext context)
 	{
-		var suggestions = new List<ChatRecipeSuggestionDto>();
-
-		foreach (var recipe in userRecipes)
+		List<ChatActionDto> actions = [];
+		foreach (var match in context.Matches.Take(maxActionsToEmit))
 		{
-			var title = recipe.Title.Value;
-			var pattern = $@"(?<!\w){Regex.Escape(title)}(?!\w)";
-
-			if (Regex.IsMatch(reply, pattern, RegexOptions.IgnoreCase))
-			{
-				suggestions.Add(new ChatRecipeSuggestionDto(
-					recipe.Id.Value,
-					title,
-					Reason: null));
-			}
+			actions.Add(new ChatActionDto(ChatActionType.OpenRecipe, RecipeIdentifier: match.Identifier));
 		}
 
-		return suggestions;
+		if (context.ProposeStartCookMode && context.Matches.Count > 0)
+		{
+			actions.Add(new ChatActionDto(ChatActionType.StartCookMode, RecipeIdentifier: context.Matches[0].Identifier));
+		}
+
+		return actions;
 	}
 
 	private static ChatHistory BuildChatHistory(
 		ChatMessageContent message,
-		IReadOnlyList<DomainChatHistoryEntry> history,
-		IReadOnlyList<Recipe> userRecipes)
+		IReadOnlyList<DomainChatHistoryEntry> history)
 	{
 		var chatHistory = new ChatHistory();
-		chatHistory.AddSystemMessage(BuildSystemPrompt(userRecipes));
+		chatHistory.AddSystemMessage(systemPrompt);
 
 		foreach (var (role, content) in history)
 		{
@@ -94,15 +93,20 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 	}
 
 	private async Task<Result<string>> GetChatReplyAsync(
+		Kernel requestKernel,
 		ChatHistory chatHistory,
 		Activity? activity,
 		CancellationToken cancellationToken)
 	{
-		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
+		var chatCompletion = requestKernel.GetRequiredService<IChatCompletionService>();
+		var executionSettings = new PromptExecutionSettings
+		{
+			FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
+		};
 
 		try
 		{
-			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
+			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, executionSettings, requestKernel, cancellationToken);
 			var reply = result.Content ?? string.Empty;
 			activity?.SetTag("llm.response_length", reply.Length);
 			return reply;
@@ -119,52 +123,39 @@ public sealed partial class SemanticKernelChatService(Kernel kernel, IRecipeRepo
 		}
 	}
 
-	private static string BuildSystemPrompt(IReadOnlyList<Recipe> userRecipes)
-	{
-		var recipeList = userRecipes.Count == 0
-			? "(no recipes yet)"
-			: string.Join("\n", userRecipes.Select(recipe => $"- {recipe.Title.Value}"));
+	private const string systemPrompt = """
+        You are a friendly, concise cooking assistant for the Yumney recipe app.
+        You can call functions to look up the user's recipes and pantry — prefer
+        calling a function over guessing.
 
-		return $$"""
-            You are a friendly, concise cooking assistant for the Yumney recipe app.
-            Help the user discover recipes from their collection or suggest new ones.
-            When suggesting recipes from their collection, mention the exact title in quotes.
-            Keep answers to 2-3 sentences unless the user asks for more detail.
+        Tool usage:
+        - When the user asks to find or search recipes ("find chicken recipes",
+          "what pasta dishes do I have"), call search_recipes.
+        - When the user asks what they can cook now or with what's in their
+          pantry ("what can I cook?", "I have rice and eggs"), call
+          get_cookable_recipes.
+        - When the user wants details on a specific recipe (ingredients, steps,
+          time), call get_recipe with the identifier from a previous tool call.
+        - For general cooking questions or chit-chat, just reply directly
+          without calling tools.
 
-            The user's recipe collection contains:
-            {{recipeList}}
+        When you've called a tool, mention the most relevant 1-3 recipes by
+        title in your reply. Keep replies to 2-3 sentences unless the user
+        asks for more detail. The Yumney UI will render the matching recipes
+        as buttons under your reply, so do not list URLs or identifiers.
 
-            If the user asks for something not in their collection, suggest a general recipe
-            idea or recommend they import one from a website.
-            """;
-	}
-
-	private async Task<IReadOnlyList<Recipe>> LoadUserRecipeContextAsync(OwnerIdentifier owner, CancellationToken cancellationToken)
-	{
-		try
-		{
-			var paging = PagingOptions.Of(Page.From(1), PageSize.From(maxRecipesToInclude));
-			var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
-
-			var page = await recipes.GetByOwnerAsync(
-				owner,
-				paging,
-				sorting,
-				search: null,
-				filter: null,
-				cancellationToken: cancellationToken);
-			return page.Items;
-		}
-		catch (Exception ex) when (ex is not OperationCanceledException)
-		{
-			LogRecipeContextLoadFailed(ex.Message);
-			return [];
-		}
-	}
+        The user may write in English or German — answer in the same language.
+        """;
 
 	[LoggerMessage(Level = LogLevel.Warning, Message = "Chat LLM call failed: {Reason}")]
 	private partial void LogChatFailed(string reason);
 
-	[LoggerMessage(Level = LogLevel.Warning, Message = "Failed to load recipe context for chat: {Reason}")]
-	private partial void LogRecipeContextLoadFailed(string reason);
+	private Kernel BuildRequestKernel()
+	{
+		var requestKernel = kernel.Clone();
+		requestKernel.Plugins.AddFromObject(searchRecipesTool, "recipes_search");
+		requestKernel.Plugins.AddFromObject(getRecipeTool, "recipes_detail");
+		requestKernel.Plugins.AddFromObject(getCookableRecipesTool, "recipes_cookable");
+		return requestKernel;
+	}
 }
