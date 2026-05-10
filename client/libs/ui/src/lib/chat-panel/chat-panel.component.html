@@ -79,6 +79,22 @@
         </div>
       }
 
+      @if (lastActions().length > 0) {
+        <div class="chat-actions" data-testid="chat-actions">
+          @for (action of lastActions(); track $index) {
+            <button
+              type="button"
+              class="chat-action"
+              data-testid="chat-action"
+              (click)="onActionClick(action)"
+            >
+              <lucide-icon name="play" [size]="14" />
+              {{ t(actionLabelKey(action)) }}
+            </button>
+          }
+        </div>
+      }
+
       @if (error(); as err) {
         <div class="chat-error" role="alert">{{ t(err) }}</div>
       }

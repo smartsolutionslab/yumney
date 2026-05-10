@@ -308,6 +308,15 @@
     "errors": {
       "offline": "Chat benötigt eine Internetverbindung.",
       "failed": "Chat-Dienst nicht erreichbar. Bitte erneut versuchen."
+    },
+    "actions": {
+      "navigate": "Öffnen",
+      "openShopping": "Einkaufsliste öffnen",
+      "openMealPlanner": "Wochenplan öffnen",
+      "openRecipes": "Rezepte öffnen",
+      "openSettings": "Einstellungen öffnen",
+      "openRecipe": "Rezept öffnen",
+      "startCooking": "Kochen starten"
     }
   },
   "commandBar": {

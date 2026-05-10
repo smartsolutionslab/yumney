@@ -308,6 +308,15 @@
     "errors": {
       "offline": "Chat requires an internet connection.",
       "failed": "Could not reach the chat service. Please try again."
+    },
+    "actions": {
+      "navigate": "Open",
+      "openShopping": "Open shopping list",
+      "openMealPlanner": "Open meal planner",
+      "openRecipes": "Open recipes",
+      "openSettings": "Open settings",
+      "openRecipe": "Open recipe",
+      "startCooking": "Start cooking"
     }
   },
   "commandBar": {

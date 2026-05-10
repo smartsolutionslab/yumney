@@ -13,5 +13,5 @@ internal sealed class StubChatService : IChatService
 		IReadOnlyList<ChatHistoryEntry> history,
 		OwnerIdentifier owner,
 		CancellationToken cancellationToken = default) =>
-		Task.FromResult(Result<ChatResponseDto>.Success(new ChatResponseDto("Stub reply.", [])));
+		Task.FromResult(Result<ChatResponseDto>.Success(new ChatResponseDto("Stub reply.", [], [])));
 }

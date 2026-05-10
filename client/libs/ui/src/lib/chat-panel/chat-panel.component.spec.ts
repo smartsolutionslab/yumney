@@ -1,6 +1,6 @@
 import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ChatPanelComponent } from './chat-panel.component';
 import { ChatApiService, RecipeApiService } from '@yumney/shared/api-client';
@@ -18,6 +18,15 @@ const en = {
     clear: 'Clear',
     clearHistory: 'Clear history',
     errors: { offline: 'Offline', failed: 'Failed' },
+    actions: {
+      navigate: 'Open',
+      openShopping: 'Open shopping list',
+      openMealPlanner: 'Open meal planner',
+      openRecipes: 'Open recipes',
+      openSettings: 'Open settings',
+      openRecipe: 'Open recipe',
+      startCooking: 'Start cooking',
+    },
   },
   commandBar: {
     hints: {
@@ -309,5 +318,134 @@ describe('ChatPanelComponent', () => {
     expect(fixture.componentInstance['looksLikeRecipeText']('line1\nline2\nline3')).toBe(true);
     expect(fixture.componentInstance['looksLikeRecipeText']('a '.repeat(30))).toBe(true);
     expect(fixture.componentInstance['looksLikeRecipeText']('short text')).toBe(false);
+  });
+
+  // ── Actions ──
+
+  it('should render action buttons returned from chat response', async () => {
+    chatApiMock.send = vi.fn().mockReturnValue(
+      of({
+        reply: 'Sure!',
+        suggestions: [],
+        actions: [{ type: 'navigate', route: '/shopping' }],
+      }),
+    );
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Open shopping list');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const buttons = fixture.nativeElement.querySelectorAll('[data-testid="chat-action"]');
+    expect(buttons.length).toBe(1);
+    expect(buttons[0].textContent.trim()).toContain('Open shopping list');
+  });
+
+  it('should navigate and close panel when an action button is clicked', async () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    chatApiMock.send = vi.fn().mockReturnValue(
+      of({
+        reply: 'Sure!',
+        suggestions: [],
+        actions: [{ type: 'navigate', route: '/meal-planner' }],
+      }),
+    );
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Open meal planner');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('[data-testid="chat-action"]');
+    button.click();
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/meal-planner']);
+    expect(chatState.isOpen()).toBe(false);
+  });
+
+  it('should map openRecipe action to recipe detail route', async () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    chatApiMock.send = vi.fn().mockReturnValue(
+      of({
+        reply: 'Here it is.',
+        suggestions: [],
+        actions: [{ type: 'openRecipe', recipeIdentifier: 'abc-123' }],
+      }),
+    );
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Show me carbonara');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    fixture.nativeElement.querySelector('[data-testid="chat-action"]').click();
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/recipes/abc-123']);
+  });
+
+  it('should map startCookMode action to cook route', async () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    chatApiMock.send = vi.fn().mockReturnValue(
+      of({
+        reply: "Let's go.",
+        suggestions: [],
+        actions: [{ type: 'startCookMode', recipeIdentifier: 'def-456' }],
+      }),
+    );
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Cook now');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    fixture.nativeElement.querySelector('[data-testid="chat-action"]').click();
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/recipes/def-456/cook']);
+  });
+
+  it('should not render action container when actions are empty', async () => {
+    chatApiMock.send = vi.fn().mockReturnValue(of({ reply: 'Hi', suggestions: [], actions: [] }));
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Hello');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-testid="chat-actions"]')).toBeFalsy();
+  });
+
+  it('should clear actions when conversation is cleared', async () => {
+    chatApiMock.send = vi.fn().mockReturnValue(
+      of({
+        reply: 'Sure!',
+        suggestions: [],
+        actions: [{ type: 'navigate', route: '/shopping' }],
+      }),
+    );
+    chatState.open();
+    fixture.detectChanges();
+
+    fixture.componentInstance['input'].set('Open shopping list');
+    fixture.componentInstance['onSend']();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    fixture.componentInstance['onClear']();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['lastActions']().length).toBe(0);
   });
 });
