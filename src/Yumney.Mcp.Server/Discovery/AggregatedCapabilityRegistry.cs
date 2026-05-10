@@ -32,4 +32,28 @@ public sealed class AggregatedCapabilityRegistry
 	/// <returns>Flat list of every capability descriptor across every discovered service.</returns>
 	public IReadOnlyList<CapabilityDescriptor> AllCapabilities() =>
 		[.. manifestsByService.Values.SelectMany(manifest => manifest.Capabilities)];
+
+	/// <summary>Find the Aspire service name that owns a tool by name.</summary>
+	/// <param name="toolName">Capability name (e.g. <c>search_recipes</c>).</param>
+	/// <returns>Owning service name, or null if no discovered manifest contains it.</returns>
+	public string? ServiceNameForTool(string toolName)
+	{
+		foreach (var (serviceName, manifest) in manifestsByService)
+		{
+			if (manifest.Capabilities.Any(capability => capability.Name == toolName))
+			{
+				return serviceName;
+			}
+		}
+
+		return null;
+	}
+
+	/// <summary>Find a capability descriptor by name across all discovered services.</summary>
+	/// <param name="toolName">Capability name.</param>
+	/// <returns>Descriptor with the given name, or null if not found.</returns>
+	public CapabilityDescriptor? DescriptorForTool(string toolName) =>
+		manifestsByService.Values
+			.SelectMany(manifest => manifest.Capabilities)
+			.FirstOrDefault(capability => capability.Name == toolName);
 }
