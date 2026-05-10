@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+namespace SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 
 /// <summary>
 /// Published by the Recipes module when a user opens a recipe's detail view

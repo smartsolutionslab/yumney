@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+namespace SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 
 /// <summary>
 /// Published by the MealPlan module when a planned meal transitions to the

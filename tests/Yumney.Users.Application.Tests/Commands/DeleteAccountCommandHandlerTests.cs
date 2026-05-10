@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+using SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using SmartSolutionsLab.Yumney.Users.Application.Commands.Handlers;

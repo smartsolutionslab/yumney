@@ -1,5 +1,5 @@
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+using SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;
 
 namespace SmartSolutionsLab.Yumney.Users.Application.IntegrationEventHandlers;

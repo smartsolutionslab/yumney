@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+namespace SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 
 /// <summary>
 /// Published by the Shopping module when a list's recipe-reference link is

@@ -2,7 +2,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.CrossModule;
+using SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Services;
 

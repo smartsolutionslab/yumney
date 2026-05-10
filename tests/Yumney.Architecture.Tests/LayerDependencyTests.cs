@@ -271,6 +271,24 @@ public class LayerDependencyTests
 			$"{sourceModule}.Api must not depend on {targetModule}.Application");
 	}
 
+	[Theory]
+	[InlineData("Recipes")]
+	[InlineData("Shopping")]
+	[InlineData("Users")]
+	[InlineData("MealPlan")]
+	public void Domain_ShouldNotDependOn_EventsContracts(string module)
+	{
+		var domainAssembly = GetAssembly($"Yumney.{module}.Domain");
+
+		var result = Types.InAssembly(domainAssembly)
+			.ShouldNot()
+			.HaveDependencyOn("SmartSolutionsLab.Yumney.Shared.Events.Contracts")
+			.GetResult();
+
+		result.IsSuccessful.Should().BeTrue(
+			$"{module}.Domain must not author cross-module integration events — that's an Application-layer concern (#634)");
+	}
+
 	private static System.Reflection.Assembly GetAssembly(string name)
 	{
 		return System.Reflection.Assembly.Load(name);
