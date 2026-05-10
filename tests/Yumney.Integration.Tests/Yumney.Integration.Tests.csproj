@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\src\Yumney.Shopping.Infrastructure\Yumney.Shopping.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Users.Infrastructure\Yumney.Users.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Events.Contracts\Yumney.Shared.Events.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.Capabilities\Yumney.Shared.Capabilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
