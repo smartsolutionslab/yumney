@@ -26,6 +26,7 @@ public sealed partial class SemanticKernelChatService(
 	SearchRecipesTool searchRecipesTool,
 	GetRecipeTool getRecipeTool,
 	GetCookableRecipesTool getCookableRecipesTool,
+	RateRecipeTool rateRecipeTool,
 	ChatToolContext toolContext,
 	ILogger<SemanticKernelChatService> logger)
 	: IChatService
@@ -136,6 +137,9 @@ public sealed partial class SemanticKernelChatService(
           get_cookable_recipes.
         - When the user wants details on a specific recipe (ingredients, steps,
           time), call get_recipe with the identifier from a previous tool call.
+        - When the user rates a recipe ("rate the carbonara 5 stars",
+          "I'd give that a 4"), call rate_recipe with the identifier from a
+          previous tool call and the integer rating.
         - For general cooking questions or chit-chat, just reply directly
           without calling tools.
 
@@ -156,6 +160,7 @@ public sealed partial class SemanticKernelChatService(
 		requestKernel.Plugins.AddFromObject(searchRecipesTool, "recipes_search");
 		requestKernel.Plugins.AddFromObject(getRecipeTool, "recipes_detail");
 		requestKernel.Plugins.AddFromObject(getCookableRecipesTool, "recipes_cookable");
+		requestKernel.Plugins.AddFromObject(rateRecipeTool, "recipes_rate");
 		return requestKernel;
 	}
 }
