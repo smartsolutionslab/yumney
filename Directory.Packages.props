@@ -43,6 +43,9 @@
     <!-- LLM & Scraping -->
     <PackageVersion Include="Microsoft.SemanticKernel" Version="1.74.0" />
     <PackageVersion Include="AngleSharp" Version="1.4.0" />
+    <!-- Model Context Protocol (used by Yumney.Mcp.Server to expose capabilities to external LLM clients per ADR 0002) -->
+    <PackageVersion Include="ModelContextProtocol" Version="1.3.0" />
+    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="1.3.0" />
     <!-- Reverse Proxy -->
     <PackageVersion Include="RedisRateLimiting" Version="1.2.1" />
     <PackageVersion Include="WolverineFx.RabbitMQ" Version="5.31.1" />
