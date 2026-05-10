@@ -32,6 +32,8 @@ jobs:
             display: Shared
           - project: Yumney.Shared.Guards.Tests
             display: Shared.Guards
+          - project: Yumney.Shared.Events.Contracts.Tests
+            display: Shared.Events.Contracts
           # Yumney.Shared.Events.Tests excluded: the test project references
           # *.Events.InProcess and *.Events.Wolverine but never *.Events
           # itself, so Stryker's "find a mutable assembly from project
