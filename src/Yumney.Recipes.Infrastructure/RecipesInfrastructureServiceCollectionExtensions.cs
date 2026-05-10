@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SmartSolutionsLab.Yumney.MealPlan.Client;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
@@ -40,9 +41,11 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 		services.AddScoped<IRecipesUserDataPurger, RecipesUserDataPurger>();
 		services.AddScoped<IIngredientBalanceProvider, HttpIngredientBalanceProvider>();
 		services.AddScoped<IDietaryProfileProvider, HttpDietaryProfileProvider>();
+		services.AddScoped<IWeeklyPlanLookup, HttpWeeklyPlanLookup>();
 		services.AddScoped<IRecipeViewTracker, CachedRecipeViewTracker>();
 		services.AddShoppingClient();
 		services.AddUsersClient();
+		services.AddMealPlanClient();
 		services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
 
 		return services;
