@@ -19,6 +19,12 @@ public interface IModuleHttpClient
 		TBody body,
 		string operation,
 		CancellationToken cancellationToken = default);
+
+	Task PutAsync<TBody>(
+		string url,
+		TBody body,
+		string operation,
+		CancellationToken cancellationToken = default);
 }
 
 public interface IModuleHttpClientFactory

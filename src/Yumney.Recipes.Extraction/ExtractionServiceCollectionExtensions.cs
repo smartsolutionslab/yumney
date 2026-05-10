@@ -45,6 +45,8 @@ public static class ExtractionServiceCollectionExtensions
 		services.AddScoped<GetCookableRecipesTool>();
 		services.AddScoped<RateRecipeTool>();
 		services.AddScoped<GetWeeklyPlanTool>();
+		services.AddScoped<AssignMealTool>();
+		services.AddScoped<ConfirmMealTool>();
 
 		var skOptions = configuration
 			.GetSection(SemanticKernelOptions.SectionName)

@@ -75,6 +75,24 @@ internal sealed partial class ModuleHttpClient(
 		}
 	}
 
+	public async Task PutAsync<TBody>(
+		string url,
+		TBody body,
+		string operation,
+		CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			using var response = await httpClient.PutAsJsonAsync(url, body, jsonOptions, cancellationToken);
+			response.EnsureSuccessStatusCode();
+		}
+		catch (Exception ex) when (ex is not OperationCanceledException)
+		{
+			LogPutFailed(operation, upstreamName, ex.Message);
+			throw;
+		}
+	}
+
 	[LoggerMessage(Level = LogLevel.Warning, Message = "{Operation} GET against {Upstream} failed ({Reason}); returning fallback.")]
 	private partial void LogGetFailed(string operation, string upstream, string reason);
 
@@ -83,4 +101,7 @@ internal sealed partial class ModuleHttpClient(
 
 	[LoggerMessage(Level = LogLevel.Error, Message = "{Operation} POST to {Upstream} failed ({Reason}).")]
 	private partial void LogPostFailed(string operation, string upstream, string reason);
+
+	[LoggerMessage(Level = LogLevel.Error, Message = "{Operation} PUT to {Upstream} failed ({Reason}).")]
+	private partial void LogPutFailed(string operation, string upstream, string reason);
 }
