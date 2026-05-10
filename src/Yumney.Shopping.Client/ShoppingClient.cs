@@ -18,4 +18,27 @@ internal sealed class ShoppingClient(IModuleHttpClientFactory factory) : IShoppi
 			request,
 			"AddShoppingItem",
 			cancellationToken);
+
+	public Task<MergedShoppingListResponse?> GetMergedListAsync(bool includePastBought = false, CancellationToken cancellationToken = default) =>
+		http.FindAsync<MergedShoppingListResponse>(
+			$"/api/v1/shopping-lists/merged?includePastBought={includePastBought.ToString().ToLowerInvariant()}",
+			"GetMergedShoppingList",
+			cancellationToken);
+
+	public async Task<bool> CreateListFromRecipesAsync(CreateListFromRecipesBody body, CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			await http.PostAsync(
+				"/api/v1/shopping-lists/from-recipes",
+				body,
+				"CreateShoppingListFromRecipes",
+				cancellationToken);
+			return true;
+		}
+		catch (Exception ex) when (ex is not OperationCanceledException)
+		{
+			return false;
+		}
+	}
 }

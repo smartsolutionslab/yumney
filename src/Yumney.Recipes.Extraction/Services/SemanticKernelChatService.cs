@@ -29,6 +29,8 @@ public sealed partial class SemanticKernelChatService(
 	GetWeeklyPlanTool getWeeklyPlanTool,
 	AssignMealTool assignMealTool,
 	ConfirmMealTool confirmMealTool,
+	GetMergedShoppingListTool getMergedShoppingListTool,
+	CreateShoppingListTool createShoppingListTool,
 	ChatToolContext toolContext,
 	ILogger<SemanticKernelChatService> logger)
 	: IChatService
@@ -151,6 +153,15 @@ public sealed partial class SemanticKernelChatService(
           meal ("I made the spaghetti on Wednesday", "skip Friday's
           dinner"), call confirm_meal_cooked with state Cooked/Skipped/
           Planned.
+        - When the user asks about their shopping list ("what's on my
+          shopping list?", "do I still need eggs?"), call
+          get_merged_shopping_list.
+        - When the user asks to build a shopping list from recipes
+          ("make a list for spaghetti and risotto", "shopping list for
+          this week's dinners"), first resolve recipe identifiers via
+          search_recipes if needed, then call
+          create_shopping_list_from_recipes with the identifiers
+          comma-separated.
         - For general cooking questions or chit-chat, just reply directly
           without calling tools.
 
@@ -174,6 +185,8 @@ public sealed partial class SemanticKernelChatService(
 		requestKernel.Plugins.AddFromObject(getWeeklyPlanTool, "mealplan_weekly");
 		requestKernel.Plugins.AddFromObject(assignMealTool, "mealplan_assign");
 		requestKernel.Plugins.AddFromObject(confirmMealTool, "mealplan_confirm");
+		requestKernel.Plugins.AddFromObject(getMergedShoppingListTool, "shopping_merged");
+		requestKernel.Plugins.AddFromObject(createShoppingListTool, "shopping_create");
 		return requestKernel;
 	}
 }
