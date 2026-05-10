@@ -27,6 +27,8 @@ public sealed partial class SemanticKernelChatService(
 	GetRecipeTool getRecipeTool,
 	GetCookableRecipesTool getCookableRecipesTool,
 	GetWeeklyPlanTool getWeeklyPlanTool,
+	AssignMealTool assignMealTool,
+	ConfirmMealTool confirmMealTool,
 	ChatToolContext toolContext,
 	ILogger<SemanticKernelChatService> logger)
 	: IChatService
@@ -141,6 +143,14 @@ public sealed partial class SemanticKernelChatService(
           Tuesday?", "show me this week's plan", "was ist nächste Woche
           geplant?"), call get_weekly_plan. Pass year=0 / weekNumber=0 to
           mean "this week".
+        - When the user wants to plan a recipe ("plan carbonara for
+          Wednesday", "add risotto to Friday lunch"), first resolve the
+          recipe identifier via search_recipes if you don't already have
+          one, then call assign_meal.
+        - When the user reports cooking, skipping, or undoing a planned
+          meal ("I made the spaghetti on Wednesday", "skip Friday's
+          dinner"), call confirm_meal_cooked with state Cooked/Skipped/
+          Planned.
         - For general cooking questions or chit-chat, just reply directly
           without calling tools.
 
@@ -162,6 +172,8 @@ public sealed partial class SemanticKernelChatService(
 		requestKernel.Plugins.AddFromObject(getRecipeTool, "recipes_detail");
 		requestKernel.Plugins.AddFromObject(getCookableRecipesTool, "recipes_cookable");
 		requestKernel.Plugins.AddFromObject(getWeeklyPlanTool, "mealplan_weekly");
+		requestKernel.Plugins.AddFromObject(assignMealTool, "mealplan_assign");
+		requestKernel.Plugins.AddFromObject(confirmMealTool, "mealplan_confirm");
 		return requestKernel;
 	}
 }
