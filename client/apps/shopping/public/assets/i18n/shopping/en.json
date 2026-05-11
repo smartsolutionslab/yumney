@@ -81,5 +81,11 @@
   "history": {
     "toggle": "Show past purchases",
     "empty": "No past purchases to show."
+  },
+  "sources": {
+    "toggle": "Show sources",
+    "header": "Sources",
+    "manual": "Added manually",
+    "empty": "No source breakdown available."
   }
 }

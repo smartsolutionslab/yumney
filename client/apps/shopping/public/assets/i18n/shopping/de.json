@@ -81,5 +81,11 @@
   "history": {
     "toggle": "Frühere Einkäufe anzeigen",
     "empty": "Keine früheren Einkäufe vorhanden."
+  },
+  "sources": {
+    "toggle": "Quellen anzeigen",
+    "header": "Quellen",
+    "manual": "Manuell hinzugefügt",
+    "empty": "Keine Quellenangaben verfügbar."
   }
 }
