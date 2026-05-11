@@ -102,20 +102,27 @@ public class McpWriteToolBehaviorTests(AspireFixture fixture)
 	}
 
 	[Fact]
-	public async Task CreateShoppingListFromRecipes_PersistsList_VisibleViaMergedRead()
+	public async Task CreateShoppingListFromRecipes_PersistsList_ReturnsItemsFromRecipe()
 	{
+		// What `create_shopping_list_from_recipes` actually does: it builds a
+		// ShoppingList aggregate, saves it via IShoppingListEventStore, and
+		// returns the materialised list (ShoppingListDetailDto). The merged-
+		// read read model (`get_merged_shopping_list`) is a *separate* ledger
+		// projection populated by ledger events (Added/Bought/Consumed/…) —
+		// not by ShoppingListCreated events. So we can't observe the list
+		// through that endpoint and shouldn't try.
+		//
+		// Instead, assert directly against the create-tool response: it
+		// echoes the persisted list with its items, which is exactly the
+		// round-trip wiring this test is here to prove (arguments serialised
+		// in the right shape, owner propagated, ingredient lookup against
+		// recipes-api succeeded, items merged + persisted).
 		var ownerId = await fixture.GetTestUserIdAsync();
 		var recipe = RecipeFactory.TomatoSoup(owner: ownerId);
 		await fixture.SeedRecipesAsync(recipe);
 
 		await using var client = await CreateClientAsync();
 
-		// Body shape matches Shopping.Api.Requests.CreateFromRecipes:
-		// { title, recipes: [{ recipeIdentifier, servings }] }. The MCP tool
-		// proxy serializes whatever argument bag we hand it straight to the
-		// upstream body, so the field names + structure have to line up. The
-		// original `recipeIdentifiers: "guid"` shape never matched and the
-		// upstream returned 422 "At least one recipe is required.".
 		var createResult = await client.CallToolAsync("create_shopping_list_from_recipes", new Dictionary<string, object?>
 		{
 			["title"] = $"MCP integration list {Guid.NewGuid():N}",
@@ -127,15 +134,12 @@ public class McpWriteToolBehaviorTests(AspireFixture fixture)
 
 		createResult.IsError.Should().BeFalse(because: GetText(createResult));
 
-		await Eventually.AssertAsync(async () =>
-		{
-			var mergedResult = await client.CallToolAsync("get_merged_shopping_list", new Dictionary<string, object?>());
-			mergedResult.IsError.Should().BeFalse();
-			var mergedText = GetText(mergedResult);
-
-			// At least one of the recipe's ingredients should appear in the merged list.
-			mergedText.Should().Contain("Tomatoes");
-		});
+		var createdJson = JsonDocument.Parse(GetText(createResult));
+		var itemNames = createdJson.RootElement.GetProperty("items")
+			.EnumerateArray()
+			.Select(item => item.GetProperty("name").GetString())
+			.ToList();
+		itemNames.Should().Contain("Tomatoes");
 	}
 
 	[Fact]
