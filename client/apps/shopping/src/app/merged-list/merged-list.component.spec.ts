@@ -360,9 +360,7 @@ describe('MergedListComponent', () => {
       rows[0].click();
       fixture.detectChanges();
 
-      const panel = fixture.nativeElement.querySelector(
-        '[data-testid="shopping-sources-panel"]',
-      );
+      const panel = fixture.nativeElement.querySelector('[data-testid="shopping-sources-panel"]');
       expect(panel).toBeTruthy();
       expect(rows[0].getAttribute('aria-expanded')).toBe('true');
     });
@@ -398,9 +396,7 @@ describe('MergedListComponent', () => {
       rows[1].click();
       fixture.detectChanges();
 
-      const panel = fixture.nativeElement.querySelector(
-        '[data-testid="shopping-sources-panel"]',
-      );
+      const panel = fixture.nativeElement.querySelector('[data-testid="shopping-sources-panel"]');
       expect(panel.textContent).toContain('No source breakdown available');
     });
 

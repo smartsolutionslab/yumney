@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Aspire.Hosting;
@@ -36,6 +37,16 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 public sealed class AspireFixture : IAsyncLifetime
 {
 	private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(8);
+
+	// Hosts add JsonStringEnumConverter via ConfigureHttpJsonOptions, so enums
+	// (CapabilitySurface, ChatActionType, …) are serialised as strings on the
+	// wire. Default GetFromJsonAsync<T> options cannot read those strings back
+	// into the enum types. Tests must deserialise responses with this options
+	// instance so the round-trip stays consistent.
+	public static JsonSerializerOptions JsonOptions { get; } = new(JsonSerializerDefaults.Web)
+	{
+		Converters = { new JsonStringEnumConverter() },
+	};
 
 	public static async Task CleanupAsync<TContext>(Func<Task<TContext>> contextFactory, Func<TContext, IQueryable<object>> query)
 		where TContext : DbContext

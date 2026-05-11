@@ -20,7 +20,7 @@ public class CapabilityManifestEndpointIntegrationTests(AspireFixture fixture)
 	[Fact]
 	public async Task RecipesManifest_ContainsExpectedTaggedEndpoints()
 	{
-		var manifest = await fixture.RecipesApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath);
+		var manifest = await fixture.RecipesApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath, AspireFixture.JsonOptions);
 
 		manifest.Should().NotBeNull();
 		manifest!.ServiceName.Should().Be("recipes-api");
@@ -35,7 +35,7 @@ public class CapabilityManifestEndpointIntegrationTests(AspireFixture fixture)
 	[Fact]
 	public async Task MealPlanManifest_ContainsExpectedTaggedEndpoints()
 	{
-		var manifest = await fixture.MealPlanApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath);
+		var manifest = await fixture.MealPlanApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath, AspireFixture.JsonOptions);
 
 		manifest.Should().NotBeNull();
 		manifest!.ServiceName.Should().Be("mealplan-api");
@@ -49,7 +49,7 @@ public class CapabilityManifestEndpointIntegrationTests(AspireFixture fixture)
 	[Fact]
 	public async Task ShoppingManifest_ContainsExpectedTaggedEndpoints()
 	{
-		var manifest = await fixture.ShoppingApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath);
+		var manifest = await fixture.ShoppingApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath, AspireFixture.JsonOptions);
 
 		manifest.Should().NotBeNull();
 		manifest!.ServiceName.Should().Be("shopping-api");
@@ -72,7 +72,7 @@ public class CapabilityManifestEndpointIntegrationTests(AspireFixture fixture)
 	[Fact]
 	public async Task EveryDescriptor_HasMcpOrChatSurface_AndPathStartsWithApiV1()
 	{
-		var manifest = await fixture.RecipesApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath);
+		var manifest = await fixture.RecipesApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath, AspireFixture.JsonOptions);
 
 		manifest!.Capabilities.Should().NotBeEmpty();
 		manifest.Capabilities.Should().AllSatisfy(capability =>
@@ -85,7 +85,7 @@ public class CapabilityManifestEndpointIntegrationTests(AspireFixture fixture)
 	[Fact]
 	public async Task SearchRecipesDescriptor_HasGetMethodAndCorrectRoute()
 	{
-		var manifest = await fixture.RecipesApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath);
+		var manifest = await fixture.RecipesApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath, AspireFixture.JsonOptions);
 
 		var search = manifest!.Capabilities.Single(capability => capability.Name == "search_recipes");
 		search.HttpMethod.Should().Be("GET");
@@ -95,7 +95,7 @@ public class CapabilityManifestEndpointIntegrationTests(AspireFixture fixture)
 	[Fact]
 	public async Task AssignMealDescriptor_HasPostMethodAndIncludesPlaceholders()
 	{
-		var manifest = await fixture.MealPlanApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath);
+		var manifest = await fixture.MealPlanApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath, AspireFixture.JsonOptions);
 
 		var assign = manifest!.Capabilities.Single(capability => capability.Name == "assign_meal");
 		assign.HttpMethod.Should().Be("POST");
