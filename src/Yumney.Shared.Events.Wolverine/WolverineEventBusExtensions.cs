@@ -61,6 +61,7 @@ public static class WolverineEventBusExtensions
 		// module's handler runs per message). Prefixing with the application
 		// name gives each module an isolated queue that receives every message.
 		var moduleQueuePrefix = builder.Environment.ApplicationName ?? "yumney-app";
+		var isE2ETests = builder.Configuration.GetValue<bool>("E2ETests");
 
 		builder.Host.UseWolverine(opts =>
 		{
@@ -84,6 +85,18 @@ public static class WolverineEventBusExtensions
 				{
 					routing.QueueNameForListener(eventType => $"{moduleQueuePrefix}.{eventType.FullName}");
 				});
+
+			if (isE2ETests)
+			{
+				// Single-node integration-test process: Solo durability mode skips
+				// the multi-node health-check / agent-election overhead, and a
+				// tighter scheduled-job poll lets the outbox flush in tens of
+				// milliseconds instead of seconds. The combination removes the
+				// dominant cold-start delay that caused `Eventually.AssertAsync`
+				// to time out on first writes — see issue #606.
+				opts.Durability.Mode = DurabilityMode.Solo;
+				opts.Durability.ScheduledJobPollingTime = TimeSpan.FromMilliseconds(100);
+			}
 
 			foreach (var assembly in eventHandlerAssemblies)
 			{
