@@ -27,7 +27,7 @@ public class RecipesChatActionsContractTests(AspireFixture fixture)
 		var response = await client.PostAsJsonAsync("/api/v1/recipes/chat", request);
 
 		response.IsSuccessStatusCode.Should().BeTrue();
-		var dto = await response.Content.ReadFromJsonAsync<ChatResponseDto>();
+		var dto = await response.Content.ReadFromJsonAsync<ChatResponseDto>(AspireFixture.JsonOptions);
 		dto.Should().NotBeNull();
 		dto!.Actions.Should().ContainSingle();
 		dto.Actions[0].Type.Should().Be(ChatActionType.Navigate);
@@ -43,7 +43,7 @@ public class RecipesChatActionsContractTests(AspireFixture fixture)
 		var response = await client.PostAsJsonAsync("/api/v1/recipes/chat", request);
 
 		response.IsSuccessStatusCode.Should().BeTrue();
-		var dto = await response.Content.ReadFromJsonAsync<ChatResponseDto>();
+		var dto = await response.Content.ReadFromJsonAsync<ChatResponseDto>(AspireFixture.JsonOptions);
 		dto!.Actions.Should().ContainSingle();
 		dto.Actions[0].Route.Should().Be("/meal-planner");
 	}
@@ -57,7 +57,7 @@ public class RecipesChatActionsContractTests(AspireFixture fixture)
 		var response = await client.PostAsJsonAsync("/api/v1/recipes/chat", request);
 
 		response.IsSuccessStatusCode.Should().BeTrue();
-		var dto = await response.Content.ReadFromJsonAsync<ChatResponseDto>();
+		var dto = await response.Content.ReadFromJsonAsync<ChatResponseDto>(AspireFixture.JsonOptions);
 		dto!.Actions.Should().BeEmpty();
 	}
 
