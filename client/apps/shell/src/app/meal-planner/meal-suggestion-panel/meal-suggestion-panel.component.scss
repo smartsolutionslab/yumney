@@ -5,22 +5,21 @@
 }
 
 .suggest-cta {
-  @include glass.glass-surface(1);
   display: inline-flex;
   align-items: center;
   gap: var(--yn-space-2);
   padding: var(--yn-space-3) var(--yn-space-5);
-  border: 1px solid var(--yn-primary);
+  border: none;
   border-radius: var(--yn-radius-button);
-  background: transparent;
-  color: var(--yn-primary);
+  background: var(--yn-primary);
+  color: var(--yn-text-inverse);
   font-size: var(--yn-text-sm);
   font-weight: var(--yn-font-semibold);
   cursor: pointer;
-  transition: background var(--yn-duration-fast) var(--yn-ease-glass);
+  transition: filter var(--yn-duration-fast) var(--yn-ease-glass);
 
   &:hover {
-    background: var(--yn-glass-bg-elevated);
+    filter: brightness(1.05);
   }
 }
 
