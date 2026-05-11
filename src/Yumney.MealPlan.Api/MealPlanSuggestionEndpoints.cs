@@ -21,7 +21,7 @@ public static class MealPlanSuggestionEndpoints
 			.WithCapability(
 				name: "suggest_week_plan",
 				description: "Suggest a complete dinner plan for an ISO week ('plan my week', 'fill out next week') using the user's recipe catalog, history, and dietary profile.",
-				surfaces: CapabilitySurface.Chat | CapabilitySurface.Mcp)
+				surfaces: CapabilitySurface.Mcp)
 			.Produces<WeekSuggestionDto>()
 			.ProducesProblem(StatusCodes.Status422UnprocessableEntity);
 
