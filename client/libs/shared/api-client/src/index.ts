@@ -82,6 +82,8 @@ export type {
   ConfirmMealRequest,
   CookWithLeftoversRequest,
   GenerateShoppingListResult,
+  MealHistoryEntry,
+  SearchHistoryParams,
 } from './lib/meal-plan';
 
 // --- Dashboard ---

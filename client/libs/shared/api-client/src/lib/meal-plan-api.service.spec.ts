@@ -13,7 +13,9 @@ import type {
   CookWithLeftoversRequest,
   WeeklyPlannedRecipes,
   GenerateShoppingListResult,
+  MealHistoryEntry,
 } from './meal-plan';
+import type { PagedResponse } from '@yumney/shared/models';
 
 const year = 2026;
 const week = 16;
@@ -236,6 +238,73 @@ describe('MealPlanApiService', () => {
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
       req.flush(mockResult);
+    });
+  });
+
+  describe('searchHistory', () => {
+    const mockHistory: PagedResponse<MealHistoryEntry> = {
+      items: [
+        {
+          recipeIdentifier: 'recipe-abc',
+          recipeTitle: 'Lasagna',
+          week: '2024-W12',
+          day: 'Wednesday',
+          mealType: 'Dinner',
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+    };
+
+    it('GETs /history/search with no params by default', () => {
+      service.searchHistory().subscribe((result) => {
+        expect(result).toEqual(mockHistory);
+      });
+
+      const req = httpTesting.expectOne(
+        (request) => request.url === API_ENDPOINTS.mealPlans.historySearch,
+      );
+      expect(req.request.method).toBe('GET');
+      expect(req.request.params.keys().length).toBe(0);
+      req.flush(mockHistory);
+    });
+
+    it('passes term, page, and pageSize as query params', () => {
+      service.searchHistory({ term: 'lasagna', page: 2, pageSize: 25 }).subscribe();
+
+      const req = httpTesting.expectOne(
+        (request) =>
+          request.url === API_ENDPOINTS.mealPlans.historySearch &&
+          request.params.get('term') === 'lasagna',
+      );
+      expect(req.request.params.get('page')).toBe('2');
+      expect(req.request.params.get('pageSize')).toBe('25');
+      req.flush(mockHistory);
+    });
+
+    it('omits empty term from query string', () => {
+      service.searchHistory({ term: '', pageSize: 10 }).subscribe();
+
+      const req = httpTesting.expectOne(
+        (request) => request.url === API_ENDPOINTS.mealPlans.historySearch,
+      );
+      expect(req.request.params.has('term')).toBe(false);
+      expect(req.request.params.get('pageSize')).toBe('10');
+      req.flush(mockHistory);
+    });
+  });
+
+  describe('copyPlanToWeek', () => {
+    it('POSTs to /meal-plans/:srcY/w/:srcW/copy-to/:dstY/:dstW', () => {
+      service.copyPlanToWeek(2024, 12, 2026, 16).subscribe((result) => {
+        expect(result).toEqual(mockWeeklyPlan);
+      });
+
+      const req = httpTesting.expectOne(API_ENDPOINTS.mealPlans.copyTo(2024, 12, 2026, 16));
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({});
+      req.flush(mockWeeklyPlan);
     });
   });
 });

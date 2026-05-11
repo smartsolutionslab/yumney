@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import type { PagedResponse } from '@yumney/shared/models';
 import { API_ENDPOINTS } from './api-endpoints';
 import type {
   WeeklyPlan,
@@ -12,6 +13,8 @@ import type {
   ConfirmMealRequest,
   CookWithLeftoversRequest,
   GenerateShoppingListResult,
+  MealHistoryEntry,
+  SearchHistoryParams,
 } from './meal-plan';
 
 @Injectable({ providedIn: 'root' })
@@ -72,6 +75,30 @@ export class MealPlanApiService {
   generateShoppingList(year: number, week: number): Observable<GenerateShoppingListResult> {
     return this.http.post<GenerateShoppingListResult>(
       API_ENDPOINTS.mealPlans.generateShoppingList(year, week),
+      {},
+    );
+  }
+
+  searchHistory(params: SearchHistoryParams = {}): Observable<PagedResponse<MealHistoryEntry>> {
+    let httpParams = new HttpParams();
+    if (params.term) httpParams = httpParams.set('term', params.term);
+    if (params.page !== undefined) httpParams = httpParams.set('page', String(params.page));
+    if (params.pageSize !== undefined) {
+      httpParams = httpParams.set('pageSize', String(params.pageSize));
+    }
+    return this.http.get<PagedResponse<MealHistoryEntry>>(API_ENDPOINTS.mealPlans.historySearch, {
+      params: httpParams,
+    });
+  }
+
+  copyPlanToWeek(
+    srcYear: number,
+    srcWeek: number,
+    dstYear: number,
+    dstWeek: number,
+  ): Observable<WeeklyPlan> {
+    return this.http.post<WeeklyPlan>(
+      API_ENDPOINTS.mealPlans.copyTo(srcYear, srcWeek, dstYear, dstWeek),
       {},
     );
   }

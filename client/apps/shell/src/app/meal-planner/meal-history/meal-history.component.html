@@ -1,0 +1,67 @@
+<div class="meal-history" *transloco="let t">
+  <header class="history-header">
+    <a
+      class="back-btn"
+      data-testid="meal-history-back"
+      routerLink="/meal-planner"
+      [attr.aria-label]="t('mealPlanner.history.back')"
+    >
+      <lucide-icon name="arrow-left" [size]="20" />
+    </a>
+    <h1>{{ t('mealPlanner.history.title') }}</h1>
+  </header>
+
+  <div class="search-bar">
+    <lucide-icon name="search" [size]="18" />
+    <input
+      type="search"
+      data-testid="meal-history-search-input"
+      [formControl]="term"
+      [placeholder]="t('mealPlanner.history.searchPlaceholder')"
+      [attr.aria-label]="t('mealPlanner.history.searchLabel')"
+    />
+    @if (term.value) {
+      <button
+        class="clear-btn"
+        data-testid="meal-history-clear"
+        (click)="onClear()"
+        [attr.aria-label]="t('mealPlanner.history.clearSearch')"
+      >
+        <lucide-icon name="x" [size]="16" />
+      </button>
+    }
+  </div>
+
+  <yn-async-state
+    [loading]="loading()"
+    [error]="error()"
+    loadingKey="mealPlanner.history.loading"
+    retryKey="mealPlanner.retry"
+    (retry)="onRetry()"
+  />
+
+  @if (!loading() && !error()) {
+    @if (hasResults()) {
+      <ul class="history-list" data-testid="meal-history-results">
+        @for (entry of results(); track entry.week + entry.day + entry.mealType) {
+          <li class="history-item">
+            <button class="history-item-btn" (click)="onSelect(entry)">
+              <div class="history-item-title">{{ entry.recipeTitle }}</div>
+              <div class="history-item-meta">
+                <span>{{ entry.week }}</span>
+                <span aria-hidden="true">·</span>
+                <span>{{ entry.day }}</span>
+                <span aria-hidden="true">·</span>
+                <span>{{ entry.mealType }}</span>
+              </div>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="history-empty" data-testid="meal-history-empty">
+        {{ t('mealPlanner.history.empty') }}
+      </p>
+    }
+  }
+</div>

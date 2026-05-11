@@ -9,6 +9,12 @@
       <lucide-icon name="chevron-left" [size]="20" />
     </button>
     <h1>{{ weekLabel() }}</h1>
+    @if (isPastWeek()) {
+      <span class="past-badge" data-testid="meal-planner-past-badge">
+        <lucide-icon name="history" [size]="14" />
+        {{ t('mealPlanner.history.pastWeek') }}
+      </span>
+    }
     <button
       class="nav-btn"
       data-testid="meal-planner-nav-next"
@@ -16,6 +22,14 @@
       [attr.aria-label]="t('mealPlanner.nextWeek')"
     >
       <lucide-icon name="chevron-right" [size]="20" />
+    </button>
+    <button
+      class="nav-btn"
+      data-testid="meal-planner-open-history"
+      (click)="onOpenHistory()"
+      [attr.aria-label]="t('mealPlanner.history.open')"
+    >
+      <lucide-icon name="search" [size]="20" />
     </button>
   </div>
 
@@ -27,7 +41,7 @@
     (retry)="onRetry()"
   />
 
-  @if (hasRecipeSlots()) {
+  @if (hasRecipeSlots() && !isPastWeek()) {
     <div class="planner-actions">
       <button class="generate-btn" [disabled]="generatingList()" (click)="onGenerateShoppingList()">
         <lucide-icon name="shopping-cart" [size]="16" />
@@ -43,6 +57,24 @@
           }
         </span>
       }
+    </div>
+  }
+
+  @if (isPastWeek() && hasRecipeSlots()) {
+    <div class="planner-actions">
+      <button
+        class="copy-btn"
+        data-testid="meal-planner-copy-to-current"
+        [disabled]="copyingToCurrent()"
+        (click)="onCopyToCurrentWeek()"
+      >
+        <lucide-icon name="copy" [size]="16" />
+        {{
+          copyingToCurrent()
+            ? t('mealPlanner.history.copying')
+            : t('mealPlanner.history.copyToCurrent')
+        }}
+      </button>
     </div>
   }
 
@@ -78,13 +110,19 @@
               </div>
             }
 
-            <button
-              class="clear-btn"
-              (click)="onClearSlot(entry.day)"
-              [attr.aria-label]="t('mealPlanner.clearSlot')"
-            >
-              <lucide-icon name="x" [size]="14" />
-            </button>
+            @if (!isPastWeek()) {
+              <button
+                class="clear-btn"
+                (click)="onClearSlot(entry.day)"
+                [attr.aria-label]="t('mealPlanner.clearSlot')"
+              >
+                <lucide-icon name="x" [size]="14" />
+              </button>
+            }
+          </div>
+        } @else if (isPastWeek()) {
+          <div class="empty-slot empty-slot--readonly" aria-hidden="true">
+            <lucide-icon name="minus" [size]="20" />
           </div>
         } @else {
           <div

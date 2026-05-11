@@ -32,6 +32,12 @@ export const appRoutes: Route[] = [
     loadComponent: () => import('./meal-planner').then((m) => m.MealPlannerComponent),
   },
   {
+    path: 'meal-planner/history',
+    title: 'Meal History — Yumney',
+    canActivate: [authGuard],
+    loadComponent: () => import('./meal-planner').then((m) => m.MealHistoryComponent),
+  },
+  {
     path: 'account',
     title: 'Account — Yumney',
     canActivate: [authGuard],
