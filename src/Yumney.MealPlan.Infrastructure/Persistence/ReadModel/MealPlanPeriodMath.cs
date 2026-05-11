@@ -18,6 +18,9 @@ internal static class MealPlanPeriodMath
 	/// Monday-start week may carry days from the prior or following
 	/// month). The in-memory date filter trims to the exact bounds.
 	/// </summary>
+	/// <param name="periodStart">First calendar date in the period (inclusive).</param>
+	/// <param name="periodEndExclusive">Day after the last calendar date in the period.</param>
+	/// <returns>Inclusive first / last ISO-week strings for the SQL bracket.</returns>
 	public static (string FirstWeek, string LastWeek) SlotWeekBounds(DateOnly periodStart, DateOnly periodEndExclusive)
 	{
 		var inclusiveLast = periodEndExclusive.AddDays(-1);
@@ -30,6 +33,9 @@ internal static class MealPlanPeriodMath
 	/// Translates a stored <c>Week</c> ("YYYY-Www") + <c>Day</c> (enum
 	/// name like "Monday") into the calendar date for that slot.
 	/// </summary>
+	/// <param name="weekValue">ISO week in the stored "YYYY-Www" form.</param>
+	/// <param name="dayValue"><see cref="DayOfWeek"/> name as stored on the slot row.</param>
+	/// <returns>The calendar date that the slot row represents.</returns>
 	public static DateOnly SlotDate(string weekValue, string dayValue)
 	{
 		var dashIndex = weekValue.IndexOf('-', StringComparison.Ordinal);
