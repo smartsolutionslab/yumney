@@ -30,8 +30,10 @@ test.describe('Meal Analytics (US-332)', () => {
     await expect(analytics.periodLabel).toBeVisible({ timeout: TIMEOUTS.default });
     await analytics.yearToggle.click();
 
-    const label = await analytics.periodLabel.textContent();
-    expect(label).toMatch(/^\d{4}$/);
+    // Polling assertion waits for Angular change detection to propagate the
+    // viewMode flip into the rendered DOM; a one-shot textContent() read can
+    // beat the update.
+    await expect(analytics.periodLabel).toHaveText(/^\d{4}$/);
   });
 
   test('next-period advances the label', async ({ authenticatedPage }) => {
