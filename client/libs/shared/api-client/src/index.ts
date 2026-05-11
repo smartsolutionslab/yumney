@@ -26,6 +26,12 @@ export type {
   RecognizedIngredient,
   RecognizedIngredientsResponse,
 } from './lib/recognized-ingredient';
+export type {
+  CookableRecipeListItem,
+  CookableRecipeListResponse,
+  CookableRecipeMatchTier,
+  GetCookableRecipesParams,
+} from './lib/cookable-recipe';
 
 // --- Shopping ---
 export { ShoppingApiService } from './lib/shopping-api.service';

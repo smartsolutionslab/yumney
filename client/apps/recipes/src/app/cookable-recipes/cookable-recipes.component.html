@@ -1,0 +1,105 @@
+<div class="cookable-container" *transloco="let t">
+  <div class="page-header">
+    <h1>{{ t('recipes.cookable.title') }}</h1>
+    <p class="subtitle">{{ t('recipes.cookable.subtitle') }}</p>
+  </div>
+
+  <div class="filter-bar">
+    <button
+      type="button"
+      class="match-toggle"
+      data-testid="cookable-full-match-toggle"
+      [class.active]="fullMatchOnly()"
+      [attr.aria-pressed]="fullMatchOnly()"
+      (click)="onToggleFullMatchOnly()"
+    >
+      <lucide-icon name="check-check" [size]="16" />
+      {{ t('recipes.cookable.filter.fullMatchOnly') }}
+    </button>
+  </div>
+
+  @if (serverError(); as error) {
+    <yn-message-banner tone="error" [message]="error" />
+  }
+
+  @if (!isLoading() && recipes().length === 0 && !serverError()) {
+    <yn-empty-state title="recipes.cookable.empty.title" message="recipes.cookable.empty.message">
+      <yn-button variant="primary" [routerLink]="ROUTES.dashboard">
+        {{ t('recipes.cookable.empty.cta') }}
+      </yn-button>
+    </yn-empty-state>
+  }
+
+  @if (recipes().length > 0) {
+    <div class="cookable-grid" ynStaggerNewItems>
+      @for (recipe of recipes(); track recipe.recipeIdentifier) {
+        <a
+          class="cookable-card"
+          [class.tier-near]="recipe.tier === 'Near'"
+          [routerLink]="ROUTES.recipes.detail(recipe.recipeIdentifier)"
+          data-testid="cookable-recipe-card"
+        >
+          @if (recipe.imageUrl) {
+            <img class="cookable-image" [src]="recipe.imageUrl" [alt]="recipe.title" />
+          } @else {
+            <div class="cookable-image-placeholder">
+              <lucide-icon name="utensils" [size]="32" />
+            </div>
+          }
+
+          <div class="cookable-body">
+            <div class="cookable-row">
+              <h2 class="cookable-title">{{ recipe.title }}</h2>
+              <span
+                class="cookable-tier"
+                [class.tier-full]="recipe.tier === 'Full'"
+                [class.tier-near]="recipe.tier === 'Near'"
+                data-testid="cookable-tier-badge"
+              >
+                {{ t(tierKey(recipe)) }}
+              </span>
+            </div>
+
+            @if (recipe.tier === 'Near' && recipe.missingIngredients.length > 0) {
+              <p class="cookable-missing" data-testid="cookable-missing">
+                <lucide-icon name="shopping-cart" [size]="14" />
+                <span>{{
+                  t('recipes.cookable.missing', {
+                    items: recipe.missingIngredients.join(', '),
+                  })
+                }}</span>
+              </p>
+            }
+
+            <div class="cookable-meta">
+              @if (recipe.servings) {
+                <span>{{ t('recipes.list.servings', { count: recipe.servings }) }}</span>
+              }
+              @if (recipe.prepTimeMinutes) {
+                <span>{{ t('recipes.list.prepTime', { minutes: recipe.prepTimeMinutes }) }}</span>
+              }
+              @if (recipe.cookTimeMinutes) {
+                <span>{{ t('recipes.list.cookTime', { minutes: recipe.cookTimeMinutes }) }}</span>
+              }
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  }
+
+  <div
+    ynInfiniteScroll
+    class="scroll-sentinel"
+    [enabled]="hasMore() && !isLoading()"
+    (loadMore)="onLoadMore()"
+  ></div>
+
+  @if (isLoading()) {
+    <div class="skeleton-grid">
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </div>
+  }
+</div>

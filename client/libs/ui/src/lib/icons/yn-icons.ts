@@ -4,6 +4,8 @@ import {
   BookOpen,
   CalendarDays,
   Check,
+  CheckCheck,
+  ChefHat,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -37,6 +39,7 @@ import {
   Star,
   Sun,
   Trash2,
+  Utensils,
   X,
 } from 'lucide-angular';
 
@@ -52,6 +55,8 @@ export const YN_ICONS = {
   BookOpen,
   CalendarDays,
   Check,
+  CheckCheck,
+  ChefHat,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -85,5 +90,6 @@ export const YN_ICONS = {
   Star,
   Sun,
   Trash2,
+  Utensils,
   X,
 };

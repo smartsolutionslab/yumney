@@ -16,6 +16,7 @@ const en = {
     header: {
       navigation: 'Main navigation',
       recipes: 'My Recipes',
+      cookable: 'What can I cook?',
       shoppingLists: 'Shopping Lists',
       mealPlanner: 'Meal Planner',
       logout: 'Logout',

@@ -7,6 +7,7 @@ export const ROUTES = {
   },
   recipes: {
     list: '/recipes',
+    cookable: '/recipes/cookable',
     detail: (identifier: string) => `/recipes/${identifier}`,
     edit: (identifier: string) => `/recipes/${identifier}/edit`,
     cook: (identifier: string) => `/recipes/${identifier}/cook`,

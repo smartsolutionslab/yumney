@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
 import {
@@ -42,6 +42,7 @@ import { DashboardSuggestionsService } from './dashboard-suggestions.service';
   imports: [
     TranslocoModule,
     LucideAngularModule,
+    RouterLink,
     UrlImportComponent,
     ButtonComponent,
     MessageBannerComponent,
@@ -60,6 +61,8 @@ import { DashboardSuggestionsService } from './dashboard-suggestions.service';
   providers: [DashboardSuggestionsService],
 })
 export class DashboardComponent implements OnInit {
+  protected readonly ROUTES = ROUTES;
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private recipeApi = inject(RecipeApiService);
