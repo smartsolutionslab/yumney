@@ -59,9 +59,21 @@ public class CrossModuleClientContractTests(AspireFixture fixture)
 	[Fact]
 	public async Task MealPlanConfirmEndpoint_AcceptsConfirmMealBody()
 	{
+		// Confirm requires an existing slot — its handler uses LoadAsync (throws
+		// EntityNotFoundException → 404) instead of AssignRecipe's lazy
+		// FindAsync ?? Create. Without a slot, the route's domain 404 would be
+		// indistinguishable from a route 404 and the contract assertion below
+		// would mis-fire. Assign first so the Monday/Dinner slot exists.
 		var client = await fixture.CreateAuthenticatedClientAsync("mealplan-api");
-		var body = new ConfirmMealBody(Day: "Monday", MealType: "Dinner", State: "Cooked");
+		var assignBody = new AssignRecipeBody(
+			Day: "Monday",
+			RecipeIdentifier: Guid.NewGuid(),
+			RecipeTitle: "Carbonara",
+			MealType: "Dinner",
+			Servings: 4);
+		await client.PostAsJsonAsync("/api/v1/meal-plans/2026/w/19/slots", assignBody);
 
+		var body = new ConfirmMealBody(Day: "Monday", MealType: "Dinner", State: "Cooked");
 		var response = await client.PutAsJsonAsync("/api/v1/meal-plans/2026/w/19/slots/confirm", body);
 
 		response.StatusCode.Should().NotBe(HttpStatusCode.NotFound);
