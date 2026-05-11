@@ -1,0 +1,189 @@
+@use 'banners';
+@use 'glass';
+
+.pantry-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--yn-space-6) var(--yn-space-5);
+}
+
+.page-header {
+  margin-bottom: var(--yn-space-6);
+
+  h1 {
+    margin: 0;
+    font-size: var(--yn-text-3xl);
+    font-weight: var(--yn-font-semibold);
+  }
+
+  .subtitle {
+    margin: var(--yn-space-2) 0 0;
+    color: var(--yn-text-light);
+    font-size: var(--yn-text-base);
+  }
+}
+
+.pantry-section {
+  margin-bottom: var(--yn-space-6);
+}
+
+.pantry-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-2);
+  margin: 0 0 var(--yn-space-3);
+  font-size: var(--yn-text-lg);
+  font-weight: var(--yn-font-semibold);
+  color: var(--yn-text);
+}
+
+.pantry-section-count {
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-medium);
+  color: var(--yn-text-light);
+  background: var(--yn-glass-bg);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-badge);
+  padding: 0 var(--yn-space-2);
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.pantry-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-2);
+}
+
+.pantry-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--yn-space-3);
+  padding: var(--yn-space-3) var(--yn-space-4);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-card);
+  background: var(--yn-glass-bg);
+  backdrop-filter: blur(var(--yn-glass-blur-soft));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur-soft));
+}
+
+.pantry-item-main {
+  display: flex;
+  align-items: baseline;
+  gap: var(--yn-space-2);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pantry-item-quantity {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--yn-font-semibold);
+  color: var(--yn-text);
+}
+
+.pantry-item-name {
+  font-size: var(--yn-text-base);
+  color: var(--yn-text);
+}
+
+.pantry-staple-badge {
+  font-size: var(--yn-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--yn-text-light);
+  padding: 0 var(--yn-space-2);
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-glass-bg-elevated);
+  border: 1px solid var(--yn-glass-border);
+}
+
+.pantry-item-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-3);
+  flex-wrap: wrap;
+}
+
+.pantry-days {
+  font-size: var(--yn-text-sm);
+  color: var(--yn-text-light);
+}
+
+.freshness-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--yn-space-2);
+  height: 1.5rem;
+  border-radius: var(--yn-radius-badge);
+  font-size: var(--yn-text-xs);
+  font-weight: var(--yn-font-semibold);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+
+  &--fresh {
+    background: var(--yn-success, #16a34a);
+    color: white;
+  }
+
+  &--use-soon {
+    background: var(--yn-warning, #d97706);
+    color: white;
+  }
+
+  &--check-it {
+    background: var(--yn-danger, #dc2626);
+    color: white;
+  }
+}
+
+.freeze-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yn-space-1);
+  padding: var(--yn-space-1) var(--yn-space-3);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-glass-bg);
+  color: var(--yn-text);
+  font-size: var(--yn-text-sm);
+  cursor: pointer;
+  transition:
+    border-color var(--yn-duration-fast) var(--yn-ease-glass),
+    color var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover {
+    border-color: var(--yn-primary);
+    color: var(--yn-primary);
+  }
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-2);
+}
+
+.skeleton-row {
+  height: 48px;
+  border-radius: var(--yn-radius-card);
+  background: linear-gradient(
+    90deg,
+    var(--yn-glass-bg) 25%,
+    var(--yn-glass-bg-elevated) 50%,
+    var(--yn-glass-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: yn-shimmer 1.5s ease-in-out infinite;
+  border: 1px solid var(--yn-glass-border-subtle);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background: var(--yn-glass-bg);
+  }
+}

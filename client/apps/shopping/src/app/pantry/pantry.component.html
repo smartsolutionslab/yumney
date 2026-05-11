@@ -1,0 +1,78 @@
+<div class="pantry-container" *transloco="let t">
+  <div class="page-header">
+    <h1>{{ t('shopping.pantry.title') }}</h1>
+    <p class="subtitle">{{ t('shopping.pantry.subtitle') }}</p>
+  </div>
+
+  @if (serverError(); as error) {
+    <yn-message-banner tone="error" [message]="error" />
+  }
+
+  @if (!isLoading() && items().length === 0 && !serverError()) {
+    <yn-empty-state title="shopping.pantry.empty.title" message="shopping.pantry.empty.message" />
+  }
+
+  @if (isLoading() && items().length === 0) {
+    <div class="skeleton-list">
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+    </div>
+  }
+
+  @for (group of groups(); track group.category) {
+    <section class="pantry-section">
+      <h2 class="pantry-section-title">
+        {{ t('shopping.category.' + group.category) }}
+        <span class="pantry-section-count">{{ group.items.length }}</span>
+      </h2>
+
+      <ul class="pantry-items">
+        @for (item of group.items; track item.itemName + '|' + (item.unit || '')) {
+          <li class="pantry-item" data-testid="pantry-item">
+            <div class="pantry-item-main">
+              @if (item.quantity != null) {
+                <span class="pantry-item-quantity">
+                  {{ item.quantity }}{{ item.unit ? ' ' + item.unit : '' }}
+                </span>
+              }
+              <span class="pantry-item-name">{{ item.itemName }}</span>
+              @if (item.source === 'Staple') {
+                <span class="pantry-staple-badge">{{ t('shopping.pantry.staple') }}</span>
+              }
+            </div>
+
+            <div class="pantry-item-meta">
+              @if (freshnessTone(item.freshness); as tone) {
+                <span
+                  class="freshness-chip"
+                  [class]="'freshness-chip--' + tone"
+                  data-testid="freshness-chip"
+                >
+                  {{ t('shopping.pantry.freshness.' + tone) }}
+                </span>
+              }
+              @if (item.daysSinceBought != null) {
+                <span class="pantry-days">
+                  {{ t('shopping.pantry.daysSinceBought', { count: item.daysSinceBought }) }}
+                </span>
+              }
+              @if (item.source === 'AtHome' && item.freshness !== 'NotTracked') {
+                <button
+                  type="button"
+                  class="freeze-btn"
+                  data-testid="pantry-freeze-btn"
+                  [attr.aria-label]="t('shopping.pantry.freeze.ariaLabel', { name: item.itemName })"
+                  (click)="onFreeze(item)"
+                >
+                  <lucide-icon name="snowflake" [size]="14" />
+                  {{ t('shopping.pantry.freeze.action') }}
+                </button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</div>

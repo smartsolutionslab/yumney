@@ -87,5 +87,28 @@
     "header": "Sources",
     "manual": "Added manually",
     "empty": "No source breakdown available."
+  },
+  "pantry": {
+    "title": "Pantry",
+    "subtitle": "What's at home right now, with freshness hints based on when you bought it.",
+    "staple": "Staple",
+    "daysSinceBought": "Bought {{count}}d ago",
+    "freshness": {
+      "fresh": "Fresh",
+      "use-soon": "Use soon",
+      "check-it": "Check it"
+    },
+    "freeze": {
+      "action": "I froze it",
+      "ariaLabel": "Mark {{name}} as frozen"
+    },
+    "empty": {
+      "title": "Nothing in your pantry yet",
+      "message": "Items show up here after you check them off a shopping list or add them as at-home."
+    },
+    "errors": {
+      "loadFailed": "Pantry could not be loaded. Please try again later.",
+      "freezeFailed": "Could not mark this item as frozen."
+    }
   }
 }

@@ -14,4 +14,9 @@ export {
   type MergedShoppingItem,
   type ItemSource,
   type AddedItem,
+  type Freshness,
+  type IngredientBalance,
+  type IngredientBalanceItem,
+  type IngredientBalanceSource,
+  type MarkAsFrozenRequest,
 } from '@yumney/shared/api-client';

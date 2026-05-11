@@ -49,6 +49,13 @@ export type {
   RemoveItemRequest,
 } from './lib/merged-shopping-list';
 export type { ShoppingListSummary } from './lib/shopping-list-summary';
+export type {
+  Freshness,
+  IngredientBalance,
+  IngredientBalanceItem,
+  IngredientBalanceSource,
+  MarkAsFrozenRequest,
+} from './lib/ingredient-balance';
 
 // --- Chat ---
 export { ChatApiService } from './lib/chat-api.service';

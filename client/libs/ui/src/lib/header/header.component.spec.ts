@@ -18,6 +18,7 @@ const en = {
       recipes: 'My Recipes',
       cookable: 'What can I cook?',
       shoppingLists: 'Shopping Lists',
+      pantry: 'Pantry',
       mealPlanner: 'Meal Planner',
       logout: 'Logout',
       login: 'Login',

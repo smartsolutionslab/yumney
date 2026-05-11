@@ -62,6 +62,14 @@ export const ERROR_MAPS = {
         default: 'shopping.errors.exportFailed',
       } satisfies HttpErrorMap,
     },
+    pantry: {
+      load: {
+        default: 'shopping.pantry.errors.loadFailed',
+      } satisfies HttpErrorMap,
+      freeze: {
+        default: 'shopping.pantry.errors.freezeFailed',
+      } satisfies HttpErrorMap,
+    },
   },
   mealPlanner: {
     assign: {
