@@ -328,6 +328,11 @@
       "openSettings": "Einstellungen öffnen",
       "openRecipe": "Rezept öffnen",
       "startCooking": "Kochen starten"
+    },
+    "mic": {
+      "start": "Sprachsteuerung starten",
+      "stop": "Sprachsteuerung stoppen",
+      "listening": "Höre zu..."
     }
   },
   "commandBar": {

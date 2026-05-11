@@ -144,6 +144,45 @@ export class VoiceService {
     }
   }
 
+  /**
+   * Push-to-talk capture for the command bar (US-360). Unlike the cook-mode
+   * `startListening` path — which keeps the mic open for back-to-back commands
+   * and only emits when the utterance matches a known pattern — this returns
+   * the raw transcript of a single utterance and auto-stops on silence.
+   *
+   * The browser auto-ends the recognition session once the user finishes
+   * speaking (continuous=false), so the caller doesn't need to call
+   * `stopListening` unless cancelling mid-utterance.
+   */
+  startListeningForTranscript(onTranscript: (transcript: string) => void): void {
+    if (!this.sttSupported() || this.isListening()) {
+      return;
+    }
+    const recognition = this.createRecognition();
+    if (!recognition) return;
+
+    recognition.lang = this.currentLang;
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      const last = event.results[event.results.length - 1];
+      const transcript = last[0]?.transcript?.trim() ?? '';
+      if (transcript !== '') {
+        onTranscript(transcript);
+      }
+    };
+    recognition.onerror = () => {
+      this.isListening.set(false);
+    };
+    recognition.onend = () => {
+      this.isListening.set(false);
+    };
+
+    this.recognition = recognition;
+    recognition.start();
+    this.isListening.set(true);
+  }
+
   static parseCommand(transcript: string): VoiceCommand | null {
     const normalized = transcript.trim().toLowerCase();
     if (normalized === '') return null;
