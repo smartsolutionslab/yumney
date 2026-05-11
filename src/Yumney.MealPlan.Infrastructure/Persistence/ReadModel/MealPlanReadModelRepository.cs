@@ -108,12 +108,16 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		var cookedState = MealState.Cooked.ToString();
 		var skippedState = MealState.Skipped.ToString();
 
+		// `slot.Week.CompareTo(...)` translates to a native SQL comparison on
+		// PostgreSQL; the `string.Compare(..., StringComparison.Ordinal)` overload
+		// the EF Core / Npgsql translator does not handle and throws at query time,
+		// which surfaced as "Failed to load analytics" in the first E2E run.
 		var rows = await context.MealPlanSlotReadItems
 			.AsNoTracking()
 			.Where(slot => slot.OwnerId == ownerId
 				&& (slot.State == cookedState || slot.State == skippedState)
-				&& string.Compare(slot.Week, firstWeek, StringComparison.Ordinal) >= 0
-				&& string.Compare(slot.Week, lastWeek, StringComparison.Ordinal) <= 0)
+				&& slot.Week.CompareTo(firstWeek) >= 0
+				&& slot.Week.CompareTo(lastWeek) <= 0)
 			.Select(slot => new RawSlot(slot.Week, slot.Day, slot.State, slot.RecipeIdentifier, slot.RecipeTitle))
 			.ToListAsync(cancellationToken);
 
