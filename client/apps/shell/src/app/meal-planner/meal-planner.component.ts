@@ -8,7 +8,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -39,10 +39,13 @@ export class MealPlannerComponent {
   private api = inject(MealPlanApiService);
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private host = inject(ElementRef<HTMLElement>);
   private loadState = createAsyncState(this.destroyRef);
   private generateState = createAsyncState(this.destroyRef);
   private clearSlotState = createAsyncState(this.destroyRef);
+
+  private copyState = createAsyncState(this.destroyRef);
 
   protected year = signal(new Date().getFullYear());
   protected weekNumber = signal(this.getCurrentWeek());
@@ -52,14 +55,26 @@ export class MealPlannerComponent {
     () =>
       this.loadState.serverError() ??
       this.generateState.serverError() ??
-      this.clearSlotState.serverError(),
+      this.clearSlotState.serverError() ??
+      this.copyState.serverError(),
   );
   protected generatingList = this.generateState.isLoading;
+  protected copyingToCurrent = this.copyState.isLoading;
   protected shoppingResult = signal<GenerateShoppingListResult | null>(null);
 
   protected weekLabel = computed(
     () => `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}`,
   );
+
+  private currentYear = new Date().getFullYear();
+  private currentWeekNumber = this.getCurrentWeek();
+
+  protected isPastWeek = computed(() => {
+    const year = this.year();
+    if (year < this.currentYear) return true;
+    if (year > this.currentYear) return false;
+    return this.weekNumber() < this.currentWeekNumber;
+  });
 
   protected days = DAY_NAMES;
 
@@ -73,7 +88,18 @@ export class MealPlannerComponent {
   });
 
   constructor() {
+    const queryParams = this.route.snapshot.queryParamMap;
+    const yearParam = Number(queryParams.get('year'));
+    const weekParam = Number(queryParams.get('week'));
+    if (Number.isInteger(yearParam) && yearParam > 0) this.year.set(yearParam);
+    if (Number.isInteger(weekParam) && weekParam > 0 && weekParam <= WEEKS_PER_YEAR) {
+      this.weekNumber.set(weekParam);
+    }
     this.loadPlan();
+  }
+
+  protected onOpenHistory(): void {
+    void this.router.navigate(['/meal-planner/history']);
   }
 
   protected onPreviousWeek(): void {
@@ -114,6 +140,7 @@ export class MealPlannerComponent {
   }
 
   protected onSelectSlot(day: string): void {
+    if (this.isPastWeek()) return;
     void this.router.navigate(['/recipes'], {
       queryParams: {
         assignTo: `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}-${day}`,
@@ -122,10 +149,26 @@ export class MealPlannerComponent {
   }
 
   protected onClearSlot(day: string): void {
+    if (this.isPastWeek()) return;
     this.clearSlotState.execute(
       this.api.clearSlot(this.year(), this.weekNumber(), { day }),
       ERROR_MAPS.mealPlanner.clearSlot,
       (plan) => this.plan.set(plan),
+    );
+  }
+
+  protected onCopyToCurrentWeek(): void {
+    if (!this.isPastWeek()) return;
+    const srcYear = this.year();
+    const srcWeek = this.weekNumber();
+    this.copyState.execute(
+      this.api.copyPlanToWeek(srcYear, srcWeek, this.currentYear, this.currentWeekNumber),
+      ERROR_MAPS.mealPlanner.copyToWeek,
+      () => {
+        this.year.set(this.currentYear);
+        this.weekNumber.set(this.currentWeekNumber);
+        this.loadPlan();
+      },
     );
   }
 

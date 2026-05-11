@@ -76,3 +76,17 @@ export interface GenerateShoppingListResult {
   itemsAdded: number;
   staplesSkipped: number;
 }
+
+export interface MealHistoryEntry {
+  recipeIdentifier: string | null;
+  recipeTitle: string;
+  week: string;
+  day: string;
+  mealType: string;
+}
+
+export interface SearchHistoryParams {
+  term?: string;
+  page?: number;
+  pageSize?: number;
+}

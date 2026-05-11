@@ -84,6 +84,14 @@ export const ERROR_MAPS = {
     generateShoppingList: {
       default: 'mealPlanner.errors.generateFailed',
     } satisfies HttpErrorMap,
+    copyToWeek: {
+      404: 'mealPlanner.history.errors.sourceNotFound',
+      422: 'mealPlanner.history.errors.copyValidation',
+      default: 'mealPlanner.history.errors.copyFailed',
+    } satisfies HttpErrorMap,
+    searchHistory: {
+      default: 'mealPlanner.history.errors.searchFailed',
+    } satisfies HttpErrorMap,
   },
   account: {
     load: {

@@ -358,6 +358,25 @@
       "clearFailed": "Failed to clear slot.",
       "generateFailed": "Failed to generate shopping list.",
       "assignFailed": "Failed to assign recipe to meal plan."
+    },
+    "history": {
+      "open": "Search meal history",
+      "back": "Back to meal planner",
+      "title": "Meal history",
+      "pastWeek": "Past week",
+      "copyToCurrent": "Copy to current week",
+      "copying": "Copying...",
+      "searchLabel": "Search past meals",
+      "searchPlaceholder": "Search by recipe title...",
+      "clearSearch": "Clear search",
+      "loading": "Searching history...",
+      "empty": "No past meals match your search yet.",
+      "errors": {
+        "searchFailed": "Failed to load meal history.",
+        "copyFailed": "Failed to copy this plan.",
+        "sourceNotFound": "Source week was not found.",
+        "copyValidation": "This plan cannot be copied to the current week."
+      }
     }
   },
   "common": {

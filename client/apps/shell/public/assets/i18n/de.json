@@ -358,6 +358,25 @@
       "clearFailed": "Slot konnte nicht geleert werden.",
       "generateFailed": "Einkaufsliste konnte nicht erstellt werden.",
       "assignFailed": "Rezept konnte nicht zum Essensplan hinzugefügt werden."
+    },
+    "history": {
+      "open": "Essens-Verlauf durchsuchen",
+      "back": "Zurück zum Essensplaner",
+      "title": "Essens-Verlauf",
+      "pastWeek": "Vergangene Woche",
+      "copyToCurrent": "In aktuelle Woche kopieren",
+      "copying": "Wird kopiert...",
+      "searchLabel": "Vergangene Mahlzeiten durchsuchen",
+      "searchPlaceholder": "Nach Rezept-Titel suchen...",
+      "clearSearch": "Suche leeren",
+      "loading": "Verlauf wird durchsucht...",
+      "empty": "Noch keine passenden Mahlzeiten gefunden.",
+      "errors": {
+        "searchFailed": "Verlauf konnte nicht geladen werden.",
+        "copyFailed": "Plan konnte nicht kopiert werden.",
+        "sourceNotFound": "Quell-Woche wurde nicht gefunden.",
+        "copyValidation": "Dieser Plan kann nicht in die aktuelle Woche kopiert werden."
+      }
     }
   },
   "common": {

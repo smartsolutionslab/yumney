@@ -72,6 +72,54 @@
   font-size: var(--yn-text-sm);
 }
 
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-2);
+  padding: var(--yn-space-3) var(--yn-space-5);
+  border: 1px solid var(--yn-primary);
+  border-radius: var(--yn-radius-button);
+  background: transparent;
+  color: var(--yn-primary);
+  font-size: var(--yn-text-sm);
+  font-weight: var(--yn-font-semibold);
+  cursor: pointer;
+  transition: background var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover:not(:disabled) {
+    background: var(--yn-glass-bg-elevated);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.past-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yn-space-2);
+  padding: var(--yn-space-1) var(--yn-space-3);
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-glass-bg-elevated);
+  color: var(--yn-text-muted);
+  font-size: var(--yn-text-xs);
+  font-weight: var(--yn-font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.empty-slot--readonly {
+  cursor: default;
+  color: var(--yn-text-placeholder);
+  opacity: 0.4;
+
+  &:hover {
+    background: transparent;
+  }
+}
+
 .week-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

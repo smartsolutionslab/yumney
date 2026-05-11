@@ -17,6 +17,25 @@ const en = {
   },
 };
 
+function pastPlan(): WeeklyPlan {
+  return {
+    week: '2024-W01',
+    isExtendedMode: false,
+    slots: emptyPlan.slots.map((slot, index) =>
+      index === 0
+        ? {
+            ...slot,
+            contentType: 'Recipe',
+            recipeIdentifier: '11111111-1111-1111-1111-111111111111',
+            recipeTitle: 'Lasagna',
+            state: 'Cooked',
+            isEmpty: false,
+          }
+        : slot,
+    ),
+  };
+}
+
 const emptyPlan: WeeklyPlan = {
   week: '2026-W15',
   isExtendedMode: false,
@@ -117,12 +136,17 @@ const emptyPlan: WeeklyPlan = {
 
 describe('MealPlannerComponent', () => {
   let fixture: ComponentFixture<MealPlannerComponent>;
-  let apiMock: { getWeeklyPlan: ReturnType<typeof vi.fn>; clearSlot: ReturnType<typeof vi.fn> };
+  let apiMock: {
+    getWeeklyPlan: ReturnType<typeof vi.fn>;
+    clearSlot: ReturnType<typeof vi.fn>;
+    copyPlanToWeek: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
     apiMock = {
       getWeeklyPlan: vi.fn().mockReturnValue(of(emptyPlan)),
       clearSlot: vi.fn().mockReturnValue(of(emptyPlan)),
+      copyPlanToWeek: vi.fn().mockReturnValue(of(emptyPlan)),
     };
 
     await TestBed.configureTestingModule({
@@ -268,6 +292,63 @@ describe('MealPlannerComponent', () => {
     );
 
     expect(apiMock.getWeeklyPlan.mock.calls.length).toBe(initialCalls);
+  });
+
+  it('should hide the clear button on past-week slots (read-only)', () => {
+    const past = pastPlan();
+    apiMock.getWeeklyPlan.mockReturnValue(of(past));
+    fixture.componentInstance['year'].set(2024);
+    fixture.componentInstance['weekNumber'].set(1);
+    fixture.componentInstance['loadPlan']();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.clear-btn')).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="meal-planner-past-badge"]'),
+    ).toBeTruthy();
+  });
+
+  it('should show the copy-to-current button on past weeks with recipes', () => {
+    const past = pastPlan();
+    apiMock.getWeeklyPlan.mockReturnValue(of(past));
+    fixture.componentInstance['year'].set(2024);
+    fixture.componentInstance['weekNumber'].set(1);
+    fixture.componentInstance['loadPlan']();
+    fixture.detectChanges();
+
+    const copyBtn = fixture.nativeElement.querySelector(
+      '[data-testid="meal-planner-copy-to-current"]',
+    );
+    expect(copyBtn).toBeTruthy();
+  });
+
+  it('should call copyPlanToWeek when copy button is clicked', () => {
+    const past = pastPlan();
+    apiMock.getWeeklyPlan.mockReturnValue(of(past));
+    fixture.componentInstance['year'].set(2024);
+    fixture.componentInstance['weekNumber'].set(1);
+    fixture.componentInstance['loadPlan']();
+    fixture.detectChanges();
+
+    fixture.componentInstance['onCopyToCurrentWeek']();
+
+    expect(apiMock.copyPlanToWeek).toHaveBeenCalledWith(
+      2024,
+      1,
+      expect.any(Number),
+      expect.any(Number),
+    );
+  });
+
+  it('should hide the generate-shopping-list button on past weeks', () => {
+    const past = pastPlan();
+    apiMock.getWeeklyPlan.mockReturnValue(of(past));
+    fixture.componentInstance['year'].set(2024);
+    fixture.componentInstance['weekNumber'].set(1);
+    fixture.componentInstance['loadPlan']();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.generate-btn')).toBeNull();
   });
 
   it('should render a clickable clear button for populated slots', () => {
