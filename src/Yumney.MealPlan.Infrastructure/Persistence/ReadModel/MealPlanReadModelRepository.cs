@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
@@ -105,7 +104,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		CancellationToken cancellationToken = default)
 	{
 		var ownerId = owner.Value;
-		var (firstWeek, lastWeek) = SlotWeekBounds(periodStart, periodEndExclusive);
+		var (firstWeek, lastWeek) = MealPlanPeriodMath.SlotWeekBounds(periodStart, periodEndExclusive);
 		var cookedState = MealState.Cooked.ToString();
 		var skippedState = MealState.Skipped.ToString();
 
@@ -121,7 +120,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		var projections = new List<AnalyticsSlotProjection>(rows.Count);
 		foreach (var row in rows)
 		{
-			var date = SlotDate(row.Week, row.Day);
+			var date = MealPlanPeriodMath.SlotDate(row.Week, row.Day);
 			if (date < periodStart || date >= periodEndExclusive) continue;
 			projections.Add(new AnalyticsSlotProjection(row.RecipeIdentifier, row.RecipeTitle, row.State, date));
 		}
@@ -153,7 +152,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		foreach (var row in rows)
 		{
 			if (row.RecipeIdentifier is not { } id) continue;
-			var date = SlotDate(row.Week, row.Day);
+			var date = MealPlanPeriodMath.SlotDate(row.Week, row.Day);
 			if (!earliest.TryGetValue(id, out var existing) || date < existing)
 			{
 				earliest[id] = date;
@@ -161,30 +160,6 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		}
 
 		return earliest;
-	}
-
-	private static (string FirstWeek, string LastWeek) SlotWeekBounds(DateOnly periodStart, DateOnly periodEndExclusive)
-	{
-		// A meal scheduled near the edge of the period might live in the ISO week
-		// just before periodStart or just after periodEndExclusive (because ISO
-		// weeks aren't aligned to calendar months/years). Bracket by ±1 week so
-		// the SQL filter is conservative; the in-memory date filter trims to the
-		// exact period.
-		var inclusiveLast = periodEndExclusive.AddDays(-1);
-		var first = WeekIdentifier.FromDate(periodStart.AddDays(-7)).Value;
-		var last = WeekIdentifier.FromDate(inclusiveLast.AddDays(7)).Value;
-		return (first, last);
-	}
-
-	private static DateOnly SlotDate(string weekValue, string dayValue)
-	{
-		var dashIndex = weekValue.IndexOf('-', StringComparison.Ordinal);
-		var year = int.Parse(weekValue[..dashIndex], CultureInfo.InvariantCulture);
-		var weekNumber = int.Parse(weekValue[(dashIndex + 2)..], CultureInfo.InvariantCulture);
-		var dayOfWeek = Enum.Parse<DayOfWeek>(dayValue);
-		var monday = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Monday);
-		var offset = dayOfWeek == DayOfWeek.Sunday ? 6 : (int)dayOfWeek - 1;
-		return DateOnly.FromDateTime(monday.AddDays(offset));
 	}
 
 #pragma warning disable SA1402, SA1649

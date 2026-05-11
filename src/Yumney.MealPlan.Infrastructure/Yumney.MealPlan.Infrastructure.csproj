@@ -5,6 +5,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Yumney.MealPlan.Infrastructure.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Yumney.MealPlan.Application\Yumney.MealPlan.Application.csproj" />
     <ProjectReference Include="..\Yumney.MealPlan.Domain\Yumney.MealPlan.Domain.csproj" />
     <ProjectReference Include="..\Yumney.Shared.Persistence\Yumney.Shared.Persistence.csproj" />
