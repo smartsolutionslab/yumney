@@ -4,7 +4,8 @@ import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ChatPanelComponent } from './chat-panel.component';
 import { ChatApiService, RecipeApiService } from '@yumney/shared/api-client';
-import { ChatStateService, setupTranslocoTesting } from '@yumney/shared/models';
+import { ChatStateService, setupTranslocoTesting, VoiceService } from '@yumney/shared/models';
+import { signal } from '@angular/core';
 
 const en = {
   chat: {
@@ -27,6 +28,7 @@ const en = {
       openRecipe: 'Open recipe',
       startCooking: 'Start cooking',
     },
+    mic: { start: 'Start voice input', stop: 'Stop voice input', listening: 'Listening...' },
   },
   commandBar: {
     hints: {
@@ -40,6 +42,13 @@ describe('ChatPanelComponent', () => {
   let chatState: ChatStateService;
   let chatApiMock: { send: ReturnType<typeof vi.fn>; importFromText: ReturnType<typeof vi.fn> };
   let recipeApiMock: { importRecipe: ReturnType<typeof vi.fn> };
+  let voiceMock: {
+    sttSupported: ReturnType<typeof signal<boolean>>;
+    isListening: ReturnType<typeof signal<boolean>>;
+    setLanguage: ReturnType<typeof vi.fn>;
+    startListeningForTranscript: ReturnType<typeof vi.fn>;
+    stopListening: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
     chatApiMock = {
@@ -49,6 +58,13 @@ describe('ChatPanelComponent', () => {
     recipeApiMock = {
       importRecipe: vi.fn().mockReturnValue(of({ title: 'Test', ingredients: [], steps: [] })),
     };
+    voiceMock = {
+      sttSupported: signal(true),
+      isListening: signal(false),
+      setLanguage: vi.fn(),
+      startListeningForTranscript: vi.fn(),
+      stopListening: vi.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ChatPanelComponent, setupTranslocoTesting(en)],
@@ -57,6 +73,7 @@ describe('ChatPanelComponent', () => {
         provideRouter([]),
         { provide: ChatApiService, useValue: chatApiMock },
         { provide: RecipeApiService, useValue: recipeApiMock },
+        { provide: VoiceService, useValue: voiceMock },
         ChatStateService,
       ],
     }).compileComponents();
@@ -447,5 +464,83 @@ describe('ChatPanelComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance['lastActions']().length).toBe(0);
+  });
+
+  describe('mic button (US-360)', () => {
+    it('renders the mic button when speech recognition is supported', () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="chat-mic"]')).toBeTruthy();
+    });
+
+    it('hides the mic button when speech recognition is unsupported', () => {
+      voiceMock.sttSupported.set(false);
+      chatState.open();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="chat-mic"]')).toBeNull();
+    });
+
+    it('starts transcript listening on the first click', () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector(
+        '[data-testid="chat-mic"]',
+      ) as HTMLButtonElement;
+      button.click();
+
+      expect(voiceMock.setLanguage).toHaveBeenCalled();
+      expect(voiceMock.startListeningForTranscript).toHaveBeenCalledTimes(1);
+      expect(voiceMock.stopListening).not.toHaveBeenCalled();
+    });
+
+    it('stops listening when clicked again while listening', () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      voiceMock.isListening.set(true);
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector(
+        '[data-testid="chat-mic"]',
+      ) as HTMLButtonElement;
+      button.click();
+
+      expect(voiceMock.stopListening).toHaveBeenCalledTimes(1);
+      expect(voiceMock.startListeningForTranscript).not.toHaveBeenCalled();
+    });
+
+    it('appends the transcript to the existing input', () => {
+      chatState.open();
+      fixture.detectChanges();
+      fixture.componentInstance['input'].set('Plan');
+
+      fixture.componentInstance['onToggleMic']();
+      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (
+        text: string,
+      ) => void;
+      onTranscript('the week');
+
+      expect(fixture.componentInstance['input']()).toBe('Plan the week');
+    });
+
+    it('sets recognition language to the active translation', () => {
+      chatState.open();
+      fixture.detectChanges();
+      fixture.componentInstance['onToggleMic']();
+
+      expect(voiceMock.setLanguage).toHaveBeenCalledWith(expect.stringMatching(/^(en|de)$/));
+    });
+
+    it('applies the listening class while listening', () => {
+      chatState.open();
+      voiceMock.isListening.set(true);
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector('[data-testid="chat-mic"]');
+      expect(button.classList.contains('listening')).toBe(true);
+    });
   });
 });

@@ -372,3 +372,45 @@
 .chat-send {
   align-self: flex-end;
 }
+
+.chat-mic {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--yn-radius-circle);
+  border: 1px solid var(--yn-glass-border);
+  background: var(--yn-glass-bg);
+  color: var(--yn-text);
+  cursor: pointer;
+  transition: background var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover {
+    background: var(--yn-glass-bg-elevated);
+  }
+
+  &.listening {
+    background: var(--yn-primary);
+    color: var(--yn-text-inverse);
+    animation: yn-mic-pulse 1.4s var(--yn-ease-glass) infinite;
+  }
+}
+
+@keyframes yn-mic-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.6);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(244, 63, 94, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-mic.listening {
+    animation: none;
+  }
+}

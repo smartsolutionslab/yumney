@@ -12,7 +12,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   ChatApiService,
@@ -20,7 +20,7 @@ import {
   type ChatAction,
   type ChatRecipeSuggestion,
 } from '@yumney/shared/api-client';
-import { ChatHintService, ChatStateService, ROUTES } from '@yumney/shared/models';
+import { ChatHintService, ChatStateService, ROUTES, VoiceService } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-chat-panel',
@@ -39,6 +39,8 @@ export class ChatPanelComponent implements AfterViewInit {
   private recipeApi = inject(RecipeApiService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  protected voice = inject(VoiceService);
+  private transloco = inject(TranslocoService);
 
   protected input = signal('');
   protected error = signal<string | null>(null);
@@ -66,6 +68,18 @@ export class ChatPanelComponent implements AfterViewInit {
 
   protected onBackdropClick(): void {
     this.state.close();
+  }
+
+  protected onToggleMic(): void {
+    if (this.voice.isListening()) {
+      this.voice.stopListening();
+      return;
+    }
+    this.voice.setLanguage(this.transloco.getActiveLang() as 'en' | 'de');
+    this.voice.startListeningForTranscript((transcript) => {
+      const current = this.input();
+      this.input.set(current ? `${current} ${transcript}`.trim() : transcript);
+    });
   }
 
   protected onSend(): void {

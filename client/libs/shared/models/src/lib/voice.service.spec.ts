@@ -178,3 +178,118 @@ describe('VoiceService.speak', () => {
     expect(prefs.ensureLoaded).toHaveBeenCalledTimes(1);
   });
 });
+
+interface MockRecognition {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start: ReturnType<typeof vi.fn>;
+  stop: ReturnType<typeof vi.fn>;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+}
+
+function installSpeechRecognition(): () => MockRecognition {
+  let last: MockRecognition | null = null;
+  const remember = (instance: MockRecognition): void => {
+    last = instance;
+  };
+
+  function MockCtor(this: MockRecognition): void {
+    this.lang = '';
+    this.continuous = false;
+    this.interimResults = false;
+    this.start = vi.fn();
+    this.stop = vi.fn();
+    this.onresult = null;
+    this.onerror = null;
+    this.onend = null;
+    remember(this);
+  }
+
+  (window as unknown as { SpeechRecognition?: unknown }).SpeechRecognition = MockCtor;
+  return () => {
+    if (!last) throw new Error('SpeechRecognition was not constructed');
+    return last;
+  };
+}
+
+describe('VoiceService.startListeningForTranscript (US-360)', () => {
+  let service: VoiceService;
+  let getRecognition: () => MockRecognition;
+
+  beforeEach(() => {
+    getRecognition = installSpeechRecognition();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [VoiceService, { provide: UserPreferencesService, useValue: makePrefsStub(true) }],
+    });
+    service = TestBed.inject(VoiceService);
+  });
+
+  afterEach(() => {
+    delete (window as unknown as { SpeechRecognition?: unknown }).SpeechRecognition;
+  });
+
+  it('starts a single-utterance session', () => {
+    service.startListeningForTranscript(() => undefined);
+
+    const recognition = getRecognition();
+    expect(recognition.continuous).toBe(false);
+    expect(recognition.interimResults).toBe(false);
+    expect(recognition.start).toHaveBeenCalled();
+    expect(service.isListening()).toBe(true);
+  });
+
+  it('emits the raw transcript, trimmed', () => {
+    const callback = vi.fn();
+    service.startListeningForTranscript(callback);
+
+    getRecognition().onresult?.({ results: [[{ transcript: ' add milk ' }]] });
+
+    expect(callback).toHaveBeenCalledWith('add milk');
+  });
+
+  it('does not emit for empty transcripts', () => {
+    const callback = vi.fn();
+    service.startListeningForTranscript(callback);
+
+    getRecognition().onresult?.({ results: [[{ transcript: '   ' }]] });
+
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('uses the configured language', () => {
+    service.setLanguage('de');
+    service.startListeningForTranscript(() => undefined);
+
+    expect(getRecognition().lang).toBe('de-DE');
+  });
+
+  it('clears isListening on end', () => {
+    service.startListeningForTranscript(() => undefined);
+
+    getRecognition().onend?.();
+
+    expect(service.isListening()).toBe(false);
+  });
+
+  it('clears isListening on error', () => {
+    service.startListeningForTranscript(() => undefined);
+
+    getRecognition().onerror?.({ error: 'no-speech' });
+
+    expect(service.isListening()).toBe(false);
+  });
+
+  it('does nothing when already listening', () => {
+    service.startListeningForTranscript(() => undefined);
+    const first = getRecognition();
+    first.start.mockClear();
+
+    service.startListeningForTranscript(() => undefined);
+
+    expect(first.start).not.toHaveBeenCalled();
+  });
+});
