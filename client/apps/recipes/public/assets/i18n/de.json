@@ -47,6 +47,11 @@
     "rating": {
       "label": "Bewertung",
       "value": "Mit {{value}} von 5 bewerten"
+    },
+    "unitToggle": {
+      "label": "Einheitensystem",
+      "metric": "Metrisch",
+      "imperial": "Imperial"
     }
   },
   "dashboard": {

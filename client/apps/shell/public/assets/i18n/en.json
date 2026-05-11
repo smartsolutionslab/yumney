@@ -90,6 +90,11 @@
     "rating": {
       "label": "Rating",
       "value": "Rate {{value}} of 5"
+    },
+    "unitToggle": {
+      "label": "Unit system",
+      "metric": "Metric",
+      "imperial": "Imperial"
     }
   },
   "layout": {

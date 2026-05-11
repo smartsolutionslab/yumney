@@ -23,6 +23,8 @@ import { RecipeNotesAutosaveService } from './recipe-notes-autosave.service';
 import {
   createAsyncState,
   scaleIngredients,
+  toSystem,
+  type UnitSystem,
   ERROR_MAPS,
   ROUTES,
   VALIDATION,
@@ -36,6 +38,7 @@ import {
   LoadingSpinnerComponent,
   MessageBannerComponent,
   StarRatingComponent,
+  UnitToggleComponent,
 } from '@yumney/ui';
 import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog/create-shopping-list-dialog.component';
 
@@ -53,6 +56,7 @@ import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog
     MessageBannerComponent,
     FavoriteButtonComponent,
     StarRatingComponent,
+    UnitToggleComponent,
   ],
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
@@ -80,6 +84,7 @@ export class RecipeDetailComponent implements OnInit {
   isCreatingShoppingList = this.createShoppingListState.isLoading;
   serverError = signal<string | null>(null);
   desiredServings = signal<number | null>(null);
+  unitSystem = signal<UnitSystem>('metric');
   showDeleteConfirm = signal(false);
   showCreateShoppingListConfirm = signal(false);
 
@@ -97,6 +102,22 @@ export class RecipeDetailComponent implements OnInit {
       return ingredients;
     }
     return scaleIngredients(ingredients, servings, desired);
+  });
+
+  // Final ingredient list rendered in the template — applies the unit-system
+  // toggle on top of the servings-scaled list. When the system is metric the
+  // recipe ships as-stored; flipping to imperial routes each amount/unit pair
+  // through unit-conversion (no-op for count/unknown units like "pinch" or
+  // "clove", smart-rounded for grams/litres/etc.).
+  displayedIngredients = computed(() => {
+    const ingredients = this.scaledIngredients();
+    const system = this.unitSystem();
+    if (system === 'metric') return ingredients;
+    return ingredients.map((ingredient) => {
+      if (ingredient.amount == null) return ingredient;
+      const converted = toSystem(ingredient.amount, ingredient.unit, system);
+      return { ...ingredient, amount: converted.amount, unit: converted.unit || null };
+    });
   });
 
   isScaled = computed(() => {

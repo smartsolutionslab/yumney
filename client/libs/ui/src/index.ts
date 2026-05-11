@@ -38,6 +38,7 @@ export { ConfirmDialogComponent } from './lib/confirm-dialog/confirm-dialog.comp
 export { HeaderComponent } from './lib/header/header.component';
 export { AppLayoutComponent } from './lib/app-layout/app-layout.component';
 export { UnitSelectComponent } from './lib/unit-select/unit-select.component';
+export { UnitToggleComponent } from './lib/unit-toggle/unit-toggle.component';
 export { LoadingSpinnerComponent } from './lib/loading-spinner/loading-spinner.component';
 export { AsyncStateComponent } from './lib/async-state/async-state.component';
 
