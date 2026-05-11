@@ -8,6 +8,16 @@ export { urlValidator, passwordsMatchValidator } from './lib/validators';
 export { VALIDATION } from './lib/validation-constants';
 export { scaleIngredients, type ScalableIngredient } from './lib/scale-ingredients';
 export {
+  toImperial,
+  toMetric,
+  toSystem,
+  celsiusToFahrenheit,
+  fahrenheitToCelsius,
+  smartRound,
+  type ConvertedAmount,
+  type UnitSystem,
+} from './lib/unit-conversion';
+export {
   mergeRecipeIngredients,
   type RecipeForMerge,
   type MergedIngredient,

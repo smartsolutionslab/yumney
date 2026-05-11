@@ -1,0 +1,29 @@
+<div
+  class="unit-toggle"
+  role="radiogroup"
+  *transloco="let t"
+  [attr.aria-label]="t('shared.unitToggle.label')"
+>
+  <button
+    type="button"
+    class="unit-toggle-option"
+    role="radio"
+    data-testid="unit-toggle-metric"
+    [class.selected]="system() === 'metric'"
+    [attr.aria-checked]="system() === 'metric'"
+    (click)="onSelect('metric')"
+  >
+    {{ t('shared.unitToggle.metric') }}
+  </button>
+  <button
+    type="button"
+    class="unit-toggle-option"
+    role="radio"
+    data-testid="unit-toggle-imperial"
+    [class.selected]="system() === 'imperial'"
+    [attr.aria-checked]="system() === 'imperial'"
+    (click)="onSelect('imperial')"
+  >
+    {{ t('shared.unitToggle.imperial') }}
+  </button>
+</div>
