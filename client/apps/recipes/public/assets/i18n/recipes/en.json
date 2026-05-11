@@ -158,6 +158,26 @@
     "addAriaLabel": "Add to favorites",
     "removeAriaLabel": "Remove from favorites"
   },
+  "cookable": {
+    "title": "What can I cook?",
+    "subtitle": "Recipes you have the ingredients for — perishables first.",
+    "filter": {
+      "fullMatchOnly": "Ready to cook only"
+    },
+    "tier": {
+      "full": "Ready to cook",
+      "near": "Almost there"
+    },
+    "missing": "Need: {{items}}",
+    "empty": {
+      "title": "No matching recipes",
+      "message": "Add ingredients to your pantry or import more recipes to see matches here.",
+      "cta": "Import a recipe"
+    },
+    "errors": {
+      "generic": "Could not load matching recipes. Please try again later."
+    }
+  },
   "cook": {
     "loading": "Loading recipe...",
     "exit": "Exit",

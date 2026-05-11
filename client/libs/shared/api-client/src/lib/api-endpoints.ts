@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
     cooked: (identifier: string) => `${API_BASE}/recipes/${identifier}/cooked`,
     rating: (identifier: string) => `${API_BASE}/recipes/${identifier}/rating`,
     notes: (identifier: string) => `${API_BASE}/recipes/${identifier}/notes`,
+    whatCanICook: `${API_BASE}/recipes/what-can-i-cook`,
   },
   shoppingLists: {
     base: `${API_BASE}/shopping-lists`,

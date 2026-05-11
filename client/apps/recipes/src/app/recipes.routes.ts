@@ -9,6 +9,12 @@ const RECIPES_SCOPE_PROVIDERS = [provideTranslocoScope('recipes')];
 
 export const recipesRoutes: Route[] = [
   {
+    path: 'cookable',
+    title: 'What can I cook? — Yumney',
+    providers: RECIPES_SCOPE_PROVIDERS,
+    loadComponent: () => import('./cookable-recipes').then((m) => m.CookableRecipesComponent),
+  },
+  {
     path: ':identifier/edit',
     title: 'Edit Recipe — Yumney',
     providers: RECIPES_SCOPE_PROVIDERS,

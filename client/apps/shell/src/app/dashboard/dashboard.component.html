@@ -6,6 +6,19 @@
   <h1>{{ t('dashboard.title') }}</h1>
   <p>{{ t('dashboard.welcome') }}</p>
 
+  <a
+    class="cookable-shortcut"
+    data-testid="dashboard-cookable-shortcut"
+    [routerLink]="ROUTES.recipes.cookable"
+  >
+    <lucide-icon name="chef-hat" [size]="24" class="cookable-shortcut-icon" />
+    <span class="cookable-shortcut-body">
+      <span class="cookable-shortcut-title">{{ t('dashboard.cookable.title') }}</span>
+      <span class="cookable-shortcut-subtitle">{{ t('dashboard.cookable.subtitle') }}</span>
+    </span>
+    <lucide-icon name="chevron-right" [size]="20" class="cookable-shortcut-chevron" />
+  </a>
+
   @if (serverError(); as error) {
     <yn-message-banner tone="error" [message]="error" />
   }

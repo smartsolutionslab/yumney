@@ -13,6 +13,10 @@
           <lucide-icon name="book-open" [size]="18" class="nav-icon" />
           <span class="nav-label">{{ t('layout.header.recipes') }}</span>
         </a>
+        <a [routerLink]="ROUTES.recipes.cookable" class="nav-link">
+          <lucide-icon name="chef-hat" [size]="18" class="nav-icon" />
+          <span class="nav-label">{{ t('layout.header.cookable') }}</span>
+        </a>
         <a [routerLink]="ROUTES.shopping.list" class="nav-link">
           <lucide-icon name="shopping-cart" [size]="18" class="nav-icon" />
           <span class="nav-label">{{ t('layout.header.shoppingLists') }}</span>

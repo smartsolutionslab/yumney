@@ -99,6 +99,7 @@
       "login": "Anmelden",
       "recipes": "Rezepte",
       "myRecipes": "Meine Rezepte",
+      "cookable": "Was kann ich kochen?",
       "shoppingLists": "Einkaufslisten",
       "mealPlanner": "Essensplaner",
       "navigation": "Hauptnavigation",
@@ -118,6 +119,10 @@
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Willkommen bei Yumney!",
+    "cookable": {
+      "title": "Was kann ich gerade kochen?",
+      "subtitle": "Rezepte, für die du alle (oder fast alle) Zutaten hast."
+    },
     "import": {
       "title": "Rezept importieren",
       "subtitle": "Füge eine URL von einer beliebigen Rezept-Website ein",

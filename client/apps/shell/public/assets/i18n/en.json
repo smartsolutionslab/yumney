@@ -99,6 +99,7 @@
       "login": "Sign in",
       "recipes": "Recipes",
       "myRecipes": "My Recipes",
+      "cookable": "What can I cook?",
       "shoppingLists": "Shopping Lists",
       "mealPlanner": "Meal Planner",
       "navigation": "Main navigation",
@@ -118,6 +119,10 @@
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome to Yumney!",
+    "cookable": {
+      "title": "What can I cook right now?",
+      "subtitle": "Recipes you have all (or almost all) the ingredients for."
+    },
     "import": {
       "title": "Import a Recipe",
       "subtitle": "Paste a URL from any recipe website",

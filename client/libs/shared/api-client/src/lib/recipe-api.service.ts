@@ -13,6 +13,7 @@ import type { SavedRecipeResponse } from './saved-recipe-response';
 import type { RecipeDetail } from './recipe-detail';
 import type { RecipeListResponse } from './recipe-list-response';
 import type { GetRecipesParams } from './get-recipes-params';
+import type { CookableRecipeListResponse, GetCookableRecipesParams } from './cookable-recipe';
 import type { RecognizedIngredientsResponse } from './recognized-ingredient';
 import type { FavoriteState } from './favorite-state';
 
@@ -201,6 +202,18 @@ export class RecipeApiService {
 
   invalidateRecipeCache(identifier: string): void {
     this.recipeCache.delete(identifier);
+  }
+
+  getCookableRecipes(
+    params: GetCookableRecipesParams = {},
+  ): Observable<CookableRecipeListResponse> {
+    return this.http.get<CookableRecipeListResponse>(API_ENDPOINTS.recipes.whatCanICook, {
+      params: {
+        ...(params.page != null && { page: params.page }),
+        ...(params.pageSize != null && { pageSize: params.pageSize }),
+        ...(params.fullMatchOnly === true && { fullMatchOnly: true }),
+      },
+    });
   }
 
   getRecipes(params: GetRecipesParams = {}): Observable<RecipeListResponse> {

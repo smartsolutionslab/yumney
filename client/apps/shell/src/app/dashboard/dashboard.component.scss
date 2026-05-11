@@ -46,6 +46,65 @@
   }
 }
 
+.cookable-shortcut {
+  display: flex;
+  align-items: center;
+  gap: var(--yn-space-4);
+  padding: var(--yn-space-4) var(--yn-space-5);
+  margin-bottom: var(--yn-space-6);
+  border: 1px solid var(--yn-glass-border);
+  border-radius: var(--yn-radius-card);
+  background: var(--yn-glass-bg);
+  backdrop-filter: blur(var(--yn-glass-blur));
+  -webkit-backdrop-filter: blur(var(--yn-glass-blur));
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform var(--yn-duration-fast) var(--yn-ease-spring),
+    border-color var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: var(--yn-primary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+.cookable-shortcut-icon {
+  color: var(--yn-primary);
+  flex-shrink: 0;
+}
+
+.cookable-shortcut-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--yn-space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.cookable-shortcut-title {
+  font-size: var(--yn-text-lg);
+  font-weight: var(--yn-font-semibold);
+  color: var(--yn-text);
+}
+
+.cookable-shortcut-subtitle {
+  font-size: var(--yn-text-sm);
+  color: var(--yn-text-muted);
+}
+
+.cookable-shortcut-chevron {
+  color: var(--yn-text-light);
+  flex-shrink: 0;
+}
+
 // ── Shared section card styles ──
 %section-card {
   @include glass.glass-surface(1);

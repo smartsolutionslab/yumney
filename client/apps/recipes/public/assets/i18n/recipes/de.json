@@ -158,6 +158,26 @@
     "addAriaLabel": "Zu Favoriten hinzufügen",
     "removeAriaLabel": "Aus Favoriten entfernen"
   },
+  "cookable": {
+    "title": "Was kann ich kochen?",
+    "subtitle": "Rezepte, für die du die Zutaten hast — Frisches zuerst.",
+    "filter": {
+      "fullMatchOnly": "Nur sofort kochbar"
+    },
+    "tier": {
+      "full": "Sofort kochbar",
+      "near": "Fast bereit"
+    },
+    "missing": "Fehlt: {{items}}",
+    "empty": {
+      "title": "Keine passenden Rezepte",
+      "message": "Füge Zutaten zur Vorratskammer hinzu oder importiere mehr Rezepte, um Treffer zu sehen.",
+      "cta": "Rezept importieren"
+    },
+    "errors": {
+      "generic": "Passende Rezepte konnten nicht geladen werden. Bitte versuche es später erneut."
+    }
+  },
   "cook": {
     "loading": "Rezept wird geladen...",
     "exit": "Beenden",
