@@ -83,6 +83,13 @@ test.describe('A11y smoke (#411)', () => {
     await runAxe(authenticatedPage);
   });
 
+  test('meal analytics', async ({ authenticatedPage }) => {
+    const shell = new AppShellPage(authenticatedPage);
+    await authenticatedPage.goto('/meal-planner/analytics');
+    await expect(shell.heading).toBeVisible({ timeout: TIMEOUTS.default });
+    await runAxe(authenticatedPage);
+  });
+
   test('account profile', async ({ authenticatedPage }) => {
     const shell = new AppShellPage(authenticatedPage);
     // /account is the profile-settings route — mirrors profile-settings.spec.ts
