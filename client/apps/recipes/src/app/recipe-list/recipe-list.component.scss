@@ -116,6 +116,23 @@ yn-filter-panel {
   }
 }
 
+.search-ai-badge {
+  position: absolute;
+  right: var(--yn-space-10);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 var(--yn-space-2);
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--yn-radius-badge);
+  background: var(--yn-primary);
+  color: var(--yn-on-primary, white);
+  font-size: var(--yn-text-xs);
+  font-weight: var(--yn-font-semibold);
+  letter-spacing: 0.05em;
+}
+
 .search-input {
   width: 100%;
   padding: var(--yn-space-4) var(--yn-space-5);

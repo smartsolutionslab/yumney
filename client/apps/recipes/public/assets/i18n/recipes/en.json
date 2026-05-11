@@ -24,11 +24,13 @@
       "cta": "Import a Recipe"
     },
     "search": {
-      "placeholder": "Search recipes...",
+      "placeholder": "Search recipes or ask a question...",
       "label": "Search recipes",
       "noResults": "No recipes found",
       "noResultsMessage": "No recipes match \"{{query}}\". Try a different search term.",
-      "clear": "Clear search"
+      "clear": "Clear search",
+      "aiBadge": "AI",
+      "aiHint": "Showing AI-suggested recipes for your question"
     },
     "filter": {
       "toggle": "Filters",

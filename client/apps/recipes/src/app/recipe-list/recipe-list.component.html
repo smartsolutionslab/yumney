@@ -32,6 +32,11 @@
         [placeholder]="t('recipes.list.search.placeholder')"
         [attr.aria-label]="t('recipes.list.search.label')"
       />
+      @if (isAiPowered()) {
+        <span class="search-ai-badge" data-testid="recipe-list-ai-badge">{{
+          t('recipes.list.search.aiBadge')
+        }}</span>
+      }
       @if (searchQuery()) {
         <button
           class="search-clear"
@@ -79,6 +84,10 @@
       (valueChange)="onFilterChange($event)"
       (closed)="filterPanelOpen.set(false)"
     />
+  }
+
+  @if (isAiPowered() && !isLoading() && !serverError()) {
+    <yn-message-banner tone="success" [message]="t('recipes.list.search.aiHint')" />
   }
 
   @if (serverError(); as error) {

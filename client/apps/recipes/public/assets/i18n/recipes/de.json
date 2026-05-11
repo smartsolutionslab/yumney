@@ -24,11 +24,13 @@
       "cta": "Rezept importieren"
     },
     "search": {
-      "placeholder": "Rezepte suchen...",
+      "placeholder": "Rezepte suchen oder Frage stellen...",
       "label": "Rezepte suchen",
       "noResults": "Keine Rezepte gefunden",
       "noResultsMessage": "Keine Rezepte für \"{{query}}\" gefunden. Versuche einen anderen Suchbegriff.",
-      "clear": "Suche löschen"
+      "clear": "Suche löschen",
+      "aiBadge": "KI",
+      "aiHint": "KI-Vorschläge für deine Frage werden angezeigt"
     },
     "filter": {
       "toggle": "Filter",

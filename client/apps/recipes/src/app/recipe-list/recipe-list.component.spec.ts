@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { RecipeListComponent } from './recipe-list.component';
 import {
+  ChatApiService,
   RecipeApiService,
   RecipeListResponse,
   ShoppingApiService,
@@ -106,10 +107,13 @@ const en = {
       cookTime: 'Cook {{minutes}} min',
       loading: 'Loading recipes...',
       search: {
-        placeholder: 'Search recipes...',
+        placeholder: 'Search recipes or ask a question...',
         label: 'Search recipes',
         noResults: 'No recipes found',
         noResultsMessage: 'No recipes match "{{query}}". Try a different search term.',
+        clear: 'Clear search',
+        aiBadge: 'AI',
+        aiHint: 'Showing AI-suggested recipes for your question',
       },
       empty: {
         title: 'No recipes yet',
@@ -143,6 +147,9 @@ describe('RecipeListComponent', () => {
   let shoppingApiMock: {
     createShoppingListFromRecipes: ReturnType<typeof vi.fn>;
   };
+  let chatApiMock: {
+    send: ReturnType<typeof vi.fn>;
+  };
 
   beforeAll(() => {
     vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
@@ -161,6 +168,9 @@ describe('RecipeListComponent', () => {
     shoppingApiMock = {
       createShoppingListFromRecipes: vi.fn(),
     };
+    chatApiMock = {
+      send: vi.fn(),
+    };
 
     TestBed.configureTestingModule({
       imports: [RecipeListComponent, setupTranslocoTesting(en)],
@@ -169,6 +179,7 @@ describe('RecipeListComponent', () => {
         provideRouter([]),
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: ShoppingApiService, useValue: shoppingApiMock },
+        { provide: ChatApiService, useValue: chatApiMock },
       ],
     });
 
@@ -944,5 +955,121 @@ describe('RecipeListComponent', () => {
     expect(
       fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-toggle"]'),
     ).toBeNull();
+  }));
+
+  it('should keep keyword path for short single-word search', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+
+    recipeApiMock.getRecipes.mockClear();
+    recipeApiMock.getRecipes.mockReturnValue(of(emptyResponse));
+
+    component.onSearchInput({ target: { value: 'pasta' } } as unknown as Event);
+    tick(300);
+
+    expect(chatApiMock.send).not.toHaveBeenCalled();
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
+      expect.objectContaining({ search: 'pasta' }),
+    );
+    expect(component.isAiPowered()).toBe(false);
+  }));
+
+  it('should route conversational queries through ChatApiService and hydrate suggestions', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+
+    chatApiMock.send.mockReturnValue(
+      of({
+        reply: 'Here you go',
+        suggestions: [
+          { recipeIdentifier: 'abc-123', title: 'Pasta Carbonara', reason: null },
+          { recipeIdentifier: null, title: 'Skipped', reason: null },
+        ],
+        actions: [],
+      }),
+    );
+    recipeApiMock.getRecipeById.mockReturnValue(
+      of({
+        identifier: 'abc-123',
+        title: 'Pasta Carbonara',
+        description: 'A classic',
+        servings: 4,
+        prepTimeMinutes: 10,
+        cookTimeMinutes: 20,
+        difficulty: 'medium',
+        imageUrl: null,
+        createdAt: '2026-03-10T00:00:00Z',
+        tags: [],
+        isFavorite: false,
+        rating: null,
+        notes: null,
+        ingredients: [],
+        steps: [],
+        sourceUrl: null,
+        language: 'en',
+      }),
+    );
+
+    component.onSearchInput({
+      target: { value: 'what can I make with chicken' },
+    } as unknown as Event);
+    tick(300);
+    tick();
+
+    expect(chatApiMock.send).toHaveBeenCalledWith({
+      message: 'what can I make with chicken',
+      history: [],
+    });
+    expect(recipeApiMock.getRecipeById).toHaveBeenCalledWith('abc-123');
+    expect(component.isAiPowered()).toBe(true);
+    expect(component.recipes()).toHaveLength(1);
+    expect(component.recipes()[0].identifier).toBe('abc-123');
+  }));
+
+  it('should fall back to keyword search when chat call fails', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+
+    chatApiMock.send.mockReturnValue(throwError(() => new Error('boom')));
+    recipeApiMock.getRecipes.mockClear();
+    recipeApiMock.getRecipes.mockReturnValue(of(emptyResponse));
+
+    component.onSearchInput({
+      target: { value: 'show me something with tomatoes please' },
+    } as unknown as Event);
+    tick(300);
+    tick();
+
+    expect(chatApiMock.send).toHaveBeenCalled();
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
+      expect.objectContaining({ search: 'show me something with tomatoes please' }),
+    );
+    expect(component.isAiPowered()).toBe(false);
+  }));
+
+  it('should clear AI flag when search is cleared', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(emptyResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.isAiPowered.set(true);
+    recipeApiMock.getRecipes.mockReturnValue(of(emptyResponse));
+
+    component.onSearchClear();
+    tick();
+
+    expect(component.isAiPowered()).toBe(false);
+  }));
+
+  it('should disable load-more in AI mode', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
+    fixture.detectChanges();
+    tick();
+
+    component.isAiPowered.set(true);
+    expect(component.hasMore()).toBe(false);
   }));
 });
