@@ -269,6 +269,14 @@ public sealed class SemanticKernelChatServiceFunctionCallingTests
 			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListLookup>());
 		var createShoppingListTool = new CreateShoppingListTool(
 			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListCreator>());
+		var addShoppingItemTool = new AddShoppingItemTool(
+			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListItemAdder>());
+		var removeShoppingItemTool = new RemoveShoppingItemTool(
+			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListItemRemover>());
+		var swapMealSlotsTool = new SwapMealSlotsTool(
+			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IMealSlotSwapper>());
+		var clearMealSlotTool = new ClearMealSlotTool(
+			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IMealSlotClearer>());
 
 		var kernelBuilder = Kernel.CreateBuilder();
 		kernelBuilder.Services.AddSingleton<IChatCompletionService>(fake);
@@ -285,6 +293,10 @@ public sealed class SemanticKernelChatServiceFunctionCallingTests
 			confirmMealTool,
 			mergedShoppingListTool,
 			createShoppingListTool,
+			addShoppingItemTool,
+			removeShoppingItemTool,
+			swapMealSlotsTool,
+			clearMealSlotTool,
 			context,
 			NullLogger<SemanticKernelChatService>.Instance);
 

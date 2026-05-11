@@ -41,4 +41,21 @@ internal sealed class ShoppingClient(IModuleHttpClientFactory factory) : IShoppi
 			return false;
 		}
 	}
+
+	public async Task<bool> RemoveItemAsync(RemoveShoppingItemBody body, CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			await http.DeleteAsync(
+				"/api/v1/shopping-lists/items",
+				body,
+				"RemoveShoppingItem",
+				cancellationToken);
+			return true;
+		}
+		catch (Exception ex) when (ex is not OperationCanceledException)
+		{
+			return false;
+		}
+	}
 }

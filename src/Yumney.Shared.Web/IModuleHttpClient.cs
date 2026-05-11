@@ -25,6 +25,17 @@ public interface IModuleHttpClient
 		TBody body,
 		string operation,
 		CancellationToken cancellationToken = default);
+
+	Task DeleteAsync(
+		string url,
+		string operation,
+		CancellationToken cancellationToken = default);
+
+	Task DeleteAsync<TBody>(
+		string url,
+		TBody body,
+		string operation,
+		CancellationToken cancellationToken = default);
 }
 
 public interface IModuleHttpClientFactory
