@@ -69,6 +69,19 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 		return Task.FromResult(page.AsPagedResult(ItemCount.From(ordered.Count), paging));
 	}
 
+	public Task<IReadOnlyList<AnalyticsSlotProjection>> GetSlotsInPeriodAsync(
+		OwnerIdentifier owner,
+		DateOnly periodStart,
+		DateOnly periodEndExclusive,
+		CancellationToken cancellationToken = default) =>
+		Task.FromResult<IReadOnlyList<AnalyticsSlotProjection>>([]);
+
+	public Task<IReadOnlyDictionary<Guid, DateOnly>> GetFirstCookDatesAsync(
+		OwnerIdentifier owner,
+		IReadOnlyList<Guid> recipeIdentifiers,
+		CancellationToken cancellationToken = default) =>
+		Task.FromResult<IReadOnlyDictionary<Guid, DateOnly>>(new Dictionary<Guid, DateOnly>());
+
 	public void Seed(WeeklyPlan plan)
 	{
 		store[(plan.Owner.Value, plan.Week.Value)] = plan;

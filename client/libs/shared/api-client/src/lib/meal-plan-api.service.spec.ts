@@ -334,4 +334,40 @@ describe('MealPlanApiService', () => {
       req.flush(mockSuggestion);
     });
   });
+
+  describe('getMealAnalytics', () => {
+    const mockAnalytics = {
+      period: '2026-05',
+      totalCooked: 10,
+      totalSkipped: 1,
+      uniqueRecipes: 6,
+      mealsPerWeek: 2.3,
+      discoveryRate: 2,
+      topRecipes: [],
+      categoryDistribution: [],
+    };
+
+    it('GETs /meal-plans/analytics with year only when month is omitted', () => {
+      service.getMealAnalytics(2026).subscribe();
+
+      const req = httpTesting.expectOne(
+        (request) =>
+          request.url === API_ENDPOINTS.mealPlans.analytics &&
+          request.params.get('year') === '2026',
+      );
+      expect(req.request.params.has('month')).toBe(false);
+      req.flush(mockAnalytics);
+    });
+
+    it('passes month as a query param when provided', () => {
+      service.getMealAnalytics(2026, 5).subscribe();
+
+      const req = httpTesting.expectOne(
+        (request) => request.url === API_ENDPOINTS.mealPlans.analytics,
+      );
+      expect(req.request.params.get('year')).toBe('2026');
+      expect(req.request.params.get('month')).toBe('5');
+      req.flush(mockAnalytics);
+    });
+  });
 });

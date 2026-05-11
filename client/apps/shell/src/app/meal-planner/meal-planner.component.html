@@ -31,6 +31,14 @@
     >
       <lucide-icon name="search" [size]="20" />
     </button>
+    <button
+      class="nav-btn"
+      data-testid="meal-planner-open-analytics"
+      (click)="onOpenAnalytics()"
+      [attr.aria-label]="t('mealPlanner.analytics.open')"
+    >
+      <lucide-icon name="bar-chart-3" [size]="20" />
+    </button>
   </div>
 
   <yn-async-state

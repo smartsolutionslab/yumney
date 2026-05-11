@@ -1,0 +1,154 @@
+<div class="meal-analytics" *transloco="let t">
+  <header class="analytics-header">
+    <a
+      class="back-btn"
+      data-testid="meal-analytics-back"
+      routerLink="/meal-planner"
+      [attr.aria-label]="t('mealPlanner.analytics.back')"
+    >
+      <lucide-icon name="arrow-left" [size]="20" />
+    </a>
+    <h1>{{ t('mealPlanner.analytics.title') }}</h1>
+  </header>
+
+  <div class="period-toolbar">
+    <div class="view-toggle" role="group" [attr.aria-label]="t('mealPlanner.analytics.viewToggle')">
+      <button
+        type="button"
+        class="toggle-btn"
+        data-testid="meal-analytics-view-month"
+        [class.active]="viewMode() === 'month'"
+        [attr.aria-pressed]="viewMode() === 'month'"
+        (click)="onSetView('month')"
+      >
+        {{ t('mealPlanner.analytics.monthly') }}
+      </button>
+      <button
+        type="button"
+        class="toggle-btn"
+        data-testid="meal-analytics-view-year"
+        [class.active]="viewMode() === 'year'"
+        [attr.aria-pressed]="viewMode() === 'year'"
+        (click)="onSetView('year')"
+      >
+        {{ t('mealPlanner.analytics.yearly') }}
+      </button>
+    </div>
+
+    <div class="period-nav">
+      <button
+        type="button"
+        class="nav-btn"
+        data-testid="meal-analytics-prev"
+        [attr.aria-label]="t('mealPlanner.analytics.previousPeriod')"
+        (click)="onPreviousPeriod()"
+      >
+        <lucide-icon name="chevron-left" [size]="20" />
+      </button>
+      <span class="period-label" data-testid="meal-analytics-period">{{ periodLabel() }}</span>
+      <button
+        type="button"
+        class="nav-btn"
+        data-testid="meal-analytics-next"
+        [attr.aria-label]="t('mealPlanner.analytics.nextPeriod')"
+        (click)="onNextPeriod()"
+      >
+        <lucide-icon name="chevron-right" [size]="20" />
+      </button>
+    </div>
+  </div>
+
+  <yn-async-state
+    [loading]="loading()"
+    [error]="error()"
+    loadingKey="mealPlanner.analytics.loading"
+    retryKey="mealPlanner.retry"
+    (retry)="onRetry()"
+  />
+
+  @if (!loading() && !error() && analytics(); as data) {
+    <div class="cards-grid">
+      <div class="stat-card">
+        <div class="stat-label">{{ t('mealPlanner.analytics.totalCooked') }}</div>
+        <div class="stat-value" data-testid="meal-analytics-total-cooked">
+          {{ data.totalCooked }}
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">{{ t('mealPlanner.analytics.uniqueRecipes') }}</div>
+        <div class="stat-value">{{ data.uniqueRecipes }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">{{ t('mealPlanner.analytics.skipped') }}</div>
+        <div class="stat-value">{{ data.totalSkipped }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">{{ t('mealPlanner.analytics.mealsPerWeek') }}</div>
+        <div class="stat-value">{{ data.mealsPerWeek }}</div>
+      </div>
+      <div class="stat-card stat-card--wide">
+        <div class="stat-label">{{ t('mealPlanner.analytics.discoveryRate') }}</div>
+        <div class="stat-value">{{ data.discoveryRate }}</div>
+        <div class="stat-hint">{{ t('mealPlanner.analytics.discoveryHint') }}</div>
+      </div>
+    </div>
+
+    @if (data.categoryDistribution.length > 0) {
+      <section class="distribution-card" data-testid="meal-analytics-distribution">
+        <h2>{{ t('mealPlanner.analytics.categoryDistribution') }}</h2>
+        <div class="distribution-layout">
+          <svg
+            class="donut"
+            viewBox="0 0 140 140"
+            role="img"
+            [attr.aria-label]="t('mealPlanner.analytics.categoryDistribution')"
+          >
+            <circle class="donut-track" cx="70" cy="70" [attr.r]="donutRadius" />
+            @for (segment of donutSegments(); track segment.category) {
+              <circle
+                class="donut-segment"
+                [class]="'donut-segment--' + segment.category"
+                cx="70"
+                cy="70"
+                [attr.r]="donutRadius"
+                [attr.stroke-dasharray]="segment.dashArray"
+                [attr.stroke-dashoffset]="segment.dashOffset"
+              />
+            }
+          </svg>
+          <ul class="distribution-legend">
+            @for (segment of donutSegments(); track segment.category) {
+              <li class="legend-item">
+                <span class="legend-swatch" [class]="'legend-swatch--' + segment.category"></span>
+                <span class="legend-name">{{
+                  t('mealPlanner.analytics.categories.' + segment.category)
+                }}</span>
+                <span class="legend-share">{{ segment.count }} · {{ segment.percentage }}%</span>
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
+    }
+
+    @if (data.topRecipes.length > 0) {
+      <section class="top-card" data-testid="meal-analytics-top-recipes">
+        <h2>{{ t('mealPlanner.analytics.topRecipes') }}</h2>
+        <ol class="top-list">
+          @for (recipe of data.topRecipes; track recipe.recipeIdentifier) {
+            <li class="top-item">
+              <span class="top-title">{{ recipe.recipeTitle }}</span>
+              <span class="top-count">{{
+                t('mealPlanner.analytics.timesCooked', { count: recipe.cookCount })
+              }}</span>
+            </li>
+          }
+        </ol>
+      </section>
+    }
+
+    @if (data.totalCooked === 0) {
+      <p class="empty" data-testid="meal-analytics-empty">{{ t('mealPlanner.analytics.empty') }}</p>
+    }
+  }
+</div>

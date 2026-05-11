@@ -21,4 +21,21 @@ public interface IMealPlanReadModelRepository
 		SearchTerm? term,
 		PagingOptions paging,
 		CancellationToken cancellationToken = default);
+
+	Task<IReadOnlyList<AnalyticsSlotProjection>> GetSlotsInPeriodAsync(
+		OwnerIdentifier owner,
+		DateOnly periodStart,
+		DateOnly periodEndExclusive,
+		CancellationToken cancellationToken = default);
+
+	Task<IReadOnlyDictionary<Guid, DateOnly>> GetFirstCookDatesAsync(
+		OwnerIdentifier owner,
+		IReadOnlyList<Guid> recipeIdentifiers,
+		CancellationToken cancellationToken = default);
 }
+
+public sealed record AnalyticsSlotProjection(
+	Guid? RecipeIdentifier,
+	string? RecipeTitle,
+	string State,
+	DateOnly Date);

@@ -392,6 +392,37 @@
         "noRecipes": "Add at least one recipe before asking for a suggestion.",
         "failed": "Could not produce a suggested plan. Please try again."
       }
+    },
+    "analytics": {
+      "open": "Open analytics",
+      "back": "Back to meal planner",
+      "title": "Cooking analytics",
+      "viewToggle": "View toggle",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "previousPeriod": "Previous period",
+      "nextPeriod": "Next period",
+      "loading": "Loading analytics...",
+      "totalCooked": "Meals cooked",
+      "uniqueRecipes": "Unique recipes",
+      "skipped": "Skipped",
+      "mealsPerWeek": "Meals / week",
+      "discoveryRate": "New recipes tried",
+      "discoveryHint": "Recipes you cooked for the first time this period.",
+      "categoryDistribution": "Category mix",
+      "topRecipes": "Most cooked",
+      "timesCooked": "{{count}}x cooked",
+      "empty": "No cooked meals in this period yet.",
+      "categories": {
+        "meat": "Meat",
+        "fish": "Fish",
+        "veggie": "Vegetarian",
+        "vegan": "Vegan",
+        "other": "Other"
+      },
+      "errors": {
+        "loadFailed": "Failed to load analytics."
+      }
     }
   },
   "common": {

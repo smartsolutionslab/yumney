@@ -56,6 +56,7 @@ export const API_ENDPOINTS = {
     copyTo: (srcYear: number, srcWeek: number, dstYear: number, dstWeek: number) =>
       `${API_BASE}/meal-plans/${srcYear}/w/${srcWeek}/copy-to/${dstYear}/${dstWeek}`,
     suggest: (year: number, week: number) => `${API_BASE}/meal-plans/${year}/w/${week}/suggest`,
+    analytics: `${API_BASE}/meal-plans/analytics`,
   },
   auth: {
     register: `${API_BASE}/auth/register`,

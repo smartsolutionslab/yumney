@@ -392,6 +392,37 @@
         "noRecipes": "Lege mindestens ein Rezept an, bevor du einen Vorschlag anforderst.",
         "failed": "Es konnte kein Vorschlag erstellt werden. Bitte versuche es erneut."
       }
+    },
+    "analytics": {
+      "open": "Auswertungen öffnen",
+      "back": "Zurück zum Essensplaner",
+      "title": "Kochstatistik",
+      "viewToggle": "Ansicht wechseln",
+      "monthly": "Monat",
+      "yearly": "Jahr",
+      "previousPeriod": "Vorheriger Zeitraum",
+      "nextPeriod": "Nächster Zeitraum",
+      "loading": "Statistik wird geladen...",
+      "totalCooked": "Gekochte Mahlzeiten",
+      "uniqueRecipes": "Verschiedene Rezepte",
+      "skipped": "Übersprungen",
+      "mealsPerWeek": "Mahlzeiten / Woche",
+      "discoveryRate": "Neue Rezepte ausprobiert",
+      "discoveryHint": "Rezepte, die du in diesem Zeitraum zum ersten Mal gekocht hast.",
+      "categoryDistribution": "Kategorien-Mix",
+      "topRecipes": "Am häufigsten gekocht",
+      "timesCooked": "{{count}}x gekocht",
+      "empty": "In diesem Zeitraum noch nichts gekocht.",
+      "categories": {
+        "meat": "Fleisch",
+        "fish": "Fisch",
+        "veggie": "Vegetarisch",
+        "vegan": "Vegan",
+        "other": "Sonstiges"
+      },
+      "errors": {
+        "loadFailed": "Statistik konnte nicht geladen werden."
+      }
     }
   },
   "common": {
