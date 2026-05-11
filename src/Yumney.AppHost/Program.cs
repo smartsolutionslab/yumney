@@ -192,6 +192,7 @@ if (!options.DatabaseOnly)
 	// outside the run/publish branches because both gateways route to it.
 	var mcpServer = builder.AddProject<Projects.Yumney_Mcp_Server>("mcp-server")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
+		.WithReference(keycloak)
 		.WithReference(recipesApi)
 		.WithReference(shoppingApi)
 		.WithReference(mealplanApi);

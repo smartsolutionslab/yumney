@@ -1,4 +1,6 @@
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using SmartSolutionsLab.Yumney.Shared.Capabilities;
 
 namespace SmartSolutionsLab.Yumney.Mcp.Server.Discovery;
@@ -17,12 +19,53 @@ internal sealed partial class CapabilityDiscoveryService(
 {
 	private const string wellKnownPath = "/.well-known/yumney-capabilities";
 
+	// Retry cadence for hosts that haven't responded yet. Module hosts can
+	// reach KnownResourceStates.Running before their HTTP listener has fully
+	// warmed up (recipes-api in particular — SK kernel + extraction service
+	// registration). The standard resilience handler around the discovery
+	// HttpClient already caps individual attempts at 30s; this outer loop
+	// retries the still-missing services on a 5s cadence until either every
+	// known host has reported or the discovery service is cancelled.
+	private const int maxRetryRounds = 24;
+
+	// Module hosts add JsonStringEnumConverter to their response serializer
+	// (HostBuilderExtensions.ConfigureHttpJsonOptions). CapabilitySurface is a
+	// [Flags] enum that ships on the wire as a comma-joined string like
+	// "Chat, Mcp" — default GetFromJsonAsync options can't read it back into
+	// the enum and the discovery fetch fails with a JsonException pointing at
+	// $.capabilities[0].surfaces.
+#pragma warning disable SA1311
+	private static readonly JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web)
+	{
+		Converters = { new JsonStringEnumConverter() },
+	};
+
+	private static readonly TimeSpan retryInterval = TimeSpan.FromSeconds(5);
+#pragma warning restore SA1311
+
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		foreach (var serviceName in KnownCapabilityHosts.ServiceNames)
+		for (var round = 0; round < maxRetryRounds; round++)
 		{
 			if (stoppingToken.IsCancellationRequested) return;
-			await DiscoverFromServiceAsync(serviceName, stoppingToken);
+
+			foreach (var serviceName in KnownCapabilityHosts.ServiceNames)
+			{
+				if (stoppingToken.IsCancellationRequested) return;
+				if (registry.Manifests.ContainsKey(serviceName)) continue;
+				await DiscoverFromServiceAsync(serviceName, stoppingToken);
+			}
+
+			if (registry.Manifests.Count == KnownCapabilityHosts.ServiceNames.Count) break;
+
+			try
+			{
+				await Task.Delay(retryInterval, stoppingToken);
+			}
+			catch (OperationCanceledException)
+			{
+				return;
+			}
 		}
 
 		LogDiscoveryComplete(registry.Manifests.Count, registry.CapabilityCount);
@@ -33,7 +76,7 @@ internal sealed partial class CapabilityDiscoveryService(
 		try
 		{
 			var client = httpClientFactory.CreateClient(serviceName);
-			var manifest = await client.GetFromJsonAsync<CapabilityManifest>(wellKnownPath, cancellationToken);
+			var manifest = await client.GetFromJsonAsync<CapabilityManifest>(wellKnownPath, jsonOptions, cancellationToken);
 			if (manifest is null)
 			{
 				LogManifestNullFor(serviceName);
