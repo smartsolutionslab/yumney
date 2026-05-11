@@ -133,18 +133,24 @@ if (!options.DatabaseOnly)
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.AsYumneyApi(options, shoppingDb, keycloak, redis, messaging, migrationRunner)
 		.WithReference(usersApi);
+
+	// Shared LLM resources registered once — Aspire's parameter / ollama
+	// collections refuse duplicate names, so each `WithLlmProvider` consumer
+	// gets the same handle here rather than creating its own.
+	var llm = builder.BuildLlmResources(options);
+
 	var recipesApi = builder
 		.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.AsYumneyApi(options, recipesDb, keycloak, redis, messaging, migrationRunner)
-		.WithLlmProvider(builder, options)
+		.WithLlmProvider(options, llm)
 		.WithReference(shoppingApi)
 		.WithReference(usersApi);
 	var mealplanApi = builder
 		.AddProject<Projects.Yumney_MealPlan_Api>("mealplan-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.AsYumneyApi(options, mealplanDb, keycloak, redis, messaging, migrationRunner)
-		.WithLlmProvider(builder, options)
+		.WithLlmProvider(options, llm)
 		.WithReference(recipesApi)
 		.WithReference(shoppingApi)
 		.WithReference(usersApi);
