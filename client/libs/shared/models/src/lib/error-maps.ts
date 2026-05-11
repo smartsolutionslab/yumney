@@ -92,6 +92,10 @@ export const ERROR_MAPS = {
     searchHistory: {
       default: 'mealPlanner.history.errors.searchFailed',
     } satisfies HttpErrorMap,
+    suggestWeek: {
+      422: 'mealPlanner.suggest.errors.noRecipes',
+      default: 'mealPlanner.suggest.errors.failed',
+    } satisfies HttpErrorMap,
   },
   account: {
     load: {

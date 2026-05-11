@@ -90,3 +90,17 @@ export interface SearchHistoryParams {
   page?: number;
   pageSize?: number;
 }
+
+export interface WeekSuggestionEntry {
+  day: string;
+  mealType: string;
+  recipeIdentifier: string;
+  recipeTitle: string;
+  freshnessLabel: string | null;
+  reason: string | null;
+}
+
+export interface WeekSuggestion {
+  week: string;
+  entries: WeekSuggestionEntry[];
+}

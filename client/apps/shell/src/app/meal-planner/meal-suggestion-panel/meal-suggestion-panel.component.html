@@ -1,0 +1,80 @@
+<div class="meal-suggestion-panel" *transloco="let t">
+  @if (!hasSuggestion() && !loading() && !error()) {
+    <button
+      class="suggest-cta"
+      type="button"
+      data-testid="meal-suggestion-cta"
+      (click)="onSuggest()"
+    >
+      <lucide-icon name="sparkles" [size]="18" />
+      {{ t('mealPlanner.suggest.cta') }}
+    </button>
+    <p class="suggest-hint">{{ t('mealPlanner.suggest.hint') }}</p>
+  }
+
+  <yn-async-state
+    [loading]="loading()"
+    [error]="error()"
+    loadingKey="mealPlanner.suggest.loading"
+    retryKey="mealPlanner.retry"
+    (retry)="onRetry()"
+  />
+
+  @if (hasSuggestion() && !loading() && !error()) {
+    <div class="suggestion-result" data-testid="meal-suggestion-result">
+      <header class="suggestion-header">
+        <h2>{{ t('mealPlanner.suggest.reviewTitle') }}</h2>
+        <p>{{ t('mealPlanner.suggest.reviewSubtitle') }}</p>
+      </header>
+
+      <ul class="suggestion-list">
+        @for (entry of suggestion()!.entries; track trackByEntry($index, entry)) {
+          <li class="suggestion-item">
+            <div class="suggestion-day">{{ entry.day }}</div>
+            <div class="suggestion-meta">
+              <div class="suggestion-title">{{ entry.recipeTitle }}</div>
+              @if (entry.freshnessLabel) {
+                <span class="suggestion-freshness">{{ entry.freshnessLabel }}</span>
+              }
+              @if (entry.reason) {
+                <p class="suggestion-reason">{{ entry.reason }}</p>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+
+      <div class="suggestion-actions">
+        <button
+          class="action-btn primary"
+          type="button"
+          data-testid="meal-suggestion-accept"
+          [disabled]="accepting()"
+          (click)="onAccept()"
+        >
+          <lucide-icon name="check" [size]="16" />
+          {{ accepting() ? t('mealPlanner.suggest.accepting') : t('mealPlanner.suggest.accept') }}
+        </button>
+        <button
+          class="action-btn secondary"
+          type="button"
+          data-testid="meal-suggestion-regenerate"
+          [disabled]="accepting()"
+          (click)="onRegenerate()"
+        >
+          <lucide-icon name="refresh-cw" [size]="16" />
+          {{ t('mealPlanner.suggest.regenerate') }}
+        </button>
+        <button
+          class="action-btn ghost"
+          type="button"
+          data-testid="meal-suggestion-dismiss"
+          [disabled]="accepting()"
+          (click)="onDismiss()"
+        >
+          {{ t('mealPlanner.suggest.dismiss') }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

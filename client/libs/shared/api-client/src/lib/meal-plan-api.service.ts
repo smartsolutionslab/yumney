@@ -15,6 +15,7 @@ import type {
   GenerateShoppingListResult,
   MealHistoryEntry,
   SearchHistoryParams,
+  WeekSuggestion,
 } from './meal-plan';
 
 @Injectable({ providedIn: 'root' })
@@ -101,5 +102,9 @@ export class MealPlanApiService {
       API_ENDPOINTS.mealPlans.copyTo(srcYear, srcWeek, dstYear, dstWeek),
       {},
     );
+  }
+
+  suggestWeekPlan(year: number, week: number): Observable<WeekSuggestion> {
+    return this.http.post<WeekSuggestion>(API_ENDPOINTS.mealPlans.suggest(year, week), {});
   }
 }

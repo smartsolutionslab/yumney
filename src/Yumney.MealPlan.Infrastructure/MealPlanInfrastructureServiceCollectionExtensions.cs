@@ -38,6 +38,8 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 		services.AddScoped<IRecipeIngredientLookup, HttpRecipeIngredientLookup>();
 		services.AddScoped<IShoppingListWriter, HttpShoppingListWriter>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
+		services.AddScoped<IRecipeCatalogProvider, HttpRecipeCatalogProvider>();
+		services.AddScoped<IDietaryProfileProvider, HttpDietaryProfileProvider>();
 		services.AddRecipesClient();
 		services.AddShoppingClient();
 		services.AddUsersClient();

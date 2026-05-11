@@ -11,4 +11,11 @@ internal sealed class RecipesClient(IModuleHttpClientFactory factory) : IRecipes
 			$"/api/v1/recipes/{recipeId}",
 			"GetRecipe",
 			cancellationToken);
+
+	public Task<RecipeCatalogResponse> ListRecipeCatalogAsync(int pageSize, CancellationToken cancellationToken = default) =>
+		http.GetOrDefaultAsync(
+			$"/api/v1/recipes?page=1&pageSize={pageSize}&sortBy=Date&sortDirection=Descending",
+			new RecipeCatalogResponse([]),
+			"ListRecipeCatalog",
+			cancellationToken);
 }

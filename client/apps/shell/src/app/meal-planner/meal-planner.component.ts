@@ -19,6 +19,7 @@ import {
 } from '@yumney/shared/api-client';
 import { createAsyncState, ERROR_MAPS, UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
+import { MealSuggestionPanelComponent } from './meal-suggestion-panel/meal-suggestion-panel.component';
 
 const WEEKS_PER_YEAR = 52;
 const MS_PER_DAY = 86_400_000;
@@ -30,7 +31,12 @@ const JS_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 @Component({
   selector: 'yn-meal-planner',
   standalone: true,
-  imports: [TranslocoModule, LucideAngularModule, AsyncStateComponent],
+  imports: [
+    TranslocoModule,
+    LucideAngularModule,
+    AsyncStateComponent,
+    MealSuggestionPanelComponent,
+  ],
   templateUrl: './meal-planner.component.html',
   styleUrl: './meal-planner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -125,6 +131,12 @@ export class MealPlannerComponent {
   protected hasRecipeSlots = computed(
     () => this.plan()?.slots.some((slot) => slot.contentType === 'Recipe') ?? false,
   );
+
+  protected canSuggest = computed(() => !this.isPastWeek() && !this.hasRecipeSlots());
+
+  protected onSuggestionAccepted(): void {
+    this.loadPlan();
+  }
 
   protected onGenerateShoppingList(): void {
     this.shoppingResult.set(null);

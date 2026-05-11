@@ -84,6 +84,8 @@ export type {
   GenerateShoppingListResult,
   MealHistoryEntry,
   SearchHistoryParams,
+  WeekSuggestion,
+  WeekSuggestionEntry,
 } from './lib/meal-plan';
 
 // --- Dashboard ---

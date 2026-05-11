@@ -377,6 +377,21 @@
         "sourceNotFound": "Source week was not found.",
         "copyValidation": "This plan cannot be copied to the current week."
       }
+    },
+    "suggest": {
+      "cta": "Suggest a plan",
+      "hint": "We'll pick seven dinners from your catalog based on your history, favorites, and dietary profile.",
+      "loading": "Thinking up a week...",
+      "reviewTitle": "Suggested week",
+      "reviewSubtitle": "Review and accept, or regenerate for a different mix.",
+      "accept": "Accept plan",
+      "accepting": "Adding to your week...",
+      "regenerate": "Regenerate",
+      "dismiss": "Dismiss",
+      "errors": {
+        "noRecipes": "Add at least one recipe before asking for a suggestion.",
+        "failed": "Could not produce a suggested plan. Please try again."
+      }
     }
   },
   "common": {
