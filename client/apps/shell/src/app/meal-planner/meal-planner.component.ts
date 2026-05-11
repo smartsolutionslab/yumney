@@ -132,7 +132,9 @@ export class MealPlannerComponent {
     () => this.plan()?.slots.some((slot) => slot.contentType === 'Recipe') ?? false,
   );
 
-  protected canSuggest = computed(() => !this.isPastWeek() && !this.hasRecipeSlots());
+  protected canSuggest = computed(
+    () => this.plan() !== null && !this.isPastWeek() && !this.hasRecipeSlots(),
+  );
 
   protected onSuggestionAccepted(): void {
     this.loadPlan();

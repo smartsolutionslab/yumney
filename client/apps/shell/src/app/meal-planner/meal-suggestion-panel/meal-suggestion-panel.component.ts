@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { forkJoin } from 'rxjs';
+import { concat, last, toArray } from 'rxjs';
 import {
   MealPlanApiService,
   type WeekSuggestion,
@@ -64,6 +64,10 @@ export class MealSuggestionPanelComponent {
     const entries = this.suggestion()?.entries ?? [];
     if (entries.length === 0) return;
 
+    // Sequential: the WeeklyPlan aggregate is event-sourced with optimistic
+    // concurrency, so parallel assigns to the same week throw
+    // ConcurrencyConflictException on all but the first write. `concat`
+    // chains the assigns in order; `last` waits for the final response.
     const assignments = entries.map((entry) =>
       this.api.assignRecipe(this.year, this.week, {
         day: entry.day,
@@ -73,10 +77,14 @@ export class MealSuggestionPanelComponent {
       }),
     );
 
-    this.acceptState.execute(forkJoin(assignments), ERROR_MAPS.mealPlanner.assign, () => {
-      this.suggestion.set(null);
-      this.planAccepted.emit();
-    });
+    this.acceptState.execute(
+      concat(...assignments).pipe(toArray(), last()),
+      ERROR_MAPS.mealPlanner.assign,
+      () => {
+        this.suggestion.set(null);
+        this.planAccepted.emit();
+      },
+    );
   }
 
   protected onDismiss(): void {
