@@ -1,5 +1,6 @@
 using SmartSolutionsLab.Yumney.MealPlan.Api;
 using SmartSolutionsLab.Yumney.MealPlan.Application;
+using SmartSolutionsLab.Yumney.MealPlan.Extraction;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure;
 using SmartSolutionsLab.Yumney.Shared.Hosting;
 using SmartSolutionsLab.Yumney.Shared.Modules;
@@ -11,6 +12,7 @@ IModule[] modules =
 	new MealPlanApiModule(),
 	new MealPlanApplicationModule(),
 	new MealPlanInfrastructureModule(),
+	new MealPlanExtractionModule(),
 ];
 
 builder.RegisterServices(modules);

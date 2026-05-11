@@ -307,4 +307,31 @@ describe('MealPlanApiService', () => {
       req.flush(mockWeeklyPlan);
     });
   });
+
+  describe('suggestWeekPlan', () => {
+    it('POSTs to /meal-plans/:year/w/:week/suggest with empty body', () => {
+      const mockSuggestion = {
+        week: '2026-W16',
+        entries: [
+          {
+            day: 'Monday',
+            mealType: 'Dinner',
+            recipeIdentifier: 'recipe-abc',
+            recipeTitle: 'Pasta',
+            freshnessLabel: null,
+            reason: null,
+          },
+        ],
+      };
+
+      service.suggestWeekPlan(year, week).subscribe((result) => {
+        expect(result).toEqual(mockSuggestion);
+      });
+
+      const req = httpTesting.expectOne(API_ENDPOINTS.mealPlans.suggest(year, week));
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({});
+      req.flush(mockSuggestion);
+    });
+  });
 });

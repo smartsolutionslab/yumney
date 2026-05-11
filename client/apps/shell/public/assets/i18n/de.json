@@ -377,6 +377,21 @@
         "sourceNotFound": "Quell-Woche wurde nicht gefunden.",
         "copyValidation": "Dieser Plan kann nicht in die aktuelle Woche kopiert werden."
       }
+    },
+    "suggest": {
+      "cta": "Plan vorschlagen",
+      "hint": "Wir wählen sieben Abendessen aus deinem Katalog basierend auf Verlauf, Favoriten und Ernährungsprofil.",
+      "loading": "Woche wird zusammengestellt...",
+      "reviewTitle": "Vorgeschlagene Woche",
+      "reviewSubtitle": "Überprüfe und akzeptiere, oder lass eine neue Mischung generieren.",
+      "accept": "Plan übernehmen",
+      "accepting": "Wird in die Woche eingetragen...",
+      "regenerate": "Neu generieren",
+      "dismiss": "Verwerfen",
+      "errors": {
+        "noRecipes": "Lege mindestens ein Rezept an, bevor du einen Vorschlag anforderst.",
+        "failed": "Es konnte kein Vorschlag erstellt werden. Bitte versuche es erneut."
+      }
     }
   },
   "common": {

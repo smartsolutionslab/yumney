@@ -41,6 +41,14 @@
     (retry)="onRetry()"
   />
 
+  @if (canSuggest()) {
+    <yn-meal-suggestion-panel
+      [year]="year()"
+      [week]="weekNumber()"
+      (planAccepted)="onSuggestionAccepted()"
+    />
+  }
+
   @if (hasRecipeSlots() && !isPastWeek()) {
     <div class="planner-actions">
       <button class="generate-btn" [disabled]="generatingList()" (click)="onGenerateShoppingList()">
