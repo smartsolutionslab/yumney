@@ -22,6 +22,12 @@ const en = {
       toggle: 'Show past purchases',
       empty: 'No past purchases to show.',
     },
+    sources: {
+      toggle: 'Show sources',
+      header: 'Sources',
+      manual: 'Added manually',
+      empty: 'No source breakdown available.',
+    },
     remove: 'Remove',
     checked: 'checked',
     retry: 'Retry',
@@ -301,6 +307,121 @@ describe('MergedListComponent', () => {
         kind: 'success',
         messageKey: 'shopping.export.copied',
       });
+    });
+  });
+
+  describe('expandable sources (US-313)', () => {
+    const listWithSources: MergedShoppingList = {
+      items: [
+        {
+          itemName: 'Milk',
+          totalQuantity: 3,
+          displayQuantity: 3,
+          unit: 'L',
+          category: 'dairy',
+          isBought: false,
+          sources: [
+            { quantity: 2, source: 'Lasagne', occurredAt: '2026-05-09T10:00:00Z' },
+            { quantity: 1, source: 'manual', occurredAt: '2026-05-10T08:30:00Z' },
+          ],
+        },
+        {
+          itemName: 'Flour',
+          totalQuantity: 500,
+          displayQuantity: 500,
+          unit: 'g',
+          category: 'pantry',
+          isBought: false,
+          sources: [],
+        },
+      ],
+    };
+
+    beforeEach(async () => {
+      apiMock.getMergedList.mockReturnValue(of(listWithSources));
+      fixture.componentInstance['loadList']();
+      fixture.detectChanges();
+    });
+
+    it('renders the merged total per item', () => {
+      expect(fixture.nativeElement.textContent).toContain('3 L');
+      expect(fixture.nativeElement.textContent).toContain('Milk');
+    });
+
+    it('starts collapsed — no source-breakdown panel visible', () => {
+      const panels = fixture.nativeElement.querySelectorAll(
+        '[data-testid="shopping-sources-panel"]',
+      );
+      expect(panels.length).toBe(0);
+    });
+
+    it('expands the breakdown when an item row is clicked', () => {
+      const rows = fixture.nativeElement.querySelectorAll('[data-testid="shopping-item-row"]');
+      rows[0].click();
+      fixture.detectChanges();
+
+      const panel = fixture.nativeElement.querySelector(
+        '[data-testid="shopping-sources-panel"]',
+      );
+      expect(panel).toBeTruthy();
+      expect(rows[0].getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('collapses the breakdown when the same row is clicked again', () => {
+      const rows = fixture.nativeElement.querySelectorAll('[data-testid="shopping-item-row"]');
+      rows[0].click();
+      fixture.detectChanges();
+      rows[0].click();
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelectorAll('[data-testid="shopping-sources-panel"]').length,
+      ).toBe(0);
+    });
+
+    it('renders one source row per ItemSource entry', () => {
+      const rows = fixture.nativeElement.querySelectorAll('[data-testid="shopping-item-row"]');
+      rows[0].click();
+      fixture.detectChanges();
+
+      const sourceRows = fixture.nativeElement.querySelectorAll(
+        '[data-testid="shopping-source-row"]',
+      );
+      expect(sourceRows.length).toBe(2);
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain('Lasagne');
+      expect(text).toContain('Added manually');
+    });
+
+    it('shows empty-source message when an item has no sources', () => {
+      const rows = fixture.nativeElement.querySelectorAll('[data-testid="shopping-item-row"]');
+      rows[1].click();
+      fixture.detectChanges();
+
+      const panel = fixture.nativeElement.querySelector(
+        '[data-testid="shopping-sources-panel"]',
+      );
+      expect(panel.textContent).toContain('No source breakdown available');
+    });
+
+    it('expands items independently', () => {
+      const rows = fixture.nativeElement.querySelectorAll('[data-testid="shopping-item-row"]');
+      rows[0].click();
+      fixture.detectChanges();
+
+      expect(rows[0].getAttribute('aria-expanded')).toBe('true');
+      expect(rows[1].getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('clicking the remove button does not toggle expansion', () => {
+      const rows = fixture.nativeElement.querySelectorAll('[data-testid="shopping-item-row"]');
+      const removeButton = rows[0].querySelector('.remove-btn');
+      removeButton.click();
+      fixture.detectChanges();
+
+      // Row stays collapsed; only the remove API call should fire.
+      expect(rows[0].getAttribute('aria-expanded')).toBe('false');
+      expect(apiMock.removeItem).toHaveBeenCalledWith({ name: 'Milk' });
     });
   });
 });

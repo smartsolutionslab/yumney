@@ -7,6 +7,7 @@ import {
   computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
@@ -15,6 +16,7 @@ import {
   type MergedShoppingList,
   type MergedShoppingItem,
   type AddedItem,
+  type ItemSource,
 } from '../api';
 import {
   createAsyncState,
@@ -36,6 +38,7 @@ import {
   selector: 'yn-merged-list',
   standalone: true,
   imports: [
+    DatePipe,
     FormsModule,
     TranslocoModule,
     LucideAngularModule,
@@ -58,6 +61,7 @@ export class MergedListComponent {
   protected error = signal<string | null>(null);
   protected newItemName = signal('');
   protected showPastPurchases = signal(false);
+  protected expandedItems = signal<ReadonlySet<string>>(new Set());
 
   private loadRequestId = 0;
 
@@ -150,6 +154,42 @@ export class MergedListComponent {
   protected onTogglePastPurchases(): void {
     this.showPastPurchases.update((current) => !current);
     this.loadList();
+  }
+
+  protected onToggleExpanded(item: MergedShoppingItem): void {
+    const key = expandKey(item);
+    this.expandedItems.update((current) => {
+      const next = new Set(current);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+
+      return next;
+    });
+  }
+
+  protected isExpanded(item: MergedShoppingItem): boolean {
+    return this.expandedItems().has(expandKey(item));
+  }
+
+  // Backend source strings: 'manual', 'chat', or a free-text recipe label.
+  // Map the well-known cases to a translation key; pass the rest through
+  // as-is for the template to render literally.
+  protected sourceTranslationKey(source: ItemSource): string | null {
+    const raw = (source.source ?? '').trim().toLowerCase();
+    if (raw.length === 0 || raw === 'manual' || raw === 'chat') return 'shopping.sources.manual';
+    return null;
+  }
+
+  protected sourceLiteral(source: ItemSource): string {
+    return source.source ?? '';
+  }
+
+  protected formatSourceQuantity(source: ItemSource, item: MergedShoppingItem): string {
+    if (item.unit) return `${source.quantity} ${item.unit}`;
+    return `${source.quantity}`;
   }
 
   private loadList(): void {
@@ -260,4 +300,8 @@ export class MergedListComponent {
         item.totalQuantity >= added.quantity,
     );
   }
+}
+
+function expandKey(item: MergedShoppingItem): string {
+  return `${item.itemName.toLowerCase()}|${item.unit ?? ''}`;
 }
