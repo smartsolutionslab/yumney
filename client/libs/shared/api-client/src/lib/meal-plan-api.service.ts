@@ -16,6 +16,7 @@ import type {
   MealHistoryEntry,
   SearchHistoryParams,
   WeekSuggestion,
+  MealAnalytics,
 } from './meal-plan';
 
 @Injectable({ providedIn: 'root' })
@@ -106,5 +107,11 @@ export class MealPlanApiService {
 
   suggestWeekPlan(year: number, week: number): Observable<WeekSuggestion> {
     return this.http.post<WeekSuggestion>(API_ENDPOINTS.mealPlans.suggest(year, week), {});
+  }
+
+  getMealAnalytics(year: number, month?: number): Observable<MealAnalytics> {
+    let httpParams = new HttpParams().set('year', String(year));
+    if (month !== undefined) httpParams = httpParams.set('month', String(month));
+    return this.http.get<MealAnalytics>(API_ENDPOINTS.mealPlans.analytics, { params: httpParams });
   }
 }

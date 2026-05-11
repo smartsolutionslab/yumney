@@ -108,6 +108,10 @@ export class MealPlannerComponent {
     void this.router.navigate(['/meal-planner/history']);
   }
 
+  protected onOpenAnalytics(): void {
+    void this.router.navigate(['/meal-planner/analytics']);
+  }
+
   protected onPreviousWeek(): void {
     if (this.weekNumber() <= 1) {
       this.year.update((year) => year - 1);

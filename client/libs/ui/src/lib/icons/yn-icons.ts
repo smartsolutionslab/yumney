@@ -1,6 +1,7 @@
 import {
   Apple,
   ArrowLeft,
+  BarChart3,
   BookOpen,
   CalendarDays,
   Check,
@@ -55,6 +56,7 @@ import {
 export const YN_ICONS = {
   Apple,
   ArrowLeft,
+  BarChart3,
   BookOpen,
   CalendarDays,
   Check,

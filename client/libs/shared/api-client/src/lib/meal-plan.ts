@@ -104,3 +104,26 @@ export interface WeekSuggestion {
   week: string;
   entries: WeekSuggestionEntry[];
 }
+
+export interface TopRecipe {
+  recipeIdentifier: string;
+  recipeTitle: string;
+  cookCount: number;
+}
+
+export interface CategoryShare {
+  category: string;
+  count: number;
+  percentage: number;
+}
+
+export interface MealAnalytics {
+  period: string;
+  totalCooked: number;
+  totalSkipped: number;
+  uniqueRecipes: number;
+  mealsPerWeek: number;
+  discoveryRate: number;
+  topRecipes: TopRecipe[];
+  categoryDistribution: CategoryShare[];
+}

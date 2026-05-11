@@ -86,6 +86,9 @@ export type {
   SearchHistoryParams,
   WeekSuggestion,
   WeekSuggestionEntry,
+  MealAnalytics,
+  TopRecipe,
+  CategoryShare,
 } from './lib/meal-plan';
 
 // --- Dashboard ---

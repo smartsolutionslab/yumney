@@ -38,6 +38,12 @@ export const appRoutes: Route[] = [
     loadComponent: () => import('./meal-planner').then((m) => m.MealHistoryComponent),
   },
   {
+    path: 'meal-planner/analytics',
+    title: 'Meal Analytics — Yumney',
+    canActivate: [authGuard],
+    loadComponent: () => import('./meal-planner').then((m) => m.MealAnalyticsComponent),
+  },
+  {
     path: 'account',
     title: 'Account — Yumney',
     canActivate: [authGuard],

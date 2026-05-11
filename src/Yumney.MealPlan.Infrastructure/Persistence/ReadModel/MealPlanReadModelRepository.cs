@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
@@ -96,6 +97,99 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 
 		return sorted.ToHistoryEntryDtos().AsPagedResult(ItemCount.From(totalCount), paging);
 	}
+
+	public async Task<IReadOnlyList<AnalyticsSlotProjection>> GetSlotsInPeriodAsync(
+		OwnerIdentifier owner,
+		DateOnly periodStart,
+		DateOnly periodEndExclusive,
+		CancellationToken cancellationToken = default)
+	{
+		var ownerId = owner.Value;
+		var (firstWeek, lastWeek) = SlotWeekBounds(periodStart, periodEndExclusive);
+		var cookedState = MealState.Cooked.ToString();
+		var skippedState = MealState.Skipped.ToString();
+
+		var rows = await context.MealPlanSlotReadItems
+			.AsNoTracking()
+			.Where(slot => slot.OwnerId == ownerId
+				&& (slot.State == cookedState || slot.State == skippedState)
+				&& string.Compare(slot.Week, firstWeek, StringComparison.Ordinal) >= 0
+				&& string.Compare(slot.Week, lastWeek, StringComparison.Ordinal) <= 0)
+			.Select(slot => new RawSlot(slot.Week, slot.Day, slot.State, slot.RecipeIdentifier, slot.RecipeTitle))
+			.ToListAsync(cancellationToken);
+
+		var projections = new List<AnalyticsSlotProjection>(rows.Count);
+		foreach (var row in rows)
+		{
+			var date = SlotDate(row.Week, row.Day);
+			if (date < periodStart || date >= periodEndExclusive) continue;
+			projections.Add(new AnalyticsSlotProjection(row.RecipeIdentifier, row.RecipeTitle, row.State, date));
+		}
+
+		return projections;
+	}
+
+	public async Task<IReadOnlyDictionary<Guid, DateOnly>> GetFirstCookDatesAsync(
+		OwnerIdentifier owner,
+		IReadOnlyList<Guid> recipeIdentifiers,
+		CancellationToken cancellationToken = default)
+	{
+		if (recipeIdentifiers.Count == 0) return new Dictionary<Guid, DateOnly>();
+
+		var ownerId = owner.Value;
+		var cookedState = MealState.Cooked.ToString();
+		var ids = recipeIdentifiers.ToList();
+
+		var rows = await context.MealPlanSlotReadItems
+			.AsNoTracking()
+			.Where(slot => slot.OwnerId == ownerId
+				&& slot.State == cookedState
+				&& slot.RecipeIdentifier.HasValue
+				&& ids.Contains(slot.RecipeIdentifier.Value))
+			.Select(slot => new { slot.RecipeIdentifier, slot.Week, slot.Day })
+			.ToListAsync(cancellationToken);
+
+		var earliest = new Dictionary<Guid, DateOnly>();
+		foreach (var row in rows)
+		{
+			if (row.RecipeIdentifier is not { } id) continue;
+			var date = SlotDate(row.Week, row.Day);
+			if (!earliest.TryGetValue(id, out var existing) || date < existing)
+			{
+				earliest[id] = date;
+			}
+		}
+
+		return earliest;
+	}
+
+	private static (string FirstWeek, string LastWeek) SlotWeekBounds(DateOnly periodStart, DateOnly periodEndExclusive)
+	{
+		// A meal scheduled near the edge of the period might live in the ISO week
+		// just before periodStart or just after periodEndExclusive (because ISO
+		// weeks aren't aligned to calendar months/years). Bracket by ±1 week so
+		// the SQL filter is conservative; the in-memory date filter trims to the
+		// exact period.
+		var inclusiveLast = periodEndExclusive.AddDays(-1);
+		var first = WeekIdentifier.FromDate(periodStart.AddDays(-7)).Value;
+		var last = WeekIdentifier.FromDate(inclusiveLast.AddDays(7)).Value;
+		return (first, last);
+	}
+
+	private static DateOnly SlotDate(string weekValue, string dayValue)
+	{
+		var dashIndex = weekValue.IndexOf('-', StringComparison.Ordinal);
+		var year = int.Parse(weekValue[..dashIndex], CultureInfo.InvariantCulture);
+		var weekNumber = int.Parse(weekValue[(dashIndex + 2)..], CultureInfo.InvariantCulture);
+		var dayOfWeek = Enum.Parse<DayOfWeek>(dayValue);
+		var monday = ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Monday);
+		var offset = dayOfWeek == DayOfWeek.Sunday ? 6 : (int)dayOfWeek - 1;
+		return DateOnly.FromDateTime(monday.AddDays(offset));
+	}
+
+#pragma warning disable SA1402, SA1649
+	private sealed record RawSlot(string Week, string Day, string State, Guid? RecipeIdentifier, string? RecipeTitle);
+#pragma warning restore SA1402, SA1649
 
 	private static List<MealSlotDto> EmptyDinnerSlots(int defaultServings) =>
 		WeekDays.MondayToSunday

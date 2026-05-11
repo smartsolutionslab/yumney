@@ -96,6 +96,9 @@ export const ERROR_MAPS = {
       422: 'mealPlanner.suggest.errors.noRecipes',
       default: 'mealPlanner.suggest.errors.failed',
     } satisfies HttpErrorMap,
+    analytics: {
+      default: 'mealPlanner.analytics.errors.loadFailed',
+    } satisfies HttpErrorMap,
   },
   account: {
     load: {

@@ -29,7 +29,8 @@ public sealed class MealPlanApiModule : IEndpointModule
 			.UseYumneyDefaults()
 			.MapApiV1()
 			.MapMealPlanEndpoints()
-			.MapMealPlanSuggestionEndpoints();
+			.MapMealPlanSuggestionEndpoints()
+			.MapMealPlanAnalyticsEndpoints();
 		app.MapCapabilityManifest("mealplan-api");
 		return app;
 	}
