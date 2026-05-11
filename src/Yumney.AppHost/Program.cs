@@ -153,6 +153,14 @@ if (!options.DatabaseOnly)
 	// declared after recipesApi.
 	recipesApi.WithReference(mealplanApi);
 
+	// Reverse reference: shopping-api's CreateShoppingListFromRecipes handler
+	// calls recipes-api over HTTP via HttpRecipeIngredientLookup. Without this
+	// reference Aspire doesn't register service discovery for "recipes-api" in
+	// the shopping host, so cross-module HTTP calls fall through to DNS for
+	// the literal hostname "recipes-api" and hit the 30s Polly timeout. Same
+	// recipesApi-declared-after-shoppingApi inline-impossibility as above.
+	shoppingApi.WithReference(recipesApi);
+
 	// Images are pushed to the ACR provisioned by AddAzureContainerAppEnvironment("cae");
 	// ACA pulls them via the environment's managed identity, so no registry credentials
 	// are baked into the container app revisions.

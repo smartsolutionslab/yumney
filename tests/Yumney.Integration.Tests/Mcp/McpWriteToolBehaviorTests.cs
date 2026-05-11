@@ -110,10 +110,19 @@ public class McpWriteToolBehaviorTests(AspireFixture fixture)
 
 		await using var client = await CreateClientAsync();
 
+		// Body shape matches Shopping.Api.Requests.CreateFromRecipes:
+		// { title, recipes: [{ recipeIdentifier, servings }] }. The MCP tool
+		// proxy serializes whatever argument bag we hand it straight to the
+		// upstream body, so the field names + structure have to line up. The
+		// original `recipeIdentifiers: "guid"` shape never matched and the
+		// upstream returned 422 "At least one recipe is required.".
 		var createResult = await client.CallToolAsync("create_shopping_list_from_recipes", new Dictionary<string, object?>
 		{
 			["title"] = $"MCP integration list {Guid.NewGuid():N}",
-			["recipeIdentifiers"] = recipe.Id.Value.ToString(),
+			["recipes"] = new[]
+			{
+				new { recipeIdentifier = recipe.Id.Value, servings = (int?)null },
+			},
 		});
 
 		createResult.IsError.Should().BeFalse(because: GetText(createResult));
