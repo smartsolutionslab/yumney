@@ -13,6 +13,7 @@ import type {
   AddedItem,
   RemoveItemRequest,
 } from './merged-shopping-list';
+import type { IngredientBalance, MarkAsFrozenRequest } from './ingredient-balance';
 
 @Injectable({ providedIn: 'root' })
 export class ShoppingApiService {
@@ -91,5 +92,13 @@ export class ShoppingApiService {
     return this.http.post<void>(API_ENDPOINTS.shoppingLists.shoppingModeEnd, {
       acceptPendingChanges,
     });
+  }
+
+  getIngredientBalance(): Observable<IngredientBalance> {
+    return this.http.get<IngredientBalance>(API_ENDPOINTS.shoppingLists.balance);
+  }
+
+  markAsFrozen(request: MarkAsFrozenRequest): Observable<void> {
+    return this.http.post<void>(API_ENDPOINTS.shoppingLists.itemsFreeze, request);
   }
 }

@@ -9,6 +9,12 @@ const SHOPPING_SCOPE_PROVIDERS = [provideTranslocoScope('shopping')];
 
 export const shoppingRoutes: Route[] = [
   {
+    path: 'pantry',
+    title: 'Pantry — Yumney',
+    providers: SHOPPING_SCOPE_PROVIDERS,
+    loadComponent: () => import('./pantry').then((m) => m.PantryComponent),
+  },
+  {
     path: 'create/:recipeIdentifier',
     title: 'Create Shopping List — Yumney',
     providers: SHOPPING_SCOPE_PROVIDERS,

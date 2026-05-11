@@ -21,6 +21,10 @@
           <lucide-icon name="shopping-cart" [size]="18" class="nav-icon" />
           <span class="nav-label">{{ t('layout.header.shoppingLists') }}</span>
         </a>
+        <a [routerLink]="ROUTES.shopping.pantry" class="nav-link">
+          <lucide-icon name="package" [size]="18" class="nav-icon" />
+          <span class="nav-label">{{ t('layout.header.pantry') }}</span>
+        </a>
         <a [routerLink]="ROUTES.mealPlanner" class="nav-link">
           <lucide-icon name="calendar-days" [size]="18" class="nav-icon" />
           <span class="nav-label">{{ t('layout.header.mealPlanner') }}</span>

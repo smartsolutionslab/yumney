@@ -87,5 +87,28 @@
     "header": "Quellen",
     "manual": "Manuell hinzugefügt",
     "empty": "Keine Quellenangaben verfügbar."
+  },
+  "pantry": {
+    "title": "Vorratskammer",
+    "subtitle": "Was gerade zu Hause ist – mit Frischehinweisen je nachdem, wann du eingekauft hast.",
+    "staple": "Vorrat",
+    "daysSinceBought": "Vor {{count}}T gekauft",
+    "freshness": {
+      "fresh": "Frisch",
+      "use-soon": "Bald aufbrauchen",
+      "check-it": "Bitte prüfen"
+    },
+    "freeze": {
+      "action": "Eingefroren",
+      "ariaLabel": "{{name}} als eingefroren markieren"
+    },
+    "empty": {
+      "title": "Deine Vorratskammer ist leer",
+      "message": "Artikel erscheinen hier, sobald du sie auf einer Einkaufsliste abhakst oder als zu Hause hinzufügst."
+    },
+    "errors": {
+      "loadFailed": "Vorratskammer konnte nicht geladen werden. Bitte versuche es später erneut.",
+      "freezeFailed": "Artikel konnte nicht als eingefroren markiert werden."
+    }
   }
 }
