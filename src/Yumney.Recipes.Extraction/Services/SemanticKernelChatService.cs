@@ -32,6 +32,10 @@ public sealed partial class SemanticKernelChatService(
 	ConfirmMealTool confirmMealTool,
 	GetMergedShoppingListTool getMergedShoppingListTool,
 	CreateShoppingListTool createShoppingListTool,
+	AddShoppingItemTool addShoppingItemTool,
+	RemoveShoppingItemTool removeShoppingItemTool,
+	SwapMealSlotsTool swapMealSlotsTool,
+	ClearMealSlotTool clearMealSlotTool,
 	ChatToolContext toolContext,
 	ILogger<SemanticKernelChatService> logger)
 	: IChatService
@@ -166,6 +170,16 @@ public sealed partial class SemanticKernelChatService(
           search_recipes if needed, then call
           create_shopping_list_from_recipes with the identifiers
           comma-separated.
+        - When the user wants to add an item to the shopping list ("add
+          milk", "add 2kg potatoes"), call add_to_shopping_list. Pass
+          quantity + unit when stated; omit otherwise.
+        - When the user wants to remove an item from the shopping list
+          ("remove eggs", "I don't need milk anymore"), call
+          remove_from_shopping_list.
+        - When the user wants to swap two planned meals ("swap Thursday
+          and Friday"), call swap_meal_slots.
+        - When the user wants to cancel a planned meal ("cancel
+          Wednesday", "clear Friday's dinner"), call clear_meal_slot.
         - For general cooking questions or chit-chat, just reply directly
           without calling tools.
 
@@ -192,6 +206,10 @@ public sealed partial class SemanticKernelChatService(
 		requestKernel.Plugins.AddFromObject(confirmMealTool, "mealplan_confirm");
 		requestKernel.Plugins.AddFromObject(getMergedShoppingListTool, "shopping_merged");
 		requestKernel.Plugins.AddFromObject(createShoppingListTool, "shopping_create");
+		requestKernel.Plugins.AddFromObject(addShoppingItemTool, "shopping_add");
+		requestKernel.Plugins.AddFromObject(removeShoppingItemTool, "shopping_remove");
+		requestKernel.Plugins.AddFromObject(swapMealSlotsTool, "mealplan_swap");
+		requestKernel.Plugins.AddFromObject(clearMealSlotTool, "mealplan_clear");
 		return requestKernel;
 	}
 }

@@ -29,6 +29,22 @@ public interface IMealPlanClient
 	/// <param name="cancellationToken">Cancellation propagated to the HTTP call.</param>
 	/// <returns>True on 2xx, false on any error.</returns>
 	Task<bool> ConfirmMealAsync(int year, int weekNumber, ConfirmMealBody body, CancellationToken cancellationToken = default);
+
+	/// <summary>Swap two meal slots. PUT /api/v1/meal-plans/{year}/w/{weekNumber}/slots/swap.</summary>
+	/// <param name="year">ISO year.</param>
+	/// <param name="weekNumber">ISO week number.</param>
+	/// <param name="body">Source day, target day, meal type.</param>
+	/// <param name="cancellationToken">Cancellation propagated to the HTTP call.</param>
+	/// <returns>True on 2xx, false on any error.</returns>
+	Task<bool> SwapSlotsAsync(int year, int weekNumber, SwapSlotsBody body, CancellationToken cancellationToken = default);
+
+	/// <summary>Clear a meal slot. DELETE /api/v1/meal-plans/{year}/w/{weekNumber}/slots.</summary>
+	/// <param name="year">ISO year.</param>
+	/// <param name="weekNumber">ISO week number.</param>
+	/// <param name="body">Day + meal type identifying the slot.</param>
+	/// <param name="cancellationToken">Cancellation propagated to the HTTP call.</param>
+	/// <returns>True on 2xx, false on any error.</returns>
+	Task<bool> ClearSlotAsync(int year, int weekNumber, ClearSlotBody body, CancellationToken cancellationToken = default);
 }
 
 /// <summary>Trimmed weekly-plan shape returned over the wire.</summary>
@@ -58,3 +74,9 @@ public sealed record AssignRecipeBody(
 
 /// <summary>Body for the confirm-meal PUT.</summary>
 public sealed record ConfirmMealBody(string Day, string MealType, string State);
+
+/// <summary>Body for the swap-slots PUT.</summary>
+public sealed record SwapSlotsBody(string SourceDay, string TargetDay, string MealType);
+
+/// <summary>Body for the clear-slot DELETE.</summary>
+public sealed record ClearSlotBody(string Day, string MealType);

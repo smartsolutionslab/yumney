@@ -46,6 +46,10 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 		services.AddScoped<IMealConfirmation, HttpMealConfirmation>();
 		services.AddScoped<IShoppingListLookup, HttpShoppingListLookup>();
 		services.AddScoped<IShoppingListCreator, HttpShoppingListCreator>();
+		services.AddScoped<IShoppingListItemAdder, HttpShoppingListItemAdder>();
+		services.AddScoped<IShoppingListItemRemover, HttpShoppingListItemRemover>();
+		services.AddScoped<IMealSlotSwapper, HttpMealSlotSwapper>();
+		services.AddScoped<IMealSlotClearer, HttpMealSlotClearer>();
 		services.AddScoped<IRecipeViewTracker, CachedRecipeViewTracker>();
 		services.AddShoppingClient();
 		services.AddUsersClient();

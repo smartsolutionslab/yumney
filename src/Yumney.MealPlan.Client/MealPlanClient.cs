@@ -45,4 +45,38 @@ internal sealed class MealPlanClient(IModuleHttpClientFactory factory) : IMealPl
 			return false;
 		}
 	}
+
+	public async Task<bool> SwapSlotsAsync(int year, int weekNumber, SwapSlotsBody body, CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			await http.PutAsync(
+				$"/api/v1/meal-plans/{year}/w/{weekNumber}/slots/swap",
+				body,
+				"SwapMealSlots",
+				cancellationToken);
+			return true;
+		}
+		catch (Exception ex) when (ex is not OperationCanceledException)
+		{
+			return false;
+		}
+	}
+
+	public async Task<bool> ClearSlotAsync(int year, int weekNumber, ClearSlotBody body, CancellationToken cancellationToken = default)
+	{
+		try
+		{
+			await http.DeleteAsync(
+				$"/api/v1/meal-plans/{year}/w/{weekNumber}/slots",
+				body,
+				"ClearMealSlot",
+				cancellationToken);
+			return true;
+		}
+		catch (Exception ex) when (ex is not OperationCanceledException)
+		{
+			return false;
+		}
+	}
 }

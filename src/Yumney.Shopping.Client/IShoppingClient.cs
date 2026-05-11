@@ -19,6 +19,12 @@ public interface IShoppingClient
 	/// <param name="cancellationToken">Cancellation propagated to the HTTP call.</param>
 	/// <returns>True on 2xx, false on any error.</returns>
 	Task<bool> CreateListFromRecipesAsync(CreateListFromRecipesBody body, CancellationToken cancellationToken = default);
+
+	/// <summary>Remove an item from the user's active shopping list. DELETE /api/v1/shopping-lists/items.</summary>
+	/// <param name="body">Item name + optional quantity / reason.</param>
+	/// <param name="cancellationToken">Cancellation propagated to the HTTP call.</param>
+	/// <returns>True on 2xx, false on any error.</returns>
+	Task<bool> RemoveItemAsync(RemoveShoppingItemBody body, CancellationToken cancellationToken = default);
 }
 
 public sealed record ShoppingBalanceResponse(IReadOnlyList<ShoppingBalanceItem> Items);
@@ -43,3 +49,6 @@ public sealed record CreateListFromRecipesBody(string Title, IReadOnlyList<Creat
 
 /// <summary>One recipe selection inside a create-list-from-recipes body.</summary>
 public sealed record CreateListRecipeBody(Guid RecipeIdentifier, int? Servings);
+
+/// <summary>Body for remove-item DELETE.</summary>
+public sealed record RemoveShoppingItemBody(string Name, decimal? Quantity = null, string? Unit = null, string? Reason = null);

@@ -49,6 +49,10 @@ public static class ExtractionServiceCollectionExtensions
 		services.AddScoped<ConfirmMealTool>();
 		services.AddScoped<GetMergedShoppingListTool>();
 		services.AddScoped<CreateShoppingListTool>();
+		services.AddScoped<AddShoppingItemTool>();
+		services.AddScoped<RemoveShoppingItemTool>();
+		services.AddScoped<SwapMealSlotsTool>();
+		services.AddScoped<ClearMealSlotTool>();
 
 		var skOptions = configuration
 			.GetSection(SemanticKernelOptions.SectionName)
