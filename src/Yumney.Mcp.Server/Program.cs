@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SmartSolutionsLab.Yumney.Mcp.Server.Auth;
 using SmartSolutionsLab.Yumney.Mcp.Server.Discovery;
 using SmartSolutionsLab.Yumney.Mcp.Server.Mcp;
@@ -6,6 +7,14 @@ using SmartSolutionsLab.Yumney.ServiceDefaults;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+// Match the module hosts' response shape: enums (including CapabilitySurface)
+// ship as strings so /discovered-capabilities is round-trippable through the
+// same JsonStringEnumConverter convention used by every other Yumney host.
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+	options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddKeycloakBearerAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddHttpContextAccessor();
