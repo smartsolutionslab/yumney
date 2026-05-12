@@ -118,6 +118,49 @@ export async function createTestRecipe(
 }
 
 /**
+ * Assign a recipe to a meal-plan slot via the API (POST
+ * /api/v1/meal-plans/{year}/w/{week}/slots). Returns the year/week the slot
+ * was assigned to so tests can navigate the planner to that exact week.
+ */
+export async function assignMealSlot(
+  page: Page,
+  options: {
+    year: number;
+    weekNumber: number;
+    day: string;
+    recipeIdentifier: string;
+    recipeTitle: string;
+    mealType?: string;
+  },
+): Promise<void> {
+  await page.evaluate(
+    async ({ assignOptions, gatewayUrl }) => {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(
+        `${gatewayUrl}/api/v1/meal-plans/${assignOptions.year}/w/${assignOptions.weekNumber}/slots`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            day: assignOptions.day,
+            recipeIdentifier: assignOptions.recipeIdentifier,
+            recipeTitle: assignOptions.recipeTitle,
+            mealType: assignOptions.mealType ?? 'Dinner',
+          }),
+        },
+      );
+      if (!res.ok) {
+        throw new Error(`assignMealSlot failed: ${res.status} ${await res.text()}`);
+      }
+    },
+    { assignOptions: options, gatewayUrl: GATEWAY_URL },
+  );
+}
+
+/**
  * Delete a recipe via the API. Mirror of createTestRecipe for cleanup in
  * afterAll blocks.
  */

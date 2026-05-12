@@ -51,6 +51,49 @@ test.describe('Dashboard — Recipe Import (US-010, US-011, US-012, US-013)', ()
     await expect(dashboard.errorBanner).toBeVisible({ timeout: 75_000 });
   });
 
+  // Mid-import server failure: the gateway returns 422 with ProblemDetails
+  // before the SSE stream starts (LLM extraction rejected the URL because the
+  // page didn't contain a recipe). Verifies the error banner surfaces instead
+  // of leaving the form spinning indefinitely.
+  test('should show error banner when import stream returns 422', async ({ authenticatedPage }) => {
+    await authenticatedPage.context().route('**/api/v1/recipes/import/stream*', (route) =>
+      route.fulfill({
+        status: 422,
+        contentType: 'application/problem+json',
+        body: JSON.stringify({
+          type: 'about:blank',
+          title: 'Validation error(s) occurred.',
+          status: 422,
+          detail: 'No recipe could be extracted from the supplied URL.',
+        }),
+      }),
+    );
+
+    await dashboard.urlInput.fill('https://example.com/not-a-recipe');
+    await dashboard.importButton.click();
+
+    await expect(dashboard.errorBanner).toBeVisible();
+  });
+
+  // In-stream failure: the server starts the SSE response then emits a
+  // `fail` event (LLM returned malformed JSON, or scraping hit a dead end
+  // partway through). The UI must surface the banner and re-enable the form.
+  test('should show error banner when SSE emits a fail event', async ({ authenticatedPage }) => {
+    await authenticatedPage.context().route('**/api/v1/recipes/import/stream*', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'text/event-stream',
+        body: 'event: status\ndata: Starting extraction…\n\nevent: fail\ndata: extraction failed\n\n',
+      }),
+    );
+
+    await dashboard.urlInput.fill('https://example.com/partial-recipe');
+    await dashboard.importButton.click();
+
+    await expect(dashboard.errorBanner).toBeVisible();
+    await expect(dashboard.importButton).toBeEnabled();
+  });
+
   test('should display create recipe button', async () => {
     await expect(dashboard.createButton).toBeVisible();
   });
