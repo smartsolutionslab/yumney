@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 using Xunit;
@@ -13,6 +14,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Tests.Persistence.Rea
 public class IngredientBalanceReadModelRepositoryTests
 {
 	private const string OwnerId = "user-1";
+	private static readonly OwnerIdentifier Owner = OwnerIdentifier.From(OwnerId);
 
 	private readonly FakeTimeProvider timeProvider = new(DateTimeOffset.Parse("2026-04-30T12:00:00Z", CultureInfo.InvariantCulture));
 
@@ -22,7 +24,7 @@ public class IngredientBalanceReadModelRepositoryTests
 		await using var context = CreateContext();
 		var repo = new IngredientBalanceReadModelRepository(context, timeProvider);
 
-		var items = await repo.GetAtHomeItemsAsync(OwnerId);
+		var items = await repo.GetAtHomeItemsAsync(Owner);
 
 		items.Should().BeEmpty();
 	}
@@ -46,7 +48,7 @@ public class IngredientBalanceReadModelRepositoryTests
 		await context.SaveChangesAsync();
 
 		var repo = new IngredientBalanceReadModelRepository(context, timeProvider);
-		var items = await repo.GetAtHomeItemsAsync(OwnerId);
+		var items = await repo.GetAtHomeItemsAsync(Owner);
 
 		items.Should().BeEmpty();
 	}
@@ -71,7 +73,7 @@ public class IngredientBalanceReadModelRepositoryTests
 		await context.SaveChangesAsync();
 
 		var repo = new IngredientBalanceReadModelRepository(context, timeProvider);
-		var items = await repo.GetAtHomeItemsAsync(OwnerId);
+		var items = await repo.GetAtHomeItemsAsync(Owner);
 
 		var item = items.Should().ContainSingle().Subject;
 		item.ItemName.Should().Be("Milk");
@@ -108,7 +110,7 @@ public class IngredientBalanceReadModelRepositoryTests
 		await context.SaveChangesAsync();
 
 		var repo = new IngredientBalanceReadModelRepository(context, timeProvider);
-		var items = await repo.GetAtHomeItemsAsync(OwnerId);
+		var items = await repo.GetAtHomeItemsAsync(Owner);
 
 		items.Should().ContainSingle().Which.ItemName.Should().Be("Milk");
 	}
@@ -121,7 +123,7 @@ public class IngredientBalanceReadModelRepositoryTests
 		await context.SaveChangesAsync();
 
 		var repo = new IngredientBalanceReadModelRepository(context, timeProvider);
-		var item = (await repo.GetAtHomeItemsAsync(OwnerId)).Single();
+		var item = (await repo.GetAtHomeItemsAsync(Owner)).Single();
 
 		item.Freshness.Should().Be(Freshness.NotTracked);
 		item.DaysSinceBought.Should().BeNull();
@@ -136,7 +138,7 @@ public class IngredientBalanceReadModelRepositoryTests
 		await context.SaveChangesAsync();
 
 		var repo = new IngredientBalanceReadModelRepository(context, timeProvider);
-		var item = (await repo.GetAtHomeItemsAsync(OwnerId)).Single();
+		var item = (await repo.GetAtHomeItemsAsync(Owner)).Single();
 
 		item.Freshness.Should().Be(Freshness.NotTracked);
 	}
@@ -149,7 +151,7 @@ public class IngredientBalanceReadModelRepositoryTests
 		await context.SaveChangesAsync();
 
 		var repo = new IngredientBalanceReadModelRepository(context, timeProvider);
-		var item = (await repo.GetAtHomeItemsAsync(OwnerId)).Single();
+		var item = (await repo.GetAtHomeItemsAsync(Owner)).Single();
 
 		item.Freshness.Should().Be(Freshness.Fresh);
 		item.DaysSinceBought.Should().Be(0);
@@ -164,7 +166,7 @@ public class IngredientBalanceReadModelRepositoryTests
 		await context.SaveChangesAsync();
 
 		var repo = new IngredientBalanceReadModelRepository(context, timeProvider);
-		var item = (await repo.GetAtHomeItemsAsync(OwnerId)).Single();
+		var item = (await repo.GetAtHomeItemsAsync(Owner)).Single();
 
 		item.Freshness.Should().Be(Freshness.UseSoon);
 		item.DaysSinceBought.Should().Be(1);
@@ -179,7 +181,7 @@ public class IngredientBalanceReadModelRepositoryTests
 		await context.SaveChangesAsync();
 
 		var repo = new IngredientBalanceReadModelRepository(context, timeProvider);
-		var item = (await repo.GetAtHomeItemsAsync(OwnerId)).Single();
+		var item = (await repo.GetAtHomeItemsAsync(Owner)).Single();
 
 		item.Freshness.Should().Be(Freshness.CheckIt);
 		item.DaysSinceBought.Should().Be(3);
