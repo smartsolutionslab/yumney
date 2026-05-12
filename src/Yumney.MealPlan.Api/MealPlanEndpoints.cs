@@ -59,7 +59,7 @@ public static class MealPlanEndpoints
 			var week = WeekIdentifier.From(year, weekNumber);
 			var (day, recipeIdentifier, recipeTitle, mealType, servings) = request;
 			var recipe = SlotRecipeReference.From(recipeIdentifier, recipeTitle);
-			SlotServings? slotServings = servings.HasValue ? SlotServings.From(servings.Value) : null;
+			var slotServings = SlotServings.FromNullable(servings);
 			var command = new AssignRecipeCommand(week, day, recipe, mealType, slotServings);
 
 			var result = await handler.HandleAsync(command, cancellationToken);

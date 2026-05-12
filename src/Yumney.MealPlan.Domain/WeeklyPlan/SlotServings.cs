@@ -17,6 +17,9 @@ public sealed record SlotServings : IValueObject<int>
 
 	public static SlotServings From(int value) => new(value);
 
+	public static SlotServings? FromNullable(int? value)
+		=> value.HasValue ? From(value.Value) : null;
+
 	public static SlotServings Default() => new(DefaultValue);
 
 	public static implicit operator int(SlotServings obj) => obj.Value;
