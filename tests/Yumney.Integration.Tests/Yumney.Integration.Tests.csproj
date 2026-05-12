@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\src\Yumney.Shared.Events.Contracts\Yumney.Shared.Events.Contracts.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Recipes.Application\Yumney.Recipes.Application.csproj" />
     <ProjectReference Include="..\..\src\Yumney.MealPlan.Client\Yumney.MealPlan.Client.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.MealPlan.Infrastructure\Yumney.MealPlan.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shopping.Client\Yumney.Shopping.Client.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Capabilities\Yumney.Shared.Capabilities.csproj" />
   </ItemGroup>
