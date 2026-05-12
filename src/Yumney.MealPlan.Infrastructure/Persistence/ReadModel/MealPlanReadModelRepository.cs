@@ -9,10 +9,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel
 
 public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) : IMealPlanReadModelRepository
 {
-	public async Task<WeeklyPlanDto> GetByOwnerAndWeekAsync(
-		OwnerIdentifier owner,
-		WeekIdentifier week,
-		CancellationToken cancellationToken = default)
+	public async Task<WeeklyPlanDto> GetByOwnerAndWeekAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
 	{
 		var ownerId = owner.Value;
 		var weekValue = week.Value;
@@ -38,10 +35,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 		return new WeeklyPlanDto(weekValue, weekItem.IsExtendedMode, visible.ToDtos());
 	}
 
-	public async Task<WeeklyPlannedRecipesDto> GetPlannedRecipesAsync(
-		OwnerIdentifier owner,
-		WeekIdentifier week,
-		CancellationToken cancellationToken = default)
+	public async Task<WeeklyPlannedRecipesDto> GetPlannedRecipesAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
 	{
 		var ownerId = owner.Value;
 		var weekValue = week.Value;

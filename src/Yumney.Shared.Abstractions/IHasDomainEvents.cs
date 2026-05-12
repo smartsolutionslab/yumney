@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace SmartSolutionsLab.Yumney.Shared.Abstractions;
 
 public interface IHasDomainEvents
