@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { UserProfileApiService, type UserProfile } from '@yumney/shared/api-client';
+import type { UnitSystem } from './unit-conversion';
 
 /**
  * Lightweight in-memory cache of the parts of the user profile that
@@ -21,6 +22,13 @@ export class UserPreferencesService {
   readonly voiceEnabled = signal<boolean>(true);
   readonly voiceSpeed = signal<'slow' | 'normal' | 'fast'>('normal');
   readonly voiceAutoReadInCookMode = signal<boolean>(false);
+
+  // The user's `preferredUnitSystem` from their profile (US-100). Seeded by
+  // applyProfile / refresh. Consumers (recipe detail's unit-system toggle)
+  // use this as the initial value so a returning imperial-by-default user
+  // sees imperial right away — the metric-only fallback was the open AC in
+  // US-125. Defaults to metric until the first profile load resolves.
+  readonly preferredUnitSystem = signal<UnitSystem>('metric');
 
   private loaded = false;
 
@@ -51,5 +59,8 @@ export class UserPreferencesService {
     this.voiceEnabled.set(profile.voiceSettings.enabled);
     this.voiceSpeed.set(profile.voiceSettings.speed);
     this.voiceAutoReadInCookMode.set(profile.voiceSettings.autoReadInCookMode);
+    this.preferredUnitSystem.set(
+      profile.preferredUnitSystem === 'imperial' ? 'imperial' : 'metric',
+    );
   }
 }

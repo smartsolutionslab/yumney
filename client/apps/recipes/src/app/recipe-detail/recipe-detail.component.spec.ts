@@ -11,7 +11,8 @@ import {
   ShoppingListDetail,
 } from '../api';
 import { HttpErrorResponse } from '@angular/common/http';
-import { setupTranslocoTesting } from '@yumney/shared/models';
+import { signal } from '@angular/core';
+import { setupTranslocoTesting, UserPreferencesService } from '@yumney/shared/models';
 
 const mockRecipe: RecipeDetail = {
   identifier: 'abc-123',
@@ -103,10 +104,17 @@ describe('RecipeDetailComponent', () => {
   let activityApiMock: {
     getRecipeStats: ReturnType<typeof vi.fn>;
   };
+  let preferencesMock: {
+    preferredUnitSystem: ReturnType<typeof signal<'metric' | 'imperial'>>;
+    ensureLoaded: ReturnType<typeof vi.fn>;
+    refresh: ReturnType<typeof vi.fn>;
+    applyProfile: ReturnType<typeof vi.fn>;
+  };
 
   function setupTestBed(
     getRecipeByIdReturn: ReturnType<typeof vi.fn> = vi.fn(),
     identifier = 'abc-123',
+    preferredUnitSystem: 'metric' | 'imperial' = 'metric',
   ) {
     recipeApiMock = {
       getRecipeById: getRecipeByIdReturn,
@@ -119,6 +127,13 @@ describe('RecipeDetailComponent', () => {
       getRecipeStats: vi.fn().mockReturnValue(EMPTY),
     };
 
+    preferencesMock = {
+      preferredUnitSystem: signal<'metric' | 'imperial'>(preferredUnitSystem),
+      ensureLoaded: vi.fn(),
+      refresh: vi.fn(),
+      applyProfile: vi.fn(),
+    };
+
     TestBed.configureTestingModule({
       imports: [RecipeDetailComponent, setupTranslocoTesting(en)],
       providers: [
@@ -127,6 +142,7 @@ describe('RecipeDetailComponent', () => {
         { provide: RecipeApiService, useValue: recipeApiMock },
         { provide: ShoppingApiService, useValue: shoppingApiMock },
         { provide: ActivityApiService, useValue: activityApiMock },
+        { provide: UserPreferencesService, useValue: preferencesMock },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -817,4 +833,57 @@ describe('RecipeDetailComponent', () => {
     expect(error.textContent).toContain('Failed to create shopping list.');
     expect(component.showCreateShoppingListConfirm()).toBe(false);
   }));
+
+  describe('unit-system profile default (US-125)', () => {
+    it('seeds unitSystem from the profile preference', fakeAsync(() => {
+      setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)), 'abc-123', 'imperial');
+      fixture.detectChanges();
+      tick();
+
+      expect(component.unitSystem()).toBe('imperial');
+    }));
+
+    it('triggers ensureLoaded so the profile is fetched on entry', fakeAsync(() => {
+      setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+      fixture.detectChanges();
+      tick();
+
+      expect(preferencesMock.ensureLoaded).toHaveBeenCalled();
+    }));
+
+    it('reacts when the profile preference lands after init', fakeAsync(() => {
+      setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)), 'abc-123', 'metric');
+      fixture.detectChanges();
+      tick();
+      expect(component.unitSystem()).toBe('metric');
+
+      // Simulate the async profile fetch resolving with imperial.
+      preferencesMock.preferredUnitSystem.set('imperial');
+      fixture.detectChanges();
+
+      expect(component.unitSystem()).toBe('imperial');
+    }));
+
+    it('per-view override beats the profile preference', fakeAsync(() => {
+      setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)), 'abc-123', 'imperial');
+      fixture.detectChanges();
+      tick();
+
+      component.onUnitSystemChange('metric');
+      fixture.detectChanges();
+
+      expect(component.unitSystem()).toBe('metric');
+    }));
+
+    it('override does not write back to the preference signal', fakeAsync(() => {
+      setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)), 'abc-123', 'imperial');
+      fixture.detectChanges();
+      tick();
+
+      component.onUnitSystemChange('metric');
+
+      // The override is local — the saved preference stays untouched.
+      expect(preferencesMock.preferredUnitSystem()).toBe('imperial');
+    }));
+  });
 });

@@ -45,6 +45,7 @@ describe('UserPreferencesService', () => {
     expect(service.voiceEnabled()).toBe(true);
     expect(service.voiceSpeed()).toBe('normal');
     expect(service.voiceAutoReadInCookMode()).toBe(false);
+    expect(service.preferredUnitSystem()).toBe('metric');
   });
 
   it('ensureLoaded fetches the profile and applies notification + voice settings', () => {
@@ -122,5 +123,35 @@ describe('UserPreferencesService', () => {
     service.ensureLoaded();
 
     expect(api.getProfile).not.toHaveBeenCalled();
+  });
+
+  it('exposes preferredUnitSystem from the loaded profile (US-125)', () => {
+    const { service } = configure(of(makeProfile({ preferredUnitSystem: 'imperial' })));
+
+    service.ensureLoaded();
+
+    expect(service.preferredUnitSystem()).toBe('imperial');
+  });
+
+  it('normalises unknown preferredUnitSystem values to metric (US-125)', () => {
+    // The API field is a free-form string at the wire; defensively coerce
+    // anything we don't recognise to 'metric' so the toggle never lands in
+    // an undefined state.
+    const { service } = configure(
+      of(makeProfile({ preferredUnitSystem: 'gallons-per-fortnight' })),
+    );
+
+    service.ensureLoaded();
+
+    expect(service.preferredUnitSystem()).toBe('metric');
+  });
+
+  it('applyProfile updates preferredUnitSystem without a GET (US-125)', () => {
+    const { service, api } = configure(of(makeProfile()));
+
+    service.applyProfile(makeProfile({ preferredUnitSystem: 'imperial' }));
+
+    expect(api.getProfile).not.toHaveBeenCalled();
+    expect(service.preferredUnitSystem()).toBe('imperial');
   });
 });
