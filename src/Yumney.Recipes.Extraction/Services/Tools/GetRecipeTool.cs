@@ -16,9 +16,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 /// </summary>
 /// <param name="handler">Query handler that fetches the recipe by identifier.</param>
 /// <param name="context">Per-request collector for downstream suggestion / action emission.</param>
-public sealed class GetRecipeTool(
-	IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler,
-	ChatToolContext context)
+public sealed class GetRecipeTool(IQueryHandler<GetRecipeByIdQuery, Result<RecipeDetailDto>> handler, ChatToolContext context)
 {
 	/// <summary>Fetch a single recipe's details and append a context match.</summary>
 	/// <param name="recipeIdentifier">Recipe GUID returned by a prior tool call.</param>
@@ -30,9 +28,11 @@ public sealed class GetRecipeTool(
 		[Description("Recipe identifier (GUID) returned by search_recipes or get_cookable_recipes")] string recipeIdentifier,
 		CancellationToken cancellationToken = default)
 	{
-		if (!Guid.TryParse(recipeIdentifier, out var guid)) return null;
+		var recipe = RecipeIdentifier.FromNullable(recipeIdentifier);
 
-		var result = await handler.HandleAsync(new GetRecipeByIdQuery(RecipeIdentifier.From(guid)), cancellationToken);
+		if (recipe is null) return null;
+
+		var result = await handler.HandleAsync(new GetRecipeByIdQuery(recipe), cancellationToken);
 		if (result.IsFailure) return null;
 
 		var detail = result.Value;
