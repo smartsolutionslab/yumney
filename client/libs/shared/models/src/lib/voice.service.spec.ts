@@ -293,3 +293,91 @@ describe('VoiceService.startListeningForTranscript (US-360)', () => {
     expect(first.start).not.toHaveBeenCalled();
   });
 });
+
+describe('VoiceService.startListeningWithFallback (US-362)', () => {
+  let service: VoiceService;
+  let getRecognition: () => MockRecognition;
+
+  beforeEach(() => {
+    getRecognition = installSpeechRecognition();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [VoiceService, { provide: UserPreferencesService, useValue: makePrefsStub(true) }],
+    });
+    service = TestBed.inject(VoiceService);
+  });
+
+  afterEach(() => {
+    delete (window as unknown as { SpeechRecognition?: unknown }).SpeechRecognition;
+  });
+
+  it('starts a continuous recognition session', () => {
+    service.startListeningWithFallback(
+      () => undefined,
+      () => undefined,
+    );
+
+    const recognition = getRecognition();
+    expect(recognition.continuous).toBe(true);
+    expect(recognition.interimResults).toBe(false);
+    expect(recognition.start).toHaveBeenCalled();
+    expect(service.isListening()).toBe(true);
+  });
+
+  it('routes a cook-mode command to onCommand, not onTranscript', () => {
+    const onCommand = vi.fn();
+    const onTranscript = vi.fn();
+    service.startListeningWithFallback(onCommand, onTranscript);
+
+    getRecognition().onresult?.({ results: [[{ transcript: 'next step' }]] });
+
+    expect(onCommand).toHaveBeenCalledWith({ type: 'next' });
+    expect(onTranscript).not.toHaveBeenCalled();
+  });
+
+  it('routes an unknown phrase to onTranscript, not onCommand', () => {
+    const onCommand = vi.fn();
+    const onTranscript = vi.fn();
+    service.startListeningWithFallback(onCommand, onTranscript);
+
+    getRecognition().onresult?.({
+      results: [[{ transcript: 'add butter to shopping list' }]],
+    });
+
+    expect(onCommand).not.toHaveBeenCalled();
+    expect(onTranscript).toHaveBeenCalledWith('add butter to shopping list');
+  });
+
+  it('gives cook-mode commands precedence ("timer 5 minutes" → timer command)', () => {
+    const onCommand = vi.fn();
+    const onTranscript = vi.fn();
+    service.startListeningWithFallback(onCommand, onTranscript);
+
+    getRecognition().onresult?.({ results: [[{ transcript: 'timer 5 minutes' }]] });
+
+    expect(onCommand).toHaveBeenCalledWith({ type: 'timer', minutes: 5 });
+    expect(onTranscript).not.toHaveBeenCalled();
+  });
+
+  it('skips empty transcripts entirely', () => {
+    const onCommand = vi.fn();
+    const onTranscript = vi.fn();
+    service.startListeningWithFallback(onCommand, onTranscript);
+
+    getRecognition().onresult?.({ results: [[{ transcript: '   ' }]] });
+
+    expect(onCommand).not.toHaveBeenCalled();
+    expect(onTranscript).not.toHaveBeenCalled();
+  });
+
+  it('clears isListening on end', () => {
+    service.startListeningWithFallback(
+      () => undefined,
+      () => undefined,
+    );
+
+    getRecognition().onend?.();
+
+    expect(service.isListening()).toBe(false);
+  });
+});

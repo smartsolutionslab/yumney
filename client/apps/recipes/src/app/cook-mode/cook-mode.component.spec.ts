@@ -3,7 +3,7 @@ import { provideRouter, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { CookModeComponent } from './cook-mode.component';
-import { RecipeApiService, type RecipeDetail } from '../api';
+import { ChatApiService, RecipeApiService, type RecipeDetail } from '../api';
 import {
   UserPreferencesService,
   VoiceService,
@@ -65,6 +65,7 @@ describe('CookModeComponent', () => {
     speak: ReturnType<typeof vi.fn>;
     stopSpeaking: ReturnType<typeof vi.fn>;
     startListening: ReturnType<typeof vi.fn>;
+    startListeningWithFallback: ReturnType<typeof vi.fn>;
     stopListening: ReturnType<typeof vi.fn>;
     setLanguage: ReturnType<typeof vi.fn>;
     setMuted: ReturnType<typeof vi.fn>;
@@ -74,6 +75,7 @@ describe('CookModeComponent', () => {
     ttsSupported: ReturnType<typeof signal<boolean>>;
     sttSupported: ReturnType<typeof signal<boolean>>;
   };
+  let chatApiMock: { send: ReturnType<typeof vi.fn> };
   let wakeLockMock: {
     acquire: ReturnType<typeof vi.fn>;
     release: ReturnType<typeof vi.fn>;
@@ -108,6 +110,7 @@ describe('CookModeComponent', () => {
       speak: vi.fn(),
       stopSpeaking: vi.fn(),
       startListening: vi.fn(),
+      startListeningWithFallback: vi.fn(),
       stopListening: vi.fn(),
       setLanguage: vi.fn(),
       setMuted: vi.fn(),
@@ -116,6 +119,10 @@ describe('CookModeComponent', () => {
       muted: signal(false),
       ttsSupported: signal(true),
       sttSupported: signal(true),
+    };
+
+    chatApiMock = {
+      send: vi.fn().mockReturnValue(of({ reply: 'OK', suggestions: [] })),
     };
 
     wakeLockMock = {
@@ -150,6 +157,7 @@ describe('CookModeComponent', () => {
         provideYumneyIcons(),
         provideRouter([]),
         { provide: RecipeApiService, useValue: recipeApiMock },
+        { provide: ChatApiService, useValue: chatApiMock },
         { provide: VoiceService, useValue: voiceMock },
         { provide: WakeLockService, useValue: wakeLockMock },
         { provide: CookingTimerService, useValue: timersMock },
@@ -256,14 +264,48 @@ describe('CookModeComponent', () => {
     expect(wakeLockMock.release).toHaveBeenCalled();
   }));
 
-  it('should toggle listening when toggleListening is called', fakeAsync(() => {
+  it('auto-starts continuous listening with cook+global fallback on entry (US-362)', fakeAsync(() => {
     setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
     fixture.detectChanges();
     tick();
 
-    component.toggleListening();
+    expect(voiceMock.startListeningWithFallback).toHaveBeenCalled();
+    // Old single-path startListening should no longer be used in cook mode.
+    expect(voiceMock.startListening).not.toHaveBeenCalled();
+  }));
 
-    expect(voiceMock.startListening).toHaveBeenCalled();
+  it('re-starts listening with fallback when toggleListening is tapped off-then-on (US-362)', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+    voiceMock.startListeningWithFallback.mockClear();
+
+    voiceMock.isListening.set(true);
+    component.toggleListening();
+    expect(voiceMock.stopListening).toHaveBeenCalled();
+
+    voiceMock.isListening.set(false);
+    component.toggleListening();
+    expect(voiceMock.startListeningWithFallback).toHaveBeenCalled();
+  }));
+
+  it('routes unparsed transcripts through chat and speaks the reply (US-362)', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    chatApiMock.send.mockReturnValue(of({ reply: 'Adding butter…', suggestions: [] }));
+    fixture.detectChanges();
+    tick();
+
+    const onTranscript = voiceMock.startListeningWithFallback.mock.calls[0][1] as (
+      text: string,
+    ) => void;
+    onTranscript('add butter to shopping list');
+    tick();
+
+    expect(chatApiMock.send).toHaveBeenCalledWith({
+      message: 'add butter to shopping list',
+      history: [],
+    });
+    expect(voiceMock.speak).toHaveBeenCalledWith('Adding butter…');
   }));
 
   it('should close ingredients panel by default', fakeAsync(() => {
