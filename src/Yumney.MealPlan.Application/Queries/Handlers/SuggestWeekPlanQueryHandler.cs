@@ -32,14 +32,17 @@ public sealed class SuggestWeekPlanQueryHandler(
 
 		await Task.WhenAll(catalogTask, historyTask, dietaryTask);
 
-		var recipes = catalogTask.Result;
+		var recipes = await catalogTask;
 		if (recipes.Count == 0) return SuggestWeekPlanErrors.NoRecipes;
+
+		var history = await historyTask;
+		var dietaryProfile = await dietaryTask;
 
 		var entries = await suggestionService.SuggestAsync(
 			query.Week,
 			recipes,
-			historyTask.Result.Items,
-			dietaryTask.Result,
+			history.Items,
+			dietaryProfile,
 			cancellationToken);
 
 		if (entries.IsFailure) return entries.Error!;

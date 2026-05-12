@@ -24,13 +24,13 @@ public sealed class GetRecipeSuggestionsQueryHandler(
 		var dietaryTask = dietaryProvider.GetAsync(cancellationToken);
 		await Task.WhenAll(availableTask, dietaryTask);
 
-		var available = availableTask.Result;
+		var available = await availableTask;
 		if (available.Count == 0)
 		{
 			return RecipeSuggestionErrors.NoIngredients;
 		}
 
-		var dietary = dietaryTask.Result;
+		var dietary = await dietaryTask;
 		return await suggestionService.SuggestAsync(
 			(IReadOnlyCollection<string>)available.Keys.ToList(),
 			dietary.DietaryType,

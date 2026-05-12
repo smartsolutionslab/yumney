@@ -20,8 +20,8 @@ public sealed class GetIngredientBalanceQueryHandler(
 		var staplesTask = staplesProvider.GetStapleNamesAsync(cancellationToken);
 		await Task.WhenAll(atHomeTask, staplesTask);
 
-		var atHomeItems = atHomeTask.Result;
-		var staples = staplesTask.Result;
+		var atHomeItems = await atHomeTask;
+		var staples = await staplesTask;
 
 		var atHomeNames = atHomeItems
 			.Select(item => item.ItemName)
