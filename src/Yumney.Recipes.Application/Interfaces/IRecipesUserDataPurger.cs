@@ -1,3 +1,5 @@
+using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 /// <summary>
@@ -7,5 +9,5 @@ namespace SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 /// </summary>
 public interface IRecipesUserDataPurger
 {
-	Task PurgeAsync(string keycloakUserId, CancellationToken cancellationToken = default);
+	Task PurgeAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
@@ -12,10 +13,12 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 public sealed class ShoppingUserDataPurger(ShoppingDbContext writeContext, ShoppingReadDbContext readContext)
 	: IShoppingUserDataPurger
 {
-	public async Task PurgeAsync(string keycloakUserId, CancellationToken cancellationToken = default)
+	public async Task PurgeAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
+		var ownerValue = owner.Value;
+
 		var shoppingListAggregateIds = await writeContext.ShoppingListAggregates
-			.Where(aggregate => aggregate.OwnerId == keycloakUserId)
+			.Where(aggregate => aggregate.OwnerId == ownerValue)
 			.Select(aggregate => aggregate.AggregateId)
 			.ToListAsync(cancellationToken);
 
@@ -27,11 +30,11 @@ public sealed class ShoppingUserDataPurger(ShoppingDbContext writeContext, Shopp
 		}
 
 		await writeContext.ShoppingListAggregates
-			.Where(aggregate => aggregate.OwnerId == keycloakUserId)
+			.Where(aggregate => aggregate.OwnerId == ownerValue)
 			.ExecuteDeleteAsync(cancellationToken);
 
 		var shoppingAggregateIds = await writeContext.ShoppingAggregates
-			.Where(aggregate => aggregate.OwnerId == keycloakUserId)
+			.Where(aggregate => aggregate.OwnerId == ownerValue)
 			.Select(aggregate => aggregate.AggregateId)
 			.ToListAsync(cancellationToken);
 
@@ -43,23 +46,23 @@ public sealed class ShoppingUserDataPurger(ShoppingDbContext writeContext, Shopp
 		}
 
 		await writeContext.ShoppingAggregates
-			.Where(aggregate => aggregate.OwnerId == keycloakUserId)
+			.Where(aggregate => aggregate.OwnerId == ownerValue)
 			.ExecuteDeleteAsync(cancellationToken);
 
 		await readContext.Set<ShoppingListItemReadItem>()
-			.Where(item => item.OwnerId == keycloakUserId)
+			.Where(item => item.OwnerId == ownerValue)
 			.ExecuteDeleteAsync(cancellationToken);
 
 		await readContext.Set<ShoppingListSummaryReadItem>()
-			.Where(summary => summary.OwnerId == keycloakUserId)
+			.Where(summary => summary.OwnerId == ownerValue)
 			.ExecuteDeleteAsync(cancellationToken);
 
 		await readContext.Set<IngredientBalanceReadItem>()
-			.Where(balance => balance.OwnerId == keycloakUserId)
+			.Where(balance => balance.OwnerId == ownerValue)
 			.ExecuteDeleteAsync(cancellationToken);
 
 		await readContext.Set<ShoppingLedgerReadItem>()
-			.Where(ledger => ledger.OwnerId == keycloakUserId)
+			.Where(ledger => ledger.OwnerId == ownerValue)
 			.ExecuteDeleteAsync(cancellationToken);
 	}
 }

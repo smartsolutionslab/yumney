@@ -1,6 +1,7 @@
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.IntegrationEventHandlers;
 
@@ -12,5 +13,5 @@ public sealed class UserAccountDeletedHandler(IShoppingUserDataPurger purger)
 	: IIntegrationEventHandler<UserAccountDeletedIntegrationEvent>
 {
 	public Task HandleAsync(UserAccountDeletedIntegrationEvent @event, CancellationToken cancellationToken = default) =>
-		purger.PurgeAsync(@event.KeycloakUserId, cancellationToken);
+		purger.PurgeAsync(OwnerIdentifier.From(@event.KeycloakUserId), cancellationToken);
 }

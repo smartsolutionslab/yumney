@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
+using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
@@ -12,10 +13,12 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 public sealed class MealPlanUserDataPurger(MealPlanDbContext writeContext, MealPlanReadDbContext readContext)
 	: IMealPlanUserDataPurger
 {
-	public async Task PurgeAsync(string keycloakUserId, CancellationToken cancellationToken = default)
+	public async Task PurgeAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
+		var ownerValue = owner.Value;
+
 		var aggregateIds = await writeContext.MealPlanAggregates
-			.Where(aggregate => aggregate.OwnerId == keycloakUserId)
+			.Where(aggregate => aggregate.OwnerId == ownerValue)
 			.Select(aggregate => aggregate.AggregateId)
 			.ToListAsync(cancellationToken);
 
@@ -27,15 +30,15 @@ public sealed class MealPlanUserDataPurger(MealPlanDbContext writeContext, MealP
 		}
 
 		await writeContext.MealPlanAggregates
-			.Where(aggregate => aggregate.OwnerId == keycloakUserId)
+			.Where(aggregate => aggregate.OwnerId == ownerValue)
 			.ExecuteDeleteAsync(cancellationToken);
 
 		await readContext.Set<MealPlanSlotReadItem>()
-			.Where(slot => slot.OwnerId == keycloakUserId)
+			.Where(slot => slot.OwnerId == ownerValue)
 			.ExecuteDeleteAsync(cancellationToken);
 
 		await readContext.Set<MealPlanWeekReadItem>()
-			.Where(week => week.OwnerId == keycloakUserId)
+			.Where(week => week.OwnerId == ownerValue)
 			.ExecuteDeleteAsync(cancellationToken);
 	}
 }
