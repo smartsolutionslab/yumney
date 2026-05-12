@@ -34,12 +34,7 @@ public sealed class GetIngredientBalanceQueryHandler(
 			if (atHomeNames.Contains(staple)) continue;
 
 			var category = IngredientCategoryResolver.Resolve(staple) ?? IngredientCategory.Other;
-			items.Add(new IngredientBalanceItemDto(
-				ItemName: staple,
-				Quantity: null,
-				Unit: null,
-				Category: category.Value,
-				Source: IngredientBalanceSource.Staple));
+			items.Add(category.ToStapleBalanceItem(staple));
 		}
 
 		List<IngredientBalanceItemDto> sorted = [.. items
