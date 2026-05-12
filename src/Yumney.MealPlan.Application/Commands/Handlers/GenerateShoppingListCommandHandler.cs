@@ -15,6 +15,10 @@ public sealed class GenerateShoppingListCommandHandler(
 	ICurrentUser currentUser)
 	: ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>>
 {
+#pragma warning disable SA1303
+	private const string mealPlanSource = "meal-plan";
+#pragma warning restore SA1303
+
 	public async Task<Result<GenerateShoppingListResultDto>> HandleAsync(
 		GenerateShoppingListCommand command,
 		CancellationToken cancellationToken = default)
@@ -74,15 +78,15 @@ public sealed class GenerateShoppingListCommandHandler(
 		var staplesSkipped = 0;
 		List<ShoppingItemRequest> itemsToAdd = [];
 
-		foreach (var (name, quantity, unit) in merged.Values)
+		foreach (var item in merged.Values)
 		{
-			if (staples.Contains(name.ToLowerInvariant()))
+			if (staples.Contains(item.Name.ToLowerInvariant()))
 			{
 				staplesSkipped++;
 				continue;
 			}
 
-			itemsToAdd.Add(new ShoppingItemRequest(name, quantity, unit, "meal-plan"));
+			itemsToAdd.Add(item.ToShoppingItemRequest(mealPlanSource));
 		}
 
 		if (itemsToAdd.Count > 0)
@@ -92,9 +96,15 @@ public sealed class GenerateShoppingListCommandHandler(
 
 		return (staplesSkipped, itemsToAdd);
 	}
+}
 
-	private sealed record MergedItem(string Name, decimal Quantity, string? Unit)
-	{
-		public decimal Quantity { get; set; } = Quantity;
-	}
+internal sealed record MergedItem(string Name, decimal Quantity, string? Unit)
+{
+	public decimal Quantity { get; set; } = Quantity;
+}
+
+internal static class MergedItemMappingExtensions
+{
+	public static ShoppingItemRequest ToShoppingItemRequest(this MergedItem item, string source) =>
+		new(item.Name, item.Quantity, item.Unit, source);
 }
