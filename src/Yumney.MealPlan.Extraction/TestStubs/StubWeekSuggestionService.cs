@@ -23,7 +23,7 @@ public sealed class StubWeekSuggestionService : IWeekSuggestionService
 	{
 		if (catalog.Count == 0)
 		{
-			return Task.FromResult(Result<IReadOnlyList<WeekSuggestionEntryDto>>.Success((IReadOnlyList<WeekSuggestionEntryDto>)[]));
+			return Task.FromResult(Result<IReadOnlyList<WeekSuggestionEntryDto>>.Success([]));
 		}
 
 		var entries = days
@@ -36,6 +36,6 @@ public sealed class StubWeekSuggestionService : IWeekSuggestionService
 				"Stub suggestion"))
 			.ToList();
 
-		return Task.FromResult(Result<IReadOnlyList<WeekSuggestionEntryDto>>.Success((IReadOnlyList<WeekSuggestionEntryDto>)entries));
+		return Task.FromResult(Result<IReadOnlyList<WeekSuggestionEntryDto>>.Success(entries));
 	}
 }

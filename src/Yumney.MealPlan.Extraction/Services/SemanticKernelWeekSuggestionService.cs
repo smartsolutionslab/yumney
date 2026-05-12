@@ -12,9 +12,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 namespace SmartSolutionsLab.Yumney.MealPlan.Extraction.Services;
 
 #pragma warning disable SA1601, SA1311
-public sealed partial class SemanticKernelWeekSuggestionService(
-	Kernel kernel,
-	ILogger<SemanticKernelWeekSuggestionService> logger)
+public sealed partial class SemanticKernelWeekSuggestionService(Kernel kernel, ILogger<SemanticKernelWeekSuggestionService> logger)
 	: IWeekSuggestionService
 {
 	private static readonly JsonSerializerOptions jsonOptions = new()
@@ -71,10 +69,7 @@ public sealed partial class SemanticKernelWeekSuggestionService(
 		}
 	}
 
-	private Result<IReadOnlyList<WeekSuggestionEntryDto>> Parse(
-		string response,
-		IReadOnlyList<RecipeCatalogEntry> catalog,
-		bool quiet)
+	private Result<IReadOnlyList<WeekSuggestionEntryDto>> Parse(string response, IReadOnlyList<RecipeCatalogEntry> catalog, bool quiet)
 	{
 		try
 		{

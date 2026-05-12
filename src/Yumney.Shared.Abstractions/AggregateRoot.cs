@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace SmartSolutionsLab.Yumney.Shared.Abstractions;
 
 public abstract class AggregateRoot<TId> : Entity<TId>, IHasDomainEvents

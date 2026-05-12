@@ -1,5 +1,3 @@
-using System;
-
 namespace SmartSolutionsLab.Yumney.Shared.Abstractions;
 
 public abstract record DomainEvent : IDomainEvent

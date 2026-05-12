@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 public interface ICurrentUser
