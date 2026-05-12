@@ -20,9 +20,7 @@ public sealed class SuggestWeekPlanQueryHandler(
 	private const int historyLookbackEntries = 30;
 #pragma warning restore SA1303
 
-	public async Task<Result<WeekSuggestionDto>> HandleAsync(
-		SuggestWeekPlanQuery query,
-		CancellationToken cancellationToken = default)
+	public async Task<Result<WeekSuggestionDto>> HandleAsync(SuggestWeekPlanQuery query, CancellationToken cancellationToken = default)
 	{
 		var owner = currentUser.AsOwner();
 
