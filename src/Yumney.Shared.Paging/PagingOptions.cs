@@ -22,4 +22,6 @@ public sealed record PagingOptions
 
 	public static PagingOptions From(int page, int pageSize) =>
 		new(Page.From(page), PageSize.From(pageSize));
+
+	public static PagingOptions Default() => From(DefaultPage, DefaultPageSize);
 }
