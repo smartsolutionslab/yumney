@@ -333,6 +333,11 @@
       "start": "Start voice input",
       "stop": "Stop voice input",
       "listening": "Listening..."
+    },
+    "tts": {
+      "mute": "Mute spoken replies",
+      "unmute": "Unmute spoken replies",
+      "replay": "Replay last reply"
     }
   },
   "commandBar": {

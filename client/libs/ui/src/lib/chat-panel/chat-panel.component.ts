@@ -48,6 +48,11 @@ export class ChatPanelComponent implements AfterViewInit {
   protected lastActions = signal<ChatAction[]>([]);
   protected lastAssistantMessage = signal('');
 
+  // Tracks whether the *currently pending* send originated from the mic so we
+  // know whether to read the assistant reply aloud (US-361). Reset on typed
+  // input / new mic capture, and re-checked in the chat response handler.
+  protected lastInputWasVoice = signal(false);
+
   messagesContainer = viewChild<ElementRef<HTMLDivElement>>('messages');
 
   constructor() {
@@ -66,6 +71,14 @@ export class ChatPanelComponent implements AfterViewInit {
     this.state.close();
   }
 
+  protected onInputChange(value: string): void {
+    this.input.set(value);
+    // Keyboard edits switch the conversation back to a "typed" interaction,
+    // so the assistant reply won't be read aloud unless the user uses the
+    // mic again.
+    this.lastInputWasVoice.set(false);
+  }
+
   protected onBackdropClick(): void {
     this.state.close();
   }
@@ -79,7 +92,19 @@ export class ChatPanelComponent implements AfterViewInit {
     this.voice.startListeningForTranscript((transcript) => {
       const current = this.input();
       this.input.set(current ? `${current} ${transcript}`.trim() : transcript);
+      this.lastInputWasVoice.set(true);
     });
+  }
+
+  protected onToggleMute(): void {
+    this.voice.setMuted(!this.voice.muted());
+  }
+
+  protected onReplayLast(): void {
+    const reply = this.lastAssistantMessage();
+    if (!reply) return;
+    this.voice.setLanguage(this.transloco.getActiveLang() as 'en' | 'de');
+    this.voice.speak(reply);
   }
 
   protected onSend(): void {
@@ -107,6 +132,7 @@ export class ChatPanelComponent implements AfterViewInit {
 
   private handleChat(message: string): void {
     const history = this.state.messages().slice(0, -1);
+    const speakReply = this.lastInputWasVoice();
 
     this.chatApi
       .send({ message, history })
@@ -118,6 +144,11 @@ export class ChatPanelComponent implements AfterViewInit {
           this.lastActions.set(response.actions ?? []);
           this.lastAssistantMessage.set(response.reply);
           this.state.setThinking(false);
+          if (speakReply) {
+            this.voice.setLanguage(this.transloco.getActiveLang() as 'en' | 'de');
+            this.voice.speak(response.reply);
+          }
+          this.lastInputWasVoice.set(false);
         },
         error: (err) => this.handleError(err),
       });

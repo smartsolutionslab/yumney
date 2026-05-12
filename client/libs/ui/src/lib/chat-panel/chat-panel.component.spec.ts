@@ -29,6 +29,7 @@ const en = {
       startCooking: 'Start cooking',
     },
     mic: { start: 'Start voice input', stop: 'Stop voice input', listening: 'Listening...' },
+    tts: { mute: 'Mute', unmute: 'Unmute', replay: 'Replay' },
   },
   commandBar: {
     hints: {
@@ -44,10 +45,15 @@ describe('ChatPanelComponent', () => {
   let recipeApiMock: { importRecipe: ReturnType<typeof vi.fn> };
   let voiceMock: {
     sttSupported: ReturnType<typeof signal<boolean>>;
+    ttsSupported: ReturnType<typeof signal<boolean>>;
     isListening: ReturnType<typeof signal<boolean>>;
+    isSpeaking: ReturnType<typeof signal<boolean>>;
+    muted: ReturnType<typeof signal<boolean>>;
     setLanguage: ReturnType<typeof vi.fn>;
+    setMuted: ReturnType<typeof vi.fn>;
     startListeningForTranscript: ReturnType<typeof vi.fn>;
     stopListening: ReturnType<typeof vi.fn>;
+    speak: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -60,10 +66,15 @@ describe('ChatPanelComponent', () => {
     };
     voiceMock = {
       sttSupported: signal(true),
+      ttsSupported: signal(true),
       isListening: signal(false),
+      isSpeaking: signal(false),
+      muted: signal(false),
       setLanguage: vi.fn(),
+      setMuted: vi.fn((value: boolean) => voiceMock.muted.set(value)),
       startListeningForTranscript: vi.fn(),
       stopListening: vi.fn(),
+      speak: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -541,6 +552,144 @@ describe('ChatPanelComponent', () => {
 
       const button = fixture.nativeElement.querySelector('[data-testid="chat-mic"]');
       expect(button.classList.contains('listening')).toBe(true);
+    });
+  });
+
+  describe('tts (US-361)', () => {
+    async function sendMessage(content: string): Promise<void> {
+      fixture.componentInstance['input'].set(content);
+      fixture.componentInstance['onSend']();
+      await Promise.resolve();
+      fixture.detectChanges();
+    }
+
+    it('speaks the chat reply when the message was entered via voice', async () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      // Simulate the mic callback firing — it sets lastInputWasVoice=true.
+      fixture.componentInstance['onToggleMic']();
+      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (
+        text: string,
+      ) => void;
+      onTranscript('Add milk');
+
+      chatApiMock.send.mockReturnValue(of({ reply: 'Added 1 liter milk', suggestions: [] }));
+      await sendMessage('Add milk');
+
+      expect(voiceMock.speak).toHaveBeenCalledWith('Added 1 liter milk');
+    });
+
+    it('does not speak the reply when the message was typed', async () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      chatApiMock.send.mockReturnValue(of({ reply: 'Sure!', suggestions: [] }));
+      await sendMessage('Plan my week');
+
+      expect(voiceMock.speak).not.toHaveBeenCalled();
+    });
+
+    it('resets the voice flag after the reply, so the next typed message stays silent', async () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      fixture.componentInstance['onToggleMic']();
+      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (
+        text: string,
+      ) => void;
+      onTranscript('Add milk');
+
+      chatApiMock.send.mockReturnValue(of({ reply: 'Added', suggestions: [] }));
+      await sendMessage('Add milk');
+      voiceMock.speak.mockClear();
+
+      chatApiMock.send.mockReturnValue(of({ reply: 'OK', suggestions: [] }));
+      await sendMessage('Plan my week');
+
+      expect(voiceMock.speak).not.toHaveBeenCalled();
+    });
+
+    it('typing replaces voice mode (no TTS even after a mic transcript)', async () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      fixture.componentInstance['onToggleMic']();
+      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (
+        text: string,
+      ) => void;
+      onTranscript('Add milk');
+
+      // Simulate user typing — ngModelChange path through onInputChange.
+      fixture.componentInstance['onInputChange']('Add milk and bread');
+
+      chatApiMock.send.mockReturnValue(of({ reply: 'Added', suggestions: [] }));
+      await sendMessage('Add milk and bread');
+
+      expect(voiceMock.speak).not.toHaveBeenCalled();
+    });
+
+    it('renders the mute toggle when TTS is supported', () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="chat-mute"]')).toBeTruthy();
+    });
+
+    it('hides the mute toggle when TTS is unsupported', () => {
+      voiceMock.ttsSupported.set(false);
+      chatState.open();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="chat-mute"]')).toBeNull();
+    });
+
+    it('mute click flips voice.muted', () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector(
+        '[data-testid="chat-mute"]',
+      ) as HTMLButtonElement;
+      button.click();
+
+      expect(voiceMock.setMuted).toHaveBeenCalledWith(true);
+    });
+
+    it('replay button is hidden until there is a last assistant message', () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="chat-replay"]')).toBeNull();
+    });
+
+    it('replay button speaks the last assistant message', async () => {
+      chatState.open();
+      fixture.detectChanges();
+      chatApiMock.send.mockReturnValue(of({ reply: 'Hello there', suggestions: [] }));
+      await sendMessage('Hi');
+      voiceMock.speak.mockClear();
+
+      const button = fixture.nativeElement.querySelector(
+        '[data-testid="chat-replay"]',
+      ) as HTMLButtonElement;
+      button.click();
+
+      expect(voiceMock.speak).toHaveBeenCalledWith('Hello there');
+    });
+
+    it('replay button is disabled while muted', async () => {
+      chatState.open();
+      chatApiMock.send.mockReturnValue(of({ reply: 'Hello', suggestions: [] }));
+      await sendMessage('Hi');
+
+      voiceMock.muted.set(true);
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector(
+        '[data-testid="chat-replay"]',
+      ) as HTMLButtonElement;
+      expect(button.disabled).toBe(true);
     });
   });
 });
