@@ -1,5 +1,4 @@
 using SmartSolutionsLab.Yumney.MealPlan.Application.IntegrationEventHandlers;
-using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore.Events;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Hosting;

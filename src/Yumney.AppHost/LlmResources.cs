@@ -1,5 +1,3 @@
-using Aspire.Hosting.ApplicationModel;
-
 namespace SmartSolutionsLab.Yumney.AppHost;
 
 /// <summary>
