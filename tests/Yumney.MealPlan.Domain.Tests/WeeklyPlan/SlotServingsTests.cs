@@ -27,6 +27,32 @@ public class SlotServingsTests
 	}
 
 	[Fact]
+	public void FromNullable_NullValue_ReturnsNull()
+	{
+		var servings = SlotServings.FromNullable(null);
+
+		servings.Should().BeNull();
+	}
+
+	[Fact]
+	public void FromNullable_PositiveValue_CreatesInstance()
+	{
+		var servings = SlotServings.FromNullable(8);
+
+		servings!.Value.Should().Be(8);
+	}
+
+	[Theory]
+	[InlineData(0)]
+	[InlineData(-3)]
+	public void FromNullable_NonPositiveValue_ThrowsGuardException(int value)
+	{
+		var act = () => SlotServings.FromNullable(value);
+
+		act.Should().Throw<GuardException>();
+	}
+
+	[Fact]
 	public void Default_ReturnsConfiguredDefault()
 	{
 		var servings = SlotServings.Default();
