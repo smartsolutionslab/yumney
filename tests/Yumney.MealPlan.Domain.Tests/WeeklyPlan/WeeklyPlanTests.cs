@@ -96,7 +96,11 @@ public class WeeklyPlanTests
 	{
 		var plan = CreatePlan();
 
-		var act = () => plan.AssignRecipe(DayOfWeek.Monday, SlotRecipeReference.From(SlotRecipeIdentifier.New(), SlotRecipeTitle.From(string.Empty)));
+		var act = () => plan.AssignRecipe(
+			DayOfWeek.Monday,
+			SlotRecipeReference.From(
+				SlotRecipeIdentifier.New(),
+				SlotRecipeTitle.From(string.Empty)));
 
 		act.Should().Throw<GuardException>();
 	}

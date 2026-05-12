@@ -22,10 +22,7 @@ public static partial class RouteUrlBuilder
 	/// <param name="routePattern">Route pattern from a <c>CapabilityDescriptor</c>.</param>
 	/// <param name="arguments">Tool arguments by name. Supports null arguments dictionary.</param>
 	/// <returns>Built request — caller must check <c>MissingPlaceholders</c> before sending.</returns>
-	public static BuiltRequest Build(
-		string httpMethod,
-		string routePattern,
-		IDictionary<string, JsonElement>? arguments)
+	public static BuiltRequest Build(string httpMethod, string routePattern, IDictionary<string, JsonElement>? arguments)
 	{
 		arguments ??= new Dictionary<string, JsonElement>();
 		var consumedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

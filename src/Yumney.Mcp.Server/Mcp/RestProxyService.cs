@@ -1,7 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http;
 using ModelContextProtocol.Protocol;
 using SmartSolutionsLab.Yumney.Mcp.Server.Discovery;
 
@@ -27,10 +26,7 @@ public sealed partial class RestProxyService(
 	/// <param name="arguments">Tool argument bag (placeholder values + body fields / query params).</param>
 	/// <param name="cancellationToken">Cancellation propagated from the SDK.</param>
 	/// <returns>Upstream response as a tool result, or an error result on failure.</returns>
-	public async Task<CallToolResult> InvokeAsync(
-		string toolName,
-		IDictionary<string, JsonElement>? arguments,
-		CancellationToken cancellationToken)
+	public async Task<CallToolResult> InvokeAsync(string toolName, IDictionary<string, JsonElement>? arguments, CancellationToken cancellationToken)
 	{
 		var descriptor = registry.DescriptorForTool(toolName);
 		if (descriptor is null) return Error($"Unknown tool '{toolName}'.");

@@ -43,9 +43,7 @@ public static class CapabilityToolRegistration
 	/// <param name="context">Request context (unused — we list everything).</param>
 	/// <param name="cancellationToken">Cancellation propagated from the SDK.</param>
 	/// <returns>The current MCP-surface tools.</returns>
-	public static ValueTask<ListToolsResult> ListToolsAsync(
-		RequestContext<ListToolsRequestParams> context,
-		CancellationToken cancellationToken)
+	public static ValueTask<ListToolsResult> ListToolsAsync(RequestContext<ListToolsRequestParams> context, CancellationToken cancellationToken)
 	{
 		var registry = context.Services!.GetRequiredService<AggregatedCapabilityRegistry>();
 		return ValueTask.FromResult(new ListToolsResult { Tools = [.. BuildTools(registry)] });
@@ -55,9 +53,7 @@ public static class CapabilityToolRegistration
 	/// <param name="context">Request context with the called tool's name + arguments.</param>
 	/// <param name="cancellationToken">Cancellation propagated from the SDK.</param>
 	/// <returns>The stub result.</returns>
-	public static ValueTask<CallToolResult> CallToolAsync(
-		RequestContext<CallToolRequestParams> context,
-		CancellationToken cancellationToken)
+	public static ValueTask<CallToolResult> CallToolAsync(RequestContext<CallToolRequestParams> context, CancellationToken cancellationToken)
 	{
 		var name = context.Params?.Name ?? "<unknown>";
 		return ValueTask.FromResult(BuildStubInvocationResult(name));

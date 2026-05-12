@@ -36,9 +36,7 @@ internal static class AppHostExtensions
 	/// <param name="builder">The AppHost's distributed application builder.</param>
 	/// <param name="options">App host options that decide between OpenAI and Ollama.</param>
 	/// <returns>A handle to the registered resources; empty when E2E tests are on.</returns>
-	public static LlmResources BuildLlmResources(
-		this IDistributedApplicationBuilder builder,
-		AppHostOptions options)
+	public static LlmResources BuildLlmResources(this IDistributedApplicationBuilder builder, AppHostOptions options)
 	{
 		if (options.E2ETests) return new LlmResources(null, null);
 
