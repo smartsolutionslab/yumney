@@ -17,8 +17,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 /// </summary>
 /// <param name="handler">Query handler that runs the recipe search.</param>
 /// <param name="context">Per-request collector for downstream suggestion / action emission.</param>
-public sealed class SearchRecipesTool(
-	IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>> handler,
+public sealed class SearchRecipesTool(IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>> handler,
 	ChatToolContext context)
 {
 	private const int defaultPageSize = 10;
@@ -33,7 +32,7 @@ public sealed class SearchRecipesTool(
 		[Description("Free text search query — a dish name, ingredient, or theme")] string query,
 		CancellationToken cancellationToken = default)
 	{
-		var paging = PagingOptions.Of(Page.From(1), PageSize.From(defaultPageSize));
+		var paging = PagingOptions.From(1, defaultPageSize);
 		var sorting = new SortingOptions<RecipeSortField>(RecipeSortField.Date, SortDirection.Descending);
 		var search = SearchTerm.FromNullable(query);
 

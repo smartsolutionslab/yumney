@@ -27,7 +27,8 @@ public sealed class AddShoppingItemTool(IShoppingListItemAdder adder)
 	{
 		if (string.IsNullOrWhiteSpace(name)) return "Item name is required.";
 
-		var success = await adder.AddAsync(new AddShoppingItemRequest(name.Trim(), quantity, unit), cancellationToken);
+		var request = new AddShoppingItemRequest(name.Trim(), quantity, unit);
+		var success = await adder.AddAsync(request, cancellationToken);
 		if (!success) return $"Couldn't add {name} — please try again.";
 
 		var qtyText = quantity.HasValue ? $"{quantity}{(string.IsNullOrEmpty(unit) ? string.Empty : unit)} " : string.Empty;

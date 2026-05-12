@@ -47,6 +47,7 @@ public sealed class GetWeeklyPlanTool(IWeeklyPlanLookup lookup, ChatToolContext 
 		var now = DateTimeOffset.UtcNow;
 		var resolvedYear = year > 0 ? year : ISOWeek.GetYear(now.DateTime);
 		var resolvedWeek = weekNumber > 0 ? weekNumber : ISOWeek.GetWeekOfYear(now.DateTime);
+
 		return (resolvedYear, resolvedWeek);
 	}
 }
