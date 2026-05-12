@@ -49,15 +49,15 @@ public class AccountDeletionCascadeTests(AspireFixture fixture)
 		await CreateShoppingListAsync(shopping, recipeId);
 		await AssignMealSlotAsync(mealplan, recipeId);
 
-		await WaitForAsync(async () =>
-			await CountAcrossAllModulesAsync(userId) > 0,
+		await WaitForAsync(
+			async () => await CountAcrossAllModulesAsync(userId) > 0,
 			because: "seeding must land before the delete fires");
 
 		var delete = await users.DeleteAsync("/api/v1/users/me");
 		delete.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-		await WaitForAsync(async () =>
-			await CountAcrossAllModulesAsync(userId) == 0,
+		await WaitForAsync(
+			async () => await CountAcrossAllModulesAsync(userId) == 0,
 			because: "every subscribing module must purge the owner's rows after UserAccountDeletedIntegrationEvent");
 	}
 
@@ -111,6 +111,7 @@ public class AccountDeletionCascadeTests(AspireFixture fixture)
 		response.EnsureSuccessStatusCode();
 	}
 
+#pragma warning disable SA1204
 	private static HttpClient AuthenticatedClient(HttpClient source, string token)
 	{
 		var copy = new HttpClient { BaseAddress = source.BaseAddress };
@@ -180,4 +181,5 @@ public class AccountDeletionCascadeTests(AspireFixture fixture)
 
 		throw new TimeoutException($"Condition not met within {timeoutSeconds}s — {because}");
 	}
+#pragma warning restore SA1204
 }
