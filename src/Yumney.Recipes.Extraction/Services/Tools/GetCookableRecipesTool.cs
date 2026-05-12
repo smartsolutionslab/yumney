@@ -35,7 +35,7 @@ public sealed class GetCookableRecipesTool(
 		[Description("If true, only fully-cookable recipes are returned. Defaults to false (allows up to 2 missing ingredients).")] bool fullMatchOnly = false,
 		CancellationToken cancellationToken = default)
 	{
-		var paging = PagingOptions.Of(Page.From(1), PageSize.From(defaultPageSize));
+		var paging = PagingOptions.From(1, defaultPageSize);
 		var result = await handler.HandleAsync(new GetCookableRecipesQuery(paging, fullMatchOnly), cancellationToken);
 		if (result.IsFailure) return [];
 
