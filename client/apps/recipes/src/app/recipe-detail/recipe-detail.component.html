@@ -176,7 +176,7 @@
     <section class="ingredients-section">
       <div class="ingredients-header">
         <h2>{{ t('recipes.detail.ingredients') }}</h2>
-        <yn-unit-toggle [system]="unitSystem()" (systemChange)="unitSystem.set($event)" />
+        <yn-unit-toggle [system]="unitSystem()" (systemChange)="onUnitSystemChange($event)" />
       </div>
       <ul class="ingredients-list">
         @for (ingredient of displayedIngredients(); track ingredient.name) {

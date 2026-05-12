@@ -27,6 +27,7 @@ import {
   type UnitSystem,
   ERROR_MAPS,
   ROUTES,
+  UserPreferencesService,
   VALIDATION,
   toggleFavoriteOnItem,
 } from '@yumney/shared/models';
@@ -76,6 +77,7 @@ export class RecipeDetailComponent implements OnInit {
   private deleteState = createAsyncState(this.destroyRef);
   private createShoppingListState = createAsyncState(this.destroyRef);
   private notesAutosave = inject(RecipeNotesAutosaveService);
+  private preferences = inject(UserPreferencesService);
 
   recipe = signal<RecipeDetail | null>(null);
   recipeStats = signal<RecipeActivityStats | null>(null);
@@ -84,7 +86,14 @@ export class RecipeDetailComponent implements OnInit {
   isCreatingShoppingList = this.createShoppingListState.isLoading;
   serverError = signal<string | null>(null);
   desiredServings = signal<number | null>(null);
-  unitSystem = signal<UnitSystem>('metric');
+  // User's preferred unit system from their profile (US-125). The toggle
+  // exposes a per-view override that wins over the profile default but is
+  // NOT persisted — leaves the saved preference unchanged when a user
+  // flips imperial → metric just for this one recipe.
+  private userUnitOverride = signal<UnitSystem | null>(null);
+  unitSystem = computed<UnitSystem>(
+    () => this.userUnitOverride() ?? this.preferences.preferredUnitSystem(),
+  );
   showDeleteConfirm = signal(false);
   showCreateShoppingListConfirm = signal(false);
 
@@ -144,6 +153,10 @@ export class RecipeDetailComponent implements OnInit {
       this.serverError.set('recipes.detail.notFound');
       return;
     }
+
+    // Trigger the profile fetch so `preferredUnitSystem` populates. The
+    // `unitSystem` computed re-evaluates when the signal lands.
+    this.preferences.ensureLoaded();
 
     // Stats can fail silently — the page is still useful without the badge.
     this.activityApi
@@ -245,6 +258,10 @@ export class RecipeDetailComponent implements OnInit {
 
   onToggleFavorite(): void {
     toggleFavoriteOnItem(this.recipe, this.destroyRef, (id) => this.recipeApi.toggleFavorite(id));
+  }
+
+  onUnitSystemChange(system: UnitSystem): void {
+    this.userUnitOverride.set(system);
   }
 
   onCreateShoppingList(): void {
