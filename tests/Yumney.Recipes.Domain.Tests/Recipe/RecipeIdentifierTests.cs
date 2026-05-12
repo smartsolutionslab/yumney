@@ -54,9 +54,36 @@ public class RecipeIdentifierTests
 	}
 
 	[Fact]
-	public void FromNullable_WithNull_ReturnsNull()
+	public void FromNullable_WithNullGuid_ReturnsNull()
 	{
-		var identifier = RecipeIdentifier.FromNullable(null);
+		var identifier = RecipeIdentifier.FromNullable((Guid?)null);
+
+		identifier.Should().BeNull();
+	}
+
+	[Fact]
+	public void FromNullable_WithNullString_ReturnsNull()
+	{
+		var identifier = RecipeIdentifier.FromNullable((string?)null);
+
+		identifier.Should().BeNull();
+	}
+
+	[Fact]
+	public void FromNullable_WithValidGuidString_ReturnsInstance()
+	{
+		var guid = Guid.NewGuid();
+
+		var identifier = RecipeIdentifier.FromNullable(guid.ToString());
+
+		identifier.Should().NotBeNull();
+		identifier!.Value.Should().Be(guid);
+	}
+
+	[Fact]
+	public void FromNullable_WithInvalidString_ReturnsNull()
+	{
+		var identifier = RecipeIdentifier.FromNullable("not-a-guid");
 
 		identifier.Should().BeNull();
 	}
