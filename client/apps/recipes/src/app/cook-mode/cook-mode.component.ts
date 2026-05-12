@@ -10,9 +10,10 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { RecipeApiService, type RecipeDetail } from '../api';
+import { ChatApiService, RecipeApiService, type RecipeDetail } from '../api';
 import {
   CookingTimerService,
   createAsyncState,
@@ -55,6 +56,7 @@ export class CookModeComponent implements OnInit, OnDestroy {
   protected readonly ROUTES = ROUTES;
 
   private recipeApi = inject(RecipeApiService);
+  private chatApi = inject(ChatApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
@@ -101,7 +103,13 @@ export class CookModeComponent implements OnInit, OnDestroy {
     this.loadState.execute(
       this.recipeApi.getRecipeById(identifier),
       ERROR_MAPS.recipes.detail,
-      (recipe) => this.recipe.set(recipe),
+      (recipe) => {
+        this.recipe.set(recipe);
+        // Auto-activate continuous listening on entry per US-362 AC. Stays
+        // silent if Web Speech isn't supported — the existing toggle button
+        // remains available either way. Cleanup happens in `ngOnDestroy`.
+        this.startListeningInCookMode();
+      },
       (error) => this.serverError.set(error),
     );
 
@@ -142,8 +150,29 @@ export class CookModeComponent implements OnInit, OnDestroy {
     if (this.voice.isListening()) {
       this.voice.stopListening();
     } else {
-      this.voice.startListening((command) => this.handleCommand(command));
+      this.startListeningInCookMode();
     }
+  }
+
+  private startListeningInCookMode(): void {
+    this.voice.startListeningWithFallback(
+      (command) => this.handleCommand(command),
+      (transcript) => this.handleTranscript(transcript),
+    );
+  }
+
+  private handleTranscript(transcript: string): void {
+    // Global voice command while cooking — route through chat so users can say
+    // "add butter to shopping list" or "what's for dinner tomorrow?" without
+    // leaving cook mode. The reply gets spoken via the TTS path used by the
+    // step-read effect.
+    this.chatApi
+      .send({ message: transcript, history: [] })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => this.voice.speak(response.reply),
+        error: () => undefined,
+      });
   }
 
   toggleMute(): void {
