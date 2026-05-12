@@ -333,6 +333,11 @@
       "start": "Sprachsteuerung starten",
       "stop": "Sprachsteuerung stoppen",
       "listening": "Höre zu..."
+    },
+    "tts": {
+      "mute": "Sprachausgabe stummschalten",
+      "unmute": "Sprachausgabe einschalten",
+      "replay": "Letzte Antwort erneut vorlesen"
     }
   },
   "commandBar": {

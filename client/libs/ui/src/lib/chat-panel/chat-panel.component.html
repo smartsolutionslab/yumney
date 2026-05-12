@@ -108,7 +108,7 @@
       <textarea
         data-testid="chat-input"
         [ngModel]="input()"
-        (ngModelChange)="input.set($event)"
+        (ngModelChange)="onInputChange($event)"
         (keydown)="onKeydown($event)"
         [placeholder]="t(hints.hintKey())"
         [attr.aria-label]="t('chat.inputLabel')"
@@ -130,6 +130,31 @@
         <span class="sr-only" role="status" aria-live="polite">
           {{ voice.isListening() ? t('chat.mic.listening') : '' }}
         </span>
+      }
+      @if (voice.ttsSupported()) {
+        <button
+          type="button"
+          class="chat-mute"
+          data-testid="chat-mute"
+          [class.muted]="voice.muted()"
+          [attr.aria-pressed]="voice.muted()"
+          [attr.aria-label]="voice.muted() ? t('chat.tts.unmute') : t('chat.tts.mute')"
+          (click)="onToggleMute()"
+        >
+          <lucide-icon [name]="voice.muted() ? 'volume-x' : 'volume-2'" [size]="18" />
+        </button>
+        @if (lastAssistantMessage()) {
+          <button
+            type="button"
+            class="chat-replay"
+            data-testid="chat-replay"
+            [disabled]="voice.muted() || voice.isSpeaking()"
+            [attr.aria-label]="t('chat.tts.replay')"
+            (click)="onReplayLast()"
+          >
+            <lucide-icon name="play" [size]="18" />
+          </button>
+        }
       }
       <button
         type="submit"

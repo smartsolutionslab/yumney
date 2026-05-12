@@ -44,6 +44,8 @@ import {
   Sun,
   Trash2,
   Utensils,
+  Volume2,
+  VolumeX,
   X,
 } from 'lucide-angular';
 
@@ -99,5 +101,7 @@ export const YN_ICONS = {
   Sun,
   Trash2,
   Utensils,
+  Volume2,
+  VolumeX,
   X,
 };

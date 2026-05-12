@@ -373,7 +373,9 @@
   align-self: flex-end;
 }
 
-.chat-mic {
+.chat-mic,
+.chat-mute,
+.chat-replay {
   align-self: flex-end;
   display: inline-flex;
   align-items: center;
@@ -387,15 +389,24 @@
   cursor: pointer;
   transition: background var(--yn-duration-fast) var(--yn-ease-glass);
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: var(--yn-glass-bg-elevated);
   }
 
-  &.listening {
-    background: var(--yn-primary);
-    color: var(--yn-text-inverse);
-    animation: yn-mic-pulse 1.4s var(--yn-ease-glass) infinite;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
+}
+
+.chat-mic.listening {
+  background: var(--yn-primary);
+  color: var(--yn-text-inverse);
+  animation: yn-mic-pulse 1.4s var(--yn-ease-glass) infinite;
+}
+
+.chat-mute.muted {
+  color: var(--yn-text-muted);
 }
 
 @keyframes yn-mic-pulse {
