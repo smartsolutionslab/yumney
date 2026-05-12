@@ -27,8 +27,13 @@ public sealed class GetMealAnalyticsQueryHandler(
 
 		var slots = await readModel.GetSlotsInPeriodAsync(owner, periodStart, periodEndExclusive, cancellationToken);
 
-		var cooked = slots.Where(slot => slot.State == "Cooked").ToList();
-		var skippedCount = slots.Count(slot => slot.State == "Skipped");
+		List<AnalyticsSlotProjection> cooked = [];
+		var skippedCount = 0;
+		foreach (var slot in slots)
+		{
+			if (slot.State == "Cooked") cooked.Add(slot);
+			else if (slot.State == "Skipped") skippedCount++;
+		}
 
 		var recipeCooks = cooked
 			.Where(slot => slot.RecipeIdentifier.HasValue && slot.RecipeTitle is not null)
