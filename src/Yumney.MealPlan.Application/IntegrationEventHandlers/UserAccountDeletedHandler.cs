@@ -1,4 +1,5 @@
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
+using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 
@@ -12,5 +13,5 @@ public sealed class UserAccountDeletedHandler(IMealPlanUserDataPurger purger)
 	: IIntegrationEventHandler<UserAccountDeletedIntegrationEvent>
 {
 	public Task HandleAsync(UserAccountDeletedIntegrationEvent @event, CancellationToken cancellationToken = default) =>
-		purger.PurgeAsync(@event.KeycloakUserId, cancellationToken);
+		purger.PurgeAsync(OwnerIdentifier.From(@event.KeycloakUserId), cancellationToken);
 }

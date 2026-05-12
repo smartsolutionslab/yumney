@@ -1,4 +1,5 @@
 using SmartSolutionsLab.Yumney.Shopping.Application.DTOs;
+using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 
@@ -9,5 +10,5 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 /// </summary>
 public interface IIngredientBalanceReadModelRepository
 {
-	Task<IReadOnlyList<IngredientBalanceItemDto>> GetAtHomeItemsAsync(string ownerId, CancellationToken cancellationToken = default);
+	Task<IReadOnlyList<IngredientBalanceItemDto>> GetAtHomeItemsAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default);
 }

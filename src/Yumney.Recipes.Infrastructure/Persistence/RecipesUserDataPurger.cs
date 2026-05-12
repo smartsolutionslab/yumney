@@ -10,10 +10,8 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 /// </summary>
 public sealed class RecipesUserDataPurger(RecipesDbContext context) : IRecipesUserDataPurger
 {
-	public async Task PurgeAsync(string keycloakUserId, CancellationToken cancellationToken = default)
+	public async Task PurgeAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
-		var owner = OwnerIdentifier.From(keycloakUserId);
-
 		await context.RecipeFavorites
 			.Where(favorite => favorite.Owner == owner)
 			.ExecuteDeleteAsync(cancellationToken);
