@@ -19,5 +19,12 @@ public sealed record RecipeIdentifier : IValueObject
 	public static RecipeIdentifier? FromNullable(Guid? value) =>
 		value.HasValue ? new RecipeIdentifier(value.Value) : null;
 
+	public static RecipeIdentifier? FromNullable(string value)
+	{
+		if (!Guid.TryParse(value, out var guid)) return null;
+
+		return FromNullable(guid);
+	}
+
 	public override string ToString() => Value.ToString();
 }

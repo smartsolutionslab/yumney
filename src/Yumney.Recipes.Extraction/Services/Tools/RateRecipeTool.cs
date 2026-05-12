@@ -28,10 +28,12 @@ public sealed class RateRecipeTool(ICommandHandler<RateRecipeCommand, Result> ha
 		[Description("Star rating, 1 to 5")] int rating,
 		CancellationToken cancellationToken = default)
 	{
-		if (!Guid.TryParse(recipeIdentifier, out var guid)) return "Invalid recipe identifier — call search_recipes first.";
+		var recipe = RecipeIdentifier.FromNullable(recipeIdentifier);
+
+		if (recipe is null) return "Invalid recipe identifier — call search_recipes first.";
 		if (rating < Rating.MinValue || rating > Rating.MaxValue) return $"Rating must be between {Rating.MinValue} and {Rating.MaxValue}.";
 
-		var command = new RateRecipeCommand(RecipeIdentifier.From(guid), Rating.From(rating));
+		var command = new RateRecipeCommand(recipe, Rating.From(rating));
 		var result = await handler.HandleAsync(command, cancellationToken);
 		return result.IsSuccess
 			? $"Saved your {rating}-star rating."
