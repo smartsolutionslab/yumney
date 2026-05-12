@@ -57,10 +57,9 @@ test.describe('Danger Zone — account deletion (US-101)', () => {
     // Logout redirects away from the account MFE — Keycloak's end-session
     // endpoint or the shell's login route, depending on AuthService config.
     // We only assert that we've left the danger zone.
-    await authenticatedPage.waitForURL(
-      (url) => !url.pathname.includes('/account/danger-zone'),
-      { timeout: TIMEOUTS.long },
-    );
+    await authenticatedPage.waitForURL((url) => !url.pathname.includes('/account/danger-zone'), {
+      timeout: TIMEOUTS.long,
+    });
     expect(deleteCalled).toBe(true);
   });
 });
