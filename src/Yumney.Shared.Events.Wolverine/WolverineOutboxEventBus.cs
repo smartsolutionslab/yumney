@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using SmartSolutionsLab.Yumney.Shared.Events;
 using Wolverine.EntityFrameworkCore;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
