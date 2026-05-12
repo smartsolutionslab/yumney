@@ -13,14 +13,16 @@ public sealed class CookWithLeftoversCommandHandler(IMealPlanEventStore eventSto
 	{
 		var (week, cookDay, recipe, totalServings, eatServings, leftoverDay, mealType) = command;
 		var owner = currentUser.AsOwner();
-		var leftoverServingsValue = totalServings.Value - eatServings.Value;
+		var leftoverServings = totalServings.Value > eatServings.Value
+			? SlotServings.From(totalServings.Value - eatServings.Value)
+			: null;
 
 		var plan = await eventStore.FindAsync(owner, week, cancellationToken) ?? WeeklyPlan.Create(owner, week);
 		plan.AssignRecipe(cookDay, recipe, mealType, totalServings);
 
-		if (leftoverServingsValue > 0)
+		if (leftoverServings is not null)
 		{
-			plan.SetLeftover(leftoverDay, cookDay, mealType, recipe.Title, mealType, SlotServings.From(leftoverServingsValue));
+			plan.SetLeftover(leftoverDay, cookDay, mealType, recipe.Title, mealType, leftoverServings);
 		}
 
 		await eventStore.SaveAsync(plan, cancellationToken);
