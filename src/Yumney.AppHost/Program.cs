@@ -123,10 +123,19 @@ if (!options.DatabaseOnly)
 
 	var apiEnvironment = builder.Environment.EnvironmentName;
 
+	// SMTP for outbound app email. In dev the mailpit container exposes
+	// 1025 on the host so the users-api process (running on host) reaches
+	// it at `localhost:1025`. In publish mode a Container App secret
+	// supplies real production credentials. The Users module is the only
+	// consumer today (GDPR account-deletion confirmation, US-567).
 	var usersApi = builder
 		.AddProject<Projects.Yumney_Users_Api>("users-api")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.WithEnvironment("Keycloak__ClientSecret", yumneyApiClientSecret)
+		.WithEnvironment("Smtp__Host", "localhost")
+		.WithEnvironment("Smtp__Port", "1025")
+		.WithEnvironment("Smtp__FromAddress", "noreply@yumney.local")
+		.WithEnvironment("Smtp__FromDisplayName", "Yumney")
 		.AsYumneyApi(options, usersDb, keycloak, redis, messaging, migrationRunner);
 	var shoppingApi = builder
 		.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")

@@ -21,6 +21,10 @@ public static class UsersInfrastructureServiceCollectionExtensions
 			.ValidateDataAnnotations()
 			.ValidateOnStart();
 
+		services.AddOptions<SmtpOptions>()
+			.Bind(configuration.GetSection(SmtpOptions.SectionName));
+		services.AddScoped<IAccountDeletionEmailSender, SmtpAccountDeletionEmailSender>();
+
 		services.AddYumneyNpgsqlDbContextWithOutbox<UsersDbContext>(
 			configuration,
 			"usersdb",

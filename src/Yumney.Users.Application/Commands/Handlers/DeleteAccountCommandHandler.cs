@@ -17,6 +17,7 @@ public sealed partial class DeleteAccountCommandHandler(
 	IKeycloakAdminService keycloak,
 	IEventBus eventBus,
 	ICurrentUser currentUser,
+	IAccountDeletionEmailSender emailSender,
 	ILogger<DeleteAccountCommandHandler> logger)
 	: ICommandHandler<DeleteAccountCommand, Result>
 {
@@ -24,6 +25,13 @@ public sealed partial class DeleteAccountCommandHandler(
 	{
 		var keycloakId = KeycloakUserId.From(currentUser.UserId);
 		LogDeletionRequested(keycloakId.Value);
+
+		// Capture the confirmation-email payload BEFORE the purge — profile +
+		// Keycloak rows are gone by send-time (AC: localise via the last-known
+		// PreferredLanguage). A missing profile or Keycloak email isn't fatal:
+		// the user has the right to be forgotten regardless of whether we can
+		// notify them, so we skip the send instead of aborting the deletion.
+		var emailPayload = await TryBuildEmailPayloadAsync(keycloakId, cancellationToken);
 
 		// 1. Tell every other module to wipe owner-scoped data first. Subscribers
 		// must be idempotent — see UserAccountDeletedIntegrationEvent docstring.
@@ -48,7 +56,49 @@ public sealed partial class DeleteAccountCommandHandler(
 		}
 
 		LogDeletionCompleted(keycloakId.Value);
+
+		// 4. Fire-and-log the confirmation. The user's data is already gone — a
+		// send failure must NOT roll the deletion back (AC). Surface it in the
+		// logs for ops triage.
+		if (emailPayload is not null)
+		{
+			await TrySendConfirmationAsync(emailPayload, cancellationToken);
+		}
+
 		return Result.Success();
+	}
+
+	private async Task<AccountDeletionEmailPayload?> TryBuildEmailPayloadAsync(
+		KeycloakUserId keycloakId,
+		CancellationToken cancellationToken)
+	{
+		var profile = await unitOfWork.Profiles.FindByKeycloakUserIdAsync(keycloakId, cancellationToken);
+		if (profile is null)
+		{
+			LogConfirmationProfileMissing(keycloakId.Value);
+			return null;
+		}
+
+		var emailResult = await keycloak.GetEmailAsync(keycloakId, cancellationToken);
+		if (emailResult.IsFailure)
+		{
+			LogConfirmationEmailUnavailable(keycloakId.Value);
+			return null;
+		}
+
+		return new AccountDeletionEmailPayload(emailResult.Value!, profile.DisplayName, profile.PreferredLanguage);
+	}
+
+	private async Task TrySendConfirmationAsync(AccountDeletionEmailPayload payload, CancellationToken cancellationToken)
+	{
+		try
+		{
+			await emailSender.SendAsync(payload, cancellationToken);
+		}
+		catch (Exception ex) when (ex is not OperationCanceledException)
+		{
+			LogConfirmationSendFailed(payload.RecipientEmail.Value, ex.Message);
+		}
 	}
 
 	[LoggerMessage(Level = LogLevel.Information, Message = "GDPR: account deletion requested for {KeycloakUserId}")]
@@ -59,4 +109,13 @@ public sealed partial class DeleteAccountCommandHandler(
 
 	[LoggerMessage(Level = LogLevel.Error, Message = "GDPR: local data erased but Keycloak deletion failed for {KeycloakUserId}")]
 	private partial void LogKeycloakDeletionFailed(string keycloakUserId);
+
+	[LoggerMessage(Level = LogLevel.Warning, Message = "GDPR: profile missing for {KeycloakUserId}; skipping confirmation email")]
+	private partial void LogConfirmationProfileMissing(string keycloakUserId);
+
+	[LoggerMessage(Level = LogLevel.Warning, Message = "GDPR: could not read Keycloak email for {KeycloakUserId}; skipping confirmation email")]
+	private partial void LogConfirmationEmailUnavailable(string keycloakUserId);
+
+	[LoggerMessage(Level = LogLevel.Error, Message = "GDPR: failed to send deletion-confirmation email to {EmailAddress} — {Reason}; user data is already erased")]
+	private partial void LogConfirmationSendFailed(string emailAddress, string reason);
 }
