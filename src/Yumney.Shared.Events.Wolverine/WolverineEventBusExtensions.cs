@@ -1,13 +1,10 @@
 using System.Reflection;
 using JasperFx;
-using JasperFx.Resources;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
-using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using Wolverine;
 using Wolverine.EntityFrameworkCore;
