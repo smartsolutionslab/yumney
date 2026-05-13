@@ -38,6 +38,8 @@ public sealed class AspireFixture : IAsyncLifetime
 {
 	private static readonly TimeSpan StartupTimeout = TimeSpan.FromMinutes(8);
 
+	private static readonly string[] DefaultUserRealmRoles = ["user"];
+
 	// Hosts add JsonStringEnumConverter via ConfigureHttpJsonOptions, so enums
 	// (CapabilitySurface, ChatActionType, …) are serialised as strings on the
 	// wire. Default GetFromJsonAsync<T> options cannot read those strings back
@@ -353,7 +355,7 @@ public sealed class AspireFixture : IAsyncLifetime
 				emailVerified = true,
 				firstName = $"Test {email}",
 				credentials = new[] { new { type = "password", value = password, temporary = false } },
-				realmRoles = new[] { "user" },
+				realmRoles = DefaultUserRealmRoles,
 				requiredActions = Array.Empty<string>(),
 			}),
 		};
