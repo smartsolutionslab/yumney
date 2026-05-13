@@ -8,8 +8,8 @@ public sealed class RecipeBuilder
 	private readonly List<Ingredient> ingredients = [];
 	private readonly List<Step> steps = [];
 	private readonly List<RecipeTag> tags = [];
-	private RecipeTitle title = RecipeTitleBuilder.A();
-	private OwnerIdentifier owner = OwnerIdentifierBuilder.A();
+	private RecipeTitle title = RecipeTitle.From("Test Recipe");
+	private OwnerIdentifier owner = OwnerIdentifier.From("user-123");
 	private RecipeDescription? description;
 	private Servings? servings;
 	private TimingInfo? timing;
@@ -78,13 +78,13 @@ public sealed class RecipeBuilder
 
 	public RecipeBuilder WithDescription(string value)
 	{
-		description = RecipeDescriptionBuilder.A().With(value);
+		description = RecipeDescription.From(value);
 		return this;
 	}
 
 	public RecipeBuilder WithServings(int value)
 	{
-		servings = ServingsBuilder.A().With(value);
+		servings = Servings.From(value);
 		return this;
 	}
 
@@ -96,31 +96,31 @@ public sealed class RecipeBuilder
 
 	public RecipeBuilder WithDifficulty(string value)
 	{
-		difficulty = DifficultyBuilder.A().With(value);
+		difficulty = Difficulty.From(value);
 		return this;
 	}
 
 	public RecipeBuilder WithImageUrl(string url)
 	{
-		imageUrl = ImageUrlBuilder.A().With(url);
+		imageUrl = ImageUrl.From(url);
 		return this;
 	}
 
 	public RecipeBuilder WithLanguage(string code)
 	{
-		language = RecipeLanguageBuilder.A().With(code);
+		language = RecipeLanguage.From(code);
 		return this;
 	}
 
 	public RecipeBuilder WithSourceUrl(string url)
 	{
-		sourceUrl = RecipeUrlBuilder.A().With(url);
+		sourceUrl = RecipeUrl.From(url);
 		return this;
 	}
 
 	public RecipeBuilder WithTag(string value)
 	{
-		tags.Add(RecipeTagBuilder.A().With(value));
+		tags.Add(RecipeTag.From(value));
 		return this;
 	}
 
