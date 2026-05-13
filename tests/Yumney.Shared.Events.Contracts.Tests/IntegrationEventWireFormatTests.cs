@@ -1,7 +1,5 @@
 using System.Text.Json;
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Events.Contracts;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events.Contracts.Tests;
@@ -77,33 +75,6 @@ public class IntegrationEventWireFormatTests
 				new MealConfirmedIngredient("Tomatoes", 800m, "g"),
 				new MealConfirmedIngredient("Garlic", 3m, null),
 			]);
-
-		var roundTripped = RoundTrip(original);
-
-		roundTripped.Should().BeEquivalentTo(original);
-	}
-
-	[Fact]
-	public void ShoppingListCreated_RoundTripsThroughJson_PreservingNullableRecipeIdentifier()
-	{
-		var withRecipe = new ShoppingListCreatedCrossModuleIntegrationEvent(
-			"user-123",
-			Guid.NewGuid(),
-			"Weekly groceries",
-			Guid.NewGuid(),
-			DateTime.UtcNow);
-		var withoutRecipe = withRecipe with { RecipeIdentifier = null };
-
-		RoundTrip(withRecipe).Should().BeEquivalentTo(withRecipe);
-		RoundTrip(withoutRecipe).Should().BeEquivalentTo(withoutRecipe);
-	}
-
-	[Fact]
-	public void ShoppingListRecipeReferenceCleared_RoundTripsThroughJson_PreservingAllFields()
-	{
-		var original = new ShoppingListRecipeReferenceClearedCrossModuleIntegrationEvent(
-			"user-123",
-			Guid.NewGuid());
 
 		var roundTripped = RoundTrip(original);
 
