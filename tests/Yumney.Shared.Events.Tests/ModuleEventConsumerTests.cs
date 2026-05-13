@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using Xunit;
 
@@ -103,9 +102,7 @@ public class ModuleEventConsumerTests
 		}
 	}
 
-	private static ModuleEventConsumer<TestModuleEvent> CreateConsumer(
-		IModuleEventHandler<TestModuleEvent> handler,
-		IInboxStore inbox)
+	private static ModuleEventConsumer<TestModuleEvent> CreateConsumer(IModuleEventHandler<TestModuleEvent> handler, IInboxStore inbox)
 	{
 		var services = new ServiceCollection();
 		services.AddSingleton(handler);

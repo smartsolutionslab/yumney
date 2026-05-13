@@ -20,7 +20,9 @@ public static class ShoppingListMappingExtensions
 			summary.CreatedAt);
 
 	public static IReadOnlyList<ShoppingListSummaryDto> ToSummaryDtos(this IEnumerable<ShoppingListSummary> summaries) =>
-		summaries.Select(summary => summary.ToSummaryDto()).ToList();
+		summaries
+			.Select(summary => summary.ToSummaryDto())
+			.ToList();
 
 	public static ShoppingListItemDto ToDto(this ShoppingListItem item) =>
 		new(
@@ -32,5 +34,7 @@ public static class ShoppingListMappingExtensions
 			item.IsChecked);
 
 	public static IReadOnlyList<ShoppingListItemDto> ToDtos(this IEnumerable<ShoppingListItem> items) =>
-		items.Select(item => item.ToDto()).ToList();
+		items
+			.Select(item => item.ToDto())
+			.ToList();
 }

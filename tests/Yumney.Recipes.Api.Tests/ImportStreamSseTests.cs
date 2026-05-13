@@ -2,16 +2,13 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.Common;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
-using SmartSolutionsLab.Yumney.Shared.Paging;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests;

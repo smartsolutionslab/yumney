@@ -1,5 +1,3 @@
-using SmartSolutionsLab.Yumney.Shared.Events;
-
 namespace SmartSolutionsLab.Yumney.Shared.Events.Tests;
 
 /// <summary>

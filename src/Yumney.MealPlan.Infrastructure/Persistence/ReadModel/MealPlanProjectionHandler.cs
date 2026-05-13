@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
-using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.Events;
-using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStore.Events;
 using SmartSolutionsLab.Yumney.Shared.Events;
 

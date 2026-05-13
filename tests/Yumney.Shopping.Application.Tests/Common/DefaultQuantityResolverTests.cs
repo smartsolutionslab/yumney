@@ -1,6 +1,5 @@
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Shopping.Application.Common;
-using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Tests.Common;

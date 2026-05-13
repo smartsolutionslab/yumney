@@ -7,10 +7,8 @@ using Microsoft.Extensions.Logging;
 namespace SmartSolutionsLab.Yumney.Shared.Web;
 
 #pragma warning disable SA1601
-internal sealed partial class ModuleHttpClient(
-	HttpClient httpClient,
-	string upstreamName,
-	ILogger<ModuleHttpClient> logger) : IModuleHttpClient
+internal sealed partial class ModuleHttpClient(HttpClient httpClient, string upstreamName, ILogger<ModuleHttpClient> logger)
+	: IModuleHttpClient
 {
 #pragma warning disable SA1311
 	private static readonly JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web)
@@ -19,11 +17,7 @@ internal sealed partial class ModuleHttpClient(
 	};
 #pragma warning restore SA1311
 
-	public async Task<TResult> GetOrDefaultAsync<TResult>(
-		string url,
-		TResult fallback,
-		string operation,
-		CancellationToken cancellationToken = default)
+	public async Task<TResult> GetOrDefaultAsync<TResult>(string url, TResult fallback, string operation, CancellationToken cancellationToken = default)
 	{
 		try
 		{
@@ -37,10 +31,7 @@ internal sealed partial class ModuleHttpClient(
 		}
 	}
 
-	public async Task<TResult?> FindAsync<TResult>(
-		string url,
-		string operation,
-		CancellationToken cancellationToken = default)
+	public async Task<TResult?> FindAsync<TResult>(string url, string operation, CancellationToken cancellationToken = default)
 		where TResult : class
 	{
 		try
@@ -57,11 +48,7 @@ internal sealed partial class ModuleHttpClient(
 		}
 	}
 
-	public async Task PostAsync<TBody>(
-		string url,
-		TBody body,
-		string operation,
-		CancellationToken cancellationToken = default)
+	public async Task PostAsync<TBody>(string url, TBody body, string operation, CancellationToken cancellationToken = default)
 	{
 		try
 		{
@@ -75,11 +62,7 @@ internal sealed partial class ModuleHttpClient(
 		}
 	}
 
-	public async Task PutAsync<TBody>(
-		string url,
-		TBody body,
-		string operation,
-		CancellationToken cancellationToken = default)
+	public async Task PutAsync<TBody>(string url, TBody body, string operation, CancellationToken cancellationToken = default)
 	{
 		try
 		{
@@ -93,10 +76,7 @@ internal sealed partial class ModuleHttpClient(
 		}
 	}
 
-	public async Task DeleteAsync(
-		string url,
-		string operation,
-		CancellationToken cancellationToken = default)
+	public async Task DeleteAsync(string url, string operation, CancellationToken cancellationToken = default)
 	{
 		try
 		{
@@ -110,11 +90,7 @@ internal sealed partial class ModuleHttpClient(
 		}
 	}
 
-	public async Task DeleteAsync<TBody>(
-		string url,
-		TBody body,
-		string operation,
-		CancellationToken cancellationToken = default)
+	public async Task DeleteAsync<TBody>(string url, TBody body, string operation, CancellationToken cancellationToken = default)
 	{
 		try
 		{

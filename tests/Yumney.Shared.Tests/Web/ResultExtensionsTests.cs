@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Web;

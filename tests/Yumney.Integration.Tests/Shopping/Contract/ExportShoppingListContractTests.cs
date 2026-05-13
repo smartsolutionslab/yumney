@@ -1,8 +1,5 @@
-using System;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;

@@ -1,5 +1,3 @@
-using System;
-
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 /// <summary>

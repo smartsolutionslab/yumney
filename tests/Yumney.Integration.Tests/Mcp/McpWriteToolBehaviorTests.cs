@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
-using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Mcp;

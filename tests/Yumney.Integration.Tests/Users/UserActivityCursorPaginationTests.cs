@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Users.Domain.UserActivity;

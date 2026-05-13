@@ -48,7 +48,7 @@ public static class CapabilityManifestEndpoint
 		var meta = endpoint.Metadata.GetMetadata<CapabilityMetadata>();
 		if (meta is null) return null;
 
-		var methods = endpoint.Metadata.GetMetadata<Microsoft.AspNetCore.Routing.HttpMethodMetadata>()?.HttpMethods;
+		var methods = endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods;
 		var httpMethod = methods is { Count: > 0 } ? methods[0] : "GET";
 		var routePattern = endpoint.RoutePattern.RawText ?? string.Empty;
 

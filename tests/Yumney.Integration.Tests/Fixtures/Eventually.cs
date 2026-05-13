@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 
 /// <summary>

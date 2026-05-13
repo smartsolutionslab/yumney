@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
 using Xunit;
 

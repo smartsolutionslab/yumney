@@ -11,7 +11,6 @@ public sealed class ChangeItemCategoryCommandHandler(IShoppingListEventStore eve
 	public async Task<Result> HandleAsync(ChangeItemCategoryCommand command, CancellationToken cancellationToken = default)
 	{
 		var (listIdentifier, itemId, category) = command;
-
 		var shoppingList = await eventStore.LoadAsync(listIdentifier, cancellationToken);
 
 		if (shoppingList.Owner != currentUser.AsOwner()) return Result.Failure(CheckOffItemErrors.AccessDenied);

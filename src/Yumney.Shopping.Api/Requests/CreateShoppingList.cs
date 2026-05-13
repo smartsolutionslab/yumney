@@ -17,5 +17,5 @@ public sealed record CreateShoppingList(
 				Amount.FromNullable(item.Amount),
 				Unit.FromNullable(item.Unit))))
 			.ToList(),
-		Domain.ShoppingList.RecipeReference.FromNullable(RecipeIdentifier));
+		RecipeReference.FromNullable(RecipeIdentifier));
 }

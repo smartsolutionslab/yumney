@@ -3,7 +3,6 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Common;
-using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;

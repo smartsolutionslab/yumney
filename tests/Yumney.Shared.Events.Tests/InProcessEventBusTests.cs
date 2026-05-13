@@ -2,7 +2,6 @@ using System.Diagnostics.Metrics;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using SmartSolutionsLab.Yumney.Shared.Events;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events.Tests;

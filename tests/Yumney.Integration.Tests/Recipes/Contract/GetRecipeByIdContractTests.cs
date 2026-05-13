@@ -4,7 +4,6 @@ using System.Text.Json;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
-using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes.Contract;

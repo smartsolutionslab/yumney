@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
-using SmartSolutionsLab.Yumney.Shared.Web.Middleware;
 
 namespace SmartSolutionsLab.Yumney.Shared.Web;
 

@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using SmartSolutionsLab.Yumney.Shared.Events;
 using Wolverine;
 
 namespace SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
