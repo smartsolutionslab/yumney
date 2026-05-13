@@ -10,6 +10,8 @@ public sealed class WeeklyPlanBuilder
 	private SlotServings? defaultServings;
 	private bool extendedMode;
 
+	public static WeeklyPlanBuilder A() => new();
+
 	public WeeklyPlanBuilder OwnedBy(string ownerId) => OwnedBy(OwnerIdentifier.From(ownerId));
 
 	public WeeklyPlanBuilder OwnedBy(OwnerIdentifier value)
@@ -33,6 +35,12 @@ public sealed class WeeklyPlanBuilder
 	public WeeklyPlanBuilder WithDefaultServings(int value)
 	{
 		defaultServings = SlotServings.From(value);
+		return this;
+	}
+
+	public WeeklyPlanBuilder WithDefaultServings(SlotServings value)
+	{
+		defaultServings = value;
 		return this;
 	}
 
