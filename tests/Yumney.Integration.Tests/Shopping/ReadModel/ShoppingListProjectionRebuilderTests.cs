@@ -8,6 +8,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
+using SmartSolutionsLab.Yumney.TestBuilders.Shopping;
 using Wolverine.EntityFrameworkCore;
 using Xunit;
 
@@ -99,9 +100,9 @@ public class ShoppingListProjectionRebuilderTests(AspireFixture fixture) : IAsyn
 		var store = new ShoppingListEventStore(ctx, bus, Substitute.For<IDbContextOutbox<ShoppingDbContext>>(), NullLogger<ShoppingListEventStore>.Instance);
 
 		var items = itemNames
-			.Select(name => ShoppingListItem.Create(ItemName.From(name), Quantity.Of(Amount.From(1), Unit.Gram)))
+			.Select(name => ShoppingListItemBuilder.A().Named(name).WithQuantity(1, Unit.Gram).Build())
 			.ToList();
-		var list = ShoppingList.Create(ShoppingListTitle.From(title), owner, items);
+		var list = ShoppingListBuilder.A().WithTitle(title).OwnedBy(owner).WithItems(items).Build();
 		await store.SaveAsync(list);
 		return list.Identifier;
 	}

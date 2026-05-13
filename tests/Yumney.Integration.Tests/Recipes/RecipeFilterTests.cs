@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Paging;
+using SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes;
@@ -193,22 +190,16 @@ public class RecipeFilterTests(AspireFixture fixture) : IAsyncLifetime
 		int? prepMinutes,
 		int? cookMinutes)
 	{
-		var ingredients = new[]
-		{
-			Ingredient.Create(IngredientName.From("Test Ingredient"), Quantity.FromNullable(null, null)),
-		};
-		var steps = new[]
-		{
-			Step.Create(StepNumber.From(1), StepDescription.From("Test step")),
-		};
+		var builder = RecipeBuilder.A().WithTitle(title).OwnedBy(owner);
 
-		return Recipe.Create(
-			RecipeTitle.From(title),
-			owner,
-			ingredients,
-			steps,
-			timing: TimingInfo.FromNullable(PreparationTime.FromNullable(prepMinutes), CookingTime.FromNullable(cookMinutes)),
-			difficulty: Difficulty.FromNullable(difficulty),
-			tags: tags?.Select(RecipeTag.From).ToList());
+		if (prepMinutes.HasValue || cookMinutes.HasValue)
+		{
+			builder.WithTiming(prepMinutes ?? 0, cookMinutes ?? 0);
+		}
+
+		if (difficulty is not null) builder.WithDifficulty(difficulty);
+		if (tags is not null) builder.WithTags([.. tags.Select(RecipeTag.From)]);
+
+		return builder.Build();
 	}
 }
