@@ -2,6 +2,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Events;
+using SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Builders;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using Xunit;
 
@@ -12,7 +13,7 @@ public class RecipeTests
 	[Fact]
 	public void Create_ValidInput_CreatesRecipeWithId()
 	{
-		var recipe = CreateValidRecipe();
+		var recipe = RecipeBuilder.A().Build();
 
 		recipe.Id.Should().NotBeNull();
 	}
@@ -20,31 +21,25 @@ public class RecipeTests
 	[Fact]
 	public void Create_ValidInput_SetsTitle()
 	{
-		var title = RecipeTitle.From("Pasta Carbonara");
+		var recipe = RecipeBuilder.A().WithTitle("Pasta Carbonara").Build();
 
-		var recipe = CreateValidRecipe(title: title);
-
-		recipe.Title.Should().Be(title);
+		recipe.Title.Should().Be(RecipeTitle.From("Pasta Carbonara"));
 	}
 
 	[Fact]
 	public void Create_WithSourceUrl_SetsSourceUrl()
 	{
-		var sourceUrl = RecipeUrl.From("https://example.com/recipe");
+		var recipe = RecipeBuilder.A().WithSourceUrl("https://example.com/recipe").Build();
 
-		var recipe = CreateValidRecipe(sourceUrl: sourceUrl);
-
-		recipe.SourceUrl.Should().Be(sourceUrl);
+		recipe.SourceUrl.Should().Be(RecipeUrl.From("https://example.com/recipe"));
 	}
 
 	[Fact]
 	public void Create_ValidInput_SetsOwner()
 	{
-		var owner = OwnerIdentifier.From("user-123");
+		var recipe = RecipeBuilder.A().OwnedBy("user-123").Build();
 
-		var recipe = CreateValidRecipe(owner: owner);
-
-		recipe.Owner.Should().Be(owner);
+		recipe.Owner.Should().Be(OwnerIdentifier.From("user-123"));
 	}
 
 	[Fact]

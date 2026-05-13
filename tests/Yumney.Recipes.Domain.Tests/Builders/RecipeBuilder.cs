@@ -8,8 +8,8 @@ public sealed class RecipeBuilder
 	private readonly List<Ingredient> ingredients = [];
 	private readonly List<Step> steps = [];
 	private readonly List<RecipeTag> tags = [];
-	private RecipeTitle title = RecipeTitle.From("Test Recipe");
-	private OwnerIdentifier owner = OwnerIdentifier.From("user-123");
+	private RecipeTitle title = RecipeTitleBuilder.A();
+	private OwnerIdentifier owner = OwnerIdentifierBuilder.A();
 	private RecipeDescription? description;
 	private Servings? servings;
 	private TimingInfo? timing;
@@ -17,6 +17,8 @@ public sealed class RecipeBuilder
 	private ImageUrl? imageUrl;
 	private RecipeLanguage? language;
 	private RecipeUrl? sourceUrl;
+
+	public static RecipeBuilder A() => new();
 
 	public RecipeBuilder WithTitle(string value) => WithTitle(RecipeTitle.From(value));
 
@@ -61,49 +63,49 @@ public sealed class RecipeBuilder
 
 	public RecipeBuilder WithDescription(string value)
 	{
-		description = RecipeDescription.From(value);
+		description = RecipeDescriptionBuilder.A().With(value);
 		return this;
 	}
 
 	public RecipeBuilder WithServings(int value)
 	{
-		servings = Servings.From(value);
+		servings = ServingsBuilder.A().With(value);
 		return this;
 	}
 
 	public RecipeBuilder WithTiming(int prepMinutes, int cookMinutes)
 	{
-		timing = TimingInfo.Of(PreparationTime.From(prepMinutes), CookingTime.From(cookMinutes));
+		timing = TimingInfoBuilder.A().WithPreparationMinutes(prepMinutes).WithCookingMinutes(cookMinutes);
 		return this;
 	}
 
 	public RecipeBuilder WithDifficulty(string value)
 	{
-		difficulty = Difficulty.From(value);
+		difficulty = DifficultyBuilder.A().With(value);
 		return this;
 	}
 
 	public RecipeBuilder WithImageUrl(string url)
 	{
-		imageUrl = ImageUrl.From(url);
+		imageUrl = ImageUrlBuilder.A().With(url);
 		return this;
 	}
 
 	public RecipeBuilder WithLanguage(string code)
 	{
-		language = RecipeLanguage.From(code);
+		language = RecipeLanguageBuilder.A().With(code);
 		return this;
 	}
 
 	public RecipeBuilder WithSourceUrl(string url)
 	{
-		sourceUrl = RecipeUrl.From(url);
+		sourceUrl = RecipeUrlBuilder.A().With(url);
 		return this;
 	}
 
 	public RecipeBuilder WithTag(string value)
 	{
-		tags.Add(RecipeTag.From(value));
+		tags.Add(RecipeTagBuilder.A().With(value));
 		return this;
 	}
 
@@ -111,12 +113,12 @@ public sealed class RecipeBuilder
 	{
 		if (ingredients.Count == 0)
 		{
-			ingredients.Add(Ingredient.Create(IngredientName.From("Flour"), null));
+			ingredients.Add(Ingredient.Create(IngredientNameBuilder.A(), null));
 		}
 
 		if (steps.Count == 0)
 		{
-			steps.Add(Step.Create(StepNumber.From(1), StepDescription.From("Mix")));
+			steps.Add(Step.Create(StepNumber.From(1), StepDescriptionBuilder.A()));
 		}
 
 		return RecipeAggregate.Create(
