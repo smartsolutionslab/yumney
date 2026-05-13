@@ -372,6 +372,23 @@ public sealed class AspireFixture : IAsyncLifetime
 		var location = response.Headers.Location?.ToString()
 			?? throw new InvalidOperationException("Keycloak did not return a Location header for the created user");
 		var keycloakUserId = location.Split('/').Last();
+
+		// The realm applies default required actions (Update Password, …) at
+		// user-creation time and ignores requiredActions in the create payload.
+		// PUT after-the-fact to clear them, otherwise password-grant fails with
+		// "Account is not fully set up".
+		using var clearActions = new HttpRequestMessage(HttpMethod.Put, $"/admin/realms/yumney/users/{keycloakUserId}")
+		{
+			Content = JsonContent.Create(new { requiredActions = Array.Empty<string>() }),
+		};
+		clearActions.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+		var clearResponse = await keycloak.SendAsync(clearActions);
+		if (!clearResponse.IsSuccessStatusCode)
+		{
+			var body = await clearResponse.Content.ReadAsStringAsync();
+			throw new InvalidOperationException($"Failed to clear required actions on Keycloak user {keycloakUserId}: {clearResponse.StatusCode} {body}");
+		}
+
 		return (keycloakUserId, email, password);
 	}
 
