@@ -5,6 +5,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Paging;
+using SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes;
@@ -196,8 +197,8 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 			var loaded = await recipes.GetByIdForUpdateAsync(recipe.Id);
 			loaded.Update(
 				updatedTitle,
-				[Ingredient.Create(ingredientName, Quantity.Of(Amount.From(800), Unit.Gram))],
-				[Step.Create(StepNumber.From(1), StepDescription.From("Roast cherry tomatoes"))],
+				[IngredientBuilder.A().Named(ingredientName).WithQuantity(800, Unit.Gram)],
+				[StepBuilder.A().Numbered(1).WithDescription("Roast cherry tomatoes")],
 				updatedDescription,
 				updatedServings);
 			await updateContext.SaveChangesAsync();
@@ -241,12 +242,11 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 	public async Task ExistsBySourceUrlAsync_ExistingUrl_ReturnsTrue()
 	{
 		var sourceUrl = RecipeUrl.From("https://example.com/lasagne-test");
-		var recipe = Recipe.Create(
-			RecipeTitle.From("URL Test Recipe"),
-			owner,
-			[Ingredient.Create(IngredientName.From("Test"), null)],
-			[Step.Create(StepNumber.From(1), StepDescription.From("Test"))],
-			sourceUrl: sourceUrl);
+		var recipe = RecipeBuilder.A()
+			.WithTitle("URL Test Recipe")
+			.OwnedBy(owner)
+			.WithSourceUrl(sourceUrl)
+			.Build();
 		await fixture.SeedRecipesAsync(recipe);
 
 		await using var readContext = await fixture.CreateRecipesDbContextAsync();
@@ -260,12 +260,11 @@ public class RecipePersistenceTests(AspireFixture fixture) : IAsyncLifetime
 	public async Task ExistsBySourceUrlAsync_DifferentOwner_ReturnsFalse()
 	{
 		var sourceUrl = RecipeUrl.From("https://example.com/owner-test");
-		var recipe = Recipe.Create(
-			RecipeTitle.From("Owner Test Recipe"),
-			owner,
-			[Ingredient.Create(IngredientName.From("Test"), null)],
-			[Step.Create(StepNumber.From(1), StepDescription.From("Test"))],
-			sourceUrl: sourceUrl);
+		var recipe = RecipeBuilder.A()
+			.WithTitle("Owner Test Recipe")
+			.OwnedBy(owner)
+			.WithSourceUrl(sourceUrl)
+			.Build();
 		await fixture.SeedRecipesAsync(recipe);
 
 		await using var readContext = await fixture.CreateRecipesDbContextAsync();

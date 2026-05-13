@@ -9,6 +9,7 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore;
+using SmartSolutionsLab.Yumney.TestBuilders.Shopping;
 using Wolverine.EntityFrameworkCore;
 using Xunit;
 
@@ -153,12 +154,10 @@ public class ShoppingListEventStoreTests(AspireFixture fixture) : IAsyncLifetime
 			Substitute.For<IDbContextOutbox<ShoppingDbContext>>(),
 			NullLogger<ShoppingListEventStore>.Instance);
 
-	private ShoppingList CreateList()
-	{
-		var item = ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram));
-		return ShoppingList.Create(
-			ShoppingListTitle.From("Weekly Groceries"),
-			owner,
-			[item]);
-	}
+	private ShoppingList CreateList() =>
+		ShoppingListBuilder.A()
+			.WithTitle("Weekly Groceries")
+			.OwnedBy(owner)
+			.WithItems([ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram)])
+			.Build();
 }
