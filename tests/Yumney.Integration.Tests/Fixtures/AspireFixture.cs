@@ -315,7 +315,12 @@ public sealed class AspireFixture : IAsyncLifetime
 		};
 		var tokenResponse = await keycloakClient.PostAsync("/realms/yumney/protocol/openid-connect/token", new FormUrlEncodedContent(valueCollection));
 
-		tokenResponse.EnsureSuccessStatusCode();
+		if (!tokenResponse.IsSuccessStatusCode)
+		{
+			var body = await tokenResponse.Content.ReadAsStringAsync();
+			throw new InvalidOperationException($"Keycloak password grant failed for '{username}': {tokenResponse.StatusCode} {body}");
+		}
+
 		var tokenJson = await tokenResponse.Content.ReadFromJsonAsync<JsonElement>();
 
 		return tokenJson.GetProperty("access_token").GetString()!;
@@ -348,12 +353,18 @@ public sealed class AspireFixture : IAsyncLifetime
 				emailVerified = true,
 				firstName = $"Test {email}",
 				credentials = new[] { new { type = "password", value = password, temporary = false } },
+				realmRoles = new[] { "user" },
+				requiredActions = Array.Empty<string>(),
 			}),
 		};
 		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
 
 		var response = await keycloak.SendAsync(request);
-		response.EnsureSuccessStatusCode();
+		if (!response.IsSuccessStatusCode)
+		{
+			var body = await response.Content.ReadAsStringAsync();
+			throw new InvalidOperationException($"Keycloak admin user creation failed: {response.StatusCode} {body}");
+		}
 
 		// Location header is /admin/realms/yumney/users/{guid}
 		var location = response.Headers.Location?.ToString()
