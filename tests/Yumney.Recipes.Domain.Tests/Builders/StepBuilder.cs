@@ -9,7 +9,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Builders;
 public sealed class StepBuilder
 {
 	private int number = 1;
-	private StepDescription description = StepDescriptionBuilder.A();
+	private StepDescription description = StepDescription.From("Mix ingredients");
 
 	public static StepBuilder A() => new();
 
@@ -21,7 +21,7 @@ public sealed class StepBuilder
 
 	public StepBuilder WithDescription(string value)
 	{
-		description = StepDescriptionBuilder.A().With(value);
+		description = StepDescription.From(value);
 		return this;
 	}
 

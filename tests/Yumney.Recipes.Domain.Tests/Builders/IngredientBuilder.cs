@@ -9,14 +9,14 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Builders;
 /// </summary>
 public sealed class IngredientBuilder
 {
-	private IngredientName name = IngredientNameBuilder.A();
+	private IngredientName name = IngredientName.From("Flour");
 	private Quantity? quantity;
 
 	public static IngredientBuilder A() => new();
 
 	public IngredientBuilder Named(string value)
 	{
-		name = IngredientNameBuilder.A().With(value);
+		name = IngredientName.From(value);
 		return this;
 	}
 

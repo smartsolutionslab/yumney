@@ -145,8 +145,8 @@ public class RecipeTests
 		// Cannot use the builder here — its Build() defaults to a non-empty
 		// ingredients list specifically to keep the happy path concise.
 		var act = () => Domain.Recipe.Recipe.Create(
-			RecipeTitleBuilder.A(),
-			OwnerIdentifierBuilder.A(),
+			RecipeTitle.From("Test Recipe"),
+			OwnerIdentifier.From("user-123"),
 			ingredients: [],
 			steps: [StepBuilder.A()],
 			description: null,
@@ -162,8 +162,8 @@ public class RecipeTests
 	public void Create_EmptySteps_ThrowsGuardException()
 	{
 		var act = () => Domain.Recipe.Recipe.Create(
-			RecipeTitleBuilder.A(),
-			OwnerIdentifierBuilder.A(),
+			RecipeTitle.From("Test Recipe"),
+			OwnerIdentifier.From("user-123"),
 			ingredients: [IngredientBuilder.A()],
 			steps: [],
 			description: null,
@@ -254,7 +254,7 @@ public class RecipeTests
 
 		var butterName = IngredientName.From("Butter");
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A().Named(butterName).WithQuantity(100, Unit.Gram)],
 			[StepBuilder.A().WithDescription("Mix")]);
 
@@ -274,7 +274,7 @@ public class RecipeTests
 
 		var newDescription = StepDescription.From("New only step");
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A()],
 			[StepBuilder.A().Numbered(1).WithDescription(newDescription)]);
 
@@ -303,7 +303,7 @@ public class RecipeTests
 		recipe.ClearDomainEvents();
 
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A()],
 			[StepBuilder.A()]);
 
@@ -319,7 +319,7 @@ public class RecipeTests
 		var recipe = RecipeBuilder.A().Build();
 
 		var act = () => recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[],
 			[StepBuilder.A()]);
 
@@ -332,7 +332,7 @@ public class RecipeTests
 		var recipe = RecipeBuilder.A().Build();
 
 		var act = () => recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A()],
 			[]);
 
@@ -346,7 +346,7 @@ public class RecipeTests
 		var recipe = RecipeBuilder.A().OwnedBy(owner).Build();
 
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A()],
 			[StepBuilder.A()]);
 
@@ -360,7 +360,7 @@ public class RecipeTests
 		var recipe = RecipeBuilder.A().WithSourceUrl(sourceUrl).Build();
 
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A()],
 			[StepBuilder.A()]);
 
@@ -374,7 +374,7 @@ public class RecipeTests
 		var originalCreatedAt = recipe.CreatedAt;
 
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A()],
 			[StepBuilder.A()]);
 
@@ -393,7 +393,7 @@ public class RecipeTests
 			.Build();
 
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A()],
 			[StepBuilder.A()]);
 
@@ -488,7 +488,7 @@ public class RecipeTests
 
 		var newTag = RecipeTag.From("new-tag");
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A()],
 			[StepBuilder.A()],
 			tags: [newTag]);
@@ -502,7 +502,7 @@ public class RecipeTests
 		var recipe = RecipeBuilder.A().WithTag("old-tag").Build();
 
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated"),
+			RecipeTitle.From("Updated"),
 			[IngredientBuilder.A()],
 			[StepBuilder.A()]);
 
@@ -517,14 +517,14 @@ public class RecipeTests
 			.Build();
 
 		recipe.Update(
-			RecipeTitleBuilder.A().With("Updated Recipe"),
+			RecipeTitle.From("Updated Recipe"),
 			[IngredientBuilder.A().Named("Butter").WithQuantity(100, Unit.Gram)],
 			[StepBuilder.A().Numbered(1).WithDescription("Melt butter")],
-			RecipeDescriptionBuilder.A().With("Updated description"),
-			ServingsBuilder.A().With(6),
+			RecipeDescription.From("Updated description"),
+			Servings.From(6),
 			TimingInfoBuilder.A().WithPreparationMinutes(15).WithCookingMinutes(30),
-			DifficultyBuilder.A().With("hard"),
-			ImageUrlBuilder.A().With("https://example.com/new.jpg"));
+			Difficulty.From("hard"),
+			ImageUrl.From("https://example.com/new.jpg"));
 
 		return recipe;
 	}
