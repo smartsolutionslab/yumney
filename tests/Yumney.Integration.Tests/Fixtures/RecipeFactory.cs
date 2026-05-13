@@ -1,6 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 
@@ -17,28 +16,32 @@ public static class RecipeFactory
 		IReadOnlyList<string>? steps = null,
 		IReadOnlyList<string>? tags = null)
 	{
-		var recipeIngredients = (ingredients ?? [("Default Ingredient", null, null)])
-			.Select(spec => Ingredient.Create(
-				IngredientName.From(spec.Name),
-				Quantity.FromNullable(
-					Amount.FromNullable(spec.Amount),
-					Unit.FromNullable(spec.Unit))))
-			.ToList();
+		var builder = RecipeBuilder.A().WithTitle(title).OwnedBy(owner ?? DefaultOwner);
+		if (description is not null) builder.WithDescription(description);
+		if (servings is not null) builder.WithServings(servings.Value);
 
-		var recipeSteps = (steps ?? ["Default step"])
-			.Select((s, i) => Step.Create(StepNumber.From(i + 1), StepDescription.From(s)))
-			.ToList();
+		if (ingredients is not null)
+		{
+			builder.WithIngredients([.. ingredients.Select(spec =>
+			{
+				var ingredient = IngredientBuilder.A().Named(spec.Name);
+				if (spec.Amount.HasValue) ingredient.WithQuantity(spec.Amount.Value, Unit.FromNullable(spec.Unit));
+				return ingredient.Build();
+			})]);
+		}
 
-		var recipeTags = tags?.Select(RecipeTag.From).ToList();
+		if (steps is not null)
+		{
+			builder.WithSteps([.. steps.Select((s, i) =>
+				StepBuilder.A().Numbered(i + 1).WithDescription(s).Build())]);
+		}
 
-		return Recipe.Create(
-			RecipeTitle.From(title),
-			OwnerIdentifier.From(owner ?? DefaultOwner),
-			recipeIngredients,
-			recipeSteps,
-			RecipeDescription.FromNullable(description),
-			Servings.FromNullable(servings),
-			tags: recipeTags);
+		if (tags is not null)
+		{
+			foreach (var tag in tags) builder.WithTag(tag);
+		}
+
+		return builder.Build();
 	}
 
 	public static Recipe Lasagne(string? owner = null) => Create(

@@ -1,6 +1,7 @@
 using NSubstitute;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.TestBuilders.MealPlan;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Tests;
 
@@ -9,7 +10,7 @@ internal static class MealPlanTestFixture
 	public static readonly OwnerIdentifier TestOwner = OwnerIdentifier.From("user-123");
 	public static readonly WeekIdentifier TestWeek = WeekIdentifier.From(2026, 15);
 
-	public static WeeklyPlan CreatePlan() => WeeklyPlan.Create(TestOwner, TestWeek);
+	public static WeeklyPlan CreatePlan() => WeeklyPlanBuilder.A().OwnedBy(TestOwner).ForWeek(TestWeek).Build();
 
 	public static SlotRecipeReference Recipe(string title = "Pasta") =>
 		SlotRecipeReference.From(SlotRecipeIdentifier.New(), SlotRecipeTitle.From(title));
