@@ -3,6 +3,7 @@ using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.Events;
+using SmartSolutionsLab.Yumney.Shopping.Domain.Tests.Builders;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shopping.Domain.Tests.ShoppingList;
@@ -12,7 +13,7 @@ public class ShoppingListTests
 	[Fact]
 	public void Create_ValidInput_CreatesShoppingListWithIdentifier()
 	{
-		var shoppingList = CreateValidShoppingList();
+		var shoppingList = ShoppingListBuilder.A().Build();
 
 		shoppingList.Identifier.Should().NotBeNull();
 	}
@@ -20,21 +21,17 @@ public class ShoppingListTests
 	[Fact]
 	public void Create_ValidInput_SetsTitle()
 	{
-		var title = ShoppingListTitle.From("Weekly Groceries");
+		var shoppingList = ShoppingListBuilder.A().WithTitle("Weekly Groceries").Build();
 
-		var shoppingList = CreateValidShoppingList(title: title);
-
-		shoppingList.Title.Should().Be(title);
+		shoppingList.Title.Should().Be(ShoppingListTitle.From("Weekly Groceries"));
 	}
 
 	[Fact]
 	public void Create_ValidInput_SetsOwner()
 	{
-		var owner = OwnerIdentifier.From("user-123");
+		var shoppingList = ShoppingListBuilder.A().OwnedBy("user-123").Build();
 
-		var shoppingList = CreateValidShoppingList(owner: owner);
-
-		shoppingList.Owner.Should().Be(owner);
+		shoppingList.Owner.Should().Be(OwnerIdentifier.From("user-123"));
 	}
 
 	[Fact]
@@ -42,7 +39,7 @@ public class ShoppingListTests
 	{
 		var before = DateTime.UtcNow;
 
-		var shoppingList = CreateValidShoppingList();
+		var shoppingList = ShoppingListBuilder.A().Build();
 
 		shoppingList.CreatedAt.Should().BeCloseTo(before, TimeSpan.FromSeconds(5));
 	}
@@ -50,13 +47,12 @@ public class ShoppingListTests
 	[Fact]
 	public void Create_ValidInput_SetsItems()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-			ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram))
-		];
-
-		var shoppingList = CreateValidShoppingList(items: items);
+		var shoppingList = ShoppingListBuilder.A()
+			.WithItems([
+				ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram),
+				ShoppingListItemBuilder.A().Named("Sugar").WithQuantity(200, Unit.Gram),
+			])
+			.Build();
 
 		shoppingList.Items.Should().HaveCount(2);
 	}
@@ -65,8 +61,7 @@ public class ShoppingListTests
 	public void Create_WithRecipeReference_SetsRecipeReference()
 	{
 		var recipeReference = RecipeReference.New();
-
-		var shoppingList = CreateValidShoppingList(recipeReference: recipeReference);
+		var shoppingList = ShoppingListBuilder.A().FromRecipe(recipeReference.Value).Build();
 
 		shoppingList.RecipeReference.Should().Be(recipeReference);
 	}
@@ -74,7 +69,7 @@ public class ShoppingListTests
 	[Fact]
 	public void Create_WithoutRecipeReference_RecipeReferenceIsNull()
 	{
-		var shoppingList = CreateValidShoppingList();
+		var shoppingList = ShoppingListBuilder.A().Build();
 
 		shoppingList.RecipeReference.Should().BeNull();
 	}
@@ -82,7 +77,12 @@ public class ShoppingListTests
 	[Fact]
 	public void Create_EmptyItems_ThrowsGuardException()
 	{
-		var act = () => CreateValidShoppingList(items: []);
+		// Cannot use the builder — Build() seeds a default item to keep happy
+		// paths concise. Construct directly to test the guard.
+		var act = () => Domain.ShoppingList.ShoppingList.Create(
+			ShoppingListTitle.From("Test Shopping List"),
+			OwnerIdentifier.From("user-123"),
+			items: []);
 
 		act.Should().Throw<GuardException>();
 	}
@@ -90,18 +90,16 @@ public class ShoppingListTests
 	[Fact]
 	public void Create_RaisesShoppingListCreatedEvent()
 	{
-		var title = ShoppingListTitle.From("Groceries");
-
-		var shoppingList = CreateValidShoppingList(title: title);
+		var shoppingList = ShoppingListBuilder.A().WithTitle("Groceries").Build();
 
 		shoppingList.UncommittedEvents.OfType<ShoppingListCreated>().Should().ContainSingle()
-			.Which.Title.Should().Be(title);
+			.Which.Title.Should().Be(ShoppingListTitle.From("Groceries"));
 	}
 
 	[Fact]
 	public void Create_ShoppingListCreatedEvent_ContainsShoppingListIdentifier()
 	{
-		var shoppingList = CreateValidShoppingList();
+		var shoppingList = ShoppingListBuilder.A().Build();
 
 		var domainEvent = shoppingList.UncommittedEvents.OfType<ShoppingListCreated>().Should().ContainSingle().Subject;
 
@@ -111,13 +109,12 @@ public class ShoppingListTests
 	[Fact]
 	public void Create_RaisesListItemAddedEventPerItem()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-			ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram))
-		];
-
-		var shoppingList = CreateValidShoppingList(items: items);
+		var shoppingList = ShoppingListBuilder.A()
+			.WithItems([
+				ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram),
+				ShoppingListItemBuilder.A().Named("Sugar").WithQuantity(200, Unit.Gram),
+			])
+			.Build();
 
 		shoppingList.UncommittedEvents.OfType<ListItemAdded>().Should().HaveCount(2);
 	}
@@ -125,8 +122,8 @@ public class ShoppingListTests
 	[Fact]
 	public void Create_GeneratesUniqueIdentifiers()
 	{
-		var list1 = CreateValidShoppingList();
-		var list2 = CreateValidShoppingList();
+		var list1 = ShoppingListBuilder.A().Build();
+		var list2 = ShoppingListBuilder.A().Build();
 
 		list1.Identifier.Should().NotBe(list2.Identifier);
 	}
@@ -134,13 +131,10 @@ public class ShoppingListTests
 	[Fact]
 	public void CheckOffItem_ChecksTheItem()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))
-		];
-		var shoppingList = CreateValidShoppingList(items: items);
+		var item = ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram).Build();
+		var shoppingList = ShoppingListBuilder.A().WithItems([item]).Build();
 
-		shoppingList.CheckOffItem(items[0].Id);
+		shoppingList.CheckOffItem(item.Id);
 
 		shoppingList.Items[0].IsChecked.Should().BeTrue();
 	}
@@ -148,29 +142,23 @@ public class ShoppingListTests
 	[Fact]
 	public void CheckOffItem_RaisesListItemCheckedEvent()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))
-		];
-		var shoppingList = CreateValidShoppingList(items: items);
+		var item = ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram).Build();
+		var shoppingList = ShoppingListBuilder.A().WithItems([item]).Build();
 
-		shoppingList.CheckOffItem(items[0].Id);
+		shoppingList.CheckOffItem(item.Id);
 
 		shoppingList.UncommittedEvents.OfType<ListItemChecked>().Should().ContainSingle()
-			.Which.ItemId.Should().Be(items[0].Id);
+			.Which.ItemId.Should().Be(item.Id);
 	}
 
 	[Fact]
 	public void UncheckItem_UnchecksTheItem()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))
-		];
-		var shoppingList = CreateValidShoppingList(items: items);
-		shoppingList.CheckOffItem(items[0].Id);
+		var item = ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram).Build();
+		var shoppingList = ShoppingListBuilder.A().WithItems([item]).Build();
+		shoppingList.CheckOffItem(item.Id);
 
-		shoppingList.UncheckItem(items[0].Id);
+		shoppingList.UncheckItem(item.Id);
 
 		shoppingList.Items[0].IsChecked.Should().BeFalse();
 	}
@@ -178,27 +166,24 @@ public class ShoppingListTests
 	[Fact]
 	public void UncheckItem_RaisesListItemUncheckedEvent()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))
-		];
-		var shoppingList = CreateValidShoppingList(items: items);
+		var item = ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram).Build();
+		var shoppingList = ShoppingListBuilder.A().WithItems([item]).Build();
 
-		shoppingList.UncheckItem(items[0].Id);
+		shoppingList.UncheckItem(item.Id);
 
 		shoppingList.UncommittedEvents.OfType<ListItemUnchecked>().Should().ContainSingle()
-			.Which.ItemId.Should().Be(items[0].Id);
+			.Which.ItemId.Should().Be(item.Id);
 	}
 
 	[Fact]
 	public void CheckAllItems_ChecksAllItems()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-			ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram))
-		];
-		var shoppingList = CreateValidShoppingList(items: items);
+		var shoppingList = ShoppingListBuilder.A()
+			.WithItems([
+				ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram),
+				ShoppingListItemBuilder.A().Named("Sugar").WithQuantity(200, Unit.Gram),
+			])
+			.Build();
 
 		shoppingList.CheckAllItems();
 
@@ -208,7 +193,7 @@ public class ShoppingListTests
 	[Fact]
 	public void CheckAllItems_RaisesAllItemsCheckedEvent()
 	{
-		var shoppingList = CreateValidShoppingList();
+		var shoppingList = ShoppingListBuilder.A().Build();
 
 		shoppingList.CheckAllItems();
 
@@ -218,12 +203,12 @@ public class ShoppingListTests
 	[Fact]
 	public void UncheckAllItems_UnchecksAllItems()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-			ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram))
-		];
-		var shoppingList = CreateValidShoppingList(items: items);
+		var shoppingList = ShoppingListBuilder.A()
+			.WithItems([
+				ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram),
+				ShoppingListItemBuilder.A().Named("Sugar").WithQuantity(200, Unit.Gram),
+			])
+			.Build();
 		shoppingList.CheckAllItems();
 
 		shoppingList.UncheckAllItems();
@@ -234,7 +219,7 @@ public class ShoppingListTests
 	[Fact]
 	public void UncheckAllItems_RaisesAllItemsUncheckedEvent()
 	{
-		var shoppingList = CreateValidShoppingList();
+		var shoppingList = ShoppingListBuilder.A().Build();
 
 		shoppingList.UncheckAllItems();
 
@@ -244,7 +229,7 @@ public class ShoppingListTests
 	[Fact]
 	public void ClearRecipeReference_ClearsTheReference()
 	{
-		var shoppingList = CreateValidShoppingList(recipeReference: RecipeReference.New());
+		var shoppingList = ShoppingListBuilder.A().FromRecipe(Guid.NewGuid()).Build();
 
 		shoppingList.ClearRecipeReference();
 
@@ -254,7 +239,7 @@ public class ShoppingListTests
 	[Fact]
 	public void ClearRecipeReference_RaisesRecipeReferenceClearedEvent()
 	{
-		var shoppingList = CreateValidShoppingList(recipeReference: RecipeReference.New());
+		var shoppingList = ShoppingListBuilder.A().FromRecipe(Guid.NewGuid()).Build();
 
 		shoppingList.ClearRecipeReference();
 
@@ -264,7 +249,7 @@ public class ShoppingListTests
 	[Fact]
 	public void CheckOffItem_InvalidItemId_Throws()
 	{
-		var shoppingList = CreateValidShoppingList();
+		var shoppingList = ShoppingListBuilder.A().Build();
 
 		var act = () => shoppingList.CheckOffItem(ShoppingListItemIdentifier.New());
 
@@ -274,14 +259,11 @@ public class ShoppingListTests
 	[Fact]
 	public void Version_IncrementsOnEachEvent()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))
-		];
-		var shoppingList = CreateValidShoppingList(items: items);
+		var item = ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram).Build();
+		var shoppingList = ShoppingListBuilder.A().WithItems([item]).Build();
 		var versionAfterCreate = shoppingList.Version;
 
-		shoppingList.CheckOffItem(items[0].Id);
+		shoppingList.CheckOffItem(item.Id);
 
 		shoppingList.Version.Should().Be(versionAfterCreate.Increment());
 	}
@@ -289,13 +271,13 @@ public class ShoppingListTests
 	[Fact]
 	public void FromEvents_ReplaysToSameState()
 	{
-		List<ShoppingListItem> items =
-		[
-			ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram)),
-			ShoppingListItem.Create(ItemName.From("Sugar"), Quantity.Of(Amount.From(200), Unit.Gram))
-		];
-		var original = CreateValidShoppingList(items: items, recipeReference: RecipeReference.New());
-		original.CheckOffItem(items[0].Id);
+		var flour = ShoppingListItemBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram).Build();
+		var sugar = ShoppingListItemBuilder.A().Named("Sugar").WithQuantity(200, Unit.Gram).Build();
+		var original = ShoppingListBuilder.A()
+			.WithItems([flour, sugar])
+			.FromRecipe(Guid.NewGuid())
+			.Build();
+		original.CheckOffItem(flour.Id);
 		original.ClearRecipeReference();
 		var capturedEvents = original.UncommittedEvents.ToList();
 
@@ -307,31 +289,18 @@ public class ShoppingListTests
 		replayed.CreatedAt.Should().Be(original.CreatedAt);
 		replayed.RecipeReference.Should().BeNull();
 		replayed.Items.Should().HaveCount(2);
-		replayed.Items.Single(item => item.Id == items[0].Id).IsChecked.Should().BeTrue();
-		replayed.Items.Single(item => item.Id == items[1].Id).IsChecked.Should().BeFalse();
+		replayed.Items.Single(item => item.Id == flour.Id).IsChecked.Should().BeTrue();
+		replayed.Items.Single(item => item.Id == sugar.Id).IsChecked.Should().BeFalse();
 		replayed.Version.Should().Be(original.Version);
 	}
 
 	[Fact]
 	public void MarkCommitted_ClearsUncommittedEvents()
 	{
-		var shoppingList = CreateValidShoppingList();
+		var shoppingList = ShoppingListBuilder.A().Build();
 
 		shoppingList.MarkCommitted();
 
 		shoppingList.UncommittedEvents.Should().BeEmpty();
-	}
-
-	private static Domain.ShoppingList.ShoppingList CreateValidShoppingList(
-		ShoppingListTitle? title = null,
-		OwnerIdentifier? owner = null,
-		IReadOnlyList<ShoppingListItem>? items = null,
-		RecipeReference? recipeReference = null)
-	{
-		return Domain.ShoppingList.ShoppingList.Create(
-			title ?? ShoppingListTitle.From("Test Shopping List"),
-			owner ?? OwnerIdentifier.From("user-123"),
-			items ?? [ShoppingListItem.Create(ItemName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))],
-			recipeReference);
 	}
 }

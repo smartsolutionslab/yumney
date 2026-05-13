@@ -10,6 +10,8 @@ public sealed class ShoppingListBuilder
 	private OwnerIdentifier owner = OwnerIdentifier.From("user-123");
 	private RecipeReference? recipeReference;
 
+	public static ShoppingListBuilder A() => new();
+
 	public ShoppingListBuilder WithTitle(string value) => WithTitle(ShoppingListTitle.From(value));
 
 	public ShoppingListBuilder WithTitle(ShoppingListTitle value)
@@ -28,14 +30,22 @@ public sealed class ShoppingListBuilder
 
 	public ShoppingListBuilder WithItem(string name, decimal? amount = null, Unit? unit = null)
 	{
-		var quantity = Quantity.FromNullable(Amount.FromNullable(amount), unit);
-		items.Add(ShoppingListItem.Create(ItemName.From(name), quantity));
+		var builder = ShoppingListItemBuilder.A().Named(name);
+		if (amount.HasValue) builder.WithQuantity(amount.Value, unit);
+		items.Add(builder);
 		return this;
 	}
 
 	public ShoppingListBuilder WithItem(ShoppingListItem item)
 	{
 		items.Add(item);
+		return this;
+	}
+
+	public ShoppingListBuilder WithItems(IReadOnlyList<ShoppingListItem> values)
+	{
+		items.Clear();
+		items.AddRange(values);
 		return this;
 	}
 
@@ -49,7 +59,7 @@ public sealed class ShoppingListBuilder
 	{
 		if (items.Count == 0)
 		{
-			items.Add(ShoppingListItem.Create(ItemName.From("Default Item"), null));
+			items.Add(ShoppingListItemBuilder.A());
 		}
 
 		return ShoppingListAggregate.Create(title, owner, items, recipeReference);
