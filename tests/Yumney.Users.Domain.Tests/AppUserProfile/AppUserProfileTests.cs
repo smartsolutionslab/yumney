@@ -1,27 +1,28 @@
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
+using SmartSolutionsLab.Yumney.Users.Domain.Tests.Builders;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.Tests.AppUserProfile;
 
 public class AppUserProfileTests
 {
-	private static readonly KeycloakUserId TestKeycloakUserId = KeycloakUserId.From("kc-user-123");
-	private static readonly DisplayName TestDisplayName = DisplayName.From("Test User");
-
 	[Fact]
 	public void Create_ValidParameters_ReturnsProfileWithCorrectValues()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A()
+			.WithKeycloakUserId("kc-user-123")
+			.Named("Test User")
+			.Build();
 
-		profile.KeycloakUserId.Should().Be(TestKeycloakUserId);
-		profile.DisplayName.Should().Be(TestDisplayName);
+		profile.KeycloakUserId.Should().Be(KeycloakUserId.From("kc-user-123"));
+		profile.DisplayName.Should().Be(DisplayName.From("Test User"));
 	}
 
 	[Fact]
 	public void Create_ValidParameters_GeneratesNonEmptyId()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 
 		profile.Id.Should().NotBeNull();
 	}
@@ -29,7 +30,7 @@ public class AppUserProfileTests
 	[Fact]
 	public void Create_ValidParameters_SetsDefaultPreferredLanguage()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 
 		profile.PreferredLanguage.Should().Be(PreferredLanguage.From("en"));
 	}
@@ -37,7 +38,7 @@ public class AppUserProfileTests
 	[Fact]
 	public void Create_ValidParameters_SetsDefaultPreferredUnitSystem()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 
 		profile.PreferredUnitSystem.Should().Be(PreferredUnitSystem.From("metric"));
 	}
@@ -45,8 +46,8 @@ public class AppUserProfileTests
 	[Fact]
 	public void Create_CalledTwice_GeneratesDifferentIds()
 	{
-		var profile1 = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
-		var profile2 = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile1 = AppUserProfileBuilder.A().Build();
+		var profile2 = AppUserProfileBuilder.A().Build();
 
 		profile1.Id.Should().NotBe(profile2.Id);
 	}
@@ -54,7 +55,7 @@ public class AppUserProfileTests
 	[Fact]
 	public void RenameAs_NewDisplayName_UpdatesDisplayName()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 		var newName = DisplayName.From("New Name");
 
 		profile.RenameAs(newName);
@@ -65,7 +66,7 @@ public class AppUserProfileTests
 	[Fact]
 	public void SwitchLanguageTo_NewLanguage_UpdatesLanguage()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 		var german = PreferredLanguage.From("de");
 
 		profile.SwitchLanguageTo(german);
@@ -76,7 +77,7 @@ public class AppUserProfileTests
 	[Fact]
 	public void SwitchUnitSystemTo_NewUnitSystem_UpdatesUnitSystem()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 		var imperial = PreferredUnitSystem.From("imperial");
 
 		profile.SwitchUnitSystemTo(imperial);
@@ -87,7 +88,7 @@ public class AppUserProfileTests
 	[Fact]
 	public void Create_ValidParameters_SetsDefaultServingsTo4()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 
 		profile.DefaultServings.Should().Be(DefaultServings.Default);
 		profile.DefaultServings.Value.Should().Be(4);
@@ -96,7 +97,7 @@ public class AppUserProfileTests
 	[Fact]
 	public void AdjustDefaultServingsTo_NewValue_UpdatesDefaultServings()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 		var newServings = DefaultServings.From(6);
 
 		profile.AdjustDefaultServingsTo(newServings);
@@ -107,7 +108,7 @@ public class AppUserProfileTests
 	[Fact]
 	public void Create_ValidParameters_SetsEmptyDietaryProfile()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 
 		profile.DietaryProfile.Should().Be(DietaryProfile.Empty);
 		profile.DietaryProfile.IsEmpty.Should().BeTrue();
@@ -116,7 +117,7 @@ public class AppUserProfileTests
 	[Fact]
 	public void UpdateDietaryProfile_NewProfile_UpdatesDietaryProfile()
 	{
-		var profile = Domain.AppUserProfile.AppUserProfile.Create(TestKeycloakUserId, TestDisplayName);
+		var profile = AppUserProfileBuilder.A().Build();
 		var dietary = DietaryProfile.From(
 			DietaryType.Vegetarian,
 			[DietaryRestriction.GlutenFree],
