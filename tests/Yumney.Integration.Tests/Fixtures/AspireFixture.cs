@@ -326,9 +326,10 @@ public sealed class AspireFixture : IAsyncLifetime
 	/// and no requiredActions, so password-grant login works immediately.
 	/// /auth/register can't be used here because the registration handler creates
 	/// users with a VERIFY_EMAIL requiredAction that blocks login regardless of the
-	/// realm's verifyEmail setting. Returns the user's Keycloak sub, email and
-	/// password — caller is responsible for any cleanup.
+	/// realm's verifyEmail setting.
 	/// </summary>
+	/// <param name="emailPrefix">Prefix for the generated email address; final form is {prefix}-{guid}@yumney.dev.</param>
+	/// <returns>Tuple of (KeycloakUserId from the new user's <c>sub</c> claim, generated Email, generated Password). Caller is responsible for cleanup if the test doesn't delete the account.</returns>
 	public async Task<(string KeycloakUserId, string Email, string Password)> CreateKeycloakUserAsync(string emailPrefix = "test")
 	{
 		const string password = "Valid1Pass";
