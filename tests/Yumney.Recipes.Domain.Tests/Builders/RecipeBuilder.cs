@@ -38,8 +38,9 @@ public sealed class RecipeBuilder
 
 	public RecipeBuilder WithIngredient(string name, decimal? amount = null, string? unit = null)
 	{
-		var quantity = Quantity.FromNullable(Amount.FromNullable(amount), Unit.FromNullable(unit));
-		ingredients.Add(Ingredient.Create(IngredientName.From(name), quantity));
+		var builder = IngredientBuilder.A().Named(name);
+		if (amount.HasValue) builder.WithQuantity(amount.Value, Unit.FromNullable(unit));
+		ingredients.Add(builder);
 		return this;
 	}
 
@@ -49,9 +50,23 @@ public sealed class RecipeBuilder
 		return this;
 	}
 
+	public RecipeBuilder WithIngredients(IReadOnlyList<Ingredient> values)
+	{
+		ingredients.Clear();
+		ingredients.AddRange(values);
+		return this;
+	}
+
 	public RecipeBuilder WithStep(string description)
 	{
-		steps.Add(Step.Create(StepNumber.From(steps.Count + 1), StepDescription.From(description)));
+		steps.Add(StepBuilder.A().Numbered(steps.Count + 1).WithDescription(description));
+		return this;
+	}
+
+	public RecipeBuilder WithSteps(IReadOnlyList<Step> values)
+	{
+		steps.Clear();
+		steps.AddRange(values);
 		return this;
 	}
 
@@ -109,16 +124,23 @@ public sealed class RecipeBuilder
 		return this;
 	}
 
+	public RecipeBuilder WithTags(IReadOnlyList<RecipeTag> values)
+	{
+		tags.Clear();
+		tags.AddRange(values);
+		return this;
+	}
+
 	public RecipeAggregate Build()
 	{
 		if (ingredients.Count == 0)
 		{
-			ingredients.Add(Ingredient.Create(IngredientNameBuilder.A(), null));
+			ingredients.Add(IngredientBuilder.A());
 		}
 
 		if (steps.Count == 0)
 		{
-			steps.Add(Step.Create(StepNumber.From(1), StepDescriptionBuilder.A()));
+			steps.Add(StepBuilder.A());
 		}
 
 		return RecipeAggregate.Create(
