@@ -1,6 +1,6 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.TestBuilders.Users;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
-using SmartSolutionsLab.Yumney.Users.Domain.Tests.Builders;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Users.Domain.Tests.AppUserProfile;

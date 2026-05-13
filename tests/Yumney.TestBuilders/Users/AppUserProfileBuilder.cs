@@ -1,7 +1,7 @@
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
 using AppUserProfileAggregate = SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile.AppUserProfile;
 
-namespace SmartSolutionsLab.Yumney.Users.Domain.Tests.Builders;
+namespace SmartSolutionsLab.Yumney.TestBuilders.Users;
 
 public sealed class AppUserProfileBuilder
 {

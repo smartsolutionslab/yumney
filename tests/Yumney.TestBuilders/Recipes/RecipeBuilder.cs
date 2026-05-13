@@ -1,7 +1,7 @@
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using RecipeAggregate = SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Recipe;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Builders;
+namespace SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 
 public sealed class RecipeBuilder
 {

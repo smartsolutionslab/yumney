@@ -1,6 +1,6 @@
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Builders;
+namespace SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 
 /// <summary>
 /// Test builder for the <see cref="Step"/> entity. Defaults to step number 1

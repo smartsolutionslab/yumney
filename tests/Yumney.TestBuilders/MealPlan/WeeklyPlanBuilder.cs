@@ -1,7 +1,7 @@
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using WeeklyPlanAggregate = SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan.WeeklyPlan;
 
-namespace SmartSolutionsLab.Yumney.MealPlan.Domain.Tests.Builders;
+namespace SmartSolutionsLab.Yumney.TestBuilders.MealPlan;
 
 public sealed class WeeklyPlanBuilder
 {

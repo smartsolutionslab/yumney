@@ -2,8 +2,8 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Events;
-using SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Builders;
 using SmartSolutionsLab.Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe;

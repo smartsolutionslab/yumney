@@ -1,7 +1,7 @@
 using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-namespace SmartSolutionsLab.Yumney.Shopping.Domain.Tests.Builders;
+namespace SmartSolutionsLab.Yumney.TestBuilders.Shopping;
 
 /// <summary>
 /// Test builder for the <see cref="ShoppingListItem"/> entity. Defaults to
