@@ -321,6 +321,61 @@ public sealed class AspireFixture : IAsyncLifetime
 		return tokenJson.GetProperty("access_token").GetString()!;
 	}
 
+	/// <summary>
+	/// Provision a brand-new Keycloak user via the admin API with emailVerified=true
+	/// and no requiredActions, so password-grant login works immediately.
+	/// /auth/register can't be used here because the registration handler creates
+	/// users with a VERIFY_EMAIL requiredAction that blocks login regardless of the
+	/// realm's verifyEmail setting. Returns the user's Keycloak sub, email and
+	/// password — caller is responsible for any cleanup.
+	/// </summary>
+	public async Task<(string KeycloakUserId, string Email, string Password)> CreateKeycloakUserAsync(string emailPrefix = "test")
+	{
+		const string password = "Valid1Pass";
+		var email = $"{emailPrefix}-{Guid.NewGuid():N}@yumney.dev";
+
+		var keycloak = App.CreateHttpClient("keycloak");
+		var adminToken = await GetMasterRealmAdminTokenAsync(keycloak);
+
+		using var request = new HttpRequestMessage(HttpMethod.Post, "/admin/realms/yumney/users")
+		{
+			Content = JsonContent.Create(new
+			{
+				username = email,
+				email,
+				enabled = true,
+				emailVerified = true,
+				firstName = $"Test {email}",
+				credentials = new[] { new { type = "password", value = password, temporary = false } },
+			}),
+		};
+		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+
+		var response = await keycloak.SendAsync(request);
+		response.EnsureSuccessStatusCode();
+
+		// Location header is /admin/realms/yumney/users/{guid}
+		var location = response.Headers.Location?.ToString()
+			?? throw new InvalidOperationException("Keycloak did not return a Location header for the created user");
+		var keycloakUserId = location.Split('/').Last();
+		return (keycloakUserId, email, password);
+	}
+
+	private static async Task<string> GetMasterRealmAdminTokenAsync(HttpClient keycloak)
+	{
+		var form = new FormUrlEncodedContent(new Dictionary<string, string>
+		{
+			["grant_type"] = "password",
+			["client_id"] = "admin-cli",
+			["username"] = "admin",
+			["password"] = "testkeycloak",
+		});
+		var response = await keycloak.PostAsync("/realms/master/protocol/openid-connect/token", form);
+		response.EnsureSuccessStatusCode();
+		var tokenJson = await response.Content.ReadFromJsonAsync<JsonElement>();
+		return tokenJson.GetProperty("access_token").GetString()!;
+	}
+
 #pragma warning disable SA1204
 	private static async Task CleanupStaleContainersAsync()
 	{

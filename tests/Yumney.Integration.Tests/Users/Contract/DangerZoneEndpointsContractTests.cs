@@ -1,8 +1,6 @@
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
@@ -29,10 +27,9 @@ public class DangerZoneEndpointsContractTests(AspireFixture fixture)
 	}
 
 	[Fact]
-	public async Task DeleteAccount_WithFreshlyRegisteredUser_Returns204()
+	public async Task DeleteAccount_WithFreshlyProvisionedUser_Returns204()
 	{
-		var (email, password) = ($"contract-delete-{Guid.NewGuid():N}@yumney.dev", "Valid1Pass");
-		await RegisterUserAsync(email, password);
+		var (_, email, password) = await fixture.CreateKeycloakUserAsync("contract-delete");
 		var token = await fixture.GetAccessTokenAsync(email, password);
 
 		using var client = AuthenticatedClient(token);
@@ -40,17 +37,6 @@ public class DangerZoneEndpointsContractTests(AspireFixture fixture)
 		var response = await client.DeleteAsync(Endpoint);
 
 		response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-	}
-
-	private async Task RegisterUserAsync(string email, string password)
-	{
-		var response = await fixture.UsersApi.PostAsJsonAsync("/api/v1/auth/register", new
-		{
-			email,
-			password,
-			displayName = $"Contract {email}",
-		});
-		response.EnsureSuccessStatusCode();
 	}
 
 	private HttpClient AuthenticatedClient(string token)

@@ -34,11 +34,8 @@ public class AccountDeletionCascadeTests(AspireFixture fixture)
 	[Fact]
 	public async Task DeleteAccount_WithSeededData_PurgesEveryModule()
 	{
-		var (email, password) = ($"cascade-{Guid.NewGuid():N}@yumney.dev", "Valid1Pass");
-		await RegisterUserAsync(email, password);
-
+		var (userId, email, password) = await fixture.CreateKeycloakUserAsync("cascade");
 		var token = await fixture.GetAccessTokenAsync(email, password);
-		var userId = DecodeSubClaim(token);
 
 		using var users = AuthenticatedClient(fixture.UsersApi, token);
 		using var recipes = AuthenticatedClient(fixture.RecipesApi, token);
@@ -66,9 +63,7 @@ public class AccountDeletionCascadeTests(AspireFixture fixture)
 	[Fact]
 	public async Task DeleteAccount_WithNoModuleData_StillReturns204()
 	{
-		var (email, password) = ($"empty-{Guid.NewGuid():N}@yumney.dev", "Valid1Pass");
-		await RegisterUserAsync(email, password);
-
+		var (_, email, password) = await fixture.CreateKeycloakUserAsync("empty");
 		var token = await fixture.GetAccessTokenAsync(email, password);
 		using var users = AuthenticatedClient(fixture.UsersApi, token);
 
@@ -102,32 +97,12 @@ public class AccountDeletionCascadeTests(AspireFixture fixture)
 		return new MealPlanDbContext(optionsBuilder.Options);
 	}
 
-	private async Task RegisterUserAsync(string email, string password)
-	{
-		var response = await fixture.UsersApi.PostAsJsonAsync("/api/v1/auth/register", new
-		{
-			email,
-			password,
-			displayName = $"Cascade {email}",
-		});
-		response.EnsureSuccessStatusCode();
-	}
-
 #pragma warning disable SA1204
 	private static HttpClient AuthenticatedClient(HttpClient source, string token)
 	{
 		var copy = new HttpClient { BaseAddress = source.BaseAddress };
 		copy.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 		return copy;
-	}
-
-	private static string DecodeSubClaim(string token)
-	{
-		var payload = token.Split('.')[1];
-		var padded = payload.PadRight(payload.Length + ((4 - (payload.Length % 4)) % 4), '=');
-		var decoded = Convert.FromBase64String(padded.Replace('-', '+').Replace('_', '/'));
-		var claims = JsonSerializer.Deserialize<JsonElement>(decoded);
-		return claims.GetProperty("sub").GetString()!;
 	}
 
 	private static async Task<Guid> CreateRecipeAsync(HttpClient client)
