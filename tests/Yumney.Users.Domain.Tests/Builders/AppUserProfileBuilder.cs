@@ -12,6 +12,8 @@ public sealed class AppUserProfileBuilder
 	private DefaultServings? defaultServings;
 	private DietaryProfile? dietaryProfile;
 
+	public static AppUserProfileBuilder A() => new();
+
 	public AppUserProfileBuilder WithKeycloakUserId(string value) =>
 		WithKeycloakUserId(KeycloakUserId.From(value));
 
