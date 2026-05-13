@@ -16,7 +16,7 @@ public sealed class RecipesApiModule : IEndpointModule
 		((WebApplicationBuilder)builder).AddYumneyDefaults(
 			outboxConnectionName: "recipesdb",
 			outboxSchema: "wolverine_recipes",
-			typeof(ShoppingListCreatedHandler).Assembly);
+			typeof(UserAccountDeletedHandler).Assembly);
 
 		builder.Services.AddValidatorsFromAssemblyContaining<ImportRecipeValidator>();
 		builder.Services.AddValidatorsFromAssemblyContaining<PhotoDataValidator>();
