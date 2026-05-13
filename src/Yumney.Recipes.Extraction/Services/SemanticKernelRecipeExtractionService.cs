@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -18,10 +14,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1311
-public sealed partial class SemanticKernelRecipeExtractionService(
-	Kernel kernel,
-	IExtractionResultCache cache,
-	ILogger<SemanticKernelRecipeExtractionService> logger)
+public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel, IExtractionResultCache cache, ILogger<SemanticKernelRecipeExtractionService> logger)
 	: IRecipeExtractionService
 {
 	private static readonly JsonSerializerOptions jsonOptions = new()
@@ -77,9 +70,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 		return result;
 	}
 
-	public async Task<Result<ExtractedRecipeDto>> ExtractFromPhotosAsync(
-		IReadOnlyList<PhotoData> photos,
-		CancellationToken cancellationToken = default)
+	public async Task<Result<ExtractedRecipeDto>> ExtractFromPhotosAsync(IReadOnlyList<PhotoData> photos, CancellationToken cancellationToken = default)
 	{
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.photos");
 		activity?.SetTag("extract.photo_count", photos.Count);
@@ -141,10 +132,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 		}
 	}
 
-	private async Task<Result<ExtractedRecipeDto>> CallLlmAndParseAsync(
-		ChatHistory chatHistory,
-		string source,
-		CancellationToken cancellationToken)
+	private async Task<Result<ExtractedRecipeDto>> CallLlmAndParseAsync(ChatHistory chatHistory, string source, CancellationToken cancellationToken)
 	{
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.llm_call");
 		activity?.SetTag("llm.source", source);

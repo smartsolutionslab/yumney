@@ -1,5 +1,4 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Recipes.Api;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using Xunit;
 

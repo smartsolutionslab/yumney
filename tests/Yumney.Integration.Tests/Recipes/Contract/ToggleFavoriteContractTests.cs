@@ -1,13 +1,9 @@
-using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
-using SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Integration.Tests.Recipes.Contract;

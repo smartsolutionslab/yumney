@@ -2,7 +2,6 @@ using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
-using SmartSolutionsLab.Yumney.Shared.Paging;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.TestStubs;
 

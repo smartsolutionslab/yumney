@@ -1,7 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Shared.Common;
-using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 using SmartSolutionsLab.Yumney.Shopping.Application.Commands.Handlers;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingLedger;
@@ -29,7 +28,10 @@ public class AddManualItemCommandHandlerTests
 		eventStore.FindAsync(Arg.Any<OwnerIdentifier>(), Arg.Any<CancellationToken>())
 			.Returns(existingLedger);
 
-		var command = new AddManualItemCommand(ItemName.From("Potatoes"), Quantity.Of(Amount.From(2), Unit.From("kg")), ItemSource.Manual);
+		var command = new AddManualItemCommand(
+			ItemName.From("Potatoes"),
+			Quantity.Of(Amount.From(2), Unit.From("kg")),
+			ItemSource.Manual);
 
 		var result = await handler.HandleAsync(command);
 

@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Guards;
 

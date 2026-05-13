@@ -48,31 +48,30 @@ public sealed class ExportShoppingListQueryHandler(IShoppingLedgerReadModelRepos
 		var list = await readModel.GetByOwnerAsync(currentUser.AsOwner(), cancellationToken: cancellationToken);
 
 		var openItems = list.Items.Where(item => !item.IsBought).ToList();
-		if (openItems.Count == 0)
-			return string.Empty;
+		if (openItems.Count == 0) return string.Empty;
 
 		var grouped = openItems
 			.GroupBy(item => item.Category)
 			.OrderBy(group => IngredientCategory.From(group.Key).DisplayOrder);
 
-		var sb = new StringBuilder();
+		var stringBuilder = new StringBuilder();
 
 		foreach (var group in grouped)
 		{
 			var emoji = categoryEmojis.GetValueOrDefault(group.Key, "\U0001F4E6");
 			var label = categoryLabels.GetValueOrDefault(group.Key, "Other");
-			sb.AppendLine(CultureInfo.InvariantCulture, $"{emoji} {label}:");
+			stringBuilder.AppendLine(CultureInfo.InvariantCulture, $"{emoji} {label}:");
 
 			foreach (var item in group)
 			{
 				var qty = QuantityRounder.RoundUp(item.TotalQuantity, item.Unit);
 				var unitSuffix = item.Unit is not null ? $" {item.Unit}" : string.Empty;
-				sb.AppendLine(CultureInfo.InvariantCulture, $"  \u2610 {qty.DisplayQuantity}{unitSuffix} {item.ItemName}");
+				stringBuilder.AppendLine(CultureInfo.InvariantCulture, $"  \u2610 {qty.DisplayQuantity}{unitSuffix} {item.ItemName}");
 			}
 
-			sb.AppendLine();
+			stringBuilder.AppendLine();
 		}
 
-		return sb.ToString().TrimEnd();
+		return stringBuilder.ToString().TrimEnd();
 	}
 }

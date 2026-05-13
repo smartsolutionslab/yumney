@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
-using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Paging;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel;

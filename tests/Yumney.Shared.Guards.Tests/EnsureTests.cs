@@ -1,5 +1,4 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shared.Guards;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Shared.Guards.Tests;

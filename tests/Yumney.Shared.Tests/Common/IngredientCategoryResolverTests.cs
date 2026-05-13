@@ -1,5 +1,4 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
 using Xunit;
 

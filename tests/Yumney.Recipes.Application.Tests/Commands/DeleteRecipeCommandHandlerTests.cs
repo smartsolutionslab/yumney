@@ -7,7 +7,6 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Events;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Events;
-using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;

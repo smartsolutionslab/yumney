@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -79,9 +74,7 @@ public sealed partial class SemanticKernelChatService(
 		return actions;
 	}
 
-	private static ChatHistory BuildChatHistory(
-		ChatMessageContent message,
-		IReadOnlyList<DomainChatHistoryEntry> history)
+	private static ChatHistory BuildChatHistory(ChatMessageContent message, IReadOnlyList<DomainChatHistoryEntry> history)
 	{
 		var chatHistory = new ChatHistory();
 		chatHistory.AddSystemMessage(systemPrompt);

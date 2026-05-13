@@ -1,5 +1,3 @@
-using System;
-
 namespace SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 public class Result

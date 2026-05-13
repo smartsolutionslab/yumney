@@ -1,5 +1,4 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Recipes.Api;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Api.Tests;

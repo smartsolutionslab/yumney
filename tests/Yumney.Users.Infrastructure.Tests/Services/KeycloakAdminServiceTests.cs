@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
@@ -8,7 +7,6 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Users.Application.Commands;
 using SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile;
-using SmartSolutionsLab.Yumney.Users.Infrastructure;
 using SmartSolutionsLab.Yumney.Users.Infrastructure.Services;
 using Xunit;
 

@@ -1,15 +1,10 @@
-using System;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
-using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStore.Events;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 using Xunit;
 

@@ -11,9 +11,7 @@ public sealed class CheckOffAllItemsCommandHandler(IShoppingListEventStore event
 	public async Task<Result> HandleAsync(CheckOffAllItemsCommand command, CancellationToken cancellationToken = default)
 	{
 		var (listIdentifier, isChecked) = command;
-
 		var shoppingList = await eventStore.LoadAsync(listIdentifier, cancellationToken);
-
 		var owner = currentUser.AsOwner();
 
 		if (shoppingList.Owner != owner) return Result.Failure(CheckOffItemErrors.AccessDenied);

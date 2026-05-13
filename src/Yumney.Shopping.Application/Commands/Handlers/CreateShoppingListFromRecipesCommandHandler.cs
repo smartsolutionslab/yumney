@@ -14,9 +14,7 @@ public sealed class CreateShoppingListFromRecipesCommandHandler(
 	ICurrentUser currentUser)
 	: ICommandHandler<CreateShoppingListFromRecipesCommand, Result<ShoppingListDetailDto>>
 {
-	public async Task<Result<ShoppingListDetailDto>> HandleAsync(
-		CreateShoppingListFromRecipesCommand command,
-		CancellationToken cancellationToken = default)
+	public async Task<Result<ShoppingListDetailDto>> HandleAsync(CreateShoppingListFromRecipesCommand command, CancellationToken cancellationToken = default)
 	{
 		var (title, recipes) = command;
 		if (recipes.Count == 0)

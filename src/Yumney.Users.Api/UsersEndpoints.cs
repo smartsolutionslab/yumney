@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Routing;
-
 namespace SmartSolutionsLab.Yumney.Users.Api;
 
 public static class UsersEndpoints

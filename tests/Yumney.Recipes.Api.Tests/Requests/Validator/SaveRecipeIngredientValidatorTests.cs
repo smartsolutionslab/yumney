@@ -1,4 +1,3 @@
-using FluentAssertions;
 using FluentValidation.TestHelper;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using Xunit;
