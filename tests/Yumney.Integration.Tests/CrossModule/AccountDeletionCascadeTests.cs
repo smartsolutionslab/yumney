@@ -80,8 +80,13 @@ public class AccountDeletionCascadeTests(AspireFixture fixture)
 		await using var shoppingReadCtx = await fixture.CreateShoppingReadDbContextAsync();
 		await using var mealPlanCtx = await CreateMealPlanDbContextAsync();
 
-		var profileCount = await usersCtx.AppUserProfiles.CountAsync(profile => profile.KeycloakUserId.Value == userId);
-		var recipeCount = await recipesCtx.Recipes.CountAsync(recipe => recipe.Owner.Value == userId);
+		// VOs with EF value converters can't be unwrapped in LINQ-to-SQL — compare
+		// against a fresh VO instance instead of accessing .Value on the column.
+		var keycloakId = SmartSolutionsLab.Yumney.Users.Domain.AppUserProfile.KeycloakUserId.From(userId);
+		var recipeOwner = SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.OwnerIdentifier.From(userId);
+
+		var profileCount = await usersCtx.AppUserProfiles.CountAsync(profile => profile.KeycloakUserId == keycloakId);
+		var recipeCount = await recipesCtx.Recipes.CountAsync(recipe => recipe.Owner == recipeOwner);
 		var shoppingAggregateCount = await shoppingCtx.ShoppingListAggregates.CountAsync(aggregate => aggregate.OwnerId == userId);
 		var shoppingReadCount = await shoppingReadCtx.Set<ShoppingListSummaryReadItem>().CountAsync(row => row.OwnerId == userId);
 		var mealPlanAggregateCount = await mealPlanCtx.MealPlanAggregates.CountAsync(aggregate => aggregate.OwnerId == userId);
