@@ -1,8 +1,8 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.MealPlan.Domain.Tests.Builders;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Guards;
+using SmartSolutionsLab.Yumney.TestBuilders.MealPlan;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Domain.Tests.WeeklyPlan;

@@ -1,0 +1,16 @@
+
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Yumney.Recipes.Domain\Yumney.Recipes.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shopping.Domain\Yumney.Shopping.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.MealPlan.Domain\Yumney.MealPlan.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Users.Domain\Yumney.Users.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

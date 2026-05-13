@@ -1,6 +1,6 @@
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Builders;
+namespace SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 
 /// <summary>
 /// Composite VO builder. <see cref="TimingInfo"/> wraps optional preparation

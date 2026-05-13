@@ -1,7 +1,7 @@
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using ShoppingListAggregate = SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.ShoppingList;
 
-namespace SmartSolutionsLab.Yumney.Shopping.Domain.Tests.Builders;
+namespace SmartSolutionsLab.Yumney.TestBuilders.Shopping;
 
 public sealed class ShoppingListBuilder
 {
