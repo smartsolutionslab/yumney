@@ -7,9 +7,9 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries.Handlers;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Common;
-using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Paging;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
+using SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Queries;
@@ -227,14 +227,12 @@ public class GetCookableRecipesQueryHandlerTests
 	private static GetCookableRecipesQuery Query(bool fullMatchOnly = false)
 		=> new(PagingOptions.From(PagingOptions.DefaultPage, PagingOptions.DefaultPageSize), fullMatchOnly);
 
-	private static Recipe MakeRecipe(string title, params string[] ingredientNames)
-	{
-		return Recipe.Create(
-			RecipeTitle.From(title),
-			OwnerIdentifier.From(OwnerId),
-			ingredientNames.Select(name => Ingredient.Create(IngredientName.From(name), null)).ToList(),
-			[Step.Create(StepNumber.From(1), StepDescription.From("Cook"))]);
-	}
+	private static Recipe MakeRecipe(string title, params string[] ingredientNames) =>
+		RecipeBuilder.A()
+			.WithTitle(title)
+			.OwnedBy(OwnerId)
+			.WithIngredients([.. ingredientNames.Select(name => IngredientBuilder.A().Named(name).Build())])
+			.Build();
 
 	private void ConfigureRecipes(params Recipe[] recipeList)
 	{

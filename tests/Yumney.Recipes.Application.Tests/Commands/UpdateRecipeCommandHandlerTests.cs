@@ -7,6 +7,7 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Commands;
@@ -272,16 +273,14 @@ public class UpdateRecipeCommandHandlerTests
 	[Fact]
 	public async Task HandleAsync_NullOptionalFields_ClearsExistingValues()
 	{
-		var recipe = Recipe.Create(
-			RecipeTitle.From("Original"),
-			OwnerIdentifier.From("user-123"),
-			[Ingredient.Create(IngredientName.From("Flour"), null)],
-			[Step.Create(StepNumber.From(1), StepDescription.From("Mix"))],
-			RecipeDescription.From("Old description"),
-			Servings.From(4),
-			TimingInfo.Of(PreparationTime.From(10), CookingTime.From(20)),
-			Difficulty.From("easy"),
-			ImageUrl.From("https://example.com/old.jpg"));
+		var recipe = RecipeBuilder.A()
+			.WithTitle("Original")
+			.WithDescription("Old description")
+			.WithServings(4)
+			.WithTiming(prepMinutes: 10, cookMinutes: 20)
+			.WithDifficulty("easy")
+			.WithImageUrl("https://example.com/old.jpg")
+			.Build();
 
 		var recipeId = recipe.Id;
 		recipes.GetByIdForUpdateAsync(recipeId, Arg.Any<CancellationToken>()).Returns(recipe);
