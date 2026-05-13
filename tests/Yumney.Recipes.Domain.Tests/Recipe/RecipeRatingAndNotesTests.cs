@@ -1,6 +1,7 @@
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe.Events;
+using SmartSolutionsLab.Yumney.TestBuilders.Recipes;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe;
@@ -94,9 +95,7 @@ public class RecipeRatingAndNotesTests
 	}
 
 	private static Domain.Recipe.Recipe CreateRecipe() =>
-		Domain.Recipe.Recipe.Create(
-			RecipeTitle.From("Test Recipe"),
-			OwnerIdentifier.From("user-123"),
-			[Ingredient.Create(IngredientName.From("Flour"), Quantity.Of(Amount.From(500), Unit.Gram))],
-			[Step.Create(StepNumber.From(1), StepDescription.From("Mix ingredients"))]);
+		RecipeBuilder.A()
+			.WithIngredients([IngredientBuilder.A().Named("Flour").WithQuantity(500, Unit.Gram)])
+			.Build();
 }
