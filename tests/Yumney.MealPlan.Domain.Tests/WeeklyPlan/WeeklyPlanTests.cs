@@ -1,4 +1,5 @@
 using FluentAssertions;
+using SmartSolutionsLab.Yumney.MealPlan.Domain.Tests.Builders;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
 using SmartSolutionsLab.Yumney.Shared.Guards;
@@ -11,10 +12,10 @@ public class WeeklyPlanTests
 	[Fact]
 	public void Create_ValidParams_Returns7EmptySlots()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
-		plan.Owner.Should().Be(TestOwner);
-		plan.Week.Should().Be(TestWeek);
+		plan.Owner.Should().Be(OwnerIdentifier.From("user-123"));
+		plan.Week.Should().Be(WeekIdentifier.From(2026, 17));
 		plan.Slots.Should().HaveCount(7);
 		plan.Slots.Should().OnlyContain(s => s.IsEmpty);
 	}
@@ -22,7 +23,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void Create_SetsDefaultServings()
 	{
-		var plan = CreatePlan(SlotServings.From(6));
+		var plan = WeeklyPlanBuilder.A().WithDefaultServings(6).Build();
 
 		plan.Slots.Should().OnlyContain(s => s.Servings.Value == 6);
 	}
@@ -30,7 +31,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void AssignRecipe_FillsSlot()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var recipe = Recipe("Spaghetti Bolognese");
 
 		plan.AssignRecipe(DayOfWeek.Monday, recipe);
@@ -44,7 +45,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void AssignRecipe_WithServings_OverridesDefault()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var servings = SlotServings.From(8);
 
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe(), servings: servings);
@@ -55,7 +56,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void ClearSlot_RemovesRecipe()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		plan.AssignRecipe(DayOfWeek.Wednesday, Recipe("Chicken"));
 
 		plan.ClearSlot(DayOfWeek.Wednesday);
@@ -66,7 +67,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SwapSlots_SwapsTwoMeals()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var pasta = Recipe("Pasta");
 		var steak = Recipe("Steak");
 		plan.AssignRecipe(DayOfWeek.Monday, pasta);
@@ -81,7 +82,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SwapSlots_WithOneEmpty_MovesRecipe()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var recipe = Recipe();
 		plan.AssignRecipe(DayOfWeek.Monday, recipe);
 
@@ -94,7 +95,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void AssignRecipe_EmptyTitle_ThrowsGuardException()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		var act = () => plan.AssignRecipe(
 			DayOfWeek.Monday,
@@ -126,7 +127,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void AssignRecipe_OverwritesExistingRecipe()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe("Pasta"));
 
 		var steak = Recipe("Steak");
@@ -140,7 +141,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SwapSlots_BothEmpty_NoOp()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
 
@@ -151,7 +152,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void ClearSlot_AlreadyEmpty_NoError()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		var act = () => plan.ClearSlot(DayOfWeek.Friday);
 
@@ -169,7 +170,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void Slots_ContainAllSevenDays()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		var days = plan.Slots.Select(slot => slot.Day).ToList();
 		days.Should().Contain(DayOfWeek.Monday);
@@ -184,7 +185,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void Create_DefaultMode_AllSlotsDinner()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		plan.IsExtendedMode.Should().BeFalse();
 		plan.Slots.Should().OnlyContain(s => s.MealType == MealType.Dinner);
@@ -193,7 +194,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void EnableExtendedMode_Adds21Slots()
 	{
-		var plan = CreateExtendedPlan();
+		var plan = WeeklyPlanBuilder.A().InExtendedMode().Build();
 
 		plan.IsExtendedMode.Should().BeTrue();
 		plan.Slots.Should().HaveCount(21);
@@ -202,7 +203,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void EnableExtendedMode_PreservesDinnerRecipes()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var recipe = Recipe();
 		plan.AssignRecipe(DayOfWeek.Monday, recipe);
 
@@ -214,7 +215,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void EnableExtendedMode_AlreadyExtended_NoOp()
 	{
-		var plan = CreateExtendedPlan();
+		var plan = WeeklyPlanBuilder.A().InExtendedMode().Build();
 
 		plan.EnableExtendedMode();
 
@@ -224,7 +225,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void DisableExtendedMode_ShowsOnlyDinner()
 	{
-		var plan = CreateExtendedPlan();
+		var plan = WeeklyPlanBuilder.A().InExtendedMode().Build();
 
 		plan.DisableExtendedMode();
 
@@ -236,7 +237,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void DisableExtendedMode_PreservesAllData()
 	{
-		var plan = CreateExtendedPlan();
+		var plan = WeeklyPlanBuilder.A().InExtendedMode().Build();
 		var cereal = Recipe("Cereal");
 		plan.AssignRecipe(DayOfWeek.Monday, cereal, MealType.Breakfast);
 
@@ -249,7 +250,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void AssignRecipe_BreakfastSlot_InExtendedMode()
 	{
-		var plan = CreateExtendedPlan();
+		var plan = WeeklyPlanBuilder.A().InExtendedMode().Build();
 		var pancakes = Recipe("Pancakes");
 
 		plan.AssignRecipe(DayOfWeek.Tuesday, pancakes, MealType.Breakfast);
@@ -260,7 +261,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void GetVisibleSlots_ExtendedMode_ReturnsAll21()
 	{
-		var plan = CreateExtendedPlan();
+		var plan = WeeklyPlanBuilder.A().InExtendedMode().Build();
 
 		plan.GetVisibleSlots().Should().HaveCount(21);
 	}
@@ -268,7 +269,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void GetVisibleSlots_DefaultMode_Returns7()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		plan.GetVisibleSlots().Should().HaveCount(7);
 	}
@@ -276,7 +277,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void AssignRecipe_BreakfastInDefaultMode_ThrowsEntityNotFoundException()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		var act = () => plan.AssignRecipe(DayOfWeek.Monday, Recipe("Cereal"), MealType.Breakfast);
 
@@ -286,7 +287,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void ClearSlot_BreakfastInDefaultMode_ThrowsEntityNotFoundException()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		var act = () => plan.ClearSlot(DayOfWeek.Monday, MealType.Breakfast);
 
@@ -296,7 +297,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SwapSlots_BreakfastInExtendedMode_Works()
 	{
-		var plan = CreateExtendedPlan();
+		var plan = WeeklyPlanBuilder.A().InExtendedMode().Build();
 		var pancakes = Recipe("Pancakes");
 		plan.AssignRecipe(DayOfWeek.Monday, pancakes, MealType.Breakfast);
 
@@ -309,7 +310,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void DisableExtendedMode_NotExtended_NoOp()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		plan.DisableExtendedMode();
 
@@ -320,7 +321,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SetFreetext_SetsContentType()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var label = FreetextLabel.From("Eating out");
 
 		plan.SetFreetext(DayOfWeek.Monday, label);
@@ -335,7 +336,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SetFreetext_EmptyLabel_ThrowsGuardException()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		var act = () => plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From(string.Empty));
 
@@ -345,7 +346,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SetLeftover_SetsContentTypeAndSource()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var bolognese = Recipe("Bolognese");
 		plan.AssignRecipe(DayOfWeek.Monday, bolognese);
 
@@ -362,7 +363,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SetLeftover_EmptyTitle_ThrowsGuardException()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		var act = () => plan.SetLeftover(DayOfWeek.Wednesday, DayOfWeek.Monday, MealType.Dinner, SlotRecipeTitle.From(string.Empty));
 
@@ -372,7 +373,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void AssignRecipe_SetsContentTypeToRecipe()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		plan.AssignRecipe(DayOfWeek.Tuesday, Recipe("Steak"));
 
@@ -382,7 +383,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void ClearSlot_ResetsContentTypeToEmpty()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From("Pizza night"));
 
 		plan.ClearSlot(DayOfWeek.Monday);
@@ -396,7 +397,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void AssignRecipe_ClearsFreetextAndLeftoverFields()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From("Eating out"));
 
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe());
@@ -410,7 +411,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void Create_AllSlotsStartEmpty()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		plan.Slots.Should().OnlyContain(s => s.ContentType == SlotContentType.Empty);
 	}
@@ -418,7 +419,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SwapSlots_RecipeWithFreetext_SwapsAllContent()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var pasta = Recipe("Pasta");
 		var eatingOut = FreetextLabel.From("Eating out");
 		plan.AssignRecipe(DayOfWeek.Monday, pasta);
@@ -440,7 +441,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SwapSlots_RecipeWithLeftover_SwapsAllContent()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var bolognese = Recipe("Bolognese");
 		plan.AssignRecipe(DayOfWeek.Monday, bolognese);
 		plan.SetLeftover(DayOfWeek.Wednesday, DayOfWeek.Monday, MealType.Dinner, bolognese.Title);
@@ -459,7 +460,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void SwapSlots_FreetextWithEmpty_MovesContent()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var pizzaOrder = FreetextLabel.From("Pizza order");
 		plan.SetFreetext(DayOfWeek.Monday, pizzaOrder);
 
@@ -472,7 +473,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void AdjustServings_ChangesSlotServings()
 	{
-		var plan = CreatePlan(SlotServings.From(4));
+		var plan = WeeklyPlanBuilder.A().WithDefaultServings(4).Build();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe());
 		var newServings = SlotServings.From(8);
 
@@ -485,7 +486,7 @@ public class WeeklyPlanTests
 	public void AdjustServings_DefaultServingsPreservedOnOtherSlots()
 	{
 		var defaultServings = SlotServings.From(4);
-		var plan = CreatePlan(defaultServings);
+		var plan = WeeklyPlanBuilder.A().WithDefaultServings(defaultServings).Build();
 
 		plan.AdjustServings(DayOfWeek.Monday, SlotServings.From(6));
 
@@ -497,7 +498,7 @@ public class WeeklyPlanTests
 	{
 		var defaultServings = SlotServings.From(4);
 		var overrideServings = SlotServings.From(8);
-		var plan = CreatePlan(defaultServings);
+		var plan = WeeklyPlanBuilder.A().WithDefaultServings(defaultServings).Build();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe(), servings: overrideServings);
 
 		plan.SwapSlots(DayOfWeek.Monday, DayOfWeek.Tuesday);
@@ -511,7 +512,7 @@ public class WeeklyPlanTests
 	[InlineData(-1)]
 	public void AdjustServings_ZeroOrNegative_ThrowsGuardException(int servings)
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		var act = () => plan.AdjustServings(DayOfWeek.Monday, SlotServings.From(servings));
 
@@ -521,7 +522,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void MarkAsCooked_SetsState()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe());
 
 		plan.MarkAsCooked(DayOfWeek.Monday);
@@ -532,7 +533,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void MarkAsSkipped_SetsState()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe());
 
 		plan.MarkAsSkipped(DayOfWeek.Monday);
@@ -543,7 +544,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void ResetToPlanned_ResetsState()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe());
 		plan.MarkAsCooked(DayOfWeek.Monday);
 
@@ -555,7 +556,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void Create_AllSlotsStartAsPlanned()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 
 		plan.Slots.Should().OnlyContain(s => s.State == MealState.Planned);
 	}
@@ -563,7 +564,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void GetUnconfirmedPastMeals_ReturnsOnlyPlannedRecipesBeforeToday()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		plan.AssignRecipe(DayOfWeek.Monday, Recipe());
 		plan.AssignRecipe(DayOfWeek.Tuesday, Recipe("Steak"));
 		plan.MarkAsCooked(DayOfWeek.Monday);
@@ -577,7 +578,7 @@ public class WeeklyPlanTests
 	[Fact]
 	public void GetUnconfirmedPastMeals_ExcludesFreetextAndLeftover()
 	{
-		var plan = CreatePlan();
+		var plan = WeeklyPlanBuilder.A().Build();
 		var steak = Recipe("Steak");
 		plan.SetFreetext(DayOfWeek.Monday, FreetextLabel.From("Eating out"));
 		plan.AssignRecipe(DayOfWeek.Tuesday, steak);
@@ -586,19 +587,6 @@ public class WeeklyPlanTests
 
 		unconfirmed.Should().HaveCount(1);
 		unconfirmed[0].Recipe!.Title.Should().Be(steak.Title);
-	}
-
-	private static readonly OwnerIdentifier TestOwner = OwnerIdentifier.From("user-123");
-	private static readonly WeekIdentifier TestWeek = WeekIdentifier.From(2026, 15);
-
-	private static Domain.WeeklyPlan.WeeklyPlan CreatePlan(SlotServings? servings = null) =>
-		Domain.WeeklyPlan.WeeklyPlan.Create(TestOwner, TestWeek, servings);
-
-	private static Domain.WeeklyPlan.WeeklyPlan CreateExtendedPlan()
-	{
-		var plan = CreatePlan();
-		plan.EnableExtendedMode();
-		return plan;
 	}
 
 	private static SlotRecipeReference Recipe(string title = "Pasta") =>
