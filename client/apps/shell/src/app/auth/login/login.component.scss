@@ -32,7 +32,10 @@ button {
   text-align: center;
   font-size: var(--yn-text-base);
 
-  a {
+  .forgot-link {
+    background: none;
+    border: none;
+    font: inherit;
     color: var(--yn-text-muted);
     text-decoration: none;
     cursor: pointer;

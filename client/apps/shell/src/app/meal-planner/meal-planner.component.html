@@ -141,16 +141,14 @@
             <lucide-icon name="minus" [size]="20" />
           </div>
         } @else {
-          <div
+          <button
+            type="button"
             class="empty-slot"
-            tabindex="0"
-            role="button"
             [attr.aria-label]="t('mealPlanner.addMeal', { day: entry.day })"
             (click)="onSelectSlot(entry.day)"
-            (keydown.enter)="onSelectSlot(entry.day)"
           >
             <lucide-icon name="plus" [size]="24" />
-          </div>
+          </button>
         }
       </div>
     }

@@ -87,7 +87,7 @@ describe('LoginComponent', () => {
   });
 
   it('should render forgot password link', () => {
-    const link = fixture.nativeElement.querySelector('.forgot-password a');
+    const link = fixture.nativeElement.querySelector('.forgot-password .forgot-link');
     expect(link).toBeTruthy();
     expect(link.textContent).toContain('Forgot your password?');
   });
@@ -102,14 +102,15 @@ describe('LoginComponent', () => {
     expect(component.rememberMe()).toBe(true);
   });
 
-  it('should have accessible keyboard navigation on forgot password link', () => {
-    const link = fixture.nativeElement.querySelector('.forgot-password a');
-    expect(link.getAttribute('tabindex')).toBe('0');
+  it('renders the forgot-password control as a real button', () => {
+    const button = fixture.nativeElement.querySelector('.forgot-password .forgot-link');
+    expect(button.tagName).toBe('BUTTON');
+    expect(button.getAttribute('type')).toBe('button');
   });
 
   it('should call authService.forgotPassword on forgot password click', () => {
-    const link = fixture.nativeElement.querySelector('.forgot-password a');
-    link.click();
+    const button = fixture.nativeElement.querySelector('.forgot-password .forgot-link');
+    button.click();
 
     expect(authServiceMock.forgotPassword).toHaveBeenCalled();
   });

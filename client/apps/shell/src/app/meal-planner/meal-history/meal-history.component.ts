@@ -48,7 +48,7 @@ export class MealHistoryComponent {
   constructor() {
     this.runSearch('');
     this.term.valueChanges
-      .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed())
+      .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.runSearch(value));
   }
 

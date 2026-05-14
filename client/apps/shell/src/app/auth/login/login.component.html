@@ -11,14 +11,9 @@
       </button>
 
       <p class="forgot-password">
-        <a
-          (click)="onForgotPassword()"
-          (keydown.enter)="onForgotPassword()"
-          tabindex="0"
-          role="button"
-        >
+        <button type="button" class="forgot-link" (click)="onForgotPassword()">
           {{ t('auth.login.forgotPassword') }}
-        </a>
+        </button>
       </p>
 
       <p class="register-link">

@@ -410,13 +410,14 @@ describe('MergedListComponent', () => {
     });
 
     it('clicking the remove button does not toggle expansion', () => {
-      const rows = fixture.nativeElement.querySelectorAll('[data-testid="shopping-item-row"]');
-      const removeButton = rows[0].querySelector('.remove-btn');
+      const containers = fixture.nativeElement.querySelectorAll('.item-row-container');
+      const row = containers[0].querySelector('[data-testid="shopping-item-row"]');
+      const removeButton = containers[0].querySelector('.remove-btn');
       removeButton.click();
       fixture.detectChanges();
 
       // Row stays collapsed; only the remove API call should fire.
-      expect(rows[0].getAttribute('aria-expanded')).toBe('false');
+      expect(row.getAttribute('aria-expanded')).toBe('false');
       expect(apiMock.removeItem).toHaveBeenCalledWith({ name: 'Milk' });
     });
   });
