@@ -731,7 +731,7 @@ public static IQueryable<Recipe> ApplyFavoritesOnly(this IQueryable<Recipe> quer
 
 // ✅ REQUIRED — repository owns the subquery, passes it in
 private IQueryable<RecipeIdentifier> GetFavoriteRecipeIdsOfUserQuery(OwnerIdentifier owner) =>
-    context.RecipeFavorites.Where(f => f.Owner == owner).Select(f => f.RecipeIdentifier);
+    context.RecipeFavorites.Where(favorite => favorite.Owner == owner).Select(favorite => favorite.Recipe);
 
 // in repository:
 query = query

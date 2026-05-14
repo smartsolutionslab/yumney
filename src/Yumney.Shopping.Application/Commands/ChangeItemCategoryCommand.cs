@@ -6,6 +6,6 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 
 public sealed record ChangeItemCategoryCommand(
-	ShoppingListIdentifier ListIdentifier,
+	ShoppingListIdentifier List,
 	ShoppingListItemIdentifier ItemId,
 	IngredientCategory Category) : ICommand<Result>;

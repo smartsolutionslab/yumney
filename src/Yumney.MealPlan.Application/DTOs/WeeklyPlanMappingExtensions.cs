@@ -14,7 +14,7 @@ public static class WeeklyPlanMappingExtensions
 			slot.MealType.ToString(),
 			slot.ContentType.ToString(),
 			slot.State.ToString(),
-			slot.Recipe?.RecipeIdentifier.Value,
+			slot.Recipe?.Identifier.Value,
 			slot.Recipe?.Title.Value,
 			slot.Servings.Value,
 			slot.FreetextLabel?.Value,

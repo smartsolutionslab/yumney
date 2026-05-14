@@ -53,7 +53,7 @@ public class ToggleFavoriteCommandHandlerTests
 		await handler.HandleAsync(new ToggleFavoriteCommand(recipe.Id));
 
 		await favorites.Received(1).AddAsync(
-			Arg.Is<RecipeFavorite>(f => f.RecipeIdentifier == recipe.Id),
+			Arg.Is<RecipeFavorite>(f => f.Recipe == recipe.Id),
 			Arg.Any<CancellationToken>());
 	}
 

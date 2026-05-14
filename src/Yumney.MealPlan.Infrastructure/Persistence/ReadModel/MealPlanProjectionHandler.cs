@@ -87,7 +87,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		var slot = await GetOrCreateTrackedSlotAsync(@event.OwnerId, @event.Week, inner.Day, inner.MealType, cancellationToken);
 
 		slot.ContentType = nameof(SlotContentType.Recipe);
-		slot.RecipeIdentifier = inner.Recipe.RecipeIdentifier.Value;
+		slot.RecipeIdentifier = inner.Recipe.Identifier.Value;
 		slot.RecipeTitle = inner.Recipe.Title.Value;
 		slot.FreetextLabel = null;
 		slot.LeftoverLabel = null;

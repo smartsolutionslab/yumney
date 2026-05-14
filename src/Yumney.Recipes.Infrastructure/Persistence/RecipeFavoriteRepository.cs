@@ -16,7 +16,7 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
 		return await favorites
 			.AsNoTracking()
 			.AnyAsync(
-				favorite => favorite.Owner == owner && favorite.RecipeIdentifier == recipe,
+				favorite => favorite.Owner == owner && favorite.Recipe == recipe,
 				cancellationToken);
 	}
 
@@ -30,8 +30,8 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
 		var idList = recipes.ToList();
 		var favorited = await favorites
 			.AsNoTracking()
-			.Where(favorite => favorite.Owner == owner && idList.Contains(favorite.RecipeIdentifier))
-			.Select(favorite => favorite.RecipeIdentifier)
+			.Where(favorite => favorite.Owner == owner && idList.Contains(favorite.Recipe))
+			.Select(favorite => favorite.Recipe)
 			.ToListAsync(cancellationToken);
 
 		return favorited.Select(recipeId => recipeId.Value).ToHashSet();
@@ -45,7 +45,7 @@ public sealed class RecipeFavoriteRepository(RecipesDbContext context) : IRecipe
 	public async Task RemoveAsync(OwnerIdentifier owner, RecipeIdentifier recipe, CancellationToken cancellationToken = default)
 	{
 		await favorites
-			.Where(favorite => favorite.Owner == owner && favorite.RecipeIdentifier == recipe)
+			.Where(favorite => favorite.Owner == owner && favorite.Recipe == recipe)
 			.ExecuteDeleteAsync(cancellationToken);
 	}
 }

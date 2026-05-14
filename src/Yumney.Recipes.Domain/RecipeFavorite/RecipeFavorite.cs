@@ -6,13 +6,13 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite;
 
 /// <summary>
 /// Records that a specific user has marked a recipe as favorite. The
-/// (Owner, RecipeIdentifier) pair is unique. This is its own small
-/// aggregate so favoriting/unfavoriting does not load or mutate the
-/// full Recipe aggregate.
+/// (Owner, Recipe) pair is unique. This is its own small aggregate so
+/// favoriting/unfavoriting does not load or mutate the full Recipe
+/// aggregate.
 /// </summary>
 public sealed class RecipeFavorite : AggregateRoot<RecipeFavoriteIdentifier>
 {
-	public RecipeIdentifier RecipeIdentifier { get; private set; } = default!;
+	public RecipeIdentifier Recipe { get; private set; } = default!;
 
 	public OwnerIdentifier Owner { get; private set; } = default!;
 
@@ -30,7 +30,7 @@ public sealed class RecipeFavorite : AggregateRoot<RecipeFavoriteIdentifier>
 		return new RecipeFavorite
 		{
 			Id = RecipeFavoriteIdentifier.New(),
-			RecipeIdentifier = recipe,
+			Recipe = recipe,
 			Owner = owner,
 			FavoritedAt = DateTime.UtcNow,
 		};

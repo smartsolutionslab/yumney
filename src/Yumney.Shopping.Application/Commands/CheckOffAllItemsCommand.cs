@@ -5,5 +5,5 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 namespace SmartSolutionsLab.Yumney.Shopping.Application.Commands;
 
 public sealed record CheckOffAllItemsCommand(
-	ShoppingListIdentifier ListIdentifier,
+	ShoppingListIdentifier List,
 	bool IsChecked) : ICommand<Result>;

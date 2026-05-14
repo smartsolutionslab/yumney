@@ -80,7 +80,7 @@ public sealed class RecipeRepository(RecipesDbContext context) : IRecipeReposito
 	{
 		var favoriteRecipeIds = context.RecipeFavorites
 			.Where(favorite => favorite.Owner == owner)
-			.Select(favorite => favorite.RecipeIdentifier);
+			.Select(favorite => favorite.Recipe);
 		return favoriteRecipeIds;
 	}
 }

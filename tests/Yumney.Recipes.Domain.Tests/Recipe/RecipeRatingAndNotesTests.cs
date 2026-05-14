@@ -35,7 +35,7 @@ public class RecipeRatingAndNotesTests
 		recipe.RateAs(Rating.From(5));
 
 		var raised = recipe.DomainEvents.OfType<RecipeRatedEvent>().Single();
-		raised.RecipeIdentifier.Should().Be(recipe.Id);
+		raised.Recipe.Should().Be(recipe.Id);
 		raised.Rating.Value.Should().Be(5);
 	}
 
@@ -79,7 +79,7 @@ public class RecipeRatingAndNotesTests
 		recipe.UpdateNotes(Notes.From("Salty"));
 
 		var raised = recipe.DomainEvents.OfType<RecipeNotesUpdatedEvent>().Last();
-		raised.RecipeIdentifier.Should().Be(recipe.Id);
+		raised.Recipe.Should().Be(recipe.Id);
 		raised.HasNotes.Should().BeTrue();
 	}
 

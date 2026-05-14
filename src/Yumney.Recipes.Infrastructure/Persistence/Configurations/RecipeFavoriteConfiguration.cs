@@ -15,8 +15,9 @@ internal sealed class RecipeFavoriteConfiguration : IEntityTypeConfiguration<Rec
 		entity.Property(e => e.Id)
 			.HasConversion<RecipeFavoriteIdentifierConverter>();
 
-		entity.Property(e => e.RecipeIdentifier)
+		entity.Property(e => e.Recipe)
 			.HasConversion<RecipeIdentifierConverter>()
+			.HasColumnName("RecipeIdentifier")
 			.IsRequired();
 
 		entity.Property(e => e.Owner)
@@ -26,7 +27,7 @@ internal sealed class RecipeFavoriteConfiguration : IEntityTypeConfiguration<Rec
 
 		entity.Property(e => e.FavoritedAt).IsRequired();
 
-		entity.HasIndex(e => new { e.Owner, e.RecipeIdentifier }).IsUnique();
+		entity.HasIndex(e => new { e.Owner, e.Recipe }).IsUnique();
 		entity.Ignore(e => e.DomainEvents);
 	}
 }
