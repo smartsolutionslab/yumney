@@ -6,11 +6,11 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configura
 
 internal sealed class ShoppingListAggregateMetadataConfiguration : IEntityTypeConfiguration<ShoppingListAggregateMetadata>
 {
-	public void Configure(EntityTypeBuilder<ShoppingListAggregateMetadata> entity)
+	public void Configure(EntityTypeBuilder<ShoppingListAggregateMetadata> builder)
 	{
-		entity.ToTable("ShoppingListAggregates");
-		entity.HasKey(e => e.AggregateId);
-		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();
-		entity.HasIndex(e => e.OwnerId);
+		builder.ToTable("ShoppingListAggregates");
+		builder.HasKey(metadata => metadata.AggregateId);
+		builder.Property(metadata => metadata.OwnerId).HasMaxLength(255).IsRequired();
+		builder.HasIndex(metadata => metadata.OwnerId);
 	}
 }

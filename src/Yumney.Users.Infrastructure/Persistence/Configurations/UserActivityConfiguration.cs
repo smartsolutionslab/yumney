@@ -7,38 +7,38 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence.Configuratio
 
 internal sealed class UserActivityConfiguration : IEntityTypeConfiguration<UserActivity>
 {
-	public void Configure(EntityTypeBuilder<UserActivity> entity)
+	public void Configure(EntityTypeBuilder<UserActivity> builder)
 	{
-		entity.ToTable("UserActivities");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.Id)
+		builder.ToTable("UserActivities");
+		builder.HasKey(activity => activity.Id);
+		builder.Property(activity => activity.Id)
 			.HasConversion<UserActivityIdentifierConverter>();
 
-		entity.Property(e => e.Owner)
+		builder.Property(activity => activity.Owner)
 			.HasConversion<UserActivityOwnerIdentifierConverter>()
 			.HasMaxLength(OwnerIdentifier.MaxLength)
 			.IsRequired();
 
-		entity.Property(e => e.Type)
+		builder.Property(activity => activity.Type)
 			.HasConversion<ActivityTypeConverter>()
 			.HasMaxLength(50)
 			.IsRequired();
 
-		entity.Property(e => e.RecipeIdentifier)
+		builder.Property(activity => activity.RecipeIdentifier)
 			.HasConversion(
-				v => v == null ? (Guid?)null : v.Value,
-				v => v.HasValue ? RecipeIdentifierSnapshot.From(v.Value) : null);
+				snapshot => snapshot == null ? (Guid?)null : snapshot.Value,
+				value => value.HasValue ? RecipeIdentifierSnapshot.From(value.Value) : null);
 
-		entity.Property(e => e.RecipeTitle)
+		builder.Property(activity => activity.RecipeTitle)
 			.HasMaxLength(RecipeTitleSnapshot.MaxLength)
 			.HasConversion(
-				v => v == null ? null : v.Value,
-				v => v == null ? null : RecipeTitleSnapshot.From(v));
+				snapshot => snapshot == null ? null : snapshot.Value,
+				value => value == null ? null : RecipeTitleSnapshot.From(value));
 
-		entity.Property(e => e.OccurredAt)
+		builder.Property(activity => activity.OccurredAt)
 			.IsRequired();
 
-		entity.HasIndex(e => new { e.Owner, e.OccurredAt })
+		builder.HasIndex(activity => new { activity.Owner, activity.OccurredAt })
 			.IsDescending(false, true);
 	}
 }

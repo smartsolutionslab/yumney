@@ -14,7 +14,7 @@ public sealed class RequestContextMiddleware(RequestDelegate next, ILogger<Reque
 
 		var correlationId = context.Items[CorrelationIdMiddleware.HeaderName] as string ?? "unknown";
 
-		var state = new Dictionary<string, object?>
+		Dictionary<string, object?> state = new()
 		{
 			["UserId"] = userId,
 			["CorrelationId"] = correlationId,

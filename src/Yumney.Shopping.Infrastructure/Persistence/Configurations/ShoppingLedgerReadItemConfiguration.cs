@@ -6,21 +6,21 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configura
 
 internal sealed class ShoppingLedgerReadItemConfiguration : IEntityTypeConfiguration<ShoppingLedgerReadItem>
 {
-	public void Configure(EntityTypeBuilder<ShoppingLedgerReadItem> entity)
+	public void Configure(EntityTypeBuilder<ShoppingLedgerReadItem> builder)
 	{
 		// Physical table name kept as-is to avoid a rename migration.
 		// The C# type was renamed in the cleanup pass; the schema is stable.
-		entity.ToTable("ShoppingListReadItems");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();
-		entity.Property(e => e.ItemName).HasMaxLength(200).IsRequired();
-		entity.Property(e => e.Unit).HasMaxLength(20);
-		entity.Property(e => e.Category).HasMaxLength(30).IsRequired();
-		entity.Property(e => e.SourcesJson).HasColumnType("jsonb");
-		entity.Property(e => e.LastUpdated).IsRequired();
+		builder.ToTable("ShoppingListReadItems");
+		builder.HasKey(item => item.Id);
+		builder.Property(item => item.OwnerId).HasMaxLength(255).IsRequired();
+		builder.Property(item => item.ItemName).HasMaxLength(200).IsRequired();
+		builder.Property(item => item.Unit).HasMaxLength(20);
+		builder.Property(item => item.Category).HasMaxLength(30).IsRequired();
+		builder.Property(item => item.SourcesJson).HasColumnType("jsonb");
+		builder.Property(item => item.LastUpdated).IsRequired();
 
-		entity.HasIndex(e => e.OwnerId);
-		entity.HasIndex(e => new { e.OwnerId, e.ItemName, e.Unit });
+		builder.HasIndex(item => item.OwnerId);
+		builder.HasIndex(item => new { item.OwnerId, item.ItemName, item.Unit });
 
 		// Natural-key uniqueness on (OwnerId, lower(ItemName), COALESCE(Unit, ''))
 		// is enforced by the expression-based unique index added in migration

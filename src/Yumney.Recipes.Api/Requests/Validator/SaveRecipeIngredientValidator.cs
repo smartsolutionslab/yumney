@@ -7,16 +7,16 @@ public sealed class SaveRecipeIngredientValidator : AbstractValidator<SaveRecipe
 {
 	public SaveRecipeIngredientValidator()
 	{
-		RuleFor(i => i.Name)
+		RuleFor(ingredient => ingredient.Name)
 			.NotEmpty()
 			.MaximumLength(IngredientName.MaxLength);
 
-		RuleFor(i => i.Amount)
+		RuleFor(ingredient => ingredient.Amount)
 			.GreaterThanOrEqualTo(0)
-			.When(i => i.Amount.HasValue);
+			.When(ingredient => ingredient.Amount.HasValue);
 
-		RuleFor(i => i.Unit)
+		RuleFor(ingredient => ingredient.Unit)
 			.MaximumLength(Unit.MaxLength)
-			.When(i => i.Unit is not null);
+			.When(ingredient => ingredient.Unit is not null);
 	}
 }

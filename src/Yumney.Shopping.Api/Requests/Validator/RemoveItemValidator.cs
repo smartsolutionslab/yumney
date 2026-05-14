@@ -6,6 +6,6 @@ public sealed class RemoveItemValidator : AbstractValidator<RemoveItem>
 {
 	public RemoveItemValidator()
 	{
-		RuleFor(x => x.Name).NotEmpty().WithMessage("Item name is required.");
+		RuleFor(request => request.Name).NotEmpty().WithMessage("Item name is required.");
 	}
 }

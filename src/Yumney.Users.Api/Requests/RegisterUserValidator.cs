@@ -7,19 +7,19 @@ public sealed class RegisterUserValidator : AbstractValidator<RegisterUser>
 {
 	public RegisterUserValidator()
 	{
-		RuleFor(x => x.Email)
+		RuleFor(request => request.Email)
 			.NotEmpty()
 			.MaximumLength(Email.MaxLength)
 			.EmailAddress();
 
-		RuleFor(x => x.Password)
+		RuleFor(request => request.Password)
 			.NotEmpty()
 			.MinimumLength(Password.MinLength)
 			.Matches(Password.UppercasePattern).WithMessage(Password.UppercaseMessage)
 			.Matches(Password.LowercasePattern).WithMessage(Password.LowercaseMessage)
 			.Matches(Password.DigitPattern).WithMessage(Password.DigitMessage);
 
-		RuleFor(x => x.DisplayName)
+		RuleFor(request => request.DisplayName)
 			.NotEmpty()
 			.MaximumLength(DisplayName.MaxLength);
 	}

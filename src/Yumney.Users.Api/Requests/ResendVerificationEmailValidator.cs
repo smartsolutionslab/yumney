@@ -7,7 +7,7 @@ public sealed class ResendVerificationEmailValidator : AbstractValidator<ResendV
 {
 	public ResendVerificationEmailValidator()
 	{
-		RuleFor(x => x.Email)
+		RuleFor(request => request.Email)
 			.NotEmpty()
 			.MaximumLength(Email.MaxLength)
 			.EmailAddress();

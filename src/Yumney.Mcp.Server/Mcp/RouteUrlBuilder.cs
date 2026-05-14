@@ -25,8 +25,8 @@ public static partial class RouteUrlBuilder
 	public static BuiltRequest Build(string httpMethod, string routePattern, IDictionary<string, JsonElement>? arguments)
 	{
 		arguments ??= new Dictionary<string, JsonElement>();
-		var consumedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-		var missing = new List<string>();
+		HashSet<string> consumedKeys = new(StringComparer.OrdinalIgnoreCase);
+		List<string> missing = [];
 
 		var path = PlaceholderPattern().Replace(routePattern, match =>
 		{

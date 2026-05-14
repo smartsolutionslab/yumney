@@ -7,28 +7,28 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence.Configuratio
 
 internal sealed class StaplesListConfiguration : IEntityTypeConfiguration<StaplesList>
 {
-	public void Configure(EntityTypeBuilder<StaplesList> entity)
+	public void Configure(EntityTypeBuilder<StaplesList> builder)
 	{
-		entity.ToTable("StaplesLists");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.Id)
+		builder.ToTable("StaplesLists");
+		builder.HasKey(list => list.Id);
+		builder.Property(list => list.Id)
 			.HasConversion<StaplesListIdentifierConverter>();
 
-		entity.Property(e => e.Owner)
+		builder.Property(list => list.Owner)
 			.HasConversion<StaplesOwnerIdentifierConverter>()
 			.HasMaxLength(OwnerIdentifier.MaxLength)
 			.IsRequired();
 
-		entity.OwnsMany(e => e.Items, item =>
+		builder.OwnsMany(list => list.Items, item =>
 		{
 			item.ToTable("StapleItems");
 			item.WithOwner().HasForeignKey("StaplesListId");
-			item.Property(i => i.Value)
+			item.Property(staple => staple.Value)
 				.HasColumnName("Name")
 				.HasMaxLength(StapleItem.MaxLength);
 		});
 
-		entity.HasIndex(e => e.Owner).IsUnique();
-		entity.Ignore(e => e.DomainEvents);
+		builder.HasIndex(list => list.Owner).IsUnique();
+		builder.Ignore(list => list.DomainEvents);
 	}
 }

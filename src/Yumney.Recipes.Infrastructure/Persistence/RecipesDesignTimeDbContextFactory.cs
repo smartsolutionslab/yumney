@@ -10,7 +10,7 @@ public sealed class RecipesDesignTimeDbContextFactory : IDesignTimeDbContextFact
 		var optionsBuilder = new DbContextOptionsBuilder<RecipesDbContext>();
 		optionsBuilder.UseNpgsql(
 			"Host=localhost;Database=yumneydb;Username=postgres;Password=postgres",
-			x => x.MigrationsHistoryTable("__RecipesMigrationsHistory"));
+			npgsql => npgsql.MigrationsHistoryTable("__RecipesMigrationsHistory"));
 
 		return new RecipesDbContext(optionsBuilder.Options);
 	}

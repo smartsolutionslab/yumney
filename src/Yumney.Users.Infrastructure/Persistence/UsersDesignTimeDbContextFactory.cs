@@ -10,7 +10,7 @@ public sealed class UsersDesignTimeDbContextFactory : IDesignTimeDbContextFactor
 		var optionsBuilder = new DbContextOptionsBuilder<UsersDbContext>();
 		optionsBuilder.UseNpgsql(
 			"Host=localhost;Database=yumneydb;Username=postgres;Password=postgres",
-			x => x.MigrationsHistoryTable("__UsersMigrationsHistory"));
+			npgsql => npgsql.MigrationsHistoryTable("__UsersMigrationsHistory"));
 
 		return new UsersDbContext(optionsBuilder.Options);
 	}

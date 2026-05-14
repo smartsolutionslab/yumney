@@ -118,7 +118,7 @@ if (!options.DatabaseOnly)
 			.WithEnvironment("KC_HTTP_ENABLED", "true")
 			.WithEnvironment("KC_PROXY_HEADERS", "xforwarded")
 			.WithEnvironment("KC_HOSTNAME_STRICT", "false")
-			.WithEndpoint("http", e => e.IsExternal = true);
+			.WithEndpoint("http", endpoint => endpoint.IsExternal = true);
 	}
 
 	var apiEnvironment = builder.Environment.EnvironmentName;

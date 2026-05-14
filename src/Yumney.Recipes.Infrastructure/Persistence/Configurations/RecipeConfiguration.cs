@@ -7,128 +7,128 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Configurat
 
 internal sealed class RecipeConfiguration : IEntityTypeConfiguration<Recipe>
 {
-	public void Configure(EntityTypeBuilder<Recipe> entity)
+	public void Configure(EntityTypeBuilder<Recipe> builder)
 	{
-		entity.ToTable("Recipes");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.Id)
+		builder.ToTable("Recipes");
+		builder.HasKey(recipe => recipe.Id);
+		builder.Property(recipe => recipe.Id)
 			.HasConversion<RecipeIdentifierConverter>();
 
-		entity.Property(e => e.Title)
+		builder.Property(recipe => recipe.Title)
 			.HasConversion<RecipeTitleConverter>()
 			.HasMaxLength(RecipeTitle.MaxLength)
 			.IsRequired();
 
-		entity.Property(e => e.Description)
+		builder.Property(recipe => recipe.Description)
 			.HasConversion<RecipeDescriptionConverter>()
 			.HasMaxLength(RecipeDescription.MaxLength);
 
-		entity.Property(e => e.Servings)
+		builder.Property(recipe => recipe.Servings)
 			.HasConversion<ServingsConverter>();
 
-		entity.OwnsOne(e => e.Timing, timing =>
+		builder.OwnsOne(recipe => recipe.Timing, timing =>
 		{
-			timing.Property(t => t.Preparation)
+			timing.Property(slot => slot.Preparation)
 				.HasConversion<PreparationTimeConverter>()
 				.HasColumnName("PreparationTimeMinutes");
 
-			timing.Property(t => t.Cooking)
+			timing.Property(slot => slot.Cooking)
 				.HasConversion<CookingTimeConverter>()
 				.HasColumnName("CookingTimeMinutes");
 		});
 
-		entity.Property(e => e.Difficulty)
+		builder.Property(recipe => recipe.Difficulty)
 			.HasConversion<DifficultyConverter>()
 			.HasMaxLength(Difficulty.MaxLength);
 
-		entity.Property(e => e.ImageUrl)
+		builder.Property(recipe => recipe.ImageUrl)
 			.HasConversion<ImageUrlConverter>()
 			.HasMaxLength(ImageUrl.MaxLength);
 
-		entity.Property(e => e.Language)
+		builder.Property(recipe => recipe.Language)
 			.HasConversion<RecipeLanguageConverter>()
 			.HasMaxLength(RecipeLanguage.MaxLength);
 
-		entity.Property(e => e.SourceUrl)
+		builder.Property(recipe => recipe.SourceUrl)
 			.HasConversion<RecipeUrlConverter>()
 			.HasMaxLength(RecipeUrl.MaxLength);
 
-		entity.Property(e => e.Owner)
+		builder.Property(recipe => recipe.Owner)
 			.HasConversion<RecipeOwnerIdentifierConverter>()
 			.HasMaxLength(OwnerIdentifier.MaxLength)
 			.IsRequired();
 
-		entity.Property(e => e.CreatedAt).IsRequired();
+		builder.Property(recipe => recipe.CreatedAt).IsRequired();
 
-		entity.Property(e => e.Rating)
+		builder.Property(recipe => recipe.Rating)
 			.HasConversion<RatingConverter>();
 
-		entity.Property(e => e.Notes)
+		builder.Property(recipe => recipe.Notes)
 			.HasConversion<NotesConverter>()
 			.HasMaxLength(Notes.MaxLength);
 
-		entity.OwnsMany(e => e.Ingredients, ingredient =>
+		builder.OwnsMany(recipe => recipe.Ingredients, ingredient =>
 		{
 			ingredient.ToTable("RecipeIngredients");
 			ingredient.WithOwner().HasForeignKey("RecipeId");
 			ingredient.HasKey(nameof(Ingredient.Id));
-			ingredient.Property(i => i.Id)
+			ingredient.Property(row => row.Id)
 				.HasConversion<IngredientIdentifierConverter>();
 
-			ingredient.Property(i => i.Name)
+			ingredient.Property(row => row.Name)
 				.HasConversion<IngredientNameConverter>()
 				.HasMaxLength(IngredientName.MaxLength)
 				.IsRequired();
 
-			ingredient.OwnsOne(i => i.Quantity, q =>
+			ingredient.OwnsOne(row => row.Quantity, quantity =>
 			{
-				q.Property(x => x.Amount)
+				quantity.Property(value => value.Amount)
 					.HasConversion<RecipeAmountConverter>()
 					.HasColumnName("Amount");
 
-				q.Property(x => x.Unit)
+				quantity.Property(value => value.Unit)
 					.HasConversion<RecipeUnitConverter>()
 					.HasMaxLength(Unit.MaxLength)
 					.HasColumnName("Unit");
 			});
 		});
 
-		entity.OwnsMany(e => e.Steps, step =>
+		builder.OwnsMany(recipe => recipe.Steps, step =>
 		{
 			step.ToTable("RecipeSteps");
 			step.WithOwner().HasForeignKey("RecipeId");
 			step.HasKey(nameof(Step.Id));
-			step.Property(s => s.Id)
+			step.Property(row => row.Id)
 				.HasConversion<StepIdentifierConverter>();
 
-			step.Property(s => s.Number)
+			step.Property(row => row.Number)
 				.HasConversion<StepNumberConverter>()
 				.IsRequired();
 
-			step.Property(s => s.Description)
+			step.Property(row => row.Description)
 				.HasConversion<StepDescriptionConverter>()
 				.HasMaxLength(StepDescription.MaxLength)
 				.IsRequired();
 		});
 
-		entity.OwnsMany(e => e.Tags, tag =>
+		builder.OwnsMany(recipe => recipe.Tags, tag =>
 		{
 			tag.ToTable("RecipeTags");
 			tag.WithOwner().HasForeignKey("RecipeId");
-			tag.Property(t => t.Value)
+			tag.Property(row => row.Value)
 				.HasColumnName("Tag")
 				.HasMaxLength(RecipeTag.MaxLength);
 		});
 
-		entity.HasIndex(e => e.Owner);
-		entity.HasIndex(e => new { e.Owner, e.CreatedAt });
-		entity.HasIndex(e => new { e.Owner, e.Title });
-		entity.HasIndex(e => new { e.SourceUrl, e.Owner })
+		builder.HasIndex(recipe => recipe.Owner);
+		builder.HasIndex(recipe => new { recipe.Owner, recipe.CreatedAt });
+		builder.HasIndex(recipe => new { recipe.Owner, recipe.Title });
+		builder.HasIndex(recipe => new { recipe.SourceUrl, recipe.Owner })
 			.IsUnique()
 			.HasFilter("\"SourceUrl\" IS NOT NULL");
-		entity.Property<uint>("xmin")
+		builder.Property<uint>("xmin")
 			.HasColumnType("xid")
 			.IsRowVersion();
-		entity.Ignore(e => e.DomainEvents);
+		builder.Ignore(recipe => recipe.DomainEvents);
 	}
 }

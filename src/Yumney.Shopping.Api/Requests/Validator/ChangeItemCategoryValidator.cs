@@ -7,7 +7,7 @@ public sealed class ChangeItemCategoryValidator : AbstractValidator<ChangeItemCa
 {
 	public ChangeItemCategoryValidator()
 	{
-		RuleFor(x => x.Category)
+		RuleFor(request => request.Category)
 			.NotEmpty().WithMessage("Category is required.")
 			.Must(BeKnownCategory).WithMessage("Unknown category.");
 	}

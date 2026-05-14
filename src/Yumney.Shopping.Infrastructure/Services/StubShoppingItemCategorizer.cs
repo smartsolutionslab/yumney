@@ -22,7 +22,7 @@ public sealed class StubShoppingItemCategorizer : IShoppingItemCategorizer
 		CancellationToken cancellationToken = default)
 	{
 		IReadOnlyDictionary<ItemName, IngredientCategory> map = names
-			.DistinctBy(n => n.Value)
+			.DistinctBy(name => name.Value)
 			.ToDictionary(name => name, name => IngredientCategoryResolver.Resolve(name.Value) ?? IngredientCategory.Other);
 		return Task.FromResult(map);
 	}

@@ -114,7 +114,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 			.Select(slot => new RawSlot(slot.Week, slot.Day, slot.State, slot.RecipeIdentifier, slot.RecipeTitle))
 			.ToListAsync(cancellationToken);
 
-		var projections = new List<AnalyticsSlotProjection>(rows.Count);
+		List<AnalyticsSlotProjection> projections = new(rows.Count);
 		foreach (var row in rows)
 		{
 			var date = MealPlanPeriodMath.SlotDate(row.Week, row.Day);
@@ -145,7 +145,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 			.Select(slot => new { slot.RecipeIdentifier, slot.Week, slot.Day })
 			.ToListAsync(cancellationToken);
 
-		var earliest = new Dictionary<Guid, DateOnly>();
+		Dictionary<Guid, DateOnly> earliest = [];
 		foreach (var row in rows)
 		{
 			if (row.RecipeIdentifier is not { } id) continue;

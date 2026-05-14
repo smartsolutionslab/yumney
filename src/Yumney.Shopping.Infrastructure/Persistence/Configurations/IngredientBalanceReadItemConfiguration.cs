@@ -6,24 +6,24 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configura
 
 internal sealed class IngredientBalanceReadItemConfiguration : IEntityTypeConfiguration<IngredientBalanceReadItem>
 {
-	public void Configure(EntityTypeBuilder<IngredientBalanceReadItem> entity)
+	public void Configure(EntityTypeBuilder<IngredientBalanceReadItem> builder)
 	{
-		entity.ToTable("IngredientBalanceReadItems");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();
-		entity.Property(e => e.ItemName).HasMaxLength(200).IsRequired();
-		entity.Property(e => e.NameKey).HasMaxLength(200).IsRequired();
-		entity.Property(e => e.Unit).HasMaxLength(20);
-		entity.Property(e => e.Category).HasMaxLength(30).IsRequired();
-		entity.Property(e => e.BoughtTotal).HasColumnType("numeric");
-		entity.Property(e => e.ConsumedTotal).HasColumnType("numeric");
-		entity.Property(e => e.RemovedTotal).HasColumnType("numeric");
-		entity.Property(e => e.LastBoughtAt);
-		entity.Property(e => e.LastUpdated).IsRequired();
+		builder.ToTable("IngredientBalanceReadItems");
+		builder.HasKey(item => item.Id);
+		builder.Property(item => item.OwnerId).HasMaxLength(255).IsRequired();
+		builder.Property(item => item.ItemName).HasMaxLength(200).IsRequired();
+		builder.Property(item => item.NameKey).HasMaxLength(200).IsRequired();
+		builder.Property(item => item.Unit).HasMaxLength(20);
+		builder.Property(item => item.Category).HasMaxLength(30).IsRequired();
+		builder.Property(item => item.BoughtTotal).HasColumnType("numeric");
+		builder.Property(item => item.ConsumedTotal).HasColumnType("numeric");
+		builder.Property(item => item.RemovedTotal).HasColumnType("numeric");
+		builder.Property(item => item.LastBoughtAt);
+		builder.Property(item => item.LastUpdated).IsRequired();
 
-		entity.Ignore(e => e.AtHome);
+		builder.Ignore(item => item.AtHome);
 
-		entity.HasIndex(e => e.OwnerId);
-		entity.HasIndex(e => new { e.OwnerId, e.NameKey, e.Unit });
+		builder.HasIndex(item => item.OwnerId);
+		builder.HasIndex(item => new { item.OwnerId, item.NameKey, item.Unit });
 	}
 }

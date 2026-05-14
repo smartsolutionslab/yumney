@@ -7,10 +7,10 @@ public sealed class SaveRecipeStepValidator : AbstractValidator<SaveRecipeStep>
 {
 	public SaveRecipeStepValidator()
 	{
-		RuleFor(s => s.Number)
+		RuleFor(step => step.Number)
 			.GreaterThan(0);
 
-		RuleFor(s => s.Description)
+		RuleFor(step => step.Description)
 			.NotEmpty()
 			.MaximumLength(StepDescription.MaxLength);
 	}

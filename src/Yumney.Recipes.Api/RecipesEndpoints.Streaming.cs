@@ -186,7 +186,7 @@ public static partial class RecipesEndpoints
 				});
 			}
 
-			var photoDataList = new List<PhotoData>(photos.Count);
+			List<PhotoData> photoDataList = new(photos.Count);
 			foreach (var file in photos)
 			{
 				var photoData = await LoadPhotoDataAsync(file, cancellationToken);

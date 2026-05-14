@@ -7,27 +7,27 @@ public sealed class CreateShoppingListValidator : AbstractValidator<CreateShoppi
 {
 	public CreateShoppingListValidator()
 	{
-		RuleFor(x => x.Title)
+		RuleFor(request => request.Title)
 			.NotEmpty()
 			.MaximumLength(ShoppingListTitle.MaxLength);
 
-		RuleFor(x => x.Items)
+		RuleFor(request => request.Items)
 			.NotEmpty()
 			.WithMessage("At least one item is required.");
 
-		RuleForEach(x => x.Items).ChildRules(item =>
+		RuleForEach(request => request.Items).ChildRules(itemRule =>
 		{
-			item.RuleFor(i => i.Name)
+			itemRule.RuleFor(item => item.Name)
 				.NotEmpty()
 				.MaximumLength(ItemName.MaxLength);
 
-			item.RuleFor(i => i.Amount)
+			itemRule.RuleFor(item => item.Amount)
 				.GreaterThanOrEqualTo(0)
-				.When(i => i.Amount.HasValue);
+				.When(item => item.Amount.HasValue);
 
-			item.RuleFor(i => i.Unit)
+			itemRule.RuleFor(item => item.Unit)
 				.MaximumLength(Unit.MaxLength)
-				.When(i => i.Unit is not null);
+				.When(item => item.Unit is not null);
 		});
 	}
 }

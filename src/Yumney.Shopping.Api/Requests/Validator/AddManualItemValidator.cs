@@ -6,6 +6,6 @@ public sealed class AddManualItemValidator : AbstractValidator<AddManualItem>
 {
 	public AddManualItemValidator()
 	{
-		RuleFor(x => x.Name).NotEmpty().WithMessage("Item name is required.");
+		RuleFor(request => request.Name).NotEmpty().WithMessage("Item name is required.");
 	}
 }
