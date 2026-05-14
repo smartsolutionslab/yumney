@@ -30,7 +30,7 @@ public sealed class ToggleFavoriteCommandHandler(IRecipesUnitOfWork unitOfWork, 
 		{
 			await unitOfWork.Favorites.RemoveAsync(owner, identifier, cancellationToken);
 			await unitOfWork.SaveChangesAsync(cancellationToken);
-			return new FavoriteStateDto(identifier.Value, false);
+			return identifier.ToFavoriteStateDto(isFavorite: false);
 		}
 
 		var favorite = RecipeFavorite.Create(identifier, owner);
@@ -49,6 +49,6 @@ public sealed class ToggleFavoriteCommandHandler(IRecipesUnitOfWork unitOfWork, 
 			// favorited" instead of bubbling a 500 to the caller.
 		}
 
-		return new FavoriteStateDto(identifier.Value, true);
+		return identifier.ToFavoriteStateDto(isFavorite: true);
 	}
 }
