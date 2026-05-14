@@ -41,6 +41,6 @@ public sealed class GetIngredientBalanceQueryHandler(
 			.OrderBy(item => IngredientCategory.From(item.Category).DisplayOrder)
 			.ThenBy(item => item.ItemName, StringComparer.OrdinalIgnoreCase)];
 
-		return new IngredientBalanceDto(sorted);
+		return sorted.ToBalanceDto();
 	}
 }
