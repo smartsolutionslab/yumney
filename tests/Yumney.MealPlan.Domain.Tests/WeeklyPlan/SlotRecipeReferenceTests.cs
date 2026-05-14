@@ -14,7 +14,7 @@ public class SlotRecipeReferenceTests
 
 		var reference = SlotRecipeReference.From(recipe, title);
 
-		reference.RecipeIdentifier.Should().Be(recipe);
+		reference.Identifier.Should().Be(recipe);
 		reference.Title.Should().Be(title);
 	}
 
@@ -25,7 +25,7 @@ public class SlotRecipeReferenceTests
 
 		var reference = SlotRecipeReference.From(recipeGuid, "Carbonara");
 
-		reference.RecipeIdentifier.Value.Should().Be(recipeGuid);
+		reference.Identifier.Value.Should().Be(recipeGuid);
 		reference.Title.Value.Should().Be("Carbonara");
 	}
 
@@ -49,7 +49,7 @@ public class SlotRecipeReferenceTests
 	}
 
 	[Fact]
-	public void Equality_DifferentRecipeIdentifier_AreNotEqual()
+	public void Equality_DifferentIdentifier_AreNotEqual()
 	{
 		var first = SlotRecipeReference.From(Guid.NewGuid(), "Same");
 		var second = SlotRecipeReference.From(Guid.NewGuid(), "Same");

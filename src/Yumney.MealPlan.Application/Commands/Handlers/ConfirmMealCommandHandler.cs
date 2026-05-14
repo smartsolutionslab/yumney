@@ -26,7 +26,7 @@ public sealed class ConfirmMealCommandHandler(
 			case MealState.Cooked:
 				var slot = plan.GetVisibleSlots().FirstOrDefault(slot => slot.Day == day && slot.MealType == mealType);
 				var ingredients = slot?.Recipe is not null
-					? await FetchIngredientsAsync(slot.Recipe.RecipeIdentifier, cancellationToken)
+					? await FetchIngredientsAsync(slot.Recipe.Identifier, cancellationToken)
 					: [];
 				plan.MarkAsCooked(day, mealType, ingredients);
 				break;

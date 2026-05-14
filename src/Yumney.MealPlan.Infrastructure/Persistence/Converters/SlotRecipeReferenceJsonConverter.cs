@@ -45,7 +45,7 @@ internal sealed class SlotRecipeReferenceJsonConverter : JsonConverter<SlotRecip
 	public override void Write(Utf8JsonWriter writer, SlotRecipeReference value, JsonSerializerOptions options)
 	{
 		writer.WriteStartObject();
-		writer.WriteString("recipeIdentifier", value.RecipeIdentifier.Value);
+		writer.WriteString("recipeIdentifier", value.Identifier.Value);
 		writer.WriteString("title", value.Title.Value);
 		writer.WriteEndObject();
 	}

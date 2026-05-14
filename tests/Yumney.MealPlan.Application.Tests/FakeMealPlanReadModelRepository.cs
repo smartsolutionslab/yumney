@@ -30,7 +30,7 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 		var recipes = plan.Slots
 			.Where(slot => slot.ContentType == SlotContentType.Recipe && slot.Recipe is not null)
 			.Select(slot => new PlannedRecipeDto(
-				slot.Recipe!.RecipeIdentifier.Value,
+				slot.Recipe!.Identifier.Value,
 				slot.Recipe.Title.Value,
 				slot.Servings.Value,
 				slot.Day.ToString(),
@@ -47,7 +47,7 @@ internal sealed class FakeMealPlanReadModelRepository : IMealPlanReadModelReposi
 			.SelectMany(kv => kv.Value.Slots
 				.Where(slot => slot.State == MealState.Cooked && slot.Recipe is not null)
 				.Select(slot => new MealHistoryEntryDto(
-					slot.Recipe!.RecipeIdentifier.Value,
+					slot.Recipe!.Identifier.Value,
 					slot.Recipe.Title.Value,
 					kv.Key.Week,
 					slot.Day.ToString(),

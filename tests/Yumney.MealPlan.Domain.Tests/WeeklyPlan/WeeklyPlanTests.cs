@@ -38,7 +38,7 @@ public class WeeklyPlanTests
 
 		var monday = plan.Slots.First(slot => slot.Day == DayOfWeek.Monday);
 		monday.IsEmpty.Should().BeFalse();
-		monday.Recipe!.RecipeIdentifier.Should().Be(recipe.RecipeIdentifier);
+		monday.Recipe!.Identifier.Should().Be(recipe.Identifier);
 		monday.Recipe.Title.Should().Be(recipe.Title);
 	}
 
@@ -134,7 +134,7 @@ public class WeeklyPlanTests
 		plan.AssignRecipe(DayOfWeek.Monday, steak);
 
 		var monday = plan.Slots.First(slot => slot.Day == DayOfWeek.Monday);
-		monday.Recipe!.RecipeIdentifier.Should().Be(steak.RecipeIdentifier);
+		monday.Recipe!.Identifier.Should().Be(steak.Identifier);
 		monday.Recipe.Title.Should().Be(steak.Title);
 	}
 
@@ -434,7 +434,7 @@ public class WeeklyPlanTests
 
 		var tuesday = plan.Slots.First(slot => slot.Day == DayOfWeek.Tuesday);
 		tuesday.ContentType.Should().Be(SlotContentType.Recipe);
-		tuesday.Recipe!.RecipeIdentifier.Should().Be(pasta.RecipeIdentifier);
+		tuesday.Recipe!.Identifier.Should().Be(pasta.Identifier);
 		tuesday.FreetextLabel.Should().BeNull();
 	}
 

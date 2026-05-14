@@ -17,7 +17,7 @@ internal sealed class MealConfirmedMapper : ICrossModuleEventMapper
 
 		return new MealConfirmedIntegrationEvent(
 			(string)context[0],
-			cooked.Recipe.RecipeIdentifier.Value,
+			cooked.Recipe.Identifier.Value,
 			cooked.Servings.Value,
 			cooked.Ingredients
 				.Select(ingredient => new MealConfirmedIngredient(ingredient.Name, ingredient.Quantity, ingredient.Unit))
