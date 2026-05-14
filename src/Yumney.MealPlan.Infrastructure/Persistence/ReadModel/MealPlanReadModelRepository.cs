@@ -19,7 +19,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 
 		if (weekItem is null)
 		{
-			return new WeeklyPlanDto(weekValue, false, EmptyDinnerSlots(SlotServings.DefaultValue));
+			return MealPlanReadModelMappingExtensions.EmptyWeeklyPlanDto(weekValue, SlotServings.DefaultValue);
 		}
 
 		var slotRows = await context.MealPlanSlotReadItems
@@ -31,7 +31,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 			? slotRows
 			: slotRows.Where(slot => slot.MealType == MealType.Dinner.ToString()).ToList();
 
-		return new WeeklyPlanDto(weekValue, weekItem.IsExtendedMode, visible.ToDtos());
+		return weekItem.ToWeeklyPlanDto(visible);
 	}
 
 	public async Task<WeeklyPlannedRecipesDto> GetPlannedRecipesAsync(OwnerIdentifier owner, WeekIdentifier week, CancellationToken cancellationToken = default)
@@ -48,7 +48,7 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 				&& slot.RecipeIdentifier != null)
 			.ToListAsync(cancellationToken);
 
-		return new WeeklyPlannedRecipesDto(weekValue, slotRows.ToPlannedRecipeDtos());
+		return slotRows.ToWeeklyPlannedRecipesDto(weekValue);
 	}
 
 	public async Task<PagedResult<MealHistoryEntryDto>> SearchCookedHistoryAsync(
@@ -162,21 +162,4 @@ public sealed class MealPlanReadModelRepository(MealPlanReadDbContext context) :
 #pragma warning disable SA1402, SA1649
 	private sealed record RawSlot(string Week, string Day, string State, Guid? RecipeIdentifier, string? RecipeTitle);
 #pragma warning restore SA1402, SA1649
-
-	private static List<MealSlotDto> EmptyDinnerSlots(int defaultServings) =>
-		WeekDays.MondayToSunday
-			.Select(day => new MealSlotDto(
-				day.ToString(),
-				MealType.Dinner.ToString(),
-				SlotContentType.Empty.ToString(),
-				MealState.Planned.ToString(),
-				null,
-				null,
-				defaultServings,
-				null,
-				null,
-				null,
-				null,
-				true))
-			.ToList();
 }
