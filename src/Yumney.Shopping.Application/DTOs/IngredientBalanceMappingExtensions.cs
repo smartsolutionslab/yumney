@@ -11,4 +11,7 @@ public static class IngredientBalanceMappingExtensions
 			Unit: null,
 			Category: category.Value,
 			Source: IngredientBalanceSource.Staple);
+
+	public static IngredientBalanceDto ToBalanceDto(this IReadOnlyList<IngredientBalanceItemDto> items) =>
+		new(items);
 }

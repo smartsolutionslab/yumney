@@ -32,7 +32,7 @@ public sealed class ShoppingLedgerReadModelRepository(ShoppingReadDbContext cont
 			.OrderBy(item => IngredientCategory.From(item.Category).DisplayOrder)
 			.ToList();
 
-		return new MergedShoppingListDto(dtoItems);
+		return dtoItems.ToMergedListDto();
 	}
 
 	private static List<ItemSourceDto> DeserializeSources(string sourcesJson)

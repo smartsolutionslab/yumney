@@ -17,4 +17,7 @@ public static class ShoppingLedgerReadModelMappingExtensions
 			row.IsBought,
 			sources);
 	}
+
+	public static MergedShoppingListDto ToMergedListDto(this IReadOnlyList<MergedShoppingItemDto> items) =>
+		new(items);
 }
