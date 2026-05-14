@@ -18,7 +18,7 @@ public static class ModuleEventConvention
 		Assembly moduleEventsAssembly,
 		params Type[] contextParameterTypes)
 	{
-		var map = new Dictionary<Type, ModuleEventFactory>();
+		Dictionary<Type, ModuleEventFactory> map = [];
 
 		var moduleEventTypes = moduleEventsAssembly.GetTypes()
 			.Where(type => typeof(IModuleEvent).IsAssignableFrom(type) && !type.IsAbstract && !type.IsInterface);

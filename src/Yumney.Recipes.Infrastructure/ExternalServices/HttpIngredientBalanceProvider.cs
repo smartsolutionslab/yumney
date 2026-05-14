@@ -8,7 +8,7 @@ public sealed class HttpIngredientBalanceProvider(IShoppingClient shopping) : II
 {
 	public async Task<IReadOnlyDictionary<string, Freshness>> GetAvailableIngredientsAsync(CancellationToken cancellationToken = default)
 	{
-		var result = new Dictionary<string, Freshness>(StringComparer.OrdinalIgnoreCase);
+		Dictionary<string, Freshness> result = new(StringComparer.OrdinalIgnoreCase);
 
 		var balance = await shopping.GetBalanceAsync(cancellationToken);
 		if (balance?.Items is null) return result;

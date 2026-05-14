@@ -197,7 +197,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 	public async Task HandleAsync(RecipeReferenceClearedModuleEvent @event, CancellationToken cancellationToken = default)
 	{
 		var summary = await context.Set<ShoppingListSummaryReadItem>()
-			.FirstOrDefaultAsync(s => s.Id == @event.AggregateId, cancellationToken);
+			.FirstOrDefaultAsync(row => row.Id == @event.AggregateId, cancellationToken);
 		if (summary is null) return;
 
 		summary.RecipeIdentifier = null;
@@ -259,7 +259,7 @@ public sealed class ShoppingListProjection(ShoppingDbContext context)
 	private async Task TouchSummaryAsync(Guid listId, CancellationToken cancellationToken)
 	{
 		var summary = await context.Set<ShoppingListSummaryReadItem>()
-			.FirstOrDefaultAsync(s => s.Id == listId, cancellationToken);
+			.FirstOrDefaultAsync(row => row.Id == listId, cancellationToken);
 		if (summary is null) return;
 		summary.LastUpdated = DateTime.UtcNow;
 	}

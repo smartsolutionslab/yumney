@@ -10,7 +10,7 @@ public sealed class ShoppingReadDesignTimeDbContextFactory : IDesignTimeDbContex
 		var optionsBuilder = new DbContextOptionsBuilder<ShoppingReadDbContext>();
 		optionsBuilder.UseNpgsql(
 			"Host=localhost;Database=yumneydb;Username=postgres;Password=postgres",
-			x => x.MigrationsHistoryTable("__ShoppingMigrationsHistory"));
+			npgsql => npgsql.MigrationsHistoryTable("__ShoppingMigrationsHistory"));
 
 		return new ShoppingReadDbContext(optionsBuilder.Options);
 	}

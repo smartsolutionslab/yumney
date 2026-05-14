@@ -248,7 +248,7 @@ public sealed class MealPlanProjectionHandler(MealPlanReadDbContext context)
 		return context.MealPlanSlotReadItems
 			.AsTracking()
 			.FirstOrDefaultAsync(
-				s => s.OwnerId == ownerId && s.Week == week && s.Day == dayName && s.MealType == mealTypeName,
+				slot => slot.OwnerId == ownerId && slot.Week == week && slot.Day == dayName && slot.MealType == mealTypeName,
 				cancellationToken);
 	}
 

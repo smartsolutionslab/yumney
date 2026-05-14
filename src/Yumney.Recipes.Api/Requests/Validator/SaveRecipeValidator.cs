@@ -9,52 +9,52 @@ public sealed class SaveRecipeValidator : AbstractValidator<SaveRecipe>
 {
 	public SaveRecipeValidator()
 	{
-		RuleFor(x => x.Title)
+		RuleFor(request => request.Title)
 			.NotEmpty()
 			.MaximumLength(RecipeTitle.MaxLength);
 
-		RuleFor(x => x.SourceUrl!)
+		RuleFor(request => request.SourceUrl!)
 			.MustBeValidHttpUrl(RecipeUrl.MaxLength)
-			.When(x => x.SourceUrl.HasValue());
+			.When(request => request.SourceUrl.HasValue());
 
 		ConfigureOptionalFieldRules();
 
-		RuleFor(x => x.Ingredients)
+		RuleFor(request => request.Ingredients)
 			.NotEmpty()
 			.WithMessage("At least one ingredient is required.");
-		RuleForEach(x => x.Ingredients).SetValidator(new SaveRecipeIngredientValidator());
+		RuleForEach(request => request.Ingredients).SetValidator(new SaveRecipeIngredientValidator());
 
-		RuleFor(x => x.Steps)
+		RuleFor(request => request.Steps)
 			.NotEmpty()
 			.WithMessage("At least one step is required.");
-		RuleForEach(x => x.Steps).SetValidator(new SaveRecipeStepValidator());
+		RuleForEach(request => request.Steps).SetValidator(new SaveRecipeStepValidator());
 	}
 
 	private void ConfigureOptionalFieldRules()
 	{
-		RuleFor(x => x.Description)
+		RuleFor(request => request.Description)
 			.MaximumLength(RecipeDescription.MaxLength)
-			.When(x => x.Description is not null);
+			.When(request => request.Description is not null);
 
-		RuleFor(x => x.ImageUrl!)
+		RuleFor(request => request.ImageUrl!)
 			.MustBeValidHttpUrl(ImageUrl.MaxLength)
-			.When(x => x.ImageUrl.HasValue());
+			.When(request => request.ImageUrl.HasValue());
 
-		RuleFor(x => x.Difficulty)
+		RuleFor(request => request.Difficulty)
 			.NotEmpty()
 			.MaximumLength(Difficulty.MaxLength)
-			.When(x => x.Difficulty is not null);
+			.When(request => request.Difficulty is not null);
 
-		RuleFor(x => x.Servings)
+		RuleFor(request => request.Servings)
 			.GreaterThan(0)
-			.When(x => x.Servings.HasValue);
+			.When(request => request.Servings.HasValue);
 
-		RuleFor(x => x.PrepTimeMinutes)
+		RuleFor(request => request.PrepTimeMinutes)
 			.GreaterThanOrEqualTo(0)
-			.When(x => x.PrepTimeMinutes.HasValue);
+			.When(request => request.PrepTimeMinutes.HasValue);
 
-		RuleFor(x => x.CookTimeMinutes)
+		RuleFor(request => request.CookTimeMinutes)
 			.GreaterThanOrEqualTo(0)
-			.When(x => x.CookTimeMinutes.HasValue);
+			.When(request => request.CookTimeMinutes.HasValue);
 	}
 }

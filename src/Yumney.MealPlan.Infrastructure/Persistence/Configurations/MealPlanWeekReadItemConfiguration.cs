@@ -6,13 +6,13 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Configura
 
 internal sealed class MealPlanWeekReadItemConfiguration : IEntityTypeConfiguration<MealPlanWeekReadItem>
 {
-	public void Configure(EntityTypeBuilder<MealPlanWeekReadItem> entity)
+	public void Configure(EntityTypeBuilder<MealPlanWeekReadItem> builder)
 	{
-		entity.ToTable("MealPlanWeekReadItems");
-		entity.HasKey(e => new { e.OwnerId, e.Week });
-		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();
-		entity.Property(e => e.Week).HasMaxLength(10).IsRequired();
-		entity.Property(e => e.IsExtendedMode).IsRequired();
-		entity.Property(e => e.LastUpdated).IsRequired();
+		builder.ToTable("MealPlanWeekReadItems");
+		builder.HasKey(week => new { week.OwnerId, week.Week });
+		builder.Property(week => week.OwnerId).HasMaxLength(255).IsRequired();
+		builder.Property(week => week.Week).HasMaxLength(10).IsRequired();
+		builder.Property(week => week.IsExtendedMode).IsRequired();
+		builder.Property(week => week.LastUpdated).IsRequired();
 	}
 }

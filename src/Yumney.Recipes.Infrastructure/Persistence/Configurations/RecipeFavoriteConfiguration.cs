@@ -8,26 +8,26 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Configurat
 
 internal sealed class RecipeFavoriteConfiguration : IEntityTypeConfiguration<RecipeFavorite>
 {
-	public void Configure(EntityTypeBuilder<RecipeFavorite> entity)
+	public void Configure(EntityTypeBuilder<RecipeFavorite> builder)
 	{
-		entity.ToTable("RecipeFavorites");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.Id)
+		builder.ToTable("RecipeFavorites");
+		builder.HasKey(favorite => favorite.Id);
+		builder.Property(favorite => favorite.Id)
 			.HasConversion<RecipeFavoriteIdentifierConverter>();
 
-		entity.Property(e => e.Recipe)
+		builder.Property(favorite => favorite.Recipe)
 			.HasConversion<RecipeIdentifierConverter>()
 			.HasColumnName("RecipeIdentifier")
 			.IsRequired();
 
-		entity.Property(e => e.Owner)
+		builder.Property(favorite => favorite.Owner)
 			.HasConversion<RecipeOwnerIdentifierConverter>()
 			.HasMaxLength(OwnerIdentifier.MaxLength)
 			.IsRequired();
 
-		entity.Property(e => e.FavoritedAt).IsRequired();
+		builder.Property(favorite => favorite.FavoritedAt).IsRequired();
 
-		entity.HasIndex(e => new { e.Owner, e.Recipe }).IsUnique();
-		entity.Ignore(e => e.DomainEvents);
+		builder.HasIndex(favorite => new { favorite.Owner, favorite.Recipe }).IsUnique();
+		builder.Ignore(favorite => favorite.DomainEvents);
 	}
 }

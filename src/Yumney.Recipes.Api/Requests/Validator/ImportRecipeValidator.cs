@@ -8,7 +8,7 @@ public sealed class ImportRecipeValidator : AbstractValidator<ImportRecipe>
 {
 	public ImportRecipeValidator()
 	{
-		RuleFor(x => x.Url)
+		RuleFor(request => request.Url)
 			.NotEmpty()
 			.MustBeValidHttpUrl(RecipeUrl.MaxLength);
 	}

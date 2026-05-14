@@ -22,7 +22,7 @@ public sealed class CreateShoppingListFromRecipesCommandHandler(
 			return Result<ShoppingListDetailDto>.Failure(CreateShoppingListFromRecipesErrors.NoRecipesProvided);
 		}
 
-		var inputs = new List<IngredientMergeInput>(recipes.Count);
+		List<IngredientMergeInput> inputs = new(recipes.Count);
 		foreach (var selection in recipes)
 		{
 			var ingredients = await recipeLookup.LookupAsync(selection.Recipe, cancellationToken);

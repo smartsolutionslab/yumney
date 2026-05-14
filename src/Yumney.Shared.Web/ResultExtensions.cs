@@ -42,7 +42,7 @@ public static class ResultExtensions
 	// alongside for log correlation.
 	private static Dictionary<string, object?> BuildProblemExtensions(ApiError error)
 	{
-		var extensions = new Dictionary<string, object?>
+		Dictionary<string, object?> extensions = new()
 		{
 			["code"] = error.Code,
 		};

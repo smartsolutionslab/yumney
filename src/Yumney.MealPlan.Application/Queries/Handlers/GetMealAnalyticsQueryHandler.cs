@@ -107,7 +107,7 @@ public sealed class GetMealAnalyticsQueryHandler(
 	{
 		if (cooked.Count == 0) return [];
 
-		var totals = new Dictionary<string, int>(StringComparer.Ordinal);
+		Dictionary<string, int> totals = new(StringComparer.Ordinal);
 		foreach (var slot in cooked)
 		{
 			var category = slot.RecipeIdentifier is { } id && tagsByRecipe.TryGetValue(id, out var recipeTags)

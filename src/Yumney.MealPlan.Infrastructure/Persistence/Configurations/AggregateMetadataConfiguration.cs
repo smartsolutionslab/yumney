@@ -6,12 +6,12 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Configura
 
 internal sealed class AggregateMetadataConfiguration : IEntityTypeConfiguration<AggregateMetadata>
 {
-	public void Configure(EntityTypeBuilder<AggregateMetadata> entity)
+	public void Configure(EntityTypeBuilder<AggregateMetadata> builder)
 	{
-		entity.ToTable("MealPlanAggregates");
-		entity.HasKey(e => e.AggregateId);
-		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();
-		entity.Property(e => e.Week).HasMaxLength(10).IsRequired();
-		entity.HasIndex(e => new { e.OwnerId, e.Week }).IsUnique();
+		builder.ToTable("MealPlanAggregates");
+		builder.HasKey(metadata => metadata.AggregateId);
+		builder.Property(metadata => metadata.OwnerId).HasMaxLength(255).IsRequired();
+		builder.Property(metadata => metadata.Week).HasMaxLength(10).IsRequired();
+		builder.HasIndex(metadata => new { metadata.OwnerId, metadata.Week }).IsUnique();
 	}
 }

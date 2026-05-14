@@ -6,24 +6,24 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.Configura
 
 internal sealed class MealPlanSlotReadItemConfiguration : IEntityTypeConfiguration<MealPlanSlotReadItem>
 {
-	public void Configure(EntityTypeBuilder<MealPlanSlotReadItem> entity)
+	public void Configure(EntityTypeBuilder<MealPlanSlotReadItem> builder)
 	{
-		entity.ToTable("MealPlanSlotReadItems");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();
-		entity.Property(e => e.Week).HasMaxLength(10).IsRequired();
-		entity.Property(e => e.Day).HasMaxLength(10).IsRequired();
-		entity.Property(e => e.MealType).HasMaxLength(10).IsRequired();
-		entity.Property(e => e.ContentType).HasMaxLength(10).IsRequired();
-		entity.Property(e => e.State).HasMaxLength(10).IsRequired();
-		entity.Property(e => e.RecipeTitle).HasMaxLength(200);
-		entity.Property(e => e.FreetextLabel).HasMaxLength(200);
-		entity.Property(e => e.LeftoverLabel).HasMaxLength(200);
-		entity.Property(e => e.LeftoverSourceDay).HasMaxLength(10);
-		entity.Property(e => e.LeftoverSourceMealType).HasMaxLength(10);
-		entity.Property(e => e.LastUpdated).IsRequired();
+		builder.ToTable("MealPlanSlotReadItems");
+		builder.HasKey(slot => slot.Id);
+		builder.Property(slot => slot.OwnerId).HasMaxLength(255).IsRequired();
+		builder.Property(slot => slot.Week).HasMaxLength(10).IsRequired();
+		builder.Property(slot => slot.Day).HasMaxLength(10).IsRequired();
+		builder.Property(slot => slot.MealType).HasMaxLength(10).IsRequired();
+		builder.Property(slot => slot.ContentType).HasMaxLength(10).IsRequired();
+		builder.Property(slot => slot.State).HasMaxLength(10).IsRequired();
+		builder.Property(slot => slot.RecipeTitle).HasMaxLength(200);
+		builder.Property(slot => slot.FreetextLabel).HasMaxLength(200);
+		builder.Property(slot => slot.LeftoverLabel).HasMaxLength(200);
+		builder.Property(slot => slot.LeftoverSourceDay).HasMaxLength(10);
+		builder.Property(slot => slot.LeftoverSourceMealType).HasMaxLength(10);
+		builder.Property(slot => slot.LastUpdated).IsRequired();
 
-		entity.HasIndex(e => new { e.OwnerId, e.Week, e.Day, e.MealType }).IsUnique();
-		entity.HasIndex(e => new { e.OwnerId, e.Week });
+		builder.HasIndex(slot => new { slot.OwnerId, slot.Week, slot.Day, slot.MealType }).IsUnique();
+		builder.HasIndex(slot => new { slot.OwnerId, slot.Week });
 	}
 }

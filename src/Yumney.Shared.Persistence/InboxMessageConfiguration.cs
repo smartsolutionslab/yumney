@@ -15,13 +15,13 @@ public sealed class InboxMessageConfiguration : IEntityTypeConfiguration<InboxMe
 	{
 		builder.ToTable("InboxMessages");
 
-		builder.HasKey(x => new { x.MessageId, x.ConsumerName });
+		builder.HasKey(message => new { message.MessageId, message.ConsumerName });
 
-		builder.Property(x => x.ConsumerName)
+		builder.Property(message => message.ConsumerName)
 			.IsRequired()
 			.HasMaxLength(256);
 
-		builder.Property(x => x.ProcessedAt)
+		builder.Property(message => message.ProcessedAt)
 			.IsRequired();
 	}
 }

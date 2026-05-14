@@ -31,7 +31,7 @@ public static class ValidationExtensions
 
 	private static Dictionary<string, object?> BuildTraceExtensions()
 	{
-		var extensions = new Dictionary<string, object?>();
+		Dictionary<string, object?> extensions = [];
 
 		var traceId = Activity.Current?.TraceId.ToString();
 		if (traceId is not null)

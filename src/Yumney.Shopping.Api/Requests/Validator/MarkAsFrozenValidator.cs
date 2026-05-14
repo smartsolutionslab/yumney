@@ -6,6 +6,6 @@ public sealed class MarkAsFrozenValidator : AbstractValidator<MarkAsFrozen>
 {
 	public MarkAsFrozenValidator()
 	{
-		RuleFor(x => x.Name).NotEmpty().WithMessage("Item name is required.");
+		RuleFor(request => request.Name).NotEmpty().WithMessage("Item name is required.");
 	}
 }

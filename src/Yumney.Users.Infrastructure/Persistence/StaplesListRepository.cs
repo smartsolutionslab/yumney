@@ -12,15 +12,15 @@ public sealed class StaplesListRepository(UsersDbContext context) : IStaplesList
 	{
 		return await staplesLists
 			.AsNoTracking()
-			.Include(s => s.Items)
-			.FirstOrDefaultAsync(s => s.Owner == owner, cancellationToken);
+			.Include(list => list.Items)
+			.FirstOrDefaultAsync(list => list.Owner == owner, cancellationToken);
 	}
 
 	public async Task<StaplesList> GetByOwnerAsync(OwnerIdentifier owner, CancellationToken cancellationToken = default)
 	{
 		return await staplesLists
-			.Include(s => s.Items)
-			.FirstOrDefaultAsync(s => s.Owner == owner, cancellationToken)
+			.Include(list => list.Items)
+			.FirstOrDefaultAsync(list => list.Owner == owner, cancellationToken)
 			?? throw new EntityNotFoundException(nameof(StaplesList), owner.Value);
 	}
 

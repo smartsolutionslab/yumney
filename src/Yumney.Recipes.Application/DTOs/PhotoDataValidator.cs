@@ -10,18 +10,18 @@ public sealed class PhotoDataValidator : AbstractValidator<PhotoData>
 
 	public PhotoDataValidator()
 	{
-		RuleFor(x => x.Content)
+		RuleFor(photo => photo.Content)
 			.NotEmpty()
 			.WithMessage("Photo content must not be empty.")
 			.Must(content => content.Length <= MaxPhotoSizeBytes)
 			.WithMessage($"Photo exceeds the maximum size of {MaxPhotoSizeBytes / (1024 * 1024)} MB.");
 
-		RuleFor(x => x.ContentType)
+		RuleFor(photo => photo.ContentType)
 			.NotEmpty()
-			.Must(ct => AllowedContentTypes.Contains(ct.ToLowerInvariant()))
+			.Must(contentType => AllowedContentTypes.Contains(contentType.ToLowerInvariant()))
 			.WithMessage("Unsupported file format. Use JPG, PNG, or WebP.");
 
-		RuleFor(x => x.FileName)
+		RuleFor(photo => photo.FileName)
 			.NotEmpty();
 	}
 

@@ -6,17 +6,17 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configura
 
 internal sealed class ShoppingListSummaryReadItemConfiguration : IEntityTypeConfiguration<ShoppingListSummaryReadItem>
 {
-	public void Configure(EntityTypeBuilder<ShoppingListSummaryReadItem> entity)
+	public void Configure(EntityTypeBuilder<ShoppingListSummaryReadItem> builder)
 	{
-		entity.ToTable("ShoppingListSummaryReadItems");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();
-		entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
-		entity.Property(e => e.CreatedAt).IsRequired();
-		entity.Property(e => e.LastUpdated).IsRequired();
+		builder.ToTable("ShoppingListSummaryReadItems");
+		builder.HasKey(summary => summary.Id);
+		builder.Property(summary => summary.OwnerId).HasMaxLength(255).IsRequired();
+		builder.Property(summary => summary.Title).HasMaxLength(200).IsRequired();
+		builder.Property(summary => summary.CreatedAt).IsRequired();
+		builder.Property(summary => summary.LastUpdated).IsRequired();
 
-		entity.HasIndex(e => e.OwnerId);
-		entity.HasIndex(e => new { e.OwnerId, e.CreatedAt });
-		entity.HasIndex(e => new { e.OwnerId, e.Title });
+		builder.HasIndex(summary => summary.OwnerId);
+		builder.HasIndex(summary => new { summary.OwnerId, summary.CreatedAt });
+		builder.HasIndex(summary => new { summary.OwnerId, summary.Title });
 	}
 }

@@ -124,7 +124,7 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 			.OrderBy(row => row.Version)
 			.ToListAsync(cancellationToken);
 
-		var events = new List<IDomainEvent>(stored.Count);
+		List<IDomainEvent> events = new(stored.Count);
 		HashSet<string>? unknownTypes = null;
 		foreach (var row in stored)
 		{
@@ -156,7 +156,7 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 		var eventContext = BuildEventContext(aggregate);
 		var moduleFactories = ModuleEventFactories;
 		var crossFactories = CrossModuleEventFactories;
-		var busEvents = new List<IBusEvent>();
+		List<IBusEvent> busEvents = [];
 
 		foreach (var domainEvent in events)
 		{

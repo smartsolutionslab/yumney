@@ -10,7 +10,7 @@ public static class CrossModuleEventConvention
 
 	public static IReadOnlyDictionary<Type, CrossModuleEventFactory> BuildMap(Assembly assembly)
 	{
-		var map = new Dictionary<Type, CrossModuleEventFactory>();
+		Dictionary<Type, CrossModuleEventFactory> map = [];
 
 		var mapperTypes = assembly.GetTypes()
 			.Where(type => typeof(ICrossModuleEventMapper).IsAssignableFrom(type)

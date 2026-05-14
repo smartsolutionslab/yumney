@@ -6,18 +6,18 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.Configura
 
 internal sealed class ShoppingListItemReadItemConfiguration : IEntityTypeConfiguration<ShoppingListItemReadItem>
 {
-	public void Configure(EntityTypeBuilder<ShoppingListItemReadItem> entity)
+	public void Configure(EntityTypeBuilder<ShoppingListItemReadItem> builder)
 	{
-		entity.ToTable("ShoppingListItemReadItems");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.OwnerId).HasMaxLength(255).IsRequired();
-		entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
-		entity.Property(e => e.QuantityUnit).HasMaxLength(50);
-		entity.Property(e => e.Category).HasMaxLength(50).IsRequired().HasDefaultValue("other");
-		entity.Property(e => e.CreatedAt).IsRequired();
-		entity.Property(e => e.LastUpdated).IsRequired();
+		builder.ToTable("ShoppingListItemReadItems");
+		builder.HasKey(item => item.Id);
+		builder.Property(item => item.OwnerId).HasMaxLength(255).IsRequired();
+		builder.Property(item => item.Name).HasMaxLength(200).IsRequired();
+		builder.Property(item => item.QuantityUnit).HasMaxLength(50);
+		builder.Property(item => item.Category).HasMaxLength(50).IsRequired().HasDefaultValue("other");
+		builder.Property(item => item.CreatedAt).IsRequired();
+		builder.Property(item => item.LastUpdated).IsRequired();
 
-		entity.HasIndex(e => e.ListId);
-		entity.HasIndex(e => new { e.OwnerId, e.ListId });
+		builder.HasIndex(item => item.ListId);
+		builder.HasIndex(item => new { item.OwnerId, item.ListId });
 	}
 }

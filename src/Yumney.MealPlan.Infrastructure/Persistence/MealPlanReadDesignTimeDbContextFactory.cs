@@ -10,7 +10,7 @@ public sealed class MealPlanReadDesignTimeDbContextFactory : IDesignTimeDbContex
 		var optionsBuilder = new DbContextOptionsBuilder<MealPlanReadDbContext>();
 		optionsBuilder.UseNpgsql(
 			"Host=localhost;Database=yumneydb;Username=postgres;Password=postgres",
-			x => x.MigrationsHistoryTable("__MealPlanMigrationsHistory"));
+			npgsql => npgsql.MigrationsHistoryTable("__MealPlanMigrationsHistory"));
 
 		return new MealPlanReadDbContext(optionsBuilder.Options);
 	}

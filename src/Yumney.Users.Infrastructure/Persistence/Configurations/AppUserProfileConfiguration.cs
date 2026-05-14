@@ -7,95 +7,95 @@ namespace SmartSolutionsLab.Yumney.Users.Infrastructure.Persistence.Configuratio
 
 internal sealed class AppUserProfileConfiguration : IEntityTypeConfiguration<AppUserProfile>
 {
-	public void Configure(EntityTypeBuilder<AppUserProfile> entity)
+	public void Configure(EntityTypeBuilder<AppUserProfile> builder)
 	{
-		entity.ToTable("AppUserProfiles");
-		entity.HasKey(e => e.Id);
-		entity.Property(e => e.Id)
+		builder.ToTable("AppUserProfiles");
+		builder.HasKey(profile => profile.Id);
+		builder.Property(profile => profile.Id)
 			.HasConversion<AppUserProfileIdentifierConverter>();
 
-		entity.Property(e => e.KeycloakUserId)
+		builder.Property(profile => profile.KeycloakUserId)
 			.HasConversion<KeycloakUserIdConverter>()
 			.HasMaxLength(KeycloakUserId.MaxLength)
 			.IsRequired();
 
-		entity.Property(e => e.DisplayName)
+		builder.Property(profile => profile.DisplayName)
 			.HasConversion<DisplayNameConverter>()
 			.HasMaxLength(DisplayName.MaxLength)
 			.IsRequired();
 
-		entity.Property(e => e.PreferredLanguage)
+		builder.Property(profile => profile.PreferredLanguage)
 			.HasConversion<PreferredLanguageConverter>()
 			.HasMaxLength(PreferredLanguage.MaxLength)
 			.IsRequired();
 
-		entity.Property(e => e.PreferredUnitSystem)
+		builder.Property(profile => profile.PreferredUnitSystem)
 			.HasConversion<PreferredUnitSystemConverter>()
 			.HasMaxLength(PreferredUnitSystem.MaxLength)
 			.IsRequired();
 
-		entity.Property(e => e.DefaultServings)
+		builder.Property(profile => profile.DefaultServings)
 			.HasConversion<DefaultServingsConverter>()
 			.HasDefaultValue(DefaultServings.Default)
 			.IsRequired();
 
-		entity.Property(e => e.Theme)
+		builder.Property(profile => profile.Theme)
 			.HasConversion<ThemeConverter>()
 			.HasMaxLength(Theme.MaxLength)
 			.HasDefaultValue(Theme.System)
 			.IsRequired();
 
-		entity.OwnsOne(e => e.VoiceSettings, voice =>
+		builder.OwnsOne(profile => profile.VoiceSettings, voice =>
 		{
-			voice.Property(v => v.Enabled).HasColumnName("VoiceEnabled").HasDefaultValue(true);
-			voice.Property(v => v.Speed)
+			voice.Property(settings => settings.Enabled).HasColumnName("VoiceEnabled").HasDefaultValue(true);
+			voice.Property(settings => settings.Speed)
 				.HasConversion<VoiceSpeedConverter>()
 				.HasMaxLength(VoiceSpeed.MaxLength)
 				.HasColumnName("VoiceSpeed")
 				.HasDefaultValue(VoiceSpeed.Normal);
-			voice.Property(v => v.AutoReadInCookMode)
+			voice.Property(settings => settings.AutoReadInCookMode)
 				.HasColumnName("VoiceAutoReadInCookMode")
 				.HasDefaultValue(false);
 		});
 
-		entity.OwnsOne(e => e.NotificationPreferences, notifications =>
+		builder.OwnsOne(profile => profile.NotificationPreferences, notifications =>
 		{
-			notifications.Property(n => n.TimerHapticFeedback)
+			notifications.Property(prefs => prefs.TimerHapticFeedback)
 				.HasColumnName("TimerHapticFeedback")
 				.HasDefaultValue(true);
-			notifications.Property(n => n.TimerSoundAlerts)
+			notifications.Property(prefs => prefs.TimerSoundAlerts)
 				.HasColumnName("TimerSoundAlerts")
 				.HasDefaultValue(true);
 		});
 
-		entity.OwnsOne(e => e.DietaryProfile, dietary =>
+		builder.OwnsOne(profile => profile.DietaryProfile, dietary =>
 		{
-			dietary.Property(d => d.DietaryType)
+			dietary.Property(profile => profile.DietaryType)
 				.HasConversion<DietaryTypeConverter>()
 				.HasMaxLength(DietaryType.MaxLength)
 				.HasColumnName("DietaryType");
 
-			dietary.Property(d => d.Restrictions)
+			dietary.Property(profile => profile.Restrictions)
 				.HasConversion<DietaryRestrictionsConverter>()
 				.HasMaxLength(500)
 				.HasColumnName("DietaryRestrictions");
 
-			dietary.Property(d => d.CookingEffort)
+			dietary.Property(profile => profile.CookingEffort)
 				.HasConversion<CookingEffortPreferenceConverter>()
 				.HasMaxLength(CookingEffortPreference.MaxLength)
 				.HasColumnName("CookingEffort");
 
-			dietary.OwnsOne(d => d.BalanceGoals, goals =>
+			dietary.OwnsOne(profile => profile.BalanceGoals, goals =>
 			{
-				goals.Property(g => g.MinVeggieMeals)
+				goals.Property(balance => balance.MinVeggieMeals)
 					.HasColumnName("MinVeggieMeals");
 
-				goals.Property(g => g.MaxRedMeatMeals)
+				goals.Property(balance => balance.MaxRedMeatMeals)
 					.HasColumnName("MaxRedMeatMeals");
 			});
 		});
 
-		entity.HasIndex(e => e.KeycloakUserId).IsUnique();
-		entity.Ignore(e => e.DomainEvents);
+		builder.HasIndex(profile => profile.KeycloakUserId).IsUnique();
+		builder.Ignore(profile => profile.DomainEvents);
 	}
 }

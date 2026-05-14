@@ -63,7 +63,7 @@ public sealed partial class SemanticKernelShoppingItemCategorizer(
 		IReadOnlyCollection<ItemName> names,
 		CancellationToken cancellationToken = default)
 	{
-		var distinct = names.DistinctBy(n => n.Value).ToList();
+		var distinct = names.DistinctBy(name => name.Value).ToList();
 		var tasks = distinct.Select(async name => (name, category: await CategorizeAsync(name, cancellationToken)));
 		var results = await Task.WhenAll(tasks);
 		return results.ToDictionary(pair => pair.name, pair => pair.category);
