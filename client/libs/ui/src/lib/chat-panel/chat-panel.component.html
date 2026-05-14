@@ -44,7 +44,7 @@
         </div>
       }
 
-      @for (msg of state.messages(); track $index) {
+      @for (msg of state.messages(); track msg.role + ':' + msg.content) {
         <div class="chat-message" [class]="'role-' + msg.role">
           <div class="chat-bubble">{{ msg.content }}</div>
         </div>
@@ -81,7 +81,7 @@
 
       @if (lastActions().length > 0) {
         <div class="chat-actions" data-testid="chat-actions">
-          @for (action of lastActions(); track $index) {
+          @for (action of lastActions(); track action.type + ':' + (action.route ?? action.recipeIdentifier ?? '')) {
             <button
               type="button"
               class="chat-action"

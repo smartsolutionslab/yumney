@@ -64,44 +64,46 @@
     >
       @for (item of group.items; track item.itemName + '|' + item.unit) {
         <div class="item-card" data-testid="shopping-item-card">
-          <button
-            type="button"
-            class="item-row"
+          <div
+            class="item-row-container"
             [class.bought]="item.isBought"
             [class.expanded]="isExpanded(item)"
-            (click)="onToggleExpanded(item)"
-            [attr.aria-expanded]="isExpanded(item)"
-            [attr.aria-label]="t('shopping.sources.toggle')"
-            data-testid="shopping-item-row"
           >
-            <span class="item-info">
-              <span class="item-quantity"
-                >{{ item.displayQuantity }}{{ item.unit ? ' ' + item.unit : '' }}</span
-              >
-              <span class="item-name">{{ item.itemName }}</span>
-            </span>
-            <span class="item-actions">
-              <span class="source-count" [attr.aria-hidden]="true">{{
-                item.sources.length || 1
-              }}</span>
-              <lucide-icon
-                name="chevron-down"
-                [size]="16"
-                class="chevron"
-                [attr.aria-hidden]="true"
-              />
-              <span
-                class="remove-btn"
-                role="button"
-                tabindex="0"
-                (click)="$event.stopPropagation(); onRemoveItem(item.itemName)"
-                (keydown.enter)="$event.stopPropagation(); onRemoveItem(item.itemName)"
-                [attr.aria-label]="t('shopping.remove')"
-              >
-                <lucide-icon name="x" [size]="14" />
+            <button
+              type="button"
+              class="item-row"
+              (click)="onToggleExpanded(item)"
+              [attr.aria-expanded]="isExpanded(item)"
+              [attr.aria-label]="t('shopping.sources.toggle')"
+              data-testid="shopping-item-row"
+            >
+              <span class="item-info">
+                <span class="item-quantity"
+                  >{{ item.displayQuantity }}{{ item.unit ? ' ' + item.unit : '' }}</span
+                >
+                <span class="item-name">{{ item.itemName }}</span>
               </span>
-            </span>
-          </button>
+              <span class="item-meta">
+                <span class="source-count" [attr.aria-hidden]="true">{{
+                  item.sources.length || 1
+                }}</span>
+                <lucide-icon
+                  name="chevron-down"
+                  [size]="16"
+                  class="chevron"
+                  [attr.aria-hidden]="true"
+                />
+              </span>
+            </button>
+            <button
+              type="button"
+              class="remove-btn"
+              (click)="onRemoveItem(item.itemName)"
+              [attr.aria-label]="t('shopping.remove')"
+            >
+              <lucide-icon name="x" [size]="14" />
+            </button>
+          </div>
           @if (isExpanded(item)) {
             <div class="sources-panel" data-testid="shopping-sources-panel">
               <div class="sources-header">{{ t('shopping.sources.header') }}</div>

@@ -279,6 +279,11 @@ export class DashboardComponent implements OnInit {
     this.saveSuccess.set(null);
   }
 
+  onImportAnother(): void {
+    this.onDiscardRecipe();
+    this.importSectionExpanded.set(true);
+  }
+
   private cancelNavigateAfterSave(): void {
     if (this.navigateAfterSaveTimer !== null) {
       clearTimeout(this.navigateAfterSaveTimer);
