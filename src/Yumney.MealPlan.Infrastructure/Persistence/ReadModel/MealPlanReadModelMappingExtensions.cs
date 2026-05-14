@@ -27,6 +27,12 @@ public static class MealPlanReadModelMappingExtensions
 			.ThenBy(slot => Enum.Parse<MealType>(slot.MealType))
 			.ToList();
 
+	public static WeeklyPlanDto ToWeeklyPlanDto(this MealPlanWeekReadItem weekItem, IEnumerable<MealPlanSlotReadItem> visibleRows) =>
+		new(weekItem.Week, weekItem.IsExtendedMode, visibleRows.ToDtos());
+
+	public static WeeklyPlanDto EmptyWeeklyPlanDto(string week, int defaultServings) =>
+		new(week, false, EmptyDinnerSlots(defaultServings));
+
 	public static PlannedRecipeDto ToPlannedRecipeDto(this MealPlanSlotReadItem row) =>
 		new(
 			row.RecipeIdentifier!.Value,
@@ -40,6 +46,9 @@ public static class MealPlanReadModelMappingExtensions
 			.Select(row => row.ToPlannedRecipeDto())
 			.ToList();
 
+	public static WeeklyPlannedRecipesDto ToWeeklyPlannedRecipesDto(this IEnumerable<MealPlanSlotReadItem> rows, string week) =>
+		new(week, rows.ToPlannedRecipeDtos());
+
 	public static MealHistoryEntryDto ToHistoryEntryDto(this MealPlanSlotReadItem row) =>
 		new(
 			row.RecipeIdentifier,
@@ -51,5 +60,22 @@ public static class MealPlanReadModelMappingExtensions
 	public static IReadOnlyList<MealHistoryEntryDto> ToHistoryEntryDtos(this IEnumerable<MealPlanSlotReadItem> rows) =>
 		rows
 			.Select(row => row.ToHistoryEntryDto())
+			.ToList();
+
+	private static List<MealSlotDto> EmptyDinnerSlots(int defaultServings) =>
+		WeekDays.MondayToSunday
+			.Select(day => new MealSlotDto(
+				day.ToString(),
+				MealType.Dinner.ToString(),
+				SlotContentType.Empty.ToString(),
+				MealState.Planned.ToString(),
+				null,
+				null,
+				defaultServings,
+				null,
+				null,
+				null,
+				null,
+				true))
 			.ToList();
 }
