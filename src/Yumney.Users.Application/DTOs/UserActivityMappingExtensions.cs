@@ -13,4 +13,7 @@ public static class UserActivityMappingExtensions
 
 	public static IReadOnlyList<UserActivityDto> ToDtos(this IEnumerable<UserActivity> activities) =>
 		activities.Select(activity => activity.ToDto()).ToList();
+
+	public static RecipeActivityStatsDto ToDto(this RecipeActivityStats stats) =>
+		new(stats.CookCount, stats.LastCookedAt, stats.ViewCount);
 }

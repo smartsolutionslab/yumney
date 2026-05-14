@@ -16,6 +16,6 @@ public sealed class GetRecipeActivityStatsQueryHandler(IUserActivityRepository a
 			owner,
 			RecipeIdentifierSnapshot.From(query.RecipeIdentifier),
 			cancellationToken);
-		return Result.Success(new RecipeActivityStatsDto(stats.CookCount, stats.LastCookedAt, stats.ViewCount));
+		return Result.Success(stats.ToDto());
 	}
 }
