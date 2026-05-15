@@ -5,7 +5,7 @@ namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.EventStor
 /// <summary>
 /// Tracks aggregate identity and ownership. One row per (owner, week) — i.e. one weekly plan.
 /// </summary>
-public sealed class AggregateMetadata : IAggregateMetadata
+public sealed class AggregateMetadata : IOwnerScopedAggregateMetadata
 {
 	public Guid AggregateId { get; set; }
 

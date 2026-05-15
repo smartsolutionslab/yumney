@@ -2,13 +2,15 @@ using Microsoft.EntityFrameworkCore;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence.ReadModel;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 
 /// <summary>
-/// EF-backed implementation of <see cref="IMealPlanUserDataPurger"/>. Resolves
-/// the owner's aggregate IDs from the metadata table, deletes their event
-/// streams, then drops the metadata rows and the owner-scoped read models.
+/// EF-backed implementation of <see cref="IMealPlanUserDataPurger"/>. Drains the
+/// owner's event stream + metadata via the shared
+/// <see cref="EventSourcedAggregateDraining"/> helper, then deletes the
+/// owner-scoped read-model rows.
 /// </summary>
 public sealed class MealPlanUserDataPurger(MealPlanDbContext writeContext, MealPlanReadDbContext readContext)
 	: IMealPlanUserDataPurger
@@ -17,21 +19,10 @@ public sealed class MealPlanUserDataPurger(MealPlanDbContext writeContext, MealP
 	{
 		var ownerValue = owner.Value;
 
-		var aggregateIds = await writeContext.MealPlanAggregates
-			.Where(aggregate => aggregate.OwnerId == ownerValue)
-			.Select(aggregate => aggregate.AggregateId)
-			.ToListAsync(cancellationToken);
-
-		if (aggregateIds.Count > 0)
-		{
-			await writeContext.MealPlanEvents
-				.Where(stored => aggregateIds.Contains(stored.AggregateId))
-				.ExecuteDeleteAsync(cancellationToken);
-		}
-
-		await writeContext.MealPlanAggregates
-			.Where(aggregate => aggregate.OwnerId == ownerValue)
-			.ExecuteDeleteAsync(cancellationToken);
+		await writeContext.MealPlanAggregates.DrainOwnerAggregatesAsync(
+			writeContext.MealPlanEvents,
+			ownerValue,
+			cancellationToken);
 
 		await readContext.Set<MealPlanSlotReadItem>()
 			.Where(slot => slot.OwnerId == ownerValue)

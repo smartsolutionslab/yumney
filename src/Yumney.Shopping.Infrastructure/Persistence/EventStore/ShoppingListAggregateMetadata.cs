@@ -6,7 +6,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStor
 /// Tracks identity and ownership for one <see cref="SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList.ShoppingList"/>
 /// aggregate. Multiple rows per owner (one per list).
 /// </summary>
-public sealed class ShoppingListAggregateMetadata : IAggregateMetadata
+public sealed class ShoppingListAggregateMetadata : IOwnerScopedAggregateMetadata
 {
 	public Guid AggregateId { get; set; }
 
