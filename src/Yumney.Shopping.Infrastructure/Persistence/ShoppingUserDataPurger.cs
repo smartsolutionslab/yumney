@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
@@ -6,9 +7,10 @@ using SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.ReadModel;
 namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence;
 
 /// <summary>
-/// EF-backed implementation of <see cref="IShoppingUserDataPurger"/>. Resolves
-/// the owner's aggregate IDs from the metadata tables, deletes their event
-/// streams, then drops the metadata rows and every owner-scoped read-model row.
+/// EF-backed implementation of <see cref="IShoppingUserDataPurger"/>. Drains the
+/// owner's two event streams (ShoppingList aggregates + Shopping aggregates) via
+/// the shared <see cref="EventSourcedAggregateDraining"/> helper, then deletes
+/// every owner-scoped read-model row.
 /// </summary>
 public sealed class ShoppingUserDataPurger(ShoppingDbContext writeContext, ShoppingReadDbContext readContext)
 	: IShoppingUserDataPurger
@@ -17,37 +19,15 @@ public sealed class ShoppingUserDataPurger(ShoppingDbContext writeContext, Shopp
 	{
 		var ownerValue = owner.Value;
 
-		var shoppingListAggregateIds = await writeContext.ShoppingListAggregates
-			.Where(aggregate => aggregate.OwnerId == ownerValue)
-			.Select(aggregate => aggregate.AggregateId)
-			.ToListAsync(cancellationToken);
+		await writeContext.ShoppingListAggregates.DrainOwnerAggregatesAsync(
+			writeContext.ShoppingListEvents,
+			ownerValue,
+			cancellationToken);
 
-		if (shoppingListAggregateIds.Count > 0)
-		{
-			await writeContext.ShoppingListEvents
-				.Where(stored => shoppingListAggregateIds.Contains(stored.AggregateId))
-				.ExecuteDeleteAsync(cancellationToken);
-		}
-
-		await writeContext.ShoppingListAggregates
-			.Where(aggregate => aggregate.OwnerId == ownerValue)
-			.ExecuteDeleteAsync(cancellationToken);
-
-		var shoppingAggregateIds = await writeContext.ShoppingAggregates
-			.Where(aggregate => aggregate.OwnerId == ownerValue)
-			.Select(aggregate => aggregate.AggregateId)
-			.ToListAsync(cancellationToken);
-
-		if (shoppingAggregateIds.Count > 0)
-		{
-			await writeContext.ShoppingEvents
-				.Where(stored => shoppingAggregateIds.Contains(stored.AggregateId))
-				.ExecuteDeleteAsync(cancellationToken);
-		}
-
-		await writeContext.ShoppingAggregates
-			.Where(aggregate => aggregate.OwnerId == ownerValue)
-			.ExecuteDeleteAsync(cancellationToken);
+		await writeContext.ShoppingAggregates.DrainOwnerAggregatesAsync(
+			writeContext.ShoppingEvents,
+			ownerValue,
+			cancellationToken);
 
 		await readContext.Set<ShoppingListItemReadItem>()
 			.Where(item => item.OwnerId == ownerValue)

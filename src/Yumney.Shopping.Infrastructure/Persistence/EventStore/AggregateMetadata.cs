@@ -5,7 +5,7 @@ namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Persistence.EventStor
 /// <summary>
 /// Tracks aggregate identity and ownership. One row per aggregate.
 /// </summary>
-public sealed class AggregateMetadata : IAggregateMetadata
+public sealed class AggregateMetadata : IOwnerScopedAggregateMetadata
 {
 	public Guid AggregateId { get; set; }
 
