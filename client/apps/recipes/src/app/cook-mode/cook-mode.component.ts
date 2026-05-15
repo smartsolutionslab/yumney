@@ -60,7 +60,7 @@ export class CookModeComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
-  private loadState = createAsyncState(this.destroyRef);
+  private loadState = createAsyncState();
   protected voice = inject(VoiceService);
   protected timers = inject(CookingTimerService);
   private wakeLock = inject(WakeLockService);

@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
   signal,
@@ -30,8 +29,7 @@ const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
 })
 export class MealAnalyticsComponent {
   private api = inject(MealPlanApiService);
-  private destroyRef = inject(DestroyRef);
-  private loadState = createAsyncState(this.destroyRef);
+  private loadState = createAsyncState();
 
   protected viewMode = signal<ViewMode>('month');
   protected year = signal(new Date().getFullYear());

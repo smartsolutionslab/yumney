@@ -1,4 +1,4 @@
-import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 import { forkJoin, of } from 'rxjs';
@@ -15,9 +15,8 @@ export class MultiRecipeShoppingListService {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private transloco = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
-  private previewLoadState = createAsyncState(this.destroyRef);
-  private createState = createAsyncState(this.destroyRef);
+  private previewLoadState = createAsyncState();
+  private createState = createAsyncState();
 
   readonly multiSelectMode = signal(false);
   readonly selectedRecipeIds = signal<ReadonlySet<string>>(new Set<string>());

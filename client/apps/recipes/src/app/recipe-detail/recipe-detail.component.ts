@@ -73,9 +73,9 @@ export class RecipeDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
-  private loadState = createAsyncState(this.destroyRef);
-  private deleteState = createAsyncState(this.destroyRef);
-  private createShoppingListState = createAsyncState(this.destroyRef);
+  private loadState = createAsyncState();
+  private deleteState = createAsyncState();
+  private createShoppingListState = createAsyncState();
   private notesAutosave = inject(RecipeNotesAutosaveService);
   private preferences = inject(UserPreferencesService);
 

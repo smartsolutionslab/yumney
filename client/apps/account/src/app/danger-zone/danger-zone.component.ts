@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
   signal,
@@ -28,8 +27,7 @@ export class DangerZoneComponent {
 
   private api = inject(UserProfileApiService);
   private auth = inject(AuthService);
-  private destroyRef = inject(DestroyRef);
-  private deleteState = createAsyncState(this.destroyRef);
+  private deleteState = createAsyncState();
 
   protected confirmationInput = signal('');
   protected deleting = this.deleteState.isLoading;

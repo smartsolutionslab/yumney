@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
   signal,
@@ -34,8 +33,7 @@ export class ActivityComponent {
   protected readonly filterOptions = FILTER_OPTIONS;
 
   private api = inject(ActivityApiService);
-  private destroyRef = inject(DestroyRef);
-  private state = createAsyncState(this.destroyRef);
+  private state = createAsyncState();
 
   protected loading = this.state.isLoading;
   protected error = this.state.serverError;

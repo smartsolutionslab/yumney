@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   effect,
   inject,
@@ -33,13 +32,12 @@ const AUTOSAVE_DEBOUNCE_MS = 400;
 })
 export class ProfileSettingsComponent {
   private api = inject(UserProfileApiService);
-  private destroyRef = inject(DestroyRef);
   private theme = inject(ThemeService);
   private voice = inject(VoiceService);
   private preferences = inject(UserPreferencesService);
   private transloco = inject(TranslocoService);
-  private loadState = createAsyncState(this.destroyRef);
-  private saveState = createAsyncState(this.destroyRef);
+  private loadState = createAsyncState();
+  private saveState = createAsyncState();
   private autosaveTick = signal(0);
 
   protected profile = signal<UserProfile | null>(null);

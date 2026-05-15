@@ -37,7 +37,7 @@ export class MealHistoryComponent {
   private api = inject(MealPlanApiService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
-  private searchState = createAsyncState(this.destroyRef);
+  private searchState = createAsyncState();
 
   protected term = new FormControl<string>('', { nonNullable: true });
   protected results = signal<MealHistoryEntry[]>([]);

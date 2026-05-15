@@ -2,7 +2,6 @@ import {
   Component,
   ChangeDetectionStrategy,
   computed,
-  DestroyRef,
   inject,
   OnInit,
   signal,
@@ -44,8 +43,7 @@ export class CookableRecipesComponent implements OnInit {
   protected readonly ROUTES = ROUTES;
 
   private recipeApi = inject(RecipeApiService);
-  private destroyRef = inject(DestroyRef);
-  private asyncState = createAsyncState(this.destroyRef);
+  private asyncState = createAsyncState();
   private loadRequestId = 0;
 
   recipes = signal<CookableRecipeListItem[]>([]);

@@ -2,7 +2,6 @@ import {
   Component,
   ChangeDetectionStrategy,
   computed,
-  DestroyRef,
   inject,
   OnInit,
   signal,
@@ -27,9 +26,8 @@ import { EmptyStateComponent, MessageBannerComponent } from '@yumney/ui';
 })
 export class PantryComponent implements OnInit {
   private shoppingApi = inject(ShoppingApiService);
-  private destroyRef = inject(DestroyRef);
-  private loadState = createAsyncState(this.destroyRef);
-  private freezeState = createAsyncState(this.destroyRef);
+  private loadState = createAsyncState();
+  private freezeState = createAsyncState();
 
   items = signal<IngredientBalanceItem[]>([]);
   isLoading = this.loadState.isLoading;

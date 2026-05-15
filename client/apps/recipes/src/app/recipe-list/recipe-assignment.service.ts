@@ -1,4 +1,4 @@
-import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { createAsyncState, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
 import { MealPlanApiService, RecipeListItem } from '../api';
@@ -10,8 +10,7 @@ export class RecipeAssignmentService {
   private mealPlanApi = inject(MealPlanApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private destroyRef = inject(DestroyRef);
-  private assignState = createAsyncState(this.destroyRef);
+  private assignState = createAsyncState();
 
   readonly assignTo = signal<string | null>(null);
   readonly assignMode = computed(() => this.assignTo() !== null);

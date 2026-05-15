@@ -94,7 +94,7 @@ export class RecipeListComponent implements OnInit {
   private recipeApi = inject(RecipeApiService);
   private chatApi = inject(ChatApiService);
   private destroyRef = inject(DestroyRef);
-  private asyncState = createAsyncState(this.destroyRef);
+  private asyncState = createAsyncState();
   private searchInput = signal('');
   private loadRequestId = 0;
 
