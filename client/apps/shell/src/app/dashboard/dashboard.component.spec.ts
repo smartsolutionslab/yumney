@@ -5,12 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { DashboardComponent } from './dashboard.component';
 import { setupTranslocoTesting, UI } from '@yumney/shared/models';
-import {
-  RecipeApiService,
-  ImportRecipeResponse,
-  SavedRecipeResponse,
-  DashboardApiService,
-} from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse, SavedRecipeResponse, DashboardApiService } from '@yumney/shared/api-client';
 
 const mockRecipe: ImportRecipeResponse = {
   title: 'Pasta Carbonara',
@@ -254,9 +249,7 @@ describe('DashboardComponent', () => {
   }));
 
   it('should show duplicate error on 409 response', fakeAsync(() => {
-    recipeApiMock.saveRecipe.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 409 })),
-    );
+    recipeApiMock.saveRecipe.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
 
     component.onUrlExtracted({ recipe: mockRecipe, sourceUrl: 'https://example.com/recipe' });
     component.onSaveRecipe(mockRecipe);
@@ -266,9 +259,7 @@ describe('DashboardComponent', () => {
   }));
 
   it('should show generic save error on 500 response', fakeAsync(() => {
-    recipeApiMock.saveRecipe.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 500 })),
-    );
+    recipeApiMock.saveRecipe.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
 
     component.onUrlExtracted({ recipe: mockRecipe, sourceUrl: 'https://example.com/recipe' });
     component.onSaveRecipe(mockRecipe);
@@ -308,9 +299,7 @@ describe('DashboardComponent', () => {
     component.onSaveRecipe(mockRecipe);
     tick();
 
-    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
-      expect.not.objectContaining({ sourceUrl: expect.anything() }),
-    );
+    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(expect.not.objectContaining({ sourceUrl: expect.anything() }));
   }));
 
   it('should include sourceUrl in save request', fakeAsync(() => {
@@ -325,9 +314,7 @@ describe('DashboardComponent', () => {
     component.onSaveRecipe(mockRecipe);
     tick();
 
-    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
-      expect.objectContaining({ sourceUrl: 'https://example.com/recipe' }),
-    );
+    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(expect.objectContaining({ sourceUrl: 'https://example.com/recipe' }));
   }));
 
   it('should map recipe fields to save request correctly', fakeAsync(() => {
@@ -363,9 +350,7 @@ describe('DashboardComponent', () => {
   }));
 
   it('should set isSaving to false after save error', fakeAsync(() => {
-    recipeApiMock.saveRecipe.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 500 })),
-    );
+    recipeApiMock.saveRecipe.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
 
     component.onUrlExtracted({ recipe: mockRecipe, sourceUrl: 'https://example.com/recipe' });
     component.onSaveRecipe(mockRecipe);
@@ -376,9 +361,7 @@ describe('DashboardComponent', () => {
 
   it('should clear serverError when starting a save', fakeAsync(() => {
     component.serverError.set('previous error');
-    recipeApiMock.saveRecipe.mockReturnValue(
-      of({ identifier: '1', title: 'X', createdAt: '2026-03-10T00:00:00Z' } as SavedRecipeResponse),
-    );
+    recipeApiMock.saveRecipe.mockReturnValue(of({ identifier: '1', title: 'X', createdAt: '2026-03-10T00:00:00Z' } as SavedRecipeResponse));
 
     component.onUrlExtracted({ recipe: mockRecipe, sourceUrl: 'https://example.com/recipe' });
     component.onSaveRecipe(mockRecipe);
@@ -471,9 +454,7 @@ describe('DashboardComponent', () => {
     component.onSaveRecipe({ ...draft, title: 'My Recipe' });
     tick(UI.SAVED_INDICATOR_MS);
 
-    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(
-      expect.not.objectContaining({ sourceUrl: expect.anything() }),
-    );
+    expect(recipeApiMock.saveRecipe).toHaveBeenCalledWith(expect.not.objectContaining({ sourceUrl: expect.anything() }));
     expect(routerMock.navigate).toHaveBeenCalledWith(['/recipes/456']);
   }));
 
@@ -584,9 +565,7 @@ describe('DashboardComponent – Share Intent', () => {
   beforeEach(() => {
     recipeApiMock = {
       importRecipe: vi.fn(),
-      importRecipeStream: vi
-        .fn()
-        .mockReturnValue(of({ type: 'done' as const, data: JSON.stringify(mockRecipe) })),
+      importRecipeStream: vi.fn().mockReturnValue(of({ type: 'done' as const, data: JSON.stringify(mockRecipe) })),
       importFromPhotos: vi.fn(),
       saveRecipe: vi.fn(),
     };

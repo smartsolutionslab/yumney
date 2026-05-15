@@ -9,11 +9,7 @@ import { Signal, effect } from '@angular/core';
  * its lifetime to the surrounding injector. Pending timeouts are cleared
  * on each re-run and on teardown.
  */
-export function debouncedEffect<T>(
-  source: Signal<T>,
-  ms: number,
-  callback: (value: T) => void,
-): void {
+export function debouncedEffect<T>(source: Signal<T>, ms: number, callback: (value: T) => void): void {
   let firstRun = true;
   effect((onCleanup) => {
     const value = source();

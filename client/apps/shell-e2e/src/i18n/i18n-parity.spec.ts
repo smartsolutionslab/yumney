@@ -38,10 +38,7 @@ async function readH1(page: import('@playwright/test').Page): Promise<string> {
   return text;
 }
 
-async function setLanguage(
-  page: import('@playwright/test').Page,
-  lang: 'en' | 'de',
-): Promise<void> {
+async function setLanguage(page: import('@playwright/test').Page, lang: 'en' | 'de'): Promise<void> {
   await page.evaluate((value) => {
     localStorage.setItem('yn-language', value);
   }, lang);

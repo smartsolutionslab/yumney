@@ -39,9 +39,7 @@ test.describe('Recipe Detail (US-031, US-050, US-032, US-033)', () => {
     await expect(authenticatedPage).toHaveURL(new RegExp(`/recipes/${recipe().identifier}/edit`));
   });
 
-  test('should show and dismiss delete confirmation dialog (US-033)', async ({
-    authenticatedPage,
-  }) => {
+  test('should show and dismiss delete confirmation dialog (US-033)', async ({ authenticatedPage }) => {
     const detail = new RecipeDetailPage(authenticatedPage);
     await detail.goto(recipe().identifier);
 

@@ -41,9 +41,7 @@ describe('DashboardSuggestionsService', () => {
 
     expect(result).toEqual({ initialDataIsEmpty: false });
     expect(service.loading()).toBe(false);
-    expect(service.quickActions()).toEqual([
-      { key: 'cook_now', labelKey: 'dashboard.quickActions.cook_now' },
-    ]);
+    expect(service.quickActions()).toEqual([{ key: 'cook_now', labelKey: 'dashboard.quickActions.cook_now' }]);
     expect(service.suggestions()?.suggestions).toHaveLength(1);
   });
 

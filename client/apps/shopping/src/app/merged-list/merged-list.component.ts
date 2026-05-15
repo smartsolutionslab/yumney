@@ -1,30 +1,11 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  DestroyRef,
-  inject,
-  signal,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  ShoppingApiService,
-  type MergedShoppingList,
-  type MergedShoppingItem,
-  type AddedItem,
-  type ItemSource,
-} from '../api';
-import {
-  createAsyncState,
-  ERROR_MAPS,
-  groupByCategory,
-  type CategoryGroup,
-  ToastService,
-} from '@yumney/shared/models';
+import { ShoppingApiService, type MergedShoppingList, type MergedShoppingItem, type AddedItem, type ItemSource } from '../api';
+import { createAsyncState, ERROR_MAPS, groupByCategory, type CategoryGroup, ToastService } from '@yumney/shared/models';
 import {
   AsyncStateComponent,
   CATEGORY_KEYS,
@@ -74,9 +55,7 @@ export class MergedListComponent {
   });
 
   protected totalItems = computed(() => this.list()?.items.length ?? 0);
-  protected boughtItems = computed(
-    () => this.list()?.items.filter((item) => item.isBought).length ?? 0,
-  );
+  protected boughtItems = computed(() => this.list()?.items.filter((item) => item.isBought).length ?? 0);
 
   constructor() {
     this.loadList();
@@ -223,8 +202,7 @@ export class MergedListComponent {
   private applyOptimisticAdd(added: AddedItem): void {
     const current = this.list() ?? { items: [] };
     const matchIndex = current.items.findIndex(
-      (item) =>
-        item.itemName.toLowerCase() === added.itemName.toLowerCase() && item.unit === added.unit,
+      (item) => item.itemName.toLowerCase() === added.itemName.toLowerCase() && item.unit === added.unit,
     );
 
     let nextItems: MergedShoppingItem[];
@@ -280,10 +258,7 @@ export class MergedListComponent {
             return;
           }
 
-          setTimeout(
-            () => this.refreshUntilContains(added, attempt + 1),
-            Math.min(1600, 200 * (attempt + 1)),
-          );
+          setTimeout(() => this.refreshUntilContains(added, attempt + 1), Math.min(1600, 200 * (attempt + 1)));
         },
         error: () => {
           if (requestId !== this.loadRequestId) return;
@@ -295,9 +270,7 @@ export class MergedListComponent {
   private containsAddedItem(list: MergedShoppingList, added: AddedItem): boolean {
     return list.items.some(
       (item) =>
-        item.itemName.toLowerCase() === added.itemName.toLowerCase() &&
-        item.unit === added.unit &&
-        item.totalQuantity >= added.quantity,
+        item.itemName.toLowerCase() === added.itemName.toLowerCase() && item.unit === added.unit && item.totalQuantity >= added.quantity,
     );
   }
 }

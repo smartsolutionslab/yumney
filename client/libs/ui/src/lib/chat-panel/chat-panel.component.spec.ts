@@ -312,8 +312,7 @@ describe('ChatPanelComponent', () => {
     chatState.open();
     fixture.detectChanges();
 
-    const longText =
-      'Pasta Carbonara\n200g spaghetti\n4 eggs\n100g guanciale\nBoil pasta, mix with eggs and cheese';
+    const longText = 'Pasta Carbonara\n200g spaghetti\n4 eggs\n100g guanciale\nBoil pasta, mix with eggs and cheese';
     fixture.componentInstance['input'].set(longText);
     fixture.componentInstance['onSend']();
     await Promise.resolve();
@@ -497,9 +496,7 @@ describe('ChatPanelComponent', () => {
       chatState.open();
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        '[data-testid="chat-mic"]',
-      ) as HTMLButtonElement;
+      const button = fixture.nativeElement.querySelector('[data-testid="chat-mic"]') as HTMLButtonElement;
       button.click();
 
       expect(voiceMock.setLanguage).toHaveBeenCalled();
@@ -514,9 +511,7 @@ describe('ChatPanelComponent', () => {
       voiceMock.isListening.set(true);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        '[data-testid="chat-mic"]',
-      ) as HTMLButtonElement;
+      const button = fixture.nativeElement.querySelector('[data-testid="chat-mic"]') as HTMLButtonElement;
       button.click();
 
       expect(voiceMock.stopListening).toHaveBeenCalledTimes(1);
@@ -529,9 +524,7 @@ describe('ChatPanelComponent', () => {
       fixture.componentInstance['input'].set('Plan');
 
       fixture.componentInstance['onToggleMic']();
-      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (
-        text: string,
-      ) => void;
+      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (text: string) => void;
       onTranscript('the week');
 
       expect(fixture.componentInstance['input']()).toBe('Plan the week');
@@ -569,9 +562,7 @@ describe('ChatPanelComponent', () => {
 
       // Simulate the mic callback firing — it sets lastInputWasVoice=true.
       fixture.componentInstance['onToggleMic']();
-      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (
-        text: string,
-      ) => void;
+      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (text: string) => void;
       onTranscript('Add milk');
 
       chatApiMock.send.mockReturnValue(of({ reply: 'Added 1 liter milk', suggestions: [] }));
@@ -595,9 +586,7 @@ describe('ChatPanelComponent', () => {
       fixture.detectChanges();
 
       fixture.componentInstance['onToggleMic']();
-      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (
-        text: string,
-      ) => void;
+      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (text: string) => void;
       onTranscript('Add milk');
 
       chatApiMock.send.mockReturnValue(of({ reply: 'Added', suggestions: [] }));
@@ -615,9 +604,7 @@ describe('ChatPanelComponent', () => {
       fixture.detectChanges();
 
       fixture.componentInstance['onToggleMic']();
-      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (
-        text: string,
-      ) => void;
+      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (text: string) => void;
       onTranscript('Add milk');
 
       // Simulate user typing — ngModelChange path through onInputChange.
@@ -648,9 +635,7 @@ describe('ChatPanelComponent', () => {
       chatState.open();
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        '[data-testid="chat-mute"]',
-      ) as HTMLButtonElement;
+      const button = fixture.nativeElement.querySelector('[data-testid="chat-mute"]') as HTMLButtonElement;
       button.click();
 
       expect(voiceMock.setMuted).toHaveBeenCalledWith(true);
@@ -670,9 +655,7 @@ describe('ChatPanelComponent', () => {
       await sendMessage('Hi');
       voiceMock.speak.mockClear();
 
-      const button = fixture.nativeElement.querySelector(
-        '[data-testid="chat-replay"]',
-      ) as HTMLButtonElement;
+      const button = fixture.nativeElement.querySelector('[data-testid="chat-replay"]') as HTMLButtonElement;
       button.click();
 
       expect(voiceMock.speak).toHaveBeenCalledWith('Hello there');
@@ -686,9 +669,7 @@ describe('ChatPanelComponent', () => {
       voiceMock.muted.set(true);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        '[data-testid="chat-replay"]',
-      ) as HTMLButtonElement;
+      const button = fixture.nativeElement.querySelector('[data-testid="chat-replay"]') as HTMLButtonElement;
       expect(button.disabled).toBe(true);
     });
   });

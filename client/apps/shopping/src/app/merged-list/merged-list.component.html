@@ -12,20 +12,14 @@
       >
         <lucide-icon name="history" [size]="18" />
       </button>
-      <button
-        class="export-btn"
-        (click)="onExport()"
-        [attr.aria-label]="t('shopping.export.button')"
-      >
+      <button class="export-btn" (click)="onExport()" [attr.aria-label]="t('shopping.export.button')">
         <lucide-icon name="share" [size]="18" />
       </button>
     </div>
   </div>
 
   @if (totalItems() > 0) {
-    <div class="progress-bar" data-testid="shopping-progress-bar">
-      {{ boughtItems() }} / {{ totalItems() }} {{ t('shopping.checked') }}
-    </div>
+    <div class="progress-bar" data-testid="shopping-progress-bar">{{ boughtItems() }} / {{ totalItems() }} {{ t('shopping.checked') }}</div>
   }
 
   <div class="add-item">
@@ -38,37 +32,18 @@
       class="add-input"
       data-testid="shopping-add-input"
     />
-    <button
-      class="add-btn"
-      (click)="onAddItem()"
-      [disabled]="!newItemName().trim()"
-      [attr.aria-label]="t('shopping.addItem')"
-    >
+    <button class="add-btn" (click)="onAddItem()" [disabled]="!newItemName().trim()" [attr.aria-label]="t('shopping.addItem')">
       <lucide-icon name="plus" [size]="18" />
     </button>
   </div>
 
-  <yn-async-state
-    [loading]="loading()"
-    [error]="error()"
-    loadingKey="shopping.loading"
-    retryKey="shopping.retry"
-    (retry)="onRetry()"
-  />
+  <yn-async-state [loading]="loading()" [error]="error()" loadingKey="shopping.loading" retryKey="shopping.retry" (retry)="onRetry()" />
 
   @for (group of categoryGroups(); track group.category) {
-    <yn-category-section
-      [category]="group.category"
-      [itemCount]="group.items.length"
-      data-testid="shopping-category-group"
-    >
+    <yn-category-section [category]="group.category" [itemCount]="group.items.length" data-testid="shopping-category-group">
       @for (item of group.items; track item.itemName + '|' + item.unit) {
         <div class="item-card" data-testid="shopping-item-card">
-          <div
-            class="item-row-container"
-            [class.bought]="item.isBought"
-            [class.expanded]="isExpanded(item)"
-          >
+          <div class="item-row-container" [class.bought]="item.isBought" [class.expanded]="isExpanded(item)">
             <button
               type="button"
               class="item-row"
@@ -78,29 +53,15 @@
               data-testid="shopping-item-row"
             >
               <span class="item-info">
-                <span class="item-quantity"
-                  >{{ item.displayQuantity }}{{ item.unit ? ' ' + item.unit : '' }}</span
-                >
+                <span class="item-quantity">{{ item.displayQuantity }}{{ item.unit ? ' ' + item.unit : '' }}</span>
                 <span class="item-name">{{ item.itemName }}</span>
               </span>
               <span class="item-meta">
-                <span class="source-count" [attr.aria-hidden]="true">{{
-                  item.sources.length || 1
-                }}</span>
-                <lucide-icon
-                  name="chevron-down"
-                  [size]="16"
-                  class="chevron"
-                  [attr.aria-hidden]="true"
-                />
+                <span class="source-count" [attr.aria-hidden]="true">{{ item.sources.length || 1 }}</span>
+                <lucide-icon name="chevron-down" [size]="16" class="chevron" [attr.aria-hidden]="true" />
               </span>
             </button>
-            <button
-              type="button"
-              class="remove-btn"
-              (click)="onRemoveItem(item.itemName)"
-              [attr.aria-label]="t('shopping.remove')"
-            >
+            <button type="button" class="remove-btn" (click)="onRemoveItem(item.itemName)" [attr.aria-label]="t('shopping.remove')">
               <lucide-icon name="x" [size]="14" />
             </button>
           </div>

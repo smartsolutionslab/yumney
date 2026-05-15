@@ -79,9 +79,7 @@ test.describe('Favorite Recipes — Optimistic Rollback (#409)', () => {
 
     // Wait for the (failed) POST to complete before asserting the revert.
     const favoritePost = authenticatedPage.waitForResponse(
-      (res) =>
-        new RegExp(`/api/v1/recipes/${recipe().identifier}/favorite$`).test(res.url()) &&
-        res.request().method() === 'POST',
+      (res) => new RegExp(`/api/v1/recipes/${recipe().identifier}/favorite$`).test(res.url()) && res.request().method() === 'POST',
       { timeout: TIMEOUTS.default },
     );
     await heart.click();
@@ -95,9 +93,7 @@ test.describe('Favorite Recipes — Optimistic Rollback (#409)', () => {
     const response = await favoritePost;
     // Diagnostic: confirm the response was actually our mock.
     // eslint-disable-next-line no-console
-    console.log(
-      `[#409 mock] favorite response status=${response.status()} handlerFireCount=${handlerFireCount}`,
-    );
+    console.log(`[#409 mock] favorite response status=${response.status()} handlerFireCount=${handlerFireCount}`);
     expect(handlerFireCount, 'route handler should have intercepted the POST').toBeGreaterThan(0);
     expect(response.status(), 'mocked response should be 500').toBe(500);
 

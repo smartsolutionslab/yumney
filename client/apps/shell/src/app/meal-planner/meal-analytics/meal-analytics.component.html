@@ -1,11 +1,6 @@
 <div class="meal-analytics" *transloco="let t">
   <header class="analytics-header">
-    <a
-      class="back-btn"
-      data-testid="meal-analytics-back"
-      routerLink="/meal-planner"
-      [attr.aria-label]="t('mealPlanner.analytics.back')"
-    >
+    <a class="back-btn" data-testid="meal-analytics-back" routerLink="/meal-planner" [attr.aria-label]="t('mealPlanner.analytics.back')">
       <lucide-icon name="arrow-left" [size]="20" />
     </a>
     <h1>{{ t('mealPlanner.analytics.title') }}</h1>
@@ -97,12 +92,7 @@
       <section class="distribution-card" data-testid="meal-analytics-distribution">
         <h2>{{ t('mealPlanner.analytics.categoryDistribution') }}</h2>
         <div class="distribution-layout">
-          <svg
-            class="donut"
-            viewBox="0 0 140 140"
-            role="img"
-            [attr.aria-label]="t('mealPlanner.analytics.categoryDistribution')"
-          >
+          <svg class="donut" viewBox="0 0 140 140" role="img" [attr.aria-label]="t('mealPlanner.analytics.categoryDistribution')">
             <circle class="donut-track" cx="70" cy="70" [attr.r]="donutRadius" />
             @for (segment of donutSegments(); track segment.category) {
               <circle
@@ -120,9 +110,7 @@
             @for (segment of donutSegments(); track segment.category) {
               <li class="legend-item">
                 <span class="legend-swatch" [class]="'legend-swatch--' + segment.category"></span>
-                <span class="legend-name">{{
-                  t('mealPlanner.analytics.categories.' + segment.category)
-                }}</span>
+                <span class="legend-name">{{ t('mealPlanner.analytics.categories.' + segment.category) }}</span>
                 <span class="legend-share">{{ segment.count }} · {{ segment.percentage }}%</span>
               </li>
             }
@@ -138,9 +126,7 @@
           @for (recipe of data.topRecipes; track recipe.recipeIdentifier) {
             <li class="top-item">
               <span class="top-title">{{ recipe.recipeTitle }}</span>
-              <span class="top-count">{{
-                t('mealPlanner.analytics.timesCooked', { count: recipe.cookCount })
-              }}</span>
+              <span class="top-count">{{ t('mealPlanner.analytics.timesCooked', { count: recipe.cookCount }) }}</span>
             </li>
           }
         </ol>

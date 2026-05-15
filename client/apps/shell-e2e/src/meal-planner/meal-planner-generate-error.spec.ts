@@ -39,23 +39,19 @@ test.describe('Meal Planner — generate shopping list error path', () => {
     }
   });
 
-  test('surfaces server error when generate-shopping-list returns 500', async ({
-    authenticatedPage,
-  }) => {
-    await authenticatedPage
-      .context()
-      .route('**/api/v1/meal-plans/*/w/*/generate-shopping-list', (route) =>
-        route.fulfill({
+  test('surfaces server error when generate-shopping-list returns 500', async ({ authenticatedPage }) => {
+    await authenticatedPage.context().route('**/api/v1/meal-plans/*/w/*/generate-shopping-list', (route) =>
+      route.fulfill({
+        status: 500,
+        contentType: 'application/problem+json',
+        body: JSON.stringify({
+          type: 'about:blank',
+          title: 'Internal Server Error',
           status: 500,
-          contentType: 'application/problem+json',
-          body: JSON.stringify({
-            type: 'about:blank',
-            title: 'Internal Server Error',
-            status: 500,
-            detail: 'Synthetic failure injected by E2E to exercise the error path.',
-          }),
+          detail: 'Synthetic failure injected by E2E to exercise the error path.',
         }),
-      );
+      }),
+    );
 
     await authenticatedPage.goto(`/meal-planner?year=${seededYear}&week=${seededWeek}`);
 

@@ -44,10 +44,7 @@ describe('ShoppingDetailComponent', () => {
   let fixture: ComponentFixture<ShoppingDetailComponent>;
   let shoppingApiMock: { getShoppingListById: ReturnType<typeof vi.fn> };
 
-  function setupTestBed(
-    apiReturn = vi.fn().mockReturnValue(of(mockDetail)),
-    identifier: string | null = 'list-123',
-  ) {
+  function setupTestBed(apiReturn = vi.fn().mockReturnValue(of(mockDetail)), identifier: string | null = 'list-123') {
     shoppingApiMock = { getShoppingListById: apiReturn };
 
     TestBed.configureTestingModule({
@@ -160,9 +157,7 @@ describe('ShoppingDetailComponent', () => {
       tick();
       fixture.detectChanges();
 
-      const btn: HTMLButtonElement = fixture.nativeElement.querySelector(
-        '[data-testid="send-to-bring-btn"]',
-      );
+      const btn: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="send-to-bring-btn"]');
       expect(btn.disabled).toBe(true);
     }));
 

@@ -27,10 +27,7 @@ export interface MfeAppConfigOptions {
   extraProviders?: Provider[];
 }
 
-export function createMfeAppConfig(
-  routes: Routes,
-  options: MfeAppConfigOptions | Provider[] = {},
-): ApplicationConfig {
+export function createMfeAppConfig(routes: Routes, options: MfeAppConfigOptions | Provider[] = {}): ApplicationConfig {
   // Back-compat: accept the old `Provider[]` second arg while call sites migrate.
   const opts: MfeAppConfigOptions = Array.isArray(options) ? { extraProviders: options } : options;
 
@@ -38,10 +35,7 @@ export function createMfeAppConfig(
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(
-      withFetch(),
-      withInterceptors([apiBaseInterceptor, authInterceptor, globalErrorInterceptor]),
-    ),
+    provideHttpClient(withFetch(), withInterceptors([apiBaseInterceptor, authInterceptor, globalErrorInterceptor])),
     provideAuth(),
     provideTransloco({
       config: {

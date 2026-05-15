@@ -15,10 +15,7 @@
     <div class="progress-bar-container">
       <div class="progress-text">{{ checkedCount() }} / {{ totalItemCount() }}</div>
       <div class="progress-track">
-        <div
-          class="progress-fill"
-          [style.width.%]="totalItemCount() > 0 ? (checkedCount() / totalItemCount()) * 100 : 0"
-        ></div>
+        <div class="progress-fill" [style.width.%]="totalItemCount() > 0 ? (checkedCount() / totalItemCount()) * 100 : 0"></div>
       </div>
     </div>
 
@@ -29,12 +26,7 @@
       <yn-button variant="secondary" (click)="onReset()">
         {{ t('shopping.detail.reset') }}
       </yn-button>
-      <yn-button
-        variant="secondary"
-        testId="send-to-bring-btn"
-        [disabled]="uncheckedItems().length === 0"
-        (click)="onSendToBring()"
-      >
+      <yn-button variant="secondary" testId="send-to-bring-btn" [disabled]="uncheckedItems().length === 0" (click)="onSendToBring()">
         {{ t('shopping.detail.bring.sendButton') }}
       </yn-button>
     </div>
@@ -51,12 +43,7 @@
         <ul class="items-list">
           @for (item of group.items; track item.identifier) {
             <li [class.checked]="item.isChecked">
-              <input
-                type="checkbox"
-                [checked]="item.isChecked"
-                [attr.aria-label]="item.name"
-                (change)="onToggleItem(item)"
-              />
+              <input type="checkbox" [checked]="item.isChecked" [attr.aria-label]="item.name" (change)="onToggleItem(item)" />
               @if (item.amount) {
                 <span class="item-amount">{{ item.amount }}</span>
               }

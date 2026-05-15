@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
@@ -78,13 +71,7 @@ export class ProfileSettingsComponent {
   protected readonly unitSystems: Array<'metric' | 'imperial'> = ['metric', 'imperial'];
   protected readonly themes: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
   protected readonly voiceSpeeds: Array<'slow' | 'normal' | 'fast'> = ['slow', 'normal', 'fast'];
-  protected readonly dietaryTypes = [
-    'omnivore',
-    'vegetarian',
-    'vegan',
-    'pescatarian',
-    'flexitarian',
-  ];
+  protected readonly dietaryTypes = ['omnivore', 'vegetarian', 'vegan', 'pescatarian', 'flexitarian'];
   protected readonly availableRestrictions = [
     'gluten-free',
     'lactose-free',
@@ -122,9 +109,7 @@ export class ProfileSettingsComponent {
 
   protected onToggleRestriction(restriction: string): void {
     const current = this.restrictions();
-    const next = current.includes(restriction)
-      ? current.filter((entry) => entry !== restriction)
-      : [...current, restriction];
+    const next = current.includes(restriction) ? current.filter((entry) => entry !== restriction) : [...current, restriction];
     this.restrictions.set(next);
     this.onChange();
   }
@@ -173,11 +158,7 @@ export class ProfileSettingsComponent {
       this.displayName.set(profile.displayName);
       this.email.set(profile.email);
       this.preferredLanguage.set((profile.preferredLanguage === 'de' ? 'de' : 'en') as 'en' | 'de');
-      this.preferredUnitSystem.set(
-        (profile.preferredUnitSystem === 'imperial' ? 'imperial' : 'metric') as
-          | 'metric'
-          | 'imperial',
-      );
+      this.preferredUnitSystem.set((profile.preferredUnitSystem === 'imperial' ? 'imperial' : 'metric') as 'metric' | 'imperial');
       this.themeChoice.set(profile.theme);
       this.defaultServings.set(profile.defaultServings);
       this.dietaryType.set(profile.dietaryProfile.dietaryType ?? '');

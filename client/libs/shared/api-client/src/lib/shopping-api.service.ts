@@ -7,12 +7,7 @@ import type { CreateShoppingListFromRecipesRequest } from './create-shopping-lis
 import type { ShoppingListDetail } from './shopping-list-detail';
 import type { ShoppingListSummary } from './shopping-list-summary';
 import type { PagedResponse } from '@yumney/shared/models';
-import type {
-  MergedShoppingList,
-  AddItemRequest,
-  AddedItem,
-  RemoveItemRequest,
-} from './merged-shopping-list';
+import type { MergedShoppingList, AddItemRequest, AddedItem, RemoveItemRequest } from './merged-shopping-list';
 import type { IngredientBalance, MarkAsFrozenRequest } from './ingredient-balance';
 
 @Injectable({ providedIn: 'root' })
@@ -23,31 +18,20 @@ export class ShoppingApiService {
     return this.http.post<ShoppingListDetail>(API_ENDPOINTS.shoppingLists.base, request);
   }
 
-  createShoppingListFromRecipes(
-    request: CreateShoppingListFromRecipesRequest,
-  ): Observable<ShoppingListDetail> {
+  createShoppingListFromRecipes(request: CreateShoppingListFromRecipesRequest): Observable<ShoppingListDetail> {
     return this.http.post<ShoppingListDetail>(API_ENDPOINTS.shoppingLists.fromRecipes, request);
   }
 
   getShoppingLists(): Observable<ShoppingListSummary[]> {
-    return this.http
-      .get<PagedResponse<ShoppingListSummary>>(API_ENDPOINTS.shoppingLists.base)
-      .pipe(map((response) => response.items));
+    return this.http.get<PagedResponse<ShoppingListSummary>>(API_ENDPOINTS.shoppingLists.base).pipe(map((response) => response.items));
   }
 
   getShoppingListById(identifier: string): Observable<ShoppingListDetail> {
     return this.http.get<ShoppingListDetail>(API_ENDPOINTS.shoppingLists.byIdentifier(identifier));
   }
 
-  checkOffItem(
-    listIdentifier: string,
-    itemIdentifier: string,
-    isChecked: boolean,
-  ): Observable<void> {
-    return this.http.put<void>(
-      API_ENDPOINTS.shoppingLists.checkItem(listIdentifier, itemIdentifier),
-      { isChecked },
-    );
+  checkOffItem(listIdentifier: string, itemIdentifier: string, isChecked: boolean): Observable<void> {
+    return this.http.put<void>(API_ENDPOINTS.shoppingLists.checkItem(listIdentifier, itemIdentifier), { isChecked });
   }
 
   checkOffAllItems(listIdentifier: string, isChecked: boolean): Observable<void> {
@@ -56,15 +40,8 @@ export class ShoppingApiService {
     });
   }
 
-  changeItemCategory(
-    listIdentifier: string,
-    itemIdentifier: string,
-    category: string,
-  ): Observable<void> {
-    return this.http.post<void>(
-      API_ENDPOINTS.shoppingLists.itemCategory(listIdentifier, itemIdentifier),
-      { category },
-    );
+  changeItemCategory(listIdentifier: string, itemIdentifier: string, category: string): Observable<void> {
+    return this.http.post<void>(API_ENDPOINTS.shoppingLists.itemCategory(listIdentifier, itemIdentifier), { category });
   }
 
   getMergedList(includePastBought = false): Observable<MergedShoppingList> {

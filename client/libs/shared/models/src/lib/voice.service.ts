@@ -157,10 +157,7 @@ export class VoiceService {
    * Cook-mode precedence is intentional: AC TC-362-03 — "timer 5 minutes" must
    * fire the local timer, not a chat round-trip.
    */
-  startListeningWithFallback(
-    onCommand: (command: VoiceCommand) => void,
-    onTranscript: (transcript: string) => void,
-  ): void {
+  startListeningWithFallback(onCommand: (command: VoiceCommand) => void, onTranscript: (transcript: string) => void): void {
     if (!this.sttSupported() || this.isListening()) {
       return;
     }
@@ -246,10 +243,8 @@ export class VoiceService {
 
   private createRecognition(): SpeechRecognitionLike | null {
     const ctor =
-      (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor })
-        .SpeechRecognition ??
-      (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionConstructor })
-        .webkitSpeechRecognition;
+      (window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition ??
+      (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionConstructor }).webkitSpeechRecognition;
     return ctor ? new ctor() : null;
   }
 
@@ -259,9 +254,6 @@ export class VoiceService {
 
   private detectSttSupport(): boolean {
     if (typeof window === 'undefined') return false;
-    return (
-      'SpeechRecognition' in window ||
-      'webkitSpeechRecognition' in (window as unknown as Record<string, unknown>)
-    );
+    return 'SpeechRecognition' in window || 'webkitSpeechRecognition' in (window as unknown as Record<string, unknown>);
   }
 }

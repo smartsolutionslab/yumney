@@ -4,13 +4,7 @@ import { of } from 'rxjs';
 import { signal } from '@angular/core';
 import { CookModeComponent } from './cook-mode.component';
 import { ChatApiService, RecipeApiService, type RecipeDetail } from '../api';
-import {
-  UserPreferencesService,
-  VoiceService,
-  WakeLockService,
-  CookingTimerService,
-  setupTranslocoTesting,
-} from '@yumney/shared/models';
+import { UserPreferencesService, VoiceService, WakeLockService, CookingTimerService, setupTranslocoTesting } from '@yumney/shared/models';
 import { provideYumneyIcons } from '@yumney/ui';
 
 const mockRecipe: RecipeDetail = {
@@ -100,10 +94,7 @@ describe('CookModeComponent', () => {
     applyProfile: ReturnType<typeof vi.fn>;
   };
 
-  function setupTestBed(
-    getRecipeByIdReturn: ReturnType<typeof vi.fn> = vi.fn(),
-    identifier = 'test-id',
-  ) {
+  function setupTestBed(getRecipeByIdReturn: ReturnType<typeof vi.fn> = vi.fn(), identifier = 'test-id') {
     recipeApiMock = { getRecipeById: getRecipeByIdReturn };
 
     voiceMock = {
@@ -295,9 +286,7 @@ describe('CookModeComponent', () => {
     fixture.detectChanges();
     tick();
 
-    const onTranscript = voiceMock.startListeningWithFallback.mock.calls[0][1] as (
-      text: string,
-    ) => void;
+    const onTranscript = voiceMock.startListeningWithFallback.mock.calls[0][1] as (text: string) => void;
     onTranscript('add butter to shopping list');
     tick();
 

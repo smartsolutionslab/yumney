@@ -262,9 +262,7 @@ describe('MealPlanApiService', () => {
         expect(result).toEqual(mockHistory);
       });
 
-      const req = httpTesting.expectOne(
-        (request) => request.url === API_ENDPOINTS.mealPlans.historySearch,
-      );
+      const req = httpTesting.expectOne((request) => request.url === API_ENDPOINTS.mealPlans.historySearch);
       expect(req.request.method).toBe('GET');
       expect(req.request.params.keys().length).toBe(0);
       req.flush(mockHistory);
@@ -274,9 +272,7 @@ describe('MealPlanApiService', () => {
       service.searchHistory({ term: 'lasagna', page: 2, pageSize: 25 }).subscribe();
 
       const req = httpTesting.expectOne(
-        (request) =>
-          request.url === API_ENDPOINTS.mealPlans.historySearch &&
-          request.params.get('term') === 'lasagna',
+        (request) => request.url === API_ENDPOINTS.mealPlans.historySearch && request.params.get('term') === 'lasagna',
       );
       expect(req.request.params.get('page')).toBe('2');
       expect(req.request.params.get('pageSize')).toBe('25');
@@ -286,9 +282,7 @@ describe('MealPlanApiService', () => {
     it('omits empty term from query string', () => {
       service.searchHistory({ term: '', pageSize: 10 }).subscribe();
 
-      const req = httpTesting.expectOne(
-        (request) => request.url === API_ENDPOINTS.mealPlans.historySearch,
-      );
+      const req = httpTesting.expectOne((request) => request.url === API_ENDPOINTS.mealPlans.historySearch);
       expect(req.request.params.has('term')).toBe(false);
       expect(req.request.params.get('pageSize')).toBe('10');
       req.flush(mockHistory);
@@ -351,9 +345,7 @@ describe('MealPlanApiService', () => {
       service.getMealAnalytics(2026).subscribe();
 
       const req = httpTesting.expectOne(
-        (request) =>
-          request.url === API_ENDPOINTS.mealPlans.analytics &&
-          request.params.get('year') === '2026',
+        (request) => request.url === API_ENDPOINTS.mealPlans.analytics && request.params.get('year') === '2026',
       );
       expect(req.request.params.has('month')).toBe(false);
       req.flush(mockAnalytics);
@@ -362,9 +354,7 @@ describe('MealPlanApiService', () => {
     it('passes month as a query param when provided', () => {
       service.getMealAnalytics(2026, 5).subscribe();
 
-      const req = httpTesting.expectOne(
-        (request) => request.url === API_ENDPOINTS.mealPlans.analytics,
-      );
+      const req = httpTesting.expectOne((request) => request.url === API_ENDPOINTS.mealPlans.analytics);
       expect(req.request.params.get('year')).toBe('2026');
       expect(req.request.params.get('month')).toBe('5');
       req.flush(mockAnalytics);

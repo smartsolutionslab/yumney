@@ -7,12 +7,7 @@ export interface AppConfig {
   gatewayUrl?: string;
 }
 
-export function createAuthConfig(
-  keycloakUrl: string,
-  realm: string,
-  clientId: string,
-  gatewayUrl?: string,
-): AuthConfig {
+export function createAuthConfig(keycloakUrl: string, realm: string, clientId: string, gatewayUrl?: string): AuthConfig {
   const realmUrl = `${keycloakUrl}/realms/${realm}`;
   const tokenBaseUrl = gatewayUrl ?? keycloakUrl;
   return {

@@ -19,9 +19,7 @@ export class AuthService {
   isLoading = signal(true);
   isAuthenticated = signal(false);
   currentUser = signal<AuthUser | null>(null);
-  displayName = computed(
-    () => this.currentUser()?.preferredUsername ?? this.currentUser()?.email ?? null,
-  );
+  displayName = computed(() => this.currentUser()?.preferredUsername ?? this.currentUser()?.email ?? null);
   shortName = computed(() => {
     const name = this.displayName();
     if (!name) return null;

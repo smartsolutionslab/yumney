@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  HostListener,
-  input,
-  output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, HostListener, input, output } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 
 export type RecipeDifficulty = 'easy' | 'medium' | 'hard';
@@ -70,9 +63,7 @@ export class FilterPanelComponent {
 
   protected toggleTag(tag: string): void {
     const current = this.value();
-    const tags = current.tags.includes(tag)
-      ? current.tags.filter((existing) => existing !== tag)
-      : [...current.tags, tag];
+    const tags = current.tags.includes(tag) ? current.tags.filter((existing) => existing !== tag) : [...current.tags, tag];
     this.valueChange.emit({ ...current, tags });
   }
 

@@ -8,11 +8,7 @@
           <div class="result-card" [class]="'confidence-' + confidenceLevel(item.confidence)">
             <span class="result-name">{{ item.name }}</span>
             <span class="result-confidence">{{ (item.confidence * 100).toFixed(0) }}%</span>
-            <button
-              class="result-remove"
-              (click)="onRemoveIngredient(item.name)"
-              [attr.aria-label]="t('scanner.removeIngredient')"
-            >
+            <button class="result-remove" (click)="onRemoveIngredient(item.name)" [attr.aria-label]="t('scanner.removeIngredient')">
               <lucide-icon name="x" [size]="18" />
             </button>
           </div>
@@ -29,23 +25,14 @@
     <button class="control-btn cancel-btn" (click)="onCancel()">
       {{ t('scanner.cancel') }}
     </button>
-    <button
-      class="scan-btn"
-      (click)="onScan()"
-      [disabled]="!isStreaming() || isScanning()"
-      [attr.aria-label]="t('scanner.scan')"
-    >
+    <button class="scan-btn" (click)="onScan()" [disabled]="!isStreaming() || isScanning()" [attr.aria-label]="t('scanner.scan')">
       @if (isScanning()) {
         <span class="scan-spinner"></span>
       } @else {
         {{ t('scanner.scan') }}
       }
     </button>
-    <button
-      class="control-btn flip-btn"
-      (click)="onToggleFacing()"
-      [attr.aria-label]="t('scanner.flipCamera')"
-    >
+    <button class="control-btn flip-btn" (click)="onToggleFacing()" [attr.aria-label]="t('scanner.flipCamera')">
       <lucide-icon name="refresh-cw" [size]="20" />
     </button>
   </div>

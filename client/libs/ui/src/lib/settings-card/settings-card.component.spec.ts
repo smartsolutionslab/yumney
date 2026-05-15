@@ -35,12 +35,8 @@ describe('SettingsCardComponent', () => {
   });
 
   it('should render title and description from i18n keys', () => {
-    expect(fixture.nativeElement.querySelector('.settings-card__title').textContent.trim()).toBe(
-      'Identity',
-    );
-    expect(
-      fixture.nativeElement.querySelector('.settings-card__description').textContent.trim(),
-    ).toBe('Who you are');
+    expect(fixture.nativeElement.querySelector('.settings-card__title').textContent.trim()).toBe('Identity');
+    expect(fixture.nativeElement.querySelector('.settings-card__description').textContent.trim()).toBe('Who you are');
   });
 
   it('should project body content while open', () => {
@@ -52,8 +48,6 @@ describe('SettingsCardComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.projected')).toBeNull();
-    expect(
-      fixture.nativeElement.querySelector('.settings-card__header').getAttribute('aria-expanded'),
-    ).toBe('false');
+    expect(fixture.nativeElement.querySelector('.settings-card__header').getAttribute('aria-expanded')).toBe('false');
   });
 });

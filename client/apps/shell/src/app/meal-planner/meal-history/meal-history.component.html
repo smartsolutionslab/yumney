@@ -1,11 +1,6 @@
 <div class="meal-history" *transloco="let t">
   <header class="history-header">
-    <a
-      class="back-btn"
-      data-testid="meal-history-back"
-      routerLink="/meal-planner"
-      [attr.aria-label]="t('mealPlanner.history.back')"
-    >
+    <a class="back-btn" data-testid="meal-history-back" routerLink="/meal-planner" [attr.aria-label]="t('mealPlanner.history.back')">
       <lucide-icon name="arrow-left" [size]="20" />
     </a>
     <h1>{{ t('mealPlanner.history.title') }}</h1>

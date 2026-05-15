@@ -19,15 +19,10 @@ import type { UserActivityItem } from '@yumney/shared/api-client';
         <ul class="activity-list">
           @for (item of activities(); track item.occurredAt) {
             <li class="activity-item">
-              <span class="activity-icon"
-                ><lucide-icon [name]="getIcon(item.type)" [size]="16"
-              /></span>
+              <span class="activity-icon"><lucide-icon [name]="getIcon(item.type)" [size]="16" /></span>
               <div class="activity-detail">
                 @if (item.recipeIdentifier) {
-                  <a
-                    [routerLink]="ROUTES.recipes.detail(item.recipeIdentifier)"
-                    class="activity-link"
-                  >
+                  <a [routerLink]="ROUTES.recipes.detail(item.recipeIdentifier)" class="activity-link">
                     {{ item.recipeTitle ?? t('dashboard.recentActivity.unknownRecipe') }}
                   </a>
                 } @else {

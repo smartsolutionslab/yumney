@@ -1,10 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {
-  SideSheetComponent,
-  type SideSheetPosition,
-  type SideSheetSize,
-} from './side-sheet.component';
+import { SideSheetComponent, type SideSheetPosition, type SideSheetSize } from './side-sheet.component';
 
 @Component({
   imports: [SideSheetComponent],

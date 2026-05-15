@@ -52,15 +52,11 @@ test.describe('Auth Session Lifecycle (#407)', () => {
     });
   });
 
-  test('explicit logout clears session and bounces protected nav', async ({
-    authenticatedPage,
-  }) => {
+  test('explicit logout clears session and bounces protected nav', async ({ authenticatedPage }) => {
     // Open the user menu, click Logout. The lib navigates to Keycloak's
     // logout endpoint then back to origin — point both at a stub so the
     // test does not depend on the real Keycloak being reachable.
-    await authenticatedPage.route('**/realms/yumney/protocol/openid-connect/logout*', (route) =>
-      route.fulfill({ status: 200, body: '' }),
-    );
+    await authenticatedPage.route('**/realms/yumney/protocol/openid-connect/logout*', (route) => route.fulfill({ status: 200, body: '' }));
 
     const header = new HeaderPage(authenticatedPage);
     await header.logout();

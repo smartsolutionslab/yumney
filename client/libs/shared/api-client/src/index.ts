@@ -22,10 +22,7 @@ export type { FavoriteState } from './lib/favorite-state';
 export type { RecipeDetail } from './lib/recipe-detail';
 export type { RecipeIngredient } from './lib/recipe-ingredient';
 export type { RecipeStep } from './lib/recipe-step';
-export type {
-  RecognizedIngredient,
-  RecognizedIngredientsResponse,
-} from './lib/recognized-ingredient';
+export type { RecognizedIngredient, RecognizedIngredientsResponse } from './lib/recognized-ingredient';
 export type {
   CookableRecipeListItem,
   CookableRecipeListResponse,
@@ -59,14 +56,7 @@ export type {
 
 // --- Chat ---
 export { ChatApiService } from './lib/chat-api.service';
-export type {
-  ChatAction,
-  ChatActionType,
-  ChatMessage,
-  ChatRecipeSuggestion,
-  ChatRequest,
-  ChatResponse,
-} from './lib/chat-message';
+export type { ChatAction, ChatActionType, ChatMessage, ChatRecipeSuggestion, ChatRequest, ChatResponse } from './lib/chat-message';
 
 // --- Meal Plan ---
 export { MealPlanApiService } from './lib/meal-plan-api.service';
@@ -93,12 +83,7 @@ export type {
 
 // --- Dashboard ---
 export { DashboardApiService } from './lib/dashboard-api.service';
-export type {
-  UserActivityItem,
-  UserActivityPage,
-  ActivityTypeKey,
-  RecipeActivityStats,
-} from './lib/user-activity';
+export type { UserActivityItem, UserActivityPage, ActivityTypeKey, RecipeActivityStats } from './lib/user-activity';
 export type { SuggestionItem, SuggestionsResponse } from './lib/suggestion';
 
 // --- Activity ---

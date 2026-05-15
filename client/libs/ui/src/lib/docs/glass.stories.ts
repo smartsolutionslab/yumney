@@ -8,9 +8,7 @@ import { Component } from '@angular/core';
     <div class="glass-docs">
       <section>
         <h2>Glass Surfaces — Elevation Levels</h2>
-        <p class="subtitle">
-          Each level increases background opacity, border visibility, and shadow depth.
-        </p>
+        <p class="subtitle">Each level increases background opacity, border visibility, and shadow depth.</p>
         <div class="ambient-bg">
           <div class="glass-grid">
             @for (level of levels; track level.name) {
@@ -98,8 +96,7 @@ import { Component } from '@angular/core';
         background:
           radial-gradient(ellipse 300px 300px at 20% 30%, var(--yn-ambient-orb-1), transparent),
           radial-gradient(ellipse 250px 250px at 75% 60%, var(--yn-ambient-orb-2), transparent),
-          radial-gradient(ellipse 200px 200px at 50% 80%, var(--yn-ambient-orb-3), transparent),
-          var(--yn-background);
+          radial-gradient(ellipse 200px 200px at 50% 80%, var(--yn-ambient-orb-3), transparent), var(--yn-background);
       }
 
       .glass-grid {

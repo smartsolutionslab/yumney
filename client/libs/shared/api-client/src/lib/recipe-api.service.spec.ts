@@ -52,11 +52,7 @@ describe('RecipeApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: AuthService, useValue: { gatewayUrl: () => '' } },
-      ],
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: AuthService, useValue: { gatewayUrl: () => '' } }],
     });
 
     service = TestBed.inject(RecipeApiService);

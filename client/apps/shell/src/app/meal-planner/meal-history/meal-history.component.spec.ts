@@ -57,11 +57,7 @@ describe('MealHistoryComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [MealHistoryComponent, setupTranslocoTesting(en)],
-      providers: [
-        provideYumneyIcons(),
-        provideRouter([]),
-        { provide: MealPlanApiService, useValue: apiMock },
-      ],
+      providers: [provideYumneyIcons(), provideRouter([]), { provide: MealPlanApiService, useValue: apiMock }],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -70,9 +66,7 @@ describe('MealHistoryComponent', () => {
   });
 
   it('loads recent history on init with no term', () => {
-    expect(apiMock.searchHistory).toHaveBeenCalledWith(
-      expect.objectContaining({ term: undefined, pageSize: 50 }),
-    );
+    expect(apiMock.searchHistory).toHaveBeenCalledWith(expect.objectContaining({ term: undefined, pageSize: 50 }));
   });
 
   it('renders results', () => {

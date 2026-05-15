@@ -3,20 +3,8 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthApiService } from '@yumney/shared/api-client';
-import {
-  passwordsMatchValidator,
-  createAsyncState,
-  ensureFormValid,
-  VALIDATION,
-  ERROR_MAPS,
-  ROUTES,
-} from '@yumney/shared/models';
-import {
-  CardComponent,
-  FormFieldComponent,
-  MessageBannerComponent,
-  SubmitButtonComponent,
-} from '@yumney/ui';
+import { passwordsMatchValidator, createAsyncState, ensureFormValid, VALIDATION, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
+import { CardComponent, FormFieldComponent, MessageBannerComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-register',
@@ -46,14 +34,7 @@ export class RegisterComponent {
 
   form = this.formBuilder.nonNullable.group(
     {
-      email: [
-        '',
-        [
-          Validators.required,
-          Validators.email,
-          Validators.maxLength(VALIDATION.USERS.EMAIL.MAX_LENGTH),
-        ],
-      ],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(VALIDATION.USERS.EMAIL.MAX_LENGTH)]],
       password: [
         '',
         [
@@ -65,10 +46,7 @@ export class RegisterComponent {
         ],
       ],
       confirmPassword: ['', [Validators.required]],
-      displayName: [
-        '',
-        [Validators.required, Validators.maxLength(VALIDATION.USERS.DISPLAY_NAME.MAX_LENGTH)],
-      ],
+      displayName: ['', [Validators.required, Validators.maxLength(VALIDATION.USERS.DISPLAY_NAME.MAX_LENGTH)]],
     },
     { validators: [passwordsMatchValidator] },
   );
@@ -78,13 +56,9 @@ export class RegisterComponent {
 
     const { email, password, displayName } = this.form.getRawValue();
 
-    this.asyncState.execute(
-      this.authApi.register({ email, password, displayName }),
-      ERROR_MAPS.auth.register,
-      () => {
-        this.isSuccess.set(true);
-        this.form.reset();
-      },
-    );
+    this.asyncState.execute(this.authApi.register({ email, password, displayName }), ERROR_MAPS.auth.register, () => {
+      this.isSuccess.set(true);
+      this.form.reset();
+    });
   }
 }

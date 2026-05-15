@@ -8,14 +8,7 @@ import { EmptyStateComponent, LoadingSpinnerComponent, MessageBannerComponent } 
 
 @Component({
   selector: 'yn-shopping-list',
-  imports: [
-    TranslocoModule,
-    RouterLink,
-    DatePipe,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
-    MessageBannerComponent,
-  ],
+  imports: [TranslocoModule, RouterLink, DatePipe, EmptyStateComponent, LoadingSpinnerComponent, MessageBannerComponent],
   templateUrl: './shopping-list.component.html',
   styleUrl: './shopping-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,10 +24,6 @@ export class ShoppingListComponent implements OnInit {
   serverError = this.asyncState.serverError;
 
   ngOnInit(): void {
-    this.asyncState.execute(
-      this.shoppingApi.getShoppingLists(),
-      ERROR_MAPS.shopping.list,
-      (lists) => this.lists.set(lists),
-    );
+    this.asyncState.execute(this.shoppingApi.getShoppingLists(), ERROR_MAPS.shopping.list, (lists) => this.lists.set(lists));
   }
 }

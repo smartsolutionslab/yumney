@@ -1,2 +1,8 @@
-﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:Boolean x:Key="/Default/CodeInspection/Highlighting/ConvertIfStatementToSwitchStatement/AssumeOpenTypeHierarchy/@EntryValue">True</s:Boolean></wpf:ResourceDictionary>
+<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/CodeInspection/Highlighting/ConvertIfStatementToSwitchStatement/AssumeOpenTypeHierarchy/@EntryValue">True</s:Boolean>
+	<!-- Right-margin / soft-wrap column for the ReSharper / Rider formatter. Aligned with `.editorconfig` max_line_length = 140. -->
+	<s:Int64 x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/RIGHT_MARGIN/@EntryValue">140</s:Int64>
+	<s:Int64 x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/WRAP_LIMIT/@EntryValue">140</s:Int64>
+	<s:Int64 x:Key="/Default/CodeStyle/CodeFormatting/TypeScriptCodeStyle/WRAP_LIMIT/@EntryValue">140</s:Int64>
+	<s:Int64 x:Key="/Default/CodeStyle/CodeFormatting/HtmlCodeStyle/WRAP_LIMIT/@EntryValue">140</s:Int64>
+</wpf:ResourceDictionary>

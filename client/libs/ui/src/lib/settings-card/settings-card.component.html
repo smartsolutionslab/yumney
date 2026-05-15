@@ -1,10 +1,5 @@
 <section class="settings-card" data-testid="profile-settings-section" *transloco="let t">
-  <button
-    type="button"
-    class="settings-card__header"
-    [attr.aria-expanded]="isOpen()"
-    (click)="onHeaderClick()"
-  >
+  <button type="button" class="settings-card__header" [attr.aria-expanded]="isOpen()" (click)="onHeaderClick()">
     <div class="settings-card__heading">
       <span class="settings-card__title">{{ t(titleKey()) }}</span>
       @if (descriptionKey(); as descKey) {

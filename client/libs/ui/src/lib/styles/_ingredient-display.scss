@@ -5,11 +5,7 @@
 // Usage:
 //   @include ingredient-display('.ingredient-amount', '.ingredient-unit', '.ingredient-name');
 
-@mixin ingredient-display(
-  $amount: '.ingredient-amount',
-  $unit: '.ingredient-unit',
-  $name: '.ingredient-name'
-) {
+@mixin ingredient-display($amount: '.ingredient-amount', $unit: '.ingredient-unit', $name: '.ingredient-name') {
   #{$amount} {
     font-weight: var(--yn-font-semibold);
     color: var(--yn-primary);

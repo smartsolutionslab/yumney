@@ -40,11 +40,7 @@
         @for (ingredient of recipe.ingredients; track ingredient.name; let i = $index) {
           <li>
             <label class="ingredient-check">
-              <input
-                type="checkbox"
-                [checked]="ingredientSelections()[i]"
-                (change)="onToggleIngredient(i)"
-              />
+              <input type="checkbox" [checked]="ingredientSelections()[i]" (change)="onToggleIngredient(i)" />
               <span class="ingredient-text">
                 @if (ingredient.amount) {
                   <span class="ingredient-amount">{{ ingredient.amount }}</span>
@@ -61,11 +57,7 @@
     </section>
 
     <div class="actions-bar">
-      <button
-        class="create-button"
-        [disabled]="isCreating() || !hasSelectedIngredients()"
-        (click)="onCreateShoppingList()"
-      >
+      <button class="create-button" [disabled]="isCreating() || !hasSelectedIngredients()" (click)="onCreateShoppingList()">
         {{ isCreating() ? t('shopping.create.creating') : t('shopping.create.submit') }}
       </button>
     </div>

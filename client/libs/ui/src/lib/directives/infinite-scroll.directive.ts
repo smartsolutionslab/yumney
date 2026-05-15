@@ -1,12 +1,4 @@
-import {
-  Directive,
-  ElementRef,
-  OnDestroy,
-  AfterViewInit,
-  inject,
-  output,
-  input,
-} from '@angular/core';
+import { Directive, ElementRef, OnDestroy, AfterViewInit, inject, output, input } from '@angular/core';
 
 /**
  * Emits `loadMore` whenever the host element scrolls into view, provided

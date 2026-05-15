@@ -136,22 +136,19 @@ export async function assignMealSlot(
   await page.evaluate(
     async ({ assignOptions, gatewayUrl }) => {
       const token = localStorage.getItem('access_token');
-      const res = await fetch(
-        `${gatewayUrl}/api/v1/meal-plans/${assignOptions.year}/w/${assignOptions.weekNumber}/slots`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({
-            day: assignOptions.day,
-            recipeIdentifier: assignOptions.recipeIdentifier,
-            recipeTitle: assignOptions.recipeTitle,
-            mealType: assignOptions.mealType ?? 'Dinner',
-          }),
+      const res = await fetch(`${gatewayUrl}/api/v1/meal-plans/${assignOptions.year}/w/${assignOptions.weekNumber}/slots`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-      );
+        body: JSON.stringify({
+          day: assignOptions.day,
+          recipeIdentifier: assignOptions.recipeIdentifier,
+          recipeTitle: assignOptions.recipeTitle,
+          mealType: assignOptions.mealType ?? 'Dinner',
+        }),
+      });
       if (!res.ok) {
         throw new Error(`assignMealSlot failed: ${res.status} ${await res.text()}`);
       }

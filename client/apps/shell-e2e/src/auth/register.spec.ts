@@ -54,9 +54,7 @@ test.describe('Register Page (US-001)', () => {
     await registerPage.passwordInput.fill('alllowercase');
     await registerPage.passwordInput.blur();
 
-    await expect(
-      registerPage.fieldError('Password must contain uppercase, lowercase, and a digit'),
-    ).toBeVisible();
+    await expect(registerPage.fieldError('Password must contain uppercase, lowercase, and a digit')).toBeVisible();
   });
 
   test('should show passwords mismatch error', async () => {

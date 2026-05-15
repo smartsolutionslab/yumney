@@ -25,12 +25,8 @@ describe('UnitToggleComponent', () => {
   });
 
   it('marks the selected system aria-checked', () => {
-    const metric = fixture.nativeElement.querySelector(
-      '[data-testid="unit-toggle-metric"]',
-    ) as HTMLButtonElement;
-    const imperial = fixture.nativeElement.querySelector(
-      '[data-testid="unit-toggle-imperial"]',
-    ) as HTMLButtonElement;
+    const metric = fixture.nativeElement.querySelector('[data-testid="unit-toggle-metric"]') as HTMLButtonElement;
+    const imperial = fixture.nativeElement.querySelector('[data-testid="unit-toggle-imperial"]') as HTMLButtonElement;
     expect(metric.getAttribute('aria-checked')).toBe('true');
     expect(imperial.getAttribute('aria-checked')).toBe('false');
   });
@@ -39,9 +35,7 @@ describe('UnitToggleComponent', () => {
     const handler = vi.fn();
     fixture.componentInstance.systemChange.subscribe(handler);
 
-    const imperial = fixture.nativeElement.querySelector(
-      '[data-testid="unit-toggle-imperial"]',
-    ) as HTMLButtonElement;
+    const imperial = fixture.nativeElement.querySelector('[data-testid="unit-toggle-imperial"]') as HTMLButtonElement;
     imperial.click();
 
     expect(handler).toHaveBeenCalledWith('imperial');
@@ -51,9 +45,7 @@ describe('UnitToggleComponent', () => {
     const handler = vi.fn();
     fixture.componentInstance.systemChange.subscribe(handler);
 
-    const metric = fixture.nativeElement.querySelector(
-      '[data-testid="unit-toggle-metric"]',
-    ) as HTMLButtonElement;
+    const metric = fixture.nativeElement.querySelector('[data-testid="unit-toggle-metric"]') as HTMLButtonElement;
     metric.click();
 
     expect(handler).not.toHaveBeenCalled();
@@ -63,9 +55,7 @@ describe('UnitToggleComponent', () => {
     fixture.componentRef.setInput('system', 'imperial');
     fixture.detectChanges();
 
-    const imperial = fixture.nativeElement.querySelector(
-      '[data-testid="unit-toggle-imperial"]',
-    ) as HTMLButtonElement;
+    const imperial = fixture.nativeElement.querySelector('[data-testid="unit-toggle-imperial"]') as HTMLButtonElement;
     expect(imperial.getAttribute('aria-checked')).toBe('true');
   });
 });

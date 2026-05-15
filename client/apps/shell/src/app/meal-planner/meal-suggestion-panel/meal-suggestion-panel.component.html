@@ -1,11 +1,6 @@
 <div class="meal-suggestion-panel" *transloco="let t">
   @if (!hasSuggestion() && !loading() && !error()) {
-    <button
-      class="suggest-cta"
-      type="button"
-      data-testid="meal-suggestion-cta"
-      (click)="onSuggest()"
-    >
+    <button class="suggest-cta" type="button" data-testid="meal-suggestion-cta" (click)="onSuggest()">
       <lucide-icon name="sparkles" [size]="18" />
       {{ t('mealPlanner.suggest.cta') }}
     </button>
@@ -45,13 +40,7 @@
       </ul>
 
       <div class="suggestion-actions">
-        <button
-          class="action-btn primary"
-          type="button"
-          data-testid="meal-suggestion-accept"
-          [disabled]="accepting()"
-          (click)="onAccept()"
-        >
+        <button class="action-btn primary" type="button" data-testid="meal-suggestion-accept" [disabled]="accepting()" (click)="onAccept()">
           <lucide-icon name="check" [size]="16" />
           {{ accepting() ? t('mealPlanner.suggest.accepting') : t('mealPlanner.suggest.accept') }}
         </button>
@@ -65,13 +54,7 @@
           <lucide-icon name="refresh-cw" [size]="16" />
           {{ t('mealPlanner.suggest.regenerate') }}
         </button>
-        <button
-          class="action-btn ghost"
-          type="button"
-          data-testid="meal-suggestion-dismiss"
-          [disabled]="accepting()"
-          (click)="onDismiss()"
-        >
+        <button class="action-btn ghost" type="button" data-testid="meal-suggestion-dismiss" [disabled]="accepting()" (click)="onDismiss()">
           {{ t('mealPlanner.suggest.dismiss') }}
         </button>
       </div>

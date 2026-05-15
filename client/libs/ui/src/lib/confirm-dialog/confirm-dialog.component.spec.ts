@@ -105,9 +105,7 @@ describe('ConfirmDialogComponent', () => {
 });
 
 @Component({
-  template: `
-    <yn-confirm-dialog [message]="'Test message'" (confirmed)="noop()" (cancelled)="noop()" />
-  `,
+  template: ` <yn-confirm-dialog [message]="'Test message'" (confirmed)="noop()" (cancelled)="noop()" /> `,
   imports: [ConfirmDialogComponent],
 })
 class DefaultLabelHostComponent {

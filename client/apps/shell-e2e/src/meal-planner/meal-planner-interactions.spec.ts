@@ -55,9 +55,7 @@ test.describe('Meal Planner Interactions', () => {
     }
   });
 
-  test('should show empty slot with plus icon for unassigned days', async ({
-    authenticatedPage,
-  }) => {
+  test('should show empty slot with plus icon for unassigned days', async ({ authenticatedPage }) => {
     const planner = new MealPlannerPage(authenticatedPage);
     await planner.goto();
     await expect(planner.dayCards.first()).toBeVisible({ timeout: TIMEOUTS.default });

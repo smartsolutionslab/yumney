@@ -21,11 +21,7 @@ export function staggerFadeIn(
   options: { stagger?: number; duration?: number; y?: number } = {},
 ): gsap.core.Tween {
   const { stagger = 0.05, duration = 0.4, y = 16 } = options;
-  return gsap.fromTo(
-    elements,
-    { opacity: 0, y },
-    { opacity: 1, y: 0, duration, stagger, ease: 'power2.out' },
-  );
+  return gsap.fromTo(elements, { opacity: 0, y }, { opacity: 1, y: 0, duration, stagger, ease: 'power2.out' });
 }
 
 /**

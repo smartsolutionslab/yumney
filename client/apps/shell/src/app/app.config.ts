@@ -28,10 +28,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
     provideYumneyIcons(),
-    provideHttpClient(
-      withFetch(),
-      withInterceptors([apiBaseInterceptor, authInterceptor, globalErrorInterceptor]),
-    ),
+    provideHttpClient(withFetch(), withInterceptors([apiBaseInterceptor, authInterceptor, globalErrorInterceptor])),
     provideAuth(),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
@@ -48,8 +45,7 @@ export const appConfig: ApplicationConfig = {
     }),
     {
       provide: APP_INITIALIZER,
-      useFactory: (lang: LanguageService, theme: ThemeService) => () =>
-        Promise.all([lang.initialize(), theme.initialize()]),
+      useFactory: (lang: LanguageService, theme: ThemeService) => () => Promise.all([lang.initialize(), theme.initialize()]),
       deps: [LanguageService, ThemeService],
       multi: true,
     },

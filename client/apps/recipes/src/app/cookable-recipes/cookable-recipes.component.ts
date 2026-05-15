@@ -1,19 +1,8 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  RecipeApiService,
-  type CookableRecipeListItem,
-  type GetCookableRecipesParams,
-} from '../api';
+import { RecipeApiService, type CookableRecipeListItem, type GetCookableRecipesParams } from '../api';
 import { createAsyncState, ERROR_MAPS, ROUTES, UI } from '@yumney/shared/models';
 import {
   ButtonComponent,
@@ -85,18 +74,14 @@ export class CookableRecipesComponent implements OnInit {
       ...(this.fullMatchOnly() && { fullMatchOnly: true }),
     };
 
-    this.asyncState.execute(
-      this.recipeApi.getCookableRecipes(params),
-      ERROR_MAPS.recipes.cookable,
-      (response) => {
-        if (requestId !== this.loadRequestId) return;
-        this.totalCount.set(response.totalCount);
-        if (append) {
-          this.recipes.update((existing) => [...existing, ...response.items]);
-        } else {
-          this.recipes.set(response.items);
-        }
-      },
-    );
+    this.asyncState.execute(this.recipeApi.getCookableRecipes(params), ERROR_MAPS.recipes.cookable, (response) => {
+      if (requestId !== this.loadRequestId) return;
+      this.totalCount.set(response.totalCount);
+      if (append) {
+        this.recipes.update((existing) => [...existing, ...response.items]);
+      } else {
+        this.recipes.set(response.items);
+      }
+    });
   }
 }

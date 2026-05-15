@@ -3,9 +3,7 @@ import { MealPlannerPage } from '../pages/meal-planner.page';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Meal Planner Shopping Integration (US-325)', () => {
-  test('should not show generate button when no recipes are assigned', async ({
-    authenticatedPage,
-  }) => {
+  test('should not show generate button when no recipes are assigned', async ({ authenticatedPage }) => {
     const planner = new MealPlannerPage(authenticatedPage);
 
     // Navigate to a far-future week that likely has no recipes

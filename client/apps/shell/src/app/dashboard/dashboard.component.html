@@ -6,11 +6,7 @@
   <h1>{{ t('dashboard.title') }}</h1>
   <p>{{ t('dashboard.welcome') }}</p>
 
-  <a
-    class="cookable-shortcut"
-    data-testid="dashboard-cookable-shortcut"
-    [routerLink]="ROUTES.recipes.cookable"
-  >
+  <a class="cookable-shortcut" data-testid="dashboard-cookable-shortcut" [routerLink]="ROUTES.recipes.cookable">
     <lucide-icon name="chef-hat" [size]="24" class="cookable-shortcut-icon" />
     <span class="cookable-shortcut-body">
       <span class="cookable-shortcut-title">{{ t('dashboard.cookable.title') }}</span>
@@ -50,11 +46,7 @@
     </section>
   }
 
-  <section
-    class="import-section"
-    data-testid="import-section"
-    [class.expanded]="importSectionExpanded()"
-  >
+  <section class="import-section" data-testid="import-section" [class.expanded]="importSectionExpanded()">
     <button
       class="import-toggle"
       data-testid="import-toggle"
@@ -81,26 +73,14 @@
           <p class="subtitle">{{ t('dashboard.photoImport.subtitle') }}</p>
           <div class="photo-import-actions">
             @if (camera.cameraSupported()) {
-              <yn-button
-                variant="dashed"
-                [disabled]="isLoading() || isSaving()"
-                (click)="onOpenCamera()"
-              >
+              <yn-button variant="dashed" [disabled]="isLoading() || isSaving()" (click)="onOpenCamera()">
                 {{ t('dashboard.photoImport.scanRecipe') }}
               </yn-button>
-              <yn-button
-                variant="dashed"
-                [disabled]="isLoading() || isSaving()"
-                (click)="onOpenScanner()"
-              >
+              <yn-button variant="dashed" [disabled]="isLoading() || isSaving()" (click)="onOpenScanner()">
                 {{ t('dashboard.photoImport.scanIngredients') }}
               </yn-button>
             }
-            <label
-              class="btn-dashed"
-              data-testid="photo-upload-btn"
-              [class.disabled]="isLoading() || isSaving()"
-            >
+            <label class="btn-dashed" data-testid="photo-upload-btn" [class.disabled]="isLoading() || isSaving()">
               <input
                 type="file"
                 data-testid="photo-upload-input"
@@ -140,12 +120,7 @@
 
   @if (saveSuccess(); as savedTitle) {
     <div class="save-success">
-      <yn-message-banner
-        tone="success"
-        message="dashboard.save.success"
-        [params]="{ title: savedTitle }"
-        testId="success-banner"
-      />
+      <yn-message-banner tone="success" message="dashboard.save.success" [params]="{ title: savedTitle }" testId="success-banner" />
       <yn-button variant="ghost" extraClass="import-another" (click)="onImportAnother()">
         {{ t('dashboard.save.importAnother') }}
       </yn-button>
@@ -177,17 +152,11 @@
 
   @if (scannerActive()) {
     @defer {
-      <yn-ingredient-scanner
-        (ingredientsConfirmed)="onIngredientsConfirmed($event)"
-        (cancelled)="onScannerCancelled()"
-      />
+      <yn-ingredient-scanner (ingredientsConfirmed)="onIngredientsConfirmed($event)" (cancelled)="onScannerCancelled()" />
     }
   }
 
   @if (recognizedIngredients(); as ingredients) {
-    <yn-ingredients-toast
-      [ingredients]="ingredients"
-      (dismissed)="dismissRecognizedIngredients()"
-    />
+    <yn-ingredients-toast [ingredients]="ingredients" (dismissed)="dismissRecognizedIngredients()" />
   }
 </div>

@@ -49,12 +49,7 @@ export function createAsyncState(destroyRef?: DestroyRef): AsyncState {
 export interface AsyncState {
   isLoading: ReturnType<typeof signal<boolean>>;
   serverError: ReturnType<typeof signal<string | null>>;
-  execute<T>(
-    source: Observable<T>,
-    errorMap: HttpErrorMap,
-    onSuccess: (result: T) => void,
-    onError?: (error: string) => void,
-  ): void;
+  execute<T>(source: Observable<T>, errorMap: HttpErrorMap, onSuccess: (result: T) => void, onError?: (error: string) => void): void;
 }
 
 /**
@@ -63,9 +58,7 @@ export interface AsyncState {
  * yields an independent `AsyncState`. Must run in an injection context;
  * the shared `DestroyRef` is resolved internally and reused for every slot.
  */
-export function injectAsyncStates<const Keys extends readonly string[]>(
-  ...keys: Keys
-): Record<Keys[number], AsyncState> {
+export function injectAsyncStates<const Keys extends readonly string[]>(...keys: Keys): Record<Keys[number], AsyncState> {
   const destroyRef = inject(DestroyRef);
   const result = {} as Record<Keys[number], AsyncState>;
   for (const key of keys) {

@@ -90,11 +90,7 @@ describe('PantryComponent', () => {
     };
     TestBed.configureTestingModule({
       imports: [PantryComponent, setupTranslocoTesting(en)],
-      providers: [
-        provideYumneyIcons(),
-        provideRouter([]),
-        { provide: ShoppingApiService, useValue: shoppingApiMock },
-      ],
+      providers: [provideYumneyIcons(), provideRouter([]), { provide: ShoppingApiService, useValue: shoppingApiMock }],
     });
     fixture = TestBed.createComponent(PantryComponent);
     component = fixture.componentInstance;
@@ -144,9 +140,7 @@ describe('PantryComponent', () => {
     shoppingApiMock.getIngredientBalance.mockClear();
     shoppingApiMock.getIngredientBalance.mockReturnValue(of(empty));
 
-    const button = fixture.nativeElement.querySelector(
-      '[data-testid="pantry-freeze-btn"]',
-    ) as HTMLButtonElement;
+    const button = fixture.nativeElement.querySelector('[data-testid="pantry-freeze-btn"]') as HTMLButtonElement;
     button.click();
     tick();
 

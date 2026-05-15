@@ -61,14 +61,7 @@ const en = {
 };
 
 @Component({
-  template: `
-    <yn-recipe-preview
-      [recipe]="recipe"
-      [previewTitle]="previewTitle"
-      (save)="onSave($event)"
-      (discard)="onDiscard()"
-    />
-  `,
+  template: ` <yn-recipe-preview [recipe]="recipe" [previewTitle]="previewTitle" (save)="onSave($event)" (discard)="onDiscard()" /> `,
   imports: [RecipePreviewComponent],
 })
 class TestHostComponent {
@@ -111,9 +104,7 @@ describe('RecipePreviewComponent', () => {
   });
 
   it('should populate the description field', () => {
-    const textarea = fixture.nativeElement.querySelector(
-      '#preview-description',
-    ) as HTMLTextAreaElement;
+    const textarea = fixture.nativeElement.querySelector('#preview-description') as HTMLTextAreaElement;
     expect(textarea.value).toBe('A classic Italian pasta dish');
   });
 
@@ -142,9 +133,7 @@ describe('RecipePreviewComponent', () => {
   });
 
   it('should remove an ingredient', () => {
-    const removeBtn = fixture.nativeElement.querySelector(
-      '[formarrayname="ingredients"] [aria-label="Remove"]',
-    );
+    const removeBtn = fixture.nativeElement.querySelector('[formarrayname="ingredients"] [aria-label="Remove"]');
     removeBtn.click();
     fixture.detectChanges();
 
@@ -163,9 +152,7 @@ describe('RecipePreviewComponent', () => {
   });
 
   it('should remove a step', () => {
-    const removeBtn = fixture.nativeElement.querySelector(
-      '[formarrayname="steps"] [aria-label="Remove"]',
-    );
+    const removeBtn = fixture.nativeElement.querySelector('[formarrayname="steps"] [aria-label="Remove"]');
     removeBtn.click();
     fixture.detectChanges();
 
@@ -257,18 +244,14 @@ describe('RecipePreviewComponent', () => {
     form.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
 
-    expect(host.onSave).toHaveBeenCalledWith(
-      expect.objectContaining({ imageUrl: 'https://example.com/image.jpg' }),
-    );
+    expect(host.onSave).toHaveBeenCalledWith(expect.objectContaining({ imageUrl: 'https://example.com/image.jpg' }));
   });
 
   it('should reorder ingredients up', () => {
     preview.moveIngredientUp(1);
     fixture.detectChanges();
 
-    const nameInputs = fixture.nativeElement.querySelectorAll(
-      '.ingredient-row input[formcontrolname="name"]',
-    );
+    const nameInputs = fixture.nativeElement.querySelectorAll('.ingredient-row input[formcontrolname="name"]');
     expect(nameInputs[0].value).toBe('Pancetta');
     expect(nameInputs[1].value).toBe('Spaghetti');
   });
@@ -277,9 +260,7 @@ describe('RecipePreviewComponent', () => {
     preview.moveIngredientDown(0);
     fixture.detectChanges();
 
-    const nameInputs = fixture.nativeElement.querySelectorAll(
-      '.ingredient-row input[formcontrolname="name"]',
-    );
+    const nameInputs = fixture.nativeElement.querySelectorAll('.ingredient-row input[formcontrolname="name"]');
     expect(nameInputs[0].value).toBe('Pancetta');
     expect(nameInputs[1].value).toBe('Spaghetti');
   });
@@ -288,9 +269,7 @@ describe('RecipePreviewComponent', () => {
     preview.moveStepUp(1);
     fixture.detectChanges();
 
-    const textareas = fixture.nativeElement.querySelectorAll(
-      '.step-fields textarea[formcontrolname="description"]',
-    );
+    const textareas = fixture.nativeElement.querySelectorAll('.step-fields textarea[formcontrolname="description"]');
     expect(textareas[0].value).toBe('Fry pancetta');
     expect(textareas[1].value).toBe('Cook pasta');
   });
@@ -299,9 +278,7 @@ describe('RecipePreviewComponent', () => {
     preview.moveStepDown(0);
     fixture.detectChanges();
 
-    const textareas = fixture.nativeElement.querySelectorAll(
-      '.step-fields textarea[formcontrolname="description"]',
-    );
+    const textareas = fixture.nativeElement.querySelectorAll('.step-fields textarea[formcontrolname="description"]');
     expect(textareas[0].value).toBe('Fry pancetta');
     expect(textareas[1].value).toBe('Cook pasta');
   });
@@ -362,9 +339,7 @@ describe('RecipePreviewComponent', () => {
     };
     fixture.detectChanges();
 
-    const textarea = fixture.nativeElement.querySelector(
-      '#preview-description',
-    ) as HTMLTextAreaElement;
+    const textarea = fixture.nativeElement.querySelector('#preview-description') as HTMLTextAreaElement;
     expect(textarea.value).toBe('');
 
     const form = fixture.nativeElement.querySelector('form');

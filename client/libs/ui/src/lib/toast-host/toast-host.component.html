@@ -2,12 +2,7 @@
   @for (toast of toasts(); track toast.id) {
     <div class="toast toast-{{ toast.kind }}" role="status">
       <span class="toast-message">{{ t(toast.messageKey, toast.params) }}</span>
-      <button
-        type="button"
-        class="toast-dismiss"
-        (click)="dismiss(toast.id)"
-        [attr.aria-label]="t('common.toast.dismiss')"
-      >
+      <button type="button" class="toast-dismiss" (click)="dismiss(toast.id)" [attr.aria-label]="t('common.toast.dismiss')">
         <lucide-icon name="x" [size]="16" />
       </button>
     </div>

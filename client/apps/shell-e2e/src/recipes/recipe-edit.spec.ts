@@ -16,9 +16,7 @@ import { TIMEOUTS } from '../helpers/timeouts';
 test.describe('Recipe Edit Flow', () => {
   const recipe = setupSharedRecipe(test, 'E2E Edit Test');
 
-  test('navigates from list card to detail page with edit button', async ({
-    authenticatedPage,
-  }) => {
+  test('navigates from list card to detail page with edit button', async ({ authenticatedPage }) => {
     const list = new RecipeListPage(authenticatedPage);
     const detail = new RecipeDetailPage(authenticatedPage);
     await list.goto();

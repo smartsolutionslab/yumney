@@ -102,10 +102,7 @@ describe('FormFieldComponent', () => {
 
   it('should display group errors only when the control is touched', () => {
     const control = new FormControl('');
-    const group = new FormGroup(
-      { password: control },
-      { validators: () => ({ passwordsMismatch: true }) },
-    );
+    const group = new FormGroup({ password: control }, { validators: () => ({ passwordsMismatch: true }) });
     fixture.componentRef.setInput('control', control);
     fixture.componentRef.setInput('group', group);
     fixture.componentRef.setInput('groupErrors', { passwordsMismatch: 'form.passwordsMismatch' });
@@ -119,10 +116,7 @@ describe('FormFieldComponent', () => {
 
   it('should not display group errors when the control is untouched', () => {
     const control = new FormControl('');
-    const group = new FormGroup(
-      { password: control },
-      { validators: () => ({ passwordsMismatch: true }) },
-    );
+    const group = new FormGroup({ password: control }, { validators: () => ({ passwordsMismatch: true }) });
     fixture.componentRef.setInput('control', control);
     fixture.componentRef.setInput('group', group);
     fixture.componentRef.setInput('groupErrors', { passwordsMismatch: 'form.passwordsMismatch' });

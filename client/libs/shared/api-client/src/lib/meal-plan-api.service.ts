@@ -41,11 +41,7 @@ export class MealPlanApiService {
     return this.http.put<WeeklyPlan>(API_ENDPOINTS.mealPlans.slotsSwap(year, week), request);
   }
 
-  adjustServings(
-    year: number,
-    week: number,
-    request: AdjustServingsRequest,
-  ): Observable<WeeklyPlan> {
+  adjustServings(year: number, week: number, request: AdjustServingsRequest): Observable<WeeklyPlan> {
     return this.http.put<WeeklyPlan>(API_ENDPOINTS.mealPlans.slotsServings(year, week), request);
   }
 
@@ -59,15 +55,8 @@ export class MealPlanApiService {
     });
   }
 
-  cookWithLeftovers(
-    year: number,
-    week: number,
-    request: CookWithLeftoversRequest,
-  ): Observable<WeeklyPlan> {
-    return this.http.post<WeeklyPlan>(
-      API_ENDPOINTS.mealPlans.cookWithLeftovers(year, week),
-      request,
-    );
+  cookWithLeftovers(year: number, week: number, request: CookWithLeftoversRequest): Observable<WeeklyPlan> {
+    return this.http.post<WeeklyPlan>(API_ENDPOINTS.mealPlans.cookWithLeftovers(year, week), request);
   }
 
   getPlannedRecipes(year: number, week: number): Observable<WeeklyPlannedRecipes> {
@@ -75,10 +64,7 @@ export class MealPlanApiService {
   }
 
   generateShoppingList(year: number, week: number): Observable<GenerateShoppingListResult> {
-    return this.http.post<GenerateShoppingListResult>(
-      API_ENDPOINTS.mealPlans.generateShoppingList(year, week),
-      {},
-    );
+    return this.http.post<GenerateShoppingListResult>(API_ENDPOINTS.mealPlans.generateShoppingList(year, week), {});
   }
 
   searchHistory(params: SearchHistoryParams = {}): Observable<PagedResponse<MealHistoryEntry>> {
@@ -93,16 +79,8 @@ export class MealPlanApiService {
     });
   }
 
-  copyPlanToWeek(
-    srcYear: number,
-    srcWeek: number,
-    dstYear: number,
-    dstWeek: number,
-  ): Observable<WeeklyPlan> {
-    return this.http.post<WeeklyPlan>(
-      API_ENDPOINTS.mealPlans.copyTo(srcYear, srcWeek, dstYear, dstWeek),
-      {},
-    );
+  copyPlanToWeek(srcYear: number, srcWeek: number, dstYear: number, dstWeek: number): Observable<WeeklyPlan> {
+    return this.http.post<WeeklyPlan>(API_ENDPOINTS.mealPlans.copyTo(srcYear, srcWeek, dstYear, dstWeek), {});
   }
 
   suggestWeekPlan(year: number, week: number): Observable<WeekSuggestion> {

@@ -1,11 +1,4 @@
-import {
-  celsiusToFahrenheit,
-  fahrenheitToCelsius,
-  smartRound,
-  toImperial,
-  toMetric,
-  toSystem,
-} from './unit-conversion';
+import { celsiusToFahrenheit, fahrenheitToCelsius, smartRound, toImperial, toMetric, toSystem } from './unit-conversion';
 
 describe('unit-conversion', () => {
   describe('toImperial', () => {

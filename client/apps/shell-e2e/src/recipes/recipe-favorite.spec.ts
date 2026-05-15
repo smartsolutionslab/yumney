@@ -33,10 +33,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     // …) refetch from the server and would race the un-committed write
     // otherwise — see #419.
     const favoriteCommitted = authenticatedPage.waitForResponse(
-      (res) =>
-        /\/api\/v1\/recipes\/.+\/favorite$/.test(res.url()) &&
-        res.request().method() === 'POST' &&
-        res.ok(),
+      (res) => /\/api\/v1\/recipes\/.+\/favorite$/.test(res.url()) && res.request().method() === 'POST' && res.ok(),
       { timeout: TIMEOUTS.default },
     );
     await heart.click();
@@ -62,9 +59,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     await expect(heart).toHaveAttribute('aria-pressed', 'true');
   });
 
-  test('should narrow list when "Show only favorites" filter is enabled', async ({
-    authenticatedPage,
-  }) => {
+  test('should narrow list when "Show only favorites" filter is enabled', async ({ authenticatedPage }) => {
     const list = new RecipeListPage(authenticatedPage);
     await list.goto();
     await expect(list.recipeCard(recipe().title).first()).toBeVisible({
@@ -98,10 +93,7 @@ test.describe('Favorite Recipes (US-071)', () => {
     // Same race as in test 1 (#419): without waiting on the POST commit,
     // a subsequent reload could still see aria-pressed='true'.
     const favoriteCommitted = authenticatedPage.waitForResponse(
-      (res) =>
-        /\/api\/v1\/recipes\/.+\/favorite$/.test(res.url()) &&
-        res.request().method() === 'POST' &&
-        res.ok(),
+      (res) => /\/api\/v1\/recipes\/.+\/favorite$/.test(res.url()) && res.request().method() === 'POST' && res.ok(),
       { timeout: TIMEOUTS.default },
     );
     await detail.favoriteButton.click();

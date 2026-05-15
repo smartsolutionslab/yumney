@@ -45,9 +45,7 @@ describe('optimisticSignalUpdate', () => {
       value.count = 1;
     });
 
-    optimisticSignalUpdate(state, noopDestroyRef, apply, rollback, () =>
-      throwError(() => new Error('boom')),
-    );
+    optimisticSignalUpdate(state, noopDestroyRef, apply, rollback, () => throwError(() => new Error('boom')));
 
     expect(rollback).toHaveBeenCalled();
     expect(state()!.count).toBe(1);

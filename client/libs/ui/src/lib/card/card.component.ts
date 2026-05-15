@@ -1,10 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  ViewEncapsulation,
-  computed,
-  input,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, computed, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 export type CardVariant = 'auth';

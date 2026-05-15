@@ -29,9 +29,7 @@ test.describe('Recipe Chat (US-230, US-303, US-306)', () => {
     await expect(chat.panel).not.toBeVisible();
   });
 
-  test('should close chat panel when backdrop is tapped on mobile', async ({
-    authenticatedPage,
-  }) => {
+  test('should close chat panel when backdrop is tapped on mobile', async ({ authenticatedPage }) => {
     await authenticatedPage.setViewportSize({ width: 375, height: 812 });
     const chat = new ChatPage(authenticatedPage);
     await chat.open();
@@ -43,9 +41,7 @@ test.describe('Recipe Chat (US-230, US-303, US-306)', () => {
     await expect(chat.panel).not.toBeVisible();
   });
 
-  test('should show welcome message with examples when panel first opens', async ({
-    authenticatedPage,
-  }) => {
+  test('should show welcome message with examples when panel first opens', async ({ authenticatedPage }) => {
     const chat = new ChatPage(authenticatedPage);
     await chat.open();
     await expect(chat.panel).toBeVisible({ timeout: TIMEOUTS.short });

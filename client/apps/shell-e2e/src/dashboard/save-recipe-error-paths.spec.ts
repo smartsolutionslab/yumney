@@ -41,8 +41,7 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
     // Wait for the POST response before asserting the banner so we know
     // the click actually fired the request the mock is supposed to fulfill.
     const savePost = authenticatedPage.waitForResponse(
-      (res) =>
-        new URL(res.url()).pathname === '/api/v1/recipes' && res.request().method() === 'POST',
+      (res) => new URL(res.url()).pathname === '/api/v1/recipes' && res.request().method() === 'POST',
       { timeout: TIMEOUTS.default },
     );
     await dashboard.previewSaveButton.click();
@@ -53,9 +52,7 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
     await expect(editForm.titleInput).toHaveValue('E2E 500 Test');
   });
 
-  test('shows error banner when save returns 422 with validation errors', async ({
-    authenticatedPage,
-  }) => {
+  test('shows error banner when save returns 422 with validation errors', async ({ authenticatedPage }) => {
     await mockApiError(authenticatedPage, '**/api/v1/recipes', 422, {
       errors: {
         title: ["'Title' must not be empty."],
@@ -70,8 +67,7 @@ test.describe('Dashboard — Save Recipe Error Paths (#408)', () => {
     await editForm.fillMinimal('E2E 422 Test');
 
     const savePost = authenticatedPage.waitForResponse(
-      (res) =>
-        new URL(res.url()).pathname === '/api/v1/recipes' && res.request().method() === 'POST',
+      (res) => new URL(res.url()).pathname === '/api/v1/recipes' && res.request().method() === 'POST',
       { timeout: TIMEOUTS.default },
     );
     await dashboard.previewSaveButton.click();

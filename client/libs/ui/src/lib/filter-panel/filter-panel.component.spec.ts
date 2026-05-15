@@ -1,10 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
-import {
-  FilterPanelComponent,
-  type RecipeFilterValue,
-  EMPTY_FILTER,
-} from './filter-panel.component';
+import { FilterPanelComponent, type RecipeFilterValue, EMPTY_FILTER } from './filter-panel.component';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 import { provideYumneyIcons } from '../icons/provide-icons';
 
@@ -32,13 +28,7 @@ const en = {
 };
 
 @Component({
-  template: `
-    <yn-filter-panel
-      [value]="value()"
-      [availableTags]="availableTags()"
-      (valueChange)="onValueChange($event)"
-    />
-  `,
+  template: ` <yn-filter-panel [value]="value()" [availableTags]="availableTags()" (valueChange)="onValueChange($event)" /> `,
   imports: [FilterPanelComponent],
 })
 class TestHostComponent {
@@ -85,9 +75,7 @@ describe('FilterPanelComponent', () => {
     fixture.detectChanges();
 
     const tagChips = fixture.nativeElement.querySelectorAll('.chip-row .filter-chip');
-    const italianChip = Array.from(tagChips).find(
-      (chip) => (chip as HTMLElement).textContent?.trim() === 'Italian',
-    ) as HTMLElement;
+    const italianChip = Array.from(tagChips).find((chip) => (chip as HTMLElement).textContent?.trim() === 'Italian') as HTMLElement;
     italianChip.click();
 
     expect(host.lastEmitted?.tags).toContain('Italian');
@@ -105,9 +93,7 @@ describe('FilterPanelComponent', () => {
     fixture.detectChanges();
 
     const allChips = fixture.nativeElement.querySelectorAll('.filter-chip');
-    const easyChip = Array.from(allChips).find(
-      (chip) => (chip as HTMLElement).textContent?.trim() === 'Easy',
-    ) as HTMLElement;
+    const easyChip = Array.from(allChips).find((chip) => (chip as HTMLElement).textContent?.trim() === 'Easy') as HTMLElement;
     easyChip.click();
 
     expect(host.lastEmitted?.difficulty).toBe('easy');
@@ -118,9 +104,7 @@ describe('FilterPanelComponent', () => {
     fixture.detectChanges();
 
     const allChips = fixture.nativeElement.querySelectorAll('.filter-chip');
-    const easyChip = Array.from(allChips).find(
-      (chip) => (chip as HTMLElement).textContent?.trim() === 'Easy',
-    ) as HTMLElement;
+    const easyChip = Array.from(allChips).find((chip) => (chip as HTMLElement).textContent?.trim() === 'Easy') as HTMLElement;
     easyChip.click();
 
     expect(host.lastEmitted?.difficulty).toBeNull();
@@ -130,9 +114,7 @@ describe('FilterPanelComponent', () => {
     fixture.detectChanges();
 
     const allChips = fixture.nativeElement.querySelectorAll('.filter-chip');
-    const favChip = Array.from(allChips).find(
-      (chip) => (chip as HTMLElement).textContent?.trim() === 'Favorites only',
-    ) as HTMLElement;
+    const favChip = Array.from(allChips).find((chip) => (chip as HTMLElement).textContent?.trim() === 'Favorites only') as HTMLElement;
     favChip.click();
 
     expect(host.lastEmitted?.favoritesOnly).toBe(true);

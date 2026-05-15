@@ -18,20 +18,10 @@
     <button class="control-btn cancel-btn" (click)="onCancel()">
       {{ t('camera.cancel') }}
     </button>
-    <button
-      #captureBtn
-      class="capture-btn"
-      (click)="onCapture()"
-      [disabled]="!isStreaming()"
-      [attr.aria-label]="t('camera.capture')"
-    >
+    <button #captureBtn class="capture-btn" (click)="onCapture()" [disabled]="!isStreaming()" [attr.aria-label]="t('camera.capture')">
       <span class="capture-ring"></span>
     </button>
-    <button
-      class="control-btn flip-btn"
-      (click)="onToggleFacing()"
-      [attr.aria-label]="t('camera.flipCamera')"
-    >
+    <button class="control-btn flip-btn" (click)="onToggleFacing()" [attr.aria-label]="t('camera.flipCamera')">
       <lucide-icon name="refresh-cw" [size]="20" />
     </button>
   </div>
@@ -42,11 +32,7 @@
         @for (photo of captures(); track photo.id) {
           <div class="thumbnail">
             <img [src]="photo.url" alt="" />
-            <button
-              class="thumbnail-delete"
-              (click)="onDeleteCapture(photo.id)"
-              [attr.aria-label]="t('camera.deletePhoto')"
-            >
+            <button class="thumbnail-delete" (click)="onDeleteCapture(photo.id)" [attr.aria-label]="t('camera.deletePhoto')">
               <lucide-icon name="x" [size]="18" />
             </button>
           </div>

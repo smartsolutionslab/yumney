@@ -1,10 +1,5 @@
 import { type TestType } from '@playwright/test';
-import {
-  uniqueTitle,
-  openAuthenticatedPage,
-  createTestRecipe,
-  deleteTestRecipe,
-} from './test-data.helper';
+import { uniqueTitle, openAuthenticatedPage, createTestRecipe, deleteTestRecipe } from './test-data.helper';
 
 export interface SharedRecipe {
   title: string;

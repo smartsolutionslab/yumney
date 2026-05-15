@@ -13,11 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  CameraService,
-  IngredientRecognitionService,
-  type FacingMode,
-} from '@yumney/shared/models';
+import { CameraService, IngredientRecognitionService, type FacingMode } from '@yumney/shared/models';
 import type { RecognizedIngredient } from '@yumney/shared/api-client';
 
 @Component({
@@ -72,10 +68,7 @@ export class IngredientScannerComponent implements AfterViewInit, OnDestroy {
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: (response) => {
-              const merged = this.recognition.mergeIngredients(
-                this.ingredients(),
-                response.ingredients,
-              );
+              const merged = this.recognition.mergeIngredients(this.ingredients(), response.ingredients);
               this.ingredients.set(merged);
               this.lastScanAt.set(Date.now());
               this.isScanning.set(false);

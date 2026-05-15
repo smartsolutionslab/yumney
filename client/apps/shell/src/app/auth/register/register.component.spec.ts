@@ -186,9 +186,7 @@ describe('RegisterComponent', () => {
 
     it('should clear serverError on new submission', fakeAsync(() => {
       fillValidForm();
-      authApiMock.register.mockReturnValue(
-        throwError(() => new HttpErrorResponse({ status: 500 })),
-      );
+      authApiMock.register.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
 
       component.onSubmit();
       tick();
@@ -201,9 +199,7 @@ describe('RegisterComponent', () => {
 
     it('should set serverError for 409 conflict', fakeAsync(() => {
       fillValidForm();
-      authApiMock.register.mockReturnValue(
-        throwError(() => new HttpErrorResponse({ status: 409 })),
-      );
+      authApiMock.register.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
 
       component.onSubmit();
       tick();
@@ -213,9 +209,7 @@ describe('RegisterComponent', () => {
 
     it('should set serverError for 422 validation error', fakeAsync(() => {
       fillValidForm();
-      authApiMock.register.mockReturnValue(
-        throwError(() => new HttpErrorResponse({ status: 422 })),
-      );
+      authApiMock.register.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 422 })));
 
       component.onSubmit();
       tick();
@@ -225,9 +219,7 @@ describe('RegisterComponent', () => {
 
     it('should set generic serverError for 500', fakeAsync(() => {
       fillValidForm();
-      authApiMock.register.mockReturnValue(
-        throwError(() => new HttpErrorResponse({ status: 500 })),
-      );
+      authApiMock.register.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
 
       component.onSubmit();
       tick();

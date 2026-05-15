@@ -66,18 +66,14 @@ export class CookingTimerService {
     if (next <= 0) {
       this.complete(id);
     } else {
-      this.timers.update((list) =>
-        list.map((timer) => (timer.id === id ? { ...timer, remainingSeconds: next } : timer)),
-      );
+      this.timers.update((list) => list.map((timer) => (timer.id === id ? { ...timer, remainingSeconds: next } : timer)));
     }
   }
 
   private complete(id: string): void {
     this.clearInterval(id);
     this.timers.update((list) =>
-      list.map((timer) =>
-        timer.id === id ? { ...timer, remainingSeconds: 0, status: 'completed' as const } : timer,
-      ),
+      list.map((timer) => (timer.id === id ? { ...timer, remainingSeconds: 0, status: 'completed' as const } : timer)),
     );
     if (this.preferences.timerHapticFeedback()) {
       this.triggerHaptics();

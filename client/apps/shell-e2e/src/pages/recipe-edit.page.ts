@@ -26,9 +26,7 @@ export class RecipeEditPage {
     this.firstIngredientNameInput = page.locator('input[formControlName="name"]').first();
     // Step description must be scoped to .step-fields — there is also
     // a recipe-level description textarea with the same formControlName.
-    this.firstStepDescriptionInput = page
-      .locator('.step-fields textarea[formControlName="description"]')
-      .first();
+    this.firstStepDescriptionInput = page.locator('.step-fields textarea[formControlName="description"]').first();
     // Save button lives inside <yn-recipe-preview>; callers should scope
     // via DashboardPage.recipePreview when there could be other .save-btns.
     this.saveButton = page.locator('.save-btn');

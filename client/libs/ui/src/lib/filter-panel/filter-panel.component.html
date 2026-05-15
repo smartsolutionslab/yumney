@@ -18,12 +18,7 @@
       <label class="filter-label">{{ t('recipes.list.filter.tags') }}</label>
       <div class="chip-row">
         @for (tag of availableTags(); track tag) {
-          <button
-            type="button"
-            class="filter-chip"
-            [class.active]="isTagActive(tag)"
-            (click)="toggleTag(tag)"
-          >
+          <button type="button" class="filter-chip" [class.active]="isTagActive(tag)" (click)="toggleTag(tag)">
             {{ tag }}
           </button>
         }
@@ -34,12 +29,7 @@
   <div class="filter-group">
     <label class="filter-label">{{ t('recipes.list.filter.favorites') }}</label>
     <div class="chip-row">
-      <button
-        type="button"
-        class="filter-chip"
-        [class.active]="value().favoritesOnly"
-        (click)="toggleFavoritesOnly()"
-      >
+      <button type="button" class="filter-chip" [class.active]="value().favoritesOnly" (click)="toggleFavoritesOnly()">
         {{ t('recipes.list.filter.favoritesOnly') }}
       </button>
     </div>
@@ -49,12 +39,7 @@
     <label class="filter-label">{{ t('recipes.list.filter.difficulty') }}</label>
     <div class="chip-row">
       @for (option of difficultyOptions; track option) {
-        <button
-          type="button"
-          class="filter-chip"
-          [class.active]="value().difficulty === option"
-          (click)="toggleDifficulty(option)"
-        >
+        <button type="button" class="filter-chip" [class.active]="value().difficulty === option" (click)="toggleDifficulty(option)">
           {{ t('recipes.list.filter.difficultyOption.' + option) }}
         </button>
       }

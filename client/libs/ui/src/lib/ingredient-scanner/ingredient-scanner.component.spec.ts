@@ -3,15 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { IngredientScannerComponent } from './ingredient-scanner.component';
-import {
-  CameraService,
-  IngredientRecognitionService,
-  setupTranslocoTesting,
-} from '@yumney/shared/models';
-import type {
-  RecognizedIngredient,
-  RecognizedIngredientsResponse,
-} from '@yumney/shared/api-client';
+import { CameraService, IngredientRecognitionService, setupTranslocoTesting } from '@yumney/shared/models';
+import type { RecognizedIngredient, RecognizedIngredientsResponse } from '@yumney/shared/api-client';
 
 const en = {
   scanner: {
@@ -60,10 +53,7 @@ function createRecognitionMock(): RecognitionServiceMock {
     ),
     mergeIngredients: vi
       .fn()
-      .mockImplementation((existing: RecognizedIngredient[], incoming: RecognizedIngredient[]) => [
-        ...existing,
-        ...incoming,
-      ]),
+      .mockImplementation((existing: RecognizedIngredient[], incoming: RecognizedIngredient[]) => [...existing, ...incoming]),
     confidenceLevel: vi.fn().mockReturnValue('high'),
   };
 }

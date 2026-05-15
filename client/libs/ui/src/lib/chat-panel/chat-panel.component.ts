@@ -14,12 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  ChatApiService,
-  RecipeApiService,
-  type ChatAction,
-  type ChatRecipeSuggestion,
-} from '@yumney/shared/api-client';
+import { ChatApiService, RecipeApiService, type ChatAction, type ChatRecipeSuggestion } from '@yumney/shared/api-client';
 import { ChatHintService, ChatStateService, ROUTES, VoiceService } from '@yumney/shared/models';
 
 @Component({
@@ -198,11 +193,7 @@ export class ChatPanelComponent implements AfterViewInit {
       });
   }
 
-  private buildRecipeReply(recipe: {
-    title: string;
-    ingredients: unknown[];
-    steps: unknown[];
-  }): string {
+  private buildRecipeReply(recipe: { title: string; ingredients: unknown[]; steps: unknown[] }): string {
     const count = recipe.ingredients.length;
     const steps = recipe.steps.length;
     return `I found a recipe: **${recipe.title}**\n` + `${count} ingredients, ${steps} steps.`;

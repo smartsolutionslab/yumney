@@ -6,9 +6,7 @@ import { LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'yn-back-link',
   imports: [RouterLink, TranslocoPipe, LucideAngularModule],
-  template: `<a [routerLink]="route()" class="back-link"
-    ><lucide-icon name="arrow-left" [size]="20" /> {{ label() | transloco }}</a
-  >`,
+  template: `<a [routerLink]="route()" class="back-link"><lucide-icon name="arrow-left" [size]="20" /> {{ label() | transloco }}</a>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BackLinkComponent {

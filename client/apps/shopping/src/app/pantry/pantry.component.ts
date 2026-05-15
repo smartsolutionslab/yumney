@@ -1,19 +1,7 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, OnInit, signal } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  ShoppingApiService,
-  type Freshness,
-  type IngredientBalanceItem,
-  type MarkAsFrozenRequest,
-} from '../api';
+import { ShoppingApiService, type Freshness, type IngredientBalanceItem, type MarkAsFrozenRequest } from '../api';
 import { createAsyncState, ERROR_MAPS, groupByCategory } from '@yumney/shared/models';
 import { EmptyStateComponent, MessageBannerComponent } from '@yumney/ui';
 
@@ -60,11 +48,7 @@ export class PantryComponent implements OnInit {
 
   onFreeze(item: IngredientBalanceItem): void {
     const request: MarkAsFrozenRequest = { name: item.itemName, unit: item.unit };
-    this.freezeState.execute(
-      this.shoppingApi.markAsFrozen(request),
-      ERROR_MAPS.shopping.pantry.freeze,
-      () => this.load(),
-    );
+    this.freezeState.execute(this.shoppingApi.markAsFrozen(request), ERROR_MAPS.shopping.pantry.freeze, () => this.load());
   }
 
   onRetry(): void {
@@ -72,10 +56,8 @@ export class PantryComponent implements OnInit {
   }
 
   private load(): void {
-    this.loadState.execute(
-      this.shoppingApi.getIngredientBalance(),
-      ERROR_MAPS.shopping.pantry.load,
-      (response) => this.items.set(response.items),
+    this.loadState.execute(this.shoppingApi.getIngredientBalance(), ERROR_MAPS.shopping.pantry.load, (response) =>
+      this.items.set(response.items),
     );
   }
 }

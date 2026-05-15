@@ -1,9 +1,4 @@
-import type {
-  ImportRecipeResponse,
-  RecipeDetail,
-  SaveRecipeRequest,
-  UpdateRecipeRequest,
-} from '@yumney/shared/api-client';
+import type { ImportRecipeResponse, RecipeDetail, SaveRecipeRequest, UpdateRecipeRequest } from '@yumney/shared/api-client';
 
 function extractRecipeFields(recipe: ImportRecipeResponse) {
   return {
@@ -19,10 +14,7 @@ function extractRecipeFields(recipe: ImportRecipeResponse) {
   };
 }
 
-export function mapToSaveRecipeRequest(
-  recipe: ImportRecipeResponse,
-  sourceUrl?: string,
-): SaveRecipeRequest {
+export function mapToSaveRecipeRequest(recipe: ImportRecipeResponse, sourceUrl?: string): SaveRecipeRequest {
   return { ...extractRecipeFields(recipe), ...(sourceUrl != null && { sourceUrl }) };
 }
 

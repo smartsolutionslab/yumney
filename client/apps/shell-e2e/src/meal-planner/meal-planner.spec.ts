@@ -27,15 +27,7 @@ test.describe('Meal Planner (US-320)', () => {
 
     await expect(planner.dayCards.first()).toBeVisible({ timeout: TIMEOUTS.default });
 
-    for (const day of [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ]) {
+    for (const day of ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']) {
       await expect(planner.dayCard(day)).toBeVisible();
     }
   });

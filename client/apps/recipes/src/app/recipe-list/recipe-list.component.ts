@@ -1,31 +1,10 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  computed,
-  inject,
-  OnInit,
-  DestroyRef,
-  signal,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, OnInit, DestroyRef, signal } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import {
-  RecipeApiService,
-  RecipeListItem,
-  GetRecipesParams,
-  ChatApiService,
-  type ChatRecipeSuggestion,
-} from '../api';
-import {
-  createAsyncState,
-  debouncedEffect,
-  ERROR_MAPS,
-  ROUTES,
-  UI,
-  toggleFavoriteInList,
-} from '@yumney/shared/models';
+import { RecipeApiService, RecipeListItem, GetRecipesParams, ChatApiService, type ChatRecipeSuggestion } from '../api';
+import { createAsyncState, debouncedEffect, ERROR_MAPS, ROUTES, UI, toggleFavoriteInList } from '@yumney/shared/models';
 import { RouterLink } from '@angular/router';
 import {
   ButtonComponent,
@@ -189,9 +168,7 @@ export class RecipeListComponent implements OnInit {
   }
 
   onToggleFavorite(identifier: string): void {
-    toggleFavoriteInList(this.recipes, identifier, this.destroyRef, (id) =>
-      this.recipeApi.toggleFavorite(id),
-    );
+    toggleFavoriteInList(this.recipes, identifier, this.destroyRef, (id) => this.recipeApi.toggleFavorite(id));
   }
 
   onFilterChange(value: RecipeFilterValue): void {
@@ -247,9 +224,7 @@ export class RecipeListComponent implements OnInit {
   }
 
   private hydrateSuggestions(suggestions: ChatRecipeSuggestion[]) {
-    const validIds = suggestions
-      .map((suggestion) => suggestion.recipeIdentifier)
-      .filter((id): id is string => id !== null);
+    const validIds = suggestions.map((suggestion) => suggestion.recipeIdentifier).filter((id): id is string => id !== null);
 
     if (validIds.length === 0) return of([] as RecipeListItem[]);
 
@@ -298,20 +273,16 @@ export class RecipeListComponent implements OnInit {
       ...(filter.favoritesOnly && { favorites: true }),
     };
 
-    this.asyncState.execute(
-      this.recipeApi.getRecipes(params),
-      ERROR_MAPS.recipes.list,
-      (response) => {
-        if (requestId !== this.loadRequestId) return;
-        this.totalCount.set(response.totalCount);
-        if (append) {
-          this.recipes.update((existing) => [...existing, ...response.items]);
-        } else {
-          this.recipes.set(response.items);
-        }
-        this.collectAvailableTags(response.items);
-      },
-    );
+    this.asyncState.execute(this.recipeApi.getRecipes(params), ERROR_MAPS.recipes.list, (response) => {
+      if (requestId !== this.loadRequestId) return;
+      this.totalCount.set(response.totalCount);
+      if (append) {
+        this.recipes.update((existing) => [...existing, ...response.items]);
+      } else {
+        this.recipes.set(response.items);
+      }
+      this.collectAvailableTags(response.items);
+    });
   }
 
   private collectAvailableTags(items: RecipeListItem[]): void {

@@ -40,9 +40,7 @@
     <div class="meta-bar">
       @if (recipe.servings) {
         <div class="meta-item servings-adjuster">
-          <span class="meta-label">{{
-            t('recipes.detail.servings', { count: desiredServings() })
-          }}</span>
+          <span class="meta-label">{{ t('recipes.detail.servings', { count: desiredServings() }) }}</span>
           <div class="servings-control">
             <button
               class="servings-button"
@@ -53,11 +51,7 @@
               &minus;
             </button>
             <span class="servings-value" aria-live="polite">{{ desiredServings() }}</span>
-            <button
-              class="servings-button"
-              (click)="onIncreaseServings()"
-              [attr.aria-label]="t('recipes.detail.a11y.increaseServings')"
-            >
+            <button class="servings-button" (click)="onIncreaseServings()" [attr.aria-label]="t('recipes.detail.a11y.increaseServings')">
               +
             </button>
           </div>
@@ -71,25 +65,19 @@
       @if (recipe.prepTimeMinutes) {
         <div class="meta-item">
           <span class="meta-label">{{ t('recipes.detail.prepTime') }}</span>
-          <span class="meta-value">{{
-            t('recipes.detail.minutes', { minutes: recipe.prepTimeMinutes })
-          }}</span>
+          <span class="meta-value">{{ t('recipes.detail.minutes', { minutes: recipe.prepTimeMinutes }) }}</span>
         </div>
       }
       @if (recipe.cookTimeMinutes) {
         <div class="meta-item">
           <span class="meta-label">{{ t('recipes.detail.cookTime') }}</span>
-          <span class="meta-value">{{
-            t('recipes.detail.minutes', { minutes: recipe.cookTimeMinutes })
-          }}</span>
+          <span class="meta-value">{{ t('recipes.detail.minutes', { minutes: recipe.cookTimeMinutes }) }}</span>
         </div>
       }
       @if (totalTime()) {
         <div class="meta-item">
           <span class="meta-label">{{ t('recipes.detail.totalTime') }}</span>
-          <span class="meta-value">{{
-            t('recipes.detail.minutes', { minutes: totalTime() })
-          }}</span>
+          <span class="meta-value">{{ t('recipes.detail.minutes', { minutes: totalTime() }) }}</span>
         </div>
       }
       @if (recipe.difficulty) {
@@ -153,15 +141,8 @@
       <yn-button variant="primary" [routerLink]="ROUTES.recipes.edit(recipe.identifier)">
         {{ t('recipes.detail.actions.edit') }}
       </yn-button>
-      <yn-button
-        variant="danger"
-        testId="recipe-delete-btn"
-        [disabled]="isDeleting()"
-        (click)="onDelete()"
-      >
-        {{
-          isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete')
-        }}
+      <yn-button variant="danger" testId="recipe-delete-btn" [disabled]="isDeleting()" (click)="onDelete()">
+        {{ isDeleting() ? t('recipes.detail.delete.deleting') : t('recipes.detail.actions.delete') }}
       </yn-button>
       <yn-button
         variant="secondary"

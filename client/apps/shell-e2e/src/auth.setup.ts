@@ -32,9 +32,7 @@ setup('authenticate via pre-fetched Keycloak tokens', async ({ page }) => {
   const idClaims = decodeJwtPayload(tokens.id_token);
   const now = Date.now();
   const expiresAt = (now + tokens.expires_in * 1000).toString();
-  const idTokenExpiresAt = (
-    typeof idClaims['exp'] === 'number' ? idClaims['exp'] * 1000 : now + tokens.expires_in * 1000
-  ).toString();
+  const idTokenExpiresAt = (typeof idClaims['exp'] === 'number' ? idClaims['exp'] * 1000 : now + tokens.expires_in * 1000).toString();
 
   // Navigate to the origin once so sessionStorage is scoped correctly.
   await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });

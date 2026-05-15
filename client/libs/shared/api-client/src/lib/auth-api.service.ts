@@ -15,12 +15,7 @@ export class AuthApiService {
     return this.http.post<RegisterResponse>(API_ENDPOINTS.auth.register, request);
   }
 
-  resendVerificationEmail(
-    request: ResendVerificationRequest,
-  ): Observable<ResendVerificationResponse> {
-    return this.http.post<ResendVerificationResponse>(
-      API_ENDPOINTS.auth.resendVerificationEmail,
-      request,
-    );
+  resendVerificationEmail(request: ResendVerificationRequest): Observable<ResendVerificationResponse> {
+    return this.http.post<ResendVerificationResponse>(API_ENDPOINTS.auth.resendVerificationEmail, request);
   }
 }

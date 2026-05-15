@@ -35,13 +35,7 @@
       (retry)="onDelete()"
     />
 
-    <button
-      type="button"
-      class="danger-zone__btn"
-      [disabled]="!canDelete()"
-      (click)="onDelete()"
-      data-testid="delete-account-btn"
-    >
+    <button type="button" class="danger-zone__btn" [disabled]="!canDelete()" (click)="onDelete()" data-testid="delete-account-btn">
       {{ deleting() ? t('account.danger.deleting') : t('account.danger.deleteAccount') }}
     </button>
   </div>

@@ -1,12 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  OnInit,
-  DestroyRef,
-  signal,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, DestroyRef, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { ShoppingApiService, ShoppingListDetail, ShoppingListItemResponse } from '../api';
@@ -67,9 +59,7 @@ export class ShoppingDetailComponent implements OnInit {
   isLoading = this.asyncState.isLoading;
   serverError = this.asyncState.serverError;
 
-  checkedCount = computed(
-    () => this.shoppingList()?.items.filter((item) => item.isChecked).length ?? 0,
-  );
+  checkedCount = computed(() => this.shoppingList()?.items.filter((item) => item.isChecked).length ?? 0);
 
   totalItemCount = computed(() => this.shoppingList()?.items.length ?? 0);
 
@@ -83,9 +73,7 @@ export class ShoppingDetailComponent implements OnInit {
 
   // Items still to buy — already-checked items have been added to the cart, so
   // sending them to Bring! would re-add things the user has already grabbed.
-  uncheckedItems = computed(
-    () => this.shoppingList()?.items.filter((item) => !item.isChecked) ?? [],
-  );
+  uncheckedItems = computed(() => this.shoppingList()?.items.filter((item) => !item.isChecked) ?? []);
 
   ngOnInit(): void {
     const identifier = this.route.snapshot.paramMap.get('identifier');
@@ -94,10 +82,8 @@ export class ShoppingDetailComponent implements OnInit {
       return;
     }
 
-    this.asyncState.execute(
-      this.shoppingApi.getShoppingListById(identifier),
-      ERROR_MAPS.shopping.detail,
-      (list) => this.shoppingList.set(list),
+    this.asyncState.execute(this.shoppingApi.getShoppingListById(identifier), ERROR_MAPS.shopping.detail, (list) =>
+      this.shoppingList.set(list),
     );
   }
 

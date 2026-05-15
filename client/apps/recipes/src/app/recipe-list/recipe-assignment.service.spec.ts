@@ -23,10 +23,7 @@ describe('RecipeAssignmentService', () => {
   let navigate: ReturnType<typeof vi.fn>;
   let assignToParam: string | null;
 
-  const setup = (
-    initialParam: string | null = null,
-    apiResponse: ReturnType<typeof of> | ReturnType<typeof throwError> = of({}),
-  ) => {
+  const setup = (initialParam: string | null = null, apiResponse: ReturnType<typeof of> | ReturnType<typeof throwError> = of({})) => {
     assignToParam = initialParam;
     assignRecipe = vi.fn().mockReturnValue(apiResponse);
     navigate = vi.fn();

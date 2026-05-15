@@ -23,12 +23,8 @@ describe('IngredientRecognitionService', () => {
     });
 
     it('should deduplicate by case-insensitive name', () => {
-      const existing: RecognizedIngredient[] = [
-        { name: 'Tomato', confidence: 0.7, category: 'produce' },
-      ];
-      const incoming: RecognizedIngredient[] = [
-        { name: 'tomato', confidence: 0.9, category: 'produce' },
-      ];
+      const existing: RecognizedIngredient[] = [{ name: 'Tomato', confidence: 0.7, category: 'produce' }];
+      const incoming: RecognizedIngredient[] = [{ name: 'tomato', confidence: 0.9, category: 'produce' }];
 
       const result = service.mergeIngredients(existing, incoming);
 
@@ -36,12 +32,8 @@ describe('IngredientRecognitionService', () => {
     });
 
     it('should keep the higher confidence on duplicate', () => {
-      const existing: RecognizedIngredient[] = [
-        { name: 'Tomato', confidence: 0.6, category: 'produce' },
-      ];
-      const incoming: RecognizedIngredient[] = [
-        { name: 'Tomato', confidence: 0.95, category: 'produce' },
-      ];
+      const existing: RecognizedIngredient[] = [{ name: 'Tomato', confidence: 0.6, category: 'produce' }];
+      const incoming: RecognizedIngredient[] = [{ name: 'Tomato', confidence: 0.95, category: 'produce' }];
 
       const result = service.mergeIngredients(existing, incoming);
 
@@ -49,12 +41,8 @@ describe('IngredientRecognitionService', () => {
     });
 
     it('should not lower confidence on duplicate with lower score', () => {
-      const existing: RecognizedIngredient[] = [
-        { name: 'Tomato', confidence: 0.95, category: 'produce' },
-      ];
-      const incoming: RecognizedIngredient[] = [
-        { name: 'Tomato', confidence: 0.6, category: 'produce' },
-      ];
+      const existing: RecognizedIngredient[] = [{ name: 'Tomato', confidence: 0.95, category: 'produce' }];
+      const incoming: RecognizedIngredient[] = [{ name: 'Tomato', confidence: 0.6, category: 'produce' }];
 
       const result = service.mergeIngredients(existing, incoming);
 

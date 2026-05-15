@@ -31,12 +31,7 @@ export class RegisterPage {
     await this.page.goto('/auth/register');
   }
 
-  async fillForm(data: {
-    email: string;
-    displayName: string;
-    password: string;
-    confirmPassword: string;
-  }): Promise<void> {
+  async fillForm(data: { email: string; displayName: string; password: string; confirmPassword: string }): Promise<void> {
     await this.emailInput.fill(data.email);
     await this.displayNameInput.fill(data.displayName);
     await this.passwordInput.fill(data.password);
