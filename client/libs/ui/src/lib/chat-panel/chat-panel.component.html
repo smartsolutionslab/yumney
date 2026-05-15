@@ -81,7 +81,10 @@
 
       @if (lastActions().length > 0) {
         <div class="chat-actions" data-testid="chat-actions">
-          @for (action of lastActions(); track action.type + ':' + (action.route ?? action.recipeIdentifier ?? '')) {
+          @for (
+            action of lastActions();
+            track action.type + ':' + (action.route ?? action.recipeIdentifier ?? '')
+          ) {
             <button
               type="button"
               class="chat-action"
