@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { createAsyncState, ERROR_MAPS } from '@yumney/shared/models';
 import { ActivityTimelineComponent, AsyncStateComponent, type ActivityEntry } from '@yumney/ui';
