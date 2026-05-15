@@ -2,7 +2,7 @@ using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Services;
+namespace SmartSolutionsLab.Yumney.Shopping.Extraction.Services;
 
 /// <summary>
 /// Deterministic categorizer for E2E tests — relies entirely on the static

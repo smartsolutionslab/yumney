@@ -5,12 +5,10 @@ using SmartSolutionsLab.Yumney.Shared.Quantities;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 
-namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Services;
+namespace SmartSolutionsLab.Yumney.Shopping.Extraction.Services;
 
 #pragma warning disable SA1601
-public sealed partial class SemanticKernelShoppingItemCategorizer(
-	Kernel kernel,
-	ILogger<SemanticKernelShoppingItemCategorizer> logger)
+public sealed partial class SemanticKernelShoppingItemCategorizer(Kernel kernel, ILogger<SemanticKernelShoppingItemCategorizer> logger)
 	: IShoppingItemCategorizer
 {
 #pragma warning disable SA1303

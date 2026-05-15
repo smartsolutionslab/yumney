@@ -44,6 +44,7 @@
   <Folder Name="/src/Shopping/">
     <Project Path="src/Yumney.Shopping.Domain/Yumney.Shopping.Domain.csproj" />
     <Project Path="src/Yumney.Shopping.Application/Yumney.Shopping.Application.csproj" />
+    <Project Path="src/Yumney.Shopping.Extraction/Yumney.Shopping.Extraction.csproj" />
     <Project Path="src/Yumney.Shopping.Infrastructure/Yumney.Shopping.Infrastructure.csproj" />
     <Project Path="src/Yumney.Shopping.Api/Yumney.Shopping.Api.csproj" />
     <Project Path="src/Yumney.Shopping.Client/Yumney.Shopping.Client.csproj" />

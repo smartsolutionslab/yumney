@@ -1,4 +1,4 @@
-namespace SmartSolutionsLab.Yumney.Shopping.Infrastructure.Services;
+namespace SmartSolutionsLab.Yumney.Shopping.Extraction.Services;
 
 public sealed class SemanticKernelOptions
 {
