@@ -69,10 +69,7 @@ describe('CameraService', () => {
       const stopSpy1 = vi.fn();
       const stopSpy2 = vi.fn();
       const fakeStream = {
-        getTracks: () => [
-          { stop: stopSpy1 } as MediaStreamTrack,
-          { stop: stopSpy2 } as MediaStreamTrack,
-        ],
+        getTracks: () => [{ stop: stopSpy1 } as MediaStreamTrack, { stop: stopSpy2 } as MediaStreamTrack],
       } as MediaStream;
 
       mockGetUserMedia(fakeStream);
@@ -92,9 +89,7 @@ describe('CameraService', () => {
       });
       const unsupportedService = new CameraService();
 
-      await expect(firstValueFrom(unsupportedService.openCamera())).rejects.toThrow(
-        'Camera not supported',
-      );
+      await expect(firstValueFrom(unsupportedService.openCamera())).rejects.toThrow('Camera not supported');
     });
 
     it('should request stream with environment facing mode by default', async () => {

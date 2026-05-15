@@ -3,13 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter, ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError, EMPTY } from 'rxjs';
 import { RecipeDetailComponent } from './recipe-detail.component';
-import {
-  ActivityApiService,
-  RecipeApiService,
-  RecipeDetail,
-  ShoppingApiService,
-  ShoppingListDetail,
-} from '../api';
+import { ActivityApiService, RecipeApiService, RecipeDetail, ShoppingApiService, ShoppingListDetail } from '../api';
 import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { setupTranslocoTesting, UserPreferencesService } from '@yumney/shared/models';
@@ -174,9 +168,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const title =
-      fixture.nativeElement.querySelector('.hero-title') ??
-      fixture.nativeElement.querySelector('.recipe-title');
+    const title = fixture.nativeElement.querySelector('.hero-title') ?? fixture.nativeElement.querySelector('.recipe-title');
     expect(title.textContent).toContain('Pasta Carbonara');
   }));
 
@@ -358,9 +350,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const trigger = fixture.nativeElement.querySelector(
-      '[data-testid="recipe-create-shopping-list-btn"]',
-    );
+    const trigger = fixture.nativeElement.querySelector('[data-testid="recipe-create-shopping-list-btn"]');
     expect(trigger).toBeTruthy();
     expect(trigger.tagName).toBe('BUTTON');
     expect(trigger.textContent).toContain('Shopping List');
@@ -632,16 +622,12 @@ describe('RecipeDetailComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const trigger = fixture.nativeElement.querySelector(
-      '[data-testid="recipe-create-shopping-list-btn"]',
-    );
+    const trigger = fixture.nativeElement.querySelector('[data-testid="recipe-create-shopping-list-btn"]');
     trigger.click();
     fixture.detectChanges();
 
     expect(component.showCreateShoppingListConfirm()).toBe(true);
-    const dialog = fixture.nativeElement.querySelector(
-      '[data-testid="create-shopping-list-dialog"]',
-    );
+    const dialog = fixture.nativeElement.querySelector('[data-testid="create-shopping-list-dialog"]');
     expect(dialog).toBeTruthy();
   }));
 
@@ -667,9 +653,7 @@ describe('RecipeDetailComponent', () => {
     component.onCreateShoppingList();
     fixture.detectChanges();
 
-    const subtitle = fixture.nativeElement.querySelector(
-      '[data-testid="create-shopping-list-suggested-title"]',
-    );
+    const subtitle = fixture.nativeElement.querySelector('[data-testid="create-shopping-list-suggested-title"]');
     expect(subtitle.textContent.trim()).toBe('Pasta Carbonara (x6)');
   }));
 
@@ -707,9 +691,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     component.onCreateShoppingList();
 
-    shoppingApiMock.createShoppingList.mockReturnValue(
-      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
-    );
+    shoppingApiMock.createShoppingList.mockReturnValue(of({ identifier: 'list-1' } as unknown as ShoppingListDetail));
     component.onCreateShoppingListConfirmed();
     tick();
 
@@ -726,9 +708,7 @@ describe('RecipeDetailComponent', () => {
     component.desiredServings.set(1);
     component.onCreateShoppingList();
 
-    shoppingApiMock.createShoppingList.mockReturnValue(
-      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
-    );
+    shoppingApiMock.createShoppingList.mockReturnValue(of({ identifier: 'list-1' } as unknown as ShoppingListDetail));
     component.onCreateShoppingListConfirmed();
     tick();
 
@@ -744,9 +724,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     component.onCreateShoppingList();
 
-    shoppingApiMock.createShoppingList.mockReturnValue(
-      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
-    );
+    shoppingApiMock.createShoppingList.mockReturnValue(of({ identifier: 'list-1' } as unknown as ShoppingListDetail));
     const router = TestBed.inject(Router);
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
@@ -783,9 +761,7 @@ describe('RecipeDetailComponent', () => {
     component.onCreateShoppingListConfirmed();
     fixture.detectChanges();
 
-    const triggers = fixture.nativeElement.querySelectorAll(
-      '[data-testid="recipe-create-shopping-list-btn"]',
-    );
+    const triggers = fixture.nativeElement.querySelectorAll('[data-testid="recipe-create-shopping-list-btn"]');
     expect(triggers.length).toBeGreaterThan(0);
     triggers.forEach((trigger: HTMLButtonElement) => {
       expect(trigger.disabled).toBe(true);
@@ -802,9 +778,7 @@ describe('RecipeDetailComponent', () => {
     tick();
     component.onCreateShoppingList();
 
-    shoppingApiMock.createShoppingList.mockReturnValue(
-      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
-    );
+    shoppingApiMock.createShoppingList.mockReturnValue(of({ identifier: 'list-1' } as unknown as ShoppingListDetail));
 
     component.onCreateShoppingListConfirmed();
     tick();

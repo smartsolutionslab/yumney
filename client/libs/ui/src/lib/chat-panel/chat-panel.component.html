@@ -1,32 +1,15 @@
 @if (state.isOpen()) {
   <div class="chat-backdrop" data-testid="chat-backdrop" (click)="onBackdropClick()"></div>
-  <div
-    class="chat-panel"
-    data-testid="chat-panel"
-    *transloco="let t"
-    role="dialog"
-    aria-modal="true"
-    [attr.aria-label]="t('chat.title')"
-  >
+  <div class="chat-panel" data-testid="chat-panel" *transloco="let t" role="dialog" aria-modal="true" [attr.aria-label]="t('chat.title')">
     <div class="chat-header">
       <h2>{{ t('chat.title') }}</h2>
       <div class="chat-header-actions">
         @if (state.messages().length > 0) {
-          <button
-            class="chat-clear"
-            data-testid="chat-clear"
-            (click)="onClear()"
-            [attr.aria-label]="t('chat.clearHistory')"
-          >
+          <button class="chat-clear" data-testid="chat-clear" (click)="onClear()" [attr.aria-label]="t('chat.clearHistory')">
             {{ t('chat.clear') }}
           </button>
         }
-        <button
-          class="chat-close"
-          data-testid="chat-close"
-          (click)="onClose()"
-          [attr.aria-label]="t('chat.close')"
-        >
+        <button class="chat-close" data-testid="chat-close" (click)="onClose()" [attr.aria-label]="t('chat.close')">
           <lucide-icon name="x" [size]="18" />
         </button>
       </div>
@@ -64,11 +47,7 @@
         <div class="chat-suggestions">
           @for (s of lastSuggestions(); track s.title) {
             @if (s.recipeIdentifier) {
-              <a
-                class="chat-suggestion-card"
-                [routerLink]="ROUTES.recipes.detail(s.recipeIdentifier)"
-                (click)="onSuggestionClick()"
-              >
+              <a class="chat-suggestion-card" [routerLink]="ROUTES.recipes.detail(s.recipeIdentifier)" (click)="onSuggestionClick()">
                 <strong>{{ s.title }}</strong>
                 @if (s.reason) {
                   <span>{{ s.reason }}</span>
@@ -81,16 +60,8 @@
 
       @if (lastActions().length > 0) {
         <div class="chat-actions" data-testid="chat-actions">
-          @for (
-            action of lastActions();
-            track action.type + ':' + (action.route ?? action.recipeIdentifier ?? '')
-          ) {
-            <button
-              type="button"
-              class="chat-action"
-              data-testid="chat-action"
-              (click)="onActionClick(action)"
-            >
+          @for (action of lastActions(); track action.type + ':' + (action.route ?? action.recipeIdentifier ?? '')) {
+            <button type="button" class="chat-action" data-testid="chat-action" (click)="onActionClick(action)">
               <lucide-icon name="play" [size]="14" />
               {{ t(actionLabelKey(action)) }}
             </button>
@@ -159,12 +130,7 @@
           </button>
         }
       }
-      <button
-        type="submit"
-        class="chat-send btn-primary"
-        data-testid="chat-send"
-        [disabled]="!input().trim() || state.isThinking()"
-      >
+      <button type="submit" class="chat-send btn-primary" data-testid="chat-send" [disabled]="!input().trim() || state.isThinking()">
         {{ t('chat.send') }}
       </button>
     </form>

@@ -49,25 +49,11 @@
   </section>
 
   <div class="dialog-actions">
-    <yn-button
-      variant="secondary"
-      testId="create-shopping-list-cancel"
-      [disabled]="isCreating()"
-      (click)="onCancel()"
-    >
+    <yn-button variant="secondary" testId="create-shopping-list-cancel" [disabled]="isCreating()" (click)="onCancel()">
       {{ t('recipes.detail.createShoppingList.cancel') }}
     </yn-button>
-    <yn-button
-      variant="primary"
-      testId="create-shopping-list-confirm"
-      [disabled]="isCreating()"
-      (click)="onConfirm()"
-    >
-      {{
-        isCreating()
-          ? t('recipes.detail.createShoppingList.creating')
-          : t('recipes.detail.createShoppingList.confirm')
-      }}
+    <yn-button variant="primary" testId="create-shopping-list-confirm" [disabled]="isCreating()" (click)="onConfirm()">
+      {{ isCreating() ? t('recipes.detail.createShoppingList.creating') : t('recipes.detail.createShoppingList.confirm') }}
     </yn-button>
   </div>
 </yn-dialog-shell>

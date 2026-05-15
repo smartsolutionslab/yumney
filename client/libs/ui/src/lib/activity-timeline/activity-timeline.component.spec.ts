@@ -1,11 +1,7 @@
 import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
-import {
-  ActivityTimelineComponent,
-  type ActivityEntry,
-  relativeTimeFromNow,
-} from './activity-timeline.component';
+import { ActivityTimelineComponent, type ActivityEntry, relativeTimeFromNow } from './activity-timeline.component';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {

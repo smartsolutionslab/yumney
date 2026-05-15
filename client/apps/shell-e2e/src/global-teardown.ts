@@ -47,10 +47,7 @@ export default async function globalTeardown(): Promise<void> {
     if (ok) deleted += 1;
     else failed += 1;
   }
-  console.log(
-    `[global-teardown] swept ${deleted} orphaned E2E recipes` +
-      (failed > 0 ? ` (${failed} delete failures, ignored)` : ''),
-  );
+  console.log(`[global-teardown] swept ${deleted} orphaned E2E recipes` + (failed > 0 ? ` (${failed} delete failures, ignored)` : ''));
 }
 
 function readAccessToken(file: string): string | null {

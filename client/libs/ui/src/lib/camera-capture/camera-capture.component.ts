@@ -97,9 +97,7 @@ export class CameraCaptureComponent implements AfterViewInit, OnDestroy {
     const photos = this.captures();
     if (photos.length === 0) return;
 
-    const files = photos.map((photo, index) =>
-      this.camera.blobToFile(photo.blob, `scan-${index + 1}.jpg`),
-    );
+    const files = photos.map((photo, index) => this.camera.blobToFile(photo.blob, `scan-${index + 1}.jpg`));
     this.capturedReady.emit(files);
   }
 

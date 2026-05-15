@@ -4,10 +4,7 @@ import { AppConfigService } from './app-config.service';
 import { AuthService } from './auth.service';
 import { authStorageFactory } from './auth-storage.factory';
 
-function initializeAuth(
-  appConfig: AppConfigService,
-  authService: AuthService,
-): () => Promise<void> {
+function initializeAuth(appConfig: AppConfigService, authService: AuthService): () => Promise<void> {
   // Load app-config.json first so AuthService and apiBaseInterceptor both
   // see the resolved gatewayUrl at runtime. Sequencing matters: if a
   // component fires an HTTP request during AuthService.initialize(), the

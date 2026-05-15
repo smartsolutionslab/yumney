@@ -12,10 +12,7 @@ describe('OfflineStatusService', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    originalDescriptor = Object.getOwnPropertyDescriptor(
-      Object.getPrototypeOf(navigator),
-      'onLine',
-    );
+    originalDescriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(navigator), 'onLine');
     onLineValue = true;
     Object.defineProperty(navigator, 'onLine', {
       configurable: true,

@@ -105,9 +105,7 @@ describe('ResendVerificationComponent', () => {
 
     it('should clear serverError on new submission', fakeAsync(() => {
       component.form.controls.email.setValue('test@example.com');
-      authApiMock.resendVerificationEmail.mockReturnValue(
-        throwError(() => new HttpErrorResponse({ status: 500 })),
-      );
+      authApiMock.resendVerificationEmail.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
 
       component.onSubmit();
       tick();
@@ -130,9 +128,7 @@ describe('ResendVerificationComponent', () => {
 
     it('should set serverError for 503 service unavailable', fakeAsync(() => {
       component.form.controls.email.setValue('test@example.com');
-      authApiMock.resendVerificationEmail.mockReturnValue(
-        throwError(() => new HttpErrorResponse({ status: 503 })),
-      );
+      authApiMock.resendVerificationEmail.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
 
       component.onSubmit();
       tick();
@@ -142,9 +138,7 @@ describe('ResendVerificationComponent', () => {
 
     it('should set generic serverError for other errors', fakeAsync(() => {
       component.form.controls.email.setValue('test@example.com');
-      authApiMock.resendVerificationEmail.mockReturnValue(
-        throwError(() => new HttpErrorResponse({ status: 500 })),
-      );
+      authApiMock.resendVerificationEmail.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
 
       component.onSubmit();
       tick();

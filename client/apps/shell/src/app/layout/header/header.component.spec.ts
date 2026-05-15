@@ -4,12 +4,7 @@ import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { HeaderComponent } from '@yumney/ui';
 import { AuthService } from '@yumney/shared/auth';
-import {
-  LanguageService,
-  ThemeService,
-  ChatStateService,
-  setupTranslocoTesting,
-} from '@yumney/shared/models';
+import { LanguageService, ThemeService, ChatStateService, setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {
   layout: {

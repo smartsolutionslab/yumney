@@ -59,8 +59,6 @@ export class UserPreferencesService {
     this.voiceEnabled.set(profile.voiceSettings.enabled);
     this.voiceSpeed.set(profile.voiceSettings.speed);
     this.voiceAutoReadInCookMode.set(profile.voiceSettings.autoReadInCookMode);
-    this.preferredUnitSystem.set(
-      profile.preferredUnitSystem === 'imperial' ? 'imperial' : 'metric',
-    );
+    this.preferredUnitSystem.set(profile.preferredUnitSystem === 'imperial' ? 'imperial' : 'metric');
   }
 }

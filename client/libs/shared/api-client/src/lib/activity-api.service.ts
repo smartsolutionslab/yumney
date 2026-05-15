@@ -8,9 +8,7 @@ import type { ActivityTypeKey, RecipeActivityStats, UserActivityPage } from './u
 export class ActivityApiService {
   private http = inject(HttpClient);
 
-  getActivity(
-    options: { type?: ActivityTypeKey; limit?: number; cursor?: string } = {},
-  ): Observable<UserActivityPage> {
+  getActivity(options: { type?: ActivityTypeKey; limit?: number; cursor?: string } = {}): Observable<UserActivityPage> {
     let params = new HttpParams();
     if (options.limit != null) params = params.set('limit', options.limit.toString());
     if (options.type != null) params = params.set('type', options.type);
@@ -19,8 +17,6 @@ export class ActivityApiService {
   }
 
   getRecipeStats(recipeIdentifier: string): Observable<RecipeActivityStats> {
-    return this.http.get<RecipeActivityStats>(
-      API_ENDPOINTS.users.activityRecipeStats(recipeIdentifier),
-    );
+    return this.http.get<RecipeActivityStats>(API_ENDPOINTS.users.activityRecipeStats(recipeIdentifier));
   }
 }

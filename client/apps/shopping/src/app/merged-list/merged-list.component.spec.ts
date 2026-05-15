@@ -85,11 +85,7 @@ describe('MergedListComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [MergedListComponent, setupTranslocoTesting(en)],
-      providers: [
-        provideYumneyIcons(),
-        provideRouter([]),
-        { provide: ShoppingApiService, useValue: apiMock },
-      ],
+      providers: [provideYumneyIcons(), provideRouter([]), { provide: ShoppingApiService, useValue: apiMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MergedListComponent);
@@ -105,9 +101,7 @@ describe('MergedListComponent', () => {
   });
 
   it('should display items grouped by category', () => {
-    const groups = fixture.nativeElement.querySelectorAll(
-      '[data-testid="shopping-category-group"]',
-    );
+    const groups = fixture.nativeElement.querySelectorAll('[data-testid="shopping-category-group"]');
     expect(groups.length).toBe(2);
   });
 
@@ -349,9 +343,7 @@ describe('MergedListComponent', () => {
     });
 
     it('starts collapsed — no source-breakdown panel visible', () => {
-      const panels = fixture.nativeElement.querySelectorAll(
-        '[data-testid="shopping-sources-panel"]',
-      );
+      const panels = fixture.nativeElement.querySelectorAll('[data-testid="shopping-sources-panel"]');
       expect(panels.length).toBe(0);
     });
 
@@ -372,9 +364,7 @@ describe('MergedListComponent', () => {
       rows[0].click();
       fixture.detectChanges();
 
-      expect(
-        fixture.nativeElement.querySelectorAll('[data-testid="shopping-sources-panel"]').length,
-      ).toBe(0);
+      expect(fixture.nativeElement.querySelectorAll('[data-testid="shopping-sources-panel"]').length).toBe(0);
     });
 
     it('renders one source row per ItemSource entry', () => {
@@ -382,9 +372,7 @@ describe('MergedListComponent', () => {
       rows[0].click();
       fixture.detectChanges();
 
-      const sourceRows = fixture.nativeElement.querySelectorAll(
-        '[data-testid="shopping-source-row"]',
-      );
+      const sourceRows = fixture.nativeElement.querySelectorAll('[data-testid="shopping-source-row"]');
       expect(sourceRows.length).toBe(2);
       const text = fixture.nativeElement.textContent;
       expect(text).toContain('Lasagne');

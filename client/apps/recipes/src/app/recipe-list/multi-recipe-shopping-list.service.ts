@@ -102,9 +102,7 @@ export class MultiRecipeShoppingListService {
 
   changeServings(identifier: string, servings: number): void {
     this.previewSelections.update((selections) =>
-      selections.map((entry) =>
-        entry.identifier === identifier ? { ...entry, desiredServings: servings } : entry,
-      ),
+      selections.map((entry) => (entry.identifier === identifier ? { ...entry, desiredServings: servings } : entry)),
     );
   }
 

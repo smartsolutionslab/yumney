@@ -22,9 +22,7 @@ export function groupByCategory<TItem, TCategory extends string = string>(
 
   const { order } = options;
   if (order) {
-    return order
-      .filter((category) => buckets.has(category))
-      .map((category) => ({ category, items: buckets.get(category) ?? [] }));
+    return order.filter((category) => buckets.has(category)).map((category) => ({ category, items: buckets.get(category) ?? [] }));
   }
 
   return Array.from(buckets.entries()).map(([category, bucketItems]) => ({

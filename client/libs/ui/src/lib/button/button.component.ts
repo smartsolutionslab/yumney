@@ -1,21 +1,8 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  ViewEncapsulation,
-  computed,
-  input,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, computed, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
-export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'ghost'
-  | 'danger'
-  | 'danger-filled'
-  | 'dashed'
-  | 'link';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'danger-filled' | 'dashed' | 'link';
 
 export type ButtonType = 'button' | 'submit' | 'reset';
 

@@ -62,8 +62,7 @@ export function relativeTimeFromNow(
 } {
   const diff = now.getTime() - when.getTime();
   if (diff < MINUTE) return { key: 'shared.activity.relative.justNow', value: 0 };
-  if (diff < HOUR)
-    return { key: 'shared.activity.relative.minutes', value: Math.floor(diff / MINUTE) };
+  if (diff < HOUR) return { key: 'shared.activity.relative.minutes', value: Math.floor(diff / MINUTE) };
   if (diff < DAY) return { key: 'shared.activity.relative.hours', value: Math.floor(diff / HOUR) };
   if (diff < WEEK) return { key: 'shared.activity.relative.days', value: Math.floor(diff / DAY) };
   return { key: 'shared.activity.relative.weeks', value: Math.floor(diff / WEEK) };

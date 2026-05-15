@@ -53,11 +53,9 @@ describe('ActivityApiService', () => {
     });
 
     it('forwards limit, type and cursor as query params when supplied', () => {
-      service
-        .getActivity({ limit: 20, type: 'recipe_cooked', cursor: 'opaque-cursor' })
-        .subscribe((result) => {
-          expect(result).toEqual(mockPage);
-        });
+      service.getActivity({ limit: 20, type: 'recipe_cooked', cursor: 'opaque-cursor' }).subscribe((result) => {
+        expect(result).toEqual(mockPage);
+      });
 
       const req = httpTesting.expectOne((r) => r.url === API_ENDPOINTS.users.activity);
       expect(req.request.params.get('limit')).toBe('20');

@@ -32,9 +32,7 @@
           <li class="pantry-item" data-testid="pantry-item">
             <div class="pantry-item-main">
               @if (item.quantity != null) {
-                <span class="pantry-item-quantity">
-                  {{ item.quantity }}{{ item.unit ? ' ' + item.unit : '' }}
-                </span>
+                <span class="pantry-item-quantity"> {{ item.quantity }}{{ item.unit ? ' ' + item.unit : '' }} </span>
               }
               <span class="pantry-item-name">{{ item.itemName }}</span>
               @if (item.source === 'Staple') {
@@ -44,11 +42,7 @@
 
             <div class="pantry-item-meta">
               @if (freshnessTone(item.freshness); as tone) {
-                <span
-                  class="freshness-chip"
-                  [class]="'freshness-chip--' + tone"
-                  data-testid="freshness-chip"
-                >
+                <span class="freshness-chip" [class]="'freshness-chip--' + tone" data-testid="freshness-chip">
                   {{ t('shopping.pantry.freshness.' + tone) }}
                 </span>
               }

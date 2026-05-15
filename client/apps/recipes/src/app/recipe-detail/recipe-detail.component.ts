@@ -1,12 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  inject,
-  OnInit,
-  DestroyRef,
-  signal,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -91,9 +83,7 @@ export class RecipeDetailComponent implements OnInit {
   // NOT persisted — leaves the saved preference unchanged when a user
   // flips imperial → metric just for this one recipe.
   private userUnitOverride = signal<UnitSystem | null>(null);
-  unitSystem = computed<UnitSystem>(
-    () => this.userUnitOverride() ?? this.preferences.preferredUnitSystem(),
-  );
+  unitSystem = computed<UnitSystem>(() => this.userUnitOverride() ?? this.preferences.preferredUnitSystem());
   showDeleteConfirm = signal(false);
   showCreateShoppingListConfirm = signal(false);
 
@@ -286,15 +276,12 @@ export class RecipeDetailComponent implements OnInit {
     }
 
     const desired = this.desiredServings();
-    const items: CreateShoppingListItem[] = this.scaledIngredients().map(
-      ({ name, amount, unit }) => ({
-        name,
-        amount,
-        unit,
-      }),
-    );
-    const title =
-      recipe.servings !== null && desired !== null ? `${recipe.title} (x${desired})` : recipe.title;
+    const items: CreateShoppingListItem[] = this.scaledIngredients().map(({ name, amount, unit }) => ({
+      name,
+      amount,
+      unit,
+    }));
+    const title = recipe.servings !== null && desired !== null ? `${recipe.title} (x${desired})` : recipe.title;
 
     this.createShoppingListState.execute(
       this.shoppingApi.createShoppingList({

@@ -37,16 +37,11 @@ function createMock(): CameraServiceMock {
     stopCamera: vi.fn(),
     blobToFile: vi
       .fn()
-      .mockImplementation(
-        (blob: Blob, name: string) =>
-          new File([blob], name, { type: blob.type, lastModified: Date.now() }),
-      ),
+      .mockImplementation((blob: Blob, name: string) => new File([blob], name, { type: blob.type, lastModified: Date.now() })),
   };
 }
 
-async function setupComponent(
-  cameraServiceMock: CameraServiceMock,
-): Promise<ComponentFixture<CameraCaptureComponent>> {
+async function setupComponent(cameraServiceMock: CameraServiceMock): Promise<ComponentFixture<CameraCaptureComponent>> {
   await TestBed.resetTestingModule()
     .configureTestingModule({
       imports: [CameraCaptureComponent, setupTranslocoTesting(en)],

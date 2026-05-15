@@ -1,9 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { setupTranslocoTesting } from '@yumney/shared/models';
-import {
-  MultiRecipePreviewDialogComponent,
-  type MultiRecipeSelection,
-} from './multi-recipe-preview-dialog.component';
+import { MultiRecipePreviewDialogComponent, type MultiRecipeSelection } from './multi-recipe-preview-dialog.component';
 
 const en = {
   recipes: {
@@ -93,9 +90,7 @@ describe('MultiRecipePreviewDialogComponent', () => {
   it('should show a loading state and skip the merged section', () => {
     setup({ isLoading: true });
     expect(fixture.nativeElement.querySelector('.dialog-loading')).toBeTruthy();
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="multi-recipe-preview-merged"]'),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="multi-recipe-preview-merged"]')).toBeNull();
     expect(component.mergedIngredients()).toHaveLength(0);
   });
 
@@ -144,26 +139,20 @@ describe('MultiRecipePreviewDialogComponent', () => {
 
   it('should disable the confirm button while creating', () => {
     setup({ isCreating: true });
-    const confirm = fixture.nativeElement.querySelector(
-      '[data-testid="multi-recipe-preview-confirm"]',
-    );
+    const confirm = fixture.nativeElement.querySelector('[data-testid="multi-recipe-preview-confirm"]');
     expect(confirm.disabled).toBe(true);
     expect(confirm.textContent).toContain('Creating...');
   });
 
   it('should disable the confirm button while loading', () => {
     setup({ isLoading: true });
-    const confirm = fixture.nativeElement.querySelector(
-      '[data-testid="multi-recipe-preview-confirm"]',
-    );
+    const confirm = fixture.nativeElement.querySelector('[data-testid="multi-recipe-preview-confirm"]');
     expect(confirm.disabled).toBe(true);
   });
 
   it('should disable the confirm button when there are no merged ingredients', () => {
     setup({ recipes: [{ ...sampleRecipes[0], ingredients: [] }] });
-    const confirm = fixture.nativeElement.querySelector(
-      '[data-testid="multi-recipe-preview-confirm"]',
-    );
+    const confirm = fixture.nativeElement.querySelector('[data-testid="multi-recipe-preview-confirm"]');
     expect(confirm.disabled).toBe(true);
   });
 
@@ -192,9 +181,7 @@ describe('MultiRecipePreviewDialogComponent', () => {
     let count = 0;
     component.cancelled.subscribe(() => count++);
 
-    fixture.nativeElement
-      .querySelector('.yn-dialog-overlay')
-      .dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.nativeElement.querySelector('.yn-dialog-overlay').dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(count).toBe(1);
   });

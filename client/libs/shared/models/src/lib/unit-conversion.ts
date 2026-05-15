@@ -65,11 +65,7 @@ export function smartRound(value: number): number {
   return roundToStep(value, 10);
 }
 
-function apply(
-  amount: number,
-  unit: string | null,
-  table: Map<string, ConversionRule>,
-): ConvertedAmount {
+function apply(amount: number, unit: string | null, table: Map<string, ConversionRule>): ConvertedAmount {
   const normalized = (unit ?? '').trim();
   if (normalized.length === 0) {
     return { amount: smartRound(amount), unit: '' };

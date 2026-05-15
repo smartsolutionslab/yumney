@@ -256,10 +256,7 @@ describe('RecipeEditComponent', () => {
   }));
 
   it('should call updateRecipe on save', fakeAsync(() => {
-    setupTestBed(
-      vi.fn().mockReturnValue(of(mockRecipeDetail)),
-      vi.fn().mockReturnValue(of(mockRecipeDetail)),
-    );
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipeDetail)), vi.fn().mockReturnValue(of(mockRecipeDetail)));
     fixture.detectChanges();
     tick();
 
@@ -290,10 +287,7 @@ describe('RecipeEditComponent', () => {
   }));
 
   it('should navigate to detail on successful update', fakeAsync(() => {
-    setupTestBed(
-      vi.fn().mockReturnValue(of(mockRecipeDetail)),
-      vi.fn().mockReturnValue(of(mockRecipeDetail)),
-    );
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipeDetail)), vi.fn().mockReturnValue(of(mockRecipeDetail)));
     fixture.detectChanges();
     tick();
 
@@ -315,10 +309,7 @@ describe('RecipeEditComponent', () => {
 
   it('should show error on update failure', fakeAsync(() => {
     const httpError = new HttpErrorResponse({ status: 500 });
-    setupTestBed(
-      vi.fn().mockReturnValue(of(mockRecipeDetail)),
-      vi.fn().mockReturnValue(throwError(() => httpError)),
-    );
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipeDetail)), vi.fn().mockReturnValue(throwError(() => httpError)));
     fixture.detectChanges();
     tick();
 

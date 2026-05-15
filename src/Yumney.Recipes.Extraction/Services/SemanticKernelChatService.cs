@@ -102,14 +102,18 @@ public sealed partial class SemanticKernelChatService(
 		CancellationToken cancellationToken)
 	{
 		var chatCompletion = requestKernel.GetRequiredService<IChatCompletionService>();
-		var executionSettings = new PromptExecutionSettings
+		PromptExecutionSettings executionSettings = new()
 		{
 			FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
 		};
 
 		try
 		{
-			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, executionSettings, requestKernel, cancellationToken);
+			var result = await chatCompletion.GetChatMessageContentAsync(
+				chatHistory,
+				executionSettings,
+				requestKernel,
+				cancellationToken);
 			var reply = result.Content ?? string.Empty;
 			activity?.SetTag("llm.response_length", reply.Length);
 			return reply;

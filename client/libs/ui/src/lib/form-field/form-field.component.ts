@@ -23,13 +23,9 @@ export class FormFieldComponent {
 
   // Track control/group events so OnPush re-renders on touched/status changes
   // triggered by ancestors (e.g. markAllAsTouched on submit).
-  private readonly controlEvents = toSignal(
-    toObservable(this.control).pipe(switchMap((control) => control.events.pipe(startWith(null)))),
-  );
+  private readonly controlEvents = toSignal(toObservable(this.control).pipe(switchMap((control) => control.events.pipe(startWith(null)))));
   private readonly groupEvents = toSignal(
-    toObservable(this.group).pipe(
-      switchMap((group) => (group ? group.events.pipe(startWith(null)) : of(null))),
-    ),
+    toObservable(this.group).pipe(switchMap((group) => (group ? group.events.pipe(startWith(null)) : of(null)))),
   );
 
   hasControlError(errorKey: string): boolean {

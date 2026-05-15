@@ -12,9 +12,7 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601, SA1311
-public sealed partial class SemanticKernelRecipeSuggestionService(
-	Kernel kernel,
-	ILogger<SemanticKernelRecipeSuggestionService> logger)
+public sealed partial class SemanticKernelRecipeSuggestionService(Kernel kernel, ILogger<SemanticKernelRecipeSuggestionService> logger)
 	: IRecipeSuggestionService
 {
 	private static readonly JsonSerializerOptions jsonOptions = new()

@@ -21,47 +21,27 @@
         <input id="preview-title" type="text" formControlName="title" />
       </yn-form-field>
 
-      <yn-form-field
-        label="dashboard.preview.description"
-        for="preview-description"
-        [control]="form.controls.description"
-      >
+      <yn-form-field label="dashboard.preview.description" for="preview-description" [control]="form.controls.description">
         <textarea id="preview-description" formControlName="description" rows="3"></textarea>
       </yn-form-field>
 
       <div class="form-row">
-        <yn-form-field
-          label="dashboard.preview.servings"
-          for="preview-servings"
-          [control]="form.controls.servings"
-        >
+        <yn-form-field label="dashboard.preview.servings" for="preview-servings" [control]="form.controls.servings">
           <input id="preview-servings" type="number" formControlName="servings" />
         </yn-form-field>
-        <yn-form-field
-          label="dashboard.preview.prepTime"
-          for="preview-prepTime"
-          [control]="form.controls.prepTimeMinutes"
-        >
+        <yn-form-field label="dashboard.preview.prepTime" for="preview-prepTime" [control]="form.controls.prepTimeMinutes">
           <div class="input-with-unit">
             <input id="preview-prepTime" type="number" formControlName="prepTimeMinutes" />
             <span class="input-unit">min</span>
           </div>
         </yn-form-field>
-        <yn-form-field
-          label="dashboard.preview.cookTime"
-          for="preview-cookTime"
-          [control]="form.controls.cookTimeMinutes"
-        >
+        <yn-form-field label="dashboard.preview.cookTime" for="preview-cookTime" [control]="form.controls.cookTimeMinutes">
           <div class="input-with-unit">
             <input id="preview-cookTime" type="number" formControlName="cookTimeMinutes" />
             <span class="input-unit">min</span>
           </div>
         </yn-form-field>
-        <yn-form-field
-          label="dashboard.preview.difficulty"
-          for="preview-difficulty"
-          [control]="form.controls.difficulty"
-        >
+        <yn-form-field label="dashboard.preview.difficulty" for="preview-difficulty" [control]="form.controls.difficulty">
           <select id="preview-difficulty" formControlName="difficulty">
             <option value="">{{ t('dashboard.preview.difficultyPlaceholder') }}</option>
             <option value="easy">{{ t('dashboard.preview.difficultyOption.easy') }}</option>
@@ -91,23 +71,9 @@
                 [errors]="{ required: 'dashboard.preview.errors.ingredientNameRequired' }"
               >
                 <div class="ingredient-compound">
-                  <input
-                    class="compound-name"
-                    type="text"
-                    formControlName="name"
-                    [placeholder]="t('dashboard.preview.ingredientName')"
-                  />
-                  <input
-                    class="compound-amount"
-                    type="number"
-                    formControlName="amount"
-                    [placeholder]="t('dashboard.preview.amount')"
-                  />
-                  <yn-unit-select
-                    class="compound-unit"
-                    formControlName="unit"
-                    [unitGroups]="unitGroups"
-                  />
+                  <input class="compound-name" type="text" formControlName="name" [placeholder]="t('dashboard.preview.ingredientName')" />
+                  <input class="compound-amount" type="number" formControlName="amount" [placeholder]="t('dashboard.preview.amount')" />
+                  <yn-unit-select class="compound-unit" formControlName="unit" [unitGroups]="unitGroups" />
                 </div>
               </yn-form-field>
             </div>
@@ -115,9 +81,7 @@
         }
       </div>
 
-      <button type="button" class="btn-dashed add-btn" (click)="addIngredient()">
-        + {{ t('dashboard.preview.addIngredient') }}
-      </button>
+      <button type="button" class="btn-dashed add-btn" (click)="addIngredient()">+ {{ t('dashboard.preview.addIngredient') }}</button>
     </div>
 
     <div class="list-section">
@@ -139,29 +103,18 @@
                 [control]="steps.at(i).get('description')!"
                 [errors]="{ required: 'dashboard.preview.errors.stepDescriptionRequired' }"
               >
-                <textarea
-                  formControlName="description"
-                  [placeholder]="t('dashboard.preview.stepDescription')"
-                  rows="2"
-                ></textarea>
+                <textarea formControlName="description" [placeholder]="t('dashboard.preview.stepDescription')" rows="2"></textarea>
               </yn-form-field>
             </div>
           </yn-editable-list-item>
         }
       </div>
 
-      <button type="button" class="btn-dashed add-btn" (click)="addStep()">
-        + {{ t('dashboard.preview.addStep') }}
-      </button>
+      <button type="button" class="btn-dashed add-btn" (click)="addStep()">+ {{ t('dashboard.preview.addStep') }}</button>
     </div>
 
     <div class="action-buttons">
-      <button
-        type="button"
-        class="btn-secondary discard-btn"
-        [disabled]="isSaving()"
-        (click)="onDiscard()"
-      >
+      <button type="button" class="btn-secondary discard-btn" [disabled]="isSaving()" (click)="onDiscard()">
         {{ t('dashboard.preview.discard') }}
       </button>
       <yn-submit-button

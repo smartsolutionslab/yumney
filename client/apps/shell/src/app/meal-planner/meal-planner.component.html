@@ -15,12 +15,7 @@
         {{ t('mealPlanner.history.pastWeek') }}
       </span>
     }
-    <button
-      class="nav-btn"
-      data-testid="meal-planner-nav-next"
-      (click)="onNextWeek()"
-      [attr.aria-label]="t('mealPlanner.nextWeek')"
-    >
+    <button class="nav-btn" data-testid="meal-planner-nav-next" (click)="onNextWeek()" [attr.aria-label]="t('mealPlanner.nextWeek')">
       <lucide-icon name="chevron-right" [size]="20" />
     </button>
     <button
@@ -50,20 +45,14 @@
   />
 
   @if (canSuggest()) {
-    <yn-meal-suggestion-panel
-      [year]="year()"
-      [week]="weekNumber()"
-      (planAccepted)="onSuggestionAccepted()"
-    />
+    <yn-meal-suggestion-panel [year]="year()" [week]="weekNumber()" (planAccepted)="onSuggestionAccepted()" />
   }
 
   @if (hasRecipeSlots() && !isPastWeek()) {
     <div class="planner-actions">
       <button class="generate-btn" [disabled]="generatingList()" (click)="onGenerateShoppingList()">
         <lucide-icon name="shopping-cart" [size]="16" />
-        {{
-          generatingList() ? t('mealPlanner.generatingList') : t('mealPlanner.generateShoppingList')
-        }}
+        {{ generatingList() ? t('mealPlanner.generatingList') : t('mealPlanner.generateShoppingList') }}
       </button>
       @if (shoppingResult(); as result) {
         <span class="shopping-result">
@@ -78,29 +67,16 @@
 
   @if (isPastWeek() && hasRecipeSlots()) {
     <div class="planner-actions">
-      <button
-        class="copy-btn"
-        data-testid="meal-planner-copy-to-current"
-        [disabled]="copyingToCurrent()"
-        (click)="onCopyToCurrentWeek()"
-      >
+      <button class="copy-btn" data-testid="meal-planner-copy-to-current" [disabled]="copyingToCurrent()" (click)="onCopyToCurrentWeek()">
         <lucide-icon name="copy" [size]="16" />
-        {{
-          copyingToCurrent()
-            ? t('mealPlanner.history.copying')
-            : t('mealPlanner.history.copyToCurrent')
-        }}
+        {{ copyingToCurrent() ? t('mealPlanner.history.copying') : t('mealPlanner.history.copyToCurrent') }}
       </button>
     </div>
   }
 
   <div class="week-grid">
     @for (entry of dinnerSlots(); track entry.day) {
-      <div
-        class="day-card"
-        [class.today]="isToday(entry.day)"
-        [class.has-meal]="entry.slot && !entry.slot.isEmpty"
-      >
+      <div class="day-card" [class.today]="isToday(entry.day)" [class.has-meal]="entry.slot && !entry.slot.isEmpty">
         <div class="day-header">{{ entry.day }}</div>
 
         @if (entry.slot && !entry.slot.isEmpty) {
@@ -108,9 +84,7 @@
             @switch (entry.slot.contentType) {
               @case ('Recipe') {
                 <div class="meal-title">{{ entry.slot.recipeTitle }}</div>
-                <div class="meal-servings">
-                  {{ entry.slot.servings }} {{ t('mealPlanner.servings') }}
-                </div>
+                <div class="meal-servings">{{ entry.slot.servings }} {{ t('mealPlanner.servings') }}</div>
               }
               @case ('Freetext') {
                 <div class="meal-freetext">{{ entry.slot.freetextLabel }}</div>
@@ -127,11 +101,7 @@
             }
 
             @if (!isPastWeek()) {
-              <button
-                class="clear-btn"
-                (click)="onClearSlot(entry.day)"
-                [attr.aria-label]="t('mealPlanner.clearSlot')"
-              >
+              <button class="clear-btn" (click)="onClearSlot(entry.day)" [attr.aria-label]="t('mealPlanner.clearSlot')">
                 <lucide-icon name="x" [size]="14" />
               </button>
             }

@@ -109,15 +109,14 @@ function configureSpeak(prefs: PrefsStub): {
     configurable: true,
     value: { speak, cancel },
   });
-  (globalThis as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance =
-    class implements UtteranceShape {
-      lang = '';
-      rate = 1;
-      onstart: (() => void) | null = null;
-      onend: (() => void) | null = null;
-      onerror: (() => void) | null = null;
-      constructor(public text: string) {}
-    };
+  (globalThis as unknown as { SpeechSynthesisUtterance: unknown }).SpeechSynthesisUtterance = class implements UtteranceShape {
+    lang = '';
+    rate = 1;
+    onstart: (() => void) | null = null;
+    onend: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    constructor(public text: string) {}
+  };
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({

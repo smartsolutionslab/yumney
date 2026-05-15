@@ -31,10 +31,7 @@ test.describe('Favorite cross-route consistency (US-071)', () => {
     // fetch can race the unfinished write and miss the new state (see #419
     // on the existing favorite spec).
     const favoriteCommitted = authenticatedPage.waitForResponse(
-      (res) =>
-        /\/api\/v1\/recipes\/.+\/favorite$/.test(res.url()) &&
-        res.request().method() === 'POST' &&
-        res.ok(),
+      (res) => /\/api\/v1\/recipes\/.+\/favorite$/.test(res.url()) && res.request().method() === 'POST' && res.ok(),
       { timeout: TIMEOUTS.default },
     );
     await detail.favoriteButton.click();

@@ -24,9 +24,7 @@ function assertLocalHostname(varName: string, rawUrl: string): void {
   try {
     parsed = new URL(rawUrl);
   } catch {
-    throw new Error(
-      `[e2e-guard] ${varName}=${rawUrl} is not a valid URL. Expected http(s)://localhost:port`,
-    );
+    throw new Error(`[e2e-guard] ${varName}=${rawUrl} is not a valid URL. Expected http(s)://localhost:port`);
   }
 
   if (!LOCAL_HOSTNAMES.has(parsed.hostname)) {

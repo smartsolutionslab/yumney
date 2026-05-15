@@ -151,11 +151,7 @@ describe('MealPlannerComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [MealPlannerComponent, setupTranslocoTesting(en)],
-      providers: [
-        provideYumneyIcons(),
-        provideRouter([]),
-        { provide: MealPlanApiService, useValue: apiMock },
-      ],
+      providers: [provideYumneyIcons(), provideRouter([]), { provide: MealPlanApiService, useValue: apiMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MealPlannerComponent);
@@ -188,11 +184,7 @@ describe('MealPlannerComponent', () => {
   it('should show recipe when slot has content', async () => {
     const planWithRecipe = {
       ...emptyPlan,
-      slots: emptyPlan.slots.map((s) =>
-        s.day === 'Monday'
-          ? { ...s, contentType: 'Recipe', recipeTitle: 'Pasta', isEmpty: false }
-          : s,
-      ),
+      slots: emptyPlan.slots.map((s) => (s.day === 'Monday' ? { ...s, contentType: 'Recipe', recipeTitle: 'Pasta', isEmpty: false } : s)),
     };
     apiMock.getWeeklyPlan.mockReturnValue(of(planWithRecipe));
 
@@ -242,12 +234,8 @@ describe('MealPlannerComponent', () => {
     const initialCalls = apiMock.getWeeklyPlan.mock.calls.length;
     const host: HTMLElement = fixture.nativeElement;
 
-    host.dispatchEvent(
-      new PointerEvent('pointerdown', { pointerType: 'touch', clientX: 300, clientY: 100 }),
-    );
-    host.dispatchEvent(
-      new PointerEvent('pointerup', { pointerType: 'touch', clientX: 200, clientY: 105 }),
-    );
+    host.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', clientX: 300, clientY: 100 }));
+    host.dispatchEvent(new PointerEvent('pointerup', { pointerType: 'touch', clientX: 200, clientY: 105 }));
 
     expect(apiMock.getWeeklyPlan.mock.calls.length).toBeGreaterThan(initialCalls);
   });
@@ -256,12 +244,8 @@ describe('MealPlannerComponent', () => {
     const initialCalls = apiMock.getWeeklyPlan.mock.calls.length;
     const host: HTMLElement = fixture.nativeElement;
 
-    host.dispatchEvent(
-      new PointerEvent('pointerdown', { pointerType: 'touch', clientX: 100, clientY: 100 }),
-    );
-    host.dispatchEvent(
-      new PointerEvent('pointerup', { pointerType: 'touch', clientX: 220, clientY: 95 }),
-    );
+    host.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', clientX: 100, clientY: 100 }));
+    host.dispatchEvent(new PointerEvent('pointerup', { pointerType: 'touch', clientX: 220, clientY: 95 }));
 
     expect(apiMock.getWeeklyPlan.mock.calls.length).toBeGreaterThan(initialCalls);
   });
@@ -270,12 +254,8 @@ describe('MealPlannerComponent', () => {
     const initialCalls = apiMock.getWeeklyPlan.mock.calls.length;
     const host: HTMLElement = fixture.nativeElement;
 
-    host.dispatchEvent(
-      new PointerEvent('pointerdown', { pointerType: 'mouse', clientX: 300, clientY: 100 }),
-    );
-    host.dispatchEvent(
-      new PointerEvent('pointerup', { pointerType: 'mouse', clientX: 150, clientY: 100 }),
-    );
+    host.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'mouse', clientX: 300, clientY: 100 }));
+    host.dispatchEvent(new PointerEvent('pointerup', { pointerType: 'mouse', clientX: 150, clientY: 100 }));
 
     expect(apiMock.getWeeklyPlan.mock.calls.length).toBe(initialCalls);
   });
@@ -284,12 +264,8 @@ describe('MealPlannerComponent', () => {
     const initialCalls = apiMock.getWeeklyPlan.mock.calls.length;
     const host: HTMLElement = fixture.nativeElement;
 
-    host.dispatchEvent(
-      new PointerEvent('pointerdown', { pointerType: 'touch', clientX: 200, clientY: 100 }),
-    );
-    host.dispatchEvent(
-      new PointerEvent('pointerup', { pointerType: 'touch', clientX: 260, clientY: 300 }),
-    );
+    host.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', clientX: 200, clientY: 100 }));
+    host.dispatchEvent(new PointerEvent('pointerup', { pointerType: 'touch', clientX: 260, clientY: 300 }));
 
     expect(apiMock.getWeeklyPlan.mock.calls.length).toBe(initialCalls);
   });
@@ -303,9 +279,7 @@ describe('MealPlannerComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.clear-btn')).toBeNull();
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="meal-planner-past-badge"]'),
-    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="meal-planner-past-badge"]')).toBeTruthy();
   });
 
   it('should show the copy-to-current button on past weeks with recipes', () => {
@@ -316,9 +290,7 @@ describe('MealPlannerComponent', () => {
     fixture.componentInstance['loadPlan']();
     fixture.detectChanges();
 
-    const copyBtn = fixture.nativeElement.querySelector(
-      '[data-testid="meal-planner-copy-to-current"]',
-    );
+    const copyBtn = fixture.nativeElement.querySelector('[data-testid="meal-planner-copy-to-current"]');
     expect(copyBtn).toBeTruthy();
   });
 
@@ -332,12 +304,7 @@ describe('MealPlannerComponent', () => {
 
     fixture.componentInstance['onCopyToCurrentWeek']();
 
-    expect(apiMock.copyPlanToWeek).toHaveBeenCalledWith(
-      2024,
-      1,
-      expect.any(Number),
-      expect.any(Number),
-    );
+    expect(apiMock.copyPlanToWeek).toHaveBeenCalledWith(2024, 1, expect.any(Number), expect.any(Number));
   });
 
   it('should hide the generate-shopping-list button on past weeks', () => {
@@ -354,11 +321,7 @@ describe('MealPlannerComponent', () => {
   it('should render a clickable clear button for populated slots', () => {
     const planWithRecipe = {
       ...emptyPlan,
-      slots: emptyPlan.slots.map((s) =>
-        s.day === 'Monday'
-          ? { ...s, contentType: 'Recipe', recipeTitle: 'Pasta', isEmpty: false }
-          : s,
-      ),
+      slots: emptyPlan.slots.map((s) => (s.day === 'Monday' ? { ...s, contentType: 'Recipe', recipeTitle: 'Pasta', isEmpty: false } : s)),
     };
     apiMock.getWeeklyPlan.mockReturnValue(of(planWithRecipe));
     fixture.componentInstance['loadPlan']();

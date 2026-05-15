@@ -1,29 +1,11 @@
 export { BackLinkComponent } from './lib/back-link/back-link.component';
-export {
-  ButtonComponent,
-  type ButtonVariant,
-  type ButtonType,
-} from './lib/button/button.component';
+export { ButtonComponent, type ButtonVariant, type ButtonType } from './lib/button/button.component';
 export { CardComponent, type CardVariant } from './lib/card/card.component';
-export {
-  DialogShellComponent,
-  type DialogRole,
-  type DialogSize,
-} from './lib/dialog-shell/dialog-shell.component';
-export {
-  SideSheetComponent,
-  type SideSheetPosition,
-  type SideSheetSize,
-} from './lib/side-sheet/side-sheet.component';
-export {
-  EmptyStateComponent,
-  type EmptyStateVariant,
-} from './lib/empty-state/empty-state.component';
+export { DialogShellComponent, type DialogRole, type DialogSize } from './lib/dialog-shell/dialog-shell.component';
+export { SideSheetComponent, type SideSheetPosition, type SideSheetSize } from './lib/side-sheet/side-sheet.component';
+export { EmptyStateComponent, type EmptyStateVariant } from './lib/empty-state/empty-state.component';
 export { FormFieldComponent } from './lib/form-field/form-field.component';
-export {
-  MessageBannerComponent,
-  type MessageBannerTone,
-} from './lib/message-banner/message-banner.component';
+export { MessageBannerComponent, type MessageBannerTone } from './lib/message-banner/message-banner.component';
 export { SubmitButtonComponent } from './lib/submit-button/submit-button.component';
 export { RecipePreviewComponent } from './lib/recipe-preview/recipe-preview.component';
 export { EditableListItemComponent } from './lib/editable-list-item/editable-list-item.component';
@@ -46,10 +28,7 @@ export { AsyncStateComponent } from './lib/async-state/async-state.component';
 export { springPress, staggerFadeIn, prefersReducedMotion } from './lib/animation/gsap-utils';
 
 // Dashboard components
-export {
-  QuickActionsComponent,
-  type QuickAction,
-} from './lib/quick-actions/quick-actions.component';
+export { QuickActionsComponent, type QuickAction } from './lib/quick-actions/quick-actions.component';
 export { SuggestionCardComponent } from './lib/suggestion-card/suggestion-card.component';
 export { RecentActivityComponent } from './lib/recent-activity/recent-activity.component';
 

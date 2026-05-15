@@ -137,9 +137,7 @@ describe('UserPreferencesService', () => {
     // The API field is a free-form string at the wire; defensively coerce
     // anything we don't recognise to 'metric' so the toggle never lands in
     // an undefined state.
-    const { service } = configure(
-      of(makeProfile({ preferredUnitSystem: 'gallons-per-fortnight' })),
-    );
+    const { service } = configure(of(makeProfile({ preferredUnitSystem: 'gallons-per-fortnight' })));
 
     service.ensureLoaded();
 

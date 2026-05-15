@@ -3,12 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal, computed } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { AuthService } from '@yumney/shared/auth';
-import {
-  LanguageService,
-  ThemeService,
-  ChatStateService,
-  setupTranslocoTesting,
-} from '@yumney/shared/models';
+import { LanguageService, ThemeService, ChatStateService, setupTranslocoTesting } from '@yumney/shared/models';
 import { HeaderComponent } from './header.component';
 
 const en = {
@@ -140,9 +135,7 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
 
     const navLinks = fixture.nativeElement.querySelectorAll('.nav-link');
-    const recipeLink = Array.from(navLinks).find((el) =>
-      (el as HTMLElement).textContent?.includes('My Recipes'),
-    );
+    const recipeLink = Array.from(navLinks).find((el) => (el as HTMLElement).textContent?.includes('My Recipes'));
     expect(recipeLink).toBeTruthy();
   });
 
@@ -152,9 +145,7 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
 
     const navLinks = fixture.nativeElement.querySelectorAll('.nav-link');
-    const shoppingLink = Array.from(navLinks).find((el) =>
-      (el as HTMLElement).textContent?.includes('Shopping Lists'),
-    );
+    const shoppingLink = Array.from(navLinks).find((el) => (el as HTMLElement).textContent?.includes('Shopping Lists'));
     expect(shoppingLink).toBeTruthy();
   });
 
@@ -164,9 +155,7 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
 
     const navLinks = fixture.nativeElement.querySelectorAll('.nav-link');
-    const mealPlannerLink = Array.from(navLinks).find((el) =>
-      (el as HTMLElement).textContent?.includes('Meal Planner'),
-    );
+    const mealPlannerLink = Array.from(navLinks).find((el) => (el as HTMLElement).textContent?.includes('Meal Planner'));
     expect(mealPlannerLink).toBeTruthy();
   });
 

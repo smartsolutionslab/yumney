@@ -1,21 +1,8 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '../api';
-import {
-  createAsyncState,
-  mapToUpdateRecipeRequest,
-  mapDetailToImportResponse,
-  ERROR_MAPS,
-  ROUTES,
-} from '@yumney/shared/models';
+import { createAsyncState, mapToUpdateRecipeRequest, mapDetailToImportResponse, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
 import {
   BackLinkComponent,
   ConfirmDialogComponent,
@@ -51,9 +38,7 @@ export class RecipeEditComponent implements OnInit {
   showDiscardConfirm = signal(false);
 
   private notFoundError = signal<string | null>(null);
-  serverError = computed(
-    () => this.notFoundError() ?? this.loadState.serverError() ?? this.saveState.serverError(),
-  );
+  serverError = computed(() => this.notFoundError() ?? this.loadState.serverError() ?? this.saveState.serverError());
 
   identifier = signal('');
 
@@ -64,20 +49,16 @@ export class RecipeEditComponent implements OnInit {
       return;
     }
 
-    this.loadState.execute(
-      this.recipeApi.getRecipeById(this.identifier()),
-      ERROR_MAPS.recipes.edit,
-      (recipe) => this.recipeData.set(mapDetailToImportResponse(recipe)),
+    this.loadState.execute(this.recipeApi.getRecipeById(this.identifier()), ERROR_MAPS.recipes.edit, (recipe) =>
+      this.recipeData.set(mapDetailToImportResponse(recipe)),
     );
   }
 
   onSave(recipe: ImportRecipeResponse): void {
     const request = mapToUpdateRecipeRequest(recipe);
 
-    this.saveState.execute(
-      this.recipeApi.updateRecipe(this.identifier(), request),
-      ERROR_MAPS.recipes.edit,
-      () => this.router.navigate([ROUTES.recipes.list, this.identifier()]),
+    this.saveState.execute(this.recipeApi.updateRecipe(this.identifier(), request), ERROR_MAPS.recipes.edit, () =>
+      this.router.navigate([ROUTES.recipes.list, this.identifier()]),
     );
   }
 

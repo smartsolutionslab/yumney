@@ -31,9 +31,7 @@ export const CATEGORY_KEYS: readonly CategoryKey[] = [
 /** Coerce an arbitrary server-supplied category string to a known CategoryKey. */
 export function normalizeCategory(value: string | null | undefined): CategoryKey {
   const candidate = (value ?? 'other').toLowerCase();
-  return (CATEGORY_KEYS as readonly string[]).includes(candidate)
-    ? (candidate as CategoryKey)
-    : 'other';
+  return (CATEGORY_KEYS as readonly string[]).includes(candidate) ? (candidate as CategoryKey) : 'other';
 }
 
 const CATEGORY_ICONS: Record<CategoryKey, string> = {

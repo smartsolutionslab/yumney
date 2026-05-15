@@ -1,11 +1,4 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  ViewEncapsulation,
-  computed,
-  input,
-  output,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, computed, input, output } from '@angular/core';
 
 export type SideSheetSize = 'sm' | 'md' | 'lg';
 export type SideSheetPosition = 'left' | 'right';
@@ -30,9 +23,7 @@ export class SideSheetComponent {
 
   cancelled = output<void>();
 
-  protected readonly sheetClass = computed(
-    () => `yn-side-sheet yn-side-sheet--${this.size()} yn-side-sheet--${this.position()}`,
-  );
+  protected readonly sheetClass = computed(() => `yn-side-sheet yn-side-sheet--${this.size()} yn-side-sheet--${this.position()}`);
 
   onEscape(): void {
     if (this.cancelOnEscape()) this.cancelled.emit();

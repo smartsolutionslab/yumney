@@ -1,28 +1,10 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  signal,
-  inject,
-  DestroyRef,
-  output,
-  input,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef, output, input } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
-import {
-  RecipeApiService,
-  ImportRecipeResponse,
-  ImportStreamEvent,
-} from '@yumney/shared/api-client';
-import {
-  ERROR_MAPS,
-  urlValidator,
-  VALIDATION,
-  ensureFormValid,
-  mapHttpError,
-} from '@yumney/shared/models';
+import { RecipeApiService, ImportRecipeResponse, ImportStreamEvent } from '@yumney/shared/api-client';
+import { ERROR_MAPS, urlValidator, VALIDATION, ensureFormValid, mapHttpError } from '@yumney/shared/models';
 import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 
 @Component({
@@ -53,14 +35,7 @@ export class UrlImportComponent {
   streamingChunks = signal('');
 
   form = this.formBuilder.nonNullable.group({
-    url: [
-      '',
-      [
-        Validators.required,
-        Validators.maxLength(VALIDATION.RECIPES.RECIPE_URL.MAX_LENGTH),
-        urlValidator,
-      ],
-    ],
+    url: ['', [Validators.required, Validators.maxLength(VALIDATION.RECIPES.RECIPE_URL.MAX_LENGTH), urlValidator]],
   });
 
   /** Programmatic entry point for the share-target / external trigger flow. */
@@ -88,9 +63,7 @@ export class UrlImportComponent {
           this.isLoading.set(false);
           this.streamingStatus.set(null);
           this.failed.emit(
-            err instanceof HttpErrorResponse
-              ? mapHttpError(err, ERROR_MAPS.dashboard.import)
-              : ERROR_MAPS.dashboard.import.default,
+            err instanceof HttpErrorResponse ? mapHttpError(err, ERROR_MAPS.dashboard.import) : ERROR_MAPS.dashboard.import.default,
           );
         },
       });

@@ -65,11 +65,7 @@ describe('MealAnalyticsComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [MealAnalyticsComponent, setupTranslocoTesting(en)],
-      providers: [
-        provideYumneyIcons(),
-        provideRouter([]),
-        { provide: MealPlanApiService, useValue: apiMock },
-      ],
+      providers: [provideYumneyIcons(), provideRouter([]), { provide: MealPlanApiService, useValue: apiMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MealAnalyticsComponent);
@@ -83,10 +79,7 @@ describe('MealAnalyticsComponent', () => {
   });
 
   it('renders total cooked stat', () => {
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="meal-analytics-total-cooked"]')
-        .textContent,
-    ).toContain('12');
+    expect(fixture.nativeElement.querySelector('[data-testid="meal-analytics-total-cooked"]').textContent).toContain('12');
   });
 
   it('renders the category-distribution legend with segments per category', () => {
@@ -130,15 +123,11 @@ describe('MealAnalyticsComponent', () => {
   });
 
   it('shows the empty hint when there are no cooked meals', () => {
-    apiMock.getMealAnalytics.mockReturnValue(
-      of(makeAnalytics({ totalCooked: 0, topRecipes: [], categoryDistribution: [] })),
-    );
+    apiMock.getMealAnalytics.mockReturnValue(of(makeAnalytics({ totalCooked: 0, topRecipes: [], categoryDistribution: [] })));
     fixture.componentInstance['onRetry']();
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="meal-analytics-empty"]'),
-    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="meal-analytics-empty"]')).toBeTruthy();
   });
 
   it('surfaces errors from the API', () => {

@@ -11,9 +11,7 @@ import { Component } from '@angular/core';
         <div class="type-samples">
           @for (step of typeScale; track step.token) {
             <div class="type-row">
-              <span class="type-sample" [style.font-size]="'var(' + step.token + ')'">
-                The quick brown fox jumps
-              </span>
+              <span class="type-sample" [style.font-size]="'var(' + step.token + ')'"> The quick brown fox jumps </span>
               <div class="type-meta">
                 <code>{{ step.token }}</code>
                 <span>{{ step.value }}</span>
@@ -28,9 +26,7 @@ import { Component } from '@angular/core';
         <div class="type-samples">
           @for (weight of weights; track weight.token) {
             <div class="type-row">
-              <span class="weight-sample" [style.font-weight]="'var(' + weight.token + ')'">
-                {{ weight.label }} ({{ weight.value }})
-              </span>
+              <span class="weight-sample" [style.font-weight]="'var(' + weight.token + ')'"> {{ weight.label }} ({{ weight.value }}) </span>
               <code>{{ weight.token }}</code>
             </div>
           }
@@ -43,8 +39,7 @@ import { Component } from '@angular/core';
           @for (lh of lineHeights; track lh.token) {
             <div class="type-row">
               <span class="lh-sample" [style.line-height]="'var(' + lh.token + ')'">
-                {{ lh.label }}: Multi-line text sample that wraps to demonstrate line height spacing
-                between lines of text in a paragraph.
+                {{ lh.label }}: Multi-line text sample that wraps to demonstrate line height spacing between lines of text in a paragraph.
               </span>
               <code>{{ lh.token }}: {{ lh.value }}</code>
             </div>

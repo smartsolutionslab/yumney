@@ -27,9 +27,7 @@ export class DangerZoneComponent {
   protected deleting = this.deleteState.isLoading;
   protected error = this.deleteState.serverError;
 
-  protected canDelete = computed(
-    () => this.confirmationInput().trim() === CONFIRMATION_TOKEN && !this.deleting(),
-  );
+  protected canDelete = computed(() => this.confirmationInput().trim() === CONFIRMATION_TOKEN && !this.deleting());
 
   protected onDelete(): void {
     if (!this.canDelete()) return;

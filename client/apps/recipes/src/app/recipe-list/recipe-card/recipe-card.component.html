@@ -9,24 +9,13 @@
     *transloco="let t"
   >
     @if (recipe().imageUrl) {
-      <img
-        [src]="recipe().imageUrl"
-        [alt]="recipe().title"
-        class="recipe-image"
-        loading="lazy"
-        width="400"
-        height="225"
-      />
+      <img [src]="recipe().imageUrl" [alt]="recipe().title" class="recipe-image" loading="lazy" width="400" height="225" />
     } @else {
       <div class="recipe-image-placeholder"></div>
     }
     <div
       class="select-indicator"
-      [attr.aria-label]="
-        selected()
-          ? t('recipes.list.multiSelect.deselectAriaLabel')
-          : t('recipes.list.multiSelect.selectAriaLabel')
-      "
+      [attr.aria-label]="selected() ? t('recipes.list.multiSelect.deselectAriaLabel') : t('recipes.list.multiSelect.selectAriaLabel')"
     >
       @if (selected()) {
         <i-lucide name="check" size="20" aria-hidden="true"></i-lucide>
@@ -36,34 +25,18 @@
       <h3 class="recipe-title">{{ recipe().title }}</h3>
       <div class="recipe-meta">
         @if (recipe().servings) {
-          <span class="meta-item">{{
-            t('recipes.list.servings', { count: recipe().servings })
-          }}</span>
+          <span class="meta-item">{{ t('recipes.list.servings', { count: recipe().servings }) }}</span>
         }
         @if (recipe().prepTimeMinutes) {
-          <span class="meta-item">{{
-            t('recipes.list.prepTime', { minutes: recipe().prepTimeMinutes })
-          }}</span>
+          <span class="meta-item">{{ t('recipes.list.prepTime', { minutes: recipe().prepTimeMinutes }) }}</span>
         }
       </div>
     </div>
   </button>
 } @else if (assignMode()) {
-  <div
-    class="recipe-card assign-card"
-    data-testid="recipe-card"
-    (click)="onAssign($event)"
-    *transloco="let t"
-  >
+  <div class="recipe-card assign-card" data-testid="recipe-card" (click)="onAssign($event)" *transloco="let t">
     @if (recipe().imageUrl) {
-      <img
-        [src]="recipe().imageUrl"
-        [alt]="recipe().title"
-        class="recipe-image"
-        loading="lazy"
-        width="400"
-        height="225"
-      />
+      <img [src]="recipe().imageUrl" [alt]="recipe().title" class="recipe-image" loading="lazy" width="400" height="225" />
     } @else {
       <div class="recipe-image-placeholder"></div>
     }
@@ -74,34 +47,18 @@
       <h3 class="recipe-title">{{ recipe().title }}</h3>
       <div class="recipe-meta">
         @if (recipe().servings) {
-          <span class="meta-item">{{
-            t('recipes.list.servings', { count: recipe().servings })
-          }}</span>
+          <span class="meta-item">{{ t('recipes.list.servings', { count: recipe().servings }) }}</span>
         }
         @if (recipe().prepTimeMinutes) {
-          <span class="meta-item">{{
-            t('recipes.list.prepTime', { minutes: recipe().prepTimeMinutes })
-          }}</span>
+          <span class="meta-item">{{ t('recipes.list.prepTime', { minutes: recipe().prepTimeMinutes }) }}</span>
         }
       </div>
     </div>
   </div>
 } @else {
-  <a
-    class="recipe-card"
-    data-testid="recipe-card"
-    [routerLink]="ROUTES.recipes.detail(recipe().identifier)"
-    *transloco="let t"
-  >
+  <a class="recipe-card" data-testid="recipe-card" [routerLink]="ROUTES.recipes.detail(recipe().identifier)" *transloco="let t">
     @if (recipe().imageUrl) {
-      <img
-        [src]="recipe().imageUrl"
-        [alt]="recipe().title"
-        class="recipe-image"
-        loading="lazy"
-        width="400"
-        height="225"
-      />
+      <img [src]="recipe().imageUrl" [alt]="recipe().title" class="recipe-image" loading="lazy" width="400" height="225" />
     } @else {
       <div class="recipe-image-placeholder"></div>
     }
@@ -115,28 +72,19 @@
       }
       <div class="recipe-meta">
         @if (recipe().servings) {
-          <span class="meta-item">{{
-            t('recipes.list.servings', { count: recipe().servings })
-          }}</span>
+          <span class="meta-item">{{ t('recipes.list.servings', { count: recipe().servings }) }}</span>
         }
         @if (recipe().prepTimeMinutes) {
-          <span class="meta-item">{{
-            t('recipes.list.prepTime', { minutes: recipe().prepTimeMinutes })
-          }}</span>
+          <span class="meta-item">{{ t('recipes.list.prepTime', { minutes: recipe().prepTimeMinutes }) }}</span>
         }
         @if (recipe().cookTimeMinutes) {
-          <span class="meta-item">{{
-            t('recipes.list.cookTime', { minutes: recipe().cookTimeMinutes })
-          }}</span>
+          <span class="meta-item">{{ t('recipes.list.cookTime', { minutes: recipe().cookTimeMinutes }) }}</span>
         }
         @if (recipe().difficulty) {
           <span class="meta-item">{{ recipe().difficulty }}</span>
         }
         @if (recipe().rating) {
-          <span
-            class="meta-item meta-item--rating"
-            [attr.aria-label]="t('recipes.list.ratingAria', { value: recipe().rating })"
-          >
+          <span class="meta-item meta-item--rating" [attr.aria-label]="t('recipes.list.ratingAria', { value: recipe().rating })">
             <i-lucide name="star" size="14" aria-hidden="true"></i-lucide>
             {{ recipe().rating }}
           </span>

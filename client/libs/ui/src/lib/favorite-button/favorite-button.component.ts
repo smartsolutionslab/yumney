@@ -12,9 +12,7 @@ import { LucideAngularModule } from 'lucide-angular';
       class="favorite-button"
       [class.is-favorite]="isFavorite()"
       [attr.aria-pressed]="isFavorite()"
-      [attr.aria-label]="
-        isFavorite() ? t('recipes.favorite.removeAriaLabel') : t('recipes.favorite.addAriaLabel')
-      "
+      [attr.aria-label]="isFavorite() ? t('recipes.favorite.removeAriaLabel') : t('recipes.favorite.addAriaLabel')"
       (click)="onClick($event)"
       *transloco="let t"
     >

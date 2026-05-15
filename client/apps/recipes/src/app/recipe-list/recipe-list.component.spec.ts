@@ -3,13 +3,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { RecipeListComponent } from './recipe-list.component';
-import {
-  ChatApiService,
-  RecipeApiService,
-  RecipeListResponse,
-  ShoppingApiService,
-  ShoppingListDetail,
-} from '../api';
+import { ChatApiService, RecipeApiService, RecipeListResponse, ShoppingApiService, ShoppingListDetail } from '../api';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 import { Router } from '@angular/router';
 
@@ -188,10 +182,7 @@ describe('RecipeListComponent', () => {
   }
 
   function triggerIntersection(isIntersecting: boolean): void {
-    intersectionCallback(
-      [{ isIntersecting } as IntersectionObserverEntry],
-      {} as IntersectionObserver,
-    );
+    intersectionCallback([{ isIntersecting } as IntersectionObserverEntry], {} as IntersectionObserver);
   }
 
   it('should create the component', fakeAsync(() => {
@@ -300,9 +291,7 @@ describe('RecipeListComponent', () => {
     component.onSortSelect('name-asc');
     tick();
 
-    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
-      expect.objectContaining({ sortBy: 'Name', sortDirection: 'Ascending' }),
-    );
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(expect.objectContaining({ sortBy: 'Name', sortDirection: 'Ascending' }));
   }));
 
   it('should reset page on sort change', fakeAsync(() => {
@@ -547,9 +536,7 @@ describe('RecipeListComponent', () => {
     expect(recipeApiMock.getRecipes).not.toHaveBeenCalled();
 
     tick(300);
-    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
-      expect.objectContaining({ search: 'pasta' }),
-    );
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(expect.objectContaining({ search: 'pasta' }));
   }));
 
   it('should reset pagination when searching', fakeAsync(() => {
@@ -595,9 +582,7 @@ describe('RecipeListComponent', () => {
 
     expect(component.searchQuery()).toBe('');
     expect(component.activeSearch()).toBe('');
-    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
-      expect.not.objectContaining({ search: expect.anything() }),
-    );
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(expect.not.objectContaining({ search: expect.anything() }));
   }));
 
   it('should not include search param when search is empty', fakeAsync(() => {
@@ -617,9 +602,7 @@ describe('RecipeListComponent', () => {
     setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
     fixture.detectChanges();
     tick();
-    recipeApiMock.toggleFavorite.mockReturnValue(
-      new Subject<{ recipeIdentifier: string; isFavorite: boolean }>(),
-    );
+    recipeApiMock.toggleFavorite.mockReturnValue(new Subject<{ recipeIdentifier: string; isFavorite: boolean }>());
 
     component.onToggleFavorite('abc-123');
 
@@ -631,9 +614,7 @@ describe('RecipeListComponent', () => {
     setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
     fixture.detectChanges();
     tick();
-    recipeApiMock.toggleFavorite.mockReturnValue(
-      of({ recipeIdentifier: 'abc-123', isFavorite: true }),
-    );
+    recipeApiMock.toggleFavorite.mockReturnValue(of({ recipeIdentifier: 'abc-123', isFavorite: true }));
 
     component.onToggleFavorite('abc-123');
     tick();
@@ -657,9 +638,7 @@ describe('RecipeListComponent', () => {
     setupTestBed(vi.fn().mockReturnValue(of(mockResponse)));
     fixture.detectChanges();
     tick();
-    recipeApiMock.toggleFavorite.mockReturnValue(
-      of({ recipeIdentifier: 'abc-123', isFavorite: true }),
-    );
+    recipeApiMock.toggleFavorite.mockReturnValue(of({ recipeIdentifier: 'abc-123', isFavorite: true }));
 
     component.onToggleFavorite('abc-123');
     tick();
@@ -708,9 +687,7 @@ describe('RecipeListComponent', () => {
     });
     tick();
 
-    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
-      expect.objectContaining({ favorites: true }),
-    );
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(expect.objectContaining({ favorites: true }));
   }));
 
   it('should not show the FAB until recipes are selected', fakeAsync(() => {
@@ -722,9 +699,7 @@ describe('RecipeListComponent', () => {
     component.multiSelect.toggleMode();
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-fab"]'),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-fab"]')).toBeNull();
   }));
 
   it('should show the FAB with the selection count once a recipe is selected', fakeAsync(() => {
@@ -812,9 +787,7 @@ describe('RecipeListComponent', () => {
         ingredients: [{ name: 'Flour', amount: 200, unit: 'g' }],
       }),
     );
-    shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(
-      of({ identifier: 'list-1' } as unknown as ShoppingListDetail),
-    );
+    shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(of({ identifier: 'list-1' } as unknown as ShoppingListDetail));
     const router = TestBed.inject(Router);
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
@@ -887,9 +860,7 @@ describe('RecipeListComponent', () => {
         ingredients: [],
       }),
     );
-    shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(
-      throwError(() => ({ status: 500 })),
-    );
+    shoppingApiMock.createShoppingListFromRecipes.mockReturnValue(throwError(() => ({ status: 500 })));
 
     component.multiSelect.toggleMode();
     component.multiSelect.toggleSelection('abc-123');
@@ -945,16 +916,12 @@ describe('RecipeListComponent', () => {
     tick();
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-toggle"]'),
-    ).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-toggle"]')).toBeTruthy();
 
     component['assignment'].assignTo.set('2026-W18-monday');
     fixture.detectChanges();
 
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-toggle"]'),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="recipe-list-multi-select-toggle"]')).toBeNull();
   }));
 
   it('should keep keyword path for short single-word search', fakeAsync(() => {
@@ -969,9 +936,7 @@ describe('RecipeListComponent', () => {
     tick(300);
 
     expect(chatApiMock.send).not.toHaveBeenCalled();
-    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
-      expect.objectContaining({ search: 'pasta' }),
-    );
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(expect.objectContaining({ search: 'pasta' }));
     expect(component.isAiPowered()).toBe(false);
   }));
 
@@ -1044,9 +1009,7 @@ describe('RecipeListComponent', () => {
     tick();
 
     expect(chatApiMock.send).toHaveBeenCalled();
-    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(
-      expect.objectContaining({ search: 'show me something with tomatoes please' }),
-    );
+    expect(recipeApiMock.getRecipes).toHaveBeenCalledWith(expect.objectContaining({ search: 'show me something with tomatoes please' }));
     expect(component.isAiPowered()).toBe(false);
   }));
 

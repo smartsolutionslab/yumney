@@ -43,9 +43,7 @@ describe('mergeRecipeIngredients', () => {
   });
 
   it('rounds non-integer scaled amounts to two decimals', () => {
-    const result = mergeRecipeIngredients([
-      recipe([{ name: 'Olive Oil', amount: 1.5, unit: 'tbsp' }], 4, 6),
-    ]);
+    const result = mergeRecipeIngredients([recipe([{ name: 'Olive Oil', amount: 1.5, unit: 'tbsp' }], 4, 6)]);
 
     expect(result[0].amount).toBe(2.25);
   });

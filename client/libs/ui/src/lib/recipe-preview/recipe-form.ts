@@ -1,9 +1,5 @@
 import { FormBuilder, FormArray, FormGroup, FormControl, Validators } from '@angular/forms';
-import {
-  ImportRecipeResponse,
-  ExtractedIngredient,
-  ExtractedStep,
-} from '@yumney/shared/api-client';
+import { ImportRecipeResponse, ExtractedIngredient, ExtractedStep } from '@yumney/shared/api-client';
 import { VALIDATION } from '@yumney/shared/models';
 
 export interface IngredientFormGroup {
@@ -29,10 +25,7 @@ export class RecipeFormController {
     private readonly source: ImportRecipeResponse,
   ) {
     this.form = fb.nonNullable.group({
-      title: [
-        '',
-        [Validators.required, Validators.maxLength(VALIDATION.RECIPES.RECIPE_TITLE.MAX_LENGTH)],
-      ],
+      title: ['', [Validators.required, Validators.maxLength(VALIDATION.RECIPES.RECIPE_TITLE.MAX_LENGTH)]],
       description: [''],
       servings: [null as number | null],
       prepTimeMinutes: [null as number | null],
@@ -79,16 +72,7 @@ export class RecipeFormController {
 
   /** Builds the API response payload from the current form state. */
   toResponse(): ImportRecipeResponse {
-    const {
-      title,
-      description,
-      servings,
-      prepTimeMinutes,
-      cookTimeMinutes,
-      difficulty,
-      ingredients,
-      steps,
-    } = this.form.getRawValue();
+    const { title, description, servings, prepTimeMinutes, cookTimeMinutes, difficulty, ingredients, steps } = this.form.getRawValue();
     return {
       title,
       description: description || null,

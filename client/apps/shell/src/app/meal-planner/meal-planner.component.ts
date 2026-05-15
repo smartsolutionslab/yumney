@@ -1,21 +1,8 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  ElementRef,
-  HostListener,
-  inject,
-  signal,
-  computed,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, ElementRef, HostListener, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  MealPlanApiService,
-  type WeeklyPlan,
-  type MealSlot,
-  type GenerateShoppingListResult,
-} from '@yumney/shared/api-client';
+import { MealPlanApiService, type WeeklyPlan, type MealSlot, type GenerateShoppingListResult } from '@yumney/shared/api-client';
 import { injectAsyncStates, ERROR_MAPS, UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 import { MealSuggestionPanelComponent } from './meal-suggestion-panel/meal-suggestion-panel.component';
@@ -30,12 +17,7 @@ const JS_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 @Component({
   selector: 'yn-meal-planner',
   standalone: true,
-  imports: [
-    TranslocoModule,
-    LucideAngularModule,
-    AsyncStateComponent,
-    MealSuggestionPanelComponent,
-  ],
+  imports: [TranslocoModule, LucideAngularModule, AsyncStateComponent, MealSuggestionPanelComponent],
   templateUrl: './meal-planner.component.html',
   styleUrl: './meal-planner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,9 +44,7 @@ export class MealPlannerComponent {
   protected copyingToCurrent = this.states.copy.isLoading;
   protected shoppingResult = signal<GenerateShoppingListResult | null>(null);
 
-  protected weekLabel = computed(
-    () => `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}`,
-  );
+  protected weekLabel = computed(() => `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}`);
 
   private currentYear = new Date().getFullYear();
   private currentWeekNumber = this.getCurrentWeek();
@@ -126,13 +106,9 @@ export class MealPlannerComponent {
     this.loadPlan();
   }
 
-  protected hasRecipeSlots = computed(
-    () => this.plan()?.slots.some((slot) => slot.contentType === 'Recipe') ?? false,
-  );
+  protected hasRecipeSlots = computed(() => this.plan()?.slots.some((slot) => slot.contentType === 'Recipe') ?? false);
 
-  protected canSuggest = computed(
-    () => this.plan() !== null && !this.isPastWeek() && !this.hasRecipeSlots(),
-  );
+  protected canSuggest = computed(() => this.plan() !== null && !this.isPastWeek() && !this.hasRecipeSlots());
 
   protected onSuggestionAccepted(): void {
     this.loadPlan();
@@ -162,10 +138,8 @@ export class MealPlannerComponent {
 
   protected onClearSlot(day: string): void {
     if (this.isPastWeek()) return;
-    this.states.clearSlot.execute(
-      this.api.clearSlot(this.year(), this.weekNumber(), { day }),
-      ERROR_MAPS.mealPlanner.clearSlot,
-      (plan) => this.plan.set(plan),
+    this.states.clearSlot.execute(this.api.clearSlot(this.year(), this.weekNumber(), { day }), ERROR_MAPS.mealPlanner.clearSlot, (plan) =>
+      this.plan.set(plan),
     );
   }
 
@@ -185,14 +159,10 @@ export class MealPlannerComponent {
   }
 
   private loadPlan(): void {
-    this.states.load.execute(
-      this.api.getWeeklyPlan(this.year(), this.weekNumber()),
-      ERROR_MAPS.mealPlanner.load,
-      (plan) => {
-        this.plan.set(plan);
-        queueMicrotask(() => this.scrollTodayIntoView());
-      },
-    );
+    this.states.load.execute(this.api.getWeeklyPlan(this.year(), this.weekNumber()), ERROR_MAPS.mealPlanner.load, (plan) => {
+      this.plan.set(plan);
+      queueMicrotask(() => this.scrollTodayIntoView());
+    });
   }
 
   private scrollTodayIntoView(): void {

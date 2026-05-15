@@ -21,9 +21,7 @@ export async function setupKeycloakMock(page: Page): Promise<void> {
       }),
     }),
   );
-  await page.route('**/realms/yumney/protocol/openid-connect/auth*', (route) =>
-    route.fulfill({ status: 200, body: '' }),
-  );
+  await page.route('**/realms/yumney/protocol/openid-connect/auth*', (route) => route.fulfill({ status: 200, body: '' }));
   await page.route('**/realms/yumney/protocol/openid-connect/certs', (route) =>
     route.fulfill({
       status: 200,
@@ -45,9 +43,7 @@ export async function waitForServiceWorker(page: Page, timeout = 40_000): Promis
     const deadline = Date.now() + ms;
     while (Date.now() < deadline) {
       const registrations = await navigator.serviceWorker.getRegistrations();
-      const active = registrations.find(
-        (registration) => registration.active?.state === 'activated',
-      );
+      const active = registrations.find((registration) => registration.active?.state === 'activated');
       if (active) return;
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
@@ -160,10 +156,7 @@ export async function waitForServiceWorkerControl(page: Page, timeout = 120_000)
   }, timeout);
 
   if (!result.ok) {
-    throw new Error(
-      `waitForServiceWorkerControl failed: ${result.reason}\n` +
-        `details: ${JSON.stringify(result, null, 2)}`,
-    );
+    throw new Error(`waitForServiceWorkerControl failed: ${result.reason}\n` + `details: ${JSON.stringify(result, null, 2)}`);
   }
 }
 

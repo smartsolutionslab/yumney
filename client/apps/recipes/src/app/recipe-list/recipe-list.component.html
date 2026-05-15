@@ -2,11 +2,7 @@
   <div class="list-header">
     @if (assignment.assignMode()) {
       <div class="assign-header">
-        <button
-          class="btn-back"
-          (click)="assignment.cancel()"
-          [attr.aria-label]="t('recipes.list.back')"
-        >
+        <button class="btn-back" (click)="assignment.cancel()" [attr.aria-label]="t('recipes.list.back')">
           <lucide-icon name="arrow-left" [size]="20" />
         </button>
         <h1>{{ t('recipes.list.assignTitle') }}</h1>
@@ -33,16 +29,10 @@
         [attr.aria-label]="t('recipes.list.search.label')"
       />
       @if (isAiPowered()) {
-        <span class="search-ai-badge" data-testid="recipe-list-ai-badge">{{
-          t('recipes.list.search.aiBadge')
-        }}</span>
+        <span class="search-ai-badge" data-testid="recipe-list-ai-badge">{{ t('recipes.list.search.aiBadge') }}</span>
       }
       @if (searchQuery()) {
-        <button
-          class="search-clear"
-          (click)="onSearchClear()"
-          [attr.aria-label]="t('recipes.list.search.clear')"
-        >
+        <button class="search-clear" (click)="onSearchClear()" [attr.aria-label]="t('recipes.list.search.clear')">
           <lucide-icon name="x" [size]="18" />
         </button>
       }
@@ -68,11 +58,7 @@
         [attr.aria-pressed]="multiSelect.multiSelectMode()"
         (click)="multiSelect.toggleMode()"
       >
-        {{
-          multiSelect.multiSelectMode()
-            ? t('recipes.list.multiSelect.exit')
-            : t('recipes.list.multiSelect.enter')
-        }}
+        {{ multiSelect.multiSelectMode() ? t('recipes.list.multiSelect.exit') : t('recipes.list.multiSelect.enter') }}
       </button>
     }
   </div>
@@ -96,11 +82,7 @@
 
   @if (!isLoading() && recipes().length === 0 && !serverError()) {
     @if (activeSearch(); as query) {
-      <yn-empty-state
-        title="recipes.list.search.noResults"
-        message="recipes.list.search.noResultsMessage"
-        [messageParams]="{ query }"
-      />
+      <yn-empty-state title="recipes.list.search.noResults" message="recipes.list.search.noResultsMessage" [messageParams]="{ query }" />
     } @else {
       <yn-empty-state title="recipes.list.empty.title" message="recipes.list.empty.message">
         <yn-button variant="primary" [routerLink]="ROUTES.dashboard">
@@ -126,9 +108,7 @@
     </div>
   }
 
-  @if (
-    multiSelect.multiSelectMode() && multiSelect.hasSelection() && !multiSelect.showPreviewDialog()
-  ) {
+  @if (multiSelect.multiSelectMode() && multiSelect.hasSelection() && !multiSelect.showPreviewDialog()) {
     <button
       type="button"
       class="multi-select-fab"
@@ -151,12 +131,7 @@
     />
   }
 
-  <div
-    ynInfiniteScroll
-    class="scroll-sentinel"
-    [enabled]="hasMore() && !isLoading()"
-    (loadMore)="onLoadMore()"
-  ></div>
+  <div ynInfiniteScroll class="scroll-sentinel" [enabled]="hasMore() && !isLoading()" (loadMore)="onLoadMore()"></div>
 
   @if (isLoading()) {
     <div class="skeleton-grid">

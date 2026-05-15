@@ -33,9 +33,7 @@ export class RecipeDetailPage {
     this.resetServingsButton = page.getByRole('button', { name: /reset/i });
     this.editButton = page.getByRole('link', { name: /edit/i });
     this.deleteButton = page.locator('.btn-danger');
-    this.shoppingListButton = page
-      .locator('[data-testid="recipe-create-shopping-list-btn"]')
-      .first();
+    this.shoppingListButton = page.locator('[data-testid="recipe-create-shopping-list-btn"]').first();
     this.sourceLink = page.locator('.source-link a');
     // Target the overlay div inside yn-dialog-shell rather than the host
     // yn-confirm-dialog. The host has 0x0 dimensions because its child is

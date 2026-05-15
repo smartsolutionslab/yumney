@@ -14,7 +14,10 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1311
-public sealed partial class SemanticKernelRecipeExtractionService(Kernel kernel, IExtractionResultCache cache, ILogger<SemanticKernelRecipeExtractionService> logger)
+public sealed partial class SemanticKernelRecipeExtractionService(
+	Kernel kernel,
+	IExtractionResultCache cache,
+	ILogger<SemanticKernelRecipeExtractionService> logger)
 	: IRecipeExtractionService
 {
 	private static readonly JsonSerializerOptions jsonOptions = new()

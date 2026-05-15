@@ -1,9 +1,5 @@
 import type { ImportRecipeResponse, RecipeDetail } from '@yumney/shared/api-client';
-import {
-  mapDetailToImportResponse,
-  mapToSaveRecipeRequest,
-  mapToUpdateRecipeRequest,
-} from './recipe-mapping';
+import { mapDetailToImportResponse, mapToSaveRecipeRequest, mapToUpdateRecipeRequest } from './recipe-mapping';
 
 const imported: ImportRecipeResponse = {
   title: 'Pasta Carbonara',

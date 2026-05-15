@@ -14,12 +14,7 @@
       </button>
       <h1 class="cook-title">{{ currentRecipe.title }}</h1>
       <div class="header-actions">
-        <button
-          type="button"
-          class="header-action"
-          (click)="toggleMute()"
-          [attr.aria-pressed]="voice.muted()"
-        >
+        <button type="button" class="header-action" (click)="toggleMute()" [attr.aria-pressed]="voice.muted()">
           {{ voice.muted() ? t('recipes.cook.unmute') : t('recipes.cook.mute') }}
         </button>
         <button type="button" class="header-action" (click)="toggleIngredientsPanel()">
@@ -29,49 +24,26 @@
     </header>
 
     @if (currentStep(); as step) {
-      <yn-step-display
-        [stepNumber]="currentStepIndex() + 1"
-        [totalSteps]="totalSteps()"
-        [text]="step.description"
-      />
+      <yn-step-display [stepNumber]="currentStepIndex() + 1" [totalSteps]="totalSteps()" [text]="step.description" />
     }
 
     <div class="step-controls">
-      <button
-        type="button"
-        class="nav-button"
-        (click)="previous()"
-        [disabled]="currentStepIndex() === 0"
-      >
+      <button type="button" class="nav-button" (click)="previous()" [disabled]="currentStepIndex() === 0">
         {{ t('recipes.cook.previous') }}
       </button>
       <button type="button" class="nav-button repeat" (click)="repeat()">
         {{ t('recipes.cook.repeat') }}
       </button>
-      <button
-        type="button"
-        class="nav-button"
-        (click)="next()"
-        [disabled]="currentStepIndex() >= totalSteps() - 1"
-      >
+      <button type="button" class="nav-button" (click)="next()" [disabled]="currentStepIndex() >= totalSteps() - 1">
         {{ t('recipes.cook.next') }}
       </button>
     </div>
 
     @if (voice.sttSupported()) {
-      <button
-        type="button"
-        class="voice-toggle"
-        (click)="toggleListening()"
-        [attr.aria-label]="t('recipes.cook.voiceToggle')"
-      >
+      <button type="button" class="voice-toggle" (click)="toggleListening()" [attr.aria-label]="t('recipes.cook.voiceToggle')">
         <yn-voice-indicator [listening]="voice.isListening()" />
         <span>
-          {{
-            voice.isListening()
-              ? t('recipes.cook.voiceListening')
-              : t('recipes.cook.voiceTapToTalk')
-          }}
+          {{ voice.isListening() ? t('recipes.cook.voiceListening') : t('recipes.cook.voiceTapToTalk') }}
         </span>
       </button>
     }
@@ -86,18 +58,10 @@
 
     @if (ingredientsPanelOpen()) {
       @defer {
-        <yn-side-sheet
-          labelledBy="cook-mode-ingredients-title"
-          (cancelled)="toggleIngredientsPanel()"
-        >
+        <yn-side-sheet labelledBy="cook-mode-ingredients-title" (cancelled)="toggleIngredientsPanel()">
           <div class="panel-header">
             <h2 id="cook-mode-ingredients-title">{{ t('recipes.cook.ingredients') }}</h2>
-            <button
-              type="button"
-              class="panel-close"
-              (click)="toggleIngredientsPanel()"
-              [attr.aria-label]="t('recipes.cook.closePanel')"
-            >
+            <button type="button" class="panel-close" (click)="toggleIngredientsPanel()" [attr.aria-label]="t('recipes.cook.closePanel')">
               <lucide-icon name="x" [size]="18" />
             </button>
           </div>

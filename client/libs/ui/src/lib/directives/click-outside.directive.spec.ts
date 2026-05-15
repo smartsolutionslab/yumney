@@ -5,12 +5,7 @@ import { ClickOutsideDirective } from './click-outside.directive';
 @Component({
   imports: [ClickOutsideDirective],
   template: `
-    <div
-      ynClickOutside
-      (clickOutside)="outsideCount = outsideCount + 1"
-      (escape)="escapeCount = escapeCount + 1"
-      data-testid="wrapper"
-    >
+    <div ynClickOutside (clickOutside)="outsideCount = outsideCount + 1" (escape)="escapeCount = escapeCount + 1" data-testid="wrapper">
       <button data-testid="inner-button">click me</button>
     </div>
     <button data-testid="external-button">outside</button>

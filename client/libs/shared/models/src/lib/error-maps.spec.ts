@@ -6,18 +6,10 @@ interface ErrorLeaf {
 }
 
 function isLeaf(value: unknown): value is ErrorLeaf {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'default' in value &&
-    typeof (value as { default: unknown }).default === 'string'
-  );
+  return typeof value === 'object' && value !== null && 'default' in value && typeof (value as { default: unknown }).default === 'string';
 }
 
-function* walkLeaves(
-  node: unknown,
-  path: string[] = [],
-): Generator<{ path: string[]; leaf: ErrorLeaf }> {
+function* walkLeaves(node: unknown, path: string[] = []): Generator<{ path: string[]; leaf: ErrorLeaf }> {
   if (!node || typeof node !== 'object') return;
   if (isLeaf(node)) {
     yield { path, leaf: node };
@@ -33,9 +25,7 @@ describe('ERROR_MAPS', () => {
 
   it('finds at least one error leaf per top-level area', () => {
     const topLevels = new Set(leaves.map((entry) => entry.path[0]));
-    expect(topLevels).toEqual(
-      new Set(['dashboard', 'recipes', 'shopping', 'mealPlanner', 'account', 'auth']),
-    );
+    expect(topLevels).toEqual(new Set(['dashboard', 'recipes', 'shopping', 'mealPlanner', 'account', 'auth']));
   });
 
   it('every leaf has a non-empty default fallback key', () => {

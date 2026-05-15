@@ -1,10 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { AppShellPage } from '../pages/app-shell.page';
-import {
-  setupKeycloakMock,
-  waitForServiceWorker,
-  waitForServiceWorkerControl,
-} from '../helpers/pwa.helper';
+import { setupKeycloakMock, waitForServiceWorker, waitForServiceWorkerControl } from '../helpers/pwa.helper';
 import { TIMEOUTS } from '../helpers/timeouts';
 
 test.describe('Offline Caching', () => {

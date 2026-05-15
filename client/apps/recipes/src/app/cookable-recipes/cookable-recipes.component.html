@@ -88,12 +88,7 @@
     </div>
   }
 
-  <div
-    ynInfiniteScroll
-    class="scroll-sentinel"
-    [enabled]="hasMore() && !isLoading()"
-    (loadMore)="onLoadMore()"
-  ></div>
+  <div ynInfiniteScroll class="scroll-sentinel" [enabled]="hasMore() && !isLoading()" (loadMore)="onLoadMore()"></div>
 
   @if (isLoading()) {
     <div class="skeleton-grid">

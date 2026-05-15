@@ -1,24 +1,9 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  signal,
-  inject,
-  DestroyRef,
-  OnInit,
-  effect,
-  viewChild,
-} from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef, OnInit, effect, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
-import {
-  createAsyncState,
-  mapToSaveRecipeRequest,
-  ERROR_MAPS,
-  ROUTES,
-  UI,
-} from '@yumney/shared/models';
+import { createAsyncState, mapToSaveRecipeRequest, ERROR_MAPS, ROUTES, UI } from '@yumney/shared/models';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   ButtonComponent,

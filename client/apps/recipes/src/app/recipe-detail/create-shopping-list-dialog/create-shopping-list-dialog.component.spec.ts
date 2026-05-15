@@ -78,12 +78,8 @@ describe('CreateShoppingListDialogComponent', () => {
   it('should disable buttons and show creating label while in flight', () => {
     setup(true);
 
-    const confirm = fixture.nativeElement.querySelector(
-      '[data-testid="create-shopping-list-confirm"]',
-    );
-    const cancel = fixture.nativeElement.querySelector(
-      '[data-testid="create-shopping-list-cancel"]',
-    );
+    const confirm = fixture.nativeElement.querySelector('[data-testid="create-shopping-list-confirm"]');
+    const cancel = fixture.nativeElement.querySelector('[data-testid="create-shopping-list-cancel"]');
     expect(confirm.disabled).toBe(true);
     expect(cancel.disabled).toBe(true);
     expect(confirm.textContent).toContain('Creating...');
@@ -144,9 +140,7 @@ describe('CreateShoppingListDialogComponent', () => {
     fixture.detectChanges();
 
     expect(component.suggestedTitle()).toBe('Pasta Carbonara');
-    const subtitle = fixture.nativeElement.querySelector(
-      '[data-testid="create-shopping-list-suggested-title"]',
-    );
+    const subtitle = fixture.nativeElement.querySelector('[data-testid="create-shopping-list-suggested-title"]');
     expect(subtitle.textContent.trim()).toBe('Pasta Carbonara');
     const heading = fixture.nativeElement.querySelector('.preview-heading');
     expect(heading.textContent).toContain('3 ingredients');

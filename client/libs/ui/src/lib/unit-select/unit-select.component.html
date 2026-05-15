@@ -1,10 +1,4 @@
-<div
-  class="unit-select"
-  ynClickOutside
-  (clickOutside)="onDismiss()"
-  (escape)="onDismiss()"
-  *transloco="let t"
->
+<div class="unit-select" ynClickOutside (clickOutside)="onDismiss()" (escape)="onDismiss()" *transloco="let t">
   <button
     type="button"
     class="unit-toggle"
@@ -21,16 +15,11 @@
       }
     </span>
     @if (selectedValue()) {
-      <span
-        class="unit-clear"
-        (click)="clearSelection($event)"
-        [attr.aria-label]="t('dashboard.preview.clearUnit')"
+      <span class="unit-clear" (click)="clearSelection($event)" [attr.aria-label]="t('dashboard.preview.clearUnit')"
         ><lucide-icon name="x" [size]="18"
       /></span>
     }
-    <span class="unit-chevron" [class.open]="isOpen()"
-      ><lucide-icon name="chevron-down" [size]="18"
-    /></span>
+    <span class="unit-chevron" [class.open]="isOpen()"><lucide-icon name="chevron-down" [size]="18" /></span>
   </button>
 
   @if (isOpen()) {

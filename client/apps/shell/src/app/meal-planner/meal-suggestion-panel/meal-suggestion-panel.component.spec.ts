@@ -1,10 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import {
-  MealPlanApiService,
-  type WeekSuggestion,
-  type WeeklyPlan,
-} from '@yumney/shared/api-client';
+import { MealPlanApiService, type WeekSuggestion, type WeeklyPlan } from '@yumney/shared/api-client';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 import { provideYumneyIcons } from '@yumney/ui';
 import { MealSuggestionPanelComponent } from './meal-suggestion-panel.component';
@@ -110,11 +106,7 @@ describe('MealSuggestionPanelComponent', () => {
     fixture.componentInstance['onAccept']();
 
     expect(apiMock.assignRecipe).toHaveBeenCalledTimes(2);
-    expect(apiMock.assignRecipe).toHaveBeenCalledWith(
-      2026,
-      20,
-      expect.objectContaining({ day: 'Monday', recipeTitle: 'Lasagna' }),
-    );
+    expect(apiMock.assignRecipe).toHaveBeenCalledWith(2026, 20, expect.objectContaining({ day: 'Monday', recipeTitle: 'Lasagna' }));
     expect(emitted).toBe(true);
   });
 
@@ -126,9 +118,7 @@ describe('MealSuggestionPanelComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[data-testid="meal-suggestion-cta"]')).toBeTruthy();
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="meal-suggestion-result"]'),
-    ).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="meal-suggestion-result"]')).toBeNull();
   });
 
   it('shows the error state when suggestion API fails', () => {

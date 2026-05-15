@@ -1,21 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { concat, last, toArray } from 'rxjs';
-import {
-  MealPlanApiService,
-  type WeekSuggestion,
-  type WeekSuggestionEntry,
-} from '@yumney/shared/api-client';
+import { MealPlanApiService, type WeekSuggestion, type WeekSuggestionEntry } from '@yumney/shared/api-client';
 import { createAsyncState, ERROR_MAPS } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 
@@ -40,17 +27,13 @@ export class MealSuggestionPanelComponent {
   protected suggestion = signal<WeekSuggestion | null>(null);
   protected loading = this.suggestState.isLoading;
   protected accepting = this.acceptState.isLoading;
-  protected error = computed(
-    () => this.suggestState.serverError() ?? this.acceptState.serverError(),
-  );
+  protected error = computed(() => this.suggestState.serverError() ?? this.acceptState.serverError());
   protected hasSuggestion = computed(() => (this.suggestion()?.entries.length ?? 0) > 0);
 
   protected onSuggest(): void {
     this.suggestion.set(null);
-    this.suggestState.execute(
-      this.api.suggestWeekPlan(this.year, this.week),
-      ERROR_MAPS.mealPlanner.suggestWeek,
-      (result) => this.suggestion.set(result),
+    this.suggestState.execute(this.api.suggestWeekPlan(this.year, this.week), ERROR_MAPS.mealPlanner.suggestWeek, (result) =>
+      this.suggestion.set(result),
     );
   }
 
@@ -75,14 +58,10 @@ export class MealSuggestionPanelComponent {
       }),
     );
 
-    this.acceptState.execute(
-      concat(...assignments).pipe(toArray(), last()),
-      ERROR_MAPS.mealPlanner.assign,
-      () => {
-        this.suggestion.set(null);
-        this.planAccepted.emit();
-      },
-    );
+    this.acceptState.execute(concat(...assignments).pipe(toArray(), last()), ERROR_MAPS.mealPlanner.assign, () => {
+      this.suggestion.set(null);
+      this.planAccepted.emit();
+    });
   }
 
   protected onDismiss(): void {

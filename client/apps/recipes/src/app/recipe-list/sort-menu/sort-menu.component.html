@@ -1,10 +1,4 @@
-<div
-  class="sort-dropdown"
-  ynClickOutside
-  (clickOutside)="onDismiss()"
-  (escape)="onDismiss()"
-  *transloco="let t"
->
+<div class="sort-dropdown" ynClickOutside (clickOutside)="onDismiss()" (escape)="onDismiss()" *transloco="let t">
   <button
     type="button"
     class="sort-toggle"
@@ -15,9 +9,7 @@
     [attr.aria-expanded]="open()"
   >
     {{ t(currentLabelKey()) }}
-    <span class="sort-chevron" [class.open]="open()"
-      ><lucide-icon name="chevron-down" [size]="18"
-    /></span>
+    <span class="sort-chevron" [class.open]="open()"><lucide-icon name="chevron-down" [size]="18" /></span>
   </button>
   @if (open()) {
     <ul class="sort-menu" role="listbox">

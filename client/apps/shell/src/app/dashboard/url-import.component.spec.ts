@@ -5,11 +5,7 @@ import { of, Subject, throwError } from 'rxjs';
 import { UrlImportComponent } from './url-import.component';
 import { FormFieldComponent } from '@yumney/ui';
 import { setupTranslocoTesting } from '@yumney/shared/models';
-import {
-  RecipeApiService,
-  ImportRecipeResponse,
-  ImportStreamEvent,
-} from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse, ImportStreamEvent } from '@yumney/shared/api-client';
 
 const mockRecipe: ImportRecipeResponse = {
   title: 'Pasta Carbonara',
@@ -253,9 +249,7 @@ describe('UrlImportComponent', () => {
   }));
 
   it('should emit noRecipe error key on 404 from the stream', fakeAsync(() => {
-    recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' })),
-    );
+    recipeApiMock.importRecipeStream.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404, statusText: 'Not Found' })));
     const failedSpy = vi.fn();
     component.failed.subscribe(failedSpy);
 
@@ -267,9 +261,7 @@ describe('UrlImportComponent', () => {
   }));
 
   it('should fall back to generic error key for an unmapped HTTP status', fakeAsync(() => {
-    recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server error' })),
-    );
+    recipeApiMock.importRecipeStream.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server error' })));
     const failedSpy = vi.fn();
     component.failed.subscribe(failedSpy);
 
@@ -293,9 +285,7 @@ describe('UrlImportComponent', () => {
   }));
 
   it('should set isLoading to false after error', fakeAsync(() => {
-    recipeApiMock.importRecipeStream.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status: 502 })),
-    );
+    recipeApiMock.importRecipeStream.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 502 })));
 
     component.form.controls.url.setValue('https://example.com/recipe');
     component.onSubmit();
@@ -306,10 +296,7 @@ describe('UrlImportComponent', () => {
 
   it('should emit failed on fail stream event', fakeAsync(() => {
     recipeApiMock.importRecipeStream.mockReturnValue(
-      of(
-        { type: 'status' as const, data: 'Fetching page...' },
-        { type: 'fail' as const, data: 'Server error' },
-      ),
+      of({ type: 'status' as const, data: 'Fetching page...' }, { type: 'fail' as const, data: 'Server error' }),
     );
     const failedSpy = vi.fn();
     component.failed.subscribe(failedSpy);
@@ -360,9 +347,7 @@ describe('UrlImportComponent', () => {
   }));
 
   it('should emit failed when done event has invalid JSON', fakeAsync(() => {
-    recipeApiMock.importRecipeStream.mockReturnValue(
-      of({ type: 'done' as const, data: 'not-valid-json{' }),
-    );
+    recipeApiMock.importRecipeStream.mockReturnValue(of({ type: 'done' as const, data: 'not-valid-json{' }));
     const failedSpy = vi.fn();
     component.failed.subscribe(failedSpy);
 
@@ -379,8 +364,6 @@ describe('UrlImportComponent', () => {
     component.importUrl('https://shared.example.com/recipe');
     tick();
 
-    expect(recipeApiMock.importRecipeStream).toHaveBeenCalledWith(
-      'https://shared.example.com/recipe',
-    );
+    expect(recipeApiMock.importRecipeStream).toHaveBeenCalledWith('https://shared.example.com/recipe');
   }));
 });

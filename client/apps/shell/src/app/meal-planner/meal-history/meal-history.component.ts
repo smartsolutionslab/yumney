@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -22,13 +15,7 @@ const RESULTS_PAGE_SIZE = 50;
 @Component({
   selector: 'yn-meal-history',
   standalone: true,
-  imports: [
-    TranslocoModule,
-    ReactiveFormsModule,
-    RouterLink,
-    LucideAngularModule,
-    AsyncStateComponent,
-  ],
+  imports: [TranslocoModule, ReactiveFormsModule, RouterLink, LucideAngularModule, AsyncStateComponent],
   templateUrl: './meal-history.component.html',
   styleUrl: './meal-history.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,11 +35,7 @@ export class MealHistoryComponent {
   constructor() {
     this.runSearch('');
     this.term.valueChanges
-      .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
+      .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.runSearch(value));
   }
 

@@ -77,9 +77,7 @@ export class RecipeApiService {
     }
 
     if (!response.ok || !response.body) {
-      subscriber.error(
-        new HttpErrorResponse({ status: response.status, statusText: response.statusText }),
-      );
+      subscriber.error(new HttpErrorResponse({ status: response.status, statusText: response.statusText }));
       return;
     }
 
@@ -134,10 +132,7 @@ export class RecipeApiService {
     }
   }
 
-  private parseSseBuffer(
-    lines: string[],
-    subscriber: import('rxjs').Subscriber<ImportStreamEvent>,
-  ): boolean {
+  private parseSseBuffer(lines: string[], subscriber: import('rxjs').Subscriber<ImportStreamEvent>): boolean {
     let eventType: string | null = null;
 
     for (const line of lines) {
@@ -166,10 +161,7 @@ export class RecipeApiService {
   recognizeIngredients(photo: Blob): Observable<RecognizedIngredientsResponse> {
     const formData = new FormData();
     formData.append('photo', photo, 'scan.jpg');
-    return this.http.post<RecognizedIngredientsResponse>(
-      API_ENDPOINTS.recipes.recognizeIngredients,
-      formData,
-    );
+    return this.http.post<RecognizedIngredientsResponse>(API_ENDPOINTS.recipes.recognizeIngredients, formData);
   }
 
   saveRecipe(request: SaveRecipeRequest): Observable<SavedRecipeResponse> {
@@ -183,19 +175,12 @@ export class RecipeApiService {
   }
 
   deleteRecipe(identifier: string): Observable<void> {
-    return this.http
-      .delete<void>(API_ENDPOINTS.recipes.byIdentifier(identifier))
-      .pipe(tap(() => this.invalidateRecipeCache(identifier)));
+    return this.http.delete<void>(API_ENDPOINTS.recipes.byIdentifier(identifier)).pipe(tap(() => this.invalidateRecipeCache(identifier)));
   }
 
   getRecipeById(identifier: string): Observable<RecipeDetail> {
     if (!this.recipeCache.has(identifier)) {
-      this.recipeCache.set(
-        identifier,
-        this.http
-          .get<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier))
-          .pipe(shareReplay(1)),
-      );
+      this.recipeCache.set(identifier, this.http.get<RecipeDetail>(API_ENDPOINTS.recipes.byIdentifier(identifier)).pipe(shareReplay(1)));
     }
     return this.recipeCache.get(identifier)!;
   }
@@ -204,9 +189,7 @@ export class RecipeApiService {
     this.recipeCache.delete(identifier);
   }
 
-  getCookableRecipes(
-    params: GetCookableRecipesParams = {},
-  ): Observable<CookableRecipeListResponse> {
+  getCookableRecipes(params: GetCookableRecipesParams = {}): Observable<CookableRecipeListResponse> {
     return this.http.get<CookableRecipeListResponse>(API_ENDPOINTS.recipes.whatCanICook, {
       params: {
         ...(params.page != null && { page: params.page }),
@@ -246,9 +229,7 @@ export class RecipeApiService {
   }
 
   updateRecipeNotes(identifier: string, notes: string | null): Observable<void> {
-    return this.http
-      .put<void>(API_ENDPOINTS.recipes.notes(identifier), { notes })
-      .pipe(tap(() => this.invalidateRecipeCache(identifier)));
+    return this.http.put<void>(API_ENDPOINTS.recipes.notes(identifier), { notes }).pipe(tap(() => this.invalidateRecipeCache(identifier)));
   }
 
   toggleFavorite(identifier: string): Observable<FavoriteState> {

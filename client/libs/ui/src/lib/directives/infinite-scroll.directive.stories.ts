@@ -8,9 +8,7 @@ import { InfiniteScrollDirective } from './infinite-scroll.directive';
   standalone: true,
   imports: [InfiniteScrollDirective],
   template: `
-    <div
-      style="height: 240px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;"
-    >
+    <div style="height: 240px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;">
       @for (n of items(); track n) {
         <div style="padding: 12px 0; border-bottom: 1px solid #f3f4f6;">Item {{ n }}</div>
       }

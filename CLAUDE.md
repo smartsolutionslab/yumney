@@ -503,7 +503,7 @@ namespace `SmartSolutionsLab.Yumney.{Module}.Api`.
 ### Backend
 - `.editorconfig` + `dotnet format` + StyleCop.Analyzers
 - File-scoped namespaces
-- Max 120 chars per line
+- Max 140 chars per line
 
 #### Braces – ALWAYS required, except short guard clauses
 
@@ -565,7 +565,7 @@ var slot = FindSlot(day, mealType);
 - ESLint + @angular-eslint + Prettier
 - Single quotes, trailing commas, 2-space indent
 - Component prefix: `yn-`
-- Max 100 chars per line
+- Max 140 chars per line
 
 ### Limits (both)
 

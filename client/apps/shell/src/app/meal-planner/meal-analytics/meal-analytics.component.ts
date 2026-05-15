@@ -99,10 +99,8 @@ export class MealAnalyticsComponent {
 
   private loadAnalytics(): void {
     const month = this.viewMode() === 'month' ? this.month() : undefined;
-    this.loadState.execute(
-      this.api.getMealAnalytics(this.year(), month),
-      ERROR_MAPS.mealPlanner.analytics,
-      (result) => this.analytics.set(result),
+    this.loadState.execute(this.api.getMealAnalytics(this.year(), month), ERROR_MAPS.mealPlanner.analytics, (result) =>
+      this.analytics.set(result),
     );
   }
 }

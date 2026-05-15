@@ -117,11 +117,7 @@ describe('CookableRecipesComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [CookableRecipesComponent, setupTranslocoTesting(en)],
-      providers: [
-        provideYumneyIcons(),
-        provideRouter([]),
-        { provide: RecipeApiService, useValue: recipeApiMock },
-      ],
+      providers: [provideYumneyIcons(), provideRouter([]), { provide: RecipeApiService, useValue: recipeApiMock }],
     });
 
     fixture = TestBed.createComponent(CookableRecipesComponent);

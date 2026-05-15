@@ -16,13 +16,7 @@ const en = {
 
 @Component({
   template: `
-    <yn-editable-list-item
-      [index]="index()"
-      [total]="total()"
-      (moveUp)="onMoveUp()"
-      (moveDown)="onMoveDown()"
-      (remove)="onRemove()"
-    >
+    <yn-editable-list-item [index]="index()" [total]="total()" (moveUp)="onMoveUp()" (moveDown)="onMoveDown()" (remove)="onRemove()">
       <span class="projected">Projected Content</span>
     </yn-editable-list-item>
   `,
