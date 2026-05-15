@@ -1,7 +1,6 @@
 import {
   Component,
   ChangeDetectionStrategy,
-  DestroyRef,
   ElementRef,
   HostListener,
   inject,
@@ -17,7 +16,7 @@ import {
   type MealSlot,
   type GenerateShoppingListResult,
 } from '@yumney/shared/api-client';
-import { createAsyncState, ERROR_MAPS, UI } from '@yumney/shared/models';
+import { injectAsyncStates, ERROR_MAPS, UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 import { MealSuggestionPanelComponent } from './meal-suggestion-panel/meal-suggestion-panel.component';
 
@@ -43,29 +42,24 @@ const JS_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 })
 export class MealPlannerComponent {
   private api = inject(MealPlanApiService);
-  private destroyRef = inject(DestroyRef);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private host = inject(ElementRef<HTMLElement>);
-  private loadState = createAsyncState(this.destroyRef);
-  private generateState = createAsyncState(this.destroyRef);
-  private clearSlotState = createAsyncState(this.destroyRef);
-
-  private copyState = createAsyncState(this.destroyRef);
+  private states = injectAsyncStates('load', 'generate', 'clearSlot', 'copy');
 
   protected year = signal(new Date().getFullYear());
   protected weekNumber = signal(this.getCurrentWeek());
   protected plan = signal<WeeklyPlan | null>(null);
-  protected loading = this.loadState.isLoading;
+  protected loading = this.states.load.isLoading;
   protected error = computed(
     () =>
-      this.loadState.serverError() ??
-      this.generateState.serverError() ??
-      this.clearSlotState.serverError() ??
-      this.copyState.serverError(),
+      this.states.load.serverError() ??
+      this.states.generate.serverError() ??
+      this.states.clearSlot.serverError() ??
+      this.states.copy.serverError(),
   );
-  protected generatingList = this.generateState.isLoading;
-  protected copyingToCurrent = this.copyState.isLoading;
+  protected generatingList = this.states.generate.isLoading;
+  protected copyingToCurrent = this.states.copy.isLoading;
   protected shoppingResult = signal<GenerateShoppingListResult | null>(null);
 
   protected weekLabel = computed(
@@ -147,7 +141,7 @@ export class MealPlannerComponent {
   protected onGenerateShoppingList(): void {
     this.shoppingResult.set(null);
 
-    this.generateState.execute(
+    this.states.generate.execute(
       this.api.generateShoppingList(this.year(), this.weekNumber()),
       ERROR_MAPS.mealPlanner.generateShoppingList,
       (result) => {
@@ -168,7 +162,7 @@ export class MealPlannerComponent {
 
   protected onClearSlot(day: string): void {
     if (this.isPastWeek()) return;
-    this.clearSlotState.execute(
+    this.states.clearSlot.execute(
       this.api.clearSlot(this.year(), this.weekNumber(), { day }),
       ERROR_MAPS.mealPlanner.clearSlot,
       (plan) => this.plan.set(plan),
@@ -179,7 +173,7 @@ export class MealPlannerComponent {
     if (!this.isPastWeek()) return;
     const srcYear = this.year();
     const srcWeek = this.weekNumber();
-    this.copyState.execute(
+    this.states.copy.execute(
       this.api.copyPlanToWeek(srcYear, srcWeek, this.currentYear, this.currentWeekNumber),
       ERROR_MAPS.mealPlanner.copyToWeek,
       () => {
@@ -191,7 +185,7 @@ export class MealPlannerComponent {
   }
 
   private loadPlan(): void {
-    this.loadState.execute(
+    this.states.load.execute(
       this.api.getWeeklyPlan(this.year(), this.weekNumber()),
       ERROR_MAPS.mealPlanner.load,
       (plan) => {

@@ -68,8 +68,8 @@ export class DashboardComponent implements OnInit {
   private recipeApi = inject(RecipeApiService);
   protected camera = inject(CameraService);
   private destroyRef = inject(DestroyRef);
-  private importState = createAsyncState(this.destroyRef);
-  private saveState = createAsyncState(this.destroyRef);
+  private importState = createAsyncState();
+  private saveState = createAsyncState();
   private suggestionsState = inject(DashboardSuggestionsService);
   private navigateAfterSaveTimer: ReturnType<typeof setTimeout> | null = null;
 

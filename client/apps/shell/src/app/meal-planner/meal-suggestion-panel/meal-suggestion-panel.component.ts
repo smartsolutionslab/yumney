@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   EventEmitter,
   Input,
   Output,
@@ -30,9 +29,8 @@ import { AsyncStateComponent } from '@yumney/ui';
 })
 export class MealSuggestionPanelComponent {
   private api = inject(MealPlanApiService);
-  private destroyRef = inject(DestroyRef);
-  private suggestState = createAsyncState(this.destroyRef);
-  private acceptState = createAsyncState(this.destroyRef);
+  private suggestState = createAsyncState();
+  private acceptState = createAsyncState();
 
   @Input({ required: true }) year = 0;
   @Input({ required: true }) week = 0;

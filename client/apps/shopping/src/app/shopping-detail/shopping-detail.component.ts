@@ -61,7 +61,7 @@ export class ShoppingDetailComponent implements OnInit {
   private toast = inject(ToastService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
-  private asyncState = createAsyncState(this.destroyRef);
+  private asyncState = createAsyncState();
 
   shoppingList = signal<ShoppingListDetail | null>(null);
   isLoading = this.asyncState.isLoading;

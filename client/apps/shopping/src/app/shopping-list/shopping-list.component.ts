@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   inject,
   OnInit,
-  DestroyRef,
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -31,7 +30,7 @@ export class ShoppingListComponent implements OnInit {
   protected readonly ROUTES = ROUTES;
 
   private shoppingApi = inject(ShoppingApiService);
-  private asyncState = createAsyncState(inject(DestroyRef));
+  private asyncState = createAsyncState();
 
   lists = signal<ShoppingListSummary[]>([]);
   isLoading = this.asyncState.isLoading;

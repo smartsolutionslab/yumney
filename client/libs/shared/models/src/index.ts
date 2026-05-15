@@ -23,7 +23,7 @@ export {
   type MergedIngredient,
 } from './lib/merge-recipe-ingredients';
 export { UI } from './lib/ui-constants';
-export { createAsyncState, type AsyncState } from './lib/async-state';
+export { createAsyncState, injectAsyncStates, type AsyncState } from './lib/async-state';
 export { debouncedEffect } from './lib/debounced-effect';
 export { ensureFormValid } from './lib/form-helpers';
 export { optimisticSignalUpdate } from './lib/optimistic-update';

@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   inject,
   OnInit,
-  DestroyRef,
   signal,
   computed,
 } from '@angular/core';
@@ -28,8 +27,8 @@ export class ShoppingCreateComponent implements OnInit {
   private shoppingApi = inject(ShoppingApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private loadState = createAsyncState(inject(DestroyRef));
-  private createState = createAsyncState(inject(DestroyRef));
+  private loadState = createAsyncState();
+  private createState = createAsyncState();
 
   recipe = signal<RecipeDetail | null>(null);
   isLoading = this.loadState.isLoading;

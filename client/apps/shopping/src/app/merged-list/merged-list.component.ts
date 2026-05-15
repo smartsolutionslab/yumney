@@ -54,7 +54,7 @@ export class MergedListComponent {
   private api = inject(ShoppingApiService);
   private destroyRef = inject(DestroyRef);
   private toasts = inject(ToastService);
-  private mutationState = createAsyncState(this.destroyRef);
+  private mutationState = createAsyncState();
 
   protected list = signal<MergedShoppingList | null>(null);
   protected loading = signal(false);

@@ -4,7 +4,6 @@ import {
   computed,
   inject,
   OnInit,
-  DestroyRef,
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -43,8 +42,8 @@ export class RecipeEditComponent implements OnInit {
   private recipeApi = inject(RecipeApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private loadState = createAsyncState(inject(DestroyRef));
-  private saveState = createAsyncState(inject(DestroyRef));
+  private loadState = createAsyncState();
+  private saveState = createAsyncState();
 
   recipeData = signal<ImportRecipeResponse | null>(null);
   isLoading = this.loadState.isLoading;

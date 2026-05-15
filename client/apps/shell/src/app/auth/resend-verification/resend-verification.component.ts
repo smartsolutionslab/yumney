@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -37,7 +37,7 @@ export class ResendVerificationComponent {
 
   private formBuilder = inject(FormBuilder);
   private authApi = inject(AuthApiService);
-  private asyncState = createAsyncState(inject(DestroyRef));
+  private asyncState = createAsyncState();
 
   isLoading = this.asyncState.isLoading;
   isSuccess = signal(false);
