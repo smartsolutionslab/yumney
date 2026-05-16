@@ -99,58 +99,6 @@
           "host-sending-registration-request-must-match": ["true"],
           "client-uris-must-match": ["true"]
         }
-      },
-      {
-        "name": "Allowed Protocol Mappers (authenticated)",
-        "providerId": "allowed-protocol-mappers",
-        "subType": "authenticated",
-        "config": {
-          "allowed-protocol-mapper-types": [
-            "oidc-usermodel-attribute-mapper",
-            "oidc-usermodel-property-mapper",
-            "oidc-full-name-mapper",
-            "oidc-address-mapper",
-            "oidc-sha256-pairwise-sub-mapper",
-            "oidc-audience-mapper",
-            "saml-user-attribute-mapper",
-            "saml-user-property-mapper",
-            "saml-role-list-mapper"
-          ]
-        }
-      },
-      {
-        "name": "Allowed Client Scopes (authenticated)",
-        "providerId": "allowed-client-scopes",
-        "subType": "authenticated",
-        "config": {
-          "allow-default-scopes": ["true"]
-        }
-      },
-      {
-        "name": "Max Clients (authenticated)",
-        "providerId": "max-clients",
-        "subType": "authenticated",
-        "config": {
-          "max-clients": ["200"]
-        }
-      },
-      {
-        "name": "Consent Required (authenticated)",
-        "providerId": "consent-required",
-        "subType": "authenticated",
-        "config": {}
-      },
-      {
-        "name": "Scope (authenticated)",
-        "providerId": "scope",
-        "subType": "authenticated",
-        "config": {}
-      },
-      {
-        "name": "Full Scope Disabled (authenticated)",
-        "providerId": "full-scope-disabled",
-        "subType": "authenticated",
-        "config": {}
       }
     ]
   },
