@@ -4,7 +4,7 @@ import { RecipeDetail } from '../api';
 
 /**
  * Owns the servings-scaling + unit-system view state for the recipe-detail
- * screen. The recipe-detail component drives identity (route → load), this
+ * screen. The recipe-detail component drives identity (route → load); this
  * service owns the toggles and the derived ingredient list:
  *
  * - desiredServings (writable, defaults to the recipe's saved servings)
@@ -12,21 +12,27 @@ import { RecipeDetail } from '../api';
  *   over the user's profile default but is never persisted)
  * - scaledIngredients / displayedIngredients / isScaled (computed)
  *
- * `attach(recipe)` wires the upstream recipe signal. `initFor(recipe)` seeds
- * `desiredServings` from the loaded recipe.
+ * `attach(recipe)` wires the upstream recipe signal. `initFor(recipe)`
+ * seeds `desiredServings` from the loaded recipe.
+ *
+ * The upstream recipe ref is held inside an outer signal (signal-of-signal)
+ * so the computeds correctly re-track when `attach()` swaps the source —
+ * a plain field reassignment leaves the computeds bound to whichever signal
+ * happened to be there at first evaluation.
  */
 @Injectable()
 export class RecipeScalingService {
   private preferences = inject(UserPreferencesService);
+  private static readonly emptyRecipe: Signal<RecipeDetail | null> = signal(null);
 
-  private recipe: Signal<RecipeDetail | null> = signal(null);
+  private recipeRef = signal<Signal<RecipeDetail | null>>(RecipeScalingService.emptyRecipe);
   private userUnitOverride = signal<UnitSystem | null>(null);
 
   readonly desiredServings = signal<number | null>(null);
   readonly unitSystem = computed<UnitSystem>(() => this.userUnitOverride() ?? this.preferences.preferredUnitSystem());
 
   readonly scaledIngredients = computed(() => {
-    const recipe = this.recipe();
+    const recipe = this.recipeRef()();
     if (!recipe) return [];
     const { ingredients, servings } = recipe;
     const desired = this.desiredServings();
@@ -53,13 +59,13 @@ export class RecipeScalingService {
   });
 
   readonly isScaled = computed(() => {
-    const recipe = this.recipe();
+    const recipe = this.recipeRef()();
     const desired = this.desiredServings();
     return recipe?.servings != null && desired != null && desired !== recipe.servings;
   });
 
   attach(recipeRef: Signal<RecipeDetail | null>): void {
-    this.recipe = recipeRef;
+    this.recipeRef.set(recipeRef);
   }
 
   initFor(recipe: RecipeDetail): void {
@@ -85,7 +91,7 @@ export class RecipeScalingService {
   }
 
   reset(): void {
-    const recipe = this.recipe();
+    const recipe = this.recipeRef()();
     if (recipe?.servings != null) {
       this.desiredServings.set(recipe.servings);
     }
