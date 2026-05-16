@@ -59,6 +59,18 @@ jobs:
           name: backend-coverage
           path: ./coverage
 
+      - name: Install ReportGenerator
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'coverage-exempt') }}
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate coverage summary
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'coverage-exempt') }}
+        run: reportgenerator -reports:"./coverage/**/coverage.cobertura.xml" -targetdir:./coverage-report -reporttypes:JsonSummary
+
+      - name: Enforce CLAUDE.md coverage thresholds
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'coverage-exempt') }}
+        run: python3 scripts/check-coverage-thresholds.py
+
   frontend:
     name: Frontend (Build + Test)
     runs-on: ubuntu-latest
