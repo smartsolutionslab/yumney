@@ -1,9 +1,7 @@
 import { Component, ChangeDetectionStrategy, computed, inject, OnInit, DestroyRef, signal } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { forkJoin, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { RecipeApiService, RecipeListItem, GetRecipesParams, ChatApiService, type ChatRecipeSuggestion } from '../api';
+import { RecipeApiService, RecipeListItem, GetRecipesParams } from '../api';
 import { createAsyncState, debouncedEffect, ERROR_MAPS, ROUTES, UI, toggleFavoriteInList } from '@yumney/shared/models';
 import { RouterLink } from '@angular/router';
 import {
@@ -21,6 +19,7 @@ import { SortMenuComponent, SortMenuOption } from './sort-menu/sort-menu.compone
 import { RecipeAssignmentService } from './recipe-assignment.service';
 import { MultiRecipePreviewDialogComponent } from './multi-recipe-preview-dialog/multi-recipe-preview-dialog.component';
 import { MultiRecipeShoppingListService } from './multi-recipe-shopping-list.service';
+import { RecipeChatSearchService } from './recipe-chat-search.service';
 
 interface SortOption extends SortMenuOption {
   by: 'Name' | 'Date' | 'Rating';
@@ -43,7 +42,7 @@ interface SortOption extends SortMenuOption {
     SortMenuComponent,
     MultiRecipePreviewDialogComponent,
   ],
-  providers: [RecipeAssignmentService, MultiRecipeShoppingListService],
+  providers: [RecipeAssignmentService, MultiRecipeShoppingListService, RecipeChatSearchService],
   templateUrl: './recipe-list.component.html',
   styleUrl: './recipe-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,22 +55,12 @@ export class RecipeListComponent implements OnInit {
     { value: 'date-asc', by: 'Date', dir: 'Ascending', labelKey: 'recipes.list.sort.dateAsc' },
     { value: 'name-asc', by: 'Name', dir: 'Ascending', labelKey: 'recipes.list.sort.nameAsc' },
     { value: 'name-desc', by: 'Name', dir: 'Descending', labelKey: 'recipes.list.sort.nameDesc' },
-    {
-      value: 'rating-desc',
-      by: 'Rating',
-      dir: 'Descending',
-      labelKey: 'recipes.list.sort.ratingDesc',
-    },
-    {
-      value: 'rating-asc',
-      by: 'Rating',
-      dir: 'Ascending',
-      labelKey: 'recipes.list.sort.ratingAsc',
-    },
+    { value: 'rating-desc', by: 'Rating', dir: 'Descending', labelKey: 'recipes.list.sort.ratingDesc' },
+    { value: 'rating-asc', by: 'Rating', dir: 'Ascending', labelKey: 'recipes.list.sort.ratingAsc' },
   ];
 
   private recipeApi = inject(RecipeApiService);
-  private chatApi = inject(ChatApiService);
+  private chatSearch = inject(RecipeChatSearchService);
   private destroyRef = inject(DestroyRef);
   private asyncState = createAsyncState();
   private searchInput = signal('');
@@ -81,7 +70,7 @@ export class RecipeListComponent implements OnInit {
     debouncedEffect(this.searchInput, UI.SEARCH_DEBOUNCE_MS, (value) => {
       const trimmed = value.trim();
       this.activeSearch.set(trimmed);
-      if (trimmed === '' || !isConversationalQuery(trimmed)) {
+      if (trimmed === '' || !this.chatSearch.isConversational(trimmed)) {
         this.isAiPowered.set(false);
         this.resetAndReload();
         return;
@@ -184,11 +173,6 @@ export class RecipeListComponent implements OnInit {
     this.loadRecipes(false);
   }
 
-  // Conversational query path: send the query through the chat service
-  // (which calls the search_recipes SK tool internally) and hydrate each
-  // returned suggestion's identifier into a full RecipeListItem for the
-  // grid. Falls back to keyword search if the chat call fails — a transient
-  // LLM outage must not regress baseline search.
   private searchViaChat(query: string): void {
     const requestId = ++this.loadRequestId;
     this.isAiPowered.set(true);
@@ -198,62 +182,20 @@ export class RecipeListComponent implements OnInit {
     this.multiSelect.clearSelection();
 
     this.asyncState.execute(
-      this.chatApi.send({ message: query, history: [] }).pipe(
-        switchMap((response) => this.hydrateSuggestions(response.suggestions)),
-        catchError(() => {
-          this.isAiPowered.set(false);
-          return this.recipeApi
-            .getRecipes({
-              page: 1,
-              pageSize: this.pageSize(),
-              sortBy: this.sortBy(),
-              sortDirection: this.sortDirection(),
-              search: query,
-            })
-            .pipe(map((response) => response.items));
-        }),
-      ),
+      this.chatSearch.search(query, {
+        pageSize: this.pageSize(),
+        sortBy: this.sortBy(),
+        sortDirection: this.sortDirection(),
+      }),
       ERROR_MAPS.recipes.list,
-      (items) => {
+      ({ items, fellBack }) => {
         if (requestId !== this.loadRequestId) return;
+        if (fellBack) this.isAiPowered.set(false);
         this.recipes.set(items);
         this.totalCount.set(items.length);
         this.collectAvailableTags(items);
       },
     );
-  }
-
-  private hydrateSuggestions(suggestions: ChatRecipeSuggestion[]) {
-    const validIds = suggestions.map((suggestion) => suggestion.recipeIdentifier).filter((id): id is string => id !== null);
-
-    if (validIds.length === 0) return of([] as RecipeListItem[]);
-
-    return forkJoin(
-      validIds.map((id) =>
-        this.recipeApi.getRecipeById(id).pipe(
-          map(
-            (detail): RecipeListItem => ({
-              identifier: detail.identifier,
-              title: detail.title,
-              description: detail.description,
-              servings: detail.servings,
-              prepTimeMinutes: detail.prepTimeMinutes,
-              cookTimeMinutes: detail.cookTimeMinutes,
-              difficulty: detail.difficulty,
-              imageUrl: detail.imageUrl,
-              createdAt: detail.createdAt,
-              tags: detail.tags,
-              isFavorite: detail.isFavorite,
-              rating: detail.rating,
-              hasNotes: detail.notes !== null,
-            }),
-          ),
-          // Per-suggestion failure shouldn't tank the AI search — skip the
-          // missing one and surface the rest.
-          catchError(() => of(null)),
-        ),
-      ),
-    ).pipe(map((items) => items.filter((item): item is RecipeListItem => item !== null)));
   }
 
   private loadRecipes(append: boolean): void {
@@ -294,17 +236,4 @@ export class RecipeListComponent implements OnInit {
     }
     this.availableTags.set([...existing].sort((a, b) => a.localeCompare(b)));
   }
-}
-
-// Conversational-query detector. Triggers the chat path when the user
-// types something that looks like an intent rather than a keyword: more
-// than 3 words, more than 20 chars, or contains a question/intent phrase.
-// Single-word queries like "Bolognese" stay on the keyword path.
-function isConversationalQuery(value: string): boolean {
-  const wordCount = value.split(/\s+/).filter((word) => word.length > 0).length;
-  if (wordCount > 3) return true;
-  if (value.length > 20) return true;
-  const lower = value.toLowerCase();
-  const intentPhrases = ['what', 'how', 'show me', 'find me', 'i want', 'something', 'with'];
-  return intentPhrases.some((phrase) => lower.includes(phrase));
 }
