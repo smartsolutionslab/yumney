@@ -35,7 +35,7 @@ public static partial class RecipesEndpoints
 			.WithTags("Recipes")
 			.WithCapability(
 				name: "search_recipes",
-				description: "Search the user's recipe collection by free text query and optional filters (tags, difficulty, max prep/cook time, favorites). Returns paged recipe summaries.",
+				description: "Search the user's recipe collection by free text query and optional filters (tags, difficulty, max prep/cook time, favorites). Returns paged recipe summaries. Use for 'find pasta recipes' / 'easy 30-minute dinners' / 'zeig mir vegetarische Rezepte'.",
 				surfaces: CapabilitySurface.All)
 			.Produces<PagedResult<RecipeListItemDto>>();
 
@@ -68,7 +68,7 @@ public static partial class RecipesEndpoints
 			.WithTags("Recipes")
 			.WithCapability(
 				name: "get_recipe",
-				description: "Fetch full details (ingredients, steps, timings, servings) of one recipe by its identifier.",
+				description: "Fetch full details (ingredients, steps, timings, servings) of one recipe by its identifier. Use for 'show me the carbonara recipe' / 'what's in the risotto?' (call search_recipes first to get the identifier).",
 				surfaces: CapabilitySurface.All)
 			.Produces<RecipeDetailDto>()
 			.ProducesProblem(StatusCodes.Status404NotFound);

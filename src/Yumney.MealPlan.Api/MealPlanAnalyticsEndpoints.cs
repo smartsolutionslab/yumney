@@ -19,7 +19,7 @@ public static class MealPlanAnalyticsEndpoints
 			.WithTags("MealPlan")
 			.WithCapability(
 				name: "get_meal_analytics",
-				description: "Cooking analytics for a calendar period. Pass year only for the whole year, or year + month (1-12) for a single month. Returns totals, top recipes, frequency, discovery rate, and category distribution.",
+				description: "Cooking analytics for a calendar period — pass year only for the whole year, or year + month (1-12) for a single month. Returns totals, top recipes, frequency, discovery rate, and category distribution. Use for 'how many recipes did I cook in 2025?' / 'top recipes last month' / 'was hab ich im März gekocht?'.",
 				surfaces: CapabilitySurface.Mcp)
 			.Produces<MealAnalyticsDto>();
 

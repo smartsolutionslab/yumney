@@ -138,7 +138,7 @@ public static partial class RecipesEndpoints
 			.WithValidation<Requests.ImportRecipe>()
 			.WithCapability(
 				name: "import_recipe_from_url",
-				description: "Extract a recipe from a URL (recipe site, blog, or video page) and add it to the user's collection. Returns the parsed recipe (title, ingredients, steps).",
+				description: "Extract a recipe from a URL (recipe site, blog, or video page) and add it to the user's collection. Returns the parsed recipe (title, ingredients, steps). Use for 'save this recipe' / 'add this to my collection' / 'speicher das Rezept'.",
 				surfaces: CapabilitySurface.Mcp | CapabilitySurface.Voice)
 			.Produces<ExtractedRecipeDto>()
 			.ProducesValidationProblem()
