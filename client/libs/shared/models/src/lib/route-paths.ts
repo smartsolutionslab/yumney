@@ -19,4 +19,7 @@ export const ROUTES = {
     detail: (identifier: string) => `/shopping/lists/${identifier}`,
     create: (recipeId: string) => `/shopping/create/${recipeId}`,
   },
+  docs: {
+    mcp: '/docs/mcp',
+  },
 } as const;

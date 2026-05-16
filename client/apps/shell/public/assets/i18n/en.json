@@ -443,5 +443,41 @@
       "networkUnavailable": "We can't reach the server. Check your connection and try again.",
       "serviceUnavailable": "The service is temporarily unavailable. Please try again in a moment."
     }
+  },
+  "docsMcp": {
+    "hero": {
+      "title": "Use Yumney inside Claude, ChatGPT, and any MCP-aware tool",
+      "subtitle": "One connection — your whole recipe collection, meal planner, and shopping lists, callable from your favourite AI."
+    },
+    "connect": {
+      "title": "Connect in 30 seconds",
+      "claudeAi": {
+        "title": "Add to Claude.ai",
+        "description": "Custom connector with OAuth — works in Claude Pro and Team.",
+        "cta": "Add to Claude"
+      },
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Paste this snippet into claude_desktop_config.json and restart.",
+        "cta": "Copy config",
+        "copied": "Copied!"
+      },
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Use the official Yumney custom GPT (or wire your own with the OpenAPI spec).",
+        "cta": "Open in ChatGPT"
+      }
+    },
+    "tools": {
+      "title": "What you get",
+      "loading": "Loading available tools…",
+      "empty": "No tools are exposed right now — check back shortly."
+    },
+    "limits": {
+      "title": "Limits & access",
+      "rateLimit": "60 tool calls per minute per user — bursting past returns a 429 with retry hint.",
+      "scope": "Each call needs the yumney-api scope; granted automatically during the OAuth dance.",
+      "auth": "Authentication uses Keycloak OAuth2 (authorization code with PKCE)."
+    }
   }
 }
