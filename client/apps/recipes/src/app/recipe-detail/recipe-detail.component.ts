@@ -12,17 +12,8 @@ import {
   ShoppingApiService,
 } from '../api';
 import { RecipeNotesAutosaveService } from './recipe-notes-autosave.service';
-import {
-  createAsyncState,
-  scaleIngredients,
-  toSystem,
-  type UnitSystem,
-  ERROR_MAPS,
-  ROUTES,
-  UserPreferencesService,
-  VALIDATION,
-  toggleFavoriteOnItem,
-} from '@yumney/shared/models';
+import { RecipeScalingService } from './recipe-scaling.service';
+import { createAsyncState, type UnitSystem, ERROR_MAPS, ROUTES, UserPreferencesService, toggleFavoriteOnItem } from '@yumney/shared/models';
 import {
   BackLinkComponent,
   ButtonComponent,
@@ -54,7 +45,7 @@ import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecipeNotesAutosaveService],
+  providers: [RecipeNotesAutosaveService, RecipeScalingService],
 })
 export class RecipeDetailComponent implements OnInit {
   protected readonly ROUTES = ROUTES;
@@ -69,6 +60,7 @@ export class RecipeDetailComponent implements OnInit {
   private deleteState = createAsyncState();
   private createShoppingListState = createAsyncState();
   private notesAutosave = inject(RecipeNotesAutosaveService);
+  private scaling = inject(RecipeScalingService);
   private preferences = inject(UserPreferencesService);
 
   recipe = signal<RecipeDetail | null>(null);
@@ -77,53 +69,18 @@ export class RecipeDetailComponent implements OnInit {
   isDeleting = this.deleteState.isLoading;
   isCreatingShoppingList = this.createShoppingListState.isLoading;
   serverError = signal<string | null>(null);
-  desiredServings = signal<number | null>(null);
-  // User's preferred unit system from their profile (US-125). The toggle
-  // exposes a per-view override that wins over the profile default but is
-  // NOT persisted — leaves the saved preference unchanged when a user
-  // flips imperial → metric just for this one recipe.
-  private userUnitOverride = signal<UnitSystem | null>(null);
-  unitSystem = computed<UnitSystem>(() => this.userUnitOverride() ?? this.preferences.preferredUnitSystem());
+
+  desiredServings = this.scaling.desiredServings;
+  scaledIngredients = this.scaling.scaledIngredients;
+  displayedIngredients = this.scaling.displayedIngredients;
+  isScaled = this.scaling.isScaled;
+  unitSystem = this.scaling.unitSystem;
+
   showDeleteConfirm = signal(false);
   showCreateShoppingListConfirm = signal(false);
 
   notesDraft = this.notesAutosave.draft;
   notesSaved = this.notesAutosave.saved;
-
-  scaledIngredients = computed(() => {
-    const recipe = this.recipe();
-    if (!recipe) {
-      return [];
-    }
-    const { ingredients, servings } = recipe;
-    const desired = this.desiredServings();
-    if (!desired || !servings) {
-      return ingredients;
-    }
-    return scaleIngredients(ingredients, servings, desired);
-  });
-
-  // Final ingredient list rendered in the template — applies the unit-system
-  // toggle on top of the servings-scaled list. When the system is metric the
-  // recipe ships as-stored; flipping to imperial routes each amount/unit pair
-  // through unit-conversion (no-op for count/unknown units like "pinch" or
-  // "clove", smart-rounded for grams/litres/etc.).
-  displayedIngredients = computed(() => {
-    const ingredients = this.scaledIngredients();
-    const system = this.unitSystem();
-    if (system === 'metric') return ingredients;
-    return ingredients.map((ingredient) => {
-      if (ingredient.amount == null) return ingredient;
-      const converted = toSystem(ingredient.amount, ingredient.unit, system);
-      return { ...ingredient, amount: converted.amount, unit: converted.unit || null };
-    });
-  });
-
-  isScaled = computed(() => {
-    const recipe = this.recipe();
-    const desired = this.desiredServings();
-    return recipe?.servings != null && desired != null && desired !== recipe.servings;
-  });
 
   lastCookedRelative = computed(() => {
     const stats = this.recipeStats();
@@ -137,6 +94,15 @@ export class RecipeDetailComponent implements OnInit {
     return { key: 'recipes.detail.stats.lastCookedWeeks', value: weeks };
   });
 
+  totalTime = computed(() => {
+    const recipe = this.recipe();
+    if (!recipe) return null;
+    const { prepTimeMinutes, cookTimeMinutes } = recipe;
+    const prep = prepTimeMinutes ?? 0;
+    const cook = cookTimeMinutes ?? 0;
+    return prep === 0 && cook === 0 ? null : prep + cook;
+  });
+
   ngOnInit(): void {
     const identifier = this.route.snapshot.paramMap.get('identifier');
     if (!identifier) {
@@ -147,6 +113,7 @@ export class RecipeDetailComponent implements OnInit {
     // Trigger the profile fetch so `preferredUnitSystem` populates. The
     // `unitSystem` computed re-evaluates when the signal lands.
     this.preferences.ensureLoaded();
+    this.scaling.attach(this.recipe);
 
     // Stats can fail silently — the page is still useful without the badge.
     this.activityApi
@@ -162,7 +129,7 @@ export class RecipeDetailComponent implements OnInit {
       ERROR_MAPS.recipes.detail,
       (recipe) => {
         this.recipe.set(recipe);
-        this.desiredServings.set(recipe.servings);
+        this.scaling.initFor(recipe);
         this.notesAutosave.attach(this.recipe);
       },
       (error) => this.serverError.set(error),
@@ -186,50 +153,26 @@ export class RecipeDetailComponent implements OnInit {
     this.notesAutosave.update(value);
   }
 
-  totalTime = computed(() => {
-    const recipe = this.recipe();
-    if (!recipe) {
-      return null;
-    }
-    const { prepTimeMinutes, cookTimeMinutes } = recipe;
-    const prep = prepTimeMinutes ?? 0;
-    const cook = cookTimeMinutes ?? 0;
-    return prep === 0 && cook === 0 ? null : prep + cook;
-  });
-
   onIncreaseServings(): void {
-    const current = this.desiredServings();
-    if (current !== null) {
-      this.desiredServings.set(current + 1);
-    }
+    this.scaling.increase();
   }
 
   onDecreaseServings(): void {
-    const current = this.desiredServings();
-    if (current !== null && current > VALIDATION.RECIPES.SERVINGS.MIN_VALUE) {
-      this.desiredServings.set(current - 1);
-    }
+    this.scaling.decrease();
   }
 
   onResetServings(): void {
-    const recipe = this.recipe();
-    if (recipe?.servings != null) {
-      this.desiredServings.set(recipe.servings);
-    }
+    this.scaling.reset();
   }
 
   onDelete(): void {
-    if (!this.recipe()) {
-      return;
-    }
+    if (!this.recipe()) return;
     this.showDeleteConfirm.set(true);
   }
 
   onDeleteConfirmed(): void {
     const recipe = this.recipe();
-    if (!recipe) {
-      return;
-    }
+    if (!recipe) return;
 
     this.showDeleteConfirm.set(false);
     this.serverError.set(null);
@@ -251,29 +194,23 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onUnitSystemChange(system: UnitSystem): void {
-    this.userUnitOverride.set(system);
+    this.scaling.setUnitSystem(system);
   }
 
   onCreateShoppingList(): void {
-    if (!this.recipe()) {
-      return;
-    }
+    if (!this.recipe()) return;
     this.serverError.set(null);
     this.showCreateShoppingListConfirm.set(true);
   }
 
   onCreateShoppingListCancelled(): void {
-    if (this.isCreatingShoppingList()) {
-      return;
-    }
+    if (this.isCreatingShoppingList()) return;
     this.showCreateShoppingListConfirm.set(false);
   }
 
   onCreateShoppingListConfirmed(): void {
     const recipe = this.recipe();
-    if (!recipe) {
-      return;
-    }
+    if (!recipe) return;
 
     const desired = this.desiredServings();
     const items: CreateShoppingListItem[] = this.scaledIngredients().map(({ name, amount, unit }) => ({
