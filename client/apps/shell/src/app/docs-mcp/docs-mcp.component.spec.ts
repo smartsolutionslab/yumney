@@ -23,11 +23,7 @@ describe('DocsMcpComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DocsMcpComponent],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideTransloco({ config: transloco, loader: StubTranslocoLoader }),
-      ],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideTransloco({ config: transloco, loader: StubTranslocoLoader })],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DocsMcpComponent);

@@ -50,7 +50,9 @@
     background: var(--yn-surface, #ffffff);
     color: inherit;
     text-decoration: none;
-    transition: border-color 120ms ease-out, transform 120ms ease-out;
+    transition:
+      border-color 120ms ease-out,
+      transform 120ms ease-out;
 
     &:hover {
       border-color: var(--yn-accent, #6366f1);

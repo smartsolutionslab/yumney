@@ -2,7 +2,9 @@
   <section class="hero">
     <h1>{{ 'docsMcp.hero.title' | transloco }}</h1>
     <p class="hero__subtitle">{{ 'docsMcp.hero.subtitle' | transloco }}</p>
-    <p class="hero__url"><code>{{ mcpUrl }}</code></p>
+    <p class="hero__url">
+      <code>{{ mcpUrl }}</code>
+    </p>
   </section>
 
   <section class="connect">
@@ -45,9 +47,13 @@
       <ul class="tools__list">
         @for (tool of tools(); track tool.name) {
           <li class="tools__item">
-            <h3 class="tools__name"><code>{{ tool.name }}</code></h3>
+            <h3 class="tools__name">
+              <code>{{ tool.name }}</code>
+            </h3>
             <p class="tools__description">{{ tool.description }}</p>
-            <p class="tools__route"><small>{{ tool.httpMethod }} {{ tool.routePattern }}</small></p>
+            <p class="tools__route">
+              <small>{{ tool.httpMethod }} {{ tool.routePattern }}</small>
+            </p>
           </li>
         }
       </ul>
