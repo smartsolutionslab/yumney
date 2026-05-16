@@ -88,6 +88,10 @@ cd client && yarn nx run-many -t test
 cd client && yarn nx test recipes
 ```
 
+### Connecting Claude / ChatGPT / other MCP clients
+
+Yumney exposes its toolset as an [MCP](https://modelcontextprotocol.io/) server. Setup for Claude.ai (custom connector) and Claude Desktop (`mcp-remote` bridge) lives in [docs/mcp/claude-setup.md](docs/mcp/claude-setup.md).
+
 ## Project Structure
 
 ```
