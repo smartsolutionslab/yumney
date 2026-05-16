@@ -17,12 +17,11 @@ The authenticated DCR policies (same `components` block) enforce:
 | `allowed-protocol-mappers` | Whitelist of safe OIDC/SAML mappers; arbitrary custom mappers are rejected |
 | `allowed-client-scopes` | Default scopes only — registered clients can't ask for elevated scopes |
 | `max-clients` | Caps total clients in the realm at 200 |
-| `client-uris` | Redirect URIs must be `localhost` / `127.0.0.1` / `claude.ai` / `chatgpt.com` patterns |
 | `consent-required` | Forces the consent screen on first authorization |
 | `scope` | Restricts the client to scopes the requesting user already has |
 | `full-scope-disabled` | Registered clients don't inherit the full realm scope |
 
-If a client needs a redirect URI outside the allowed-base-urls set, add it deliberately to the realm config — don't broaden the policy.
+Keycloak doesn't ship a separate `client-uris` policy provider — realm-wide redirect URI restriction would need a custom `ClientRegistrationPolicy` SPI. For now, the gate is that the admin vets the IAT recipient before issuing the token; the recipient's declared `redirect_uris` are accepted as-is at registration time.
 
 ## Minting an initial access token
 

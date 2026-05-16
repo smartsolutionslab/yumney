@@ -115,8 +115,7 @@
             "saml-user-attribute-mapper",
             "saml-user-property-mapper",
             "saml-role-list-mapper"
-          ],
-          "consent-required-for-all-mappers": ["true"]
+          ]
         }
       },
       {
@@ -136,36 +135,13 @@
         }
       },
       {
-        "name": "Allowed Client URIs (authenticated)",
-        "providerId": "client-uris",
-        "subType": "authenticated",
-        "config": {
-          "allowed-base-urls": [
-            "http://localhost",
-            "http://127.0.0.1",
-            "https://claude.ai",
-            "https://chat.openai.com",
-            "https://chatgpt.com"
-          ],
-          "allowed-redirect-uris": [
-            "http://localhost/*",
-            "http://localhost:*",
-            "http://127.0.0.1/*",
-            "http://127.0.0.1:*",
-            "https://claude.ai/api/mcp/auth_callback",
-            "https://chat.openai.com/aip/*/oauth/callback",
-            "https://chatgpt.com/aip/*/oauth/callback"
-          ]
-        }
-      },
-      {
         "name": "Consent Required (authenticated)",
         "providerId": "consent-required",
         "subType": "authenticated",
         "config": {}
       },
       {
-        "name": "Scope Policy (authenticated)",
+        "name": "Scope (authenticated)",
         "providerId": "scope",
         "subType": "authenticated",
         "config": {}
