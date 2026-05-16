@@ -49,8 +49,29 @@ public partial class CapabilityTaggingTests
 			string.Join(Environment.NewLine, violations.Select(violation => $"  {violation.Name} at {violation.Location}")));
 	}
 
+	[Fact]
+	public void EveryWithCapabilityCall_HasNonEmptyDescription()
+	{
+		var srcRoot = SolutionRoot.Src;
+		var pattern = WithCapabilityFullPattern();
+
+		var violations = Directory.EnumerateFiles(srcRoot, "*.cs", SearchOption.AllDirectories)
+			.Where(IsTrackedSourceFile)
+			.SelectMany(path => FullMatchesIn(path, pattern))
+			.Where(match => string.IsNullOrWhiteSpace(match.Description))
+			.ToList();
+
+		violations.Should().BeEmpty(
+			"Every WithCapability call must carry a non-empty description — the description is what the LLM reads to decide whether to call the tool. Offenders:{0}{1}",
+			Environment.NewLine,
+			string.Join(Environment.NewLine, violations.Select(violation => $"  {violation.Name} at {violation.Location}")));
+	}
+
 	[GeneratedRegex(@"WithCapability\s*\(\s*name:\s*""(?<name>[^""]+)""", RegexOptions.Singleline)]
 	private static partial Regex WithCapabilityNamePattern();
+
+	[GeneratedRegex(@"WithCapability\s*\(\s*name:\s*""(?<name>[^""]+)""\s*,\s*description:\s*""(?<description>[^""]*)""", RegexOptions.Singleline)]
+	private static partial Regex WithCapabilityFullPattern();
 
 	[GeneratedRegex(@"^[a-z][a-z0-9_]*$")]
 	private static partial Regex SnakeCasePattern();
@@ -65,6 +86,19 @@ public partial class CapabilityTaggingTests
 		}
 	}
 
+	private static IEnumerable<CapabilityFullMatch> FullMatchesIn(string path, Regex pattern)
+	{
+		var content = File.ReadAllText(path);
+		var matches = pattern.Matches(content);
+		foreach (Match match in matches)
+		{
+			yield return new CapabilityFullMatch(
+				match.Groups["name"].Value,
+				match.Groups["description"].Value,
+				Path.GetRelativePath(SolutionRoot.Path, path));
+		}
+	}
+
 	private static bool IsTrackedSourceFile(string path)
 	{
 		var normalized = path.Replace('\\', '/');
@@ -73,4 +107,6 @@ public partial class CapabilityTaggingTests
 	}
 
 	private sealed record CapabilityMatch(string Name, string Location);
+
+	private sealed record CapabilityFullMatch(string Name, string Description, string Location);
 }
