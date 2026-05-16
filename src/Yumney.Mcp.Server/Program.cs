@@ -61,6 +61,13 @@ app.MapGet("/discovered-capabilities", (AggregatedCapabilityRegistry registry) =
 	capabilities = registry.AllCapabilities(),
 })).AllowAnonymous();
 
+// RFC 9728 OAuth Protected Resource Metadata. Lets MCP clients (Claude.ai,
+// Claude Desktop, ChatGPT, …) discover the Keycloak realm without anyone
+// hand-configuring URLs. Optional config override `McpServer:PublicUrl` is
+// required in deployments where the request reaches the server through a
+// gateway (the Host header is the internal container name, not the public URL).
+app.MapOAuthProtectedResourceEndpoint(builder.Configuration.GetValue<string>("McpServer:PublicUrl"));
+
 // MCP HTTP/SSE transport at /mcp. External clients (Claude Desktop, custom GPTs)
 // authenticate via the standard Authorization: Bearer header — the bearer is
 // forwarded to the module endpoint by RestProxyService when the LLM calls a tool.

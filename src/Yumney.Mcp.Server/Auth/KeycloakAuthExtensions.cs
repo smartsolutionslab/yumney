@@ -46,6 +46,16 @@ public static class KeycloakAuthExtensions
 		return services;
 	}
 
+	/// <summary>
+	/// Resolves the public Keycloak realm URL (e.g. <c>http://localhost:8080/realms/yumney</c>)
+	/// from the same configuration the bearer authentication uses. Exposed so the OAuth
+	/// protected-resource discovery endpoint can advertise it to MCP clients without
+	/// re-implementing the resolution logic.
+	/// </summary>
+	/// <param name="configuration">Configuration source.</param>
+	/// <returns>The canonical realm URL.</returns>
+	public static string ResolveRealmUrl(IConfiguration configuration) => RealmUrl(configuration);
+
 	private static string GetBaseUrl(IConfiguration configuration) =>
 		configuration.GetConnectionString(keycloakConnectionStringName)
 			?? configuration[$"services:{keycloakConnectionStringName}:http:0"]
