@@ -27,7 +27,9 @@ internal sealed class RecipeFavoriteConfiguration : IEntityTypeConfiguration<Rec
 
 		builder.Property(favorite => favorite.FavoritedAt).IsRequired();
 
-		builder.HasIndex(favorite => new { favorite.Owner, favorite.Recipe }).IsUnique();
+		builder.HasIndex(favorite => new { favorite.Owner, favorite.Recipe })
+			.IsUnique()
+			.HasDatabaseName("IX_RecipeFavorites_Owner_RecipeIdentifier");
 		builder.Ignore(favorite => favorite.DomainEvents);
 	}
 }

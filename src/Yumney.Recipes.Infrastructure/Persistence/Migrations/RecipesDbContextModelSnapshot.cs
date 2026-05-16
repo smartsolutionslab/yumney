@@ -104,13 +104,15 @@ namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<Guid>("RecipeIdentifier")
-                        .HasColumnType("uuid");
+                    b.Property<Guid>("Recipe")
+                        .HasColumnType("uuid")
+                        .HasColumnName("RecipeIdentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Owner", "RecipeIdentifier")
-                        .IsUnique();
+                    b.HasIndex("Owner", "Recipe")
+                        .IsUnique()
+                        .HasDatabaseName("IX_RecipeFavorites_Owner_RecipeIdentifier");
 
                     b.ToTable("RecipeFavorites", (string)null);
                 });

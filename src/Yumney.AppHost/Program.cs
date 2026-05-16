@@ -214,12 +214,18 @@ if (!options.DatabaseOnly)
 	// exposes them as MCP tools at /mcp (Phase 4b). Tool invocation returns a
 	// stub until the OAuth bridge + REST proxy land in Phase 4c. Declared
 	// outside the run/publish branches because both gateways route to it.
+	//
+	// The `WithUrl("/mcp", "MCP Endpoint")` surfaces a clickable link on the
+	// Aspire dashboard pointing at the live MCP HTTP/SSE transport — copy
+	// that into Claude Desktop's config (or any MCP-aware client) to attach
+	// the Yumney toolset.
 	var mcpServer = builder.AddProject<Projects.Yumney_Mcp_Server>("mcp-server")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.WithReference(keycloak)
 		.WithReference(recipesApi)
 		.WithReference(shoppingApi)
-		.WithReference(mealplanApi);
+		.WithReference(mealplanApi)
+		.WithUrl("/mcp", "MCP Endpoint");
 
 	if (isRunMode)
 	{
