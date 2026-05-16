@@ -34,7 +34,6 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddScoped<IShoppingEventStore, ShoppingEventStore>();
 		services.AddScoped<IShoppingLedgerReadModelRepository, ShoppingLedgerReadModelRepository>();
 		services.AddScoped<IShoppingListProjectionRepository, ShoppingListProjectionRepository>();
-		services.AddScoped<IShoppingListProjectionRebuilder, ShoppingListProjectionRebuilder>();
 		services.AddScoped<IIngredientBalanceReadModelRepository, IngredientBalanceReadModelRepository>();
 		services.AddScoped<IStaplesProvider, HttpStaplesProvider>();
 		services.AddScoped<IRecipeIngredientLookup, HttpRecipeIngredientLookup>();
