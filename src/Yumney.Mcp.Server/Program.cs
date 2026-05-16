@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using SmartSolutionsLab.Yumney.Mcp.Server.Auth;
 using SmartSolutionsLab.Yumney.Mcp.Server.Discovery;
 using SmartSolutionsLab.Yumney.Mcp.Server.Mcp;
+using SmartSolutionsLab.Yumney.Mcp.Server.RateLimit;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,10 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddKeycloakBearerAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddHttpContextAccessor();
+
+builder.AddRedisClient("redis");
+var isE2ETests = builder.Configuration.GetValue<bool>("E2ETests");
+builder.Services.AddRateLimiter(options => options.AddMcpPolicy(isE2ETests));
 
 // Register an HttpClient per known module host. Service discovery resolves
 // the http://<service-name> base address via Aspire.
@@ -46,6 +51,7 @@ var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapDefaultEndpoints();
 
@@ -71,6 +77,6 @@ app.MapOAuthProtectedResourceEndpoint(builder.Configuration.GetValue<string>("Mc
 // MCP HTTP/SSE transport at /mcp. External clients (Claude Desktop, custom GPTs)
 // authenticate via the standard Authorization: Bearer header — the bearer is
 // forwarded to the module endpoint by RestProxyService when the LLM calls a tool.
-app.MapMcp("/mcp").RequireAuthorization();
+app.MapMcp("/mcp").RequireAuthorization().RequireRateLimiting(McpRateLimit.PolicyName);
 
 app.Run();
