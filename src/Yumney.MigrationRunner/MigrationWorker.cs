@@ -25,11 +25,7 @@ namespace SmartSolutionsLab.Yumney.MigrationRunner;
 ///   Events and metadata are untouched.</item>
 /// </list>
 /// </summary>
-public sealed partial class MigrationWorker(
-	IServiceProvider serviceProvider,
-	IHostApplicationLifetime lifetime,
-	IConfiguration configuration,
-	ILogger<MigrationWorker> logger) : BackgroundService
+public sealed partial class MigrationWorker(IServiceProvider serviceProvider, IHostApplicationLifetime lifetime, IConfiguration configuration, ILogger<MigrationWorker> logger) : BackgroundService
 {
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
