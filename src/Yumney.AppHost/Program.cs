@@ -204,11 +204,9 @@ if (!options.DatabaseOnly)
 		}
 	}
 
-	// minReplicas = 1 keeps one warm instance per API host so cross-module HTTP
-	// calls (e.g. Recipes → Shopping for ingredient balance, chat-tool fan-out,
-	// dashboard suggestion fetches) don't hit Container Apps cold-starts and
-	// trip the 10s Polly attempt-timeout. The migration runner stays at 0 —
-	// it's a one-shot job that intentionally exits after applying migrations.
+	// minReplicas = 1 on the APIs keeps one warm instance so cross-module HTTP
+	// calls (e.g. Recipes → Shopping/balance, chat-tool fan-out) don't hit ACA
+	// cold-starts and trip the 10 s Polly timeout. Migration runner stays at 0.
 	recipesApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 10, 20));
 	shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 5, 50));
 	usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 3, 50));
