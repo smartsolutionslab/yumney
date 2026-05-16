@@ -1,0 +1,142 @@
+.docs-mcp {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+
+  h1,
+  h2 {
+    margin-bottom: 0.75rem;
+  }
+
+  h2 {
+    margin-top: 2.5rem;
+    font-size: 1.5rem;
+  }
+}
+
+.hero {
+  text-align: center;
+  padding: 2.5rem 0 1.5rem;
+
+  &__subtitle {
+    font-size: 1.125rem;
+    color: var(--yn-muted, #6b7280);
+    margin-bottom: 1rem;
+  }
+
+  &__url code {
+    background: var(--yn-surface-2, #f3f4f6);
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.4rem;
+    font-size: 0.95rem;
+    word-break: break-all;
+  }
+}
+
+.connect {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: 1rem;
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid var(--yn-border, #e5e7eb);
+    border-radius: 0.75rem;
+    background: var(--yn-surface, #ffffff);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 120ms ease-out, transform 120ms ease-out;
+
+    &:hover {
+      border-color: var(--yn-accent, #6366f1);
+      transform: translateY(-2px);
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--yn-muted, #6b7280);
+      font-size: 0.95rem;
+    }
+  }
+
+  &__snippet {
+    background: var(--yn-surface-2, #0f172a);
+    color: #e2e8f0;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  &__cta {
+    align-self: flex-start;
+    background: var(--yn-accent, #6366f1);
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.4rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.tools {
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__item {
+    padding: 1rem;
+    border: 1px solid var(--yn-border, #e5e7eb);
+    border-radius: 0.6rem;
+    background: var(--yn-surface, #ffffff);
+  }
+
+  &__name {
+    margin: 0 0 0.4rem;
+    font-size: 1rem;
+  }
+
+  &__description {
+    margin: 0 0 0.4rem;
+    color: var(--yn-muted, #6b7280);
+    font-size: 0.9rem;
+  }
+
+  &__route small {
+    font-family: ui-monospace, monospace;
+    font-size: 0.75rem;
+    color: var(--yn-muted-strong, #94a3b8);
+  }
+
+  &__loading,
+  &__empty {
+    color: var(--yn-muted, #6b7280);
+    font-style: italic;
+  }
+}
+
+.limits ul {
+  padding-left: 1.5rem;
+
+  li {
+    margin-bottom: 0.4rem;
+    color: var(--yn-muted, #6b7280);
+  }
+}

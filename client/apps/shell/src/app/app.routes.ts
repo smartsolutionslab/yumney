@@ -50,6 +50,11 @@ export const appRoutes: Route[] = [
     loadChildren: () => loadRemoteModule('account', './routes').then((m) => m.accountRoutes),
   },
   {
+    path: 'docs/mcp',
+    title: 'Connect Yumney to Claude / ChatGPT — Yumney',
+    loadComponent: () => import('./docs-mcp').then((m) => m.DocsMcpComponent),
+  },
+  {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full',

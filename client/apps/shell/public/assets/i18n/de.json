@@ -443,5 +443,41 @@
       "networkUnavailable": "Der Server ist nicht erreichbar. Bitte prüfe deine Verbindung und versuche es erneut.",
       "serviceUnavailable": "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuche es gleich erneut."
     }
+  },
+  "docsMcp": {
+    "hero": {
+      "title": "Nutze Yumney in Claude, ChatGPT und jedem MCP-fähigen Tool",
+      "subtitle": "Eine Verbindung — deine Rezeptsammlung, Wochenplan und Einkaufslisten direkt aus deiner Lieblings-KI."
+    },
+    "connect": {
+      "title": "In 30 Sekunden verbinden",
+      "claudeAi": {
+        "title": "Zu Claude.ai hinzufügen",
+        "description": "Custom Connector mit OAuth — funktioniert in Claude Pro und Team.",
+        "cta": "Zu Claude hinzufügen"
+      },
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Snippet in claude_desktop_config.json einfügen und neu starten.",
+        "cta": "Config kopieren",
+        "copied": "Kopiert!"
+      },
+      "chatgpt": {
+        "title": "ChatGPT",
+        "description": "Nutze das offizielle Yumney Custom GPT (oder baue dein eigenes mit der OpenAPI-Spec).",
+        "cta": "In ChatGPT öffnen"
+      }
+    },
+    "tools": {
+      "title": "Was du bekommst",
+      "loading": "Verfügbare Tools werden geladen…",
+      "empty": "Aktuell sind keine Tools verfügbar — schau später nochmal vorbei."
+    },
+    "limits": {
+      "title": "Limits & Zugriff",
+      "rateLimit": "60 Tool-Aufrufe pro Minute pro Nutzer — beim Überschreiten gibts ein 429 mit Retry-Hinweis.",
+      "scope": "Jeder Aufruf braucht den yumney-api Scope; automatisch beim OAuth-Flow gesetzt.",
+      "auth": "Authentifizierung über Keycloak OAuth2 (Authorization Code mit PKCE)."
+    }
   }
 }

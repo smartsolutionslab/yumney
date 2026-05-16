@@ -1,0 +1,65 @@
+<div class="docs-mcp">
+  <section class="hero">
+    <h1>{{ 'docsMcp.hero.title' | transloco }}</h1>
+    <p class="hero__subtitle">{{ 'docsMcp.hero.subtitle' | transloco }}</p>
+    <p class="hero__url"><code>{{ mcpUrl }}</code></p>
+  </section>
+
+  <section class="connect">
+    <h2>{{ 'docsMcp.connect.title' | transloco }}</h2>
+    <div class="connect__grid">
+      <a class="connect__card" [href]="claudeAiAddUrl" target="_blank" rel="noopener">
+        <h3>{{ 'docsMcp.connect.claudeAi.title' | transloco }}</h3>
+        <p>{{ 'docsMcp.connect.claudeAi.description' | transloco }}</p>
+        <span class="connect__cta">{{ 'docsMcp.connect.claudeAi.cta' | transloco }}</span>
+      </a>
+
+      <div class="connect__card">
+        <h3>{{ 'docsMcp.connect.claudeDesktop.title' | transloco }}</h3>
+        <p>{{ 'docsMcp.connect.claudeDesktop.description' | transloco }}</p>
+        <pre class="connect__snippet"><code>{{ desktopConfig }}</code></pre>
+        <button type="button" class="connect__cta" (click)="copyDesktopConfig()">
+          @if (copied()) {
+            {{ 'docsMcp.connect.claudeDesktop.copied' | transloco }}
+          } @else {
+            {{ 'docsMcp.connect.claudeDesktop.cta' | transloco }}
+          }
+        </button>
+      </div>
+
+      <a class="connect__card" [href]="chatGptGptUrl" target="_blank" rel="noopener">
+        <h3>{{ 'docsMcp.connect.chatgpt.title' | transloco }}</h3>
+        <p>{{ 'docsMcp.connect.chatgpt.description' | transloco }}</p>
+        <span class="connect__cta">{{ 'docsMcp.connect.chatgpt.cta' | transloco }}</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="tools">
+    <h2>{{ 'docsMcp.tools.title' | transloco }}</h2>
+    @if (toolsLoading()) {
+      <p class="tools__loading">{{ 'docsMcp.tools.loading' | transloco }}</p>
+    } @else if (tools()!.length === 0) {
+      <p class="tools__empty">{{ 'docsMcp.tools.empty' | transloco }}</p>
+    } @else {
+      <ul class="tools__list">
+        @for (tool of tools(); track tool.name) {
+          <li class="tools__item">
+            <h3 class="tools__name"><code>{{ tool.name }}</code></h3>
+            <p class="tools__description">{{ tool.description }}</p>
+            <p class="tools__route"><small>{{ tool.httpMethod }} {{ tool.routePattern }}</small></p>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="limits">
+    <h2>{{ 'docsMcp.limits.title' | transloco }}</h2>
+    <ul>
+      <li>{{ 'docsMcp.limits.rateLimit' | transloco }}</li>
+      <li>{{ 'docsMcp.limits.scope' | transloco }}</li>
+      <li>{{ 'docsMcp.limits.auth' | transloco }}</li>
+    </ul>
+  </section>
+</div>
