@@ -38,6 +38,8 @@ builder.Services.AddDbContext<MealPlanDbContext>(options =>
 builder.Services.AddScoped<ShoppingListProjection>();
 builder.Services.AddScoped<IShoppingListProjectionRebuilder, ShoppingListProjectionRebuilder>();
 
+builder.Services.Configure<PersistenceOptions>(builder.Configuration.GetSection(PersistenceOptions.SectionName));
+
 builder.Services.AddHostedService<MigrationWorker>();
 
 var host = builder.Build();

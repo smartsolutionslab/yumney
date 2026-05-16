@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SmartSolutionsLab.Yumney.MealPlan.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Recipes.Infrastructure.Persistence;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
@@ -13,33 +14,40 @@ namespace SmartSolutionsLab.Yumney.MigrationRunner;
 /// Background worker that applies EF Core migrations for all modules on startup.
 /// Uses PostgreSQL advisory locks to prevent concurrent migration from multiple instances.
 ///
-/// Dashboard-driven modes (set via configuration before start):
+/// Dashboard-driven modes (toggled via <see cref="PersistenceOptions"/>, bound from
+/// the <c>Persistence</c> configuration section):
 /// <list type="bullet">
-///   <item><c>Persistence:ResetMealPlanOnly=true</c> — drops and re-migrates the
-///   MealPlan database only. Wipes the event-sourced MealPlan store.</item>
-///   <item><c>Persistence:ResetShoppingOnly=true</c> — drops and re-migrates the
-///   Shopping database only. Wipes events, metadata, projections, and legacy
+///   <item><see cref="PersistenceOptions.ResetMealPlanOnly"/> — drops and re-migrates
+///   the MealPlan database only. Wipes the event-sourced MealPlan store.</item>
+///   <item><see cref="PersistenceOptions.ResetShoppingOnly"/> — drops and re-migrates
+///   the Shopping database only. Wipes events, metadata, projections, and legacy
 ///   lists in one shot.</item>
-///   <item><c>Persistence:RebuildShoppingProjections=true</c> — truncates the
+///   <item><see cref="PersistenceOptions.RebuildShoppingProjections"/> — truncates the
 ///   ShoppingList projection tables and replays the event store into them.
 ///   Events and metadata are untouched.</item>
 /// </list>
 /// </summary>
-public sealed partial class MigrationWorker(IServiceProvider serviceProvider, IHostApplicationLifetime lifetime, IConfiguration configuration, ILogger<MigrationWorker> logger) : BackgroundService
+public sealed partial class MigrationWorker(
+	IServiceProvider serviceProvider,
+	IHostApplicationLifetime lifetime,
+	IOptions<PersistenceOptions> persistence,
+	ILogger<MigrationWorker> logger) : BackgroundService
 {
+	private readonly PersistenceOptions persistence = persistence.Value;
+
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
 		try
 		{
-			if (configuration.GetValue<bool>("Persistence:RebuildShoppingProjections"))
+			if (this.persistence.RebuildShoppingProjections)
 			{
 				await RebuildShoppingProjectionsAsync(stoppingToken);
 			}
-			else if (configuration.GetValue<bool>("Persistence:ResetMealPlanOnly"))
+			else if (this.persistence.ResetMealPlanOnly)
 			{
 				await ApplyMigrationsAsync<MealPlanDbContext>("MealPlan", stoppingToken, reset: true);
 			}
-			else if (configuration.GetValue<bool>("Persistence:ResetShoppingOnly"))
+			else if (this.persistence.ResetShoppingOnly)
 			{
 				await ApplyMigrationsAsync<ShoppingDbContext>("Shopping", stoppingToken, reset: true);
 			}
