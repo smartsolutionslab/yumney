@@ -204,10 +204,15 @@ if (!options.DatabaseOnly)
 		}
 	}
 
+	// minReplicas = 1 keeps one warm instance per API host so cross-module HTTP
+	// calls (e.g. Recipes → Shopping for ingredient balance, chat-tool fan-out,
+	// dashboard suggestion fetches) don't hit Container Apps cold-starts and
+	// trip the 10s Polly attempt-timeout. The migration runner stays at 0 —
+	// it's a one-shot job that intentionally exits after applying migrations.
 	recipesApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 10, 20));
-	shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 5, 50));
-	usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
-	mealplanApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 3, 50));
+	shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 5, 50));
+	usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 3, 50));
+	mealplanApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 3, 50));
 	migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
 	// MCP server: aggregates the per-host capability manifests on startup and
