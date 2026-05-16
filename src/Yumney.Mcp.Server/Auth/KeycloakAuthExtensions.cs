@@ -28,6 +28,8 @@ public static class KeycloakAuthExtensions
 		IHostEnvironment environment)
 	{
 		var isDevelopment = environment.IsDevelopment();
+		var realmName = GetRealm(configuration);
+		var publicResourceUrl = configuration.GetValue<string>("McpServer:PublicUrl");
 
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(options =>
@@ -40,6 +42,22 @@ public static class KeycloakAuthExtensions
 				{
 					options.TokenValidationParameters.ValidIssuer = RealmUrl(configuration);
 				}
+
+				options.Events = new JwtBearerEvents
+				{
+					OnChallenge = challenge =>
+					{
+						// Override the default WWW-Authenticate header so MCP clients
+						// (Claude.ai, ChatGPT custom GPTs) can find the RFC 9728
+						// discovery document from a 401 response alone — see RFC 6750 §3.
+						challenge.HandleResponse();
+						var discoveryUrl = WwwAuthenticateChallenge.ResolveDiscoveryUrl(challenge.Request, publicResourceUrl);
+						var error = challenge.AuthenticateFailure is not null ? "invalid_token" : null;
+						challenge.Response.StatusCode = StatusCodes.Status401Unauthorized;
+						challenge.Response.Headers.WWWAuthenticate = WwwAuthenticateChallenge.BuildHeader(realmName, discoveryUrl, error);
+						return Task.CompletedTask;
+					},
+				};
 			});
 
 		services.AddAuthorization();
