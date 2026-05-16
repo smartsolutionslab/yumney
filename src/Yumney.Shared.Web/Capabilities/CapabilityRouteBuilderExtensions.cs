@@ -14,12 +14,14 @@ public static class CapabilityRouteBuilderExtensions
 	/// <param name="name">Stable LLM-facing tool name (snake_case).</param>
 	/// <param name="description">One-paragraph description used by the LLM.</param>
 	/// <param name="surfaces">Surfaces this capability is exposed on. Defaults to Chat | Mcp.</param>
+	/// <param name="version">Tool version. Default 1; bump per <c>docs/runbooks/mcp-versioning.md</c> on a breaking change.</param>
 	/// <returns>The same builder, for fluent chaining.</returns>
 	public static TBuilder WithCapability<TBuilder>(
 		this TBuilder builder,
 		string name,
 		string description,
-		CapabilitySurface surfaces = CapabilitySurface.Chat | CapabilitySurface.Mcp)
+		CapabilitySurface surfaces = CapabilitySurface.Chat | CapabilitySurface.Mcp,
+		int version = 1)
 		where TBuilder : IEndpointConventionBuilder =>
-		builder.WithMetadata(new CapabilityMetadata(name, description, surfaces));
+		builder.WithMetadata(new CapabilityMetadata(name, description, surfaces) { Version = version });
 }

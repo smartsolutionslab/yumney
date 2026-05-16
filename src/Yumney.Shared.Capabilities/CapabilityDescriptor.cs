@@ -14,7 +14,17 @@ public sealed record CapabilityDescriptor(
 	string Description,
 	CapabilitySurface Surfaces,
 	string HttpMethod,
-	string RoutePattern);
+	string RoutePattern)
+{
+	/// <summary>
+	/// Gets the tool version. Defaults to 1; bumped per the rules in
+	/// <c>docs/runbooks/mcp-versioning.md</c> when a breaking change ships
+	/// (rename, removed required field, semantic shift). Wire name on MCP is
+	/// <c>{Name}</c> for v1 and <c>{Name}__v{Version}</c> for v ≥ 2 so old
+	/// client configs keep working.
+	/// </summary>
+	public int Version { get; init; } = 1;
+}
 
 /// <summary>Wire shape of one host's capability manifest, returned by <c>/.well-known/yumney-capabilities</c>.</summary>
 /// <param name="ServiceName">Aspire service name (e.g. <c>recipes-api</c>).</param>

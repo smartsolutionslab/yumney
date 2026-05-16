@@ -59,9 +59,19 @@ public static class CapabilityToolRegistration
 		return ValueTask.FromResult(BuildStubInvocationResult(name));
 	}
 
+	/// <summary>
+	/// Tool name as advertised on the MCP wire. v1 keeps the bare name so the
+	/// migration to versioned tools doesn't break installed client configs;
+	/// v ≥ 2 suffixes with <c>__v{Version}</c> per <c>docs/runbooks/mcp-versioning.md</c>.
+	/// </summary>
+	/// <param name="capability">Descriptor whose name + version to project.</param>
+	/// <returns>Wire-shape tool name.</returns>
+	public static string WireName(CapabilityDescriptor capability) =>
+		capability.Version <= 1 ? capability.Name : $"{capability.Name}__v{capability.Version}";
+
 	private static Tool ToTool(CapabilityDescriptor capability) => new()
 	{
-		Name = capability.Name,
+		Name = WireName(capability),
 		Description = $"{capability.Description} (proxies {capability.HttpMethod} {capability.RoutePattern})",
 		Annotations = ToolAnnotationsBuilder.FromHttpMethod(capability.HttpMethod),
 	};
