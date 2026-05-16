@@ -1,8 +1,10 @@
 using System.Globalization;
 using Aspire.Hosting.Azure;
+using Aspire.Hosting.Yarp;
 using Azure.Provisioning.AppContainers;
 using SmartSolutionsLab.Yumney.AppHost;
 using SmartSolutionsLab.Yumney.AppHost.Options;
+using Yarp.ReverseProxy.Forwarder;
 
 var builder = DistributedApplication.CreateBuilder(args);
 var isRunMode = builder.ExecutionContext.IsRunMode;
@@ -204,24 +206,16 @@ if (!options.DatabaseOnly)
 		}
 	}
 
-	// minReplicas = 1 on the APIs keeps one warm instance so cross-module HTTP
-	// calls (e.g. Recipes → Shopping/balance, chat-tool fan-out) don't hit ACA
-	// cold-starts and trip the 10 s Polly timeout. Migration runner stays at 0.
+	// minReplicas = 1 keeps APIs warm to avoid ACA cold-starts tripping the
+	// 10 s Polly timeout on cross-module calls. Migration runner stays at 0.
 	recipesApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 10, 20));
 	shoppingApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 5, 50));
 	usersApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 3, 50));
 	mealplanApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 3, 50));
 	migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
-	// MCP server: aggregates the per-host capability manifests on startup and
-	// exposes them as MCP tools at /mcp (Phase 4b). Tool invocation returns a
-	// stub until the OAuth bridge + REST proxy land in Phase 4c. Declared
-	// outside the run/publish branches because both gateways route to it.
-	//
-	// The `WithUrl("/mcp", "MCP Endpoint")` surfaces a clickable link on the
-	// Aspire dashboard pointing at the live MCP HTTP/SSE transport — copy
-	// that into Claude Desktop's config (or any MCP-aware client) to attach
-	// the Yumney toolset.
+	// MCP server: aggregates per-host capability manifests, exposes them as
+	// MCP tools at /mcp. WithUrl surfaces the live transport on the dashboard.
 	var mcpServer = builder.AddProject<Projects.Yumney_Mcp_Server>("mcp-server")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.WithReference(keycloak)
@@ -230,12 +224,13 @@ if (!options.DatabaseOnly)
 		.WithReference(mealplanApi)
 		.WithUrl("/mcp", "MCP Endpoint");
 
+	// Same cold-start guard as the APIs, smaller cap (per-user, rarely concurrent).
+	mcpServer.PublishAsAzureContainerApp((infra, app) => ConfigureContainerApp(infra, app, 1, 3));
+
 	if (isRunMode)
 	{
-		// Run mode (including E2E) spawns the Angular dev servers and the gateway
-		// project so the full federated stack is reachable on localhost. The E2E
-		// flag above still toggles persistent volumes and optional sidecars
-		// (pgAdmin, mailpit); it doesn't affect whether the frontend is registered.
+		// Run mode (incl. E2E) spawns the MFEs + gateway so the full stack
+		// is reachable on localhost; sidecars are toggled separately above.
 		var addMfe = (string name, string script, int port) =>
 #pragma warning disable ASPIREBROWSERLOGS001
 			builder.AddJavaScriptApp(name, "../../client", script)
@@ -246,11 +241,9 @@ if (!options.DatabaseOnly)
 				.WithBrowserLogs();
 #pragma warning restore ASPIREBROWSERLOGS001
 
-		// E2E mode runs against a production build so PWA tests (service
-		// worker, offline cache) and Vite-free fetch behaviour exercise the
-		// real shape. `yarn build:all` co-locates every MFE in
-		// `dist/apps/shell/browser`, then `serve:shell:dist` hands it out
-		// from a single static root.
+		// E2E mode runs against a production build (`yarn build:all`
+		// co-locates every MFE in `dist/apps/shell/browser`) so PWA tests
+		// exercise the real shape.
 		var shell = options.E2ETests
 			? addMfe("shell", "serve:shell:dist", 4200)
 			: addMfe("shell", "serve:shell", 4200);
@@ -287,7 +280,15 @@ if (!options.DatabaseOnly)
 				yarp.AddRoute("/api/v1/shopping-lists/{**catch-all}", shoppingApi);
 				yarp.AddRoute("/api/v1/auth/{**catch-all}", usersApi);
 				yarp.AddRoute("/api/v1/meal-plans/{**catch-all}", mealplanApi);
-				yarp.AddRoute("/mcp/{**catch-all}", mcpServer);
+				var mcpCluster = yarp.AddCluster(mcpServer);
+
+				// MCP SSE: extend the 100 s ActivityTimeout so idle sessions survive; buffering pinned off.
+				mcpCluster.WithForwarderRequestConfig(new ForwarderRequestConfig
+				{
+					ActivityTimeout = TimeSpan.FromMinutes(10),
+					AllowResponseBuffering = false,
+				});
+				yarp.AddRoute("/mcp/{**catch-all}", mcpCluster);
 				yarp.AddRoute("/{**catch-all}", frontend.GetEndpoint("http"));
 			})
 			.WithExternalHttpEndpoints();
