@@ -52,6 +52,6 @@ public static class CapabilityManifestEndpoint
 		var httpMethod = methods is { Count: > 0 } ? methods[0] : "GET";
 		var routePattern = endpoint.RoutePattern.RawText ?? string.Empty;
 
-		return new CapabilityDescriptor(meta.Name, meta.Description, meta.Surfaces, httpMethod, routePattern);
+		return new CapabilityDescriptor(meta.Name, meta.Description, meta.Surfaces, httpMethod, routePattern) { Version = meta.Version };
 	}
 }
