@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using SmartSolutionsLab.Yumney.Mcp.Server.Auth;
 using SmartSolutionsLab.Yumney.Mcp.Server.Discovery;
 using SmartSolutionsLab.Yumney.Mcp.Server.Mcp;
+using SmartSolutionsLab.Yumney.Mcp.Server.OpenApi;
 using SmartSolutionsLab.Yumney.Mcp.Server.RateLimit;
 using SmartSolutionsLab.Yumney.ServiceDefaults;
 
@@ -73,6 +74,17 @@ app.MapGet("/discovered-capabilities", (AggregatedCapabilityRegistry registry) =
 // required in deployments where the request reaches the server through a
 // gateway (the Host header is the internal container name, not the public URL).
 app.MapOAuthProtectedResourceEndpoint(builder.Configuration.GetValue<string>("McpServer:PublicUrl"));
+
+// OpenAPI 3.1 mirror of the MCP-exposed capability surface. Targets the
+// ChatGPT Custom GPT Action path; the discovered capabilities here are the
+// same set RestProxyService can invoke.
+app.MapGet("/openapi/v1.json", (AggregatedCapabilityRegistry registry, IConfiguration configuration) =>
+{
+	var serverUrl = configuration.GetValue<string>("McpServer:GatewayUrl") ?? "http://localhost:5100";
+	var authorizationUrl = configuration.GetValue<string>("McpServer:KeycloakAuthorizationUrl") ?? $"{KeycloakAuthExtensions.ResolveRealmUrl(configuration)}/protocol/openid-connect/auth";
+	var tokenUrl = configuration.GetValue<string>("McpServer:KeycloakTokenUrl") ?? $"{KeycloakAuthExtensions.ResolveRealmUrl(configuration)}/protocol/openid-connect/token";
+	return Results.Json(OpenApiCapabilityBuilder.Build(registry, serverUrl, authorizationUrl, tokenUrl));
+}).AllowAnonymous();
 
 // MCP HTTP/SSE transport at /mcp. External clients (Claude Desktop, custom GPTs)
 // authenticate via the standard Authorization: Bearer header — the bearer is
