@@ -63,5 +63,6 @@ public static class CapabilityToolRegistration
 	{
 		Name = capability.Name,
 		Description = $"{capability.Description} (proxies {capability.HttpMethod} {capability.RoutePattern})",
+		Annotations = ToolAnnotationsBuilder.FromHttpMethod(capability.HttpMethod),
 	};
 }

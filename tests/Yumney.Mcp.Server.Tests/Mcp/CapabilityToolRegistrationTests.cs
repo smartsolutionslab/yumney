@@ -89,6 +89,37 @@ public class CapabilityToolRegistrationTests
 	}
 
 	[Fact]
+	public void BuildTools_PopulatesAnnotationsBasedOnHttpMethod()
+	{
+		var registry = new AggregatedCapabilityRegistry();
+		registry.SetManifest("recipes-api", new CapabilityManifest(
+			"recipes-api",
+			[
+			new CapabilityDescriptor("get_recipe", "fetch a recipe", CapabilitySurface.Mcp, "GET", "/recipes/{id}"),
+			new CapabilityDescriptor("delete_recipe", "remove a recipe", CapabilitySurface.Mcp, "DELETE", "/recipes/{id}"),
+			new CapabilityDescriptor("save_recipe", "import a recipe", CapabilitySurface.Mcp, "POST", "/recipes/"),
+		]));
+
+		var tools = CapabilityToolRegistration.BuildTools(registry);
+
+		var getTool = tools.Single(tool => tool.Name == "get_recipe");
+		getTool.Annotations!.ReadOnlyHint.Should().BeTrue();
+		getTool.Annotations.IdempotentHint.Should().BeTrue();
+		getTool.Annotations.DestructiveHint.Should().BeFalse();
+		getTool.Annotations.OpenWorldHint.Should().BeFalse();
+
+		var deleteTool = tools.Single(tool => tool.Name == "delete_recipe");
+		deleteTool.Annotations!.DestructiveHint.Should().BeTrue();
+		deleteTool.Annotations.IdempotentHint.Should().BeTrue();
+		deleteTool.Annotations.ReadOnlyHint.Should().BeFalse();
+
+		var postTool = tools.Single(tool => tool.Name == "save_recipe");
+		postTool.Annotations!.ReadOnlyHint.Should().BeFalse();
+		postTool.Annotations.IdempotentHint.Should().BeFalse();
+		postTool.Annotations.DestructiveHint.Should().BeFalse();
+	}
+
+	[Fact]
 	public void BuildTools_UnionsAcrossManifestsFromMultipleServices()
 	{
 		var registry = new AggregatedCapabilityRegistry();
