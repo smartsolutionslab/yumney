@@ -214,8 +214,7 @@ if (!options.DatabaseOnly)
 	mealplanApi.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 1, 3, 50));
 	migrationRunner.PublishAsAzureContainerApp((i, a) => ConfigureContainerApp(i, a, 0, 1));
 
-	// MCP server: aggregates per-host capability manifests, exposes them as
-	// MCP tools at /mcp. WithUrl surfaces the live transport on the dashboard.
+	// MCP server: aggregates capability manifests, exposes /mcp + dashboard link.
 	var mcpServer = builder.AddProject<Projects.Yumney_Mcp_Server>("mcp-server")
 		.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
 		.WithReference(keycloak)
