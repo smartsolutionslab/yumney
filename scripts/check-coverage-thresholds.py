@@ -58,9 +58,15 @@ def main() -> int:
         print(f"ERROR: no cobertura files under {COVERAGE_ROOT}/**", file=sys.stderr)
         return 2
 
-    # Per assembly: set of (filename, line_number) seen, and set of those that
-    # any test project recorded hits > 0 for. Deduplicating before counting is
-    # what gives us correct line coverage across the multi-test-project run.
+    # Per assembly: set of (class_name, line_number) seen, and set of those
+    # that any test project recorded hits > 0 for. The dedup key uses class
+    # name (which is stable across cobertura files) rather than filename,
+    # because different test projects emit the same source under two filename
+    # prefixes (e.g. "src\Yumney.MealPlan.Domain\WeeklyPlan.cs" in one cobertura
+    # vs "Yumney.MealPlan.Domain\WeeklyPlan.cs" in another). With filename
+    # keys, every coverable line would be double-counted in the denominator
+    # while only the variant that actually got hits contributes to covered —
+    # halving the reported percentage.
     coverable_lines: dict[str, set[tuple[str, str]]] = defaultdict(set)
     covered_lines: dict[str, set[tuple[str, str]]] = defaultdict(set)
 
@@ -75,12 +81,12 @@ def main() -> int:
             if not name:
                 continue
             for cls in package.findall(".//class"):
-                filename = cls.get("filename") or cls.get("name") or ""
+                class_name = cls.get("name") or cls.get("filename") or ""
                 for line in cls.findall(".//line"):
                     number = line.get("number")
                     if number is None:
                         continue
-                    key = (filename, number)
+                    key = (class_name, number)
                     coverable_lines[name].add(key)
                     hits = line.get("hits", "0")
                     if hits != "0":
