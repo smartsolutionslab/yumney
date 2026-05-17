@@ -5,9 +5,13 @@
   <ItemGroup>
     <!-- Aspire -->
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.3.0" />
+    <!-- Aspire.Hosting.Browsers / .Keycloak / Aspire.Keycloak.Authentication
+         have no GA on NuGet — every published version is a -preview.1.X.Y.
+         Stay on the matched 13.3.0 preview revision that the rest of the
+         Aspire 13.3.0 GA packages were built against to avoid version skew. -->
     <PackageVersion Include="Aspire.Hosting.Browsers" Version="13.3.0-preview.1.26256.5" />
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.3.0-preview.1.26256.5" />
-    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.1.1" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.3.0" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.0" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.3.0" />
     <PackageVersion Include="Aspire.Hosting.Azure.Redis" Version="13.3.0" />
@@ -64,6 +68,10 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
     <!-- Analyzers -->
+    <!-- Pinned on 1.2.0-beta.556: 1.1.118 (latest stable) predates C# 9 records,
+         collection expressions, and primary constructors — downgrading produces
+         33+ false-positive SA1313/SA1010/SA1009 errors across the codebase.
+         Track GA: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues -->
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <!-- Testing -->
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.7" />
