@@ -14,7 +14,7 @@ public class QueryCountingServiceCollectionExtensionsTests
 
 		services.AddQueryCounting();
 
-		var descriptor = services.Single(d => d.ServiceType == typeof(IQueryCounter));
+		var descriptor = services.Single(service => service.ServiceType == typeof(IQueryCounter));
 		descriptor.Lifetime.Should().Be(ServiceLifetime.Scoped);
 		descriptor.ImplementationType.Should().Be<QueryCounter>();
 	}
@@ -26,7 +26,7 @@ public class QueryCountingServiceCollectionExtensionsTests
 
 		services.AddQueryCounting();
 
-		var descriptor = services.Single(d => d.ServiceType == typeof(QueryCountingInterceptor));
+		var descriptor = services.Single(service => service.ServiceType == typeof(QueryCountingInterceptor));
 		descriptor.Lifetime.Should().Be(ServiceLifetime.Scoped);
 	}
 
