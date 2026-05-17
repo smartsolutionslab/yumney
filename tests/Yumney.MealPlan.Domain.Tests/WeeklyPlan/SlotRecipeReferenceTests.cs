@@ -9,7 +9,7 @@ public class SlotRecipeReferenceTests
 	[Fact]
 	public void From_ValueObjects_CreatesInstance()
 	{
-		var recipe = SlotRecipeIdentifier.From(Guid.NewGuid());
+		var recipe = SlotRecipeIdentifier.New();
 		var title = SlotRecipeTitle.From("Pad Thai");
 
 		var reference = SlotRecipeReference.From(recipe, title);
