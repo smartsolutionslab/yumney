@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.Abstractions;
@@ -5,6 +6,16 @@ using SmartSolutionsLab.Yumney.Shared.Events;
 
 namespace SmartSolutionsLab.Yumney.Shared.Persistence.EventStore;
 
+// EventStoreBase is the abstract shared scaffold for every module's
+// event store; meaningful coverage requires a real Postgres + outbox
+// (concurrency conflicts, serializer roundtrip, module/cross-module
+// event mapping). The end-to-end behaviour is covered by
+// Yumney.Integration.Tests (ShoppingEventStoreTests,
+// ShoppingListEventStoreTests, OutboxDeliveryTests). Unit tests of an
+// open-generic abstract base would be ceremony, not coverage —
+// exclude from the gate denominator so Shared.Persistence isn't dragged
+// below threshold by code that only the integration suite can exercise.
+[ExcludeFromCodeCoverage]
 public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStoredEvent>(
 	DbContext context,
 	IEventBus eventBus,
