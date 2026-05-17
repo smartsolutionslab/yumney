@@ -546,6 +546,47 @@ describe('ChatPanelComponent', () => {
       const button = fixture.nativeElement.querySelector('[data-testid="chat-mic"]');
       expect(button.classList.contains('listening')).toBe(true);
     });
+
+    it('surfaces the noSpeech hint when recognition ends with nothing captured (TC-360-05)', () => {
+      chatState.open();
+      fixture.detectChanges();
+      fixture.componentInstance['onToggleMic']();
+      const onNoSpeech = voiceMock.startListeningForTranscript.mock.calls[0][1] as () => void;
+
+      onNoSpeech();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance['error']()).toBe('chat.errors.noSpeech');
+    });
+
+    it('clears the prior noSpeech hint when a new transcript is captured', () => {
+      chatState.open();
+      fixture.detectChanges();
+      // First mic press — silence.
+      fixture.componentInstance['onToggleMic']();
+      const firstNoSpeech = voiceMock.startListeningForTranscript.mock.calls[0][1] as () => void;
+      firstNoSpeech();
+      fixture.detectChanges();
+      expect(fixture.componentInstance['error']()).toBe('chat.errors.noSpeech');
+
+      // Second mic press — user speaks. The transcript path clears the prior hint.
+      voiceMock.isListening.set(false);
+      fixture.componentInstance['onToggleMic']();
+      const secondTranscript = voiceMock.startListeningForTranscript.mock.calls[1][0] as (text: string) => void;
+      secondTranscript('add milk');
+
+      expect(fixture.componentInstance['error']()).toBeNull();
+    });
+
+    it('clears any prior error when starting a fresh mic session', () => {
+      chatState.open();
+      fixture.detectChanges();
+      fixture.componentInstance['error'].set('chat.errors.offline');
+
+      fixture.componentInstance['onToggleMic']();
+
+      expect(fixture.componentInstance['error']()).toBeNull();
+    });
   });
 
   describe('tts (US-361)', () => {

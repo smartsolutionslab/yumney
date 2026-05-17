@@ -84,11 +84,23 @@ export class ChatPanelComponent implements AfterViewInit {
       return;
     }
     this.voice.setLanguage(this.transloco.getActiveLang() as 'en' | 'de');
-    this.voice.startListeningForTranscript((transcript) => {
-      const current = this.input();
-      this.input.set(current ? `${current} ${transcript}`.trim() : transcript);
-      this.lastInputWasVoice.set(true);
-    });
+    this.error.set(null);
+    this.voice.startListeningForTranscript(
+      (transcript) => {
+        const current = this.input();
+        this.input.set(current ? `${current} ${transcript}`.trim() : transcript);
+        this.lastInputWasVoice.set(true);
+        // A successful transcript clears any prior "didn't catch that" hint
+        // from an earlier attempt.
+        this.error.set(null);
+      },
+      () => {
+        // TC-360-05: the browser auto-stopped on silence without ever
+        // capturing speech. Surface a hint so the user knows the mic
+        // closed and isn't waiting for an invisible recognition session.
+        this.error.set('chat.errors.noSpeech');
+      },
+    );
   }
 
   protected onToggleMute(): void {

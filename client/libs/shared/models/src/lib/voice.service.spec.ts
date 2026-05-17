@@ -291,6 +291,51 @@ describe('VoiceService.startListeningForTranscript (US-360)', () => {
 
     expect(first.start).not.toHaveBeenCalled();
   });
+
+  it('fires onNoSpeech when the browser signals no-speech with no prior transcript', () => {
+    const transcript = vi.fn();
+    const noSpeech = vi.fn();
+    service.startListeningForTranscript(transcript, noSpeech);
+
+    getRecognition().onerror?.({ error: 'no-speech' });
+
+    expect(transcript).not.toHaveBeenCalled();
+    expect(noSpeech).toHaveBeenCalledTimes(1);
+  });
+
+  it('fires onNoSpeech when the session ends without ever capturing a transcript', () => {
+    const transcript = vi.fn();
+    const noSpeech = vi.fn();
+    service.startListeningForTranscript(transcript, noSpeech);
+
+    getRecognition().onend?.();
+
+    expect(transcript).not.toHaveBeenCalled();
+    expect(noSpeech).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fire onNoSpeech when a transcript was captured', () => {
+    const transcript = vi.fn();
+    const noSpeech = vi.fn();
+    service.startListeningForTranscript(transcript, noSpeech);
+
+    const recognition = getRecognition();
+    recognition.onresult?.({ results: [[{ transcript: 'add milk' }]] });
+    recognition.onend?.();
+
+    expect(transcript).toHaveBeenCalledWith('add milk');
+    expect(noSpeech).not.toHaveBeenCalled();
+  });
+
+  it('does not fire onNoSpeech for non-silence errors (e.g. not-allowed)', () => {
+    const transcript = vi.fn();
+    const noSpeech = vi.fn();
+    service.startListeningForTranscript(transcript, noSpeech);
+
+    getRecognition().onerror?.({ error: 'not-allowed' });
+
+    expect(noSpeech).not.toHaveBeenCalled();
+  });
 });
 
 describe('VoiceService.startListeningWithFallback (US-362)', () => {
