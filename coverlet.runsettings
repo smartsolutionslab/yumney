@@ -27,6 +27,14 @@
           <Format>cobertura</Format>
           <ExcludeByAttribute>CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
           <ExcludeByFile>**/Migrations/**/*.cs,**/*.g.cs,**/*.Designer.cs</ExcludeByFile>
+          <!--
+            Drop source-generator-emitted types (Microsoft.AspNetCore.OpenApi's
+            XML-comment generator produces nested types named
+            <OpenApiXmlCommentSupport_generated><hash>__Helper etc.).
+            We can't use ExcludeByAttribute=GeneratedCodeAttribute (see comment
+            above), so match by class-name pattern instead.
+          -->
+          <Exclude>[*]*_generated*</Exclude>
           <SkipAutoProps>true</SkipAutoProps>
         </Configuration>
       </DataCollector>
