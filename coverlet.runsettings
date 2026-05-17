@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!--
+    Coverlet runsettings, applied via dotnet test settings coverlet.runsettings.
+    Excludes compiler generated code that inflates the coverable lines
+    denominator and pushes real coverage far below threshold: EF migrations,
+    source generated regex / LoggerMessage / record auto members, and types
+    we marked ExcludeFromCodeCoverage by hand.
+    File excludes cover EF migrations (framework owns them, not us) and *.g.cs.
+  -->
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+          <ExcludeByFile>**/Migrations/**/*.cs,**/*.g.cs,**/*.Designer.cs</ExcludeByFile>
+          <SkipAutoProps>true</SkipAutoProps>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
