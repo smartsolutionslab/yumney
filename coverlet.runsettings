@@ -10,14 +10,15 @@
     GeneratedCodeAttribute is intentionally NOT in ExcludeByAttribute:
     coverlet's partial-class instrumentation has a quirk where excluding
     a [GeneratedCode] member (e.g. a [LoggerMessage] partial) drops the
-    entire owning assembly from coverage. CQRS uses [LoggerMessage] in
-    its decorators, so excluding GeneratedCodeAttribute would silently
-    zero out the entire Yumney.Shared.CQRS coverage. ExcludeByFile already
-    catches the noisiest generated code (Migrations, *.Designer.cs).
+    *entire owning assembly* from coverage. CQRS uses [LoggerMessage] in
+    its decorators, so listing GeneratedCodeAttribute would silently zero
+    out all of Yumney.Shared.CQRS.
 
-    *.g.cs is also kept out of ExcludeByFile because the only .g.cs files
-    we produce are generated partial methods for [LoggerMessage]; excluding
-    them re-introduces the same partial-class quirk above.
+    ExcludeByFile **/*.g.cs DOES stay in — the file-pattern filter is a
+    different mechanism that filters source files at the cobertura emit
+    stage and does not trigger the assembly-drop quirk. This keeps the
+    source-generated [LoggerMessage] partial bodies and other *.g.cs
+    scaffolding out of the denominator while CQRS coverage stays visible.
   -->
   <DataCollectionRunSettings>
     <DataCollectors>
@@ -25,7 +26,7 @@
         <Configuration>
           <Format>cobertura</Format>
           <ExcludeByAttribute>CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
-          <ExcludeByFile>**/Migrations/**/*.cs,**/*.Designer.cs</ExcludeByFile>
+          <ExcludeByFile>**/Migrations/**/*.cs,**/*.g.cs,**/*.Designer.cs</ExcludeByFile>
           <SkipAutoProps>true</SkipAutoProps>
         </Configuration>
       </DataCollector>
