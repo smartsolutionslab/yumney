@@ -42,14 +42,14 @@ public class AccountDeletionCascadeTests(AspireFixture fixture)
 		await CreateShoppingListAsync(shopping, recipeId);
 		await AssignMealSlotAsync(mealplan, recipeId);
 
-		await WaitForAsync(
+		await Eventually.UntilAsync(
 			async () => await CountAcrossAllModulesAsync(userId) > 0,
 			because: "seeding must land before the delete fires");
 
 		var delete = await users.DeleteAsync("/api/v1/users/me");
 		delete.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-		await WaitForAsync(
+		await Eventually.UntilAsync(
 			async () => await CountAcrossAllModulesAsync(userId) == 0,
 			because: "every subscribing module must purge the owner's rows after UserAccountDeletedIntegrationEvent");
 	}
@@ -146,16 +146,5 @@ public class AccountDeletionCascadeTests(AspireFixture fixture)
 		response.EnsureSuccessStatusCode();
 	}
 
-	private static async Task WaitForAsync(Func<Task<bool>> predicate, string because, int timeoutSeconds = 15)
-	{
-		var deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
-		while (DateTime.UtcNow < deadline)
-		{
-			if (await predicate()) return;
-			await Task.Delay(250);
-		}
-
-		throw new TimeoutException($"Condition not met within {timeoutSeconds}s — {because}");
-	}
 #pragma warning restore SA1204
 }
