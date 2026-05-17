@@ -11,7 +11,7 @@ public class RecipeFavoriteTests
 	[Fact]
 	public void Create_StampsRecipeOwnerAndFavoritedAt()
 	{
-		var recipe = RecipeIdentifier.From(Guid.NewGuid());
+		var recipe = RecipeIdentifier.New();
 		var owner = OwnerIdentifier.From("kc-user-1");
 		var before = DateTime.UtcNow;
 
@@ -36,7 +36,7 @@ public class RecipeFavoriteTests
 	[Fact]
 	public void Create_NullOwner_Throws()
 	{
-		var recipe = RecipeIdentifier.From(Guid.NewGuid());
+		var recipe = RecipeIdentifier.New();
 
 		var act = () => global::SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite.RecipeFavorite.Create(recipe, null!);
 
@@ -46,7 +46,7 @@ public class RecipeFavoriteTests
 	[Fact]
 	public void Create_TwoCalls_ProduceDistinctIdentifiers()
 	{
-		var recipe = RecipeIdentifier.From(Guid.NewGuid());
+		var recipe = RecipeIdentifier.New();
 		var owner = OwnerIdentifier.From("kc-user-1");
 
 		var first = global::SmartSolutionsLab.Yumney.Recipes.Domain.RecipeFavorite.RecipeFavorite.Create(recipe, owner);

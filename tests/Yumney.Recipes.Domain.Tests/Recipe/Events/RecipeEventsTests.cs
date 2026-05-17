@@ -13,7 +13,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Domain.Tests.Recipe.Events;
 /// </summary>
 public class RecipeEventsTests
 {
-	private static readonly RecipeIdentifier RecipeId = RecipeIdentifier.From(Guid.NewGuid());
+	private static readonly RecipeIdentifier RecipeId = RecipeIdentifier.New();
 	private static readonly RecipeTitle Title = RecipeTitle.From("Carbonara");
 	private static readonly OwnerIdentifier Owner = OwnerIdentifier.From("kc-user-1");
 
