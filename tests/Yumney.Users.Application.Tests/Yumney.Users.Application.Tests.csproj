@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Yumney.Users.Application\Yumney.Users.Application.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Events.Contracts\Yumney.Shared.Events.Contracts.csproj" />
+    <ProjectReference Include="..\Yumney.TestBuilders\Yumney.TestBuilders.csproj" />
   </ItemGroup>
 
   <ItemGroup>
