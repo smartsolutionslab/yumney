@@ -6,15 +6,26 @@
     denominator and pushes real coverage far below threshold: EF migrations,
     source generated regex / LoggerMessage / record auto members, and types
     we marked ExcludeFromCodeCoverage by hand.
-    File excludes cover EF migrations (framework owns them, not us) and *.g.cs.
+
+    GeneratedCodeAttribute is intentionally NOT in ExcludeByAttribute:
+    coverlet's partial-class instrumentation has a quirk where excluding
+    a [GeneratedCode] member (e.g. a [LoggerMessage] partial) drops the
+    entire owning assembly from coverage. CQRS uses [LoggerMessage] in
+    its decorators, so excluding GeneratedCodeAttribute would silently
+    zero out the entire Yumney.Shared.CQRS coverage. ExcludeByFile already
+    catches the noisiest generated code (Migrations, *.Designer.cs).
+
+    *.g.cs is also kept out of ExcludeByFile because the only .g.cs files
+    we produce are generated partial methods for [LoggerMessage]; excluding
+    them re-introduces the same partial-class quirk above.
   -->
   <DataCollectionRunSettings>
     <DataCollectors>
       <DataCollector friendlyName="XPlat code coverage">
         <Configuration>
           <Format>cobertura</Format>
-          <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
-          <ExcludeByFile>**/Migrations/**/*.cs,**/*.g.cs,**/*.Designer.cs</ExcludeByFile>
+          <ExcludeByAttribute>CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+          <ExcludeByFile>**/Migrations/**/*.cs,**/*.Designer.cs</ExcludeByFile>
           <SkipAutoProps>true</SkipAutoProps>
         </Configuration>
       </DataCollector>
