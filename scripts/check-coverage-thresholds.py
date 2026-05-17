@@ -49,6 +49,8 @@ THRESHOLDS = [
 EXEMPTIONS: dict[str, str] = {
     # name -> ticket / reason
     "Yumney.Shared.Guards": "Coverage uplift tracked under #464 follow-up — currently ~83%, target 90%.",
+    "Yumney.Shared.Events.Wolverine": "Wolverine + RabbitMQ + Postgres outbox composition — covered end-to-end by Yumney.Integration.Tests (InboxPipelineInvocationTests, OutboxDeliveryTests). No useful unit-test surface in the AddWolverineEventBus host-builder extension.",
+    "Yumney.Shared.Web": "Host wiring + middleware pipeline — covered end-to-end by Yumney.Integration.Tests and the per-module Api.Tests. HostBuilderExtensions (245 lines) is .NET host configuration with no unit-test seams.",
 }
 
 
