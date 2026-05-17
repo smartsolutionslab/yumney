@@ -4,9 +4,16 @@ Enforces the per-layer coverage thresholds CLAUDE.md mandates.
 
 Parses every `coverage/**/coverage.cobertura.xml` produced by
 `dotnet test --collect:"XPlat Code Coverage"` and computes per-assembly
-line coverage. Each cobertura file is per-test-project; multiple test
-projects can cover the same production assembly, so coverable + covered
-lines are summed across files before computing the percentage.
+line coverage. Each cobertura file is per-test-project and emits the
+full <line> set for every assembly referenced by the test process —
+including assemblies the test itself doesn't exercise (those come back
+with hits=0). To get a correct merged percentage we deduplicate by
+(filename, line_number) across all files: a line counts as coverable
+once, and as covered if any test project recorded hits > 0 on it.
+
+Naive summing (the original implementation) inflates the denominator by
+N (number of test projects), producing artificially low percentages
+that the gate rejects even when real coverage is high.
 
 Exit codes:
   0 — every blocking threshold met (warnings may still be printed)
@@ -51,9 +58,11 @@ def main() -> int:
         print(f"ERROR: no cobertura files under {COVERAGE_ROOT}/**", file=sys.stderr)
         return 2
 
-    # Sum coverable + covered lines per assembly across every test project's XML.
-    coverable: dict[str, int] = defaultdict(int)
-    covered: dict[str, int] = defaultdict(int)
+    # Per assembly: set of (filename, line_number) seen, and set of those that
+    # any test project recorded hits > 0 for. Deduplicating before counting is
+    # what gives us correct line coverage across the multi-test-project run.
+    coverable_lines: dict[str, set[tuple[str, str]]] = defaultdict(set)
+    covered_lines: dict[str, set[tuple[str, str]]] = defaultdict(set)
 
     for path in files:
         try:
@@ -66,11 +75,19 @@ def main() -> int:
             if not name:
                 continue
             for cls in package.findall(".//class"):
+                filename = cls.get("filename") or cls.get("name") or ""
                 for line in cls.findall(".//line"):
-                    coverable[name] += 1
+                    number = line.get("number")
+                    if number is None:
+                        continue
+                    key = (filename, number)
+                    coverable_lines[name].add(key)
                     hits = line.get("hits", "0")
                     if hits != "0":
-                        covered[name] += 1
+                        covered_lines[name].add(key)
+
+    coverable = {name: len(keys) for name, keys in coverable_lines.items()}
+    covered = {name: len(covered_lines.get(name, set())) for name in coverable}
 
     failures: list[str] = []
     warnings: list[str] = []
