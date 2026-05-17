@@ -131,4 +131,76 @@ public class AppUserProfileTests
 		profile.DietaryProfile.BalanceGoals.MinVeggieMeals.Should().Be(3);
 		profile.DietaryProfile.CookingEffort.Should().Be(CookingEffortPreference.QuickWeekdays);
 	}
+
+	[Fact]
+	public void Create_ValidParameters_SetsDefaultThemeToSystem()
+	{
+		var profile = AppUserProfileBuilder.A().Build();
+
+		profile.Theme.Should().Be(Theme.System);
+	}
+
+	[Fact]
+	public void SwitchThemeTo_NewTheme_UpdatesTheme()
+	{
+		var profile = AppUserProfileBuilder.A().Build();
+
+		profile.SwitchThemeTo(Theme.Dark);
+
+		profile.Theme.Should().Be(Theme.Dark);
+	}
+
+	[Fact]
+	public void Create_ValidParameters_SetsDefaultVoiceSettings()
+	{
+		var profile = AppUserProfileBuilder.A().Build();
+
+		profile.VoiceSettings.Should().Be(VoiceSettings.Default);
+	}
+
+	[Fact]
+	public void UpdateVoiceSettings_NewSettings_UpdatesVoiceSettings()
+	{
+		var profile = AppUserProfileBuilder.A().Build();
+		var custom = new VoiceSettings(Enabled: false, VoiceSpeed.Fast, AutoReadInCookMode: true);
+
+		profile.UpdateVoiceSettings(custom);
+
+		profile.VoiceSettings.Should().Be(custom);
+	}
+
+	[Fact]
+	public void Create_ValidParameters_SetsDefaultNotificationPreferences()
+	{
+		var profile = AppUserProfileBuilder.A().Build();
+
+		profile.NotificationPreferences.Should().Be(NotificationPreferences.Default);
+	}
+
+	[Fact]
+	public void UpdateNotificationPreferences_NewPrefs_UpdatesNotificationPreferences()
+	{
+		var profile = AppUserProfileBuilder.A().Build();
+		var custom = new NotificationPreferences(TimerHapticFeedback: false, TimerSoundAlerts: false);
+
+		profile.UpdateNotificationPreferences(custom);
+
+		profile.NotificationPreferences.Should().Be(custom);
+	}
+
+	[Fact]
+	public void MutatorMethods_ReturnSelf_ForFluentChaining()
+	{
+		var profile = AppUserProfileBuilder.A().Build();
+
+		var result = profile
+			.RenameAs(DisplayName.From("Chained"))
+			.SwitchLanguageTo(PreferredLanguage.From("de"))
+			.SwitchThemeTo(Theme.Light);
+
+		result.Should().BeSameAs(profile);
+		profile.DisplayName.Value.Should().Be("Chained");
+		profile.PreferredLanguage.Value.Should().Be("de");
+		profile.Theme.Should().Be(Theme.Light);
+	}
 }
