@@ -47,24 +47,29 @@ public class GetMergedShoppingListContractTests(AspireFixture fixture) : IAsyncL
 		using var client = await fixture.CreateAuthenticatedClientAsync("shopping-api");
 		await client.PostAsJsonAsync("/api/v1/shopping-lists/items", new { name = "Oranges", quantity = 4m });
 
-		// Shopping read-model projection is driven async by Wolverine; poll.
-		var deadline = DateTime.UtcNow.AddSeconds(15);
+		// Shopping read-model projection is driven async by Wolverine; the bare
+		// 15s loop here flaked on cold runners (#606). Eventually applies the
+		// shared CI-aware timeout + jitter.
 		JsonElement body = default;
 		HttpResponseMessage? response = null;
-		while (DateTime.UtcNow < deadline)
+		try
+		{
+			await Eventually.AssertAsync(async () =>
+			{
+				response?.Dispose();
+				response = await client.GetAsync(Endpoint);
+				body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+				response.StatusCode.Should().Be(HttpStatusCode.OK);
+				body.GetProperty("items").GetArrayLength().Should().Be(1);
+			});
+		}
+		finally
 		{
 			response?.Dispose();
-			response = await client.GetAsync(Endpoint);
-			body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-			if (body.GetProperty("items").GetArrayLength() > 0) break;
-			await Task.Delay(250);
 		}
 
-		response!.StatusCode.Should().Be(HttpStatusCode.OK);
 		var items = body.GetProperty("items");
-		items.GetArrayLength().Should().Be(1);
 		items[0].GetProperty("itemName").GetString().Should().Be("Oranges");
-		response.Dispose();
 	}
 
 	[Fact]

@@ -95,10 +95,10 @@ public class MealPlanFlowTests(AspireFixture fixture)
 
 		await client.PostAsJsonAsync($"{WeekPath}/slots", request);
 
-		// MealPlan read-model projection is driven async by Wolverine; poll.
-		var deadline = DateTime.UtcNow.AddSeconds(15);
+		// MealPlan read-model projection is driven async by Wolverine; Eventually
+		// applies the shared CI-aware timeout + jitter (#606 mitigation).
 		JsonElement wednesdayDinner = default;
-		while (DateTime.UtcNow < deadline)
+		await Eventually.AssertAsync(async () =>
 		{
 			var response = await client.GetAsync(WeekPath);
 			var plan = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
@@ -108,9 +108,8 @@ public class MealPlanFlowTests(AspireFixture fixture)
 					slot.GetProperty("day").GetString() == "Wednesday" &&
 					slot.GetProperty("mealType").GetString() == "Dinner" &&
 					!slot.GetProperty("isEmpty").GetBoolean());
-			if (wednesdayDinner.ValueKind != JsonValueKind.Undefined) break;
-			await Task.Delay(250);
-		}
+			wednesdayDinner.ValueKind.Should().NotBe(JsonValueKind.Undefined);
+		});
 
 		wednesdayDinner.GetProperty("recipeTitle").GetString().Should().Be("Wednesday Dinner");
 		wednesdayDinner.GetProperty("servings").GetInt32().Should().Be(2);

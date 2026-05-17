@@ -95,6 +95,36 @@ public static class Eventually
 			lastError);
 	}
 
+	/// <summary>
+	/// Predicate variant of <see cref="AssertAsync"/>. Polls until the predicate
+	/// returns true. Use when the wait condition is a boolean (e.g. "row exists",
+	/// "count > 0") rather than a FluentAssertion expression. Same timeout +
+	/// jitter machinery so CI parity stays consistent across both call shapes.
+	/// </summary>
+	/// <param name="predicate">Returns true when the wait condition is met.</param>
+	/// <param name="because">Human-readable label included in the timeout message.</param>
+	/// <param name="timeout">Override the default 30s (local) / 90s (CI) timeout.</param>
+	/// <param name="pollInterval">Override the default 100ms poll interval.</param>
+	/// <returns>A task that completes when the predicate first returns true.</returns>
+	public static async Task UntilAsync(
+		Func<Task<bool>> predicate,
+		string because = "",
+		TimeSpan? timeout = null,
+		TimeSpan? pollInterval = null)
+	{
+		await AssertAsync(
+			async () =>
+			{
+				if (!await predicate())
+				{
+					throw new InvalidOperationException(
+						string.IsNullOrEmpty(because) ? "predicate not yet true" : because);
+				}
+			},
+			timeout,
+			pollInterval);
+	}
+
 	private static bool IsRunningOnCi()
 	{
 		// Both GitHub Actions and most other runners set CI=true. Treat any

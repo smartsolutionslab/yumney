@@ -45,21 +45,25 @@ public class ExportShoppingListContractTests(AspireFixture fixture) : IAsyncLife
 
 		// The shopping read-model projection is driven async by Wolverine, so
 		// the export may not see the new item immediately after the POST returns.
-		var deadline = DateTime.UtcNow.AddSeconds(15);
+		// Eventually applies CI-aware timeout + jitter; the bare 15s loop here
+		// flaked on cold runners (#606).
 		string body = string.Empty;
 		HttpResponseMessage? response = null;
-		while (DateTime.UtcNow < deadline)
+		try
+		{
+			await Eventually.AssertAsync(async () =>
+			{
+				response?.Dispose();
+				response = await client.GetAsync(Endpoint);
+				body = await response.Content.ReadAsStringAsync();
+				response.StatusCode.Should().Be(HttpStatusCode.OK);
+				body.Should().Contain("Strawberries");
+			});
+		}
+		finally
 		{
 			response?.Dispose();
-			response = await client.GetAsync(Endpoint);
-			body = await response.Content.ReadAsStringAsync();
-			if (body.Contains("Strawberries", StringComparison.Ordinal)) break;
-			await Task.Delay(250);
 		}
-
-		response!.StatusCode.Should().Be(HttpStatusCode.OK);
-		body.Should().Contain("Strawberries");
-		response.Dispose();
 	}
 
 	[Fact]

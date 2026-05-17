@@ -37,7 +37,7 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 		// deleting. RecipeDeletedHandler queries the projection to find lists,
 		// so the projection MUST have the row indexed before the delete event
 		// arrives or the handler will return zero matches and bail out.
-		await WaitForAsync(async () =>
+		await Eventually.UntilAsync(async () =>
 		{
 			await using var ctx = await fixture.CreateShoppingReadDbContextAsync();
 			var summary = await ctx.ShoppingListSummaryReadItems
@@ -48,7 +48,7 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 		var delete = await recipesClient.DeleteAsync($"/api/v1/recipes/{recipeId}");
 		delete.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-		await WaitForAsync(async () =>
+		await Eventually.UntilAsync(async () =>
 		{
 			await using var ctx = await fixture.CreateShoppingReadDbContextAsync();
 			var summary = await ctx.ShoppingListSummaryReadItems
@@ -101,18 +101,6 @@ public class RecipeDeletedPropagationTests(AspireFixture fixture) : IAsyncLifeti
 		response.EnsureSuccessStatusCode();
 		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 		return body.GetProperty("identifier").GetGuid();
-	}
-
-	private static async Task WaitForAsync(Func<Task<bool>> predicate, int timeoutSeconds = 15)
-	{
-		var deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
-		while (DateTime.UtcNow < deadline)
-		{
-			if (await predicate()) return;
-			await Task.Delay(250);
-		}
-
-		throw new TimeoutException($"Condition not met within {timeoutSeconds}s");
 	}
 
 	private async Task CleanupAsync()
