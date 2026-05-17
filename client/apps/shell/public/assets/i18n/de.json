@@ -318,7 +318,8 @@
     "clearHistory": "Verlauf löschen",
     "errors": {
       "offline": "Chat benötigt eine Internetverbindung.",
-      "failed": "Chat-Dienst nicht erreichbar. Bitte erneut versuchen."
+      "failed": "Chat-Dienst nicht erreichbar. Bitte erneut versuchen.",
+      "noSpeech": "Habe nichts gehört. Erneut probieren?"
     },
     "actions": {
       "navigate": "Öffnen",

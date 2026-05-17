@@ -199,14 +199,21 @@ export class VoiceService {
    * The browser auto-ends the recognition session once the user finishes
    * speaking (continuous=false), so the caller doesn't need to call
    * `stopListening` unless cancelling mid-utterance.
+   *
+   * <paramref name="onNoSpeech" /> fires when the recognition session ends
+   * without ever capturing a transcript (browsers signal this either by
+   * firing `onerror` with `error="no-speech"`, or by firing `onend` after
+   * the silence-timeout without any `onresult`). Callers use it to surface
+   * a "didn't catch that" hint to the user — AC TC-360-05.
    */
-  startListeningForTranscript(onTranscript: (transcript: string) => void): void {
+  startListeningForTranscript(onTranscript: (transcript: string) => void, onNoSpeech?: () => void): void {
     if (!this.sttSupported() || this.isListening()) {
       return;
     }
     const recognition = this.createRecognition();
     if (!recognition) return;
 
+    let gotTranscript = false;
     recognition.lang = this.currentLang;
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -214,14 +221,29 @@ export class VoiceService {
       const last = event.results[event.results.length - 1];
       const transcript = last[0]?.transcript?.trim() ?? '';
       if (transcript !== '') {
+        gotTranscript = true;
         onTranscript(transcript);
       }
     };
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
       this.isListening.set(false);
+      // 'no-speech' is the browser's "silence timeout" signal; surface it
+      // to the caller so the UI can prompt "didn't catch that".
+      // Other errors (aborted, audio-capture, not-allowed, network) are
+      // not no-speech — leave them to the silent failure path the chat
+      // panel already handles via lastInputWasVoice reset.
+      if (event.error === 'no-speech' && !gotTranscript) {
+        onNoSpeech?.();
+      }
     };
     recognition.onend = () => {
       this.isListening.set(false);
+      // Some browsers (Chromium on Android) fire onend without an explicit
+      // 'no-speech' onerror when the silence timeout elapses. Cover that
+      // path too.
+      if (!gotTranscript) {
+        onNoSpeech?.();
+      }
     };
 
     this.recognition = recognition;

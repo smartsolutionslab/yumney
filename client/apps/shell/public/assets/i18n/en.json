@@ -318,7 +318,8 @@
     "clearHistory": "Clear conversation history",
     "errors": {
       "offline": "Chat requires an internet connection.",
-      "failed": "Could not reach the chat service. Please try again."
+      "failed": "Could not reach the chat service. Please try again.",
+      "noSpeech": "Didn't catch that. Try again?"
     },
     "actions": {
       "navigate": "Open",
