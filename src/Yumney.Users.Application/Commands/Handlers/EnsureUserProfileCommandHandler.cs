@@ -18,8 +18,7 @@ public sealed class EnsureUserProfileCommandHandler(IUsersUnitOfWork unitOfWork,
 		// (realm-seeded test users, SSO providers, admin-created users) may
 		// not yet have an AppUserProfile row. Create one on first profile
 		// request so the app doesn't block on 404.
-		var displayName = DisplayName.From(
-			string.IsNullOrWhiteSpace(currentUser.DisplayName) ? currentUser.Email : currentUser.DisplayName);
+		var displayName = DisplayName.From(string.IsNullOrWhiteSpace(currentUser.DisplayName) ? currentUser.Email : currentUser.DisplayName);
 		var profile = AppUserProfile.Create(keycloakId, displayName);
 		await unitOfWork.Profiles.AddAsync(profile, cancellationToken);
 		await unitOfWork.SaveChangesAsync(cancellationToken);

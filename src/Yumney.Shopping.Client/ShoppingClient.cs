@@ -7,17 +7,10 @@ internal sealed class ShoppingClient(IModuleHttpClientFactory factory) : IShoppi
 	private readonly IModuleHttpClient http = factory.For("shopping-api");
 
 	public Task<ShoppingBalanceResponse?> GetBalanceAsync(CancellationToken cancellationToken = default) =>
-		http.FindAsync<ShoppingBalanceResponse>(
-			"/api/v1/shopping-lists/balance",
-			"GetShoppingBalance",
-			cancellationToken);
+		http.FindAsync<ShoppingBalanceResponse>("/api/v1/shopping-lists/balance", "GetShoppingBalance", cancellationToken);
 
 	public Task AddItemAsync(AddShoppingItemRequest request, CancellationToken cancellationToken = default) =>
-		http.PostAsync(
-			"/api/v1/shopping-lists/items",
-			request,
-			"AddShoppingItem",
-			cancellationToken);
+		http.PostAsync("/api/v1/shopping-lists/items", request, "AddShoppingItem", cancellationToken);
 
 	public Task<MergedShoppingListResponse?> GetMergedListAsync(bool includePastBought = false, CancellationToken cancellationToken = default) =>
 		http.FindAsync<MergedShoppingListResponse>(
@@ -29,11 +22,7 @@ internal sealed class ShoppingClient(IModuleHttpClientFactory factory) : IShoppi
 	{
 		try
 		{
-			await http.PostAsync(
-				"/api/v1/shopping-lists/from-recipes",
-				body,
-				"CreateShoppingListFromRecipes",
-				cancellationToken);
+			await http.PostAsync("/api/v1/shopping-lists/from-recipes", body, "CreateShoppingListFromRecipes", cancellationToken);
 			return true;
 		}
 		catch (Exception ex) when (ex is not OperationCanceledException)
@@ -46,11 +35,7 @@ internal sealed class ShoppingClient(IModuleHttpClientFactory factory) : IShoppi
 	{
 		try
 		{
-			await http.DeleteAsync(
-				"/api/v1/shopping-lists/items",
-				body,
-				"RemoveShoppingItem",
-				cancellationToken);
+			await http.DeleteAsync("/api/v1/shopping-lists/items", body, "RemoveShoppingItem", cancellationToken);
 			return true;
 		}
 		catch (Exception ex) when (ex is not OperationCanceledException)

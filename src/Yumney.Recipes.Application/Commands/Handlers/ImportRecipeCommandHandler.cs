@@ -14,16 +14,11 @@ public sealed class ImportRecipeCommandHandler(IWebScraper scraper, IRecipeExtra
 
 		var scrapeResult = await scraper.ScrapeAsync(url, cancellationToken);
 
-		if (scrapeResult.IsFailure)
-		{
-			return scrapeResult.Error!;
-		}
+		if (scrapeResult.IsFailure) return scrapeResult.Error!;
 
 		var extractResult = await extraction.ExtractAsync(scrapeResult.Value, cancellationToken);
-		if (extractResult.IsFailure)
-		{
-			return extractResult.Error!;
-		}
+
+		if (extractResult.IsFailure) return extractResult.Error!;
 
 		return extractResult;
 	}

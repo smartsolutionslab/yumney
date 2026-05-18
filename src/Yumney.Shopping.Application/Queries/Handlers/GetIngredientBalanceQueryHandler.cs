@@ -10,7 +10,8 @@ namespace SmartSolutionsLab.Yumney.Shopping.Application.Queries.Handlers;
 public sealed class GetIngredientBalanceQueryHandler(
 	IIngredientBalanceReadModelRepository readModel,
 	IStaplesProvider staplesProvider,
-	ICurrentUser currentUser) : IQueryHandler<GetIngredientBalanceQuery, Result<IngredientBalanceDto>>
+	ICurrentUser currentUser)
+	: IQueryHandler<GetIngredientBalanceQuery, Result<IngredientBalanceDto>>
 {
 	public async Task<Result<IngredientBalanceDto>> HandleAsync(GetIngredientBalanceQuery query, CancellationToken cancellationToken = default)
 	{

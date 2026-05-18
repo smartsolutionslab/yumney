@@ -11,17 +11,19 @@ public sealed class UpdateUserProfileCommandHandler(IUsersUnitOfWork unitOfWork,
 {
 	public async Task<Result<UserProfileDto>> HandleAsync(UpdateUserProfileCommand command, CancellationToken cancellationToken = default)
 	{
+		var (displayName, preferredLanguage, preferredUnitSystem, defaultServings, theme, voiceSettings, notificationPreferences, dietaryProfile) = command;
+
 		var keycloakId = KeycloakUserId.From(currentUser.UserId);
 		var profile = await unitOfWork.Profiles.GetByKeycloakUserIdAsync(keycloakId, cancellationToken);
 
-		if (command.DisplayName is not null) profile.RenameAs(command.DisplayName);
-		if (command.PreferredLanguage is not null) profile.SwitchLanguageTo(command.PreferredLanguage);
-		if (command.PreferredUnitSystem is not null) profile.SwitchUnitSystemTo(command.PreferredUnitSystem);
-		if (command.Theme is not null) profile.SwitchThemeTo(command.Theme);
-		if (command.VoiceSettings is not null) profile.UpdateVoiceSettings(command.VoiceSettings);
-		if (command.NotificationPreferences is not null) profile.UpdateNotificationPreferences(command.NotificationPreferences);
-		profile.AdjustDefaultServingsTo(command.DefaultServings);
-		profile.UpdateDietaryProfile(command.DietaryProfile);
+		if (displayName is not null) profile.RenameAs(displayName);
+		if (preferredLanguage is not null) profile.SwitchLanguageTo(preferredLanguage);
+		if (preferredUnitSystem is not null) profile.SwitchUnitSystemTo(preferredUnitSystem);
+		if (theme is not null) profile.SwitchThemeTo(theme);
+		if (voiceSettings is not null) profile.UpdateVoiceSettings(voiceSettings);
+		if (notificationPreferences is not null) profile.UpdateNotificationPreferences(notificationPreferences);
+		profile.AdjustDefaultServingsTo(defaultServings);
+		profile.UpdateDietaryProfile(dietaryProfile);
 
 		await unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -15,10 +15,7 @@ public sealed class ImportRecipeFromTextCommandHandler(IRecipeExtractionService 
 		var content = new ScrapedContent(text, SourceUrl: null);
 		var extractResult = await extraction.ExtractAsync(content, cancellationToken);
 
-		if (extractResult.IsFailure)
-		{
-			return extractResult.Error!;
-		}
+		if (extractResult.IsFailure) return extractResult.Error!;
 
 		return extractResult;
 	}

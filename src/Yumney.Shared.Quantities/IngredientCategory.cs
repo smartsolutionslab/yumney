@@ -30,11 +30,7 @@ public sealed record IngredientCategory : IValueObject<string>
 
 	private IngredientCategory(string value)
 	{
-		Value = Ensure.That(value)
-			.IsNotNullOrWhiteSpace()
-			.HasMaxLength(MaxLength)
-			.IsOneOf(allowedValues)
-			.AndReturn();
+		Value = Ensure.That(value).IsNotNullOrWhiteSpace().HasMaxLength(MaxLength).IsOneOf(allowedValues).AndReturn();
 		DisplayOrder = Array.IndexOf(allowedValues, Value);
 	}
 

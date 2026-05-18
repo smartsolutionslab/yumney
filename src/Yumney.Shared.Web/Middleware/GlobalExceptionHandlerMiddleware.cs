@@ -30,28 +30,16 @@ public sealed partial class GlobalExceptionHandlerMiddleware(RequestDelegate nex
 		catch (BusinessRuleValidationException ex)
 		{
 			LogBusinessRuleViolated(ex, ex.BrokenRule.GetType().Name);
-			await WriteProblemDetailsAsync(
-				context,
-				HttpStatusCode.UnprocessableEntity,
-				"Business Rule Violation",
-				ex.Message);
+			await WriteProblemDetailsAsync(context, HttpStatusCode.UnprocessableEntity, "Business Rule Violation", ex.Message);
 		}
 		catch (Exception ex)
 		{
 			LogUnhandledException(ex);
-			await WriteProblemDetailsAsync(
-				context,
-				HttpStatusCode.InternalServerError,
-				"Internal Server Error",
-				"An unexpected error occurred.");
+			await WriteProblemDetailsAsync(context, HttpStatusCode.InternalServerError, "Internal Server Error", "An unexpected error occurred.");
 		}
 	}
 
-	private static async Task WriteProblemDetailsAsync(
-		HttpContext context,
-		HttpStatusCode statusCode,
-		string title,
-		string detail)
+	private static async Task WriteProblemDetailsAsync(HttpContext context, HttpStatusCode statusCode, string title, string detail)
 	{
 		context.Response.StatusCode = (int)statusCode;
 

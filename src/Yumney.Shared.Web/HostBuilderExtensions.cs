@@ -3,10 +3,8 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -41,11 +39,9 @@ public static partial class HostBuilderExtensions
 		builder.AddRedisDistributedCache("redis");
 		builder.AddRedisClient("redis");
 
-		builder.Services.ConfigureHttpJsonOptions(options =>
-			options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+		builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-		builder.Services.Configure<HostOptions>(options =>
-			options.ShutdownTimeout = TimeSpan.FromSeconds(30));
+		builder.Services.Configure<HostOptions>(options => options.ShutdownTimeout = TimeSpan.FromSeconds(30));
 
 		builder.Services.AddHttpContextAccessor();
 		builder.Services.AddScoped<ICurrentUser, CurrentUserProvider>();
@@ -106,8 +102,7 @@ public static partial class HostBuilderExtensions
 
 		app.MapGet("/version", () => new
 		{
-			Version = typeof(HostBuilderExtensions).Assembly
-				.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown",
+			Version = typeof(HostBuilderExtensions).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown",
 			Environment = app.Environment.EnvironmentName,
 		}).AllowAnonymous();
 

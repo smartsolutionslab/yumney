@@ -33,9 +33,8 @@ public static class MealPlanEndpoints
 			IQueryHandler<GetWeeklyPlanQuery, Result<WeeklyPlanDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var week = WeekIdentifier.From(year, weekNumber);
-
-			var result = await handler.HandleAsync(new GetWeeklyPlanQuery(week), cancellationToken);
+			var query = new GetWeeklyPlanQuery(WeekIdentifier.From(year, weekNumber));
+			var result = await handler.HandleAsync(query, cancellationToken);
 			return result.ToOk();
 		}
 
@@ -78,8 +77,7 @@ public static class MealPlanEndpoints
 			ICommandHandler<ToggleExtendedModeCommand, Result<WeeklyPlanDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var week = WeekIdentifier.From(year, weekNumber);
-			var command = new ToggleExtendedModeCommand(week, request.Enable);
+			var command = new ToggleExtendedModeCommand(WeekIdentifier.From(year, weekNumber), request.Enable);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
@@ -233,8 +231,7 @@ public static class MealPlanEndpoints
 			IQueryHandler<GetPlannedRecipesQuery, Result<WeeklyPlannedRecipesDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var week = WeekIdentifier.From(year, weekNumber);
-			var result = await handler.HandleAsync(new GetPlannedRecipesQuery(week), cancellationToken);
+			var result = await handler.HandleAsync(new GetPlannedRecipesQuery(WeekIdentifier.From(year, weekNumber)), cancellationToken);
 			return result.ToOk();
 		}
 
@@ -274,8 +271,7 @@ public static class MealPlanEndpoints
 			ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var week = WeekIdentifier.From(year, weekNumber);
-			var command = new GenerateShoppingListCommand(week);
+			var command = new GenerateShoppingListCommand(WeekIdentifier.From(year, weekNumber));
 
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
