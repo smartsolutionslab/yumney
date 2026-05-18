@@ -11,11 +11,10 @@ public sealed class GetRecipeActivityStatsQueryHandler(IUserActivityRepository a
 {
 	public async Task<Result<RecipeActivityStatsDto>> HandleAsync(GetRecipeActivityStatsQuery query, CancellationToken cancellationToken = default)
 	{
+		var recipe = RecipeIdentifierSnapshot.From(query.RecipeIdentifier);
 		var owner = currentUser.AsOwner();
-		var stats = await activities.GetRecipeStatsAsync(
-			owner,
-			RecipeIdentifierSnapshot.From(query.RecipeIdentifier),
-			cancellationToken);
+
+		var stats = await activities.GetRecipeStatsAsync(owner, recipe, cancellationToken);
 		return Result.Success(stats.ToDto());
 	}
 }

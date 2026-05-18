@@ -21,8 +21,7 @@ public sealed record DefaultServings : IValueObject<int>
 
 	public static DefaultServings From(int value) => new(value);
 
-	public static DefaultServings? FromNullable(int? value) =>
-		value.HasValue ? new DefaultServings(value.Value) : null;
+	public static DefaultServings? FromNullable(int? value) => value.HasValue ? new DefaultServings(value.Value) : null;
 
 	public static implicit operator int(DefaultServings obj) => obj.Value;
 

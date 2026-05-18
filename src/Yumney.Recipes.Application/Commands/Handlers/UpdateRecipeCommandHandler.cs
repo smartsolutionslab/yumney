@@ -18,10 +18,7 @@ public sealed class UpdateRecipeCommandHandler(IRecipesUnitOfWork unitOfWork, IC
 
 		var recipe = await unitOfWork.Recipes.GetByIdForUpdateAsync(identifier, cancellationToken);
 
-		if (recipe.Owner != owner)
-		{
-			return UpdateRecipeErrors.AccessDenied;
-		}
+		if (recipe.Owner != owner) return UpdateRecipeErrors.AccessDenied;
 
 		var ingredients = ingredientCommands.Select(ingredient => ingredient.ToDomain()).ToList();
 		var steps = stepCommands.Select(step => step.ToDomain()).ToList();

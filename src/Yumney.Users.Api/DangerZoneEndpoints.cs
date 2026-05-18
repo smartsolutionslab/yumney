@@ -21,9 +21,7 @@ public static class DangerZoneEndpoints
 			.Produces(StatusCodes.Status204NoContent)
 			.ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
-		static async Task<IResult> DeleteAccount(
-			ICommandHandler<DeleteAccountCommand, Result> handler,
-			CancellationToken cancellationToken)
+		static async Task<IResult> DeleteAccount(ICommandHandler<DeleteAccountCommand, Result> handler, CancellationToken cancellationToken)
 		{
 			var result = await handler.HandleAsync(new DeleteAccountCommand(), cancellationToken);
 			return result.ToNoContent();

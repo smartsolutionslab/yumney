@@ -33,8 +33,7 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 
 		var aggregateId = GetAggregateId(aggregate);
 
-		var existingMetadata = await Context.Set<TMetadata>()
-			.FirstOrDefaultAsync(m => m.AggregateId == aggregateId, cancellationToken);
+		var existingMetadata = await Context.Set<TMetadata>().FirstOrDefaultAsync(m => m.AggregateId == aggregateId, cancellationToken);
 
 		if (existingMetadata is null)
 		{
@@ -45,7 +44,7 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 		for (var index = 0; index < uncommitted.Count; index++)
 		{
 			var @event = uncommitted[index];
-			Context.Set<TStoredEvent>().Add(new TStoredEvent
+			TStoredEvent storedEvent = new()
 			{
 				Id = Guid.CreateVersion7(),
 				AggregateId = aggregateId,
@@ -53,7 +52,8 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 				EventData = Serializer.Serialize(@event),
 				Version = baseVersion + index + 1,
 				OccurredAt = @event.OccurredOn,
-			});
+			};
+			Context.Set<TStoredEvent>().Add(storedEvent);
 		}
 
 		var busEvents = BuildBusEvents(aggregate, uncommitted);
@@ -86,8 +86,7 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 		new Dictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory>();
 #pragma warning restore SA1311
 
-	protected virtual IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> ModuleEventFactories =>
-		emptyModuleFactories;
+	protected virtual IReadOnlyDictionary<Type, ModuleEventConvention.ModuleEventFactory> ModuleEventFactories => emptyModuleFactories;
 
 	protected virtual IReadOnlyDictionary<Type, CrossModuleEventConvention.CrossModuleEventFactory> CrossModuleEventFactories =>
 		emptyCrossModuleFactories;

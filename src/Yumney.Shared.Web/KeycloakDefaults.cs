@@ -21,23 +21,11 @@ public static class KeycloakDefaults
 			?? DefaultUrl;
 	}
 
-	public static string GetRealm(IConfiguration configuration)
-	{
-		return configuration.GetValue<string>(RealmConfigKey) ?? DefaultRealm;
-	}
+	public static string GetRealm(IConfiguration configuration) => configuration.GetValue<string>(RealmConfigKey) ?? DefaultRealm;
 
-	public static string AuthorizationUrl(IConfiguration configuration)
-	{
-		return $"{GetBaseUrl(configuration)}/realms/{GetRealm(configuration)}/protocol/openid-connect/auth";
-	}
+	public static string AuthorizationUrl(IConfiguration configuration) => $"{GetBaseUrl(configuration)}/realms/{GetRealm(configuration)}/protocol/openid-connect/auth";
 
-	public static string TokenUrl(IConfiguration configuration)
-	{
-		return $"{GetBaseUrl(configuration)}/realms/{GetRealm(configuration)}/protocol/openid-connect/token";
-	}
+	public static string TokenUrl(IConfiguration configuration) => $"{GetBaseUrl(configuration)}/realms/{GetRealm(configuration)}/protocol/openid-connect/token";
 
-	public static string RealmUrl(IConfiguration configuration)
-	{
-		return $"{GetBaseUrl(configuration)}/realms/{GetRealm(configuration)}";
-	}
+	public static string RealmUrl(IConfiguration configuration) => $"{GetBaseUrl(configuration)}/realms/{GetRealm(configuration)}";
 }

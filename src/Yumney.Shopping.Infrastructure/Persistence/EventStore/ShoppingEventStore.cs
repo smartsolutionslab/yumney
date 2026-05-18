@@ -28,8 +28,7 @@ public sealed partial class ShoppingEventStore(
 #pragma warning restore SA1311
 
 	public async Task<ShoppingLedger> LoadAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default)
-		=> await FindAsync(ownerId, cancellationToken)
-			?? throw new EntityNotFoundException(nameof(ShoppingLedger), ownerId.Value);
+		=> await FindAsync(ownerId, cancellationToken) ?? throw new EntityNotFoundException(nameof(ShoppingLedger), ownerId.Value);
 
 	public async Task<ShoppingLedger?> FindAsync(OwnerIdentifier ownerId, CancellationToken cancellationToken = default)
 	{
@@ -63,10 +62,7 @@ public sealed partial class ShoppingEventStore(
 	// rows; FlushOutgoingMessagesAsync nudges Wolverine to deliver immediately
 	// — a delivery failure leaves the rows in the outbox table for the
 	// background relay to pick up on retry.
-	protected override async Task PersistAndPublishAsync(
-		ShoppingLedger aggregate,
-		IReadOnlyList<IBusEvent> busEvents,
-		CancellationToken cancellationToken)
+	protected override async Task PersistAndPublishAsync(ShoppingLedger aggregate, IReadOnlyList<IBusEvent> busEvents, CancellationToken cancellationToken)
 	{
 		foreach (var busEvent in busEvents)
 		{

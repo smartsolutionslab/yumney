@@ -68,9 +68,7 @@ public sealed partial class DeleteAccountCommandHandler(
 		return Result.Success();
 	}
 
-	private async Task<AccountDeletionEmailPayload?> TryBuildEmailPayloadAsync(
-		KeycloakUserId keycloakId,
-		CancellationToken cancellationToken)
+	private async Task<AccountDeletionEmailPayload?> TryBuildEmailPayloadAsync(KeycloakUserId keycloakId, CancellationToken cancellationToken)
 	{
 		var profile = await unitOfWork.Profiles.FindByKeycloakUserIdAsync(keycloakId, cancellationToken);
 		if (profile is null)
@@ -86,7 +84,7 @@ public sealed partial class DeleteAccountCommandHandler(
 			return null;
 		}
 
-		return new AccountDeletionEmailPayload(emailResult.Value!, profile.DisplayName, profile.PreferredLanguage);
+		return new AccountDeletionEmailPayload(emailResult.Value, profile.DisplayName, profile.PreferredLanguage);
 	}
 
 	private async Task TrySendConfirmationAsync(AccountDeletionEmailPayload payload, CancellationToken cancellationToken)

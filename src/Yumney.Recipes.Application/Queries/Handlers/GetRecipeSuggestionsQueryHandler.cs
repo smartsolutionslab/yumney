@@ -25,17 +25,9 @@ public sealed class GetRecipeSuggestionsQueryHandler(
 		await Task.WhenAll(availableTask, dietaryTask);
 
 		var available = await availableTask;
-		if (available.Count == 0)
-		{
-			return RecipeSuggestionErrors.NoIngredients;
-		}
+		if (available.Count == 0) return RecipeSuggestionErrors.NoIngredients;
 
 		var dietary = await dietaryTask;
-		return await suggestionService.SuggestAsync(
-			(IReadOnlyCollection<string>)available.Keys.ToList(),
-			dietary.DietaryType,
-			dietary.Restrictions,
-			count,
-			cancellationToken);
+		return await suggestionService.SuggestAsync(available.Keys.ToList(), dietary.DietaryType, dietary.Restrictions, count, cancellationToken);
 	}
 }

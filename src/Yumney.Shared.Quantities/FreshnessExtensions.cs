@@ -10,6 +10,5 @@ public static class FreshnessExtensions
 		_ => 0,
 	};
 
-	public static bool IsUrgent(this Freshness freshness)
-		=> freshness is Freshness.UseSoon or Freshness.CheckIt;
+	public static bool IsUrgent(this Freshness freshness) => freshness is Freshness.UseSoon or Freshness.CheckIt;
 }

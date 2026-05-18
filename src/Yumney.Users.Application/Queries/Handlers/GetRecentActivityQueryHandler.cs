@@ -11,13 +11,14 @@ public sealed class GetRecentActivityQueryHandler(IUserActivityRepository activi
 {
 	public async Task<Result<UserActivityPageDto>> HandleAsync(GetRecentActivityQuery query, CancellationToken cancellationToken = default)
 	{
+		var (limit, type, cursor) = query;
 		var owner = currentUser.AsOwner();
 
-		var entries = query.Type is null
-			? await activities.GetRecentByCursorAsync(owner, query.Limit, query.Cursor, cancellationToken)
-			: await activities.GetRecentByTypeAndCursorAsync(owner, query.Type, query.Limit, query.Cursor, cancellationToken);
+		var entries = type is null
+			? await activities.GetRecentByCursorAsync(owner, limit, cursor, cancellationToken)
+			: await activities.GetRecentByTypeAndCursorAsync(owner, type, limit, cursor, cancellationToken);
 
-		var nextCursor = entries.Count == query.Limit.Value
+		var nextCursor = entries.Count == limit.Value
 			? ActivityCursor.From(entries[^1].OccurredAt, entries[^1].Id).Encode()
 			: null;
 

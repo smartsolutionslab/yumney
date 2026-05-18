@@ -9,8 +9,7 @@ public sealed record DietaryType : IValueObject<string>
 	public const int MaxLength = 20;
 
 #pragma warning disable SA1202 // allowedValues must initialize before the public static instances
-	private static readonly string[] allowedValues =
-		["omnivore", "vegetarian", "vegan", "pescatarian", "flexitarian"];
+	private static readonly string[] allowedValues = ["omnivore", "vegetarian", "vegan", "pescatarian", "flexitarian"];
 
 	public static readonly DietaryType Omnivore = new("omnivore");
 	public static readonly DietaryType Vegetarian = new("vegetarian");

@@ -17,7 +17,7 @@ public static class NpgsqlDbContextRegistration
 	{
 		var connectionString = configuration.GetConnectionString(connectionName);
 
-		services.AddDbContext<TContext>((sp, options) =>
+		services.AddDbContext<TContext>((serviceProvider, options) =>
 		{
 			options.UseNpgsql(connectionString, npgsql => npgsql
 				.MigrationsHistoryTable(migrationsHistoryTable)
@@ -25,7 +25,7 @@ public static class NpgsqlDbContextRegistration
 
 			foreach (var interceptorType in interceptorTypes)
 			{
-				options.AddInterceptors((IInterceptor)sp.GetRequiredService(interceptorType));
+				options.AddInterceptors((IInterceptor)serviceProvider.GetRequiredService(interceptorType));
 			}
 		});
 

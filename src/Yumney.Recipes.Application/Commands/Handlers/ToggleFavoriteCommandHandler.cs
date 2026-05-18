@@ -19,10 +19,7 @@ public sealed class ToggleFavoriteCommandHandler(IRecipesUnitOfWork unitOfWork, 
 
 		var recipe = await unitOfWork.Recipes.GetByIdAsync(identifier, cancellationToken);
 
-		if (recipe.Owner != owner)
-		{
-			return ToggleFavoriteErrors.AccessDenied;
-		}
+		if (recipe.Owner != owner) return ToggleFavoriteErrors.AccessDenied;
 
 		var alreadyFavorited = await unitOfWork.Favorites.IsFavoritedAsync(owner, identifier, cancellationToken);
 

@@ -24,8 +24,7 @@ public sealed class UsersApiModule : IEndpointModule
 
 	public WebApplication RegisterEndpoints(WebApplication app)
 	{
-		app
-			.UseYumneyDefaults()
+		app.UseYumneyDefaults()
 			.MapApiV1()
 			.MapUsersEndpoints();
 
