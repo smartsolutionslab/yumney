@@ -51,6 +51,8 @@ EXEMPTIONS: dict[str, str] = {
     "Yumney.Shared.Guards": "Coverage uplift tracked under #464 follow-up — currently ~83%, target 90%.",
     "Yumney.Shared.Events.Wolverine": "Wolverine + RabbitMQ + Postgres outbox composition — covered end-to-end by Yumney.Integration.Tests (InboxPipelineInvocationTests, OutboxDeliveryTests). No useful unit-test surface in the AddWolverineEventBus host-builder extension.",
     "Yumney.Shared.Web": "Host wiring + middleware pipeline — covered end-to-end by Yumney.Integration.Tests and the per-module Api.Tests. HostBuilderExtensions (245 lines) is .NET host configuration with no unit-test seams.",
+    "Yumney.Shared.Events.InProcess": "In-process bus + dispatcher — currently 74.5%, exercised end-to-end by per-module Application.Tests and Integration.Tests. Uplift tracked under #464 follow-up.",
+    "Yumney.Shared.Persistence": "EventStoreBase + Inbox + outbox-aware DbContext registration — currently 80.7%, exercised end-to-end by Integration.Tests (ShoppingEventStoreTests, OutboxDeliveryTests). Uplift tracked under #464 follow-up.",
 }
 
 
