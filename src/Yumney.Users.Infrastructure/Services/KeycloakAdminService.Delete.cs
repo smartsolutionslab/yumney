@@ -17,7 +17,8 @@ public sealed partial class KeycloakAdminService
 
 		var url = $"/admin/realms/{options.Value.Realm}/users/{keycloakUserId.Value}";
 
-		var response = await SendAuthenticatedAsync(HttpMethod.Delete, url, null, "delete_user", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
+		var response = await SendAuthenticatedAsync(
+			HttpMethod.Delete, url, null, "delete_user", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
 		if (response.IsFailure)
 		{
 			activity?.SetStatus(ActivityStatusCode.Error, response.Error!.Message);

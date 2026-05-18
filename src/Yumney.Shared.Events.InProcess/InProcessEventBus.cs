@@ -5,10 +5,8 @@ using Microsoft.Extensions.Logging;
 namespace SmartSolutionsLab.Yumney.Shared.Events;
 
 #pragma warning disable SA1601
-public sealed partial class InProcessEventBus(
-	IServiceProvider serviceProvider,
-	EventMetrics metrics,
-	ILogger<InProcessEventBus> logger) : IEventBus
+public sealed partial class InProcessEventBus(IServiceProvider serviceProvider, EventMetrics metrics, ILogger<InProcessEventBus> logger)
+	: IEventBus
 {
 	public async Task PublishAsync<TEvent>(TEvent busEvent, CancellationToken cancellationToken = default)
 		where TEvent : IBusEvent

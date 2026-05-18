@@ -38,11 +38,7 @@ public sealed partial class IntegrationEventConsumer<TEvent>(
 		InboxOutcome outcome;
 		try
 		{
-			outcome = await inboxStore.TryProcessAsync(
-				message.EventIdentifier,
-				consumerName,
-				ct => handler.HandleAsync(message, ct),
-				cancellationToken);
+			outcome = await inboxStore.TryProcessAsync(message.EventIdentifier, consumerName, ct => handler.HandleAsync(message, ct), cancellationToken);
 		}
 		catch (Exception exception)
 		{

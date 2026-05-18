@@ -38,7 +38,11 @@ public sealed partial class KeycloakAdminService(
 	private static readonly SemaphoreSlim tokenRefreshGate = new(1, 1);
 	private static readonly string[] verifyEmailActions = ["VERIFY_EMAIL"];
 
-	public async Task<Result<KeycloakUserId>> CreateUserAsync(Email email, Password password, DisplayName displayName, CancellationToken cancellationToken = default)
+	public async Task<Result<KeycloakUserId>> CreateUserAsync(
+		Email email,
+		Password password,
+		DisplayName displayName,
+		CancellationToken cancellationToken = default)
 	{
 		using var activity = UsersDiagnostics.ActivitySource.StartActivity("keycloak.create_user");
 		activity?.SetTag("keycloak.email", email.Value);
@@ -46,7 +50,8 @@ public sealed partial class KeycloakAdminService(
 		var url = $"/admin/realms/{options.Value.Realm}/users";
 		var content = JsonContent.Create(BuildUserPayload(email, password, displayName), options: jsonOptions);
 
-		var response = await SendAuthenticatedAsync(HttpMethod.Post, url, content, "create_user", RegistrationErrors.IdentityProviderUnavailable, cancellationToken);
+		var response = await SendAuthenticatedAsync(
+			HttpMethod.Post, url, content, "create_user", RegistrationErrors.IdentityProviderUnavailable, cancellationToken);
 		if (response.IsFailure)
 		{
 			activity?.SetStatus(ActivityStatusCode.Error, response.Error!.Message);
@@ -66,7 +71,8 @@ public sealed partial class KeycloakAdminService(
 		var encodedEmail = Uri.EscapeDataString(email.Value);
 		var url = $"/admin/realms/{options.Value.Realm}/users?email={encodedEmail}&exact=true";
 
-		var response = await SendAuthenticatedAsync(HttpMethod.Get, url, null, "search_users", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
+		var response = await SendAuthenticatedAsync(
+			HttpMethod.Get, url, null, "search_users", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
 		if (response.IsFailure)
 		{
 			activity?.SetStatus(ActivityStatusCode.Error, response.Error!.Message);
@@ -98,7 +104,8 @@ public sealed partial class KeycloakAdminService(
 		var url = $"/admin/realms/{options.Value.Realm}/users/{keycloakUserId.Value}/execute-actions-email";
 		var content = JsonContent.Create(verifyEmailActions, options: jsonOptions);
 
-		var response = await SendAuthenticatedAsync(HttpMethod.Put, url, content, "send_verification", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
+		var response = await SendAuthenticatedAsync(
+			HttpMethod.Put, url, content, "send_verification", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
 		if (response.IsFailure)
 		{
 			activity?.SetStatus(ActivityStatusCode.Error, response.Error!.Message);

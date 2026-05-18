@@ -7,23 +7,26 @@ namespace SmartSolutionsLab.Yumney.Shared.CQRS;
 
 public static class CqrsServiceCollectionExtensions
 {
-	public static IServiceCollection AddHandlersFromAssemblyContaining<T>(this IServiceCollection services)
+	extension(IServiceCollection services)
 	{
-		var assembly = typeof(T).Assembly;
+		public IServiceCollection AddHandlersFromAssemblyContaining<T>()
+		{
+			var assembly = typeof(T).Assembly;
 
-		RegisterHandlers(services, assembly, typeof(ICommandHandler<,>));
-		RegisterHandlers(services, assembly, typeof(IQueryHandler<,>));
+			RegisterHandlers(services, assembly, typeof(ICommandHandler<,>));
+			RegisterHandlers(services, assembly, typeof(IQueryHandler<,>));
 
-		return services;
-	}
+			return services;
+		}
 
-	public static IServiceCollection AddCqrsLoggingDecorators(this IServiceCollection services)
-	{
-		services.AddSingleton<ApplicationMetrics>();
-		DecorateAll(services, typeof(ICommandHandler<,>), typeof(LoggingCommandHandlerDecorator<,>));
-		DecorateAll(services, typeof(IQueryHandler<,>), typeof(LoggingQueryHandlerDecorator<,>));
+		public IServiceCollection AddCqrsLoggingDecorators()
+		{
+			services.AddSingleton<ApplicationMetrics>();
+			DecorateAll(services, typeof(ICommandHandler<,>), typeof(LoggingCommandHandlerDecorator<,>));
+			DecorateAll(services, typeof(IQueryHandler<,>), typeof(LoggingQueryHandlerDecorator<,>));
 
-		return services;
+			return services;
+		}
 	}
 
 	private static void RegisterHandlers(IServiceCollection services, Assembly assembly, Type openGenericInterface)
@@ -58,10 +61,7 @@ public static class CqrsServiceCollectionExtensions
 			// Re-register the original handler under its concrete type so the decorator can resolve it
 			if (descriptor.ImplementationType is not null)
 			{
-				var serviceDescriptor = new ServiceDescriptor(
-					descriptor.ImplementationType,
-					descriptor.ImplementationType,
-					descriptor.Lifetime);
+				var serviceDescriptor = new ServiceDescriptor(descriptor.ImplementationType, descriptor.ImplementationType, descriptor.Lifetime);
 				services.Add(serviceDescriptor);
 			}
 

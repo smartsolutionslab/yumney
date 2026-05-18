@@ -131,11 +131,7 @@ public static class WolverineEventBusExtensions
 		return builder;
 	}
 
-	private static void RegisterBusEventConsumers(
-		WolverineOptions opts,
-		Assembly assembly,
-		Type openHandlerInterface,
-		Type openConsumerType)
+	private static void RegisterBusEventConsumers(WolverineOptions opts, Assembly assembly, Type openHandlerInterface, Type openConsumerType)
 	{
 		var eventTypes = assembly.GetTypes()
 			.SelectMany(type => type.GetInterfaces())

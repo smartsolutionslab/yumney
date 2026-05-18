@@ -14,10 +14,7 @@ public abstract class AggregateRoot<TId> : Entity<TId>, IHasDomainEvents
 
 	protected static void CheckRule(IBusinessRule rule)
 	{
-		if (rule.IsBroken())
-		{
-			throw new BusinessRuleValidationException(rule);
-		}
+		if (rule.IsBroken()) throw new BusinessRuleValidationException(rule);
 	}
 
 	protected void AddDomainEvent(IDomainEvent domainEvent)
