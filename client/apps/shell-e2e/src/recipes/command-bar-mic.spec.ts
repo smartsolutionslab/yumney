@@ -27,12 +27,14 @@ test.describe('Command bar mic (US-360)', () => {
         onerror: RecogHandlers['onerror'] = null;
         onend: RecogHandlers['onend'] = null;
         constructor() {
-          created.push(this as unknown as RecogHandlers & {
-            lang: string;
-            continuous: boolean;
-            interimResults: boolean;
-            started: boolean;
-          });
+          created.push(
+            this as unknown as RecogHandlers & {
+              lang: string;
+              continuous: boolean;
+              interimResults: boolean;
+              started: boolean;
+            },
+          );
         }
         start(): void {
           this.started = true;
@@ -72,10 +74,14 @@ test.describe('Command bar mic (US-360)', () => {
     // Drive the recognition session — fire onresult with the transcript,
     // then onend so isListening flips back to false.
     await authenticatedPage.evaluate(() => {
-      const created = (window as unknown as { __mockRecognitions: Array<{
-        onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
-        onend: (() => void) | null;
-      }> }).__mockRecognitions;
+      const created = (
+        window as unknown as {
+          __mockRecognitions: Array<{
+            onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+            onend: (() => void) | null;
+          }>;
+        }
+      ).__mockRecognitions;
       const recognition = created[created.length - 1];
       recognition.onresult?.({ results: [[{ transcript: 'add milk to my shopping list' }]] });
       recognition.onend?.();
@@ -111,10 +117,14 @@ test.describe('Command bar mic (US-360)', () => {
 
     // Browser's silence-timeout path: onerror with 'no-speech' then onend.
     await authenticatedPage.evaluate(() => {
-      const created = (window as unknown as { __mockRecognitions: Array<{
-        onerror: ((event: { error: string }) => void) | null;
-        onend: (() => void) | null;
-      }> }).__mockRecognitions;
+      const created = (
+        window as unknown as {
+          __mockRecognitions: Array<{
+            onerror: ((event: { error: string }) => void) | null;
+            onend: (() => void) | null;
+          }>;
+        }
+      ).__mockRecognitions;
       const recognition = created[created.length - 1];
       recognition.onerror?.({ error: 'no-speech' });
       recognition.onend?.();
