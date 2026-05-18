@@ -19,10 +19,7 @@ public static partial class RecipesEndpoints
 			.ProducesProblem(StatusCodes.Status404NotFound);
 	}
 
-	private static async Task<IResult> TrackCookedAsync(
-		Guid identifier,
-		ICommandHandler<TrackRecipeCookedCommand, Result> handler,
-		CancellationToken cancellationToken)
+	private static async Task<IResult> TrackCookedAsync(Guid identifier, ICommandHandler<TrackRecipeCookedCommand, Result> handler, CancellationToken cancellationToken)
 	{
 		var command = new TrackRecipeCookedCommand(RecipeIdentifier.From(identifier));
 		var result = await handler.HandleAsync(command, cancellationToken);

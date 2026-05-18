@@ -19,7 +19,8 @@ public sealed partial class KeycloakAdminService
 
 		var url = $"/admin/realms/{options.Value.Realm}/users/{keycloakUserId.Value}";
 
-		var response = await SendAuthenticatedAsync(HttpMethod.Get, url, null, "get_email", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
+		var response = await SendAuthenticatedAsync(
+			HttpMethod.Get, url, null, "get_email", VerificationErrors.IdentityProviderUnavailable, cancellationToken);
 		if (response.IsFailure)
 		{
 			activity?.SetStatus(ActivityStatusCode.Error, response.Error!.Message);

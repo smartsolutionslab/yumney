@@ -7,8 +7,7 @@ public static class BusEventHandlerRegistration
 {
 	extension(IServiceCollection services)
 	{
-		public IServiceCollection AddBusEventHandlersFromAssemblyContaining<T>() =>
-			services.AddBusEventHandlers(typeof(T).Assembly);
+		public IServiceCollection AddBusEventHandlersFromAssemblyContaining<T>() => services.AddBusEventHandlers(typeof(T).Assembly);
 
 		public IServiceCollection AddBusEventHandlers(Assembly assembly)
 		{

@@ -32,8 +32,7 @@ public sealed record WeeklyBalanceGoals : IValueObject
 		MaxRedMeatMeals = maxRedMeatMeals;
 	}
 
-	public static WeeklyBalanceGoals From(int? minVeggieMeals, int? maxRedMeatMeals) =>
-		new(minVeggieMeals, maxRedMeatMeals);
+	public static WeeklyBalanceGoals From(int? minVeggieMeals, int? maxRedMeatMeals) => new(minVeggieMeals, maxRedMeatMeals);
 
 	public static readonly WeeklyBalanceGoals None = new(null, null);
 

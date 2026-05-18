@@ -4,8 +4,7 @@ namespace SmartSolutionsLab.Yumney.Shared.CQRS;
 
 public static class FluentValidationExtensions
 {
-	public static IRuleBuilderOptions<T, string> MustBeValidHttpUrl<T>(
-		this IRuleBuilder<T, string> ruleBuilder, int maxLength)
+	public static IRuleBuilderOptions<T, string> MustBeValidHttpUrl<T>(this IRuleBuilder<T, string> ruleBuilder, int maxLength)
 	{
 		return ruleBuilder
 			.MaximumLength(maxLength)

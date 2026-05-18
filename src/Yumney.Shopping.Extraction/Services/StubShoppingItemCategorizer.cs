@@ -17,9 +17,7 @@ public sealed class StubShoppingItemCategorizer : IShoppingItemCategorizer
 		return Task.FromResult(category);
 	}
 
-	public Task<IReadOnlyDictionary<ItemName, IngredientCategory>> CategorizeManyAsync(
-		IReadOnlyCollection<ItemName> names,
-		CancellationToken cancellationToken = default)
+	public Task<IReadOnlyDictionary<ItemName, IngredientCategory>> CategorizeManyAsync(IReadOnlyCollection<ItemName> names, CancellationToken cancellationToken = default)
 	{
 		IReadOnlyDictionary<ItemName, IngredientCategory> map = names
 			.DistinctBy(name => name.Value)

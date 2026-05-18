@@ -1,11 +1,13 @@
 <Solution>
   <Folder Name="/src/" />
-  <Folder Name="/src/Host/">
-    <Project Path="src/Yumney.AppHost/Yumney.AppHost.csproj" />
+  <Folder Name="/src/Common/">
     <Project Path="src/Yumney.Gateway/Yumney.Gateway.csproj" />
     <Project Path="src/Yumney.Mcp.Server/Yumney.Mcp.Server.csproj" />
-    <Project Path="src/Yumney.ServiceDefaults/Yumney.ServiceDefaults.csproj" />
     <Project Path="src/Yumney.MigrationRunner/Yumney.MigrationRunner.csproj" />
+  </Folder>
+  <Folder Name="/src/Host/">
+    <Project Path="src/Yumney.AppHost/Yumney.AppHost.csproj" />
+    <Project Path="src/Yumney.ServiceDefaults/Yumney.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/src/Shared/">
     <Project Path="src/Yumney.Shared/Yumney.Shared.csproj" />
