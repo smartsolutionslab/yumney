@@ -4,6 +4,7 @@ using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
 using SmartSolutionsLab.Yumney.Shared.Common;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
+using SmartSolutionsLab.Yumney.Shared.Quantities;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Application.Commands.Handlers;
 
@@ -29,56 +30,46 @@ public sealed class GenerateShoppingListCommandHandler(
 		var planned = await readModel.GetPlannedRecipesAsync(owner, week, cancellationToken);
 		if (planned.Recipes.Count == 0) return GenerateShoppingListErrors.NoRecipes;
 
-		var merged = await MergeIngredientsAsync(planned.Recipes, cancellationToken);
+		var mergeInputs = await BuildMergeInputsAsync(planned.Recipes, cancellationToken);
+		var merged = IngredientLineMerger.Merge(mergeInputs);
 		(int staplesSkipped, List<ShoppingItemRequest> itemsToAdd) = await FilterOutStaplesAsync(owner, merged, cancellationToken);
 
 		return new GenerateShoppingListResultDto(itemsToAdd.Count, staplesSkipped);
 	}
 
-	private async Task<Dictionary<string, MergedItem>> MergeIngredientsAsync(
+	private async Task<List<IngredientLineMergeInput>> BuildMergeInputsAsync(
 		IReadOnlyList<PlannedRecipeDto> recipes,
 		CancellationToken cancellationToken)
 	{
-		Dictionary<string, MergedItem> merged = new(StringComparer.OrdinalIgnoreCase);
-
+		List<IngredientLineMergeInput> inputs = new(recipes.Count);
 		foreach (var recipe in recipes)
 		{
 			var recipeRef = SlotRecipeIdentifier.From(recipe.RecipeIdentifier);
 			var ingredients = await recipeIngredients.LookupAsync(recipeRef, cancellationToken);
-			var recipeServings = (ingredients.Count > 0 ? ingredients[0].RecipeServings : null) ?? recipe.Servings;
-			var scaleFactor = recipeServings > 0 ? (decimal)recipe.Servings / recipeServings : 1m;
+			if (ingredients.Count == 0) continue;
 
-			foreach (var ingredient in ingredients)
-			{
-				var scaledAmount = ingredient.Amount.HasValue
-					? Math.Round(ingredient.Amount.Value * scaleFactor, 2)
-					: 0m;
-
-				var key = $"{ingredient.Name.ToLowerInvariant()}|{ingredient.Unit ?? string.Empty}";
-				if (merged.TryGetValue(key, out var existing))
-				{
-					existing.Quantity += scaledAmount;
-				}
-				else
-				{
-					merged[key] = new MergedItem(ingredient.Name, scaledAmount, ingredient.Unit);
-				}
-			}
+			inputs.Add(new IngredientLineMergeInput(
+				[.. ingredients.Select(ingredient => new ScalableIngredientLine(
+					ingredient.Name,
+					ingredient.Amount,
+					ingredient.Unit,
+					ingredient.RecipeServings))],
+				recipe.Servings));
 		}
 
-		return merged;
+		return inputs;
 	}
 
 	private async Task<(int StaplesSkipped, List<ShoppingItemRequest> ItemsToAdd)> FilterOutStaplesAsync(
 		OwnerIdentifier owner,
-		Dictionary<string, MergedItem> merged,
+		IReadOnlyList<MergedIngredientLine> merged,
 		CancellationToken cancellationToken = default)
 	{
 		var staples = await staplesProvider.GetStapleNamesAsync(cancellationToken);
 		var staplesSkipped = 0;
 		List<ShoppingItemRequest> itemsToAdd = [];
 
-		foreach (var item in merged.Values)
+		foreach (var item in merged)
 		{
 			if (staples.Contains(item.Name.ToLowerInvariant()))
 			{
@@ -86,7 +77,7 @@ public sealed class GenerateShoppingListCommandHandler(
 				continue;
 			}
 
-			itemsToAdd.Add(item.ToShoppingItemRequest(mealPlanSource));
+			itemsToAdd.Add(new ShoppingItemRequest(item.Name, item.Amount ?? 0m, item.Unit, mealPlanSource));
 		}
 
 		if (itemsToAdd.Count > 0)
@@ -96,15 +87,4 @@ public sealed class GenerateShoppingListCommandHandler(
 
 		return (staplesSkipped, itemsToAdd);
 	}
-}
-
-internal sealed record MergedItem(string Name, decimal Quantity, string? Unit)
-{
-	public decimal Quantity { get; set; } = Quantity;
-}
-
-internal static class MergedItemMappingExtensions
-{
-	public static ShoppingItemRequest ToShoppingItemRequest(this MergedItem item, string source) =>
-		new(item.Name, item.Quantity, item.Unit, source);
 }
