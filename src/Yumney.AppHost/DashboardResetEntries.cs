@@ -9,7 +9,7 @@ namespace SmartSolutionsLab.Yumney.AppHost;
 /// </summary>
 internal static class DashboardResetEntries
 {
-	public static void AddShoppingAndMealPlanResetEntries(
+	public static void AddResetEntries(
 		IDistributedApplicationBuilder builder,
 		IResourceBuilder<IResourceWithConnectionString> recipesDb,
 		IResourceBuilder<IResourceWithConnectionString> shoppingDb,

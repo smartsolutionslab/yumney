@@ -1,3 +1,6 @@
+using System.Globalization;
+using Aspire.Hosting.Azure;
+using Azure.Provisioning.AppContainers;
 using SmartSolutionsLab.Yumney.AppHost.Options;
 
 namespace SmartSolutionsLab.Yumney.AppHost;
@@ -27,15 +30,9 @@ internal static class AppHostExtensions
 		return configured;
 	}
 
-	/// <summary>
-	/// Registers the LLM provider's shared resources on the AppHost. Call once
-	/// from <c>Program.cs</c> before any <see cref="WithLlmProvider"/> usage —
-	/// <c>AddParameter</c> / <c>AddOllama</c> throw on duplicate names, so the
-	/// resource has to be created in exactly one place.
-	/// </summary>
-	/// <param name="builder">The AppHost's distributed application builder.</param>
-	/// <param name="options">App host options that decide between OpenAI and Ollama.</param>
-	/// <returns>A handle to the registered resources; empty when E2E tests are on.</returns>
+	// Call once from Program.cs before any WithLlmProvider usage —
+	// AddParameter / AddOllama throw on duplicate names, so the
+	// resource has to be created in exactly one place.
 	public static LlmResources BuildLlmResources(this IDistributedApplicationBuilder builder, AppHostOptions options)
 	{
 		if (options.E2ETests) return new LlmResources(null, null);
@@ -71,4 +68,43 @@ internal static class AppHostExtensions
 
 		return builder;
 	}
+
+	public static IResourceBuilder<ProjectResource> PublishAsScaledContainerApp(
+		this IResourceBuilder<ProjectResource> project,
+		int min,
+		int max,
+		int? concurrentRequests = null) =>
+		project.PublishAsAzureContainerApp(ConfigureScaling(min, max, concurrentRequests));
+
+	public static IResourceBuilder<ContainerResource> PublishAsScaledContainerApp(
+		this IResourceBuilder<ContainerResource> container,
+		int min,
+		int max,
+		int? concurrentRequests = null) =>
+		container.PublishAsAzureContainerApp(ConfigureScaling(min, max, concurrentRequests));
+
+	private static Action<AzureResourceInfrastructure, ContainerApp> ConfigureScaling(int min, int max, int? concurrentRequests) =>
+		(_, app) =>
+		{
+			app.Template.Scale.MinReplicas = min;
+			app.Template.Scale.MaxReplicas = max;
+
+			if (concurrentRequests.HasValue)
+			{
+				app.Template.Scale.Rules.Add(new ContainerAppScaleRule
+				{
+					Name = "http-scaling",
+					Http = new ContainerAppHttpScaleRule
+					{
+						Metadata =
+						{
+							{
+								"concurrentRequests",
+								concurrentRequests.Value.ToString(CultureInfo.InvariantCulture)
+							},
+						},
+					},
+				});
+			}
+		};
 }
