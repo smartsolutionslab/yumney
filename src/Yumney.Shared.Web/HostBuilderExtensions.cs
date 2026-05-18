@@ -128,6 +128,17 @@ public static partial class HostBuilderExtensions
 				{
 					options.TokenValidationParameters.ValidIssuer = KeycloakDefaults.RealmUrl(builder.Configuration);
 				}
+
+				// Aspire 13.3.3+ may publish Keycloak as HTTPS in dev with a self-signed
+				// cert. The OIDC discovery / JWKS fetch happens over this same URL, so
+				// skip backchannel TLS validation in Development.
+				if (isDevelopment)
+				{
+					options.BackchannelHttpHandler = new HttpClientHandler
+					{
+						ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+					};
+				}
 			});
 
 		builder.Services.AddAuthorization();
