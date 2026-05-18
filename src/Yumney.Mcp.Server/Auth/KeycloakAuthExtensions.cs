@@ -43,6 +43,16 @@ public static class KeycloakAuthExtensions
 					options.TokenValidationParameters.ValidIssuer = RealmUrl(configuration);
 				}
 
+				// Aspire 13.3.3+ may publish Keycloak as HTTPS in dev with a self-signed
+				// cert. OIDC discovery + JWKS fetch over that URL needs to skip TLS validation.
+				if (isDevelopment)
+				{
+					options.BackchannelHttpHandler = new HttpClientHandler
+					{
+						ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+					};
+				}
+
 				options.Events = new JwtBearerEvents
 				{
 					OnChallenge = challenge =>
@@ -77,6 +87,7 @@ public static class KeycloakAuthExtensions
 	private static string GetBaseUrl(IConfiguration configuration) =>
 		configuration.GetConnectionString(keycloakConnectionStringName)
 			?? configuration[$"services:{keycloakConnectionStringName}:http:0"]
+			?? configuration[$"services:{keycloakConnectionStringName}:https:0"]
 			?? defaultUrl;
 
 	private static string GetRealm(IConfiguration configuration) =>

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using SmartSolutionsLab.Yumney.Shared.Events;
 using SmartSolutionsLab.Yumney.Shared.Events.Wolverine;
 using SmartSolutionsLab.Yumney.Shared.Persistence;
@@ -50,10 +51,26 @@ public static class UsersInfrastructureServiceCollectionExtensions
 		services.AddScoped<IStaplesListRepository>(sp => sp.GetRequiredService<UsersUnitOfWork>().StaplesLists);
 		services.AddScoped<IStaplesProvider, StaplesProvider>();
 
+		// Drop the _http endpoint-name prefix: Aspire 13.3.3 may publish Keycloak
+		// under the "https" endpoint name in dev (HTTPS upgrade), and the prefix
+		// would only match an "http"-named endpoint. The bare service name lets
+		// service discovery pick whichever scheme is published.
 		services.AddHttpClient<IKeycloakAdminService, KeycloakAdminService>(client =>
 		{
-			client.BaseAddress = new Uri("https+http://_http.keycloak");
-		}).AddStandardResilienceHandler();
+			client.BaseAddress = new Uri("https+http://keycloak");
+		})
+			.ConfigurePrimaryHttpMessageHandler(sp =>
+			{
+				var handler = new HttpClientHandler();
+				if (sp.GetRequiredService<IHostEnvironment>().IsDevelopment())
+				{
+					// Aspire dev cert is self-signed; admin calls would otherwise fail TLS.
+					handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+				}
+
+				return handler;
+			})
+			.AddStandardResilienceHandler();
 
 		services.AddHealthChecks().AddDbContextCheck<UsersDbContext>("usersdb");
 

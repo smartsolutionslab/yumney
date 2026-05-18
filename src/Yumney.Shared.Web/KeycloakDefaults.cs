@@ -16,8 +16,11 @@ public static class KeycloakDefaults
 
 	public static string GetBaseUrl(IConfiguration configuration)
 	{
+		// Aspire 13.3.3 may publish Keycloak under services:keycloak:https:0
+		// (HTTPS upgrade for dev-cert scenarios) rather than :http:0; accept either.
 		return configuration.GetConnectionString(ConnectionStringName)
 			?? configuration[$"services:{ConnectionStringName}:http:0"]
+			?? configuration[$"services:{ConnectionStringName}:https:0"]
 			?? DefaultUrl;
 	}
 
