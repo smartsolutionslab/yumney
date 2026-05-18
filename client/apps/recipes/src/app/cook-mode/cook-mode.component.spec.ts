@@ -314,4 +314,64 @@ describe('CookModeComponent', () => {
 
     expect(component.ingredientsPanelOpen()).toBe(true);
   }));
+
+  it('stops listening and stops speaking on destroy — back to push-to-talk on exit (TC-362-05)', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    fixture.destroy();
+
+    expect(voiceMock.stopListening).toHaveBeenCalledTimes(1);
+    expect(voiceMock.stopSpeaking).toHaveBeenCalledTimes(1);
+    expect(timersMock.cancelAll).toHaveBeenCalledTimes(1);
+  }));
+
+  it('configures voice recognition language from Transloco on entry (US-362)', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    fixture.detectChanges();
+    tick();
+
+    // setupTranslocoTesting defaults to 'en'; the entry path forwards that
+    // active lang to the speech recognition service so cook-mode commands
+    // are matched against the user's UI language.
+    expect(voiceMock.setLanguage).toHaveBeenCalledWith('en');
+  }));
+
+  it('speaks the current step automatically when voiceAutoReadInCookMode preference is on', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    preferencesMock.voiceAutoReadInCookMode.set(true);
+    fixture.detectChanges();
+    tick();
+
+    expect(voiceMock.speak).toHaveBeenCalledWith('First step');
+
+    voiceMock.speak.mockClear();
+    component.next();
+    fixture.detectChanges();
+    tick();
+
+    expect(voiceMock.speak).toHaveBeenCalledWith('Second step');
+  }));
+
+  it('does not auto-speak the current step when voiceAutoReadInCookMode preference is off', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    preferencesMock.voiceAutoReadInCookMode.set(false);
+    fixture.detectChanges();
+    tick();
+
+    expect(voiceMock.speak).not.toHaveBeenCalled();
+  }));
+
+  it('repeat command re-speaks the current step regardless of auto-read preference (US-240 carry-over)', fakeAsync(() => {
+    setupTestBed(vi.fn().mockReturnValue(of(mockRecipe)));
+    preferencesMock.voiceAutoReadInCookMode.set(false);
+    fixture.detectChanges();
+    tick();
+    voiceMock.speak.mockClear();
+
+    component.repeat();
+
+    expect(voiceMock.speak).toHaveBeenCalledWith('First step');
+  }));
 });
