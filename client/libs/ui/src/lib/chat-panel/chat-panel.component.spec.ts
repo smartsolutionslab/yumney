@@ -2,6 +2,7 @@ import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { TranslocoService } from '@jsverse/transloco';
 import { ChatPanelComponent } from './chat-panel.component';
 import { ChatApiService, RecipeApiService } from '@yumney/shared/api-client';
 import { ChatStateService, setupTranslocoTesting, VoiceService } from '@yumney/shared/models';
@@ -712,6 +713,47 @@ describe('ChatPanelComponent', () => {
 
       const button = fixture.nativeElement.querySelector('[data-testid="chat-replay"]') as HTMLButtonElement;
       expect(button.disabled).toBe(true);
+    });
+
+    it('propagates the active Transloco language to voice.setLanguage before each speak (TC-361-05)', async () => {
+      chatState.open();
+      fixture.detectChanges();
+
+      fixture.componentInstance['onToggleMic']();
+      const onTranscript = voiceMock.startListeningForTranscript.mock.calls[0][0] as (text: string) => void;
+      onTranscript('Was gibt es Dienstag?');
+
+      // The default test Transloco lang is 'en'; assert that the value flowing
+      // into setLanguage is the active lang, not a hard-coded constant. We can
+      // change the active lang at runtime via TranslocoService.setActiveLang
+      // and the next speak path should pick the new value up.
+      const transloco = TestBed.inject(TranslocoService);
+      // setupTranslocoTesting is configured with availableLangs=['en']; expand
+      // here so 'de' is acceptable.
+      transloco.setAvailableLangs(['en', 'de']);
+      transloco.setActiveLang('de');
+
+      chatApiMock.send.mockReturnValue(of({ reply: 'Dienstag ist Spaghetti', suggestions: [] }));
+      await sendMessage('Was gibt es Dienstag?');
+
+      expect(voiceMock.setLanguage).toHaveBeenLastCalledWith('de');
+      expect(voiceMock.speak).toHaveBeenCalledWith('Dienstag ist Spaghetti');
+    });
+
+    it('replay reapplies the active Transloco language to voice before speaking', async () => {
+      chatState.open();
+      chatApiMock.send.mockReturnValue(of({ reply: 'Hallo', suggestions: [] }));
+      await sendMessage('Hi');
+      voiceMock.setLanguage.mockClear();
+
+      const transloco = TestBed.inject(TranslocoService);
+      transloco.setAvailableLangs(['en', 'de']);
+      transloco.setActiveLang('de');
+
+      const button = fixture.nativeElement.querySelector('[data-testid="chat-replay"]') as HTMLButtonElement;
+      button.click();
+
+      expect(voiceMock.setLanguage).toHaveBeenCalledWith('de');
     });
   });
 });

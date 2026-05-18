@@ -176,6 +176,42 @@ describe('VoiceService.speak', () => {
 
     expect(prefs.ensureLoaded).toHaveBeenCalledTimes(1);
   });
+
+  it('defaults the utterance to en-US when no language is configured (US-361)', () => {
+    const { service, lastUtterance } = configureSpeak(makePrefsStub(true));
+
+    service.speak('hello');
+
+    expect(lastUtterance.value?.lang).toBe('en-US');
+  });
+
+  it('applies de-DE to the utterance after setLanguage("de") (TC-361-05)', () => {
+    const { service, lastUtterance } = configureSpeak(makePrefsStub(true));
+    service.setLanguage('de');
+
+    service.speak('hallo');
+
+    expect(lastUtterance.value?.lang).toBe('de-DE');
+  });
+
+  it('switching from de back to en updates the next utterance.lang', () => {
+    const { service, lastUtterance } = configureSpeak(makePrefsStub(true));
+    service.setLanguage('de');
+    service.speak('hallo');
+    service.setLanguage('en');
+
+    service.speak('hello');
+
+    expect(lastUtterance.value?.lang).toBe('en-US');
+  });
+
+  it('skips speaking when the text is empty / whitespace only', () => {
+    const { service, speak } = configureSpeak(makePrefsStub(true));
+
+    service.speak('   ');
+
+    expect(speak).not.toHaveBeenCalled();
+  });
 });
 
 interface MockRecognition {
