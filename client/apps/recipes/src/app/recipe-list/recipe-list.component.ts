@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, computed, inject, OnInit, DestroyRef, signal } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { RecipeApiService, RecipeListItem, GetRecipesParams } from '../api';
-import { createAsyncState, debouncedEffect, ERROR_MAPS, ROUTES, UI, toggleFavoriteInList } from '@yumney/shared/models';
+import { RecipeApiService, GetRecipesParams } from '../api';
+import { debouncedEffect, ROUTES, UI, toggleFavoriteInList } from '@yumney/shared/models';
 import { RouterLink } from '@angular/router';
 import {
   ButtonComponent,
@@ -16,6 +16,7 @@ import {
 } from '@yumney/ui';
 import { RecipeCardComponent } from './recipe-card/recipe-card.component';
 import { SortMenuComponent, SortMenuOption } from './sort-menu/sort-menu.component';
+import { RecipeListLoaderService } from './recipe-list-loader.service';
 import { RecipeAssignmentService } from '../integrations/meal-plan/recipe-assignment.service';
 import { MultiRecipePreviewDialogComponent } from '../integrations/shopping/multi-recipe-preview-dialog/multi-recipe-preview-dialog.component';
 import { MultiRecipeShoppingListService } from '../integrations/shopping/multi-recipe-shopping-list.service';
@@ -42,7 +43,7 @@ interface SortOption extends SortMenuOption {
     SortMenuComponent,
     MultiRecipePreviewDialogComponent,
   ],
-  providers: [RecipeAssignmentService, MultiRecipeShoppingListService, RecipeChatSearchService],
+  providers: [RecipeAssignmentService, MultiRecipeShoppingListService, RecipeChatSearchService, RecipeListLoaderService],
   templateUrl: './recipe-list.component.html',
   styleUrl: './recipe-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,41 +63,45 @@ export class RecipeListComponent implements OnInit {
   private recipeApi = inject(RecipeApiService);
   private chatSearch = inject(RecipeChatSearchService);
   private destroyRef = inject(DestroyRef);
-  private asyncState = createAsyncState();
+  private loader = inject(RecipeListLoaderService);
   private searchInput = signal('');
-  private loadRequestId = 0;
 
   constructor() {
     debouncedEffect(this.searchInput, UI.SEARCH_DEBOUNCE_MS, (value) => {
       const trimmed = value.trim();
       this.activeSearch.set(trimmed);
       if (trimmed === '' || !this.chatSearch.isConversational(trimmed)) {
-        this.isAiPowered.set(false);
+        this.loader.setAiPowered(false);
         this.resetAndReload();
         return;
       }
 
-      this.searchViaChat(trimmed);
+      this.multiSelect.clearSelection();
+      this.loader.loadFromChat(trimmed, {
+        pageSize: this.pageSize(),
+        sortBy: this.sortBy(),
+        sortDirection: this.sortDirection(),
+      });
     });
   }
 
   protected assignment = inject(RecipeAssignmentService);
   protected multiSelect = inject(MultiRecipeShoppingListService);
 
-  recipes = signal<RecipeListItem[]>([]);
-  totalCount = signal(0);
-  currentPage = signal(1);
+  recipes = this.loader.recipes;
+  totalCount = this.loader.totalCount;
+  currentPage = this.loader.currentPage;
+  availableTags = this.loader.availableTags;
+  isAiPowered = this.loader.isAiPowered;
+  isLoading = this.loader.isLoading;
   pageSize = signal(UI.DEFAULT_PAGE_SIZE);
   sortBy = signal<'Name' | 'Date' | 'Rating'>('Date');
   sortDirection = signal<'Ascending' | 'Descending'>('Descending');
-  isLoading = this.asyncState.isLoading;
-  serverError = computed(() => this.multiSelect.serverError() ?? this.asyncState.serverError());
+  serverError = computed(() => this.multiSelect.serverError() ?? this.loader.serverError());
   searchQuery = signal('');
   activeSearch = signal('');
-  isAiPowered = signal(false);
   filter = signal<RecipeFilterValue>({ ...EMPTY_FILTER });
   filterPanelOpen = signal(false);
-  availableTags = signal<string[]>([]);
 
   // Pagination + load-more disabled in AI mode: chat returns a small fixed
   // set (top-N suggestions), there's no concept of "next page" to ask for.
@@ -123,7 +128,7 @@ export class RecipeListComponent implements OnInit {
   ngOnInit(): void {
     this.assignment.initFromRoute();
     this.multiSelect.initFromRoute();
-    this.loadRecipes(false);
+    this.loader.load(this.buildParams(), false);
   }
 
   onSearchInput(event: Event): void {
@@ -135,7 +140,7 @@ export class RecipeListComponent implements OnInit {
   onSearchClear(): void {
     this.searchQuery.set('');
     this.activeSearch.set('');
-    this.isAiPowered.set(false);
+    this.loader.setAiPowered(false);
     this.resetAndReload();
   }
 
@@ -149,7 +154,7 @@ export class RecipeListComponent implements OnInit {
 
   onLoadMore(): void {
     this.currentPage.update((page) => page + 1);
-    this.loadRecipes(true);
+    this.loader.load(this.buildParams(), true);
   }
 
   toggleFilterPanel(): void {
@@ -166,43 +171,15 @@ export class RecipeListComponent implements OnInit {
   }
 
   private resetAndReload(): void {
-    this.currentPage.set(1);
-    this.recipes.set([]);
-    this.totalCount.set(0);
+    this.loader.reset();
     this.multiSelect.clearSelection();
-    this.loadRecipes(false);
+    this.loader.load(this.buildParams(), false);
   }
 
-  private searchViaChat(query: string): void {
-    const requestId = ++this.loadRequestId;
-    this.isAiPowered.set(true);
-    this.currentPage.set(1);
-    this.recipes.set([]);
-    this.totalCount.set(0);
-    this.multiSelect.clearSelection();
-
-    this.asyncState.execute(
-      this.chatSearch.search(query, {
-        pageSize: this.pageSize(),
-        sortBy: this.sortBy(),
-        sortDirection: this.sortDirection(),
-      }),
-      ERROR_MAPS.recipes.list,
-      ({ items, fellBack }) => {
-        if (requestId !== this.loadRequestId) return;
-        if (fellBack) this.isAiPowered.set(false);
-        this.recipes.set(items);
-        this.totalCount.set(items.length);
-        this.collectAvailableTags(items);
-      },
-    );
-  }
-
-  private loadRecipes(append: boolean): void {
-    const requestId = ++this.loadRequestId;
+  private buildParams(): GetRecipesParams {
     const search = this.activeSearch();
     const filter = this.filter();
-    const params: GetRecipesParams = {
+    return {
       page: this.currentPage(),
       pageSize: this.pageSize(),
       sortBy: this.sortBy(),
@@ -214,26 +191,5 @@ export class RecipeListComponent implements OnInit {
       ...(filter.maxCookTime !== null && { maxCookTime: filter.maxCookTime }),
       ...(filter.favoritesOnly && { favorites: true }),
     };
-
-    this.asyncState.execute(this.recipeApi.getRecipes(params), ERROR_MAPS.recipes.list, (response) => {
-      if (requestId !== this.loadRequestId) return;
-      this.totalCount.set(response.totalCount);
-      if (append) {
-        this.recipes.update((existing) => [...existing, ...response.items]);
-      } else {
-        this.recipes.set(response.items);
-      }
-      this.collectAvailableTags(response.items);
-    });
-  }
-
-  private collectAvailableTags(items: RecipeListItem[]): void {
-    const existing = new Set(this.availableTags());
-    for (const item of items) {
-      if (Array.isArray(item.tags)) {
-        for (const tag of item.tags) existing.add(tag);
-      }
-    }
-    this.availableTags.set([...existing].sort((a, b) => a.localeCompare(b)));
   }
 }
