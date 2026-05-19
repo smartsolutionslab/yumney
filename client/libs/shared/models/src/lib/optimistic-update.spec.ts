@@ -6,7 +6,7 @@ interface TestState {
   count: number;
 }
 
-const noopDestroyRef: DestroyRef = { onDestroy: () => () => undefined };
+const noopDestroyRef: DestroyRef = { destroyed: false, onDestroy: () => () => undefined };
 
 describe('optimisticSignalUpdate', () => {
   it('applies the mutation immediately before the API call resolves', () => {

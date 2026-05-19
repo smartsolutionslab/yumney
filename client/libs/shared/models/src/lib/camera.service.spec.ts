@@ -69,7 +69,7 @@ describe('CameraService', () => {
       const stopSpy1 = vi.fn();
       const stopSpy2 = vi.fn();
       const fakeStream = {
-        getTracks: () => [{ stop: stopSpy1 } as MediaStreamTrack, { stop: stopSpy2 } as MediaStreamTrack],
+        getTracks: () => [{ stop: stopSpy1 } as unknown as MediaStreamTrack, { stop: stopSpy2 } as unknown as MediaStreamTrack],
       } as MediaStream;
 
       mockGetUserMedia(fakeStream);
@@ -122,7 +122,7 @@ describe('CameraService', () => {
     it('should stop previous stream when opening a new one', async () => {
       const stopSpy = vi.fn();
       const firstStream = {
-        getTracks: () => [{ stop: stopSpy } as MediaStreamTrack],
+        getTracks: () => [{ stop: stopSpy } as unknown as MediaStreamTrack],
       } as MediaStream;
       const secondStream = { getTracks: () => [] } as MediaStream;
 

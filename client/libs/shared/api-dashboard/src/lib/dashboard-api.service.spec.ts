@@ -8,13 +8,13 @@ import type { SuggestionsResponse } from './suggestion';
 
 const mockActivity: UserActivityItem[] = [
   {
-    type: 'RecipeImported',
+    type: 'recipe_imported',
     recipeIdentifier: 'recipe-abc',
     recipeTitle: 'Pasta Carbonara',
     occurredAt: '2026-04-15T10:00:00Z',
   },
   {
-    type: 'RecipeCooked',
+    type: 'recipe_cooked',
     recipeIdentifier: 'recipe-def',
     recipeTitle: 'Caesar Salad',
     occurredAt: '2026-04-14T18:30:00Z',

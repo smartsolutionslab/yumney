@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { AuthApiService, RegisterRequest, ResendVerificationRequest } from './auth-api.service';
+import { AuthApiService } from './auth-api.service';
+import type { RegisterRequest } from './register-request';
+import type { ResendVerificationRequest } from './resend-verification-request';
 
 describe('AuthApiService', () => {
   let service: AuthApiService;

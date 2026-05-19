@@ -14,6 +14,7 @@ const mockChatResponse: ChatResponse = {
       reason: 'Quick and classic',
     },
   ],
+  actions: [],
 };
 
 describe('ChatApiService', () => {

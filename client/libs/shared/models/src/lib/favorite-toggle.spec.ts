@@ -2,7 +2,7 @@ import { DestroyRef, signal } from '@angular/core';
 import { of, Subject, throwError } from 'rxjs';
 import { toggleFavoriteInList, toggleFavoriteOnItem } from './favorite-toggle';
 
-const noopDestroyRef: DestroyRef = { onDestroy: () => () => undefined };
+const noopDestroyRef: DestroyRef = { destroyed: false, onDestroy: () => () => undefined };
 
 interface Item {
   identifier: string;
