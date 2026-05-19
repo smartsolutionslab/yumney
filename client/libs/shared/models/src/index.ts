@@ -38,6 +38,7 @@ export { CameraService, type FacingMode } from './lib/camera.service';
 export { IngredientRecognitionService } from './lib/ingredient-recognition.service';
 export { ChatStateService } from './lib/chat-state.service';
 export { ChatHintService } from './lib/chat-hint.service';
+export { ChatMessageDispatcher, type ChatDispatchResult } from './lib/chat-message-dispatcher.service';
 export { VoiceService, type VoiceCommand } from './lib/voice.service';
 export { WakeLockService } from './lib/wake-lock.service';
 export { CookingTimerService, type CookingTimer } from './lib/cooking-timer.service';
