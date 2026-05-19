@@ -7,7 +7,9 @@ public static class PagingExtensions
 {
 	extension<T>(IQueryable<T> query)
 	{
-		public async Task<(IReadOnlyList<T> Items, ItemCount TotalCount)> ToPagedListAsync(PagingOptions paging, CancellationToken cancellationToken = default)
+		public async Task<(IReadOnlyList<T> Items, ItemCount TotalCount)> ToPagedListAsync(
+			PagingOptions paging,
+			CancellationToken cancellationToken = default)
 		{
 			var totalCount = await query.CountAsync(cancellationToken);
 			var items = await query

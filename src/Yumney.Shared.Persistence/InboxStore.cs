@@ -18,7 +18,11 @@ namespace SmartSolutionsLab.Yumney.Shared.Persistence;
 public sealed class InboxStore<TContext>(TContext context) : IInboxStore
 	where TContext : DbContext
 {
-	public async Task<InboxOutcome> TryProcessAsync(Guid messageId, string consumerName, Func<CancellationToken, Task> handler, CancellationToken cancellationToken = default)
+	public async Task<InboxOutcome> TryProcessAsync(
+		Guid messageId,
+		string consumerName,
+		Func<CancellationToken, Task> handler,
+		CancellationToken cancellationToken = default)
 	{
 		var strategy = context.Database.CreateExecutionStrategy();
 
