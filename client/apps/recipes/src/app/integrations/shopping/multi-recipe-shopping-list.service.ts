@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 import { forkJoin, of } from 'rxjs';
 import { createAsyncState, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
-import { RecipeApiService, RecipeDetail, ShoppingApiService } from '../api';
+import { RecipeApiService, RecipeDetail, ShoppingApiService } from '../../api';
 import type { MultiRecipeSelection } from './multi-recipe-preview-dialog/multi-recipe-preview-dialog.component';
 
 const FALLBACK_SERVINGS = 4;
