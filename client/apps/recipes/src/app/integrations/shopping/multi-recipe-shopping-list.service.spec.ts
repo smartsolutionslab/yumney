@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { setupTranslocoTesting } from '@yumney/shared/models';
-import { RecipeApiService, ShoppingApiService } from '../api';
+import { RecipeApiService, ShoppingApiService } from '../../api';
 import { MultiRecipeShoppingListService } from './multi-recipe-shopping-list.service';
 
 interface ParamSnapshot {

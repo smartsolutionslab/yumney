@@ -24,7 +24,7 @@ import {
   StarRatingComponent,
   UnitToggleComponent,
 } from '@yumney/ui';
-import { CreateShoppingListDialogComponent } from './create-shopping-list-dialog/create-shopping-list-dialog.component';
+import { CreateShoppingListDialogComponent } from '../integrations/shopping/create-shopping-list-dialog/create-shopping-list-dialog.component';
 
 @Component({
   selector: 'yn-recipe-detail',

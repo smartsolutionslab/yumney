@@ -2,5 +2,6 @@
 /dist
 /coverage
 /.nx/cache
+/.nx/coverage
 /.nx/workspace-data
 .angular

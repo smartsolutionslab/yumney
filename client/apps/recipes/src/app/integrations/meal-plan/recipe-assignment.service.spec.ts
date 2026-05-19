@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NEVER, of, throwError } from 'rxjs';
-import { MealPlanApiService, RecipeListItem } from '../api';
+import { MealPlanApiService, RecipeListItem } from '../../api';
 import { RecipeAssignmentService } from './recipe-assignment.service';
 
 const recipe: RecipeListItem = {

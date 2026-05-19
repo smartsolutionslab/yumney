@@ -16,10 +16,10 @@ import {
 } from '@yumney/ui';
 import { RecipeCardComponent } from './recipe-card/recipe-card.component';
 import { SortMenuComponent, SortMenuOption } from './sort-menu/sort-menu.component';
-import { RecipeAssignmentService } from './recipe-assignment.service';
-import { MultiRecipePreviewDialogComponent } from './multi-recipe-preview-dialog/multi-recipe-preview-dialog.component';
-import { MultiRecipeShoppingListService } from './multi-recipe-shopping-list.service';
-import { RecipeChatSearchService } from './recipe-chat-search.service';
+import { RecipeAssignmentService } from '../integrations/meal-plan/recipe-assignment.service';
+import { MultiRecipePreviewDialogComponent } from '../integrations/shopping/multi-recipe-preview-dialog/multi-recipe-preview-dialog.component';
+import { MultiRecipeShoppingListService } from '../integrations/shopping/multi-recipe-shopping-list.service';
+import { RecipeChatSearchService } from '../integrations/chat/recipe-chat-search.service';
 
 interface SortOption extends SortMenuOption {
   by: 'Name' | 'Date' | 'Rating';

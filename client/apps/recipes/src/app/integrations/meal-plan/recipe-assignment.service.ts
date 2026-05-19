@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { createAsyncState, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
-import { MealPlanApiService, RecipeListItem } from '../api';
+import { MealPlanApiService, RecipeListItem } from '../../api';
 
 const ASSIGN_TO_PATTERN = /^(\d{4})-W(\d{1,2})-(\w+)$/;
 

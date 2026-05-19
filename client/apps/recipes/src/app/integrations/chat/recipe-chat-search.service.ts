@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { ChatApiService, RecipeApiService, RecipeListItem, type ChatRecipeSuggestion } from '../api';
+import { ChatApiService, RecipeApiService, RecipeListItem, type ChatRecipeSuggestion } from '../../api';
 
 interface FallbackParams {
   pageSize: number;
