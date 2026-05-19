@@ -2,16 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AuthService } from '@yumney/shared/auth';
-import {
-  RecipeApiService,
-  ImportRecipeRequest,
-  ImportRecipeResponse,
-  SaveRecipeRequest,
-  SavedRecipeResponse,
-  UpdateRecipeRequest,
-  RecipeDetail,
-  RecipeListResponse,
-} from './recipe-api.service';
+import { RecipeApiService } from './recipe-api.service';
+import type { ImportRecipeRequest } from './import-recipe-request';
+import type { ImportRecipeResponse } from './import-recipe-response';
+import type { SaveRecipeRequest } from './save-recipe-request';
+import type { SavedRecipeResponse } from './saved-recipe-response';
+import type { UpdateRecipeRequest } from './update-recipe-request';
+import type { RecipeDetail } from './recipe-detail';
+import type { RecipeListResponse } from './recipe-list-response';
 
 const mockImportResponse: ImportRecipeResponse = {
   title: 'Pasta Carbonara',
@@ -38,6 +36,10 @@ const mockRecipeDetail: RecipeDetail = {
   createdAt: '2026-03-10T00:00:00Z',
   ingredients: [{ name: 'Spaghetti', amount: 400, unit: 'g' }],
   steps: [{ number: 1, description: 'Cook pasta' }],
+  tags: [],
+  isFavorite: false,
+  rating: null,
+  notes: null,
 };
 
 const mockSavedResponse: SavedRecipeResponse = {
@@ -190,12 +192,15 @@ describe('RecipeApiService', () => {
           difficulty: 'medium',
           imageUrl: null,
           createdAt: '2026-03-10T00:00:00Z',
+          tags: [],
+          isFavorite: false,
+          rating: null,
+          hasNotes: false,
         },
       ],
       page: 1,
       pageSize: 20,
       totalCount: 1,
-      totalPages: 1,
     };
 
     it('should GET /api/v1/recipes with no params by default', () => {

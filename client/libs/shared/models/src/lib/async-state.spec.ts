@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { createAsyncState } from './async-state';
 
-const noopDestroyRef: DestroyRef = { onDestroy: () => () => undefined };
+const noopDestroyRef: DestroyRef = { destroyed: false, onDestroy: () => () => undefined };
 
 describe('createAsyncState', () => {
   it('flips isLoading while an observable is in flight', () => {

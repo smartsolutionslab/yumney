@@ -104,6 +104,9 @@ jobs:
       - name: Lint
         run: yarn nx run-many -t lint
 
+      - name: Typecheck
+        run: yarn nx run-many -t typecheck
+
       - name: Check formatting
         run: yarn prettier --check "**/*.{ts,html,scss,json}"
 

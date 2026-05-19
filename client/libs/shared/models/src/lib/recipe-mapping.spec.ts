@@ -5,12 +5,12 @@ const imported: ImportRecipeResponse = {
   title: 'Pasta Carbonara',
   description: 'Classic',
   ingredients: [
-    { name: 'spaghetti', amount: 400, unit: 'g', confidence: 0.9 },
-    { name: 'pancetta', amount: 150, unit: 'g', confidence: 0.95 },
+    { name: 'spaghetti', amount: 400, unit: 'g' },
+    { name: 'pancetta', amount: 150, unit: 'g' },
   ],
   steps: [
-    { number: 1, description: 'boil water', confidence: 1 },
-    { number: 2, description: 'cook pasta', confidence: 1 },
+    { number: 1, description: 'boil water' },
+    { number: 2, description: 'cook pasta' },
   ],
   servings: 4,
   prepTimeMinutes: 10,
@@ -32,18 +32,16 @@ describe('mapToSaveRecipeRequest', () => {
     expect(result.imageUrl).toBe('https://example.com/img.jpg');
   });
 
-  it('strips the extraction-confidence field from ingredients', () => {
+  it('copies ingredients through to the request', () => {
     const result = mapToSaveRecipeRequest(imported);
 
     expect(result.ingredients[0]).toEqual({ name: 'spaghetti', amount: 400, unit: 'g' });
-    expect(result.ingredients[0]).not.toHaveProperty('confidence');
   });
 
-  it('strips the extraction-confidence field from steps', () => {
+  it('copies steps through to the request', () => {
     const result = mapToSaveRecipeRequest(imported);
 
     expect(result.steps[0]).toEqual({ number: 1, description: 'boil water' });
-    expect(result.steps[0]).not.toHaveProperty('confidence');
   });
 
   it('includes sourceUrl when provided', () => {
@@ -86,6 +84,8 @@ describe('mapDetailToImportResponse', () => {
       tags: [],
       createdAt: '2026-04-22T00:00:00Z',
       isFavorite: false,
+      rating: null,
+      notes: null,
     };
 
     const result = mapDetailToImportResponse(detail);

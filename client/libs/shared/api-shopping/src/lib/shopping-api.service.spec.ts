@@ -1,7 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ShoppingApiService, CreateShoppingListRequest, ShoppingListDetail, ShoppingListSummary } from './shopping-api.service';
+import { ShoppingApiService } from './shopping-api.service';
+import type { CreateShoppingListRequest } from './create-shopping-list-request';
+import type { ShoppingListDetail } from './shopping-list-detail';
+import type { ShoppingListSummary } from './shopping-list-summary';
 
 const mockDetail: ShoppingListDetail = {
   identifier: 'list-123',
@@ -9,8 +12,8 @@ const mockDetail: ShoppingListDetail = {
   recipeIdentifier: 'recipe-abc',
   createdAt: '2026-03-10T00:00:00Z',
   items: [
-    { name: 'Spaghetti', amount: 400, unit: 'g' },
-    { name: 'Eggs', amount: 4, unit: null },
+    { identifier: 'item-1', name: 'Spaghetti', amount: 400, unit: 'g', category: 'pantry', isChecked: false },
+    { identifier: 'item-2', name: 'Eggs', amount: 4, unit: null, category: 'dairy', isChecked: false },
   ],
 };
 
