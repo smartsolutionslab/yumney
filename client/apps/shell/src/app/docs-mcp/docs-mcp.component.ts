@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslocoModule } from '@jsverse/transloco';
 import { DiscoveredCapabilitiesService } from './discovered-capabilities.service';
 import { DiscoveredCapability } from './discovered-capability';
@@ -37,9 +38,13 @@ export class DocsMcpComponent implements OnInit {
   protected readonly toolsLoading = computed(() => this.tools() === null);
 
   private readonly capabilitiesService = inject(DiscoveredCapabilitiesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.capabilitiesService.fetchMcpTools().subscribe((tools) => this.tools.set(tools));
+    this.capabilitiesService
+      .fetchMcpTools()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((tools) => this.tools.set(tools));
   }
 
   copyDesktopConfig(): void {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { concat, last, toArray } from 'rxjs';
@@ -8,7 +8,6 @@ import { AsyncStateComponent } from '@yumney/ui';
 
 @Component({
   selector: 'yn-meal-suggestion-panel',
-  standalone: true,
   imports: [TranslocoModule, LucideAngularModule, AsyncStateComponent],
   templateUrl: './meal-suggestion-panel.component.html',
   styleUrl: './meal-suggestion-panel.component.scss',
@@ -19,10 +18,10 @@ export class MealSuggestionPanelComponent {
   private suggestState = createAsyncState();
   private acceptState = createAsyncState();
 
-  @Input({ required: true }) year = 0;
-  @Input({ required: true }) week = 0;
+  readonly year = input.required<number>();
+  readonly week = input.required<number>();
 
-  @Output() planAccepted = new EventEmitter<void>();
+  readonly planAccepted = output<void>();
 
   protected suggestion = signal<WeekSuggestion | null>(null);
   protected loading = this.suggestState.isLoading;
@@ -32,7 +31,7 @@ export class MealSuggestionPanelComponent {
 
   protected onSuggest(): void {
     this.suggestion.set(null);
-    this.suggestState.execute(this.api.suggestWeekPlan(this.year, this.week), ERROR_MAPS.mealPlanner.suggestWeek, (result) =>
+    this.suggestState.execute(this.api.suggestWeekPlan(this.year(), this.week()), ERROR_MAPS.mealPlanner.suggestWeek, (result) =>
       this.suggestion.set(result),
     );
   }
@@ -50,7 +49,7 @@ export class MealSuggestionPanelComponent {
     // ConcurrencyConflictException on all but the first write. `concat`
     // chains the assigns in order; `last` waits for the final response.
     const assignments = entries.map((entry) =>
-      this.api.assignRecipe(this.year, this.week, {
+      this.api.assignRecipe(this.year(), this.week(), {
         day: entry.day,
         recipeIdentifier: entry.recipeIdentifier,
         recipeTitle: entry.recipeTitle,
