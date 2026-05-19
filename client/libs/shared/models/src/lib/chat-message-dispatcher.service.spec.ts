@@ -15,12 +15,8 @@ describe('ChatMessageDispatcher', () => {
       send: vi.fn().mockReturnValue(of({ reply: 'chat reply', suggestions: [], actions: [] })),
     };
     recipeApi = {
-      importRecipe: vi
-        .fn()
-        .mockReturnValue(of({ title: 'Imported Recipe', ingredients: [1, 2, 3], steps: [1, 2] })),
-      importFromText: vi
-        .fn()
-        .mockReturnValue(of({ title: 'Text Recipe', ingredients: [1], steps: [1, 2, 3] })),
+      importRecipe: vi.fn().mockReturnValue(of({ title: 'Imported Recipe', ingredients: [1, 2, 3], steps: [1, 2] })),
+      importFromText: vi.fn().mockReturnValue(of({ title: 'Text Recipe', ingredients: [1], steps: [1, 2, 3] })),
     };
 
     TestBed.configureTestingModule({

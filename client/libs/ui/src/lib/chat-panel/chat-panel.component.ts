@@ -139,7 +139,10 @@ export class ChatPanelComponent implements AfterViewInit {
       });
   }
 
-  private applyDispatchResult(result: { reply: string; suggestions: ChatRecipeSuggestion[]; actions: ChatAction[] }, speakReply: boolean): void {
+  private applyDispatchResult(
+    result: { reply: string; suggestions: ChatRecipeSuggestion[]; actions: ChatAction[] },
+    speakReply: boolean,
+  ): void {
     this.state.addMessage({ role: 'assistant', content: result.reply });
     this.lastSuggestions.set(result.suggestions);
     this.lastActions.set(result.actions);

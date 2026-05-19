@@ -204,5 +204,4 @@ export class CookModeComponent implements OnInit, OnDestroy {
     else if (event.key === 'ArrowLeft') this.previous();
     else if (event.key === 'Escape') this.exit();
   }
-
 }
