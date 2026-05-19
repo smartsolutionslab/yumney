@@ -53,9 +53,9 @@
     <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="1.3.0" />
     <!-- Reverse Proxy -->
     <PackageVersion Include="RedisRateLimiting" Version="1.2.1" />
-    <PackageVersion Include="WolverineFx.RabbitMQ" Version="5.39.2" />
-    <PackageVersion Include="WolverineFx.Postgresql" Version="5.39.2" />
-    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="5.39.2" />
+    <PackageVersion Include="WolverineFx.RabbitMQ" Version="5.39.3" />
+    <PackageVersion Include="WolverineFx.Postgresql" Version="5.39.3" />
+    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="5.39.3" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
     <!-- API -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />

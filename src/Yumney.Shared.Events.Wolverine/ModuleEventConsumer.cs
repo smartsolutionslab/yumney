@@ -37,28 +37,25 @@ public sealed partial class ModuleEventConsumer<TEvent>(
 	{
 		LogHandlingEvent(typeof(TEvent).Name, handler.GetType().Name);
 
+		var eventIdentifier = message.EventIdentifier;
 		InboxOutcome outcome;
 		try
 		{
-			outcome = await inboxStore.TryProcessAsync(
-				message.EventIdentifier,
-				consumerName,
-				ct => handler.HandleAsync(message, ct),
-				cancellationToken);
+			outcome = await inboxStore.TryProcessAsync(eventIdentifier, consumerName, ct => handler.HandleAsync(message, ct), cancellationToken);
 		}
 		catch (Exception exception)
 		{
-			LogHandlerFailed(exception, typeof(TEvent).Name, handler.GetType().Name, message.EventIdentifier);
+			LogHandlerFailed(exception, typeof(TEvent).Name, handler.GetType().Name, eventIdentifier);
 			throw;
 		}
 
 		switch (outcome)
 		{
 			case InboxOutcome.AlreadyProcessed:
-				LogSkippingDuplicate(typeof(TEvent).Name, consumerName, message.EventIdentifier);
+				LogSkippingDuplicate(typeof(TEvent).Name, consumerName, eventIdentifier);
 				break;
 			case InboxOutcome.DuplicateRace:
-				LogSkippingDuplicateRace(typeof(TEvent).Name, consumerName, message.EventIdentifier);
+				LogSkippingDuplicateRace(typeof(TEvent).Name, consumerName, eventIdentifier);
 				break;
 		}
 	}

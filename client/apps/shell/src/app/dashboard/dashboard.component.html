@@ -15,10 +15,6 @@
     <lucide-icon name="chevron-right" [size]="20" class="cookable-shortcut-chevron" />
   </a>
 
-  @if (serverError(); as error) {
-    <yn-message-banner tone="error" [message]="error" />
-  }
-
   @if (quickActions().length > 0) {
     <yn-quick-actions [actions]="quickActions()" (actionClicked)="onQuickAction($event)" />
   }
@@ -46,117 +42,9 @@
     </section>
   }
 
-  <section class="import-section" data-testid="import-section" [class.expanded]="importSectionExpanded()">
-    <button
-      class="import-toggle"
-      data-testid="import-toggle"
-      [attr.data-expanded]="importSectionExpanded()"
-      (click)="toggleImportSection()"
-    >
-      <h2>{{ t('dashboard.import.sectionTitle') }}</h2>
-      <span class="toggle-chevron" [class.open]="importSectionExpanded()">
-        <lucide-icon name="chevron-down" [size]="18" />
-      </span>
-    </button>
-
-    @if (importSectionExpanded()) {
-      <div class="import-content">
-        <yn-url-import
-          [isSaving]="isSaving()"
-          (importStarted)="onUrlImportStarted()"
-          (extracted)="onUrlExtracted($event)"
-          (failed)="onUrlImportFailed($event)"
-        />
-
-        <section class="photo-import">
-          <h3>{{ t('dashboard.photoImport.title') }}</h3>
-          <p class="subtitle">{{ t('dashboard.photoImport.subtitle') }}</p>
-          <div class="photo-import-actions">
-            @if (camera.cameraSupported()) {
-              <yn-button variant="dashed" [disabled]="isLoading() || isSaving()" (click)="onOpenCamera()">
-                {{ t('dashboard.photoImport.scanRecipe') }}
-              </yn-button>
-              <yn-button variant="dashed" [disabled]="isLoading() || isSaving()" (click)="onOpenScanner()">
-                {{ t('dashboard.photoImport.scanIngredients') }}
-              </yn-button>
-            }
-            <label class="btn-dashed" data-testid="photo-upload-btn" [class.disabled]="isLoading() || isSaving()">
-              <input
-                type="file"
-                data-testid="photo-upload-input"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                [disabled]="isLoading() || isSaving()"
-                (change)="onImportFromPhotos($event)"
-                hidden
-              />
-              @if (isLoading()) {
-                <span class="btn-spinner"></span>
-                <span>{{ t('dashboard.photoImport.extracting') }}</span>
-              } @else {
-                <span>{{ t('dashboard.photoImport.submit') }}</span>
-              }
-            </label>
-          </div>
-          <p class="hint">{{ t('dashboard.photoImport.hint') }}</p>
-        </section>
-
-        <section class="manual-create">
-          <h3>{{ t('dashboard.create.title') }}</h3>
-          <p class="subtitle">{{ t('dashboard.create.subtitle') }}</p>
-          <yn-button
-            variant="dashed"
-            extraClass="create-btn"
-            testId="create-recipe-btn"
-            [disabled]="isLoading() || isSaving() || !!extractedRecipe()"
-            (click)="onCreateManually()"
-          >
-            {{ t('dashboard.create.submit') }}
-          </yn-button>
-        </section>
-      </div>
-    }
-  </section>
-
-  @if (saveSuccess(); as savedTitle) {
-    <div class="save-success">
-      <yn-message-banner tone="success" message="dashboard.save.success" [params]="{ title: savedTitle }" testId="success-banner" />
-      <yn-button variant="ghost" extraClass="import-another" (click)="onImportAnother()">
-        {{ t('dashboard.save.importAnother') }}
-      </yn-button>
-    </div>
-  }
-  @if (extractedRecipe()) {
-    <yn-recipe-preview
-      [recipe]="extractedRecipe()!"
-      [isSaving]="isSaving()"
-      [previewTitle]="isManualEntry() ? t('dashboard.create.previewTitle') : undefined"
-      (save)="onSaveRecipe($event)"
-      (discard)="onDiscardRecipe()"
-    />
-  }
+  <yn-import-panel [sharedUrl]="sharedUrl()" (recipeSaved)="onRecipeSaved($event)" />
 
   @if (recentActivity().length > 0) {
     <yn-recent-activity [activities]="recentActivity()" />
-  }
-
-  @if (cameraActive()) {
-    @defer {
-      <yn-camera-capture
-        (capturedReady)="onCameraCaptured($event)"
-        (cancelled)="onCameraCancelled()"
-        (fallbackRequested)="onCameraFallback()"
-      />
-    }
-  }
-
-  @if (scannerActive()) {
-    @defer {
-      <yn-ingredient-scanner (ingredientsConfirmed)="onIngredientsConfirmed($event)" (cancelled)="onScannerCancelled()" />
-    }
-  }
-
-  @if (recognizedIngredients(); as ingredients) {
-    <yn-ingredients-toast [ingredients]="ingredients" (dismissed)="dismissRecognizedIngredients()" />
   }
 </div>
