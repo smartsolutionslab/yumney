@@ -19,7 +19,7 @@ import {
 } from '@yumney/ui';
 import { CameraService } from '@yumney/shared/models';
 import type { RecognizedIngredient } from '@yumney/shared/api-recipes';
-import { UrlImportComponent } from './url-import.component';
+import { UrlImportComponent } from '../integrations/recipes/url-import.component';
 import { DashboardSuggestionsService } from './dashboard-suggestions.service';
 
 @Component({
