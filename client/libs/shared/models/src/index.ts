@@ -39,7 +39,8 @@ export { IngredientRecognitionService } from './lib/ingredient-recognition.servi
 export { ChatStateService } from './lib/chat-state.service';
 export { ChatHintService } from './lib/chat-hint.service';
 export { ChatMessageDispatcher, type ChatDispatchResult } from './lib/chat-message-dispatcher.service';
-export { VoiceService, type VoiceCommand } from './lib/voice.service';
+export { VoiceService } from './lib/voice.service';
+export { parseVoiceCommand, type VoiceCommand } from './lib/voice-command-parser';
 export { WakeLockService } from './lib/wake-lock.service';
 export { CookingTimerService, type CookingTimer } from './lib/cooking-timer.service';
 export { ToastService, type Toast, type ToastKind, type ShowToastOptions } from './lib/toast.service';
