@@ -1,8 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService, RecipeDetail } from '../api';
-import { ShoppingApiService, CreateShoppingListItem } from '../api';
+import { CreateShoppingListItem, RecipeApiService, RecipeDetail, ShoppingApiService } from '../api';
 import { createAsyncState, ERROR_MAPS, ROUTES, VALIDATION } from '@yumney/shared/models';
 import { BackLinkComponent, LoadingSpinnerComponent, MessageBannerComponent } from '@yumney/ui';
 
