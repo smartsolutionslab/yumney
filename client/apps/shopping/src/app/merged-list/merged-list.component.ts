@@ -4,7 +4,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { ShoppingApiService, type MergedShoppingList, type MergedShoppingItem, type AddedItem, type ItemSource } from '../api';
+import { ShoppingApiService, type AddedItem, type MergedShoppingItem, type MergedShoppingList } from '../api';
 import { createAsyncState, ERROR_MAPS, groupByCategory, type CategoryGroup, ToastService } from '@yumney/shared/models';
 import {
   AsyncStateComponent,
@@ -14,6 +14,14 @@ import {
   EmptyStateComponent,
   normalizeCategory,
 } from '@yumney/ui';
+import {
+  applyOptimisticAdd,
+  containsAddedItem,
+  expandKey,
+  formatSourceQuantity,
+  sourceLiteral,
+  sourceTranslationKey,
+} from './merged-list-helpers';
 
 @Component({
   selector: 'yn-merged-list',
@@ -153,23 +161,9 @@ export class MergedListComponent {
     return this.expandedItems().has(expandKey(item));
   }
 
-  // Backend source strings: 'manual', 'chat', or a free-text recipe label.
-  // Map the well-known cases to a translation key; pass the rest through
-  // as-is for the template to render literally.
-  protected sourceTranslationKey(source: ItemSource): string | null {
-    const raw = (source.source ?? '').trim().toLowerCase();
-    if (raw.length === 0 || raw === 'manual' || raw === 'chat') return 'shopping.sources.manual';
-    return null;
-  }
-
-  protected sourceLiteral(source: ItemSource): string {
-    return source.source ?? '';
-  }
-
-  protected formatSourceQuantity(source: ItemSource, item: MergedShoppingItem): string {
-    if (item.unit) return `${source.quantity} ${item.unit}`;
-    return `${source.quantity}`;
-  }
+  protected readonly sourceTranslationKey = sourceTranslationKey;
+  protected readonly sourceLiteral = sourceLiteral;
+  protected readonly formatSourceQuantity = formatSourceQuantity;
 
   private loadList(): void {
     const requestId = ++this.loadRequestId;
@@ -200,36 +194,7 @@ export class MergedListComponent {
   }
 
   private applyOptimisticAdd(added: AddedItem): void {
-    const current = this.list() ?? { items: [] };
-    const matchIndex = current.items.findIndex(
-      (item) => item.itemName.toLowerCase() === added.itemName.toLowerCase() && item.unit === added.unit,
-    );
-
-    let nextItems: MergedShoppingItem[];
-    if (matchIndex >= 0) {
-      const matched = current.items[matchIndex];
-      const merged: MergedShoppingItem = {
-        ...matched,
-        totalQuantity: matched.totalQuantity + added.quantity,
-        displayQuantity: matched.displayQuantity + added.quantity,
-      };
-      nextItems = current.items.map((item, index) => (index === matchIndex ? merged : item));
-    } else {
-      nextItems = [
-        ...current.items,
-        {
-          itemName: added.itemName,
-          totalQuantity: added.quantity,
-          displayQuantity: added.quantity,
-          unit: added.unit,
-          category: added.category,
-          isBought: false,
-          sources: [],
-        },
-      ];
-    }
-
-    this.list.set({ ...current, items: nextItems });
+    this.list.set(applyOptimisticAdd(this.list(), added));
   }
 
   private refreshUntilContains(added: AddedItem, attempt = 0): void {
@@ -246,7 +211,7 @@ export class MergedListComponent {
       .subscribe({
         next: (list) => {
           if (requestId !== this.loadRequestId) return;
-          if (this.containsAddedItem(list, added)) {
+          if (containsAddedItem(list, added)) {
             this.list.set(list);
             return;
           }
@@ -266,15 +231,4 @@ export class MergedListComponent {
         },
       });
   }
-
-  private containsAddedItem(list: MergedShoppingList, added: AddedItem): boolean {
-    return list.items.some(
-      (item) =>
-        item.itemName.toLowerCase() === added.itemName.toLowerCase() && item.unit === added.unit && item.totalQuantity >= added.quantity,
-    );
-  }
-}
-
-function expandKey(item: MergedShoppingItem): string {
-  return `${item.itemName.toLowerCase()}|${item.unit ?? ''}`;
 }
