@@ -108,33 +108,13 @@ export class VoiceService {
   }
 
   startListening(onCommand: (command: VoiceCommand) => void): void {
-    if (!this.sttSupported() || this.isListening()) {
-      return;
-    }
-    const recognition = this.createRecognition();
-    if (!recognition) return;
-
-    recognition.lang = this.currentLang;
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.onresult = (event) => {
-      const last = event.results[event.results.length - 1];
-      const transcript = last[0]?.transcript?.trim() ?? '';
-      const command = VoiceService.parseCommand(transcript);
-      if (command) {
-        onCommand(command);
-      }
-    };
-    recognition.onerror = () => {
-      this.isListening.set(false);
-    };
-    recognition.onend = () => {
-      this.isListening.set(false);
-    };
-
-    this.recognition = recognition;
-    recognition.start();
-    this.isListening.set(true);
+    this.beginSession({
+      continuous: true,
+      onTranscript: (transcript) => {
+        const command = VoiceService.parseCommand(transcript);
+        if (command) onCommand(command);
+      },
+    });
   }
 
   stopListening(): void {
@@ -158,36 +138,18 @@ export class VoiceService {
    * fire the local timer, not a chat round-trip.
    */
   startListeningWithFallback(onCommand: (command: VoiceCommand) => void, onTranscript: (transcript: string) => void): void {
-    if (!this.sttSupported() || this.isListening()) {
-      return;
-    }
-    const recognition = this.createRecognition();
-    if (!recognition) return;
-
-    recognition.lang = this.currentLang;
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.onresult = (event) => {
-      const last = event.results[event.results.length - 1];
-      const transcript = last[0]?.transcript?.trim() ?? '';
-      if (transcript === '') return;
-      const command = VoiceService.parseCommand(transcript);
-      if (command) {
-        onCommand(command);
-        return;
-      }
-      onTranscript(transcript);
-    };
-    recognition.onerror = () => {
-      this.isListening.set(false);
-    };
-    recognition.onend = () => {
-      this.isListening.set(false);
-    };
-
-    this.recognition = recognition;
-    recognition.start();
-    this.isListening.set(true);
+    this.beginSession({
+      continuous: true,
+      onTranscript: (transcript) => {
+        if (transcript === '') return;
+        const command = VoiceService.parseCommand(transcript);
+        if (command) {
+          onCommand(command);
+          return;
+        }
+        onTranscript(transcript);
+      },
+    });
   }
 
   /**
@@ -207,43 +169,58 @@ export class VoiceService {
    * a "didn't catch that" hint to the user — AC TC-360-05.
    */
   startListeningForTranscript(onTranscript: (transcript: string) => void, onNoSpeech?: () => void): void {
-    if (!this.sttSupported() || this.isListening()) {
-      return;
-    }
+    let gotTranscript = false;
+    this.beginSession({
+      continuous: false,
+      onTranscript: (transcript) => {
+        if (transcript !== '') {
+          gotTranscript = true;
+          onTranscript(transcript);
+        }
+      },
+      // 'no-speech' is the browser's "silence timeout" signal; surface it
+      // to the caller so the UI can prompt "didn't catch that". Other
+      // errors (aborted, audio-capture, not-allowed, network) are not
+      // no-speech — leave them to the silent failure path the chat panel
+      // already handles via lastInputWasVoice reset.
+      onError: (event) => {
+        if (event.error === 'no-speech' && !gotTranscript) onNoSpeech?.();
+      },
+      // Some browsers (Chromium on Android) fire onend without an explicit
+      // 'no-speech' onerror when the silence timeout elapses. Cover that
+      // path too.
+      onEnd: () => {
+        if (!gotTranscript) onNoSpeech?.();
+      },
+    });
+  }
+
+  private beginSession(config: {
+    continuous: boolean;
+    onTranscript: (transcript: string) => void;
+    onError?: (event: { error: string }) => void;
+    onEnd?: () => void;
+  }): void {
+    if (!this.sttSupported() || this.isListening()) return;
+
     const recognition = this.createRecognition();
     if (!recognition) return;
 
-    let gotTranscript = false;
     recognition.lang = this.currentLang;
-    recognition.continuous = false;
+    recognition.continuous = config.continuous;
     recognition.interimResults = false;
     recognition.onresult = (event) => {
       const last = event.results[event.results.length - 1];
       const transcript = last[0]?.transcript?.trim() ?? '';
-      if (transcript !== '') {
-        gotTranscript = true;
-        onTranscript(transcript);
-      }
+      config.onTranscript(transcript);
     };
     recognition.onerror = (event) => {
       this.isListening.set(false);
-      // 'no-speech' is the browser's "silence timeout" signal; surface it
-      // to the caller so the UI can prompt "didn't catch that".
-      // Other errors (aborted, audio-capture, not-allowed, network) are
-      // not no-speech — leave them to the silent failure path the chat
-      // panel already handles via lastInputWasVoice reset.
-      if (event.error === 'no-speech' && !gotTranscript) {
-        onNoSpeech?.();
-      }
+      config.onError?.(event);
     };
     recognition.onend = () => {
       this.isListening.set(false);
-      // Some browsers (Chromium on Android) fire onend without an explicit
-      // 'no-speech' onerror when the silence timeout elapses. Cover that
-      // path too.
-      if (!gotTranscript) {
-        onNoSpeech?.();
-      }
+      config.onEnd?.();
     };
 
     this.recognition = recognition;
