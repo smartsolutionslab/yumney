@@ -336,18 +336,8 @@ describe('ChatPanelComponent', () => {
     expect(recipeApiMock.importFromText).not.toHaveBeenCalled();
   });
 
-  it('should detect URL correctly', () => {
-    expect(fixture.componentInstance['looksLikeUrl']('https://example.com/recipe')).toBe(true);
-    expect(fixture.componentInstance['looksLikeUrl']('http://food.com/pasta')).toBe(true);
-    expect(fixture.componentInstance['looksLikeUrl']('not a url')).toBe(false);
-    expect(fixture.componentInstance['looksLikeUrl']('Check https://example.com')).toBe(false);
-  });
-
-  it('should detect recipe text correctly', () => {
-    expect(fixture.componentInstance['looksLikeRecipeText']('line1\nline2\nline3')).toBe(true);
-    expect(fixture.componentInstance['looksLikeRecipeText']('a '.repeat(30))).toBe(true);
-    expect(fixture.componentInstance['looksLikeRecipeText']('short text')).toBe(false);
-  });
+  // URL / recipe-text detection lives in `ChatMessageDispatcher` and is covered
+  // by chat-message-dispatcher.service.spec.ts.
 
   // ── Actions ──
 

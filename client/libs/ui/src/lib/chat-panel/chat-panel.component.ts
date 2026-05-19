@@ -14,9 +14,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { RecipeApiService } from '@yumney/shared/api-recipes';
-import { ChatApiService, type ChatAction, type ChatRecipeSuggestion } from '@yumney/shared/chat-api';
-import { ChatHintService, ChatStateService, ROUTES, VoiceService } from '@yumney/shared/models';
+import { type ChatAction, type ChatRecipeSuggestion } from '@yumney/shared/chat-api';
+import { ChatHintService, ChatMessageDispatcher, ChatStateService, ROUTES, VoiceService } from '@yumney/shared/models';
 
 @Component({
   selector: 'yn-chat-panel',
@@ -31,8 +30,7 @@ export class ChatPanelComponent implements AfterViewInit {
 
   protected state = inject(ChatStateService);
   protected hints = inject(ChatHintService);
-  private chatApi = inject(ChatApiService);
-  private recipeApi = inject(RecipeApiService);
+  private dispatcher = inject(ChatMessageDispatcher);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   protected voice = inject(VoiceService);
@@ -129,87 +127,29 @@ export class ChatPanelComponent implements AfterViewInit {
     this.state.addMessage({ role: 'user', content: message });
     this.state.setThinking(true);
 
-    if (this.looksLikeUrl(message)) {
-      this.handleUrlImport(message);
-    } else if (this.looksLikeRecipeText(message)) {
-      this.handleTextImport(message);
-    } else {
-      this.handleChat(message);
-    }
-  }
-
-  private handleChat(message: string): void {
     const history = this.state.messages().slice(0, -1);
     const speakReply = this.lastInputWasVoice();
 
-    this.chatApi
-      .send({ message, history })
+    this.dispatcher
+      .dispatch(message, history)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response) => {
-          this.state.addMessage({ role: 'assistant', content: response.reply });
-          this.lastSuggestions.set(response.suggestions);
-          this.lastActions.set(response.actions ?? []);
-          this.lastAssistantMessage.set(response.reply);
-          this.state.setThinking(false);
-          if (speakReply) {
-            this.voice.setLanguage(this.transloco.getActiveLang() as 'en' | 'de');
-            this.voice.speak(response.reply);
-          }
-          this.lastInputWasVoice.set(false);
-        },
+        next: (result) => this.applyDispatchResult(result, speakReply),
         error: (err) => this.handleError(err),
       });
   }
 
-  private handleUrlImport(url: string): void {
-    this.recipeApi
-      .importRecipe({ url })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (recipe) => {
-          const reply = this.buildRecipeReply(recipe);
-          this.state.addMessage({ role: 'assistant', content: reply });
-          this.lastSuggestions.set([
-            {
-              recipeIdentifier: null,
-              title: recipe.title,
-              reason: 'Extracted from URL',
-            },
-          ]);
-          this.lastAssistantMessage.set(reply);
-          this.state.setThinking(false);
-        },
-        error: (err) => this.handleError(err),
-      });
-  }
-
-  private handleTextImport(text: string): void {
-    this.recipeApi
-      .importFromText(text)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (recipe) => {
-          const reply = this.buildRecipeReply(recipe);
-          this.state.addMessage({ role: 'assistant', content: reply });
-          this.lastSuggestions.set([
-            {
-              recipeIdentifier: null,
-              title: recipe.title,
-              reason: 'Extracted from text',
-            },
-          ]);
-          this.lastAssistantMessage.set(reply);
-          this.state.setThinking(false);
-        },
-        error: (err) => this.handleError(err),
-      });
-  }
-
-  private buildRecipeReply(recipe: { title: string; ingredients: unknown[]; steps: unknown[] }): string {
-    const count = recipe.ingredients.length;
-    const steps = recipe.steps.length;
-    return `I found a recipe: **${recipe.title}**\n` + `${count} ingredients, ${steps} steps.`;
+  private applyDispatchResult(result: { reply: string; suggestions: ChatRecipeSuggestion[]; actions: ChatAction[] }, speakReply: boolean): void {
+    this.state.addMessage({ role: 'assistant', content: result.reply });
+    this.lastSuggestions.set(result.suggestions);
+    this.lastActions.set(result.actions);
+    this.lastAssistantMessage.set(result.reply);
+    this.state.setThinking(false);
+    if (speakReply) {
+      this.voice.setLanguage(this.transloco.getActiveLang() as 'en' | 'de');
+      this.voice.speak(result.reply);
+    }
+    this.lastInputWasVoice.set(false);
   }
 
   private handleError(err: { status?: number }): void {
@@ -219,16 +159,6 @@ export class ChatPanelComponent implements AfterViewInit {
     } else {
       this.error.set('chat.errors.failed');
     }
-  }
-
-  private looksLikeUrl(text: string): boolean {
-    return /^https?:\/\/\S+$/i.test(text);
-  }
-
-  private looksLikeRecipeText(text: string): boolean {
-    const lines = text.split('\n').length;
-    const words = text.split(/\s+/).length;
-    return lines >= 3 || words >= 30;
   }
 
   protected onClear(): void {
