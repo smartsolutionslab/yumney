@@ -3,16 +3,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import {
-  ActivityApiService,
-  CreateShoppingListItem,
-  RecipeApiService,
-  RecipeActivityStats,
-  RecipeDetail,
-  ShoppingApiService,
-} from '../api';
+import { ActivityApiService, RecipeApiService, RecipeActivityStats, RecipeDetail } from '../api';
 import { RecipeNotesAutosaveService } from './recipe-notes-autosave.service';
 import { RecipeScalingService } from './recipe-scaling.service';
+import { RecipeCreateShoppingListService } from '../integrations/shopping/recipe-create-shopping-list.service';
 import { createAsyncState, type UnitSystem, ERROR_MAPS, ROUTES, UserPreferencesService, toggleFavoriteOnItem } from '@yumney/shared/models';
 import {
   BackLinkComponent,
@@ -45,30 +39,30 @@ import { CreateShoppingListDialogComponent } from '../integrations/shopping/crea
   templateUrl: './recipe-detail.component.html',
   styleUrl: './recipe-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecipeNotesAutosaveService, RecipeScalingService],
+  providers: [RecipeNotesAutosaveService, RecipeScalingService, RecipeCreateShoppingListService],
 })
 export class RecipeDetailComponent implements OnInit {
   protected readonly ROUTES = ROUTES;
 
   private recipeApi = inject(RecipeApiService);
-  private shoppingApi = inject(ShoppingApiService);
   private activityApi = inject(ActivityApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private loadState = createAsyncState();
   private deleteState = createAsyncState();
-  private createShoppingListState = createAsyncState();
   private notesAutosave = inject(RecipeNotesAutosaveService);
   private scaling = inject(RecipeScalingService);
+  protected createShoppingList = inject(RecipeCreateShoppingListService);
   private preferences = inject(UserPreferencesService);
 
   recipe = signal<RecipeDetail | null>(null);
   recipeStats = signal<RecipeActivityStats | null>(null);
   isLoading = this.loadState.isLoading;
   isDeleting = this.deleteState.isLoading;
-  isCreatingShoppingList = this.createShoppingListState.isLoading;
-  serverError = signal<string | null>(null);
+  isCreatingShoppingList = this.createShoppingList.isCreating;
+  private localError = signal<string | null>(null);
+  serverError = computed(() => this.localError() ?? this.createShoppingList.serverError());
 
   desiredServings = this.scaling.desiredServings;
   scaledIngredients = this.scaling.scaledIngredients;
@@ -77,7 +71,7 @@ export class RecipeDetailComponent implements OnInit {
   unitSystem = this.scaling.unitSystem;
 
   showDeleteConfirm = signal(false);
-  showCreateShoppingListConfirm = signal(false);
+  showCreateShoppingListConfirm = this.createShoppingList.showConfirm;
 
   notesDraft = this.notesAutosave.draft;
   notesSaved = this.notesAutosave.saved;
@@ -106,7 +100,7 @@ export class RecipeDetailComponent implements OnInit {
   ngOnInit(): void {
     const identifier = this.route.snapshot.paramMap.get('identifier');
     if (!identifier) {
-      this.serverError.set('recipes.detail.notFound');
+      this.localError.set('recipes.detail.notFound');
       return;
     }
 
@@ -132,7 +126,7 @@ export class RecipeDetailComponent implements OnInit {
         this.scaling.initFor(recipe);
         this.notesAutosave.attach(this.recipe);
       },
-      (error) => this.serverError.set(error),
+      (error) => this.localError.set(error),
     );
   }
 
@@ -175,13 +169,13 @@ export class RecipeDetailComponent implements OnInit {
     if (!recipe) return;
 
     this.showDeleteConfirm.set(false);
-    this.serverError.set(null);
+    this.localError.set(null);
 
     this.deleteState.execute(
       this.recipeApi.deleteRecipe(recipe.identifier),
       ERROR_MAPS.recipes.delete,
       () => this.router.navigate([ROUTES.recipes.list]),
-      (error) => this.serverError.set(error),
+      (error) => this.localError.set(error),
     );
   }
 
@@ -199,42 +193,21 @@ export class RecipeDetailComponent implements OnInit {
 
   onCreateShoppingList(): void {
     if (!this.recipe()) return;
-    this.serverError.set(null);
-    this.showCreateShoppingListConfirm.set(true);
+    this.localError.set(null);
+    this.createShoppingList.open();
   }
 
   onCreateShoppingListCancelled(): void {
-    if (this.isCreatingShoppingList()) return;
-    this.showCreateShoppingListConfirm.set(false);
+    this.createShoppingList.cancel();
   }
 
   onCreateShoppingListConfirmed(): void {
     const recipe = this.recipe();
     if (!recipe) return;
-
-    const desired = this.desiredServings();
-    const items: CreateShoppingListItem[] = this.scaledIngredients().map(({ name, amount, unit }) => ({
-      name,
-      amount,
-      unit,
-    }));
-    const title = recipe.servings !== null && desired !== null ? `${recipe.title} (x${desired})` : recipe.title;
-
-    this.createShoppingListState.execute(
-      this.shoppingApi.createShoppingList({
-        title,
-        items,
-        recipeIdentifier: recipe.identifier,
-      }),
-      ERROR_MAPS.recipes.createShoppingList,
-      (created) => {
-        this.showCreateShoppingListConfirm.set(false);
-        void this.router.navigateByUrl(ROUTES.shopping.detail(created.identifier));
-      },
-      (error) => {
-        this.showCreateShoppingListConfirm.set(false);
-        this.serverError.set(error);
-      },
-    );
+    this.createShoppingList.confirm({
+      recipe,
+      desiredServings: this.desiredServings(),
+      ingredients: this.scaledIngredients(),
+    });
   }
 }
