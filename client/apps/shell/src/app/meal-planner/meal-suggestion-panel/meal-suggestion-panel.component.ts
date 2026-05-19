@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output, si
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { concat, last, toArray } from 'rxjs';
-import { MealPlanApiService, type WeekSuggestion, type WeekSuggestionEntry } from '@yumney/shared/api-client';
+import { MealPlanApiService, type WeekSuggestion, type WeekSuggestionEntry } from '@yumney/shared/api-meal-plan';
 import { createAsyncState, ERROR_MAPS } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 

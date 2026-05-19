@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { MealPlanApiService, type MealAnalytics } from '@yumney/shared/api-client';
+import { MealPlanApiService, type MealAnalytics } from '@yumney/shared/api-meal-plan';
 import { createAsyncState, ERROR_MAPS } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 

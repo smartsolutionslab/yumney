@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, Subject, throwError } from 'rxjs';
 import { RegisterComponent } from './register.component';
-import { AuthApiService } from '@yumney/shared/api-client';
+import { AuthApiService } from '@yumney/shared/api-auth';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 
 const en = {

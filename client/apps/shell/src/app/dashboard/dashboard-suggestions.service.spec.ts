@@ -1,7 +1,7 @@
 import { DestroyRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { DashboardApiService } from '@yumney/shared/api-client';
+import { DashboardApiService } from '@yumney/shared/api-dashboard';
 import { DashboardSuggestionsService } from './dashboard-suggestions.service';
 
 describe('DashboardSuggestionsService', () => {

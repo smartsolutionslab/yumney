@@ -1,0 +1,14 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { API_ENDPOINTS } from '@yumney/shared/api-common';
+import type { ChatRequest, ChatResponse } from './chat-message';
+
+@Injectable({ providedIn: 'root' })
+export class ChatApiService {
+  private http = inject(HttpClient);
+
+  send(request: ChatRequest): Observable<ChatResponse> {
+    return this.http.post<ChatResponse>(API_ENDPOINTS.recipes.chat, request);
+  }
+}

@@ -16,7 +16,14 @@
     "baseUrl": ".",
     "paths": {
       "@yumney/shared/models": ["libs/shared/models/src/index.ts"],
-      "@yumney/shared/api-client": ["libs/shared/api-client/src/index.ts"],
+      "@yumney/shared/api-common": ["libs/shared/api-common/src/index.ts"],
+      "@yumney/shared/api-auth": ["libs/shared/api-auth/src/index.ts"],
+      "@yumney/shared/api-recipes": ["libs/shared/api-recipes/src/index.ts"],
+      "@yumney/shared/api-shopping": ["libs/shared/api-shopping/src/index.ts"],
+      "@yumney/shared/api-meal-plan": ["libs/shared/api-meal-plan/src/index.ts"],
+      "@yumney/shared/api-dashboard": ["libs/shared/api-dashboard/src/index.ts"],
+      "@yumney/shared/api-user-profile": ["libs/shared/api-user-profile/src/index.ts"],
+      "@yumney/shared/chat-api": ["libs/shared/chat-api/src/index.ts"],
       "@yumney/ui": ["libs/ui/src/index.ts"],
       "@yumney/shared/auth": ["libs/shared/auth/src/index.ts"]
     }

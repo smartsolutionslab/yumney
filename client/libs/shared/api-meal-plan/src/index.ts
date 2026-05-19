@@ -1,0 +1,21 @@
+export { MealPlanApiService } from './lib/meal-plan-api.service';
+export type {
+  MealSlot,
+  WeeklyPlan,
+  PlannedRecipe,
+  WeeklyPlannedRecipes,
+  AssignRecipeRequest,
+  SwapSlotsRequest,
+  ClearSlotRequest,
+  AdjustServingsRequest,
+  ConfirmMealRequest,
+  CookWithLeftoversRequest,
+  GenerateShoppingListResult,
+  MealHistoryEntry,
+  SearchHistoryParams,
+  WeekSuggestion,
+  WeekSuggestionEntry,
+  MealAnalytics,
+  TopRecipe,
+  CategoryShare,
+} from './lib/meal-plan';

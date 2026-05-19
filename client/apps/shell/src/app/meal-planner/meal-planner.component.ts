@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, ElementRef, HostListener, inject, s
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { MealPlanApiService, type WeeklyPlan, type MealSlot, type GenerateShoppingListResult } from '@yumney/shared/api-client';
+import { MealPlanApiService, type WeeklyPlan, type MealSlot, type GenerateShoppingListResult } from '@yumney/shared/api-meal-plan';
 import { injectAsyncStates, ERROR_MAPS, UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 import { MealSuggestionPanelComponent } from './meal-suggestion-panel/meal-suggestion-panel.component';

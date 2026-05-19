@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import type { RecognizedIngredient } from '@yumney/shared/api-client';
+import type { RecognizedIngredient } from '@yumney/shared/api-recipes';
 
 @Component({
   selector: 'yn-ingredients-toast',

@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/cor
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { AuthApiService } from '@yumney/shared/api-client';
+import { AuthApiService } from '@yumney/shared/api-auth';
 import { passwordsMatchValidator, createAsyncState, ensureFormValid, VALIDATION, ERROR_MAPS, ROUTES } from '@yumney/shared/models';
 import { CardComponent, FormFieldComponent, MessageBannerComponent, SubmitButtonComponent } from '@yumney/ui';
 

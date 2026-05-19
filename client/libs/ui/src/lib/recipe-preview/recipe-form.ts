@@ -1,5 +1,5 @@
 import { FormBuilder, FormArray, FormGroup, FormControl, Validators } from '@angular/forms';
-import { ImportRecipeResponse, ExtractedIngredient, ExtractedStep } from '@yumney/shared/api-client';
+import { ImportRecipeResponse, ExtractedIngredient, ExtractedStep } from '@yumney/shared/api-recipes';
 import { VALIDATION } from '@yumney/shared/models';
 
 export interface IngredientFormGroup {

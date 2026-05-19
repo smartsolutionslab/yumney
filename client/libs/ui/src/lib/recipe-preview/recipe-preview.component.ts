@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
-import { ImportRecipeResponse } from '@yumney/shared/api-client';
+import { ImportRecipeResponse } from '@yumney/shared/api-recipes';
 import { getGroupedUnits, ensureFormValid, type UnitGroupInfo } from '@yumney/shared/models';
 import { EditableListItemComponent } from '../editable-list-item/editable-list-item.component';
 import { FormFieldComponent } from '../form-field/form-field.component';

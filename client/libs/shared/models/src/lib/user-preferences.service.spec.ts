@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { UserProfileApiService, type UserProfile } from '@yumney/shared/api-client';
+import { UserProfileApiService, type UserProfile } from '@yumney/shared/api-user-profile';
 import { Observable, of, throwError } from 'rxjs';
 import { UserPreferencesService } from './user-preferences.service';
 

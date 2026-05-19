@@ -139,15 +139,11 @@ async function findTopLevelDrifts() {
 
       // Required shared chrome: any app that declares the prefix at all
       // must declare every key under it.
-      const matchedPrefix = REQUIRED_SHARED_PREFIXES.find((prefix) =>
-        startsWithPrefix(key, prefix),
-      );
+      const matchedPrefix = REQUIRED_SHARED_PREFIXES.find((prefix) => startsWithPrefix(key, prefix));
       if (matchedPrefix) {
         const missingApps = [];
         for (const [app, flat] of Object.entries(flatByApp)) {
-          const ownsPrefix = Object.keys(flat).some((appKey) =>
-            startsWithPrefix(appKey, matchedPrefix),
-          );
+          const ownsPrefix = Object.keys(flat).some((appKey) => startsWithPrefix(appKey, matchedPrefix));
           if (ownsPrefix && !(key in flat)) {
             missingApps.push(app);
           }
@@ -173,10 +169,7 @@ async function main() {
   const copied = [];
 
   for (const { source, target } of pairs) {
-    const [sourceContent, targetContent] = await Promise.all([
-      readFile(source, 'utf8'),
-      readOrNull(target),
-    ]);
+    const [sourceContent, targetContent] = await Promise.all([readFile(source, 'utf8'), readOrNull(target)]);
 
     if (sourceContent === targetContent) continue;
 
@@ -204,9 +197,7 @@ async function main() {
     if (valueDrifts.length > 0) {
       failed = true;
       if (drifted.length > 0) console.error('');
-      console.error(
-        `✖ ${valueDrifts.length} top-level i18n key(s) drift between apps (no auto-fix; resolve manually):`,
-      );
+      console.error(`✖ ${valueDrifts.length} top-level i18n key(s) drift between apps (no auto-fix; resolve manually):`);
       for (const { lang, key, valuesByApp } of valueDrifts) {
         console.error(`  - [${lang}] ${key}`);
         for (const [app, value] of Object.entries(valuesByApp)) {
@@ -218,9 +209,7 @@ async function main() {
     if (missing.length > 0) {
       failed = true;
       if (drifted.length > 0 || valueDrifts.length > 0) console.error('');
-      console.error(
-        `✖ ${missing.length} shared-subtree i18n key(s) missing from app(s) that own the subtree:`,
-      );
+      console.error(`✖ ${missing.length} shared-subtree i18n key(s) missing from app(s) that own the subtree:`);
       for (const { lang, key, missingApps } of missing) {
         console.error(`  - [${lang}] ${key} — missing from: ${missingApps.join(', ')}`);
       }

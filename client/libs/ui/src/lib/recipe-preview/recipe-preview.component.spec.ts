@@ -1,7 +1,7 @@
 import { provideYumneyIcons } from '../icons/provide-icons';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, viewChild } from '@angular/core';
-import { ImportRecipeResponse } from '@yumney/shared/api-client';
+import { ImportRecipeResponse } from '@yumney/shared/api-recipes';
 import { RecipePreviewComponent } from './recipe-preview.component';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 

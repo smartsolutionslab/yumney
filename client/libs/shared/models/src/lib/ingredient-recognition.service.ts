@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { RecipeApiService, type RecognizedIngredientsResponse, type RecognizedIngredient } from '@yumney/shared/api-client';
+import { RecipeApiService, type RecognizedIngredientsResponse, type RecognizedIngredient } from '@yumney/shared/api-recipes';
 
 @Injectable({ providedIn: 'root' })
 export class IngredientRecognitionService {

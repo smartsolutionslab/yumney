@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { UserProfileApiService, type UserProfile } from '@yumney/shared/api-client';
+import { UserProfileApiService, type UserProfile } from '@yumney/shared/api-user-profile';
 import type { UnitSystem } from './unit-conversion';
 
 /**

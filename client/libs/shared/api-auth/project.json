@@ -1,0 +1,7 @@
+{
+  "name": "shared-api-auth",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/api-auth/src",
+  "tags": ["scope:shared"]
+}

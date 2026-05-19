@@ -1,7 +1,0 @@
-{
-  "name": "shared-api-client",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "projectType": "library",
-  "sourceRoot": "libs/shared/api-client/src",
-  "tags": ["scope:shared"]
-}

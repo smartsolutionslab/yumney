@@ -1,11 +1,10 @@
-// MFE facade. This is the only place the shopping MFE imports from
-// @yumney/shared/api-client. Grow this list as the MFE needs more; the
+// MFE facade. This is the only place the shopping MFE imports from the
+// per-backend api libs. Grow this list as the MFE needs more; the
 // no-restricted-imports rule in the root ESLint config keeps direct
-// imports from the shared lib out of shopping/**.
+// imports out of shopping/**.
+export { RecipeApiService, type RecipeDetail } from '@yumney/shared/api-recipes';
 export {
-  RecipeApiService,
   ShoppingApiService,
-  type RecipeDetail,
   type ShoppingListDetail,
   type ShoppingListSummary,
   type ShoppingListItemResponse,
@@ -19,4 +18,4 @@ export {
   type IngredientBalanceItem,
   type IngredientBalanceSource,
   type MarkAsFrozenRequest,
-} from '@yumney/shared/api-client';
+} from '@yumney/shared/api-shopping';

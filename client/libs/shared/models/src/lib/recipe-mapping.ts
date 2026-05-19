@@ -1,4 +1,4 @@
-import type { ImportRecipeResponse, RecipeDetail, SaveRecipeRequest, UpdateRecipeRequest } from '@yumney/shared/api-client';
+import type { ImportRecipeResponse, RecipeDetail, SaveRecipeRequest, UpdateRecipeRequest } from '@yumney/shared/api-recipes';
 
 function extractRecipeFields(recipe: ImportRecipeResponse) {
   return {
