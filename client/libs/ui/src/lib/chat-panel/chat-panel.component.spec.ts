@@ -4,7 +4,8 @@ import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslocoService } from '@jsverse/transloco';
 import { ChatPanelComponent } from './chat-panel.component';
-import { ChatApiService, RecipeApiService } from '@yumney/shared/api-client';
+import { RecipeApiService } from '@yumney/shared/api-recipes';
+import { ChatApiService } from '@yumney/shared/chat-api';
 import { ChatStateService, setupTranslocoTesting, VoiceService } from '@yumney/shared/models';
 import { signal } from '@angular/core';
 
@@ -42,8 +43,8 @@ const en = {
 describe('ChatPanelComponent', () => {
   let fixture: ComponentFixture<ChatPanelComponent>;
   let chatState: ChatStateService;
-  let chatApiMock: { send: ReturnType<typeof vi.fn>; importFromText: ReturnType<typeof vi.fn> };
-  let recipeApiMock: { importRecipe: ReturnType<typeof vi.fn> };
+  let chatApiMock: { send: ReturnType<typeof vi.fn> };
+  let recipeApiMock: { importRecipe: ReturnType<typeof vi.fn>; importFromText: ReturnType<typeof vi.fn> };
   let voiceMock: {
     sttSupported: ReturnType<typeof signal<boolean>>;
     ttsSupported: ReturnType<typeof signal<boolean>>;
@@ -60,10 +61,10 @@ describe('ChatPanelComponent', () => {
   beforeEach(async () => {
     chatApiMock = {
       send: vi.fn().mockReturnValue(of({ reply: 'Hello!', suggestions: [] })),
-      importFromText: vi.fn().mockReturnValue(of({ title: 'Test', ingredients: [], steps: [] })),
     };
     recipeApiMock = {
       importRecipe: vi.fn().mockReturnValue(of({ title: 'Test', ingredients: [], steps: [] })),
+      importFromText: vi.fn().mockReturnValue(of({ title: 'Test', ingredients: [], steps: [] })),
     };
     voiceMock = {
       sttSupported: signal(true),
@@ -318,7 +319,7 @@ describe('ChatPanelComponent', () => {
     fixture.componentInstance['onSend']();
     await Promise.resolve();
 
-    expect(chatApiMock.importFromText).toHaveBeenCalledWith(longText);
+    expect(recipeApiMock.importFromText).toHaveBeenCalledWith(longText);
     expect(chatApiMock.send).not.toHaveBeenCalled();
   });
 
@@ -332,7 +333,7 @@ describe('ChatPanelComponent', () => {
 
     expect(chatApiMock.send).toHaveBeenCalled();
     expect(recipeApiMock.importRecipe).not.toHaveBeenCalled();
-    expect(chatApiMock.importFromText).not.toHaveBeenCalled();
+    expect(recipeApiMock.importFromText).not.toHaveBeenCalled();
   });
 
   it('should detect URL correctly', () => {

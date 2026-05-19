@@ -1,4 +1,4 @@
-import type { ImportRecipeResponse, RecipeDetail } from '@yumney/shared/api-client';
+import type { ImportRecipeResponse, RecipeDetail } from '@yumney/shared/api-recipes';
 import { mapDetailToImportResponse, mapToSaveRecipeRequest, mapToUpdateRecipeRequest } from './recipe-mapping';
 
 const imported: ImportRecipeResponse = {

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { MealPlanApiService, type WeekSuggestion, type WeeklyPlan } from '@yumney/shared/api-client';
+import { MealPlanApiService, type WeekSuggestion, type WeeklyPlan } from '@yumney/shared/api-meal-plan';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 import { provideYumneyIcons } from '@yumney/ui';
 import { MealSuggestionPanelComponent } from './meal-suggestion-panel.component';

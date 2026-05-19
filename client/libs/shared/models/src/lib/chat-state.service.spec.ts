@@ -1,5 +1,5 @@
 import { ChatStateService } from './chat-state.service';
-import type { ChatMessage } from '@yumney/shared/api-client';
+import type { ChatMessage } from '@yumney/shared/chat-api';
 
 describe('ChatStateService', () => {
   let service: ChatStateService;

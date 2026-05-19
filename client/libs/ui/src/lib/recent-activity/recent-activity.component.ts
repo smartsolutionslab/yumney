@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { ROUTES } from '@yumney/shared/models';
-import type { UserActivityItem } from '@yumney/shared/api-client';
+import type { UserActivityItem } from '@yumney/shared/api-dashboard';
 
 @Component({
   selector: 'yn-recent-activity',

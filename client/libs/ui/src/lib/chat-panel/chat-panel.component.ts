@@ -14,7 +14,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
-import { ChatApiService, RecipeApiService, type ChatAction, type ChatRecipeSuggestion } from '@yumney/shared/api-client';
+import { RecipeApiService } from '@yumney/shared/api-recipes';
+import { ChatApiService, type ChatAction, type ChatRecipeSuggestion } from '@yumney/shared/chat-api';
 import { ChatHintService, ChatStateService, ROUTES, VoiceService } from '@yumney/shared/models';
 
 @Component({
@@ -184,7 +185,7 @@ export class ChatPanelComponent implements AfterViewInit {
   }
 
   private handleTextImport(text: string): void {
-    this.chatApi
+    this.recipeApi
       .importFromText(text)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

@@ -5,7 +5,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MealPlanApiService, type MealHistoryEntry } from '@yumney/shared/api-client';
+import { MealPlanApiService, type MealHistoryEntry } from '@yumney/shared/api-meal-plan';
 import { createAsyncState, ERROR_MAPS } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 

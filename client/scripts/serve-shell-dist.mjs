@@ -43,10 +43,7 @@ function serveFile(res, path) {
     if (!stat.isFile()) return false;
     // Service-worker scripts must be served fresh so updates land — Angular
     // SW versions itself via ngsw.json which is fetched on every check.
-    const isSwAsset =
-      path.endsWith('ngsw-worker.js') ||
-      path.endsWith('ngsw.json') ||
-      path.endsWith('safety-worker.js');
+    const isSwAsset = path.endsWith('ngsw-worker.js') || path.endsWith('ngsw.json') || path.endsWith('safety-worker.js');
     res.writeHead(200, {
       'Content-Type': MIME[extname(path).toLowerCase()] ?? 'application/octet-stream',
       'Content-Length': stat.size,

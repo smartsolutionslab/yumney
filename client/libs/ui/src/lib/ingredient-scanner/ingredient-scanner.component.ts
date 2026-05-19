@@ -14,7 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
 import { CameraService, IngredientRecognitionService, type FacingMode } from '@yumney/shared/models';
-import type { RecognizedIngredient } from '@yumney/shared/api-client';
+import type { RecognizedIngredient } from '@yumney/shared/api-recipes';
 
 @Component({
   selector: 'yn-ingredient-scanner',

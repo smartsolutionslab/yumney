@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import type { ChatMessage } from '@yumney/shared/api-client';
+import type { ChatMessage } from '@yumney/shared/chat-api';
 
 @Injectable({ providedIn: 'root' })
 export class ChatStateService {

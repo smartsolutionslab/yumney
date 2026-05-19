@@ -14,10 +14,7 @@ export default [
         'error',
         {
           enforceBuildableLibDependency: true,
-          allow: [
-            '^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$',
-            '@yumney/shared/.+',
-          ],
+          allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$', '@yumney/shared/.+'],
           depConstraints: [
             {
               sourceTag: 'scope:shared',
@@ -60,18 +57,11 @@ export default [
     files: ['**/*.ts', '**/*.tsx'],
     ignores: ['**/*.spec.ts', '**/*.spec.tsx', '**/*.stories.ts', '**/*.stories.tsx'],
     rules: {
-      'max-lines': [
-        'error',
-        { max: 300, skipBlankLines: true, skipComments: true },
-      ],
+      'max-lines': ['error', { max: 300, skipBlankLines: true, skipComments: true }],
     },
   },
   {
-    files: [
-      'apps/recipes/src/**/*.ts',
-      'apps/shopping/src/**/*.ts',
-      'apps/account/src/**/*.ts',
-    ],
+    files: ['apps/recipes/src/**/*.ts', 'apps/shopping/src/**/*.ts', 'apps/account/src/**/*.ts'],
     ignores: ['apps/*/src/app/api.ts'],
     rules: {
       'no-restricted-imports': [
@@ -80,7 +70,8 @@ export default [
           paths: [
             {
               name: '@yumney/shared/api-client',
-              message: 'Import from the MFE facade (./api or ../api, etc.) instead of @yumney/shared/api-client. Add any missing exports to the facade first.',
+              message:
+                'Import from the MFE facade (./api or ../api, etc.) instead of @yumney/shared/api-client. Add any missing exports to the facade first.',
             },
           ],
         },
@@ -88,16 +79,7 @@ export default [
     },
   },
   {
-    files: [
-      '**/*.ts',
-      '**/*.tsx',
-      '**/*.cts',
-      '**/*.mts',
-      '**/*.js',
-      '**/*.jsx',
-      '**/*.cjs',
-      '**/*.mjs',
-    ],
+    files: ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts', '**/*.js', '**/*.jsx', '**/*.cjs', '**/*.mjs'],
     // Override or add rules here
     rules: {},
   },
@@ -110,8 +92,7 @@ export default [
       'no-restricted-syntax': [
         'error',
         {
-          selector:
-            "CallExpression[callee.property.name='waitForTimeout']",
+          selector: "CallExpression[callee.property.name='waitForTimeout']",
           message:
             'page.waitForTimeout() is forbidden in e2e specs (#401). Use expect.poll, locator.waitFor, or a polling assertion that ties to the deterministic signal you are actually waiting for.',
         },

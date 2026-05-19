@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService, ImportRecipeResponse, ImportStreamEvent } from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse, ImportStreamEvent } from '@yumney/shared/api-recipes';
 import { ERROR_MAPS, urlValidator, VALIDATION, ensureFormValid, mapHttpError } from '@yumney/shared/models';
 import { FormFieldComponent, SubmitButtonComponent } from '@yumney/ui';
 

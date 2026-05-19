@@ -1,0 +1,7 @@
+{
+  "name": "shared-api-recipes",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/api-recipes/src",
+  "tags": ["scope:shared"]
+}

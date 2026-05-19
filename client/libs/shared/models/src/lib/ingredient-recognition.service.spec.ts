@@ -1,5 +1,5 @@
 import { IngredientRecognitionService } from './ingredient-recognition.service';
-import type { RecognizedIngredient } from '@yumney/shared/api-client';
+import type { RecognizedIngredient } from '@yumney/shared/api-recipes';
 
 describe('IngredientRecognitionService', () => {
   let service: IngredientRecognitionService;

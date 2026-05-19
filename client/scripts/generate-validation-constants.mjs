@@ -13,16 +13,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..', '..');
 const srcDir = join(repoRoot, 'src');
-const outputPath = join(
-  __dirname,
-  '..',
-  'libs',
-  'shared',
-  'models',
-  'src',
-  'lib',
-  'validation-constants.ts',
-);
+const outputPath = join(__dirname, '..', 'libs', 'shared', 'models', 'src', 'lib', 'validation-constants.ts');
 
 const MODULE_PATTERN = /Yumney\.(\w+)\.Domain$/;
 const CLASS_PATTERN = /public\s+sealed\s+record\s+(\w+)/;

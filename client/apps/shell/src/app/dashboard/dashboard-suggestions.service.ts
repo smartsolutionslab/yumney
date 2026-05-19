@@ -1,7 +1,7 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, map, Observable, of, tap } from 'rxjs';
-import { DashboardApiService, type SuggestionsResponse, type UserActivityItem } from '@yumney/shared/api-client';
+import { DashboardApiService, type SuggestionsResponse, type UserActivityItem } from '@yumney/shared/api-dashboard';
 import type { QuickAction } from '@yumney/ui';
 
 @Injectable()

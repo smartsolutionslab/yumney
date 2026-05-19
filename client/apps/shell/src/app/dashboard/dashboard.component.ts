@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, inject, DestroyRef, OnInit,
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse } from '@yumney/shared/api-recipes';
 import { createAsyncState, mapToSaveRecipeRequest, ERROR_MAPS, ROUTES, UI } from '@yumney/shared/models';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -18,7 +18,7 @@ import {
   SuggestionCardComponent,
 } from '@yumney/ui';
 import { CameraService } from '@yumney/shared/models';
-import type { RecognizedIngredient } from '@yumney/shared/api-client';
+import type { RecognizedIngredient } from '@yumney/shared/api-recipes';
 import { UrlImportComponent } from './url-import.component';
 import { DashboardSuggestionsService } from './dashboard-suggestions.service';
 

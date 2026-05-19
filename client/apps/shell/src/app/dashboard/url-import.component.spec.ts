@@ -5,7 +5,7 @@ import { of, Subject, throwError } from 'rxjs';
 import { UrlImportComponent } from './url-import.component';
 import { FormFieldComponent } from '@yumney/ui';
 import { setupTranslocoTesting } from '@yumney/shared/models';
-import { RecipeApiService, ImportRecipeResponse, ImportStreamEvent } from '@yumney/shared/api-client';
+import { RecipeApiService, ImportRecipeResponse, ImportStreamEvent } from '@yumney/shared/api-recipes';
 
 const mockRecipe: ImportRecipeResponse = {
   title: 'Pasta Carbonara',

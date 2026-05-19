@@ -4,7 +4,7 @@ import { signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { IngredientScannerComponent } from './ingredient-scanner.component';
 import { CameraService, IngredientRecognitionService, setupTranslocoTesting } from '@yumney/shared/models';
-import type { RecognizedIngredient, RecognizedIngredientsResponse } from '@yumney/shared/api-client';
+import type { RecognizedIngredient, RecognizedIngredientsResponse } from '@yumney/shared/api-recipes';
 
 const en = {
   scanner: {

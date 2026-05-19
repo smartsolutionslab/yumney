@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { MealPlanApiService, type MealHistoryEntry } from '@yumney/shared/api-client';
+import { MealPlanApiService, type MealHistoryEntry } from '@yumney/shared/api-meal-plan';
 import type { PagedResponse } from '@yumney/shared/models';
 import { setupTranslocoTesting } from '@yumney/shared/models';
 import { provideYumneyIcons } from '@yumney/ui';
