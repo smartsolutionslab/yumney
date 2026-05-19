@@ -1,26 +1,13 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  HostListener,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, effect, HostListener, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { ChatApiService, RecipeApiService, type RecipeDetail } from '../api';
+import { RecipeApiService, type RecipeDetail } from '../api';
 import {
   CookingTimerService,
   createAsyncState,
   ERROR_MAPS,
   ROUTES,
   UserPreferencesService,
-  type VoiceCommand,
   VoiceService,
   WakeLockService,
 } from '@yumney/shared/models';
@@ -33,6 +20,7 @@ import {
   StepDisplayComponent,
   VoiceIndicatorComponent,
 } from '@yumney/ui';
+import { CookModeVoiceController } from './cook-mode-voice.controller';
 
 const SWIPE_THRESHOLD = 50;
 
@@ -51,21 +39,21 @@ const SWIPE_THRESHOLD = 50;
   templateUrl: './cook-mode.component.html',
   styleUrl: './cook-mode.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [CookModeVoiceController],
 })
 export class CookModeComponent implements OnInit, OnDestroy {
   protected readonly ROUTES = ROUTES;
 
   private recipeApi = inject(RecipeApiService);
-  private chatApi = inject(ChatApiService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private destroyRef = inject(DestroyRef);
   private loadState = createAsyncState();
   protected voice = inject(VoiceService);
   protected timers = inject(CookingTimerService);
   private wakeLock = inject(WakeLockService);
   private transloco = inject(TranslocoService);
   private preferences = inject(UserPreferencesService);
+  private voiceCtrl = inject(CookModeVoiceController);
 
   recipe = signal<RecipeDetail | null>(null);
   currentStepIndex = signal(0);
@@ -155,24 +143,13 @@ export class CookModeComponent implements OnInit, OnDestroy {
   }
 
   private startListeningInCookMode(): void {
-    this.voice.startListeningWithFallback(
-      (command) => this.handleCommand(command),
-      (transcript) => this.handleTranscript(transcript),
-    );
-  }
-
-  private handleTranscript(transcript: string): void {
-    // Global voice command while cooking — route through chat so users can say
-    // "add butter to shopping list" or "what's for dinner tomorrow?" without
-    // leaving cook mode. The reply gets spoken via the TTS path used by the
-    // step-read effect.
-    this.chatApi
-      .send({ message: transcript, history: [] })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => this.voice.speak(response.reply),
-        error: () => undefined,
-      });
+    this.voiceCtrl.start({
+      next: () => this.next(),
+      previous: () => this.previous(),
+      repeat: () => this.repeat(),
+      stop: () => undefined,
+      showIngredients: () => this.ingredientsPanelOpen.set(true),
+    });
   }
 
   toggleMute(): void {
@@ -228,29 +205,4 @@ export class CookModeComponent implements OnInit, OnDestroy {
     else if (event.key === 'Escape') this.exit();
   }
 
-  private handleCommand(command: VoiceCommand): void {
-    switch (command.type) {
-      case 'next':
-        this.next();
-        break;
-      case 'previous':
-        this.previous();
-        break;
-      case 'repeat':
-        this.repeat();
-        break;
-      case 'stop':
-        this.voice.stopSpeaking();
-        this.timers.cancelAll();
-        break;
-      case 'ingredients':
-        this.ingredientsPanelOpen.set(true);
-        break;
-      case 'timer': {
-        const name = this.transloco.translate('recipes.cook.timer.defaultName');
-        this.timers.start(name, command.minutes);
-        break;
-      }
-    }
-  }
 }
