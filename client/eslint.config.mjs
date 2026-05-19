@@ -67,11 +67,11 @@ export default [
       'no-restricted-imports': [
         'error',
         {
-          paths: [
+          patterns: [
             {
-              name: '@yumney/shared/api-client',
+              group: ['@yumney/shared/api-*', '@yumney/shared/chat-api'],
               message:
-                'Import from the MFE facade (./api or ../api, etc.) instead of @yumney/shared/api-client. Add any missing exports to the facade first.',
+                'Import from the MFE facade (./api or ../api, etc.) instead of the per-backend lib directly. Add any missing exports to the facade first.',
             },
           ],
         },
