@@ -12,12 +12,32 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--yn-space-3);
   margin-bottom: var(--yn-space-7);
 
   h1 {
     margin: 0;
+    margin-right: auto;
     font-size: var(--yn-text-4xl);
     font-weight: var(--yn-font-semibold);
+  }
+}
+
+.btn-import {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yn-space-2);
+  padding: var(--yn-space-2) var(--yn-space-4);
+  border-radius: var(--yn-radius-input);
+  background: var(--yn-primary);
+  color: var(--yn-text-inverse);
+  font-weight: var(--yn-font-semibold);
+  text-decoration: none;
+  transition: filter var(--yn-duration-fast) var(--yn-ease-glass);
+
+  &:hover,
+  &:focus-visible {
+    filter: brightness(1.05);
   }
 }
 

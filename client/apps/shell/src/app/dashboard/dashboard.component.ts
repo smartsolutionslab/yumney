@@ -56,7 +56,14 @@ export class DashboardComponent implements OnInit {
       const params = this.queryParams();
       const urlParam = params['url'] as string | undefined;
       const textParam = params['text'] as string | undefined;
+      const openImport = params['openImport'] === 'true';
       const sharedText = urlParam || textParam;
+
+      // `openImport` is the "Rezept importieren" deep-link from the
+      // recipe-list page — opens the import panel without prefilling a URL.
+      if (openImport) {
+        this.shouldExpandImport.set(true);
+      }
 
       if (!sharedText) return;
 
