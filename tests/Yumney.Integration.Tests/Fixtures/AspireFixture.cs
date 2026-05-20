@@ -62,6 +62,9 @@ public sealed partial class AspireFixture : IAsyncLifetime
 	/// <summary>Gets the pre-configured HttpClient targeting the MCP server.</summary>
 	public HttpClient McpServer { get; private set; } = null!;
 
+	/// <summary>Gets the pre-configured HttpClient targeting the YARP gateway.</summary>
+	public HttpClient Gateway { get; private set; } = null!;
+
 	public async Task InitializeAsync()
 	{
 		await CleanupStaleContainersAsync();
@@ -112,6 +115,7 @@ public sealed partial class AspireFixture : IAsyncLifetime
 		UsersApi = app.CreateHttpClient("users-api");
 		MealPlanApi = app.CreateHttpClient("mealplan-api");
 		McpServer = app.CreateHttpClient("mcp-server");
+		Gateway = app.CreateHttpClient("yumney-gateway");
 
 		async Task VerifyKeycloak()
 		{
@@ -140,6 +144,7 @@ public sealed partial class AspireFixture : IAsyncLifetime
 		UsersApi.Dispose();
 		MealPlanApi.Dispose();
 		McpServer.Dispose();
+		Gateway.Dispose();
 
 		if (app is not null)
 		{
