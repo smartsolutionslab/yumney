@@ -27,7 +27,7 @@ public sealed partial class LoggingCommandHandlerDecorator<TCommand, TResult>(
 
 		try
 		{
-			var result = await inner.HandleAsync(command, cancellationToken);
+			var result = await inner.HandleAsync(command, cancellationToken).ConfigureAwait(false);
 			var elapsed = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
 
 			if (ResultInspector.IsFailure(result, out var errorCode, out var errorMessage))

@@ -10,7 +10,7 @@ public sealed class RedisHealthCheck(IConnectionMultiplexer redis) : IHealthChec
 		try
 		{
 			var db = redis.GetDatabase();
-			var latency = await db.PingAsync();
+			var latency = await db.PingAsync().ConfigureAwait(false);
 
 			return latency.TotalMilliseconds < 1000
 				? HealthCheckResult.Healthy($"Redis ping: {latency.TotalMilliseconds:F0}ms")

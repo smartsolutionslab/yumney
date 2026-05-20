@@ -15,27 +15,27 @@ public sealed partial class GlobalExceptionHandlerMiddleware(RequestDelegate nex
 	{
 		try
 		{
-			await next(context);
+			await next(context).ConfigureAwait(false);
 		}
 		catch (EntityNotFoundException ex)
 		{
 			LogEntityNotFound(ex, ex.EntityName, ex.Identifier.ToString()!);
-			await WriteProblemDetailsAsync(context, HttpStatusCode.NotFound, "Not Found", ex.Message);
+			await WriteProblemDetailsAsync(context, HttpStatusCode.NotFound, "Not Found", ex.Message).ConfigureAwait(false);
 		}
 		catch (GuardException ex)
 		{
 			LogValidationFailed(ex, ex.ParameterName);
-			await WriteProblemDetailsAsync(context, HttpStatusCode.BadRequest, "Validation Error", ex.Message);
+			await WriteProblemDetailsAsync(context, HttpStatusCode.BadRequest, "Validation Error", ex.Message).ConfigureAwait(false);
 		}
 		catch (BusinessRuleValidationException ex)
 		{
 			LogBusinessRuleViolated(ex, ex.BrokenRule.GetType().Name);
-			await WriteProblemDetailsAsync(context, HttpStatusCode.UnprocessableEntity, "Business Rule Violation", ex.Message);
+			await WriteProblemDetailsAsync(context, HttpStatusCode.UnprocessableEntity, "Business Rule Violation", ex.Message).ConfigureAwait(false);
 		}
 		catch (Exception ex)
 		{
 			LogUnhandledException(ex);
-			await WriteProblemDetailsAsync(context, HttpStatusCode.InternalServerError, "Internal Server Error", "An unexpected error occurred.");
+			await WriteProblemDetailsAsync(context, HttpStatusCode.InternalServerError, "Internal Server Error", "An unexpected error occurred.").ConfigureAwait(false);
 		}
 	}
 
@@ -58,7 +58,7 @@ public sealed partial class GlobalExceptionHandlerMiddleware(RequestDelegate nex
 			problemDetails.Extensions["correlationId"] = correlationId;
 		}
 
-		await context.Response.WriteAsJsonAsync(problemDetails);
+		await context.Response.WriteAsJsonAsync(problemDetails).ConfigureAwait(false);
 	}
 
 	[LoggerMessage(Level = LogLevel.Warning, Message = "{EntityName} with identifier '{Identifier}' not found")]

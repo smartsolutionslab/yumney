@@ -27,7 +27,7 @@ public sealed partial class LoggingQueryHandlerDecorator<TQuery, TResult>(
 
 		try
 		{
-			var result = await inner.HandleAsync(query, cancellationToken);
+			var result = await inner.HandleAsync(query, cancellationToken).ConfigureAwait(false);
 			var elapsed = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
 
 			if (ResultInspector.IsFailure(result, out var errorCode, out var errorMessage))

@@ -20,6 +20,6 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
 
 		Activity.Current?.SetBaggage("correlation.id", correlationId);
 
-		await next(context);
+		await next(context).ConfigureAwait(false);
 	}
 }

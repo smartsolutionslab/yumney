@@ -29,6 +29,21 @@ dotnet_diagnostic.SA1027.severity = none
 dotnet_diagnostic.CA1000.severity = suggestion
 dotnet_diagnostic.CA1716.severity = none
 dotnet_diagnostic.CA1848.severity = suggestion
+
+# Shared libraries must use ConfigureAwait(false) on every awaited task so
+# they remain safe to reuse outside an ASP.NET Core host (e.g. a console
+# tool, desktop app, or any other SynchronizationContext-bearing caller).
+# Scoped to Yumney.Shared.* + Yumney.ServiceDefaults only — module-specific
+# host code stays opt-out since it always runs in an ASP.NET Core SyncContext.
+
+[src/Yumney.Shared/**/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[src/Yumney.Shared.*/**/*.cs]
+dotnet_diagnostic.CA2007.severity = error
+
+[src/Yumney.ServiceDefaults/**/*.cs]
+dotnet_diagnostic.CA2007.severity = error
 dotnet_sort_system_directives_first = true
 csharp_using_directive_placement = outside_namespace
 csharp_new_line_before_open_brace = all

@@ -24,7 +24,7 @@ public sealed class RequestContextMiddleware(RequestDelegate next, ILogger<Reque
 
 		using (logger.BeginScope(state))
 		{
-			await next(context);
+			await next(context).ConfigureAwait(false);
 		}
 	}
 }

@@ -23,17 +23,17 @@ public static class EventSourcedAggregateDraining
 		var aggregateIds = await metadataSet
 			.Where(metadata => metadata.OwnerId == ownerValue)
 			.Select(metadata => metadata.AggregateId)
-			.ToListAsync(cancellationToken);
+			.ToListAsync(cancellationToken).ConfigureAwait(false);
 
 		if (aggregateIds.Count > 0)
 		{
 			await eventsSet
 				.Where(stored => aggregateIds.Contains(stored.AggregateId))
-				.ExecuteDeleteAsync(cancellationToken);
+				.ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
 		}
 
 		await metadataSet
 			.Where(metadata => metadata.OwnerId == ownerValue)
-			.ExecuteDeleteAsync(cancellationToken);
+			.ExecuteDeleteAsync(cancellationToken).ConfigureAwait(false);
 	}
 }
