@@ -63,22 +63,27 @@ jobs:
             nuget-${{ runner.os }}-
 
       - name: Install Yarn
-        run: corepack enable
-
-      - name: Get yarn cache directory
-        id: yarn-cache-dir
+        # See ci.yml for context — Corepack's first-run download banner can
+        # race with `yarn config get cacheFolder` and yield an empty path.
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
         working-directory: client
-        run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
+        run: |
+          corepack enable
+          corepack prepare --activate
+          yarn --version
 
       - name: Cache Yarn
         uses: actions/cache@v4
         with:
-          path: ${{ steps.yarn-cache-dir.outputs.dir }}
+          path: client/.yarn/cache
           key: yarn-${{ runner.os }}-${{ hashFiles('client/yarn.lock') }}
           restore-keys: |
             yarn-${{ runner.os }}-
 
       - name: Install frontend dependencies
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
         working-directory: client
         run: yarn install --immutable
 
