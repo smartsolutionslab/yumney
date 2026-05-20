@@ -1,0 +1,164 @@
+name: Security
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+  schedule:
+    # Weekly Monday 06:00 UTC sweep so the vuln database stays fresh even on
+    # quiet branches. Catches advisories published against packages we shipped
+    # before they got flagged.
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  vulnerability-scan:
+    name: Vulnerability Scan (Trivy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      # Trivy walks both .NET (project.assets.json / *.csproj) and Node
+      # (yarn.lock / package.json) dependency manifests, so one scan covers
+      # the whole repo. `ignore-unfixed: true` keeps the noise floor down —
+      # we only surface vulns that already have a published fix.
+      #
+      # Advisory-mode (`exit-code: 0`) initially: the existing transitive
+      # backlog (axios / node-forge / path-to-regexp / fast-uri / flatted
+      # via Angular build / esbuild / babel) would otherwise block every
+      # PR. SARIF still uploads to the Security tab so findings stay
+      # actionable. Flip to `1` once the backlog is cleared.
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '0'
+
+      - name: Upload Trivy SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-fs
+
+      # Re-run Trivy in advisory mode capturing table output so PR logs
+      # show the actual findings without the SARIF JSON noise.
+      - name: Trivy summary (advisory)
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+
+  dotnet-vulnerable-packages:
+    name: .NET Vulnerable Packages (dotnet CLI)
+    # Belt + suspenders next to Trivy. The official `dotnet list package
+    # --vulnerable` resolves via NuGet's advisory feed, which sometimes
+    # catches CVEs faster than Trivy's vuln DB and gives package-context
+    # error messages that are easier to triage.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore Yumney.slnx
+
+      - name: List vulnerable packages
+        run: |
+          set -e
+          output=$(dotnet list Yumney.slnx package --vulnerable --include-transitive 2>&1)
+          echo "$output"
+          # `dotnet list` exits 0 even when vulnerable packages are found.
+          # Detect the "has the following vulnerable packages" marker and fail.
+          if echo "$output" | grep -q "has the following vulnerable packages"; then
+            echo "::error::Vulnerable NuGet packages detected"
+            exit 1
+          fi
+
+  yarn-audit:
+    name: Yarn Audit (frontend)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Install Yarn
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+        run: |
+          corepack enable
+          corepack prepare --activate
+          yarn --version
+
+      - name: Audit dependencies
+        # `yarn npm audit` exits non-zero on findings. Threshold is `critical`
+        # for the blocking check; the high-severity transitive backlog (axios,
+        # node-forge, path-to-regexp, fast-uri, flatted, etc. — all build-
+        # tooling or test-only deps pulled in by Angular / esbuild / babel)
+        # is real but each entry needs case-by-case triage and most are
+        # waiting on upstream releases. Trivy's SARIF still publishes those
+        # to the Security tab so they're visible without blocking PRs.
+        run: yarn npm audit --severity critical --recursive --all
+
+      - name: Audit dependencies (advisory — high severity)
+        # Non-blocking report so the high-severity backlog stays visible in
+        # PR logs without breaking the build. Flip the blocking threshold
+        # above from `critical` to `high` once the backlog is cleared.
+        continue-on-error: true
+        run: yarn npm audit --severity high --recursive --all
+
+  sbom:
+    name: Generate SBOM (CycloneDX)
+    # Software Bill of Materials, uploaded as a workflow artifact and (on
+    # main/develop pushes) attached to the GitHub dependency graph. Lets
+    # downstream consumers verify exactly which deps shipped in a build.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Generate CycloneDX SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+          artifact-name: sbom-${{ github.sha }}.cyclonedx.json
+          # Skip dependency-graph upload from PRs — the GraphQL API rejects
+          # uploads from forks, which would noisy-fail every external PR.
+          # On develop / main pushes the action attaches the SBOM to the
+          # repo's dependency graph for downstream consumers.
+          dependency-snapshot: ${{ github.event_name == 'push' }}
