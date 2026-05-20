@@ -93,7 +93,7 @@ describe('CameraService', () => {
     });
 
     it('should request stream with environment facing mode by default', async () => {
-      const fakeStream = { getTracks: () => [] } as MediaStream;
+      const fakeStream = { getTracks: () => [] } as unknown as MediaStream;
       const getUserMediaSpy = mockGetUserMedia(fakeStream);
 
       await firstValueFrom(service.openCamera());
@@ -107,7 +107,7 @@ describe('CameraService', () => {
     });
 
     it('should request stream with user facing mode when specified', async () => {
-      const fakeStream = { getTracks: () => [] } as MediaStream;
+      const fakeStream = { getTracks: () => [] } as unknown as MediaStream;
       const getUserMediaSpy = mockGetUserMedia(fakeStream);
 
       await firstValueFrom(service.openCamera('user'));
@@ -124,7 +124,7 @@ describe('CameraService', () => {
       const firstStream = {
         getTracks: () => [{ stop: stopSpy } as unknown as MediaStreamTrack],
       } as MediaStream;
-      const secondStream = { getTracks: () => [] } as MediaStream;
+      const secondStream = { getTracks: () => [] } as unknown as MediaStream;
 
       mockGetUserMedia(firstStream);
       await firstValueFrom(service.openCamera('environment'));
