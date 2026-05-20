@@ -4,6 +4,7 @@
     "assignTitle": "Select a recipe",
     "back": "Back",
     "assign": "Assign to meal plan",
+    "import": "Import recipe",
     "sortLabel": "Sort recipes",
     "sort": {
       "dateDesc": "Newest first",
