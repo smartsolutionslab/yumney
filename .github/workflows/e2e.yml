@@ -255,6 +255,39 @@ jobs:
           done
           test -s /tmp/e2e-tokens.json
 
+      - name: Rewrite app-config.json with dynamic Keycloak URL
+        # The shell's `assets/config/app-config.json` hard-codes
+        # `http://localhost:8080` for keycloakUrl. Aspire 13.3.3 only
+        # publishes Keycloak on a random host port for the 8443/tcp HTTPS
+        # endpoint, so any in-browser OIDC redirect (login.spec, account
+        # deletion) lands at an unbound port and Chromium reports
+        # ERR_EMPTY_RESPONSE. Resolve the actual mapped HTTPS port and
+        # patch the config before Playwright opens the app — the Angular
+        # config service fetches this file at bootstrap, so the rewrite
+        # is picked up on every fresh page navigation.
+        run: |
+          set -e
+          kc=$(docker ps -q -f name=keycloak | head -1)
+          test -n "$kc" || { echo "keycloak container not found"; exit 1; }
+          kc_port=$(docker port "$kc" 8443/tcp 2>/dev/null | head -1 | sed -E 's/.*:([0-9]+)$/\1/')
+          scheme=https
+          if [ -z "$kc_port" ]; then
+            kc_port=$(docker port "$kc" 8080/tcp 2>/dev/null | head -1 | sed -E 's/.*:([0-9]+)$/\1/')
+            scheme=http
+          fi
+          test -n "$kc_port" || { echo "could not resolve keycloak host port"; exit 1; }
+          target="${scheme}://localhost:${kc_port}"
+          echo "patching app-config.json keycloakUrl -> ${target}"
+
+          for config in \
+            client/dist/apps/shell/browser/assets/config/app-config.json \
+            client/apps/shell/src/assets/config/app-config.json; do
+            if [ -f "$config" ]; then
+              python3 -c 'import json,sys; path=sys.argv[1]; cfg=json.load(open(path)); cfg["keycloakUrl"]=sys.argv[2]; json.dump(cfg, open(path,"w"), indent=2)' "$config" "$target"
+              echo "  patched $config"
+            fi
+          done
+
       - name: Warm up API endpoints
         # First call to each *.Api after Aspire startup pays a 5-15s JIT +
         # EF-model-build cost. Playwright toBeVisible timeouts are 10s, so
