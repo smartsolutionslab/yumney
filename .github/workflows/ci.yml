@@ -81,21 +81,36 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Yarn
-        run: corepack enable
-
-      - name: Get yarn cache directory
-        id: yarn-cache-dir
-        run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
+        # Pre-activate the pinned Yarn before any later step shells out to
+        # `yarn`. Newer Corepack versions print a "Corepack is about to
+        # download..." banner on first invocation that races with the
+        # cacheFolder lookup, returning an empty value and tripping the
+        # downstream actions/cache `Input required and not supplied: path`
+        # error. Setting COREPACK_ENABLE_DOWNLOAD_PROMPT=0 suppresses the
+        # banner; explicitly preparing yarn here guarantees subsequent
+        # `yarn` calls are warm.
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+        run: |
+          corepack enable
+          corepack prepare --activate
+          yarn --version
 
       - name: Cache Yarn
+        # The cache folder is Yarn 4's default (`.yarn/cache` next to the
+        # lockfile) — pin it directly instead of fishing it out of
+        # `yarn config get cacheFolder`, which has been intermittently
+        # empty under newer Corepack.
         uses: actions/cache@v4
         with:
-          path: ${{ steps.yarn-cache-dir.outputs.dir }}
+          path: client/.yarn/cache
           key: yarn-${{ runner.os }}-${{ hashFiles('client/yarn.lock') }}
           restore-keys: |
             yarn-${{ runner.os }}-
 
       - name: Install dependencies
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
         run: yarn install --immutable
 
       - name: Verify i18n in sync
