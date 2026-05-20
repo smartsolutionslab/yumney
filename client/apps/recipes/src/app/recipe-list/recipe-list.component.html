@@ -9,6 +9,16 @@
       </div>
     } @else {
       <h1>{{ t('recipes.list.title') }}</h1>
+      <a
+        class="btn-import"
+        data-testid="recipe-list-import"
+        [routerLink]="ROUTES.dashboard"
+        [queryParams]="{ openImport: 'true' }"
+        [attr.aria-label]="t('recipes.list.import')"
+      >
+        <lucide-icon name="plus" [size]="18" />
+        <span>{{ t('recipes.list.import') }}</span>
+      </a>
     }
     <yn-sort-menu
       [currentValue]="currentSort()"

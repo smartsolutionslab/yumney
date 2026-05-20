@@ -35,6 +35,7 @@ import { UrlImportComponent } from '../url-import.component';
     IngredientsToastComponent,
   ],
   templateUrl: './import-panel.component.html',
+  styleUrl: './import-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImportPanelComponent implements OnDestroy {

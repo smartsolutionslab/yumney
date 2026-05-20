@@ -337,14 +337,19 @@
 }
 
 // ── Input ──
+// Two-row layout: textarea spans the full row so it has room to type;
+// mic / mute / replay sit on the row below with the send button pinned
+// to the right. Before the redesign, all five controls shared one flex
+// row and the textarea got squeezed to ~150px on narrow panels.
 .chat-input {
   display: flex;
-  gap: var(--yn-space-3);
+  flex-wrap: wrap;
+  gap: var(--yn-space-2);
   padding: var(--yn-space-5);
   border-top: 1px solid var(--yn-glass-border-subtle);
 
   textarea {
-    flex: 1;
+    flex: 1 0 100%;
     padding: var(--yn-space-3) var(--yn-space-4);
     border: 1px solid var(--yn-glass-border);
     border-radius: var(--yn-radius-input);
@@ -370,18 +375,17 @@
 }
 
 .chat-send {
-  align-self: flex-end;
+  margin-left: auto;
 }
 
 .chat-mic,
 .chat-mute,
 .chat-replay {
-  align-self: flex-end;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--yn-radius-circle);
   border: 1px solid var(--yn-glass-border);
   background: var(--yn-glass-bg);
