@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -9,6 +10,17 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 public sealed partial class AspireFixture
 #pragma warning restore SA1601
 {
+	// Cache tokens across the whole xUnit collection. Without this, every
+	// test does InitializeAsync (cleanup -> token #1), Act (auth client ->
+	// token #2), DisposeAsync (cleanup -> token #3) = 3 password grants per
+	// test for the shared `testuser`. 295 tests therefore hammer Keycloak
+	// with ~885 grants, and the realm's bruteForceProtected + default
+	// quickLoginCheckMilliSeconds inevitably starts replying 401 invalid_grant
+	// on a random subset of runs. Tokens are valid for 1h (accessTokenLifespan
+	// in the realm json), well past the full-suite duration.
+	private static readonly TimeSpan ExpirySafetyMargin = TimeSpan.FromMinutes(1);
+	private readonly ConcurrentDictionary<string, CachedToken> _tokenCache = new();
+
 	public Task<HttpClient> CreateAuthenticatedClientAsync(string resourceName) =>
 		CreateAuthenticatedClientAsync(resourceName, "testuser", "Test1234");
 
@@ -36,6 +48,19 @@ public sealed partial class AspireFixture
 
 	public async Task<string> GetAccessTokenAsync(string username, string password)
 	{
+		var cacheKey = $"{username}|{password}";
+		if (_tokenCache.TryGetValue(cacheKey, out var cached) && cached.ExpiresAt > DateTimeOffset.UtcNow + ExpirySafetyMargin)
+		{
+			return cached.AccessToken;
+		}
+
+		var token = await FetchAccessTokenAsync(username, password);
+		_tokenCache[cacheKey] = token;
+		return token.AccessToken;
+	}
+
+	private async Task<CachedToken> FetchAccessTokenAsync(string username, string password)
+	{
 		var keycloakClient = App.CreateHttpClient("keycloak");
 		Dictionary<string, string> valueCollection = new()
 		{
@@ -53,9 +78,12 @@ public sealed partial class AspireFixture
 		}
 
 		var tokenJson = await tokenResponse.Content.ReadFromJsonAsync<JsonElement>();
-
-		return tokenJson.GetProperty("access_token").GetString()!;
+		var accessToken = tokenJson.GetProperty("access_token").GetString()!;
+		var expiresIn = tokenJson.TryGetProperty("expires_in", out var expiresProperty) ? expiresProperty.GetInt32() : 60;
+		return new CachedToken(accessToken, DateTimeOffset.UtcNow.AddSeconds(expiresIn));
 	}
+
+	private sealed record CachedToken(string AccessToken, DateTimeOffset ExpiresAt);
 
 	/// <summary>
 	/// Provision a brand-new Keycloak user via the admin API with emailVerified=true
