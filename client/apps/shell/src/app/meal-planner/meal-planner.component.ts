@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ElementRef, HostListener, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, ElementRef, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { LucideAngularModule } from 'lucide-angular';
@@ -6,13 +6,10 @@ import { MealPlanApiService, type WeeklyPlan, type MealSlot, type GenerateShoppi
 import { injectAsyncStates, ERROR_MAPS, UI } from '@yumney/shared/models';
 import { AsyncStateComponent } from '@yumney/ui';
 import { MealSuggestionPanelComponent } from './meal-suggestion-panel/meal-suggestion-panel.component';
+import { attachHorizontalSwipe } from './attach-horizontal-swipe';
+import { DAY_NAMES, getCurrentWeek, isToday } from './meal-planner-dates';
 
 const WEEKS_PER_YEAR = 52;
-const MS_PER_DAY = 86_400_000;
-const SWIPE_MIN_DX_PX = 60;
-const SWIPE_MAX_DY_RATIO = 0.5; // |dy| must be < 50% of |dx| to count as horizontal
-const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const JS_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 @Component({
   selector: 'yn-meal-planner',
@@ -27,10 +24,11 @@ export class MealPlannerComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private host = inject(ElementRef<HTMLElement>);
+  private destroyRef = inject(DestroyRef);
   private states = injectAsyncStates('load', 'generate', 'clearSlot', 'copy');
 
   protected year = signal(new Date().getFullYear());
-  protected weekNumber = signal(this.getCurrentWeek());
+  protected weekNumber = signal(getCurrentWeek());
   protected plan = signal<WeeklyPlan | null>(null);
   protected loading = this.states.load.isLoading;
   protected error = computed(
@@ -47,7 +45,7 @@ export class MealPlannerComponent {
   protected weekLabel = computed(() => `${this.year()}-W${String(this.weekNumber()).padStart(2, '0')}`);
 
   private currentYear = new Date().getFullYear();
-  private currentWeekNumber = this.getCurrentWeek();
+  private currentWeekNumber = getCurrentWeek();
 
   protected isPastWeek = computed(() => {
     const year = this.year();
@@ -76,6 +74,10 @@ export class MealPlannerComponent {
       this.weekNumber.set(weekParam);
     }
     this.loadPlan();
+    attachHorizontalSwipe(this.host.nativeElement, this.destroyRef, {
+      onSwipeLeft: () => this.onNextWeek(),
+      onSwipeRight: () => this.onPreviousWeek(),
+    });
   }
 
   protected onOpenHistory(): void {
@@ -175,40 +177,7 @@ export class MealPlannerComponent {
     this.loadPlan();
   }
 
-  private swipeStart: { x: number; y: number } | null = null;
-
-  @HostListener('pointerdown', ['$event'])
-  protected onSwipeStart(event: PointerEvent): void {
-    if (event.pointerType !== 'touch') return;
-    this.swipeStart = { x: event.clientX, y: event.clientY };
-  }
-
-  @HostListener('pointerup', ['$event'])
-  protected onSwipeEnd(event: PointerEvent): void {
-    const start = this.swipeStart;
-    this.swipeStart = null;
-    if (!start || event.pointerType !== 'touch') return;
-
-    const dx = event.clientX - start.x;
-    const dy = event.clientY - start.y;
-    if (Math.abs(dx) < SWIPE_MIN_DX_PX) return;
-    if (Math.abs(dy) > Math.abs(dx) * SWIPE_MAX_DY_RATIO) return;
-
-    if (dx < 0) {
-      this.onNextWeek();
-    } else {
-      this.onPreviousWeek();
-    }
-  }
-
   protected isToday(dayName: string): boolean {
-    return JS_DAY_NAMES[new Date().getDay()] === dayName;
-  }
-
-  private getCurrentWeek(): number {
-    const now = new Date();
-    const jan4 = new Date(now.getFullYear(), 0, 4);
-    const daysDiff = Math.floor((now.getTime() - jan4.getTime()) / MS_PER_DAY);
-    return Math.ceil((daysDiff + jan4.getDay() + 1) / 7);
+    return isToday(dayName);
   }
 }
