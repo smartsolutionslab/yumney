@@ -43,7 +43,9 @@ public static class ShoppingInfrastructureServiceCollectionExtensions
 		services.AddBusEventHandlersFromAssemblyContaining<ShoppingListProjection>();
 		services.AddUsersClient();
 		services.AddScoped<IShoppingUserDataPurger, ShoppingUserDataPurger>();
-		services.AddHealthChecks().AddDbContextCheck<ShoppingDbContext>("shoppingdb");
+		services.AddHealthChecks()
+			.AddDbContextCheck<ShoppingDbContext>("shoppingdb", tags: ["ready"])
+			.AddDbContextCheck<ShoppingReadDbContext>("shopping-readdb", tags: ["ready"]);
 
 		return services;
 	}

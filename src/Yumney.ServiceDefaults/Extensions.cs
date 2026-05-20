@@ -74,6 +74,16 @@ public static class Extensions
 			Predicate = r => r.Tags.Contains("live"),
 		});
 
+		// Readiness probe — runs only the checks that exercise real
+		// dependencies (DbContext, Redis, Keycloak), so a load balancer
+		// can hold off traffic until the host can actually serve it.
+		// Liveness ("/alive") is intentionally minimal; restarting on a
+		// downed dependency would just cycle the host without recovering.
+		app.MapHealthChecks("/ready", new HealthCheckOptions
+		{
+			Predicate = r => r.Tags.Contains("ready"),
+		});
+
 		return app;
 	}
 

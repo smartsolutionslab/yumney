@@ -72,7 +72,7 @@ public static class UsersInfrastructureServiceCollectionExtensions
 			})
 			.AddStandardResilienceHandler();
 
-		services.AddHealthChecks().AddDbContextCheck<UsersDbContext>("usersdb");
+		services.AddHealthChecks().AddDbContextCheck<UsersDbContext>("usersdb", tags: ["ready"]);
 
 		return services;
 	}
