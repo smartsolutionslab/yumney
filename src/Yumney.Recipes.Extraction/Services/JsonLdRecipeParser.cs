@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
@@ -18,8 +17,6 @@ public static partial class JsonLdRecipeParser
 		AllowTrailingCommas = true,
 		CommentHandling = JsonCommentHandling.Skip,
 	};
-
-	private static readonly Regex isoDurationPattern = IsoDuration();
 
 	/// <summary>
 	/// Attempts to extract a Recipe from any application/ld+json script in the HTML.
@@ -129,133 +126,6 @@ public static partial class JsonLdRecipeParser
 			ImageUrl: ReadImageUrl(recipe));
 	}
 
-	private static List<ExtractedIngredientDto> ReadIngredients(JsonElement recipe)
-	{
-		List<ExtractedIngredientDto> list = [];
-		if (!recipe.TryGetProperty("recipeIngredient", out var ingredients) || ingredients.ValueKind != JsonValueKind.Array)
-		{
-			return list;
-		}
-
-		foreach (var item in ingredients.EnumerateArray())
-		{
-			var text = item.ValueKind == JsonValueKind.String ? item.GetString() : null;
-			if (string.IsNullOrWhiteSpace(text)) continue;
-
-			list.Add(new ExtractedIngredientDto(text.Trim(), null, null));
-		}
-
-		return list;
-	}
-
-	private static List<ExtractedStepDto> ReadSteps(JsonElement recipe)
-	{
-		if (!recipe.TryGetProperty("recipeInstructions", out var instructions)) return [];
-
-		List<string> flat = [];
-		FlattenInstructions(instructions, flat);
-
-		return flat
-			.Select((text, index) => new ExtractedStepDto(index + 1, text.Trim()))
-			.ToList();
-	}
-
-	private static void FlattenInstructions(JsonElement element, List<string> acc)
-	{
-		switch (element.ValueKind)
-		{
-			case JsonValueKind.String:
-				var value = element.GetString();
-				if (!string.IsNullOrWhiteSpace(value)) acc.Add(value);
-				break;
-			case JsonValueKind.Array:
-				foreach (var child in element.EnumerateArray())
-				{
-					FlattenInstructions(child, acc);
-				}
-
-				break;
-			case JsonValueKind.Object:
-				// HowToStep has a text property; HowToSection has itemListElement.
-				if (element.TryGetProperty("text", out var text))
-				{
-					FlattenInstructions(text, acc);
-				}
-				else if (element.TryGetProperty("itemListElement", out var list))
-				{
-					FlattenInstructions(list, acc);
-				}
-
-				break;
-			default:
-				break;
-		}
-	}
-
-	private static int? ReadServings(JsonElement recipe)
-	{
-		if (!recipe.TryGetProperty("recipeYield", out var yield)) return null;
-
-		return yield.ValueKind switch
-		{
-			JsonValueKind.Number when yield.TryGetInt32(out var i) => i,
-			JsonValueKind.String => ParseLeadingInt(yield.GetString()),
-			JsonValueKind.Array => yield.EnumerateArray().Select(element => ReadServingsValue(element)).FirstOrDefault(value => value is not null),
-			_ => null,
-		};
-	}
-
-	private static int? ReadServingsValue(JsonElement element) => element.ValueKind switch
-	{
-		JsonValueKind.Number when element.TryGetInt32(out var i) => i,
-		JsonValueKind.String => ParseLeadingInt(element.GetString()),
-		_ => null,
-	};
-
-	private static int? ParseLeadingInt(string? text)
-	{
-		if (string.IsNullOrWhiteSpace(text)) return null;
-
-		var digits = new string(text.TakeWhile(char.IsDigit).ToArray());
-		return int.TryParse(digits, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : null;
-	}
-
-	private static int? ReadDurationMinutes(JsonElement recipe, string property)
-	{
-		if (!recipe.TryGetProperty(property, out var node) || node.ValueKind != JsonValueKind.String) return null;
-
-		var raw = node.GetString();
-		if (string.IsNullOrWhiteSpace(raw)) return null;
-
-		var match = isoDurationPattern.Match(raw);
-		if (!match.Success) return null;
-
-		var hours = match.Groups["h"].Success ? int.Parse(match.Groups["h"].Value, CultureInfo.InvariantCulture) : 0;
-		var minutes = match.Groups["m"].Success ? int.Parse(match.Groups["m"].Value, CultureInfo.InvariantCulture) : 0;
-		var total = (hours * 60) + minutes;
-		return total > 0 ? total : null;
-	}
-
-	private static string? ReadImageUrl(JsonElement recipe)
-	{
-		if (!recipe.TryGetProperty("image", out var image)) return null;
-
-		return image.ValueKind switch
-		{
-			JsonValueKind.String => image.GetString(),
-			JsonValueKind.Array => image.EnumerateArray().Select(element => ReadImageValue(element)).FirstOrDefault(value => value is not null),
-			JsonValueKind.Object => ReadImageValue(image),
-			_ => null,
-		};
-	}
-
-	private static string? ReadImageValue(JsonElement element) => element.ValueKind switch
-	{
-		JsonValueKind.String => element.GetString(),
-		JsonValueKind.Object when element.TryGetProperty("url", out var url) && url.ValueKind == JsonValueKind.String => url.GetString(),
-		_ => null,
-	};
-
 	private static string? ReadString(JsonElement element, string property)
 	{
 		if (!element.TryGetProperty(property, out var node)) return null;
@@ -266,7 +136,4 @@ public static partial class JsonLdRecipeParser
 
 	[GeneratedRegex("""<script[^>]+type\s*=\s*["']application/ld\+json["'][^>]*>([\s\S]*?)</script>""", RegexOptions.IgnoreCase)]
 	private static partial Regex JsonLdScript();
-
-	[GeneratedRegex("""^PT(?:(?<h>\d+)H)?(?:(?<m>\d+)M)?""", RegexOptions.IgnoreCase)]
-	private static partial Regex IsoDuration();
 }
