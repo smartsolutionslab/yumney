@@ -230,7 +230,7 @@ if (isRunMode)
 		shell = addMfe("shell", "serve:shell:dist", 4200);
 	}
 
-	builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
+	var gateway = builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
 		.WithHttpEndpoint(port: 5100)
 		.WithReference(recipesApi)
 		.WithReference(shoppingApi)
@@ -240,6 +240,12 @@ if (isRunMode)
 		.WithReference(shell)
 		.WithReference(keycloak)
 		.WaitFor(keycloak);
+
+	// MCP's OAuth challenge advertises the public discovery URL via
+	// resource_metadata. Without this env var it would build the URL from the
+	// inbound request's Host header — which YARP rewrites to the MCP
+	// container's internal DNS name, so Claude/ChatGPT can't reach it.
+	mcpServer.WithEnvironment("McpServer__PublicUrl", ReferenceExpression.Create($"{gateway.GetEndpoint("http")}/mcp"));
 }
 else
 {
@@ -247,7 +253,7 @@ else
 		.AddDockerfile("yumney-frontend", "../../client", "docker/Dockerfile")
 		.WithHttpEndpoint(targetPort: 80);
 
-	builder
+	var gateway = builder
 		.AddYarp("yumney-gateway")
 		.WithConfiguration(yarp =>
 		{
@@ -264,9 +270,20 @@ else
 				AllowResponseBuffering = false,
 			});
 			yarp.AddRoute("/mcp/{**catch-all}", mcpCluster);
+
+			// RFC 9728 mandates the protected-resource metadata document lives
+			// at the origin's well-known path. Route it to MCP so Claude/ChatGPT
+			// can fetch it through the public gateway (otherwise it falls
+			// through to the SPA catch-all below).
+			yarp.AddRoute("/.well-known/oauth-protected-resource", mcpCluster);
 			yarp.AddRoute("/{**catch-all}", frontend.GetEndpoint("http"));
 		})
 		.WithExternalHttpEndpoints();
+
+	// See run-mode comment above. In publish mode the gateway endpoint
+	// resolves to the externally-published Container Apps URL, so MCP's
+	// OAuth discovery advertises a URL Claude can actually fetch.
+	mcpServer.WithEnvironment("McpServer__PublicUrl", ReferenceExpression.Create($"{gateway.GetEndpoint("http")}/mcp"));
 
 	frontend.PublishAsScaledContainerApp(min: 1, max: 5, concurrentRequests: 100);
 }
