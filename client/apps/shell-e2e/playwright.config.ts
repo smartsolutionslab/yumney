@@ -65,6 +65,11 @@ export default defineConfig({
     // like the confirm-dialog overlay render at static opacity:1 instead of
     // racing through a fade-in that Playwright sometimes catches at opacity:0.
     reducedMotion: 'reduce',
+    // OIDC redirects go to Aspire's Keycloak container on a dynamically-mapped
+    // HTTPS port with a self-signed dev cert. Without this, Chromium aborts
+    // the navigation with net::ERR_EMPTY_RESPONSE and the login flow tests
+    // time out. The flag is scoped to the e2e config; production is untouched.
+    ignoreHTTPSErrors: true,
   },
   projects: [
     {
