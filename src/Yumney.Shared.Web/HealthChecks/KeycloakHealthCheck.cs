@@ -15,7 +15,7 @@ public sealed class KeycloakHealthCheck(IHttpClientFactory httpClientFactory, IC
 			using var client = httpClientFactory.CreateClient();
 			client.Timeout = TimeSpan.FromSeconds(5);
 
-			var response = await client.GetAsync(discoveryUrl, cancellationToken);
+			var response = await client.GetAsync(discoveryUrl, cancellationToken).ConfigureAwait(false);
 
 			return response.IsSuccessStatusCode
 				? HealthCheckResult.Healthy("Keycloak realm discovery is reachable")

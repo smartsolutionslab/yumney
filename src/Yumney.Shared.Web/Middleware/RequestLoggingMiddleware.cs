@@ -21,14 +21,14 @@ public sealed partial class RequestLoggingMiddleware(RequestDelegate next, ILogg
 
 		if (excludedPaths.Contains(path))
 		{
-			await next(context);
+			await next(context).ConfigureAwait(false);
 			return;
 		}
 
 		var method = context.Request.Method;
 		var start = Stopwatch.GetTimestamp();
 
-		await next(context);
+		await next(context).ConfigureAwait(false);
 
 		var elapsed = Stopwatch.GetElapsedTime(start).TotalMilliseconds;
 		var statusCode = context.Response.StatusCode;

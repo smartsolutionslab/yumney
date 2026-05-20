@@ -33,7 +33,7 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 
 		var aggregateId = GetAggregateId(aggregate);
 
-		var existingMetadata = await Context.Set<TMetadata>().FirstOrDefaultAsync(m => m.AggregateId == aggregateId, cancellationToken);
+		var existingMetadata = await Context.Set<TMetadata>().FirstOrDefaultAsync(m => m.AggregateId == aggregateId, cancellationToken).ConfigureAwait(false);
 
 		if (existingMetadata is null)
 		{
@@ -60,7 +60,7 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 
 		try
 		{
-			await PersistAndPublishAsync(aggregate, busEvents, cancellationToken);
+			await PersistAndPublishAsync(aggregate, busEvents, cancellationToken).ConfigureAwait(false);
 		}
 		catch (DbUpdateException ex) when (ex.IsUniqueViolation())
 		{
@@ -116,13 +116,13 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 		IReadOnlyList<IBusEvent> busEvents,
 		CancellationToken cancellationToken)
 	{
-		await Context.SaveChangesAsync(cancellationToken);
+		await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
 		aggregate.MarkCommitted();
 
 		foreach (var busEvent in busEvents)
 		{
-			await EventBus.PublishAsync(busEvent, cancellationToken);
+			await EventBus.PublishAsync(busEvent, cancellationToken).ConfigureAwait(false);
 		}
 	}
 
@@ -132,7 +132,7 @@ public abstract class EventStoreBase<TAggregate, TIdentifier, TMetadata, TStored
 			.AsNoTracking()
 			.Where(row => row.AggregateId == aggregateId)
 			.OrderBy(row => row.Version)
-			.ToListAsync(cancellationToken);
+			.ToListAsync(cancellationToken).ConfigureAwait(false);
 
 		List<IDomainEvent> events = new(stored.Count);
 		HashSet<string>? unknownTypes = null;
