@@ -54,7 +54,7 @@ public static class RecipesInfrastructureServiceCollectionExtensions
 		services.AddShoppingClient();
 		services.AddUsersClient();
 		services.AddMealPlanClient();
-		services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb");
+		services.AddHealthChecks().AddDbContextCheck<RecipesDbContext>("recipesdb", tags: ["ready"]);
 
 		return services;
 	}

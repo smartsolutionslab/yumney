@@ -12,6 +12,7 @@ public sealed partial class RequestLoggingMiddleware(RequestDelegate next, ILogg
 	{
 		"/health",
 		"/alive",
+		"/ready",
 	};
 
 	public async Task InvokeAsync(HttpContext context)

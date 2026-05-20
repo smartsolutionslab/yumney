@@ -68,6 +68,26 @@ public class RequestLoggingMiddlewareTests
 	}
 
 	[Fact]
+	public async Task InvokeAsync_ReadyEndpoint_SkipsLogging()
+	{
+		var wasCalled = false;
+		var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();
+		RequestDelegate next = _ =>
+		{
+			wasCalled = true;
+			return Task.CompletedTask;
+		};
+		var middleware = new RequestLoggingMiddleware(next, logger);
+
+		var context = new DefaultHttpContext();
+		context.Request.Path = "/ready";
+
+		await middleware.InvokeAsync(context);
+
+		wasCalled.Should().BeTrue();
+	}
+
+	[Fact]
 	public async Task InvokeAsync_404Response_DelegatesDownstream()
 	{
 		var logger = Substitute.For<ILogger<RequestLoggingMiddleware>>();

@@ -44,7 +44,7 @@ public static class MealPlanInfrastructureServiceCollectionExtensions
 		services.AddRecipesClient();
 		services.AddShoppingClient();
 		services.AddUsersClient();
-		services.AddHealthChecks().AddDbContextCheck<MealPlanDbContext>("mealplandb");
+		services.AddHealthChecks().AddDbContextCheck<MealPlanDbContext>("mealplandb", tags: ["ready"]);
 
 		return services;
 	}
