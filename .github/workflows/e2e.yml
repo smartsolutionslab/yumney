@@ -151,10 +151,22 @@ jobs:
             return 1
           }
 
+          # Resolve Keycloak's dynamically-mapped host port; under Aspire
+          # 13.3.3+ it lives behind 8443/tcp (HTTPS, self-signed) — 8080 is
+          # no longer published, so polling there hangs the full timeout.
+          kc_cid=$(docker ps -q -f name=keycloak | head -1)
+          if [ -n "$kc_cid" ]; then
+            kc_host_port=$(docker port "$kc_cid" 8443/tcp 2>/dev/null | head -1 | sed -E 's/.*:([0-9]+)$/\1/')
+            kc_url="https://localhost:${kc_host_port}/realms/master"
+          else
+            kc_url="https://localhost:8443/realms/master"
+          fi
+          stamp "keycloak probe url: $kc_url"
+
           # Probe the real endpoints in the background so they run in parallel.
-          poll gateway  http://localhost:5100/                 540 > /tmp/diag/poll-gateway.log 2>&1 &
-          poll shell    http://localhost:4200/                 540 > /tmp/diag/poll-shell.log 2>&1 &
-          poll keycloak http://localhost:8080/realms/master    540 > /tmp/diag/poll-keycloak.log 2>&1 &
+          poll gateway  http://localhost:5100/   540 > /tmp/diag/poll-gateway.log 2>&1 &
+          poll shell    http://localhost:4200/   540 > /tmp/diag/poll-shell.log 2>&1 &
+          poll keycloak "$kc_url"                540 > /tmp/diag/poll-keycloak.log 2>&1 &
           wait
 
           for f in /tmp/diag/poll-*.log; do
@@ -188,27 +200,37 @@ jobs:
 
       - name: Fetch Keycloak token for E2E (direct container port)
         # Bypass Aspire's DCP localhost proxy — every in-process HTTP client
-        # we've tried has failed against it. Docker maps Keycloak's 8080 to
-        # a random host port (shown in docker ps); hit that directly.
-        # curl from this workflow step reliably reaches the container.
+        # we've tried has failed against it. Docker maps Keycloak's HTTPS
+        # endpoint (8443) to a random host port (shown in docker ps); hit
+        # that directly with -k since the cert is self-signed.
+        # Aspire 13.3.3+ no longer publishes the 8080 HTTP port at all, so
+        # the previous HTTP-only path stopped resolving.
         run: |
           set -e
           kc=$(docker ps -q -f name=keycloak | head -1)
           test -n "$kc" || { echo "keycloak container not found"; exit 1; }
-          kc_port=$(docker port "$kc" 8080/tcp | head -1 | sed -E 's/.*:([0-9]+)$/\1/')
+          # Prefer 8443/tcp (HTTPS) since that's what Aspire 13.3.3 publishes.
+          # Fall back to 8080/tcp for resilience against older Aspire setups
+          # locally.
+          kc_port=$(docker port "$kc" 8443/tcp 2>/dev/null | head -1 | sed -E 's/.*:([0-9]+)$/\1/')
+          scheme=https
+          if [ -z "$kc_port" ]; then
+            kc_port=$(docker port "$kc" 8080/tcp 2>/dev/null | head -1 | sed -E 's/.*:([0-9]+)$/\1/')
+            scheme=http
+          fi
           test -n "$kc_port" || { echo "could not resolve keycloak host port"; exit 1; }
-          echo "keycloak mapped to host port $kc_port"
+          echo "keycloak mapped to host port ${kc_port} (${scheme})"
 
           # Warm-up: first Keycloak request after startup takes 60-70s (JIT +
           # realm metadata). Hit /realms/master first so the token endpoint
           # afterwards is fast.
-          curl -sS --max-time 180 -o /dev/null \
-            "http://127.0.0.1:${kc_port}/realms/master" || true
+          curl -skS --max-time 180 -o /dev/null \
+            "${scheme}://127.0.0.1:${kc_port}/realms/master" || true
 
           for i in 1 2 3; do
             echo "token attempt $i..."
-            response=$(curl -sS --max-time 180 \
-              -X POST "http://127.0.0.1:${kc_port}/realms/yumney/protocol/openid-connect/token" \
+            response=$(curl -skS --max-time 180 \
+              -X POST "${scheme}://127.0.0.1:${kc_port}/realms/yumney/protocol/openid-connect/token" \
               -H "Content-Type: application/x-www-form-urlencoded" \
               -d "grant_type=password" \
               -d "client_id=yumney-web" \
