@@ -1,5 +1,5 @@
-@use '@yumney/ui/styles/glass' as glass;
-@use '@yumney/ui/styles/breakpoints' as bp;
+@use 'glass';
+@use 'breakpoints' as bp;
 
 // Container styles match the surrounding dashboard cards. Pre-extraction
 // these rules lived in dashboard.component.scss, but Angular's view-
