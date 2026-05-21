@@ -35,6 +35,32 @@
     ]
   },
   "defaultRoles": ["user"],
+  "clientScopes": [
+    {
+      "name": "yumney-api",
+      "description": "Adds the yumney-api audience claim to access tokens so the per-module APIs and the MCP server accept the bearer.",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "yumney-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "yumney-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "defaultDefaultClientScopes": ["yumney-api", "role_list", "profile", "email", "roles", "web-origins", "acr", "basic"],
   "clients": [
     {
       "clientId": "yumney-api",
