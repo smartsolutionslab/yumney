@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Commands;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries;
@@ -12,7 +11,9 @@ using SmartSolutionsLab.Yumney.Shared.Web.Capabilities;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Api;
 
-public static class MealPlanEndpoints
+#pragma warning disable SA1601
+public static partial class MealPlanEndpoints
+#pragma warning restore SA1601
 {
 	public static IEndpointRouteBuilder MapMealPlanEndpoints(this IEndpointRouteBuilder app)
 	{
@@ -38,30 +39,18 @@ public static class MealPlanEndpoints
 			return result.ToOk();
 		}
 
-		group.MapPost("/{year:int}/w/{weekNumber:int}/slots", AssignRecipe)
-			.WithName("AssignRecipe")
+		group.MapGet("/{year:int}/w/{weekNumber:int}/planned-recipes", GetPlannedRecipes)
+			.WithName("GetPlannedRecipes")
 			.WithTags("MealPlan")
-			.WithCapability(
-				name: "assign_meal",
-				description: "Plan a recipe into a meal slot for an ISO week ('plan carbonara for Wednesday', 'add risotto to Friday lunch'). Requires a recipe identifier from a prior recipe lookup.",
-				surfaces: CapabilitySurface.Chat | CapabilitySurface.Mcp)
-			.Produces<WeeklyPlanDto>()
-			.ProducesProblem(StatusCodes.Status400BadRequest);
+			.Produces<WeeklyPlannedRecipesDto>();
 
-		static async Task<IResult> AssignRecipe(
+		static async Task<IResult> GetPlannedRecipes(
 			int year,
 			int weekNumber,
-			Requests.AssignRecipe request,
-			ICommandHandler<AssignRecipeCommand, Result<WeeklyPlanDto>> handler,
+			IQueryHandler<GetPlannedRecipesQuery, Result<WeeklyPlannedRecipesDto>> handler,
 			CancellationToken cancellationToken)
 		{
-			var week = WeekIdentifier.From(year, weekNumber);
-			var (day, recipeIdentifier, recipeTitle, mealType, servings) = request;
-			var recipe = SlotRecipeReference.From(recipeIdentifier, recipeTitle);
-			var slotServings = SlotServings.FromNullable(servings);
-			var command = new AssignRecipeCommand(week, day, recipe, mealType, slotServings);
-
-			var result = await handler.HandleAsync(command, cancellationToken);
+			var result = await handler.HandleAsync(new GetPlannedRecipesQuery(WeekIdentifier.From(year, weekNumber)), cancellationToken);
 			return result.ToOk();
 		}
 
@@ -78,65 +67,9 @@ public static class MealPlanEndpoints
 			CancellationToken cancellationToken)
 		{
 			var command = new ToggleExtendedModeCommand(WeekIdentifier.From(year, weekNumber), request.Enable);
-
 			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
 		}
-
-		group.MapPut("/{year:int}/w/{weekNumber:int}/slots/servings", AdjustServings)
-			.WithName("AdjustSlotServings")
-			.WithTags("MealPlan")
-			.Produces<WeeklyPlanDto>()
-			.ProducesProblem(StatusCodes.Status404NotFound);
-
-		static async Task<IResult> AdjustServings(
-			int year,
-			int weekNumber,
-			Requests.AdjustServings request,
-			ICommandHandler<AdjustSlotServingsCommand, Result<WeeklyPlanDto>> handler,
-			CancellationToken cancellationToken)
-		{
-			var week = WeekIdentifier.From(year, weekNumber);
-			var (day, mealType, servings) = request;
-			var command = new AdjustSlotServingsCommand(week, day, mealType, SlotServings.From(servings));
-
-			var result = await handler.HandleAsync(command, cancellationToken);
-
-			return result.ToOk();
-		}
-
-		group.MapPost("/{year:int}/w/{weekNumber:int}/cook-with-leftovers", CookWithLeftovers)
-			.WithName("CookWithLeftovers")
-			.WithTags("MealPlan")
-			.Produces<WeeklyPlanDto>()
-			.ProducesProblem(StatusCodes.Status400BadRequest);
-
-		group.MapGet("/{year:int}/w/{weekNumber:int}/planned-recipes", GetPlannedRecipes)
-			.WithName("GetPlannedRecipes")
-			.WithTags("MealPlan")
-			.Produces<WeeklyPlannedRecipesDto>();
-
-		group.MapPut("/{year:int}/w/{weekNumber:int}/slots/swap", SwapSlots)
-			.WithName("SwapMealSlots")
-			.WithTags("MealPlan")
-			.Produces<WeeklyPlanDto>()
-			.ProducesProblem(StatusCodes.Status404NotFound);
-
-		group.MapPut("/{year:int}/w/{weekNumber:int}/slots/confirm", ConfirmMeal)
-			.WithName("ConfirmMeal")
-			.WithTags("MealPlan")
-			.WithCapability(
-				name: "confirm_meal_cooked",
-				description: "Update a planned meal's state to Cooked, Skipped, or Planned ('I made the spaghetti on Wednesday', 'skip Friday's dinner').",
-				surfaces: CapabilitySurface.Chat | CapabilitySurface.Mcp)
-			.Produces<WeeklyPlanDto>()
-			.ProducesProblem(StatusCodes.Status404NotFound);
-
-		group.MapDelete("/{year:int}/w/{weekNumber:int}/slots", ClearSlot)
-			.WithName("ClearMealSlot")
-			.WithTags("MealPlan")
-			.Produces<WeeklyPlanDto>()
-			.ProducesProblem(StatusCodes.Status404NotFound);
 
 		group.MapPost("/{year:int}/w/{weekNumber:int}/generate-shopping-list", GenerateShoppingList)
 			.WithName("GenerateShoppingList")
@@ -144,22 +77,14 @@ public static class MealPlanEndpoints
 			.Produces<GenerateShoppingListResultDto>()
 			.ProducesProblem(StatusCodes.Status400BadRequest);
 
-		group.MapGet("/history/search", SearchHistory)
-			.WithName("SearchMealHistory")
-			.WithTags("MealPlan")
-			.Produces<PagedResult<MealHistoryEntryDto>>();
-
-		static async Task<IResult> SearchHistory(
-			IQueryHandler<SearchMealHistoryQuery, Result<PagedResult<MealHistoryEntryDto>>> handler,
-			CancellationToken cancellationToken,
-			int page = PagingOptions.DefaultPage,
-			int pageSize = PagingOptions.DefaultPageSize,
-			string? term = null)
+		static async Task<IResult> GenerateShoppingList(
+			int year,
+			int weekNumber,
+			ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>> handler,
+			CancellationToken cancellationToken)
 		{
-			var query = new SearchMealHistoryQuery(
-				PagingOptions.From(page, pageSize),
-				SearchTerm.FromNullable(term));
-			var result = await handler.HandleAsync(query, cancellationToken);
+			var command = new GenerateShoppingListCommand(WeekIdentifier.From(year, weekNumber));
+			var result = await handler.HandleAsync(command, cancellationToken);
 			return result.ToOk();
 		}
 
@@ -184,97 +109,25 @@ public static class MealPlanEndpoints
 			return result.ToOk();
 		}
 
+		group.MapGet("/history/search", SearchHistory)
+			.WithName("SearchMealHistory")
+			.WithTags("MealPlan")
+			.Produces<PagedResult<MealHistoryEntryDto>>();
+
+		static async Task<IResult> SearchHistory(
+			IQueryHandler<SearchMealHistoryQuery, Result<PagedResult<MealHistoryEntryDto>>> handler,
+			CancellationToken cancellationToken,
+			int page = PagingOptions.DefaultPage,
+			int pageSize = PagingOptions.DefaultPageSize,
+			string? term = null)
+		{
+			var query = new SearchMealHistoryQuery(PagingOptions.From(page, pageSize), SearchTerm.FromNullable(term));
+			var result = await handler.HandleAsync(query, cancellationToken);
+			return result.ToOk();
+		}
+
+		group.MapSlotEndpoints();
+
 		return app;
-
-		static async Task<IResult> CookWithLeftovers(
-			int year,
-			int weekNumber,
-			Requests.CookWithLeftovers request,
-			ICommandHandler<CookWithLeftoversCommand, Result<WeeklyPlanDto>> handler,
-			CancellationToken cancellationToken)
-		{
-			var week = WeekIdentifier.From(year, weekNumber);
-			var (cookDay, recipeIdentifier, recipeTitle, totalServings, eatServings, leftoverDay, mealType) = request;
-			var recipe = SlotRecipeReference.From(recipeIdentifier, recipeTitle);
-			var command = new CookWithLeftoversCommand(
-				week,
-				cookDay,
-				recipe,
-				SlotServings.From(totalServings),
-				SlotServings.From(eatServings),
-				leftoverDay,
-				mealType);
-
-			var result = await handler.HandleAsync(command, cancellationToken);
-
-			return result.ToOk();
-		}
-
-		static async Task<IResult> ClearSlot(
-			int year,
-			int weekNumber,
-			[FromBody] Requests.ClearSlot request,
-			ICommandHandler<ClearMealSlotCommand, Result<WeeklyPlanDto>> handler,
-			CancellationToken cancellationToken)
-		{
-			var week = WeekIdentifier.From(year, weekNumber);
-			var (day, mealType) = request;
-			var command = new ClearMealSlotCommand(week, day, mealType);
-
-			var result = await handler.HandleAsync(command, cancellationToken);
-			return result.ToOk();
-		}
-
-		static async Task<IResult> GetPlannedRecipes(
-			int year,
-			int weekNumber,
-			IQueryHandler<GetPlannedRecipesQuery, Result<WeeklyPlannedRecipesDto>> handler,
-			CancellationToken cancellationToken)
-		{
-			var result = await handler.HandleAsync(new GetPlannedRecipesQuery(WeekIdentifier.From(year, weekNumber)), cancellationToken);
-			return result.ToOk();
-		}
-
-		static async Task<IResult> SwapSlots(
-			int year,
-			int weekNumber,
-			Requests.SwapSlots request,
-			ICommandHandler<SwapMealSlotsCommand, Result<WeeklyPlanDto>> handler,
-			CancellationToken cancellationToken)
-		{
-			var week = WeekIdentifier.From(year, weekNumber);
-			var (sourceDay, targetDay, mealType) = request;
-			var command = new SwapMealSlotsCommand(week, sourceDay, targetDay, mealType);
-
-			var result = await handler.HandleAsync(command, cancellationToken);
-			return result.ToOk();
-		}
-
-		static async Task<IResult> ConfirmMeal(
-			int year,
-			int weekNumber,
-			Requests.ConfirmMeal request,
-			ICommandHandler<ConfirmMealCommand, Result<WeeklyPlanDto>> handler,
-			CancellationToken cancellationToken)
-		{
-			var week = WeekIdentifier.From(year, weekNumber);
-			var (day, mealType, state) = request;
-			var command = new ConfirmMealCommand(week, day, mealType, state);
-
-			var result = await handler.HandleAsync(command, cancellationToken);
-			return result.ToOk();
-		}
-
-		static async Task<IResult> GenerateShoppingList(
-			int year,
-			int weekNumber,
-			ICommandHandler<GenerateShoppingListCommand, Result<GenerateShoppingListResultDto>> handler,
-			CancellationToken cancellationToken)
-		{
-			var command = new GenerateShoppingListCommand(WeekIdentifier.From(year, weekNumber));
-
-			var result = await handler.HandleAsync(command, cancellationToken);
-			return result.ToOk();
-		}
 	}
 }
