@@ -92,12 +92,13 @@
   "components": {
     "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy": [
       {
-        "name": "Trusted Hosts (anonymous DCR blocked)",
+        "name": "Trusted Hosts (anonymous DCR for known MCP clients)",
         "providerId": "trusted-hosts",
         "subType": "anonymous",
         "config": {
-          "host-sending-registration-request-must-match": ["true"],
-          "client-uris-must-match": ["true"]
+          "host-sending-registration-request-must-match": ["false"],
+          "client-uris-must-match": ["true"],
+          "trusted-hosts": ["claude.ai", "chatgpt.com"]
         }
       }
     ]
