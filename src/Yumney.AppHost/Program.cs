@@ -1,8 +1,5 @@
-using Aspire.Hosting.JavaScript;
-using Aspire.Hosting.Yarp;
 using SmartSolutionsLab.Yumney.AppHost;
 using SmartSolutionsLab.Yumney.AppHost.Options;
-using Yarp.ReverseProxy.Forwarder;
 
 var builder = DistributedApplication.CreateBuilder(args);
 var isRunMode = builder.ExecutionContext.IsRunMode;
@@ -201,91 +198,11 @@ mcpServer.PublishAsScaledContainerApp(min: 1, max: 3);
 
 if (isRunMode)
 {
-	// Run mode (incl. E2E) spawns the MFEs + gateway so the full stack
-	// is reachable on localhost; sidecars are toggled separately above.
-	var addMfe = (string name, string script, int port) =>
-#pragma warning disable ASPIREBROWSERLOGS001
-		builder.AddJavaScriptApp(name, "../../client", script)
-			.WithYarn()
-			.WithEnvironment("NX_DAEMON", "false")
-			.WithEnvironment("NX_ISOLATE_PLUGINS", "false")
-			.WithHttpEndpoint(targetPort: port)
-			.WithBrowserLogs();
-#pragma warning restore ASPIREBROWSERLOGS001
-
-	// E2E mode runs against a production build (`yarn build:all`
-	// co-locates every MFE in `dist/apps/shell/browser`) so PWA tests
-	// exercise the real shape.
-	IResourceBuilder<JavaScriptAppResource> shell;
-
-	if (!options.E2ETests)
-	{
-		shell = addMfe("shell", "serve:shell", 4200);
-		addMfe("recipes-mfe", "serve:recipes", 4201);
-		addMfe("shopping-mfe", "serve:shopping", 4202);
-		addMfe("account-mfe", "serve:account", 4203);
-	}
-	else
-	{
-		shell = addMfe("shell", "serve:shell:dist", 4200);
-	}
-
-	var gateway = builder.AddProject<Projects.Yumney_Gateway>("yumney-gateway")
-		.WithHttpEndpoint(port: 5100)
-		.WithReference(recipesApi)
-		.WithReference(shoppingApi)
-		.WithReference(usersApi)
-		.WithReference(mealplanApi)
-		.WithReference(mcpServer)
-		.WithReference(shell)
-		.WithReference(keycloak)
-		.WaitFor(keycloak);
-
-	// MCP's OAuth challenge advertises the public discovery URL via
-	// resource_metadata. Without this env var it would build the URL from the
-	// inbound request's Host header — which YARP rewrites to the MCP
-	// container's internal DNS name, so Claude/ChatGPT can't reach it.
-	mcpServer.WithEnvironment("McpServer__PublicUrl", ReferenceExpression.Create($"{gateway.GetEndpoint("http")}/mcp"));
+	builder.AddRunModeFrontend(options, recipesApi, shoppingApi, usersApi, mealplanApi, mcpServer, keycloak);
 }
 else
 {
-	var frontend = builder
-		.AddDockerfile("yumney-frontend", "../../client", "docker/Dockerfile")
-		.WithHttpEndpoint(targetPort: 80);
-
-	var gateway = builder
-		.AddYarp("yumney-gateway")
-		.WithConfiguration(yarp =>
-		{
-			yarp.AddRoute("/api/v1/recipes/{**catch-all}", recipesApi);
-			yarp.AddRoute("/api/v1/shopping-lists/{**catch-all}", shoppingApi);
-			yarp.AddRoute("/api/v1/auth/{**catch-all}", usersApi);
-			yarp.AddRoute("/api/v1/meal-plans/{**catch-all}", mealplanApi);
-			var mcpCluster = yarp.AddCluster(mcpServer);
-
-			// MCP SSE: extend the 100 s ActivityTimeout so idle sessions survive; buffering pinned off.
-			mcpCluster.WithForwarderRequestConfig(new ForwarderRequestConfig
-			{
-				ActivityTimeout = TimeSpan.FromMinutes(10),
-				AllowResponseBuffering = false,
-			});
-			yarp.AddRoute("/mcp/{**catch-all}", mcpCluster);
-
-			// RFC 9728 mandates the protected-resource metadata document lives
-			// at the origin's well-known path. Route it to MCP so Claude/ChatGPT
-			// can fetch it through the public gateway (otherwise it falls
-			// through to the SPA catch-all below).
-			yarp.AddRoute("/.well-known/oauth-protected-resource", mcpCluster);
-			yarp.AddRoute("/{**catch-all}", frontend.GetEndpoint("http"));
-		})
-		.WithExternalHttpEndpoints();
-
-	// See run-mode comment above. In publish mode the gateway endpoint
-	// resolves to the externally-published Container Apps URL, so MCP's
-	// OAuth discovery advertises a URL Claude can actually fetch.
-	mcpServer.WithEnvironment("McpServer__PublicUrl", ReferenceExpression.Create($"{gateway.GetEndpoint("http")}/mcp"));
-
-	frontend.PublishAsScaledContainerApp(min: 1, max: 5, concurrentRequests: 100);
+	builder.AddPublishModeFrontend(recipesApi, shoppingApi, usersApi, mealplanApi, mcpServer);
 }
 
 builder.Build().Run();
