@@ -125,6 +125,51 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Diagnose Postgres health
+        # Five consecutive deploys (PRs after 2026-05-20) failed at the
+        # `provision-postgres` step with Azure InternalServerError after
+        # ~5-15 min. The all-or-nothing 500 from Azure swallows the real
+        # cause; the most common one is the Flexible Server stuck in a
+        # non-terminal state (Updating / Restarting / Stopped) from a
+        # prior failed deploy, which Aspire's idempotent PUT can't recover.
+        # Show state here and nudge any stuck server back to Ready so the
+        # subsequent `aspire deploy` succeeds.
+        env:
+          RG: ${{ vars.AZURE_RESOURCE_GROUP }}
+        run: |
+          set -e
+          echo "─── Postgres servers in $RG ───"
+          az postgres flexible-server list -g "$RG" -o table || true
+
+          servers=$(az postgres flexible-server list -g "$RG" --query "[].name" -o tsv)
+          if [ -z "$servers" ]; then
+            echo "No Postgres flexible servers found yet — first-time provisioning, skipping precheck."
+            exit 0
+          fi
+
+          for srv in $servers; do
+            state=$(az postgres flexible-server show -g "$RG" -n "$srv" --query "state" -o tsv)
+            echo "  $srv → state=$state"
+            if [ "$state" != "Ready" ] && [ "$state" != "Disabled" ]; then
+              echo "  ⚠ $srv is $state (not Ready) — attempting restart"
+              az postgres flexible-server restart -g "$RG" -n "$srv" --no-wait || true
+
+              deadline=$(( $(date +%s) + 900 ))
+              while [ "$(date +%s)" -lt "$deadline" ]; do
+                state=$(az postgres flexible-server show -g "$RG" -n "$srv" --query "state" -o tsv)
+                echo "    polling $srv state=$state"
+                if [ "$state" = "Ready" ]; then break; fi
+                sleep 20
+              done
+              if [ "$state" != "Ready" ]; then
+                echo "  ✗ $srv still $state after 15 min — failing precheck so the deploy doesn't waste 15 more min hitting Azure 500s"
+                az monitor activity-log list -g "$RG" --max-events 5 -o table || true
+                exit 1
+              fi
+              echo "  ✓ $srv back to Ready"
+            fi
+          done
+
       - name: Deploy to Azure
         working-directory: src/Yumney.AppHost
         run: aspire deploy
