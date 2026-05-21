@@ -150,6 +150,22 @@ jobs:
           for srv in $servers; do
             state=$(az postgres flexible-server show -g "$RG" -n "$srv" --query "state" -o tsv)
             echo "  $srv → state=$state"
+
+            echo "─── Last 10 RG-level deployment operations (Postgres-relevant) ───"
+            az deployment group list -g "$RG" --query "[?contains(name,'postgres')||contains(name,'PostgreSQL')]|[0:10].{name:name,state:properties.provisioningState,ts:properties.timestamp}" -o table || true
+
+            echo "─── Last 5 failed deployments in the RG ───"
+            az deployment group list -g "$RG" --query "[?properties.provisioningState=='Failed']|[0:5].{name:name,state:properties.provisioningState,ts:properties.timestamp,err:properties.error.message}" -o table || true
+
+            # For the most recent failed deployment touching postgres, dump its
+            # operation-level error — that's where Azure surfaces the actual
+            # cause behind the InternalServerError.
+            last_failed=$(az deployment group list -g "$RG" --query "[?properties.provisioningState=='Failed']|[?contains(name,'postgres')||contains(name,'PostgreSQL')]|[0].name" -o tsv 2>/dev/null || true)
+            if [ -n "$last_failed" ]; then
+              echo "─── Operation-level error for failed deployment '$last_failed' ───"
+              az deployment operation group list -g "$RG" --name "$last_failed" --query "[?properties.provisioningState=='Failed'].{target:properties.targetResource.resourceType,name:properties.targetResource.resourceName,code:properties.statusMessage.error.code,msg:properties.statusMessage.error.message}" -o json || true
+            fi
+
             if [ "$state" != "Ready" ] && [ "$state" != "Disabled" ]; then
               echo "  ⚠ $srv is $state (not Ready) — attempting restart"
               az postgres flexible-server restart -g "$RG" -n "$srv" --no-wait || true
