@@ -285,3 +285,51 @@ jobs:
           Parameters__MessagingPassword: ${{ secrets.MESSAGING_PASSWORD }}
           Parameters__RedisPassword: ${{ secrets.REDIS_PASSWORD }}
           Parameters__KeycloakDbHost: ${{ vars.POSTGRES_HOST }}
+
+      - name: Verify Postgres state
+        # Observed twice on 2026-05-22: `aspire deploy` reports success
+        # but leaves two specific module DBs (mealplandb, shoppingdb)
+        # missing on the Flex server. The next deploy's precheck silently
+        # re-creates them, so the regression hides between runs.
+        #
+        # This step fails the deploy loudly if any expected DB is absent
+        # after aspire deploy. The precheck has already created them on a
+        # healthy RP, so a failure here means aspire's own provisioning
+        # dropped/skipped them on this run — that's the signal to dig in.
+        # Same grep as the precheck keeps the expected list in sync with
+        # the AppHost.
+        env:
+          RG: ${{ vars.AZURE_RESOURCE_GROUP }}
+        run: |
+          set -e
+          expected_dbs=$(grep -oE 'AddDatabase\("[a-z]+"\)' src/Yumney.AppHost/Program.cs | grep -oE '"[a-z]+"' | tr -d '"' | sort -u)
+          if [ -z "$expected_dbs" ]; then
+            echo "Could not parse expected DB list from Program.cs — skipping verification"
+            exit 0
+          fi
+
+          servers=$(az postgres flexible-server list -g "$RG" --query "[].name" -o tsv)
+          if [ -z "$servers" ]; then
+            echo "No Postgres flexible servers in $RG — nothing to verify"
+            exit 0
+          fi
+
+          missing=0
+          for srv in $servers; do
+            echo "─── Verifying expected DBs on $srv ───"
+            existing=$(az postgres flexible-server db list -g "$RG" -s "$srv" --query "[].name" -o tsv 2>/dev/null || echo "")
+            for db in $expected_dbs; do
+              if echo "$existing" | grep -qx "$db"; then
+                echo "  ✓ $db"
+              else
+                echo "  ✗ $db MISSING after aspire deploy"
+                missing=$((missing + 1))
+              fi
+            done
+          done
+
+          if [ "$missing" -gt 0 ]; then
+            echo "::error::$missing expected database(s) missing after aspire deploy — recurring Aspire+Postgres-Flex regression; investigate before merging more changes"
+            exit 1
+          fi
+          echo "✓ All expected DBs present after aspire deploy"
