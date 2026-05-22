@@ -67,6 +67,7 @@ internal static class FrontendComposition
 				yarp.AddRoute("/api/v1/recipes/{**catch-all}", recipesApi);
 				yarp.AddRoute("/api/v1/shopping-lists/{**catch-all}", shoppingApi);
 				yarp.AddRoute("/api/v1/auth/{**catch-all}", usersApi);
+				yarp.AddRoute("/api/v1/users/{**catch-all}", usersApi);
 				yarp.AddRoute("/api/v1/meal-plans/{**catch-all}", mealplanApi);
 				var mcpCluster = yarp.AddCluster(mcpServer);
 
