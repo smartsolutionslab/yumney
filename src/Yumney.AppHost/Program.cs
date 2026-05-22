@@ -70,8 +70,14 @@ var migrationRunner = builder
 	.WaitFor(mealplanDb);
 
 // Dashboard-only operational entries (run mode): one resource per maintenance
-// task. Each sits idle until the dev clicks Start in the dashboard.
-DashboardResetEntries.AddResetEntries(builder, recipesDb, shoppingDb, usersDb, mealplanDb);
+// task. Each sits idle until the dev clicks Start in the dashboard. Skipped in
+// publish mode — these would otherwise deploy as live Container Apps that run
+// their reset env-flag on startup and drop the target module DB on every
+// Azure deploy (observed 2026-05-22: mealplandb + shoppingdb wiped each run).
+if (isRunMode)
+{
+	DashboardResetEntries.AddResetEntries(builder, recipesDb, shoppingDb, usersDb, mealplanDb);
+}
 
 // ── Infrastructure ── (persistent with data volumes for dev, ephemeral for E2E)
 var redis = builder
