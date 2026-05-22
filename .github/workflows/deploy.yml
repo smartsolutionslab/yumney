@@ -211,18 +211,29 @@ jobs:
           if [ -z "$expected_dbs" ]; then
             echo "─── Auto-recovery: could not parse expected DB list from Program.cs — skipping DB backfill ───"
           else
+            # rp_stuck: latches once a create returns InternalServerError /
+            # GatewayTimeout. Each failing create burns ~4 min waiting for
+            # Azure's gateway to give up; after the first one we know the RP
+            # for this server is unhealthy and the remaining creates would
+            # waste the same 4 min each (and risk exhausting the Azure CLI
+            # auth session before aspire deploy). Skip them and let the
+            # operator escalate to the manual server-delete path.
+            rp_stuck=0
             for srv in $servers; do
               echo "─── Auto-recovery: ensuring expected DBs exist on $srv ───"
               existing=$(az postgres flexible-server db list -g "$RG" -s "$srv" --query "[].name" -o tsv 2>/dev/null || echo "")
               for db in $expected_dbs; do
                 if echo "$existing" | grep -qx "$db"; then
                   echo "  ✓ $db exists"
+                elif [ "$rp_stuck" = "1" ]; then
+                  echo "  ⤼ $db missing — skipping create (RP already returned 500/timeout this run)"
                 else
                   echo "  ⚠ $db missing — attempting direct CLI create (often succeeds when ARM PUT 500s)"
                   if az postgres flexible-server db create -g "$RG" -s "$srv" -d "$db" --charset UTF8 --collation en_US.utf8; then
                     echo "  ✓ $db created"
                   else
-                    echo "  ✗ $db create failed — RP may still be stuck; aspire deploy will retry"
+                    echo "  ✗ $db create failed — RP appears stuck; skipping remaining creates to preserve Azure CLI session"
+                    rp_stuck=1
                   fi
                 fi
               done
@@ -243,6 +254,20 @@ jobs:
               az deployment group delete -g "$RG" --name "$d" --no-wait || true
             done
           fi
+
+      - name: Refresh Azure login
+        # The precheck can spend several minutes on slow `az` calls (e.g.
+        # ~4 min per stuck Postgres RP `db create`). That sometimes lets
+        # Aspire's `validate-azure-login` step fail with "Azure CLI
+        # authentication failed due to an unknown error" before the
+        # deploy starts. Re-running the OIDC login here is cheap
+        # insurance — fresh access token, regardless of what the
+        # precheck did.
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure
         working-directory: src/Yumney.AppHost
