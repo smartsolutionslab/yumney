@@ -134,8 +134,13 @@ jobs:
         # prior failed deploy, which Aspire's idempotent PUT can't recover.
         # Show state here and nudge any stuck server back to Ready so the
         # subsequent `aspire deploy` succeeds.
+        #
+        # Also runs two safe staging-only recovery actions before the deploy
+        # (see "Auto-recovery" block below). Anything destructive (drop &
+        # recreate a DB, delete the whole server) stays manual.
         env:
           RG: ${{ vars.AZURE_RESOURCE_GROUP }}
+          ENVIRONMENT: ${{ needs.version.outputs.environment }}
         run: |
           set -e
           echo "─── Postgres servers in $RG ───"
@@ -185,6 +190,59 @@ jobs:
               echo "  ✓ $srv back to Ready"
             fi
           done
+
+          # ─── Auto-recovery (staging only) ───
+          # Two best-effort actions to clear the failure mode we saw on
+          # 2026-05-21..05-22: Postgres RP intermittently 500s on database
+          # ARM PUTs while the server itself is Ready. Both actions are
+          # additive — no drops, no server deletion. Production never
+          # auto-recovers; the operator handles it manually with the
+          # diagnostic output above.
+          if [ "$ENVIRONMENT" != "staging" ]; then
+            echo "─── Skipping auto-recovery: environment is '$ENVIRONMENT' (only runs on staging) ───"
+            exit 0
+          fi
+
+          # Authoritative list comes from the AppHost — grep AddDatabase()
+          # calls in Program.cs so this stays in sync when modules are added
+          # or renamed. Two duplicate blocks (run + publish mode) collapse
+          # via sort -u.
+          expected_dbs=$(grep -oE 'AddDatabase\("[a-z]+"\)' src/Yumney.AppHost/Program.cs | grep -oE '"[a-z]+"' | tr -d '"' | sort -u)
+          if [ -z "$expected_dbs" ]; then
+            echo "─── Auto-recovery: could not parse expected DB list from Program.cs — skipping DB backfill ───"
+          else
+            for srv in $servers; do
+              echo "─── Auto-recovery: ensuring expected DBs exist on $srv ───"
+              existing=$(az postgres flexible-server db list -g "$RG" -s "$srv" --query "[].name" -o tsv 2>/dev/null || echo "")
+              for db in $expected_dbs; do
+                if echo "$existing" | grep -qx "$db"; then
+                  echo "  ✓ $db exists"
+                else
+                  echo "  ⚠ $db missing — attempting direct CLI create (often succeeds when ARM PUT 500s)"
+                  if az postgres flexible-server db create -g "$RG" -s "$srv" -d "$db" --charset UTF8 --collation en_US.utf8; then
+                    echo "  ✓ $db created"
+                  else
+                    echo "  ✗ $db create failed — RP may still be stuck; aspire deploy will retry"
+                  fi
+                fi
+              done
+            done
+          fi
+
+          # Stale failed postgres-* deployment records accumulate in the RG
+          # and Azure occasionally lets sibling deployments inherit their
+          # poisoned state. Sweep them so the next aspire deploy starts from
+          # a clean history.
+          echo "─── Auto-recovery: clearing stale failed postgres ARM deployments ───"
+          stale=$(az deployment group list -g "$RG" --query "[?properties.provisioningState=='Failed' && (contains(name,'postgres') || contains(name,'PostgreSQL'))].name" -o tsv)
+          if [ -z "$stale" ]; then
+            echo "  (none)"
+          else
+            for d in $stale; do
+              echo "  deleting $d"
+              az deployment group delete -g "$RG" --name "$d" --no-wait || true
+            done
+          fi
 
       - name: Deploy to Azure
         working-directory: src/Yumney.AppHost
