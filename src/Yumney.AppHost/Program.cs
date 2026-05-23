@@ -187,7 +187,15 @@ recipesApi.PublishAsScaledContainerApp(min: 1, max: 10, concurrentRequests: 20);
 shoppingApi.PublishAsScaledContainerApp(min: 1, max: 5, concurrentRequests: 50);
 usersApi.PublishAsScaledContainerApp(min: 1, max: 3, concurrentRequests: 50);
 mealplanApi.PublishAsScaledContainerApp(min: 1, max: 3, concurrentRequests: 50);
-migrationRunner.PublishAsScaledContainerApp(min: 0, max: 1);
+
+// Migration runner is a one-shot worker — Container Apps Job is the right
+// resource type. Default trigger is Manual (default replica timeout 30 min);
+// the workflow triggers it via `az containerapp job start` after aspire deploy
+// finishes. Previously published as a regular Container App with min=0/max=1
+// which left it dormant on every deploy and silently skipped migrations.
+#pragma warning disable ASPIREAZURE002 // PublishAsAzureContainerAppJob is in preview but stable enough for our needs
+migrationRunner.PublishAsAzureContainerAppJob();
+#pragma warning restore ASPIREAZURE002
 
 // MCP server: aggregates capability manifests, exposes /mcp + dashboard link.
 var mcpServer = builder.AddProject<Projects.Yumney_Mcp_Server>("mcp-server")
