@@ -76,7 +76,7 @@ These exercise interesting tools end-to-end:
 - _"What recipes can I cook with what's on hand?"_ → `get_cookable_recipes`
 - _"Plan my week around Italian recipes I haven't cooked in 30 days"_ → `suggest_week_plan` (filtered) → `assign_meal` per day
 - _"How many recipes did I cook last month?"_ → `get_meal_analytics`
-- _"Save this recipe: https://www.bbcgoodfood.com/recipes/spaghetti-carbonara"_ → `import_recipe_from_url`
+- _"Save this recipe: https://en.wikipedia.org/wiki/Carbonara"_ → `import_recipe_from_url`
 - _"Make a shopping list for spaghetti carbonara and beef ragù"_ → `create_shopping_list_from_recipes`
 - _"What's left on my shopping list?"_ → `get_merged_shopping_list`
 
