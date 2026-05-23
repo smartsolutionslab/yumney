@@ -84,6 +84,14 @@ internal static class FrontendComposition
 				// can fetch it through the public gateway (otherwise it falls
 				// through to the SPA catch-all below).
 				yarp.AddRoute("/.well-known/oauth-protected-resource", mcpCluster);
+
+				// MCP server's anonymous discovery endpoints — without these
+				// explicit routes both fall through to the SPA catch-all and
+				// return the frontend HTML instead of the JSON manifests that
+				// the MCP setup docs advertise (Claude.ai/ChatGPT custom-GPT
+				// setup fetch these to enumerate the tool surface).
+				yarp.AddRoute("/discovered-capabilities", mcpCluster);
+				yarp.AddRoute("/openapi/v1.json", mcpCluster);
 				yarp.AddRoute("/{**catch-all}", frontend.GetEndpoint("http"));
 			})
 			.WithExternalHttpEndpoints();
