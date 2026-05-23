@@ -296,47 +296,6 @@ jobs:
           Parameters__RedisPassword: ${{ secrets.REDIS_PASSWORD }}
           Parameters__KeycloakDbHost: ${{ vars.POSTGRES_HOST }}
 
-      - name: Seed Keycloak realm to file share
-        # Aspire's `WithRealmImport("Realms")` provisions the Azure File
-        # volume mount at /opt/keycloak/data/import but does NOT upload
-        # the local realm JSON into the share. On a from-scratch deploy
-        # (RG wiped), Keycloak boots with an empty import dir and never
-        # sees the yumney realm — only `master` gets initialized.
-        # Upload the (already gateway-URL-injected) realm here, then
-        # restart Keycloak so `--import-realm` runs against it.
-        #
-        # Idempotent on subsequent deploys: Keycloak's import strategy is
-        # IGNORE_EXISTING, so re-uploading the same realm (or an updated
-        # one) won't overwrite an existing realm. Realm-schema changes
-        # still need to go through the Keycloak admin API or a manual
-        # realm-delete + redeploy.
-        env:
-          RG: ${{ vars.AZURE_RESOURCE_GROUP }}
-        run: |
-          set -e
-          sa=$(az storage account list -g "$RG" --query "[?starts_with(name,'caestoragevolume')] | [0].name" -o tsv)
-          if [ -z "$sa" ]; then
-            echo "::warning::no caestoragevolume* storage account found in $RG — skipping realm upload"
-            exit 0
-          fi
-          key=$(az storage account keys list -g "$RG" -n "$sa" --query "[0].value" -o tsv)
-          share=$(az storage share list --account-name "$sa" --account-key "$key" --query "[?contains(name,'keycloak')] | [0].name" -o tsv)
-          if [ -z "$share" ]; then
-            echo "::warning::no keycloak file share found on $sa — skipping realm upload"
-            exit 0
-          fi
-          echo "Uploading realm to share=$share (account=$sa)"
-          az storage file upload \
-            --share-name "$share" \
-            --account-name "$sa" \
-            --account-key "$key" \
-            --source src/Yumney.AppHost/Realms/yumney-realm.json \
-            --path yumney-realm.json
-
-          echo "Restarting Keycloak so --import-realm picks up the file"
-          rev=$(az containerapp show -g "$RG" -n keycloak --query "properties.latestRevisionName" -o tsv)
-          az containerapp revision restart -g "$RG" -n keycloak --revision "$rev"
-
       - name: Run EF migrations
         # yumney-migrations is published as a Container Apps Job (manual
         # trigger). aspire deploy creates/updates the Job resource but does
