@@ -303,8 +303,10 @@ jobs:
 
           # Poll up to 10 min — Aspire's default replica timeout is 30 min but
           # migrations across 4 module DBs realistically finish in <2 min.
+          # Note the odd CLI shape: `--name` is the JOB, `--job-execution-name`
+          # is the execution. The execution name comes back from `job start`.
           for i in $(seq 1 60); do
-            status=$(az containerapp job execution show -g "$RG" --job-name yumney-migrations --name "$execution" --query "properties.status" -o tsv 2>/dev/null || echo "Unknown")
+            status=$(az containerapp job execution show -g "$RG" --name yumney-migrations --job-execution-name "$execution" --query "properties.status" -o tsv 2>/dev/null || echo "Unknown")
             echo "  [${i}] status=$status"
             case "$status" in
               Succeeded) echo "✓ migrations applied (or no pending)"; exit 0 ;;
