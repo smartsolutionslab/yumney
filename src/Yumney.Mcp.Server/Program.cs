@@ -21,6 +21,27 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 builder.Services.AddKeycloakBearerAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddHttpContextAccessor();
 
+// CORS for browser-originating MCP clients (Claude.ai, ChatGPT custom GPTs).
+// Registered on the MCP server itself — not the gateway — so the policy lives
+// next to the resource it protects and works under both `aspire run` (project-
+// based gateway) and `aspire deploy` (Aspire.Hosting.Yarp prebuilt container,
+// which has no CORS wrapper). The `UseCors` call below runs BEFORE
+// `UseAuthentication`, so preflight OPTIONS returns 204 with the headers
+// instead of being short-circuited to 401 by the bearer challenge.
+const string McpClientsCorsPolicy = "ExternalMcpClients";
+var corsAllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+	?? ["http://localhost:4200"];
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy(McpClientsCorsPolicy, policy =>
+	{
+		policy.WithOrigins(corsAllowedOrigins)
+			.AllowAnyHeader()
+			.AllowAnyMethod()
+			.AllowCredentials();
+	});
+});
+
 builder.AddRedisClient("redis");
 var isE2ETests = builder.Configuration.GetValue<bool>("E2ETests");
 builder.Services.AddRateLimiter(options => options.AddMcpPolicy(isE2ETests));
@@ -50,6 +71,7 @@ builder.Services.AddMcpServer()
 
 var app = builder.Build();
 
+app.UseCors(McpClientsCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
