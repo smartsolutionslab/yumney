@@ -1029,6 +1029,7 @@ Scopes: recipes, shopping, users, account, shared, api, shell, infra, ui
 - Secrets: Azure Key Vault only, NEVER in code
   - All credentials flow through Aspire `AddParameter(..., secret: true)` — `PostgresPassword`, `KeycloakPassword`, `MessagingPassword`, `RedisPassword`, `YumneyApiClientSecret`, `OpenAiApiKey`.
   - In run mode the AppHost provides a clearly-labeled dev default for the Keycloak client secret (matching `Realms/yumney-realm.json`); in publish mode the value is sourced from a Container App secret backed by Key Vault.
+  - **Known gap (2026-05-23):** the `yumney-api` client's `secret` field is the literal `dev-only-keycloak-client-secret` in `Realms/yumney-realm.json` and is **not templated at deploy time**. The Users API sends `secrets.YUMNEY_API_CLIENT_SECRET` (a different value), so on a from-scratch staging redeploy the two disagree and `POST /api/v1/auth/register` returns 503 (`Failed to obtain service account token. Status: Unauthorized` in `users-api` logs). Keycloak's `IGNORE_EXISTING` import strategy means re-uploading the realm won't fix it — the client secret has to be updated via Keycloak admin API. Recovery: [`docs/runbooks/staging-reset.md`](docs/runbooks/staging-reset.md) §5.
   - `gitleaks` runs on every PR (`.github/workflows/secret-scan.yml`) to catch regressions.
 - No token in localStorage – HttpOnly Cookie
 - Angular Sanitization: never disable
