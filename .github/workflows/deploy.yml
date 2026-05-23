@@ -286,6 +286,36 @@ jobs:
           Parameters__RedisPassword: ${{ secrets.REDIS_PASSWORD }}
           Parameters__KeycloakDbHost: ${{ vars.POSTGRES_HOST }}
 
+      - name: Run EF migrations
+        # yumney-migrations is published as a Container Apps Job (manual
+        # trigger). aspire deploy creates/updates the Job resource but does
+        # NOT execute it — we have to call `az containerapp job start` and
+        # wait for completion. Without this step, deploys would silently
+        # ship code that expects migrations not yet applied (observed on
+        # 2026-05-22 when shoppingdb and mealplandb sat with no schema).
+        env:
+          RG: ${{ vars.AZURE_RESOURCE_GROUP }}
+        run: |
+          set -e
+          echo "─── Starting yumney-migrations job ───"
+          execution=$(az containerapp job start -g "$RG" -n yumney-migrations --query "name" -o tsv)
+          echo "  execution: $execution"
+
+          # Poll up to 10 min — Aspire's default replica timeout is 30 min but
+          # migrations across 4 module DBs realistically finish in <2 min.
+          for i in $(seq 1 60); do
+            status=$(az containerapp job execution show -g "$RG" --job-name yumney-migrations --name "$execution" --query "properties.status" -o tsv 2>/dev/null || echo "Unknown")
+            echo "  [${i}] status=$status"
+            case "$status" in
+              Succeeded) echo "✓ migrations applied (or no pending)"; exit 0 ;;
+              Failed|Degraded|Stopped|Stopping) echo "::error::migration job ended with status=$status"; exit 1 ;;
+              Running|Processing|Pending|"") sleep 10 ;;
+              *) sleep 10 ;;
+            esac
+          done
+          echo "::error::timed out waiting for migration job to finish"
+          exit 1
+
       - name: Verify Postgres state
         # Observed twice on 2026-05-22: `aspire deploy` reports success
         # but leaves two specific module DBs (mealplandb, shoppingdb)
