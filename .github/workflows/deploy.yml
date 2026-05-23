@@ -143,6 +143,16 @@ jobs:
           ENVIRONMENT: ${{ needs.version.outputs.environment }}
         run: |
           set -e
+          # First-time provisioning (or after a manual RG wipe) leaves the
+          # RG itself missing. `az postgres flexible-server list -g <rg>`
+          # then errors with ResourceGroupNotFound instead of returning an
+          # empty list, which under `set -e` kills the step before the
+          # "no servers yet" branch can fire. Bail out early in that case
+          # so `aspire deploy` can create the RG fresh.
+          if [ "$(az group exists -n "$RG")" = "false" ]; then
+            echo "Resource group $RG does not exist — first-time provisioning, skipping precheck."
+            exit 0
+          fi
           echo "─── Postgres servers in $RG ───"
           az postgres flexible-server list -g "$RG" -o table || true
 
