@@ -146,11 +146,7 @@ export class RecipeApiService {
     }
   }
 
-  private parseSseBuffer(
-    lines: string[],
-    state: SseParserState,
-    subscriber: import('rxjs').Subscriber<ImportStreamEvent>,
-  ): boolean {
+  private parseSseBuffer(lines: string[], state: SseParserState, subscriber: import('rxjs').Subscriber<ImportStreamEvent>): boolean {
     for (const line of lines) {
       if (line.startsWith('event: ')) {
         state.eventType = line.slice(7).trim();
