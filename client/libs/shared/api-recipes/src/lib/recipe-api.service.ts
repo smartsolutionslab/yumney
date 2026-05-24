@@ -17,6 +17,10 @@ import type { CookableRecipeListResponse, GetCookableRecipesParams } from './coo
 import type { RecognizedIngredientsResponse } from './recognized-ingredient';
 import type { FavoriteState } from './favorite-state';
 
+interface SseParserState {
+  eventType: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class RecipeApiService {
   private http = inject(HttpClient);
@@ -105,6 +109,12 @@ export class RecipeApiService {
     const reader = body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    // Persists across reader.read() calls. Without this, an event whose
+    // `event:` line lands in one network chunk and its `data:` line in the
+    // next gets dropped — local-scoped parseSseBuffer state (#bug
+    // surfaced on chefkoch's ~1.5 KB chunk JSON, 2026-05-24) loses the
+    // type between calls.
+    const parserState: SseParserState = { eventType: null };
 
     try {
       while (true) {
@@ -115,7 +125,7 @@ export class RecipeApiService {
         const lines = buffer.split('\n');
         buffer = lines.pop() ?? '';
 
-        const terminal = this.parseSseBuffer(lines, subscriber);
+        const terminal = this.parseSseBuffer(lines, parserState, subscriber);
         if (terminal) {
           await reader.cancel();
           abortController.abort();
@@ -136,18 +146,25 @@ export class RecipeApiService {
     }
   }
 
-  private parseSseBuffer(lines: string[], subscriber: import('rxjs').Subscriber<ImportStreamEvent>): boolean {
-    let eventType: string | null = null;
-
+  private parseSseBuffer(
+    lines: string[],
+    state: SseParserState,
+    subscriber: import('rxjs').Subscriber<ImportStreamEvent>,
+  ): boolean {
     for (const line of lines) {
       if (line.startsWith('event: ')) {
-        eventType = line.slice(7).trim();
-      } else if (line.startsWith('data: ') && eventType) {
-        const type = eventType as ImportStreamEvent['type'];
+        state.eventType = line.slice(7).trim();
+      } else if (line.startsWith('data: ') && state.eventType) {
+        const type = state.eventType as ImportStreamEvent['type'];
         subscriber.next({ type, data: line.slice(6) });
 
         if (type === 'done' || type === 'fail') return true;
-        eventType = null;
+        state.eventType = null;
+      } else if (line === '') {
+        // SSE spec: blank line dispatches/terminates the current event.
+        // We dispatch on the data: line above (single-data-line shape used
+        // by the server), so a blank line just resets the type accumulator.
+        state.eventType = null;
       }
     }
 
