@@ -1,3 +1,4 @@
+import { ReadableStream } from 'node:stream/web';
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -54,7 +55,11 @@ describe('RecipeApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: AuthService, useValue: { gatewayUrl: () => '' } }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: { gatewayUrl: () => '', getAccessToken: () => 'test-token' } },
+      ],
     });
 
     service = TestBed.inject(RecipeApiService);
@@ -274,6 +279,87 @@ describe('RecipeApiService', () => {
       const req = httpTesting.expectOne('/api/v1/recipes/recipe-abc/notes');
       expect(req.request.body).toEqual({ notes: null });
       req.flush(null);
+    });
+  });
+
+  describe('importRecipeStream', () => {
+    // SSE parser regression: the eventType accumulator must persist across
+    // ReadableStream.read() calls. The chefkoch JSON-LD fast-path on 2026-05-24
+    // emitted a ~1.5 KB chunk event whose `event: chunk\n` line landed in one
+    // network frame and the `data: {...}` line in the next — losing the type
+    // (function-local variable) and dropping the event entirely. Verified end-
+    // to-end against staging: extraction returned 200 + JSON-LD success, but
+    // the UI never displayed the Review-Extracted-Recipe form because the
+    // chunk + done events were silently swallowed.
+    function makeFakeFetchResponse(chunks: string[]): Response {
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          for (const chunk of chunks) {
+            controller.enqueue(encoder.encode(chunk));
+          }
+          controller.close();
+        },
+      });
+      return new Response(stream, { status: 200, headers: { 'content-type': 'text/event-stream' } });
+    }
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('emits all events when each one arrives in its own chunk (happy path)', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        makeFakeFetchResponse([
+          'event: status\ndata: Fetching page...\n\n',
+          'event: status\ndata: Extracting recipe...\n\n',
+          'event: chunk\ndata: {"title":"Carbonara"}\n\n',
+          'event: done\ndata: {"title":"Carbonara"}\n\n',
+        ]),
+      );
+
+      const received: { type: string; data: string }[] = [];
+      await new Promise<void>((resolve, reject) => {
+        service.importRecipeStream('https://example.com/recipe').subscribe({
+          next: (evt) => received.push(evt),
+          error: reject,
+          complete: resolve,
+        });
+      });
+
+      expect(received.map((evt) => evt.type)).toEqual(['status', 'status', 'chunk', 'done']);
+      expect(received[2].data).toBe('{"title":"Carbonara"}');
+    });
+
+    it('emits the chunk event even when event: and data: lines arrive in separate reads', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        makeFakeFetchResponse([
+          // First read: only the event-type line — the data line is in the next frame.
+          'event: chunk\n',
+          // Second read: the data line + blank-line terminator.
+          'data: {"title":"Bolognese","ingredients":[]}\n\n',
+          // Plus the terminal event so the stream completes.
+          'event: done\ndata: {"title":"Bolognese"}\n\n',
+        ]),
+      );
+
+      const received: { type: string; data: string }[] = [];
+      await new Promise<void>((resolve, reject) => {
+        service.importRecipeStream('https://example.com/recipe').subscribe({
+          next: (evt) => received.push(evt),
+          error: reject,
+          complete: resolve,
+        });
+      });
+
+      // The chunk event MUST be present even though its event: and data: lines
+      // arrived in different network frames. The pre-fix parser dropped it.
+      const chunkEvent = received.find((evt) => evt.type === 'chunk');
+      expect(chunkEvent).toBeDefined();
+      expect(chunkEvent!.data).toBe('{"title":"Bolognese","ingredients":[]}');
+
+      const doneEvent = received.find((evt) => evt.type === 'done');
+      expect(doneEvent).toBeDefined();
     });
   });
 });
