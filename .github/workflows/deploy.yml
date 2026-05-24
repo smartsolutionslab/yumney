@@ -337,6 +337,101 @@ jobs:
           rev=$(az containerapp show -g "$RG" -n keycloak --query "properties.latestRevisionName" -o tsv)
           az containerapp revision restart -g "$RG" -n keycloak --revision "$rev"
 
+      - name: Patch Keycloak yumney-api client scope (closes #817)
+        # The realm JSON ships only a per-client `yumney-api-audience` protocol
+        # mapper on yumney-web. DCR-registered clients (Claude.ai, ChatGPT
+        # custom GPTs) inherit realm defaults at registration time, not
+        # per-client mappers, so they cannot get a token with the `yumney-api`
+        # audience that the module APIs validate. Authorization fails with
+        # `Invalid scopes: openid profile yumney-api offline_access`.
+        #
+        # Baking this into the realm JSON regressed 131 integration tests
+        # (something in Keycloak's import semantics around defaultOptional
+        # ClientScopes broke claim mapping on yumney-web). Reverted; the same
+        # outcome is achieved here via idempotent admin-API patch instead.
+        #
+        # Steps:
+        #  1. Master admin token via password grant against /realms/master.
+        #  2. Ensure a `yumney-api` client scope exists with the audience
+        #     mapper (created if missing, no-op if present).
+        #  3. Ensure that scope is in the realm's defaultOptionalClientScopes
+        #     (registered if missing, no-op if present).
+        env:
+          RG: ${{ vars.AZURE_RESOURCE_GROUP }}
+        run: |
+          set -e
+          kc_fqdn=$(az containerapp show -g "$RG" -n keycloak --query "properties.configuration.ingress.fqdn" -o tsv)
+          kc="https://$kc_fqdn"
+          admin_pass=$(az containerapp secret show -g "$RG" -n keycloak --secret-name kc-bootstrap-admin-password --query value -o tsv)
+
+          # Wait for Keycloak admin to respond after the post-realm-seed
+          # restart (60 s budget; usually back in ~25 s).
+          deadline=$(( $(date +%s) + 60 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            if curl -sS -o /dev/null -w "%{http_code}" "$kc/realms/master/.well-known/openid-configuration" | grep -q 200; then
+              break
+            fi
+            sleep 5
+          done
+
+          token=$(curl -sS -X POST "$kc/realms/master/protocol/openid-connect/token" \
+            -d "grant_type=password&client_id=admin-cli&username=admin&password=$admin_pass" \
+            | python3 -c "import json,sys; print(json.load(sys.stdin).get('access_token',''))")
+          if [ -z "$token" ]; then
+            echo "::error::could not obtain Keycloak master admin token"
+            exit 1
+          fi
+
+          # Step 2: create scope if missing.
+          existing=$(curl -sS -H "Authorization: Bearer $token" "$kc/admin/realms/yumney/client-scopes" \
+            | python3 -c "import json,sys; print(next((scope['id'] for scope in json.load(sys.stdin) if scope['name']=='yumney-api'),''))")
+          if [ -n "$existing" ]; then
+            echo "  ✓ yumney-api client scope already present (id=$existing)"
+          else
+            echo "  creating yumney-api client scope"
+            curl -sS -X POST "$kc/admin/realms/yumney/client-scopes" \
+              -H "Authorization: Bearer $token" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "name": "yumney-api",
+                "description": "Grants the yumney-api audience to issued access tokens",
+                "protocol": "openid-connect",
+                "attributes": {
+                  "include.in.token.scope": "true",
+                  "display.on.consent.screen": "true",
+                  "consent.screen.text": "Access Yumney recipe data"
+                },
+                "protocolMappers": [{
+                  "name": "yumney-api-audience",
+                  "protocol": "openid-connect",
+                  "protocolMapper": "oidc-audience-mapper",
+                  "consentRequired": false,
+                  "config": {
+                    "included.client.audience": "yumney-api",
+                    "id.token.claim": "false",
+                    "access.token.claim": "true",
+                    "introspection.token.claim": "true"
+                  }
+                }]
+              }' -w "  HTTP %{http_code}\n"
+          fi
+
+          # Step 3: register as realm default-optional (idempotent — Keycloak
+          # PUT returns 204 whether or not it was already there).
+          scope_id=$(curl -sS -H "Authorization: Bearer $token" "$kc/admin/realms/yumney/client-scopes" \
+            | python3 -c "import json,sys; print(next(scope['id'] for scope in json.load(sys.stdin) if scope['name']=='yumney-api'))")
+          curl -sS -X PUT "$kc/admin/realms/yumney/default-optional-client-scopes/$scope_id" \
+            -H "Authorization: Bearer $token" -w "  default-optional PUT: HTTP %{http_code}\n"
+
+          # Verify
+          present=$(curl -sS -H "Authorization: Bearer $token" "$kc/admin/realms/yumney/default-optional-client-scopes" \
+            | python3 -c "import json,sys; print('yes' if any(scope['name']=='yumney-api' for scope in json.load(sys.stdin)) else 'no')")
+          if [ "$present" != "yes" ]; then
+            echo "::error::yumney-api not in realm default-optional-client-scopes after patch"
+            exit 1
+          fi
+          echo "  ✓ yumney-api scope registered + attached to realm default-optional"
+
       - name: Run EF migrations
         # yumney-migrations is published as a Container Apps Job (manual
         # trigger). aspire deploy creates/updates the Job resource but does
