@@ -1,4 +1,5 @@
 using System.Globalization;
+using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Azure;
 using Azure.Provisioning.AppContainers;
 using SmartSolutionsLab.Yumney.AppHost.Options;
@@ -23,7 +24,7 @@ internal static class AppHostExtensions
 			.WithReference(keycloak)
 			.WithReference(redis)
 			.WithReference(messaging)
-			.WithUrl("/scalar/v1", "Scalar");
+			.WithUrls(AddScalarAndOpenApiUrls);
 
 		if (options.E2ETests) configured.WithEnvironment("E2ETests", "true");
 
@@ -107,4 +108,29 @@ internal static class AppHostExtensions
 				});
 			}
 		};
+
+	// The plain `.WithUrl("/scalar/v1", "Scalar")` overload takes a literal
+	// URL — Aspire has no endpoint context to resolve a leading slash, so
+	// the dashboard silently drops the entry. Per Aspire docs (define-
+	// custom-resource-urls), additive URLs that need to be joined to a
+	// runtime endpoint go through `WithUrls(callback)`: walk the existing
+	// URL set for the http endpoint, then append deep links on it.
+	private static void AddScalarAndOpenApiUrls(ResourceUrlsCallbackContext context)
+	{
+		var http = context.Urls.FirstOrDefault(url => url.Endpoint?.EndpointName == "http");
+		if (http is null) return;
+
+		context.Urls.Add(new ResourceUrlAnnotation
+		{
+			Url = $"{http.Url.TrimEnd('/')}/scalar/v1",
+			Endpoint = http.Endpoint,
+			DisplayText = "Scalar",
+		});
+		context.Urls.Add(new ResourceUrlAnnotation
+		{
+			Url = $"{http.Url.TrimEnd('/')}/openapi/v1.json",
+			Endpoint = http.Endpoint,
+			DisplayText = "OpenAPI",
+		});
+	}
 }
