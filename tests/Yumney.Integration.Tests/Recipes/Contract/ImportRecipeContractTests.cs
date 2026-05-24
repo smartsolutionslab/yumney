@@ -15,17 +15,22 @@ public class ImportRecipeContractTests(AspireFixture fixture)
 	private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
 	[Fact]
-	public async Task Import_ValidUrl_Returns200WithExtractedRecipe()
+	public async Task Import_ValidUrl_Returns200WithSavedRecipe()
 	{
+		// Shape changed in #820: the endpoint now extracts AND persists, so the
+		// response carries the saved recipe identifier (SavedRecipeDto) instead
+		// of the full extracted shape with ingredients/steps. The stub-recipe
+		// E2E mode still drives the title. Unique URL per run avoids the
+		// AlreadyImported guard if this test re-runs against the same fixture.
 		using var client = await fixture.CreateAuthenticatedClientAsync("recipes-api");
 
-		var response = await client.PostAsJsonAsync(Endpoint, new { url = "https://example.com/recipe" });
+		var response = await client.PostAsJsonAsync(Endpoint, new { url = $"https://example.com/recipe-{Guid.NewGuid():N}" });
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 		var body = await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
 		body.GetProperty("title").GetString().Should().Be("Stub Recipe");
-		body.GetProperty("ingredients").GetArrayLength().Should().BeGreaterThan(0);
-		body.GetProperty("steps").GetArrayLength().Should().BeGreaterThan(0);
+		body.GetProperty("identifier").GetGuid().Should().NotBe(Guid.Empty);
+		body.GetProperty("createdAt").GetDateTime().Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMinutes(1));
 	}
 
 	[Fact]
