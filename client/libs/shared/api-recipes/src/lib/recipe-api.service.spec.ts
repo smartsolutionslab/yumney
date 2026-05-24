@@ -301,7 +301,13 @@ describe('RecipeApiService', () => {
           controller.close();
         },
       });
-      return new Response(stream, { status: 200, headers: { 'content-type': 'text/event-stream' } });
+      // Cast through unknown: node:stream/web's ReadableStream type differs
+      // from the DOM ReadableStream the Response constructor expects, even
+      // though they're runtime-compatible.
+      return new Response(stream as unknown as BodyInit, {
+        status: 200,
+        headers: { 'content-type': 'text/event-stream' },
+      });
     }
 
     afterEach(() => {
