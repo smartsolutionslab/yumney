@@ -138,11 +138,12 @@ public static partial class RecipesEndpoints
 			.WithValidation<Requests.ImportRecipe>()
 			.WithCapability(
 				name: "import_recipe_from_url",
-				description: "Extract a recipe from a URL (recipe site, blog, or video page) and add it to the user's collection. Returns the parsed recipe (title, ingredients, steps). Use for 'save this recipe' / 'add this to my collection' / 'speicher das Rezept'.",
+				description: "Extract a recipe from a URL (recipe site, blog, or video page) and add it to the user's collection. Returns the saved recipe identifier so it can be referenced in follow-up tool calls. Use for 'save this recipe' / 'add this to my collection' / 'speicher das Rezept'.",
 				surfaces: CapabilitySurface.Mcp | CapabilitySurface.Voice)
-			.Produces<ExtractedRecipeDto>()
+			.Produces<SavedRecipeDto>()
 			.ProducesValidationProblem()
 			.ProducesProblem(StatusCodes.Status404NotFound)
+			.ProducesProblem(StatusCodes.Status409Conflict)
 			.ProducesProblem(StatusCodes.Status413PayloadTooLarge)
 			.ProducesProblem(StatusCodes.Status429TooManyRequests)
 			.ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -152,7 +153,7 @@ public static partial class RecipesEndpoints
 
 		static async Task<IResult> Import(
 			Requests.ImportRecipe request,
-			ICommandHandler<ImportRecipeCommand, Result<ExtractedRecipeDto>> handler,
+			ICommandHandler<ImportRecipeCommand, Result<SavedRecipeDto>> handler,
 			CancellationToken cancellationToken)
 		{
 			var command = new ImportRecipeCommand(RecipeUrl.From(request.Url));
