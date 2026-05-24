@@ -89,35 +89,6 @@
       ]
     }
   ],
-  "clientScopes": [
-    {
-      "name": "yumney-api",
-      "description": "Grants the yumney-api audience to issued access tokens",
-      "protocol": "openid-connect",
-      "attributes": {
-        "include.in.token.scope": "true",
-        "display.on.consent.screen": "true",
-        "consent.screen.text": "Access Yumney recipe data"
-      },
-      "protocolMappers": [
-        {
-          "name": "yumney-api-audience",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-audience-mapper",
-          "consentRequired": false,
-          "config": {
-            "included.client.audience": "yumney-api",
-            "id.token.claim": "false",
-            "access.token.claim": "true",
-            "introspection.token.claim": "true"
-          }
-        }
-      ]
-    }
-  ],
-  "defaultOptionalClientScopes": [
-    "yumney-api"
-  ],
   "components": {
     "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy": [
       {
