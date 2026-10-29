@@ -1,11 +1,11 @@
-import { Meta, StoryObj, moduleMetadata } from '@storybook/angular';
+import { Meta, StoryObj, applicationConfig } from '@storybook/angular';
 import { provideRouter } from '@angular/router';
 import { ButtonComponent } from './button.component';
 
 const meta: Meta<ButtonComponent> = {
   title: 'Components/Button',
   component: ButtonComponent,
-  decorators: [moduleMetadata({ providers: [provideRouter([])] })],
+  decorators: [applicationConfig({ providers: [provideRouter([])] })],
   argTypes: {
     variant: {
       control: 'select',
