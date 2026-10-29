@@ -87,7 +87,12 @@ var messaging = builder
 	.AddRabbitMQ("messaging", password: messagingPassword)
 	.WithImageTag("4-management-alpine")
 	.WithManagementPlugin();
-var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword);
+
+// Aspire.Hosting.Keycloak 13.6 moved its default image to 26.6, which exits
+// during startup with our realm import. Stay on 26.5 until that is resolved.
+var keycloak = builder
+	.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword)
+	.WithImageTag("26.5");
 
 if (isRunMode && !options.E2ETests)
 {
