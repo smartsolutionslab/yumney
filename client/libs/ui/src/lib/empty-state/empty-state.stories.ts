@@ -1,4 +1,4 @@
-import { Meta, StoryObj, moduleMetadata } from '@storybook/angular';
+import { Meta, StoryObj, applicationConfig, moduleMetadata } from '@storybook/angular';
 import { provideRouter } from '@angular/router';
 import { ButtonComponent } from '../button/button.component';
 import { EmptyStateComponent } from './empty-state.component';
@@ -6,7 +6,7 @@ import { EmptyStateComponent } from './empty-state.component';
 const meta: Meta<EmptyStateComponent> = {
   title: 'Components/Empty State',
   component: EmptyStateComponent,
-  decorators: [moduleMetadata({ imports: [ButtonComponent], providers: [provideRouter([])] })],
+  decorators: [applicationConfig({ providers: [provideRouter([])] }), moduleMetadata({ imports: [ButtonComponent] })],
   argTypes: {
     variant: { control: 'select', options: ['card', 'minimal'] },
     title: { control: 'text' },

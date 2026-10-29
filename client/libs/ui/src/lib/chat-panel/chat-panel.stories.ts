@@ -1,6 +1,6 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, Injectable, input } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideTransloco, TranslocoService } from '@jsverse/transloco';
+import { provideTransloco, TranslocoLoader, TranslocoService } from '@jsverse/transloco';
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from '@storybook/angular';
 import { of } from 'rxjs';
 import { RecipeApiService } from '@yumney/shared/api-recipes';
@@ -32,6 +32,13 @@ const en = {
     },
   },
 };
+
+@Injectable({ providedIn: 'root' })
+class StoryTranslocoLoader implements TranslocoLoader {
+  getTranslation() {
+    return of(en);
+  }
+}
 
 const chatApiStub = {
   send: () => of({ reply: '', suggestions: [] }),
@@ -84,7 +91,7 @@ const meta: Meta<ChatPanelStoryHost> = {
             reRenderOnLangChange: false,
             prodMode: true,
           },
-          loader: { getTranslation: () => of(en) },
+          loader: StoryTranslocoLoader,
         }),
       ],
     }),
