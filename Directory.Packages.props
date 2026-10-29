@@ -56,11 +56,9 @@
     <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="1.4.1" />
     <!-- Reverse Proxy -->
     <PackageVersion Include="RedisRateLimiting" Version="1.2.1" />
-    <!-- Pinned on 5.39.3: WolverineFx 6.x is a major breaking release for the
-         event bus. Tracked as a dedicated follow-up, not part of this routine bump. -->
-    <PackageVersion Include="WolverineFx.RabbitMQ" Version="5.39.3" />
-    <PackageVersion Include="WolverineFx.Postgresql" Version="5.39.3" />
-    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="5.39.3" />
+    <PackageVersion Include="WolverineFx.RabbitMQ" Version="6.57.0" />
+    <PackageVersion Include="WolverineFx.Postgresql" Version="6.57.0" />
+    <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="6.57.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
     <!-- API -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
