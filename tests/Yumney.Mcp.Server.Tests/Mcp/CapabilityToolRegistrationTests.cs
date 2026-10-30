@@ -1,5 +1,5 @@
+using System.Text.Json;
 using FluentAssertions;
-using ModelContextProtocol.Protocol;
 using SmartSolutionsLab.Yumney.Mcp.Server.Discovery;
 using SmartSolutionsLab.Yumney.Mcp.Server.Mcp;
 using SmartSolutionsLab.Yumney.Shared.Capabilities;
@@ -74,18 +74,6 @@ public class CapabilityToolRegistrationTests
 		var tools = CapabilityToolRegistration.BuildTools(registry);
 
 		tools.Should().BeEmpty();
-	}
-
-	[Fact]
-	public void BuildStubInvocationResult_ReferencesRequestedToolName()
-	{
-		var result = CapabilityToolRegistration.BuildStubInvocationResult("search_recipes");
-
-		result.IsError.Should().BeFalse();
-		result.Content.Should().ContainSingle();
-		var text = result.Content.OfType<TextContentBlock>().Single().Text;
-		text.Should().Contain("[search_recipes]");
-		text.Should().Contain("Phase 4c");
 	}
 
 	[Fact]
@@ -180,6 +168,31 @@ public class CapabilityToolRegistrationTests
 		var names = CapabilityToolRegistration.BuildTools(registry).Select(tool => tool.Name).ToList();
 
 		names.Should().BeEquivalentTo(["search_recipes", "search_recipes__v2"]);
+	}
+
+	[Fact]
+	public void BuildTools_DescriptorWithInputSchema_PublishesSchema()
+	{
+		var inputSchema = JsonDocument.Parse("""{"type":"object","properties":{"day":{"type":"string"}},"required":["day"]}""").RootElement.Clone();
+		var registry = new AggregatedCapabilityRegistry();
+		registry.SetManifest("mealplan-api", new CapabilityManifest(
+			"mealplan-api",
+			[new CapabilityDescriptor("assign_meal", "plan a meal", CapabilitySurface.Mcp, "POST", "/slots") { InputSchema = inputSchema }]));
+
+		var tool = CapabilityToolRegistration.BuildTools(registry).Single();
+
+		tool.InputSchema.GetProperty("required")[0].GetString().Should().Be("day");
+	}
+
+	[Fact]
+	public void BuildTools_DescriptorWithoutInputSchema_PublishesObjectSchema()
+	{
+		var registry = new AggregatedCapabilityRegistry();
+		registry.SetManifest("recipes-api", new CapabilityManifest("recipes-api", [Descriptor("search_recipes", CapabilitySurface.Mcp)]));
+
+		var tool = CapabilityToolRegistration.BuildTools(registry).Single();
+
+		tool.InputSchema.GetProperty("type").GetString().Should().Be("object");
 	}
 
 	private static CapabilityDescriptor Descriptor(string name, CapabilitySurface surfaces) =>

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace SmartSolutionsLab.Yumney.Shared.Capabilities;
 
 /// <summary>
@@ -24,6 +26,15 @@ public sealed record CapabilityDescriptor(
 	/// client configs keep working.
 	/// </summary>
 	public int Version { get; init; } = 1;
+
+	/// <summary>
+	/// Gets the JSON Schema (type <c>object</c>) describing the tool arguments:
+	/// route placeholders, query parameters and — for POST/PUT/PATCH — the
+	/// request body's properties flattened to the top level, matching how the
+	/// MCP proxy splits a flat argument bag back into path, query and body.
+	/// Null when the host could not describe the endpoint.
+	/// </summary>
+	public JsonElement? InputSchema { get; init; }
 }
 
 /// <summary>Wire shape of one host's capability manifest, returned by <c>/.well-known/yumney-capabilities</c>.</summary>

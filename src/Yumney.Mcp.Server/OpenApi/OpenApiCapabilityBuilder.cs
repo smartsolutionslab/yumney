@@ -12,12 +12,11 @@ namespace SmartSolutionsLab.Yumney.Mcp.Server.OpenApi;
 /// gateway + OAuth path as Claude.ai's MCP custom connector.
 /// </summary>
 /// <remarks>
-/// First cut emits a minimal-but-valid spec: paths, methods, path parameters
-/// extracted from route templates, OAuth2 security pointing at Keycloak, and
-/// permissive request bodies on non-GET operations. Schema enrichment per
-/// operation (request/response shapes) is a follow-up; this gives ChatGPT
-/// enough surface to make calls, with the LLM relying on the description
-/// text for argument shapes.
+/// Request shapes come from each capability's <see cref="CapabilityDescriptor.InputSchema"/>:
+/// typed path parameters, query parameters for GET/DELETE, and a JSON body of
+/// the remaining arguments for POST/PUT/PATCH. Capabilities without a schema
+/// fall back to string path parameters and a permissive body. Response shapes
+/// are not described yet.
 /// </remarks>
 public static partial class OpenApiCapabilityBuilder
 {
@@ -83,12 +82,14 @@ public static partial class OpenApiCapabilityBuilder
 		var pathItem = paths[openApiPath] as JsonObject ?? new JsonObject();
 		paths[openApiPath] = pathItem;
 
+		var arguments = ArgumentSchema.From(capability.InputSchema);
+		var placeholders = PlaceholderNames(capability.RoutePattern);
 		var operation = new JsonObject
 		{
 			["operationId"] = capability.Name,
 			["summary"] = capability.Name,
 			["description"] = capability.Description,
-			["parameters"] = BuildPathParameters(capability.RoutePattern),
+			["parameters"] = BuildParameters(capability.HttpMethod, placeholders, arguments),
 			["responses"] = new JsonObject
 			{
 				["200"] = new JsonObject { ["description"] = "Successful response." },
@@ -97,46 +98,69 @@ public static partial class OpenApiCapabilityBuilder
 			},
 		};
 
-		if (RequiresBody(capability.HttpMethod))
-		{
-			operation["requestBody"] = new JsonObject
-			{
-				["required"] = true,
-				["content"] = new JsonObject
-				{
-					["application/json"] = new JsonObject
-					{
-						["schema"] = new JsonObject
-						{
-							["type"] = "object",
-							["additionalProperties"] = true,
-							["description"] = "See the tool description for the expected fields.",
-						},
-					},
-				},
-			};
-		}
+		var requestBody = RequiresBody(capability.HttpMethod) ? BuildRequestBody(placeholders, arguments) : null;
+		if (requestBody is not null) operation["requestBody"] = requestBody;
 
 		pathItem[capability.HttpMethod.ToLowerInvariant()] = operation;
 	}
 
-	private static JsonArray BuildPathParameters(string routePattern)
+	private static JsonArray BuildParameters(string httpMethod, IReadOnlyList<string> placeholders, ArgumentSchema? arguments)
 	{
 		var parameters = new JsonArray();
-		foreach (Match match in PlaceholderPattern().Matches(routePattern))
+		foreach (var name in placeholders)
 		{
-			var name = match.Groups["name"].Value;
-			parameters.Add(new JsonObject
-			{
-				["name"] = name,
-				["in"] = "path",
-				["required"] = true,
-				["schema"] = new JsonObject { ["type"] = "string" },
-			});
+			parameters.Add(Parameter(name, "path", required: true, arguments?.SchemaOf(name)));
+		}
+
+		if (arguments is null || RequiresBody(httpMethod)) return parameters;
+
+		foreach (var name in arguments.NamesExcept(placeholders))
+		{
+			parameters.Add(Parameter(name, "query", arguments.IsRequired(name), arguments.SchemaOf(name)));
 		}
 
 		return parameters;
 	}
+
+	private static JsonObject Parameter(string name, string location, bool required, JsonNode? schema) => new()
+	{
+		["name"] = name,
+		["in"] = location,
+		["required"] = required,
+		["schema"] = schema ?? new JsonObject { ["type"] = "string" },
+	};
+
+	// Without a host-provided schema the body stays permissive and the LLM
+	// relies on the description text; with one, only the non-route arguments
+	// form the body — mirroring how RestProxyService splits the argument bag.
+	private static JsonObject? BuildRequestBody(IReadOnlyList<string> placeholders, ArgumentSchema? arguments)
+	{
+		JsonObject schema;
+		if (arguments is null)
+		{
+			schema = new JsonObject
+			{
+				["type"] = "object",
+				["additionalProperties"] = true,
+				["description"] = "See the tool description for the expected fields.",
+			};
+		}
+		else
+		{
+			var bodyNames = arguments.NamesExcept(placeholders);
+			if (bodyNames.Count == 0) return null;
+			schema = arguments.ObjectSchemaFor(bodyNames);
+		}
+
+		return new JsonObject
+		{
+			["required"] = true,
+			["content"] = new JsonObject { ["application/json"] = new JsonObject { ["schema"] = schema } },
+		};
+	}
+
+	private static List<string> PlaceholderNames(string routePattern) =>
+		[.. PlaceholderPattern().Matches(routePattern).Select(match => match.Groups["name"].Value)];
 
 	private static string NormalisePath(string routePattern) =>
 		PlaceholderPattern().Replace(routePattern, "{${name}}");
