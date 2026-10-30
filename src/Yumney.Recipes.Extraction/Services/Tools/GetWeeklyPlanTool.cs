@@ -1,12 +1,12 @@
 using System.ComponentModel;
 using System.Globalization;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 
 /// <summary>
-/// SK kernel function exposing the user's weekly meal plan to the chat LLM.
+/// Chat tool exposing the user's weekly meal plan to the chat LLM.
 /// Cross-module call: <see cref="IWeeklyPlanLookup"/> is the consumer-defined
 /// contract owned by Recipes; the HTTP adapter calls the MealPlan module via
 /// <c>IMealPlanClient</c>.
@@ -14,13 +14,16 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 /// <param name="lookup">Consumer-defined weekly-plan lookup.</param>
 /// <param name="context">Per-request collector for downstream suggestion / action emission.</param>
 public sealed class GetWeeklyPlanTool(IWeeklyPlanLookup lookup, ChatToolContext context)
+	: IChatTool
 {
+	/// <inheritdoc/>
+	public AIFunction ToFunction() => AIFunctionFactory.Create(GetAsync, "get_weekly_plan");
+
 	/// <summary>Get the user's planned meals for an ISO week. Year + week default to "this week" when omitted.</summary>
 	/// <param name="year">ISO year, e.g. 2026. Pass 0 for the current year.</param>
 	/// <param name="weekNumber">ISO week number 1-53. Pass 0 for the current week.</param>
 	/// <param name="cancellationToken">Cancellation propagated from the LLM call.</param>
 	/// <returns>The weekly plan or null if nothing planned.</returns>
-	[KernelFunction("get_weekly_plan")]
 	[Description("Fetch the user's planned meals for an ISO week. Use for 'what's for dinner this week?', 'what did I plan for Tuesday?', 'show me next week's plan'. Pass year=0 and weekNumber=0 to mean 'this week'.")]
 	public async Task<WeeklyPlanLookupResult?> GetAsync(
 		[Description("ISO year (e.g. 2026), or 0 for the current year")] int year,

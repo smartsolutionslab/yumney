@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Extraction;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.TestStubs;
@@ -35,14 +36,26 @@ public class StubRegistrationTests
 		provider.GetRequiredService<IRecipeExtractionService>().Should().NotBeOfType<StubRecipeExtractionService>();
 	}
 
-	private static ServiceCollection BuildServiceCollection(bool e2eTests)
+	[Fact]
+	public void RecipesExtractionModule_WithoutConfiguredLlm_StillResolvesLlmServices()
 	{
-		var configuration = new ConfigurationBuilder()
-			.AddInMemoryCollection(new Dictionary<string, string?> { ["E2ETests"] = e2eTests ? "true" : "false" })
-			.Build();
+		var services = BuildServiceCollection(e2eTests: false);
+		using var provider = services.BuildServiceProvider();
 
-		var services = new ServiceCollection();
-		services.AddRecipeExtraction(configuration);
-		return services;
+		provider.GetRequiredService<IIngredientCategoryService>().Should().NotBeOfType<StubIngredientCategoryService>();
+	}
+
+	// Goes through the module like the host does: it registers the chat client
+	// (or the no-LLM stand-in) before the extraction services that need it.
+	// The host's shared defaults provide IDistributedCache (Redis); memory here.
+	private static IServiceCollection BuildServiceCollection(bool e2eTests)
+	{
+		var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings());
+		builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["E2ETests"] = e2eTests ? "true" : "false" });
+		builder.Services.AddLogging();
+		builder.Services.AddDistributedMemoryCache();
+
+		new RecipesExtractionModule().RegisterServices(builder);
+		return builder.Services;
 	}
 }

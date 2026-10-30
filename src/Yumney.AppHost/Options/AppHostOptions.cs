@@ -6,7 +6,8 @@ internal sealed record AppHostOptions(
 	bool DatabaseOnly,
 	bool E2ETests,
 	LlmProvider LlmProvider,
-	string OpenAiModelId)
+	string OpenAiModelId,
+	string OllamaModelId)
 {
 	public bool UseOllama => LlmProvider == LlmProvider.Ollama;
 
@@ -21,6 +22,7 @@ internal sealed record AppHostOptions(
 			DatabaseOnly: config.GetValue<bool>("DatabaseOnly"),
 			E2ETests: config.GetValue<bool>("E2ETests"),
 			LlmProvider: provider,
-			OpenAiModelId: config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini");
+			OpenAiModelId: config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini",
+			OllamaModelId: config.GetValue<string>("Ollama:ModelId") ?? "mistral");
 	}
 }

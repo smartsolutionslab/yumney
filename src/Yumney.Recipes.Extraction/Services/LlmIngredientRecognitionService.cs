@@ -1,48 +1,38 @@
 using System.Diagnostics;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
-using SmartSolutionsLab.Yumney.Recipes.Application.Common;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Shared.AI;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
-#pragma warning disable SA1311
-public sealed partial class SemanticKernelIngredientRecognitionService(Kernel kernel, ILogger<SemanticKernelIngredientRecognitionService> logger)
+public sealed partial class LlmIngredientRecognitionService(IChatClient chatClient, ILogger<LlmIngredientRecognitionService> logger)
 	: IIngredientRecognitionService
 {
-	private static readonly JsonSerializerOptions jsonOptions = new()
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-	};
-
 	public async Task<Result<RecognizedIngredientsResponseDto>> RecognizeAsync(PhotoData photo, CancellationToken cancellationToken = default)
 	{
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("recognize.ingredients");
 		activity?.SetTag("recognize.photo_size", photo.Content.Length);
 
-		var chatHistory = new ChatHistory();
-		chatHistory.AddSystemMessage(ExtractionPrompts.IngredientRecognition);
-		ChatMessageContentItemCollection messageItems =
+		List<ChatMessage> messages =
 		[
-			new TextContent("Identify the food ingredients in this image:"),
-			new ImageContent(photo.Content, photo.ContentType)
+			new(ChatRole.System, ExtractionPrompts.IngredientRecognition),
+			new(ChatRole.User, [new TextContent("Identify the food ingredients in this image:"), new DataContent(photo.Content, photo.ContentType)]),
 		];
-		chatHistory.AddUserMessage(messageItems);
 
-		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
 		string response;
 		try
 		{
-			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
-			response = result.Content ?? string.Empty;
+			var result = await chatClient.GetResponseAsync(
+				messages,
+				LlmJson.OptionsFor<RecognizedIngredientsResponseDto>(),
+				cancellationToken);
+			response = result.Text;
 
 			activity?.SetTag("llm.response_length", response.Length);
 			activity?.SetTag("llm.model", result.ModelId);
@@ -65,8 +55,7 @@ public sealed partial class SemanticKernelIngredientRecognitionService(Kernel ke
 	{
 		try
 		{
-			var json = LlmResponseParser.ExtractJson(response);
-			var parsed = JsonSerializer.Deserialize<RecognizedIngredientsResponseDto>(json, jsonOptions);
+			var parsed = LlmJson.Deserialize<RecognizedIngredientsResponseDto>(response);
 			if (parsed is null)
 			{
 				LogParsingFailed("Deserialization returned null");

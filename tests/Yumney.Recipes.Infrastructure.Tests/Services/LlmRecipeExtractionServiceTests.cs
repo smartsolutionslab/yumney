@@ -1,20 +1,18 @@
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
+using SmartSolutionsLab.Yumney.TestBuilders.Llm;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;
 
 #pragma warning disable SA1311
 #pragma warning disable SA1601
-public partial class SemanticKernelRecipeExtractionServiceTests
+public partial class LlmRecipeExtractionServiceTests
 #pragma warning restore SA1601
 {
 	private static readonly string validRecipeJson = """
@@ -37,7 +35,7 @@ public partial class SemanticKernelRecipeExtractionServiceTests
         }
         """;
 
-	private readonly ILogger<SemanticKernelRecipeExtractionService> logger = Substitute.For<ILogger<SemanticKernelRecipeExtractionService>>();
+	private readonly ILogger<LlmRecipeExtractionService> logger = Substitute.For<ILogger<LlmRecipeExtractionService>>();
 
 	[Fact]
 	public async Task ExtractAsync_ValidRecipeJson_ReturnsExtractedRecipe()
@@ -181,36 +179,13 @@ public partial class SemanticKernelRecipeExtractionServiceTests
 		result.Error.Should().Be(ImportRecipeErrors.ExtractionFailed);
 	}
 
-	private static Kernel CreateKernel(IChatCompletionService chatCompletionService)
-	{
-		var builder = Kernel.CreateBuilder();
-		builder.Services.AddSingleton(chatCompletionService);
-		return builder.Build();
-	}
+	private LlmRecipeExtractionService CreateService(string llmResponse) => CreateService(new ScriptedChatClient(llmResponse));
 
-	private SemanticKernelRecipeExtractionService CreateService(string llmResponse)
-	{
-		var fake = new FakeChatCompletionService(llmResponse);
-		return CreateService(fake);
-	}
+	private LlmRecipeExtractionService CreateService(ScriptedChatClient fake) =>
+		new(fake, DistributedExtractionResultCacheTests.CreateCache(), logger);
 
-	private SemanticKernelRecipeExtractionService CreateService(FakeChatCompletionService fake)
-	{
-		var kernel = CreateKernel(fake);
-		return new SemanticKernelRecipeExtractionService(kernel, new InMemoryExtractionResultCache(), logger);
-	}
+	private LlmRecipeExtractionService CreateServiceWithException(Exception exception) =>
+		CreateService(new ScriptedChatClient(exception));
 
-	private SemanticKernelRecipeExtractionService CreateServiceWithException(Exception exception)
-	{
-		var fake = new FakeChatCompletionService(exception);
-		var kernel = CreateKernel(fake);
-		return new SemanticKernelRecipeExtractionService(kernel, new InMemoryExtractionResultCache(), logger);
-	}
-
-	private SemanticKernelRecipeExtractionService CreateServiceWithNullContent()
-	{
-		var fake = new FakeChatCompletionService();
-		var kernel = CreateKernel(fake);
-		return new SemanticKernelRecipeExtractionService(kernel, new InMemoryExtractionResultCache(), logger);
-	}
+	private LlmRecipeExtractionService CreateServiceWithNullContent() => CreateService(new ScriptedChatClient());
 }

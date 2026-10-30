@@ -1,6 +1,7 @@
 # ADR 0002 — Capability surface for chat, MCP, and other LLM clients
 
 - Status: Proposed
+- Amended by: [ADR 0003](0003-llm-access-via-microsoft-extensions-ai.md) — the in-app chat adapter now uses Microsoft.Extensions.AI function calling instead of Semantic Kernel
 - Date: 2026-05-10
 - Context: Architecture review of US-184 to US-190 (chat command routing); confirmed near-term need for external LLM-client integration (Claude Desktop / 3rd-party assistants) and additional in-app surfaces beyond the chat panel (voice, future CLI).
 
