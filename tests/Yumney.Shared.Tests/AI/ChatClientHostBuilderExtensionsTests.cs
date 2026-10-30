@@ -143,6 +143,61 @@ public class ChatClientHostBuilderExtensionsTests
 		provider.GetRequiredKeyedService<IChatClient>(LlmTasks.Fast).Should().BeOfType<UnavailableChatClient>();
 	}
 
+	[Fact]
+	public void AddYumneyChatClient_JsonObjectStructuredOutput_AddsDowngradeStep()
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = OpenAiConnectionString, ["Llm:StructuredOutput"] = "JsonObject" });
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredService<IChatClient>().GetService<StructuredOutputChatClient>().Should().NotBeNull();
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_JsonObjectStructuredOutput_AppliesToTaskClients()
+	{
+		var builder = Builder(new()
+		{
+			["ConnectionStrings:chat"] = OpenAiConnectionString,
+			["Llm:StructuredOutput"] = "JsonObject",
+			["Llm:Models:fast"] = "small-model",
+		});
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredKeyedService<IChatClient>(LlmTasks.Fast).GetService<StructuredOutputChatClient>().Should().NotBeNull();
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_DefaultStructuredOutput_AddsNoDowngradeStep()
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = OpenAiConnectionString });
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredService<IChatClient>().GetService<StructuredOutputChatClient>().Should().BeNull();
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_UnknownStructuredOutput_Throws()
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = OpenAiConnectionString, ["Llm:StructuredOutput"] = "Yaml" });
+
+		var act = () => builder.AddYumneyChatClient();
+
+		act.Should().Throw<InvalidOperationException>().WithMessage("*JsonSchema, JsonObject, None*");
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_CustomEndpoint_RegistersChatClient()
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = "Endpoint=https://api.deepseek.com/v1;Key=test-key;Model=deepseek-chat" });
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredService<IChatClient>().GetService<ChatClientMetadata>()!.DefaultModelId.Should().Be("deepseek-chat");
+	}
+
 	private static HostApplicationBuilder Builder(Dictionary<string, string?> settings)
 	{
 		var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings());

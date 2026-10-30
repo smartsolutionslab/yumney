@@ -8,7 +8,9 @@ internal sealed record AppHostOptions(
 	LlmProvider LlmProvider,
 	string OpenAiModelId,
 	string OllamaModelId,
-	IReadOnlyDictionary<string, string> OpenAiTaskModels)
+	IReadOnlyDictionary<string, string> OpenAiTaskModels,
+	string? OpenAiEndpoint,
+	string? OpenAiStructuredOutput)
 {
 	public bool UseOllama => LlmProvider == LlmProvider.Ollama;
 
@@ -25,7 +27,9 @@ internal sealed record AppHostOptions(
 			LlmProvider: provider,
 			OpenAiModelId: config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini",
 			OllamaModelId: config.GetValue<string>("Ollama:ModelId") ?? "mistral",
-			OpenAiTaskModels: ReadTaskModels(config.GetSection("OpenAi:Models")));
+			OpenAiTaskModels: ReadTaskModels(config.GetSection("OpenAi:Models")),
+			OpenAiEndpoint: config.GetValue<string>("OpenAi:Endpoint"),
+			OpenAiStructuredOutput: config.GetValue<string>("OpenAi:StructuredOutput"));
 	}
 
 	// Optional per-task model overrides (e.g. OpenAi:Models:fast, OpenAi:Models:vision);

@@ -23,14 +23,15 @@ SK itself is built on Microsoft.Extensions.AI (MEAI), which was already a transi
 - **Recipe extraction keeps its flat recipe-or-`{"error":"NO_RECIPE_FOUND"}` shape**, because the streaming import endpoint and the frontend read top-level fields while they stream. Streaming uses plain JSON mode instead of a schema.
 - **In-app chat** (amends ADR 0002 §3): tools implement `IChatTool` and are exposed as `AIFunction`s; `FunctionInvokingChatClient` runs the tool loop, capped at 5 round trips per message. Tool wire names match the MCP capability names. The MCP server is unchanged in role; it now publishes a JSON input schema per capability.
 - Microsoft.Extensions.AI stays inside `*.Extraction` and `Yumney.Shared.AI` — enforced by `ExternalDependencyIsolationTests`, which also keeps SK out.
+- **Provider flexibility through one OpenAI-compatible path**: `OpenAi:Endpoint` points the OpenAI client at any compatible API (OpenAI, DeepSeek, Qwen, Kimi, Mistral, Claude's compatibility endpoint, OpenRouter, Azure AI Foundry); `OpenAi:StructuredOutput` (`JsonSchema` default, `JsonObject`, `None`) downgrades schema requests in the client pipeline for providers that reject them. No provider-specific SDKs: an official Anthropic SDK adapter was built and dropped (#842) in favour of switching providers by configuration only.
 
-Microsoft Agent Framework (also built on `IChatClient`) was considered and deferred: the chat is a single-agent tool loop, which `FunctionInvokingChatClient` covers. Adopting it later is additive.
+Microsoft Agent Framework (also built on `IChatClient`) was considered and deferred: it adds agents, threads and multi-agent workflows, not provider flexibility — that comes from `IChatClient`. The chat is a single-agent tool loop, which `FunctionInvokingChatClient` covers. Adopting it later is additive.
 
 ## Consequences
 
 **Positive**
 
-- Provider configuration lives in the AppHost and one helper; adding a provider (e.g. Anthropic, which ships an `IChatClient`) is one branch in `AddYumneyChatClient`.
+- Provider configuration lives in the AppHost and one helper; switching to another OpenAI-compatible provider is configuration only.
 - Schema-constrained replies on OpenAI and Ollama; fewer parse failures and no hand-maintained JSON in prompts as the only contract.
 - The Aspire client integrations enable OpenTelemetry for chat calls (latency, token counts) by default; confirming the spans in the Aspire dashboard is part of the first real-model run.
 - Services and tests depend on a small interface; `ScriptedChatClient` / `ToolCallingChatClient` in `Yumney.TestBuilders` replace SK kernel fakes, and the chat tests exercise the real tool loop.
@@ -41,3 +42,5 @@ Microsoft Agent Framework (also built on `IChatClient`) was considered and defer
 - `Aspire.OpenAI` has no GA release; it is pinned to the same 13.6.4 preview revision as the Keycloak packages.
 - Prompts still describe the JSON shape in prose; field-level guidance (e.g. allowed `difficulty` values) is not yet expressed as schema descriptions.
 - Per-task models are opt-in configuration (`OpenAi:Models:fast` / `OpenAi:Models:vision` in the AppHost); until set, every task runs on the default model. Ollama always serves one model.
+- Compatible providers differ in features (JSON schema, vision, tool calling). The structured-output mode covers the most common gap; each new provider/model still needs one real-model run of the import, suggestion, chat and categorization flows.
+- Providers' own APIs may process data outside the EU (e.g. Chinese providers). EU-hosted alternatives for the same open-weight models are self-hosting via Ollama or Azure AI Foundry in an EU region.

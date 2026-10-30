@@ -20,6 +20,9 @@ public static class ChatClientHostBuilderExtensions
 	/// <summary>Configuration key carrying the provider (<c>OpenAI</c> or <c>Ollama</c>).</summary>
 	public const string ProviderKey = "Llm:Provider";
 
+	/// <summary>Configuration key for the provider's <see cref="StructuredOutputMode"/>; defaults to <see cref="StructuredOutputMode.JsonSchema"/>.</summary>
+	public const string StructuredOutputKey = "Llm:StructuredOutput";
+
 	/// <summary>Configuration section mapping task roles (<see cref="LlmTasks"/>) to model names.</summary>
 	public const string ModelsSection = "Llm:Models";
 
@@ -44,7 +47,7 @@ public static class ChatClientHostBuilderExtensions
 		}
 		else if (string.Equals(configuration.GetValue<string>(ProviderKey), LlmProviders.Ollama, StringComparison.OrdinalIgnoreCase))
 		{
-			builder.AddOllamaApiClient(ConnectionName).AddChatClient();
+			builder.AddOllamaApiClient(ConnectionName).AddChatClient().WithStructuredOutput(ReadStructuredOutputMode(configuration));
 		}
 		else
 		{
@@ -57,8 +60,9 @@ public static class ChatClientHostBuilderExtensions
 
 	private static List<string> AddOpenAIChatClients(IHostApplicationBuilder builder)
 	{
+		var structuredOutput = ReadStructuredOutputMode(builder.Configuration);
 		var openAi = builder.AddOpenAIClient(ConnectionName);
-		openAi.AddChatClient();
+		openAi.AddChatClient().WithStructuredOutput(structuredOutput);
 
 		List<string> dedicatedTasks = [];
 		foreach (var task in LlmTasks.All)
@@ -66,7 +70,7 @@ public static class ChatClientHostBuilderExtensions
 			var model = builder.Configuration.GetValue<string>($"{ModelsSection}:{task}");
 			if (string.IsNullOrWhiteSpace(model)) continue;
 
-			openAi.AddKeyedChatClient(task, model);
+			openAi.AddKeyedChatClient(task, model).WithStructuredOutput(structuredOutput);
 			dedicatedTasks.Add(task);
 		}
 
@@ -80,4 +84,19 @@ public static class ChatClientHostBuilderExtensions
 			services.AddKeyedSingleton<IChatClient>(task, (serviceProvider, _) => serviceProvider.GetRequiredService<IChatClient>());
 		}
 	}
+
+	private static StructuredOutputMode ReadStructuredOutputMode(IConfiguration configuration)
+	{
+		var configured = configuration.GetValue<string>(StructuredOutputKey);
+		if (string.IsNullOrWhiteSpace(configured)) return StructuredOutputMode.JsonSchema;
+		if (Enum.TryParse<StructuredOutputMode>(configured, ignoreCase: true, out var mode)) return mode;
+
+		throw new InvalidOperationException(
+			$"'{StructuredOutputKey}' must be one of {string.Join(", ", Enum.GetNames<StructuredOutputMode>())}; got '{configured}'.");
+	}
+
+	private static ChatClientBuilder WithStructuredOutput(this ChatClientBuilder chatClient, StructuredOutputMode mode) =>
+		mode == StructuredOutputMode.JsonSchema
+			? chatClient
+			: chatClient.Use(innerClient => new StructuredOutputChatClient(innerClient, mode));
 }

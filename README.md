@@ -11,7 +11,7 @@ Yumney is a Progressive Web App that extracts recipes from any URL using LLM, ge
 | Backend | ASP.NET Core 10, Minimal APIs, Clean Architecture |
 | Frontend | Angular 19+, Micro-Frontends (Native Federation), Nx Monorepo |
 | Database | PostgreSQL 16 (EF Core, Code-First) |
-| LLM | Microsoft.Extensions.AI `IChatClient` (OpenAI, Ollama) |
+| LLM | Microsoft.Extensions.AI `IChatClient` (OpenAI or any OpenAI-compatible API, Ollama) |
 | Auth | Keycloak (OIDC, JWT Bearer) via .NET Aspire |
 | API Gateway | YARP Reverse Proxy |
 | Orchestration | .NET Aspire |
@@ -47,6 +47,7 @@ Aspire automatically handles:
 - Redis
 - Keycloak (with realm import)
 - LLM model: OpenAI by default (Aspire prompts for the `OpenAiApiKey` parameter; or set `Parameters:OpenAiApiKey` via user secrets), or a local Ollama container with `LlmProvider=Ollama` (model via `Ollama:ModelId`, default `mistral`). Optional per-task OpenAI models: `OpenAi:Models:fast` (categorization, intent parsing) and `OpenAi:Models:vision` (photo import, ingredient recognition)
+- Other providers with an OpenAI-compatible API (DeepSeek, Qwen, Kimi, Mistral, Claude, OpenRouter, Azure AI Foundry, …): set `OpenAi:Endpoint`, `OpenAi:ModelId` and that provider's key as `OpenAiApiKey`. If the provider rejects JSON-schema requests, set `OpenAi:StructuredOutput` to `JsonObject` (or `None`). Example: `OpenAi:Endpoint=https://api.deepseek.com/v1`, `OpenAi:ModelId=deepseek-chat`, `OpenAi:StructuredOutput=JsonObject`
 - Mailpit (email testing)
 - Database migrations
 - API + Gateway startup

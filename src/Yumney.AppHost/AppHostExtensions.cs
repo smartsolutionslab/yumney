@@ -45,15 +45,20 @@ internal static class AppHostExtensions
 			var ollamaModel = builder.AddOllama("ollama")
 				.WithDataVolume()
 				.AddModel(LlmResources.ChatModelName, options.OllamaModelId);
-			return new LlmResources(ollamaModel, options.LlmProvider, WaitForModel: true, TaskModels: new Dictionary<string, string>());
+			return new LlmResources(ollamaModel, options.LlmProvider, WaitForModel: true, HostSettings: new Dictionary<string, string>());
 		}
 
 		// Parameter name is kept stable: deploy.yml supplies it as Parameters__OpenAiApiKey.
+		// It holds the key of whichever OpenAI-compatible service OpenAi:Endpoint points at.
 		var apiKey = builder.AddParameter("OpenAiApiKey", secret: true);
-		var openAiModel = builder.AddOpenAI("openai")
-			.WithApiKey(apiKey)
-			.AddModel(LlmResources.ChatModelName, options.OpenAiModelId);
-		return new LlmResources(openAiModel, options.LlmProvider, WaitForModel: false, options.OpenAiTaskModels);
+		var openAi = builder.AddOpenAI("openai").WithApiKey(apiKey);
+		if (!string.IsNullOrWhiteSpace(options.OpenAiEndpoint))
+		{
+			openAi.WithEndpoint(options.OpenAiEndpoint);
+		}
+
+		var openAiModel = openAi.AddModel(LlmResources.ChatModelName, options.OpenAiModelId);
+		return new LlmResources(openAiModel, options.LlmProvider, WaitForModel: false, OpenAiHostSettings(options));
 	}
 
 	public static IResourceBuilder<ProjectResource> WithLlmProvider(this IResourceBuilder<ProjectResource> builder, LlmResources llm)
@@ -64,9 +69,9 @@ internal static class AppHostExtensions
 			.WithReference(chatModel)
 			.WithEnvironment("Llm__Provider", llm.Provider.ToString());
 
-		foreach (var (task, model) in llm.TaskModels)
+		foreach (var (key, value) in llm.HostSettings)
 		{
-			builder.WithEnvironment($"Llm__Models__{task}", model);
+			builder.WithEnvironment(key.Replace(":", "__", StringComparison.Ordinal), value);
 		}
 
 		// Ollama pulls the model on first start; OpenAI models are remote and
@@ -141,5 +146,18 @@ internal static class AppHostExtensions
 			Endpoint = http.Endpoint,
 			DisplayText = "OpenAPI",
 		});
+	}
+
+	private static Dictionary<string, string> OpenAiHostSettings(AppHostOptions options)
+	{
+		Dictionary<string, string> settings = options.OpenAiTaskModels.ToDictionary(
+			taskModel => $"Llm:Models:{taskModel.Key}",
+			taskModel => taskModel.Value);
+		if (!string.IsNullOrWhiteSpace(options.OpenAiStructuredOutput))
+		{
+			settings["Llm:StructuredOutput"] = options.OpenAiStructuredOutput;
+		}
+
+		return settings;
 	}
 }
