@@ -1,16 +1,20 @@
 using System.ComponentModel;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 
 /// <summary>
-/// SK kernel function exposing "remove from shopping list" to the chat LLM.
+/// Chat tool exposing "remove from shopping list" to the chat LLM.
 /// Closes the remove-via-chat half of US-328.
 /// </summary>
 /// <param name="remover">Consumer-defined remove contract.</param>
 public sealed class RemoveShoppingItemTool(IShoppingListItemRemover remover)
+	: IChatTool
 {
+	/// <inheritdoc/>
+	public AIFunction ToFunction() => AIFunctionFactory.Create(RemoveAsync, "remove_from_shopping_list");
+
 	/// <summary>Remove an item from the user's shopping list.</summary>
 	/// <param name="name">Item name to remove.</param>
 	/// <param name="quantity">Optional quantity to remove. Omit to remove the entire entry.</param>
@@ -18,7 +22,6 @@ public sealed class RemoveShoppingItemTool(IShoppingListItemRemover remover)
 	/// <param name="reason">Optional removal reason ("bought", "skipped", "no_longer_needed").</param>
 	/// <param name="cancellationToken">Cancellation propagated from the LLM call.</param>
 	/// <returns>Confirmation message for the LLM.</returns>
-	[KernelFunction("remove_from_shopping_list")]
 	[Description("Remove an item from the user's shopping list. Use for 'remove eggs', 'I don't need milk anymore', 'cross off the bread'. Omit quantity to remove the entire entry.")]
 	public async Task<string> RemoveAsync(
 		[Description("Item name to remove from the list")] string name,

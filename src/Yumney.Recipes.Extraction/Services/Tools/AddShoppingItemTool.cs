@@ -1,23 +1,26 @@
 using System.ComponentModel;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 
 /// <summary>
-/// SK kernel function exposing "add to shopping list" to the chat LLM. Closes
+/// Chat tool exposing "add to shopping list" to the chat LLM. Closes
 /// the add-via-chat half of US-328.
 /// </summary>
 /// <param name="adder">Consumer-defined add contract.</param>
 public sealed class AddShoppingItemTool(IShoppingListItemAdder adder)
+	: IChatTool
 {
+	/// <inheritdoc/>
+	public AIFunction ToFunction() => AIFunctionFactory.Create(AddAsync, "add_to_shopping_list");
+
 	/// <summary>Add an item to the user's shopping list.</summary>
 	/// <param name="name">Item name (e.g. "milk", "potatoes").</param>
 	/// <param name="quantity">Optional numeric quantity. Default 1 if omitted.</param>
 	/// <param name="unit">Optional unit ("kg", "g", "ml", "L", etc.). Omit for count-based items.</param>
 	/// <param name="cancellationToken">Cancellation propagated from the LLM call.</param>
 	/// <returns>Confirmation message for the LLM to weave into its reply.</returns>
-	[KernelFunction("add_to_shopping_list")]
 	[Description("Add an item to the user's shopping list. Use for 'add milk', 'add 2kg potatoes', 'put eggs on the list'. The shopping list will deduplicate / sum quantities for items already present.")]
 	public async Task<string> AddAsync(
 		[Description("Item name, e.g. 'milk' or 'potatoes'")] string name,

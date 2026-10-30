@@ -1,7 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
@@ -9,33 +8,24 @@ using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using ChatMessageContent = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatMessageContent;
-using ChatRole = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatRole;
 using DomainChatHistoryEntry = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatHistoryEntry;
+using DomainChatRole = SmartSolutionsLab.Yumney.Recipes.Domain.Chat.ChatRole;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
 #pragma warning disable SA1303
-public sealed partial class SemanticKernelChatService(
-	Kernel kernel,
-	SearchRecipesTool searchRecipesTool,
-	GetRecipeTool getRecipeTool,
-	GetCookableRecipesTool getCookableRecipesTool,
-	RateRecipeTool rateRecipeTool,
-	GetWeeklyPlanTool getWeeklyPlanTool,
-	AssignMealTool assignMealTool,
-	ConfirmMealTool confirmMealTool,
-	GetMergedShoppingListTool getMergedShoppingListTool,
-	CreateShoppingListTool createShoppingListTool,
-	AddShoppingItemTool addShoppingItemTool,
-	RemoveShoppingItemTool removeShoppingItemTool,
-	SwapMealSlotsTool swapMealSlotsTool,
-	ClearMealSlotTool clearMealSlotTool,
+public sealed partial class LlmChatService(
+	IChatClient chatClient,
+	IEnumerable<IChatTool> tools,
 	ChatToolContext toolContext,
-	ILogger<SemanticKernelChatService> logger)
+	ILogger<LlmChatService> logger)
 	: IChatService
 {
 	private const int maxActionsToEmit = 3;
+
+	// Bounds the tool-calling loop (model ↔ tools round trips) per user message.
+	private const int maxToolRoundTrips = 5;
 
 	public async Task<Result<ChatResponseDto>> ChatAsync(
 		ChatMessageContent message,
@@ -46,10 +36,7 @@ public sealed partial class SemanticKernelChatService(
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("chat.message");
 		activity?.SetTag("chat.history_length", history.Count);
 
-		var chatHistory = BuildChatHistory(message, history);
-		var requestKernel = BuildRequestKernel();
-
-		var replyResult = await GetChatReplyAsync(requestKernel, chatHistory, activity, cancellationToken);
+		var replyResult = await GetChatReplyAsync(BuildMessages(message, history), activity, cancellationToken);
 		if (replyResult.IsFailure) return replyResult.Error!;
 
 		activity?.SetTag("chat.tool_match_count", toolContext.Matches.Count);
@@ -74,49 +61,34 @@ public sealed partial class SemanticKernelChatService(
 		return actions;
 	}
 
-	private static ChatHistory BuildChatHistory(ChatMessageContent message, IReadOnlyList<DomainChatHistoryEntry> history)
+	private static List<ChatMessage> BuildMessages(ChatMessageContent message, IReadOnlyList<DomainChatHistoryEntry> history)
 	{
-		var chatHistory = new ChatHistory();
-		chatHistory.AddSystemMessage(systemPrompt);
-
+		List<ChatMessage> messages = [new(ChatRole.System, systemPrompt)];
 		foreach (var (role, content) in history)
 		{
-			if (role == ChatRole.User)
+			if (role == DomainChatRole.User)
 			{
-				chatHistory.AddUserMessage(content.Value);
+				messages.Add(new ChatMessage(ChatRole.User, content.Value));
 			}
-			else if (role == ChatRole.Assistant)
+			else if (role == DomainChatRole.Assistant)
 			{
-				chatHistory.AddAssistantMessage(content.Value);
+				messages.Add(new ChatMessage(ChatRole.Assistant, content.Value));
 			}
 		}
 
-		chatHistory.AddUserMessage(message.Value);
-		return chatHistory;
+		messages.Add(new ChatMessage(ChatRole.User, message.Value));
+		return messages;
 	}
 
-	private async Task<Result<string>> GetChatReplyAsync(
-		Kernel requestKernel,
-		ChatHistory chatHistory,
-		Activity? activity,
-		CancellationToken cancellationToken)
+	private async Task<Result<string>> GetChatReplyAsync(List<ChatMessage> messages, Activity? activity, CancellationToken cancellationToken)
 	{
-		var chatCompletion = requestKernel.GetRequiredService<IChatCompletionService>();
-		PromptExecutionSettings executionSettings = new()
-		{
-			FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
-		};
+		var options = new ChatOptions { Tools = [.. tools.Select(tool => tool.ToFunction())], ToolMode = ChatToolMode.Auto };
 
 		try
 		{
-			var result = await chatCompletion.GetChatMessageContentAsync(
-				chatHistory,
-				executionSettings,
-				requestKernel,
-				cancellationToken);
-			var reply = result.Content ?? string.Empty;
-			activity?.SetTag("llm.response_length", reply.Length);
-			return reply;
+			var response = await CreateToolCallingClient().GetResponseAsync(messages, options, cancellationToken);
+			activity?.SetTag("llm.response_length", response.Text.Length);
+			return response.Text;
 		}
 		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 		{
@@ -129,6 +101,11 @@ public sealed partial class SemanticKernelChatService(
 			return ImportRecipeErrors.ExtractionFailed;
 		}
 	}
+
+	// Not disposed on purpose: disposing the wrapper would dispose the shared
+	// singleton chat client underneath it.
+	private FunctionInvokingChatClient CreateToolCallingClient() =>
+		new(chatClient) { MaximumIterationsPerRequest = maxToolRoundTrips };
 
 	private const string systemPrompt = """
         You are a friendly, concise cooking assistant for the Yumney recipe app.
@@ -190,23 +167,4 @@ public sealed partial class SemanticKernelChatService(
 
 	[LoggerMessage(Level = LogLevel.Warning, Message = "Chat LLM call failed: {Reason}")]
 	private partial void LogChatFailed(string reason);
-
-	private Kernel BuildRequestKernel()
-	{
-		var requestKernel = kernel.Clone();
-		requestKernel.Plugins.AddFromObject(searchRecipesTool, "recipes_search");
-		requestKernel.Plugins.AddFromObject(getRecipeTool, "recipes_detail");
-		requestKernel.Plugins.AddFromObject(getCookableRecipesTool, "recipes_cookable");
-		requestKernel.Plugins.AddFromObject(rateRecipeTool, "recipes_rate");
-		requestKernel.Plugins.AddFromObject(getWeeklyPlanTool, "mealplan_weekly");
-		requestKernel.Plugins.AddFromObject(assignMealTool, "mealplan_assign");
-		requestKernel.Plugins.AddFromObject(confirmMealTool, "mealplan_confirm");
-		requestKernel.Plugins.AddFromObject(getMergedShoppingListTool, "shopping_merged");
-		requestKernel.Plugins.AddFromObject(createShoppingListTool, "shopping_create");
-		requestKernel.Plugins.AddFromObject(addShoppingItemTool, "shopping_add");
-		requestKernel.Plugins.AddFromObject(removeShoppingItemTool, "shopping_remove");
-		requestKernel.Plugins.AddFromObject(swapMealSlotsTool, "mealplan_swap");
-		requestKernel.Plugins.AddFromObject(clearMealSlotTool, "mealplan_clear");
-		return requestKernel;
-	}
 }

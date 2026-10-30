@@ -1,5 +1,3 @@
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
@@ -8,7 +6,7 @@ using SmartSolutionsLab.Yumney.Shared.Paging;
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;
 
 #pragma warning disable SA1601
-public sealed partial class SemanticKernelChatServiceFunctionCallingTests
+public sealed partial class LlmChatServiceTests
 #pragma warning restore SA1601
 {
 	private static Result<PagedResult<RecipeListItemDto>> SuccessRecipes(params object[] idTitlePairs)
@@ -80,45 +78,4 @@ public sealed partial class SemanticKernelChatServiceFunctionCallingTests
 			IsFavorite: false,
 			Rating: null,
 			Notes: null));
-
-	/// <summary>
-	/// Fake IChatCompletionService that emulates an LLM-with-function-calling
-	/// in a single round trip: invoke the requested kernel functions itself
-	/// (populating ChatToolContext via the real tool methods) and return the
-	/// canned final reply. SK's auto-invoke loop is implemented inside each
-	/// connector (OpenAI/Anthropic/Azure), not in the abstract; bypassing it
-	/// here is intentional — what we test is OUR plumbing (tool registration,
-	/// ChatToolContext aggregation, action emission), not the SDK's loop.
-	/// </summary>
-	private sealed class FakeChatCompletionService(
-		IReadOnlyList<FunctionCallContent> functionCallsToInvoke,
-		string finalReply) : IChatCompletionService
-	{
-		public IReadOnlyDictionary<string, object?> Attributes { get; } = new Dictionary<string, object?>();
-
-		public async Task<IReadOnlyList<Microsoft.SemanticKernel.ChatMessageContent>> GetChatMessageContentsAsync(
-			ChatHistory chatHistory,
-			PromptExecutionSettings? executionSettings = null,
-			Kernel? kernel = null,
-			CancellationToken cancellationToken = default)
-		{
-			if (kernel is not null)
-			{
-				foreach (var call in functionCallsToInvoke)
-				{
-					var function = kernel.Plugins[call.PluginName!][call.FunctionName];
-					await function.InvokeAsync(kernel, call.Arguments, cancellationToken);
-				}
-			}
-
-			return [new Microsoft.SemanticKernel.ChatMessageContent(AuthorRole.Assistant, finalReply)];
-		}
-
-		public IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(
-			ChatHistory chatHistory,
-			PromptExecutionSettings? executionSettings = null,
-			Kernel? kernel = null,
-			CancellationToken cancellationToken = default) =>
-			throw new NotImplementedException("Streaming not used by SemanticKernelChatService.");
-	}
 }
