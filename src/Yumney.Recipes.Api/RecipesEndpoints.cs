@@ -112,7 +112,7 @@ public static partial class RecipesEndpoints
 				tags);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
-			return result.ToCreated($"/api/v1/recipes/{result.Value.Identifier}");
+			return result.ToCreated(recipe => $"/api/v1/recipes/{recipe.Identifier}");
 		}
 
 		group.MapPut("/{identifier:guid}", Update)

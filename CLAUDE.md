@@ -831,7 +831,7 @@ public static IEndpointRouteBuilder MapRecipesEndpoints(this IEndpointRouteBuild
         var (title, ingredients, steps, description, servings, timing, difficulty, imageUrl) = request;
         var command = new SaveRecipeCommand(title, ingredients, steps, description, servings, timing, difficulty, imageUrl);
         var result = await handler.HandleAsync(command, cancellationToken);
-        return result.ToCreated($"/api/v1/recipes/{result.Value.Identifier}");
+        return result.ToCreated(recipe => $"/api/v1/recipes/{recipe.Identifier}");
     }
 
     // next route + handler ...
@@ -848,6 +848,30 @@ public static IEndpointRouteBuilder MapEndpoints(this IEndpointRouteBuilder app)
     return app;
 }
 private static async Task<IResult> SaveAsync(...) { ... } // disconnected from route
+```
+
+### Result → HTTP Response Mapping
+
+Handler results are mapped with the helpers in `Yumney.Shared.Web/ResultExtensions.cs`. Never branch on `IsSuccess` / `IsFailure` by hand in an endpoint, and never build a problem response from `ApiError` fields: the helpers add the `code` and `traceId` extensions that clients rely on.
+
+| Success response | Helper |
+|---|---|
+| 200 OK | `result.ToOk()` |
+| 201 Created | `result.ToCreated(recipe => $"/api/v1/recipes/{recipe.Identifier}")` or, for a constant URI, `result.ToCreated("/api/v1/users/me")` |
+| 204 No Content | `result.ToNoContent()` |
+| anything else | `result.ToResult(export => Results.Text(export, MediaTypes.TextPlain))` |
+| problem from an `ApiError` | `Results.Problem(result.Error)` |
+
+```csharp
+// ❌ FORBIDDEN — result.Value throws on a failed result, so this returns 500 instead of the error
+return result.ToCreated($"/api/v1/recipes/{result.Value.Identifier}");
+
+// ❌ FORBIDDEN — drops the code / traceId extensions
+return Results.Problem(result.Error.Message, statusCode: result.Error.HttpStatusCode);
+
+// ✅ REQUIRED
+return result.ToCreated(recipe => $"/api/v1/recipes/{recipe.Identifier}");
+return Results.Problem(result.Error);
 ```
 
 ### Request DTO → Value Object Conversion
