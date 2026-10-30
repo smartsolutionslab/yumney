@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Mcp.Server.Discovery;
@@ -143,4 +144,53 @@ public class OpenApiCapabilityBuilderTests
 		pathItem.AsDictionary().Should().ContainKey("get");
 		pathItem.AsDictionary().Should().ContainKey("post");
 	}
+
+	[Fact]
+	public void Build_GetWithInputSchema_EmitsTypedPathAndQueryParameters()
+	{
+		var inputSchema = Schema(
+			"""{"year":{"type":"integer"},"page":{"type":"integer"}}""",
+			"""["year"]""");
+		var spec = BuildSingle(new CapabilityDescriptor("get_plan", "plan", CapabilitySurface.Mcp, "GET", "/plans/{year:int}") { InputSchema = inputSchema });
+
+		var parameters = spec["paths"]!["/plans/{year}"]!["get"]!["parameters"]!.AsArray();
+
+		parameters.Select(parameter => $"{parameter!["in"]}:{parameter["name"]}:{parameter["schema"]!["type"]}:{parameter["required"]}")
+			.Should().BeEquivalentTo(["path:year:integer:true", "query:page:integer:false"]);
+	}
+
+	[Fact]
+	public void Build_PostWithInputSchema_BodyHoldsOnlyNonPathArguments()
+	{
+		var inputSchema = Schema(
+			"""{"year":{"type":"integer"},"day":{"type":"string"},"servings":{"type":["integer","null"]}}""",
+			"""["year","day"]""");
+		var spec = BuildSingle(new CapabilityDescriptor("assign_meal", "assign", CapabilitySurface.Mcp, "POST", "/plans/{year:int}/slots") { InputSchema = inputSchema });
+
+		var bodySchema = spec["paths"]!["/plans/{year}/slots"]!["post"]!["requestBody"]!["content"]!["application/json"]!["schema"]!;
+
+		bodySchema["properties"]!.AsObject().Select(property => property.Key).Should().BeEquivalentTo(["day", "servings"]);
+		bodySchema["required"]!.AsArray().Select(name => name!.GetValue<string>()).Should().Equal("day");
+	}
+
+	[Fact]
+	public void Build_PostWithInputSchemaAndOnlyPathArguments_HasNoRequestBody()
+	{
+		var inputSchema = Schema("""{"year":{"type":"integer"}}""", """["year"]""");
+		var spec = BuildSingle(new CapabilityDescriptor("suggest_week_plan", "suggest", CapabilitySurface.Mcp, "POST", "/plans/{year:int}/suggest") { InputSchema = inputSchema });
+
+		var operation = spec["paths"]!["/plans/{year}/suggest"]!["post"]!.AsObject();
+
+		operation.AsDictionary().Should().NotContainKey("requestBody");
+	}
+
+	private static JsonObject BuildSingle(CapabilityDescriptor descriptor)
+	{
+		var registry = new AggregatedCapabilityRegistry();
+		registry.SetManifest("test-api", new CapabilityManifest("test-api", [descriptor]));
+		return OpenApiCapabilityBuilder.Build(registry, "https://g", "https://kc/auth", "https://kc/token");
+	}
+
+	private static JsonElement Schema(string properties, string required) =>
+		JsonDocument.Parse($$"""{"type":"object","properties":{{properties}},"required":{{required}}}""").RootElement.Clone();
 }

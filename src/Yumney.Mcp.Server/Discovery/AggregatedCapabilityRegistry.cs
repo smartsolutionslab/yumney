@@ -5,8 +5,8 @@ namespace SmartSolutionsLab.Yumney.Mcp.Server.Discovery;
 
 /// <summary>
 /// Thread-safe singleton holding the union of capability manifests fetched
-/// from every known module host. Phase 4b will project this into MCP tool
-/// descriptors; Phase 4a only exposes it via a debug endpoint.
+/// from every known module host. <see cref="Mcp.CapabilityToolRegistration"/>
+/// projects it into MCP tool descriptors.
 /// </summary>
 public sealed class AggregatedCapabilityRegistry
 {
