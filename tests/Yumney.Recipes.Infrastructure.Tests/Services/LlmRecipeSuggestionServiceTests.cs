@@ -1,18 +1,15 @@
-using System.Runtime.CompilerServices;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
+using SmartSolutionsLab.Yumney.TestBuilders.Llm;
 using Xunit;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;
 
 #pragma warning disable SA1311
-public class SemanticKernelRecipeSuggestionServiceTests
+public class LlmRecipeSuggestionServiceTests
 {
 	private static readonly string validRecipesJson = """
         {
@@ -33,7 +30,7 @@ public class SemanticKernelRecipeSuggestionServiceTests
         }
         """;
 
-	private readonly ILogger<SemanticKernelRecipeSuggestionService> logger = Substitute.For<ILogger<SemanticKernelRecipeSuggestionService>>();
+	private readonly ILogger<LlmRecipeSuggestionService> logger = Substitute.For<ILogger<LlmRecipeSuggestionService>>();
 
 	[Fact]
 	public async Task SuggestAsync_ValidJson_ReturnsRecipes()
@@ -113,7 +110,7 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_MalformedThenValid_RetriesAndSucceeds()
 	{
-		var fake = new FakeChatCompletionService(["I can't do JSON today.", validRecipesJson]);
+		var fake = new ScriptedChatClient("I can't do JSON today.", validRecipesJson);
 		var service = CreateService(fake);
 
 		var result = await service.SuggestAsync(["apple"], null, [], 2);
@@ -125,7 +122,7 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_MalformedTwice_ReturnsSuggestionFailed()
 	{
-		var fake = new FakeChatCompletionService(["garbage 1", "garbage 2"]);
+		var fake = new ScriptedChatClient("garbage 1", "garbage 2");
 		var service = CreateService(fake);
 
 		var result = await service.SuggestAsync(["apple"], null, [], 2);
@@ -138,7 +135,7 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_LlmThrows_ReturnsSuggestionFailed()
 	{
-		var fake = new FakeChatCompletionService(new HttpRequestException("upstream down"));
+		var fake = new ScriptedChatClient(new HttpRequestException("upstream down"));
 		var service = CreateService(fake);
 
 		var result = await service.SuggestAsync(["apple"], null, [], 2);
@@ -150,12 +147,12 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_ForwardsAvailableIngredientsAndDietary()
 	{
-		var fake = new FakeChatCompletionService(validRecipesJson);
+		var fake = new ScriptedChatClient(validRecipesJson);
 		var service = CreateService(fake);
 
 		await service.SuggestAsync(["chicken", "rice"], "vegetarian", ["gluten-free"], 3);
 
-		var userMessage = fake.CapturedHistory!.Last(m => m.Role == AuthorRole.User).Content!;
+		var userMessage = fake.LastUserText;
 		userMessage.Should().Contain("chicken");
 		userMessage.Should().Contain("rice");
 		userMessage.Should().Contain("vegetarian");
@@ -166,12 +163,12 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	[Fact]
 	public async Task SuggestAsync_NullDietary_RendersAsNoPreference()
 	{
-		var fake = new FakeChatCompletionService(validRecipesJson);
+		var fake = new ScriptedChatClient(validRecipesJson);
 		var service = CreateService(fake);
 
 		await service.SuggestAsync(["apple"], null, [], 1);
 
-		var userMessage = fake.CapturedHistory!.Last(m => m.Role == AuthorRole.User).Content!;
+		var userMessage = fake.LastUserText;
 		userMessage.Should().Contain("(no preference)");
 		userMessage.Should().Contain("(none)");
 	}
@@ -181,7 +178,7 @@ public class SemanticKernelRecipeSuggestionServiceTests
 	{
 		using var cts = new CancellationTokenSource();
 		await cts.CancelAsync();
-		var fake = new FakeChatCompletionService(validRecipesJson);
+		var fake = new ScriptedChatClient(validRecipesJson);
 		var service = CreateService(fake);
 
 		var act = () => service.SuggestAsync(["apple"], null, [], 2, cts.Token);
@@ -189,68 +186,8 @@ public class SemanticKernelRecipeSuggestionServiceTests
 		await act.Should().ThrowAsync<OperationCanceledException>();
 	}
 
-	private SemanticKernelRecipeSuggestionService CreateService(string llmResponse) =>
-		CreateService(new FakeChatCompletionService(llmResponse));
+	private LlmRecipeSuggestionService CreateService(string llmResponse) =>
+		CreateService(new ScriptedChatClient(llmResponse));
 
-	private SemanticKernelRecipeSuggestionService CreateService(FakeChatCompletionService fake)
-	{
-		var builder = Kernel.CreateBuilder();
-		builder.Services.AddSingleton<IChatCompletionService>(fake);
-		return new SemanticKernelRecipeSuggestionService(builder.Build(), logger);
-	}
-
-	private sealed class FakeChatCompletionService : IChatCompletionService
-	{
-		private readonly string? response;
-		private readonly Exception? exception;
-		private readonly Queue<string>? responseQueue;
-
-		public FakeChatCompletionService(string response)
-		{
-			this.response = response;
-		}
-
-		public FakeChatCompletionService(Exception exception)
-		{
-			this.exception = exception;
-		}
-
-		public FakeChatCompletionService(IEnumerable<string> responses)
-		{
-			responseQueue = new Queue<string>(responses);
-		}
-
-		public ChatHistory? CapturedHistory { get; private set; }
-
-		public int InvocationCount { get; private set; }
-
-		public IReadOnlyDictionary<string, object?> Attributes { get; } = new Dictionary<string, object?>();
-
-		public Task<IReadOnlyList<ChatMessageContent>> GetChatMessageContentsAsync(
-			ChatHistory chatHistory,
-			PromptExecutionSettings? executionSettings = null,
-			Kernel? kernel = null,
-			CancellationToken cancellationToken = default)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-			CapturedHistory = new ChatHistory(chatHistory);
-			InvocationCount++;
-
-			if (exception is not null) throw exception;
-
-			var content = responseQueue is { Count: > 0 } ? responseQueue.Dequeue() : response;
-			IReadOnlyList<ChatMessageContent> result = [new(AuthorRole.Assistant, content)];
-			return Task.FromResult(result);
-		}
-
-		public async IAsyncEnumerable<StreamingChatMessageContent> GetStreamingChatMessageContentsAsync(
-			ChatHistory chatHistory,
-			PromptExecutionSettings? executionSettings = null,
-			Kernel? kernel = null,
-			[EnumeratorCancellation] CancellationToken cancellationToken = default)
-		{
-			await Task.CompletedTask;
-			yield break;
-		}
-	}
+	private LlmRecipeSuggestionService CreateService(ScriptedChatClient fake) => new(fake, logger);
 }

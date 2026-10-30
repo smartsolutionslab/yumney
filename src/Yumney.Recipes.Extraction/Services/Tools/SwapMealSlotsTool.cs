@@ -1,17 +1,21 @@
 using System.ComponentModel;
 using System.Globalization;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 
 /// <summary>
-/// SK kernel function exposing meal-slot swapping to the chat LLM. Closes
+/// Chat tool exposing meal-slot swapping to the chat LLM. Closes
 /// the swap-via-chat half of US-329.
 /// </summary>
 /// <param name="swapper">Consumer-defined swapper contract.</param>
 public sealed class SwapMealSlotsTool(IMealSlotSwapper swapper)
+	: IChatTool
 {
+	/// <inheritdoc/>
+	public AIFunction ToFunction() => AIFunctionFactory.Create(SwapAsync, "swap_meal_slots");
+
 	/// <summary>Swap the meals planned for two days within the same ISO week.</summary>
 	/// <param name="sourceDay">Source weekday name.</param>
 	/// <param name="targetDay">Target weekday name.</param>
@@ -20,7 +24,6 @@ public sealed class SwapMealSlotsTool(IMealSlotSwapper swapper)
 	/// <param name="weekNumber">ISO week number 1-53, or 0 for the current week.</param>
 	/// <param name="cancellationToken">Cancellation propagated from the LLM call.</param>
 	/// <returns>Confirmation message for the LLM.</returns>
-	[KernelFunction("swap_meal_slots")]
 	[Description("Swap two meals in the user's weekly plan ('swap Thursday and Friday', 'move Monday's dinner to Tuesday'). Pass year=0 / weekNumber=0 to mean 'this week'.")]
 	public async Task<string> SwapAsync(
 		[Description("Source weekday name: Monday..Sunday")] string sourceDay,

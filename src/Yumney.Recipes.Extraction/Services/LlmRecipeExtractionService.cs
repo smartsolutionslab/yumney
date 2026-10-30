@@ -1,31 +1,24 @@
 using System.Diagnostics;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
-using SmartSolutionsLab.Yumney.Recipes.Application.Common;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Shared.AI;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
-#pragma warning disable SA1311
-public sealed partial class SemanticKernelRecipeExtractionService(
-	Kernel kernel,
+public sealed partial class LlmRecipeExtractionService(
+	IChatClient chatClient,
+	[FromKeyedServices(LlmTasks.Vision)] IChatClient visionClient,
 	IExtractionResultCache cache,
-	ILogger<SemanticKernelRecipeExtractionService> logger)
+	ILogger<LlmRecipeExtractionService> logger)
 	: IRecipeExtractionService
 {
-	private static readonly JsonSerializerOptions jsonOptions = new()
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-	};
-
 	public async Task<Result<ExtractedRecipeDto>> ExtractAsync(ScrapedContent content, CancellationToken cancellationToken = default)
 	{
 		var cleanedText = content.CleanedText;
@@ -58,11 +51,13 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 
 		activity?.SetTag("extract.cache", "miss");
 
-		var chatHistory = new ChatHistory();
-		chatHistory.AddSystemMessage(ExtractionPrompts.WebExtraction);
-		chatHistory.AddUserMessage(ExtractionPrompts.WrapInContentDelimiters(sanitized));
+		List<ChatMessage> messages =
+		[
+			new(ChatRole.System, ExtractionPrompts.WebExtraction),
+			new(ChatRole.User, ExtractionPrompts.WrapInContentDelimiters(sanitized)),
+		];
 
-		var result = await CallLlmAndParseAsync(chatHistory, sourceUrl, cancellationToken);
+		var result = await CallLlmAndParseAsync(new LlmCall(chatClient, messages, sourceUrl), cancellationToken);
 		SetActivityResult(activity, result);
 
 		if (result.IsSuccess)
@@ -78,19 +73,19 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.recipe.photos");
 		activity?.SetTag("extract.photo_count", photos.Count);
 
-		var chatHistory = new ChatHistory();
-		chatHistory.AddSystemMessage(ExtractionPrompts.PhotoExtraction);
-
-		ChatMessageContentItemCollection messageItems = [new TextContent("Extract the recipe from these images:")];
-
+		List<AIContent> userContents = [new TextContent("Extract the recipe from these images:")];
 		foreach (var photo in photos)
 		{
-			messageItems.Add(new ImageContent(photo.Content, photo.ContentType));
+			userContents.Add(new DataContent(photo.Content, photo.ContentType));
 		}
 
-		chatHistory.AddUserMessage(messageItems);
+		List<ChatMessage> messages =
+		[
+			new(ChatRole.System, ExtractionPrompts.PhotoExtraction),
+			new(ChatRole.User, userContents),
+		];
 
-		var result = await CallLlmAndParseAsync(chatHistory, "photo-import", cancellationToken);
+		var result = await CallLlmAndParseAsync(new LlmCall(visionClient, messages, "photo-import"), cancellationToken);
 		SetActivityResult(activity, result);
 
 		return result;
@@ -104,20 +99,23 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 		{
 			// JSON-LD path: emit the final JSON in one chunk; the SSE endpoint
 			// treats the accumulated buffer as the completed payload.
-			yield return JsonSerializer.Serialize(content.StructuredRecipe, jsonOptions);
+			yield return JsonSerializer.Serialize(content.StructuredRecipe, LlmJson.SerializerOptions);
 			yield break;
 		}
 
-		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
 		var sanitized = ContentSanitizer.Sanitize(content.CleanedText);
+		List<ChatMessage> messages =
+		[
+			new(ChatRole.System, ExtractionPrompts.WebExtraction),
+			new(ChatRole.User, ExtractionPrompts.WrapInContentDelimiters(sanitized)),
+		];
 
-		ChatHistory chatHistory = new();
-		chatHistory.AddSystemMessage(ExtractionPrompts.WebExtraction);
-		chatHistory.AddUserMessage(ExtractionPrompts.WrapInContentDelimiters(sanitized));
-
-		await foreach (var chunk in chatCompletion.GetStreamingChatMessageContentsAsync(chatHistory, cancellationToken: cancellationToken))
+		// Plain JSON mode rather than a schema: the SSE endpoint detects top-level
+		// recipe fields while they stream and accepts the error sentinel as-is.
+		var options = new ChatOptions { ResponseFormat = ChatResponseFormat.Json };
+		await foreach (var update in chatClient.GetStreamingResponseAsync(messages, options, cancellationToken))
 		{
-			if (chunk.Content is not null) yield return chunk.Content;
+			if (update.Text.Length > 0) yield return update.Text;
 		}
 	}
 
@@ -135,14 +133,13 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 		}
 	}
 
-	private async Task<Result<ExtractedRecipeDto>> CallLlmAndParseAsync(ChatHistory chatHistory, string source, CancellationToken cancellationToken)
+	private async Task<Result<ExtractedRecipeDto>> CallLlmAndParseAsync(LlmCall call, CancellationToken cancellationToken)
 	{
+		var (_, messages, source) = call;
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.llm_call");
 		activity?.SetTag("llm.source", source);
 
-		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
-
-		var firstResponse = await InvokeLlmAsync(chatCompletion, chatHistory, source, activity, cancellationToken);
+		var firstResponse = await InvokeLlmAsync(call, activity, cancellationToken);
 		if (firstResponse is null) return ImportRecipeErrors.ExtractionFailed;
 
 		var parsed = ParseResponse(firstResponse, source, quiet: true);
@@ -150,26 +147,22 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 
 		// Parse failed. Ask the LLM to repair its previous response once.
 		LogParseRetry(source);
-		chatHistory.AddAssistantMessage(firstResponse);
-		chatHistory.AddUserMessage(ExtractionPrompts.JsonRepair);
+		messages.Add(new ChatMessage(ChatRole.Assistant, firstResponse));
+		messages.Add(new ChatMessage(ChatRole.User, ExtractionPrompts.JsonRepair));
 
-		var secondResponse = await InvokeLlmAsync(chatCompletion, chatHistory, source, activity, cancellationToken);
+		var secondResponse = await InvokeLlmAsync(call, activity, cancellationToken);
 		if (secondResponse is null) return ImportRecipeErrors.ExtractionFailed;
 
 		return ParseResponse(secondResponse, source, quiet: false);
 	}
 
-	private async Task<string?> InvokeLlmAsync(
-		IChatCompletionService chatCompletion,
-		ChatHistory chatHistory,
-		string source,
-		Activity? activity,
-		CancellationToken cancellationToken)
+	private async Task<string?> InvokeLlmAsync(LlmCall call, Activity? activity, CancellationToken cancellationToken)
 	{
+		var (client, messages, source) = call;
 		try
 		{
-			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
-			var response = result.Content ?? string.Empty;
+			var result = await client.GetResponseAsync(messages, LlmJson.OptionsFor<RecipeExtractionResponse>(), cancellationToken);
+			var response = result.Text;
 			activity?.SetTag("llm.response_length", response.Length);
 			activity?.SetTag("llm.model", result.ModelId);
 			return response;
@@ -195,18 +188,17 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 	{
 		try
 		{
-			var json = LlmResponseParser.ExtractJson(response);
-
-			if (json.Contains(ExtractionPrompts.LlmNoRecipeErrorCode, StringComparison.Ordinal))
+			var parsed = LlmJson.Deserialize<RecipeExtractionResponse>(response);
+			if (parsed?.IsNoRecipeFound == true)
 			{
 				LogNoRecipeFound(sourceUrl);
 				return ImportRecipeErrors.NoRecipeFound;
 			}
 
-			var recipe = JsonSerializer.Deserialize<ExtractedRecipeDto>(json, jsonOptions);
+			var recipe = parsed?.ToDto();
 			if (recipe is null)
 			{
-				if (!quiet) LogParsingFailed(sourceUrl, "Deserialization returned null");
+				if (!quiet) LogParsingFailed(sourceUrl, "Response had no recipe title");
 				return ImportRecipeErrors.ExtractionFailed;
 			}
 
@@ -233,4 +225,7 @@ public sealed partial class SemanticKernelRecipeExtractionService(
 
 	[LoggerMessage(Level = LogLevel.Debug, Message = "Extraction cache hit for {SourceUrl}; skipping LLM")]
 	private partial void LogCacheHit(string sourceUrl);
+
+	// URL extraction runs on the default model, photo import on the vision model.
+	private sealed record LlmCall(IChatClient Client, List<ChatMessage> Messages, string Source);
 }

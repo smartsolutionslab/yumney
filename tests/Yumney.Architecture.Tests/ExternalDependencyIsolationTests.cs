@@ -15,19 +15,19 @@ public class ExternalDependencyIsolationTests
 	[InlineData("Yumney.Shopping.Application")]
 	[InlineData("Yumney.Shopping.Infrastructure")]
 	[InlineData("Yumney.Shopping.Api")]
-	public void Layer_ShouldNotDependOn_SemanticKernel(string assemblyName)
+	public void Layer_ShouldNotDependOn_LlmLibraries(string assemblyName)
 	{
 		var assembly = Assembly.Load(assemblyName);
 
 		var result = Types.InAssembly(assembly)
 			.ShouldNot()
-			.HaveDependencyOn("Microsoft.SemanticKernel")
+			.HaveDependencyOnAny("Microsoft.SemanticKernel", "Microsoft.Extensions.AI")
 			.GetResult();
 
 		result.IsSuccessful.Should().BeTrue(
 			$"{assemblyName} must route LLM calls through abstractions in Application; " +
-			"Semantic Kernel lives in the per-module *.Extraction project only " +
-			"(Yumney.Recipes.Extraction, Yumney.Shopping.Extraction).");
+			"Microsoft.Extensions.AI lives in the per-module *.Extraction projects and " +
+			"Yumney.Shared.AI only (Semantic Kernel was removed and must not come back here).");
 	}
 
 	[Theory]

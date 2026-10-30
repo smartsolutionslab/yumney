@@ -1,7 +1,7 @@
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 /// <summary>
-/// Per-request collector that SK kernel functions write to so the chat service
+/// Per-request collector that chat tools write to so the chat service
 /// can derive recipe suggestions and chat actions after the LLM completes.
 /// Registered as scoped — fresh state per chat turn.
 /// </summary>
