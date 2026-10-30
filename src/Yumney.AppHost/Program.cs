@@ -144,16 +144,20 @@ var usersApi = builder
 	.WithEnvironment("Smtp__FromAddress", "noreply@yumney.local")
 	.WithEnvironment("Smtp__FromDisplayName", "Yumney")
 	.AsYumneyApi(options, usersDb, keycloak, redis, messaging, migrationRunner);
-var shoppingApi = builder
-	.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
-	.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
-	.AsYumneyApi(options, shoppingDb, keycloak, redis, messaging, migrationRunner)
-	.WithReference(usersApi);
 
 // Shared LLM resources registered once — Aspire's parameter / ollama
 // collections refuse duplicate names, so each `WithLlmProvider` consumer
 // gets the same handle here rather than creating its own.
 var llm = builder.BuildLlmResources(options);
+
+// Shopping needs the LLM for its item categorizer fallback; without it every
+// item unknown to the static resolver silently lands in "Other".
+var shoppingApi = builder
+	.AddProject<Projects.Yumney_Shopping_Api>("shopping-api")
+	.WithEnvironment("ASPNETCORE_ENVIRONMENT", apiEnvironment)
+	.AsYumneyApi(options, shoppingDb, keycloak, redis, messaging, migrationRunner)
+	.WithLlmProvider(options, llm)
+	.WithReference(usersApi);
 
 var recipesApi = builder
 	.AddProject<Projects.Yumney_Recipes_Api>("recipes-api")
