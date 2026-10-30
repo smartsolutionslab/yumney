@@ -111,7 +111,7 @@ public partial class LlmRecipeExtractionServiceTests
 	{
 		var fake = new ScriptedChatClient(validRecipeJson);
 		var cache = DistributedExtractionResultCacheTests.CreateCache();
-		var service = new LlmRecipeExtractionService(fake, cache, logger);
+		var service = new LlmRecipeExtractionService(fake, fake, cache, logger);
 		var content = new ScrapedContent("same cleaned text", RecipeUrl.From("https://example.com/r"));
 
 		var first = await service.ExtractAsync(content);

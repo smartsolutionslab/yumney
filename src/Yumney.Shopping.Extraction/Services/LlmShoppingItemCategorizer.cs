@@ -1,4 +1,5 @@
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Shared.AI;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
@@ -8,7 +9,9 @@ using SmartSolutionsLab.Yumney.Shopping.Domain.ShoppingList;
 namespace SmartSolutionsLab.Yumney.Shopping.Extraction.Services;
 
 #pragma warning disable SA1601
-public sealed partial class LlmShoppingItemCategorizer(IChatClient chatClient, ILogger<LlmShoppingItemCategorizer> logger)
+public sealed partial class LlmShoppingItemCategorizer(
+	[FromKeyedServices(LlmTasks.Fast)] IChatClient chatClient,
+	ILogger<LlmShoppingItemCategorizer> logger)
 	: IShoppingItemCategorizer
 {
 #pragma warning disable SA1303

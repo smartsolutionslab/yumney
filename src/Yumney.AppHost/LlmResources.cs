@@ -10,12 +10,14 @@ namespace SmartSolutionsLab.Yumney.AppHost;
 /// <param name="ChatModel">Model resource exposed to hosts as the <see cref="ChatModelName"/> connection string; null in E2E mode.</param>
 /// <param name="Provider">Provider the hosts select their chat client by.</param>
 /// <param name="WaitForModel">Whether hosts should wait for the model resource before starting.</param>
+/// <param name="TaskModels">Per-task model overrides on the same provider account (task role → model name).</param>
 internal sealed record LlmResources(
 	IResourceBuilder<IResourceWithConnectionString>? ChatModel,
 	LlmProvider Provider,
-	bool WaitForModel)
+	bool WaitForModel,
+	IReadOnlyDictionary<string, string> TaskModels)
 {
 	public const string ChatModelName = "chat";
 
-	public static LlmResources None { get; } = new(null, LlmProvider.OpenAI, WaitForModel: false);
+	public static LlmResources None { get; } = new(null, LlmProvider.OpenAI, WaitForModel: false, new Dictionary<string, string>());
 }

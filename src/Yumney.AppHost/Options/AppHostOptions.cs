@@ -7,7 +7,8 @@ internal sealed record AppHostOptions(
 	bool E2ETests,
 	LlmProvider LlmProvider,
 	string OpenAiModelId,
-	string OllamaModelId)
+	string OllamaModelId,
+	IReadOnlyDictionary<string, string> OpenAiTaskModels)
 {
 	public bool UseOllama => LlmProvider == LlmProvider.Ollama;
 
@@ -23,6 +24,16 @@ internal sealed record AppHostOptions(
 			E2ETests: config.GetValue<bool>("E2ETests"),
 			LlmProvider: provider,
 			OpenAiModelId: config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini",
-			OllamaModelId: config.GetValue<string>("Ollama:ModelId") ?? "mistral");
+			OllamaModelId: config.GetValue<string>("Ollama:ModelId") ?? "mistral",
+			OpenAiTaskModels: ReadTaskModels(config.GetSection("OpenAi:Models")));
+	}
+
+	// Optional per-task model overrides (e.g. OpenAi:Models:fast, OpenAi:Models:vision);
+	// task roles without an entry use OpenAiModelId.
+	private static Dictionary<string, string> ReadTaskModels(IConfigurationSection section)
+	{
+		return section.GetChildren()
+			.Where(child => !string.IsNullOrWhiteSpace(child.Value))
+			.ToDictionary(child => child.Key.ToLowerInvariant(), child => child.Value!);
 	}
 }

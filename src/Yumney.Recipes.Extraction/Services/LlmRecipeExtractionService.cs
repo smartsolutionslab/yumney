@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
@@ -13,6 +14,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 #pragma warning disable SA1601
 public sealed partial class LlmRecipeExtractionService(
 	IChatClient chatClient,
+	[FromKeyedServices(LlmTasks.Vision)] IChatClient visionClient,
 	IExtractionResultCache cache,
 	ILogger<LlmRecipeExtractionService> logger)
 	: IRecipeExtractionService
@@ -55,7 +57,7 @@ public sealed partial class LlmRecipeExtractionService(
 			new(ChatRole.User, ExtractionPrompts.WrapInContentDelimiters(sanitized)),
 		];
 
-		var result = await CallLlmAndParseAsync(messages, sourceUrl, cancellationToken);
+		var result = await CallLlmAndParseAsync(new LlmCall(chatClient, messages, sourceUrl), cancellationToken);
 		SetActivityResult(activity, result);
 
 		if (result.IsSuccess)
@@ -83,7 +85,7 @@ public sealed partial class LlmRecipeExtractionService(
 			new(ChatRole.User, userContents),
 		];
 
-		var result = await CallLlmAndParseAsync(messages, "photo-import", cancellationToken);
+		var result = await CallLlmAndParseAsync(new LlmCall(visionClient, messages, "photo-import"), cancellationToken);
 		SetActivityResult(activity, result);
 
 		return result;
@@ -131,12 +133,13 @@ public sealed partial class LlmRecipeExtractionService(
 		}
 	}
 
-	private async Task<Result<ExtractedRecipeDto>> CallLlmAndParseAsync(List<ChatMessage> messages, string source, CancellationToken cancellationToken)
+	private async Task<Result<ExtractedRecipeDto>> CallLlmAndParseAsync(LlmCall call, CancellationToken cancellationToken)
 	{
+		var (_, messages, source) = call;
 		using var activity = ExtractionDiagnostics.ActivitySource.StartActivity("extract.llm_call");
 		activity?.SetTag("llm.source", source);
 
-		var firstResponse = await InvokeLlmAsync(messages, source, activity, cancellationToken);
+		var firstResponse = await InvokeLlmAsync(call, activity, cancellationToken);
 		if (firstResponse is null) return ImportRecipeErrors.ExtractionFailed;
 
 		var parsed = ParseResponse(firstResponse, source, quiet: true);
@@ -147,21 +150,18 @@ public sealed partial class LlmRecipeExtractionService(
 		messages.Add(new ChatMessage(ChatRole.Assistant, firstResponse));
 		messages.Add(new ChatMessage(ChatRole.User, ExtractionPrompts.JsonRepair));
 
-		var secondResponse = await InvokeLlmAsync(messages, source, activity, cancellationToken);
+		var secondResponse = await InvokeLlmAsync(call, activity, cancellationToken);
 		if (secondResponse is null) return ImportRecipeErrors.ExtractionFailed;
 
 		return ParseResponse(secondResponse, source, quiet: false);
 	}
 
-	private async Task<string?> InvokeLlmAsync(
-		List<ChatMessage> messages,
-		string source,
-		Activity? activity,
-		CancellationToken cancellationToken)
+	private async Task<string?> InvokeLlmAsync(LlmCall call, Activity? activity, CancellationToken cancellationToken)
 	{
+		var (client, messages, source) = call;
 		try
 		{
-			var result = await chatClient.GetResponseAsync(messages, LlmJson.OptionsFor<RecipeExtractionResponse>(), cancellationToken);
+			var result = await client.GetResponseAsync(messages, LlmJson.OptionsFor<RecipeExtractionResponse>(), cancellationToken);
 			var response = result.Text;
 			activity?.SetTag("llm.response_length", response.Length);
 			activity?.SetTag("llm.model", result.ModelId);
@@ -225,4 +225,7 @@ public sealed partial class LlmRecipeExtractionService(
 
 	[LoggerMessage(Level = LogLevel.Debug, Message = "Extraction cache hit for {SourceUrl}; skipping LLM")]
 	private partial void LogCacheHit(string sourceUrl);
+
+	// URL extraction runs on the default model, photo import on the vision model.
+	private sealed record LlmCall(IChatClient Client, List<ChatMessage> Messages, string Source);
 }

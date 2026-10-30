@@ -46,7 +46,7 @@ Aspire automatically handles:
 - PostgreSQL + PgAdmin
 - Redis
 - Keycloak (with realm import)
-- LLM model: OpenAI by default (Aspire prompts for the `OpenAiApiKey` parameter; or set `Parameters:OpenAiApiKey` via user secrets), or a local Ollama container with `LlmProvider=Ollama` (model via `Ollama:ModelId`, default `mistral`)
+- LLM model: OpenAI by default (Aspire prompts for the `OpenAiApiKey` parameter; or set `Parameters:OpenAiApiKey` via user secrets), or a local Ollama container with `LlmProvider=Ollama` (model via `Ollama:ModelId`, default `mistral`). Optional per-task OpenAI models: `OpenAi:Models:fast` (categorization, intent parsing) and `OpenAi:Models:vision` (photo import, ingredient recognition)
 - Mailpit (email testing)
 - Database migrations
 - API + Gateway startup

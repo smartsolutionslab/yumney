@@ -20,32 +20,64 @@ public static class ChatClientHostBuilderExtensions
 	/// <summary>Configuration key carrying the provider (<c>OpenAI</c> or <c>Ollama</c>).</summary>
 	public const string ProviderKey = "Llm:Provider";
 
-	/// <summary>Register the host's <see cref="IChatClient"/> from Aspire-provided configuration.</summary>
+	/// <summary>Configuration section mapping task roles (<see cref="LlmTasks"/>) to model names.</summary>
+	public const string ModelsSection = "Llm:Models";
+
+	/// <summary>
+	/// Register the host's default <see cref="IChatClient"/> plus one keyed client per
+	/// task role in <see cref="LlmTasks"/>. A role without its own model (or any role
+	/// on Ollama, which serves a single local model) resolves to the default client.
+	/// </summary>
 	/// <param name="builder">The module host builder.</param>
 	/// <returns>The same builder, for fluent chaining.</returns>
 	public static IHostApplicationBuilder AddYumneyChatClient(this IHostApplicationBuilder builder)
 	{
 		var configuration = builder.Configuration;
 		if (configuration.GetValue<bool>("E2ETests")) return builder;
-		if (builder.Services.Any(descriptor => descriptor.ServiceType == typeof(IChatClient))) return builder;
+		if (builder.Services.Any(descriptor => descriptor.ServiceType == typeof(IChatClient) && !descriptor.IsKeyedService)) return builder;
 
+		IReadOnlyCollection<string> dedicatedTasks = [];
 		if (string.IsNullOrWhiteSpace(configuration.GetConnectionString(ConnectionName)))
 		{
 			builder.Services.AddHostedService<MissingChatClientReporter>();
 			builder.Services.AddSingleton<IChatClient, UnavailableChatClient>();
-			return builder;
 		}
-
-		var provider = configuration.GetValue<string>(ProviderKey);
-		if (string.Equals(provider, LlmProviders.Ollama, StringComparison.OrdinalIgnoreCase))
+		else if (string.Equals(configuration.GetValue<string>(ProviderKey), LlmProviders.Ollama, StringComparison.OrdinalIgnoreCase))
 		{
 			builder.AddOllamaApiClient(ConnectionName).AddChatClient();
 		}
 		else
 		{
-			builder.AddOpenAIClient(ConnectionName).AddChatClient();
+			dedicatedTasks = AddOpenAIChatClients(builder);
 		}
 
+		AliasRemainingTasksToDefault(builder.Services, dedicatedTasks);
 		return builder;
+	}
+
+	private static List<string> AddOpenAIChatClients(IHostApplicationBuilder builder)
+	{
+		var openAi = builder.AddOpenAIClient(ConnectionName);
+		openAi.AddChatClient();
+
+		List<string> dedicatedTasks = [];
+		foreach (var task in LlmTasks.All)
+		{
+			var model = builder.Configuration.GetValue<string>($"{ModelsSection}:{task}");
+			if (string.IsNullOrWhiteSpace(model)) continue;
+
+			openAi.AddKeyedChatClient(task, model);
+			dedicatedTasks.Add(task);
+		}
+
+		return dedicatedTasks;
+	}
+
+	private static void AliasRemainingTasksToDefault(IServiceCollection services, IReadOnlyCollection<string> dedicatedTasks)
+	{
+		foreach (var task in LlmTasks.All.Except(dedicatedTasks))
+		{
+			services.AddKeyedSingleton<IChatClient>(task, (serviceProvider, _) => serviceProvider.GetRequiredService<IChatClient>());
+		}
 	}
 }

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
@@ -11,7 +12,9 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
-public sealed partial class LlmIngredientRecognitionService(IChatClient chatClient, ILogger<LlmIngredientRecognitionService> logger)
+public sealed partial class LlmIngredientRecognitionService(
+	[FromKeyedServices(LlmTasks.Vision)] IChatClient chatClient,
+	ILogger<LlmIngredientRecognitionService> logger)
 	: IIngredientRecognitionService
 {
 	public async Task<Result<RecognizedIngredientsResponseDto>> RecognizeAsync(PhotoData photo, CancellationToken cancellationToken = default)

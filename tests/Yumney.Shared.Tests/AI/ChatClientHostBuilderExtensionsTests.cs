@@ -83,7 +83,64 @@ public class ChatClientHostBuilderExtensionsTests
 		builder.AddYumneyChatClient();
 		builder.AddYumneyChatClient();
 
-		builder.Services.Count(descriptor => descriptor.ServiceType == typeof(IChatClient)).Should().Be(1);
+		builder.Services.Count(descriptor => descriptor.ServiceType == typeof(IChatClient) && !descriptor.IsKeyedService).Should().Be(1);
+	}
+
+	[Theory]
+	[InlineData(LlmTasks.Fast)]
+	[InlineData(LlmTasks.Vision)]
+	public void AddYumneyChatClient_NoTaskModelConfigured_TaskResolvesToDefaultClient(string task)
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = OpenAiConnectionString });
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredKeyedService<IChatClient>(task).Should().BeSameAs(provider.GetRequiredService<IChatClient>());
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_TaskModelConfigured_TaskGetsItsOwnClient()
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = OpenAiConnectionString, ["Llm:Models:fast"] = "gpt-fast" });
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredKeyedService<IChatClient>(LlmTasks.Fast).Should().NotBeSameAs(provider.GetRequiredService<IChatClient>());
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_TaskModelConfigured_OtherTasksStayOnDefault()
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = OpenAiConnectionString, ["Llm:Models:fast"] = "gpt-fast" });
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredKeyedService<IChatClient>(LlmTasks.Vision).Should().BeSameAs(provider.GetRequiredService<IChatClient>());
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_Ollama_IgnoresTaskModels()
+	{
+		var builder = Builder(new()
+		{
+			["ConnectionStrings:chat"] = OllamaConnectionString,
+			["Llm:Provider"] = "Ollama",
+			["Llm:Models:fast"] = "llama-small",
+		});
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredKeyedService<IChatClient>(LlmTasks.Fast).Should().BeSameAs(provider.GetRequiredService<IChatClient>());
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_NoConnectionString_TasksResolveToUnavailableClient()
+	{
+		var builder = Builder([]);
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredKeyedService<IChatClient>(LlmTasks.Fast).Should().BeOfType<UnavailableChatClient>();
 	}
 
 	private static HostApplicationBuilder Builder(Dictionary<string, string?> settings)

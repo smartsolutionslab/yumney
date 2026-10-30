@@ -182,7 +182,7 @@ public partial class LlmRecipeExtractionServiceTests
 	private LlmRecipeExtractionService CreateService(string llmResponse) => CreateService(new ScriptedChatClient(llmResponse));
 
 	private LlmRecipeExtractionService CreateService(ScriptedChatClient fake) =>
-		new(fake, DistributedExtractionResultCacheTests.CreateCache(), logger);
+		new(fake, fake, DistributedExtractionResultCacheTests.CreateCache(), logger);
 
 	private LlmRecipeExtractionService CreateServiceWithException(Exception exception) =>
 		CreateService(new ScriptedChatClient(exception));

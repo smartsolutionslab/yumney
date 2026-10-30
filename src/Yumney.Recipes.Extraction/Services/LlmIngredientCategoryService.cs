@@ -1,12 +1,16 @@
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
+using SmartSolutionsLab.Yumney.Shared.AI;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
-public sealed partial class LlmIngredientCategoryService(IChatClient chatClient, ILogger<LlmIngredientCategoryService> logger)
+public sealed partial class LlmIngredientCategoryService(
+	[FromKeyedServices(LlmTasks.Fast)] IChatClient chatClient,
+	ILogger<LlmIngredientCategoryService> logger)
 	: IIngredientCategoryService
 {
 #pragma warning disable SA1303

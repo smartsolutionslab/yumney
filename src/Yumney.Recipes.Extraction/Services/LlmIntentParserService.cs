@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
@@ -10,7 +11,9 @@ using SmartSolutionsLab.Yumney.Shared.Outcomes;
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
-public sealed partial class LlmIntentParserService(IChatClient chatClient, ILogger<LlmIntentParserService> logger)
+public sealed partial class LlmIntentParserService(
+	[FromKeyedServices(LlmTasks.Fast)] IChatClient chatClient,
+	ILogger<LlmIntentParserService> logger)
 	: IIntentParserService
 {
 	public async Task<Result<ParsedIntentDto>> ParseAsync(string userInput, string? pageContext, CancellationToken cancellationToken = default)

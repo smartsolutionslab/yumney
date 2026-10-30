@@ -45,7 +45,7 @@ internal static class AppHostExtensions
 			var ollamaModel = builder.AddOllama("ollama")
 				.WithDataVolume()
 				.AddModel(LlmResources.ChatModelName, options.OllamaModelId);
-			return new LlmResources(ollamaModel, options.LlmProvider, WaitForModel: true);
+			return new LlmResources(ollamaModel, options.LlmProvider, WaitForModel: true, TaskModels: new Dictionary<string, string>());
 		}
 
 		// Parameter name is kept stable: deploy.yml supplies it as Parameters__OpenAiApiKey.
@@ -53,7 +53,7 @@ internal static class AppHostExtensions
 		var openAiModel = builder.AddOpenAI("openai")
 			.WithApiKey(apiKey)
 			.AddModel(LlmResources.ChatModelName, options.OpenAiModelId);
-		return new LlmResources(openAiModel, options.LlmProvider, WaitForModel: false);
+		return new LlmResources(openAiModel, options.LlmProvider, WaitForModel: false, options.OpenAiTaskModels);
 	}
 
 	public static IResourceBuilder<ProjectResource> WithLlmProvider(this IResourceBuilder<ProjectResource> builder, LlmResources llm)
@@ -63,6 +63,11 @@ internal static class AppHostExtensions
 		builder
 			.WithReference(chatModel)
 			.WithEnvironment("Llm__Provider", llm.Provider.ToString());
+
+		foreach (var (task, model) in llm.TaskModels)
+		{
+			builder.WithEnvironment($"Llm__Models__{task}", model);
+		}
 
 		// Ollama pulls the model on first start; OpenAI models are remote and
 		// never reach a "running" state, so waiting on them would block startup.

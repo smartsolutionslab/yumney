@@ -3,6 +3,7 @@ using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
+using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 using SmartSolutionsLab.Yumney.TestBuilders.Llm;
 using Xunit;
 
@@ -55,5 +56,29 @@ public partial class LlmRecipeExtractionServiceTests
 
 		string.Concat(chunks).Should().Be(validRecipeJson);
 		fake.CapturedOptions!.ResponseFormat.Should().Be(ChatResponseFormat.Json);
+	}
+
+	[Fact]
+	public async Task ExtractFromPhotosAsync_UsesVisionClient()
+	{
+		var defaultClient = new ScriptedChatClient(validRecipeJson);
+		var visionClient = new ScriptedChatClient(validRecipeJson);
+		var service = new LlmRecipeExtractionService(defaultClient, visionClient, DistributedExtractionResultCacheTests.CreateCache(), logger);
+
+		await service.ExtractFromPhotosAsync([new([1, 2, 3], "image/jpeg", "page.jpg")]);
+
+		(defaultClient.InvocationCount, visionClient.InvocationCount).Should().Be((0, 1));
+	}
+
+	[Fact]
+	public async Task ExtractAsync_UsesDefaultClient()
+	{
+		var defaultClient = new ScriptedChatClient(validRecipeJson);
+		var visionClient = new ScriptedChatClient(validRecipeJson);
+		var service = new LlmRecipeExtractionService(defaultClient, visionClient, DistributedExtractionResultCacheTests.CreateCache(), logger);
+
+		await service.ExtractAsync(new ScrapedContent("text", RecipeUrl.From("https://example.com/r")));
+
+		(defaultClient.InvocationCount, visionClient.InvocationCount).Should().Be((1, 0));
 	}
 }
