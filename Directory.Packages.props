@@ -59,6 +59,9 @@
     <PackageVersion Include="WolverineFx.RabbitMQ" Version="6.57.0" />
     <PackageVersion Include="WolverineFx.Postgresql" Version="6.57.0" />
     <PackageVersion Include="WolverineFx.EntityFrameworkCore" Version="6.57.0" />
+    <!-- Wolverine 6.x no longer ships the Roslyn runtime compiler in core; without it
+         TypeLoadMode.Dynamic (our default) throws at host startup (GH-2876). -->
+    <PackageVersion Include="WolverineFx.RuntimeCompilation" Version="6.57.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
     <!-- API -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
