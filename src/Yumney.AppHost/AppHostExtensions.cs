@@ -32,39 +32,53 @@ internal static class AppHostExtensions
 	}
 
 	// Call once from Program.cs before any WithLlmProvider usage —
-	// AddParameter / AddOllama throw on duplicate names, so the
-	// resource has to be created in exactly one place.
+	// AddParameter / AddOpenAI / AddOllama throw on duplicate names, so the
+	// resource has to be created in exactly one place. Either way the hosts
+	// receive a model resource named "chat" (the connection string
+	// Yumney.Shared.AI reads) plus the provider name.
 	public static LlmResources BuildLlmResources(this IDistributedApplicationBuilder builder, AppHostOptions options)
 	{
-		if (options.E2ETests) return new LlmResources(null, null);
+		if (options.E2ETests) return LlmResources.None;
 
 		if (options.UseOllama)
 		{
-			var ollama = builder.AddOllama("ollama").WithDataVolume();
-			return new LlmResources(null, ollama);
+			var ollamaModel = builder.AddOllama("ollama")
+				.WithDataVolume()
+				.AddModel(LlmResources.ChatModelName, options.OllamaModelId);
+			return new LlmResources(ollamaModel, options.LlmProvider, WaitForModel: true, HostSettings: new Dictionary<string, string>());
 		}
 
+		// Parameter name is kept stable: deploy.yml supplies it as Parameters__OpenAiApiKey.
+		// It holds the key of whichever OpenAI-compatible service OpenAi:Endpoint points at.
 		var apiKey = builder.AddParameter("OpenAiApiKey", secret: true);
-		return new LlmResources(apiKey, null);
+		var openAi = builder.AddOpenAI("openai").WithApiKey(apiKey);
+		if (!string.IsNullOrWhiteSpace(options.OpenAiEndpoint))
+		{
+			openAi.WithEndpoint(options.OpenAiEndpoint);
+		}
+
+		var openAiModel = openAi.AddModel(LlmResources.ChatModelName, options.OpenAiModelId);
+		return new LlmResources(openAiModel, options.LlmProvider, WaitForModel: false, OpenAiHostSettings(options));
 	}
 
-	public static IResourceBuilder<ProjectResource> WithLlmProvider(
-		this IResourceBuilder<ProjectResource> builder,
-		AppHostOptions options,
-		LlmResources llm)
+	public static IResourceBuilder<ProjectResource> WithLlmProvider(this IResourceBuilder<ProjectResource> builder, LlmResources llm)
 	{
-		if (options.E2ETests) return builder;
+		if (llm.ChatModel is not { } chatModel) return builder;
 
-		if (llm.Ollama is { } ollama)
+		builder
+			.WithReference(chatModel)
+			.WithEnvironment("Llm__Provider", llm.Provider.ToString());
+
+		foreach (var (key, value) in llm.HostSettings)
 		{
-			builder.WithReference(ollama).WaitFor(ollama);
+			builder.WithEnvironment(key.Replace(":", "__", StringComparison.Ordinal), value);
 		}
-		else if (llm.OpenAiApiKey is { } apiKey)
+
+		// Ollama pulls the model on first start; OpenAI models are remote and
+		// never reach a "running" state, so waiting on them would block startup.
+		if (llm.WaitForModel)
 		{
-			builder
-				.WithEnvironment("SemanticKernel__Provider", "OpenAI")
-				.WithEnvironment("SemanticKernel__ModelId", options.OpenAiModelId)
-				.WithEnvironment("SemanticKernel__ApiKey", apiKey);
+			builder.WaitFor(chatModel);
 		}
 
 		return builder;
@@ -132,5 +146,18 @@ internal static class AppHostExtensions
 			Endpoint = http.Endpoint,
 			DisplayText = "OpenAPI",
 		});
+	}
+
+	private static Dictionary<string, string> OpenAiHostSettings(AppHostOptions options)
+	{
+		Dictionary<string, string> settings = options.OpenAiTaskModels.ToDictionary(
+			taskModel => $"Llm:Models:{taskModel.Key}",
+			taskModel => taskModel.Value);
+		if (!string.IsNullOrWhiteSpace(options.OpenAiStructuredOutput))
+		{
+			settings["Llm:StructuredOutput"] = options.OpenAiStructuredOutput;
+		}
+
+		return settings;
 	}
 }

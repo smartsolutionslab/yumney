@@ -1,18 +1,22 @@
 using System.ComponentModel;
 using System.Globalization;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 
 /// <summary>
-/// SK kernel function exposing meal-state confirmation to the chat LLM. Used
+/// Chat tool exposing meal-state confirmation to the chat LLM. Used
 /// for "I made the carbonara on Wednesday" / "skip Friday's planned dinner".
 /// Cross-module via <see cref="IMealConfirmation"/>.
 /// </summary>
 /// <param name="confirmation">Consumer-defined confirmation contract.</param>
 public sealed class ConfirmMealTool(IMealConfirmation confirmation)
+	: IChatTool
 {
+	/// <inheritdoc/>
+	public AIFunction ToFunction() => AIFunctionFactory.Create(ConfirmAsync, "confirm_meal_cooked");
+
 	/// <summary>Mark a planned meal as cooked, skipped, or restored to planned.</summary>
 	/// <param name="day">English weekday name (Monday..Sunday).</param>
 	/// <param name="state">"Cooked", "Skipped", or "Planned".</param>
@@ -21,7 +25,6 @@ public sealed class ConfirmMealTool(IMealConfirmation confirmation)
 	/// <param name="weekNumber">ISO week number 1-53, or 0 for the current week.</param>
 	/// <param name="cancellationToken">Cancellation propagated from the LLM call.</param>
 	/// <returns>Human-readable confirmation string for the LLM to weave into its reply.</returns>
-	[KernelFunction("confirm_meal_cooked")]
 	[Description("Update a planned meal's state. Use for 'I made the spaghetti on Wednesday' (state=Cooked), 'skip Friday lunch' (state=Skipped), or 'I haven't cooked it yet' (state=Planned). Pass year=0 / weekNumber=0 to mean 'this week'.")]
 	public async Task<string> ConfirmAsync(
 		[Description("English weekday name: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, or Sunday")] string day,

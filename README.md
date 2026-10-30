@@ -11,7 +11,7 @@ Yumney is a Progressive Web App that extracts recipes from any URL using LLM, ge
 | Backend | ASP.NET Core 10, Minimal APIs, Clean Architecture |
 | Frontend | Angular 19+, Micro-Frontends (Native Federation), Nx Monorepo |
 | Database | PostgreSQL 16 (EF Core, Code-First) |
-| LLM | Microsoft Semantic Kernel (OpenAI, Anthropic, Azure OpenAI, Ollama) |
+| LLM | Microsoft.Extensions.AI `IChatClient` (OpenAI or any OpenAI-compatible API, Ollama) |
 | Auth | Keycloak (OIDC, JWT Bearer) via .NET Aspire |
 | API Gateway | YARP Reverse Proxy |
 | Orchestration | .NET Aspire |
@@ -32,7 +32,7 @@ Yumney is a Progressive Web App that extracts recipes from any URL using LLM, ge
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - [Node.js 22+](https://nodejs.org/)
 - [Yarn](https://yarnpkg.com/)
-- [Docker](https://docker.com/) (required -- Aspire runs PostgreSQL, Redis, Keycloak, Ollama, Mailpit via containers)
+- [Docker](https://docker.com/) (required -- Aspire runs PostgreSQL, Redis, Keycloak, Mailpit and optionally Ollama via containers)
 
 ### Backend
 
@@ -46,7 +46,8 @@ Aspire automatically handles:
 - PostgreSQL + PgAdmin
 - Redis
 - Keycloak (with realm import)
-- Ollama (LLM provider)
+- LLM model: OpenAI by default (Aspire prompts for the `OpenAiApiKey` parameter; or set `Parameters:OpenAiApiKey` via user secrets), or a local Ollama container with `LlmProvider=Ollama` (model via `Ollama:ModelId`, default `mistral`). Optional per-task OpenAI models: `OpenAi:Models:fast` (categorization, intent parsing) and `OpenAi:Models:vision` (photo import, ingredient recognition)
+- Other providers with an OpenAI-compatible API (DeepSeek, Qwen, Kimi, Mistral, Claude, OpenRouter, Azure AI Foundry, …): set `OpenAi:Endpoint`, `OpenAi:ModelId` and that provider's key as `OpenAiApiKey`. If the provider rejects JSON-schema requests, set `OpenAi:StructuredOutput` to `JsonObject` (or `None`). Example: `OpenAi:Endpoint=https://api.deepseek.com/v1`, `OpenAi:ModelId=deepseek-chat`, `OpenAi:StructuredOutput=JsonObject`
 - Mailpit (email testing)
 - Database migrations
 - API + Gateway startup
@@ -106,7 +107,7 @@ yumney/
 │   │
 │   ├── Yumney.Recipes.Domain/          # Recipes -- Domain layer
 │   ├── Yumney.Recipes.Application/     # Recipes -- CQRS, DTOs, Interfaces
-│   ├── Yumney.Recipes.Infrastructure/  # Recipes -- EF Core, Semantic Kernel
+│   ├── Yumney.Recipes.Infrastructure/  # Recipes -- EF Core
 │   ├── Yumney.Recipes.Api/             # Recipes -- Minimal API endpoints
 │   │
 │   ├── Yumney.Shopping.Domain/         # Shopping -- Domain layer (planned)

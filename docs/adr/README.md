@@ -9,6 +9,7 @@ applies.
 
 - [0001 — Persistence paradigm per aggregate](0001-persistence-paradigm-per-aggregate.md)
 - [0002 — Capability surface for chat, MCP, and other LLM clients](0002-capability-surface-for-chat-mcp.md)
+- [0003 — LLM access via Microsoft.Extensions.AI](0003-llm-access-via-microsoft-extensions-ai.md)
 
 ## Conventions
 

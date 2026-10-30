@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Yumney.Shared\Yumney.Shared.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Abstractions\Yumney.Shared.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\Yumney.Shared.AI\Yumney.Shared.AI.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.CQRS\Yumney.Shared.CQRS.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Hosting\Yumney.Shared.Hosting.csproj" />
     <ProjectReference Include="..\..\src\Yumney.Shared.Modules\Yumney.Shared.Modules.csproj" />
