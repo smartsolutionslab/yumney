@@ -40,20 +40,12 @@ internal static class AppHostExtensions
 	{
 		if (options.E2ETests) return LlmResources.None;
 
-		if (options.UseOllama)
+		return options.LlmProvider switch
 		{
-			var ollamaModel = builder.AddOllama("ollama")
-				.WithDataVolume()
-				.AddModel(LlmResources.ChatModelName, options.OllamaModelId);
-			return new LlmResources(ollamaModel, options.LlmProvider, WaitForModel: true, TaskModels: new Dictionary<string, string>());
-		}
-
-		// Parameter name is kept stable: deploy.yml supplies it as Parameters__OpenAiApiKey.
-		var apiKey = builder.AddParameter("OpenAiApiKey", secret: true);
-		var openAiModel = builder.AddOpenAI("openai")
-			.WithApiKey(apiKey)
-			.AddModel(LlmResources.ChatModelName, options.OpenAiModelId);
-		return new LlmResources(openAiModel, options.LlmProvider, WaitForModel: false, options.OpenAiTaskModels);
+			LlmProvider.Ollama => builder.BuildOllamaResources(options),
+			LlmProvider.Anthropic => builder.BuildAnthropicResources(options),
+			_ => builder.BuildOpenAiResources(options),
+		};
 	}
 
 	public static IResourceBuilder<ProjectResource> WithLlmProvider(this IResourceBuilder<ProjectResource> builder, LlmResources llm)
@@ -141,5 +133,36 @@ internal static class AppHostExtensions
 			Endpoint = http.Endpoint,
 			DisplayText = "OpenAPI",
 		});
+	}
+
+	private static LlmResources BuildOllamaResources(this IDistributedApplicationBuilder builder, AppHostOptions options)
+	{
+		var ollamaModel = builder.AddOllama("ollama")
+			.WithDataVolume()
+			.AddModel(LlmResources.ChatModelName, options.OllamaModelId);
+		return new LlmResources(ollamaModel, options.LlmProvider, WaitForModel: true, TaskModels: new Dictionary<string, string>());
+	}
+
+	private static LlmResources BuildOpenAiResources(this IDistributedApplicationBuilder builder, AppHostOptions options)
+	{
+		// Parameter name is kept stable: deploy.yml supplies it as Parameters__OpenAiApiKey.
+		var apiKey = builder.AddParameter("OpenAiApiKey", secret: true);
+		var openAiModel = builder.AddOpenAI("openai")
+			.WithApiKey(apiKey)
+			.AddModel(LlmResources.ChatModelName, options.OpenAiModelId);
+		return new LlmResources(openAiModel, options.LlmProvider, WaitForModel: false, options.OpenAiTaskModels);
+	}
+
+	// No Aspire hosting integration exists for Anthropic, so the "chat" connection
+	// string is composed directly; Yumney.Shared.AI reads Key and Model from it.
+	// Deployments switching to Anthropic supply Parameters__AnthropicApiKey.
+	private static LlmResources BuildAnthropicResources(this IDistributedApplicationBuilder builder, AppHostOptions options)
+	{
+		var apiKey = builder.AddParameter("AnthropicApiKey", secret: true);
+		var model = options.AnthropicModelId;
+		var chatModel = builder.AddConnectionString(
+			LlmResources.ChatModelName,
+			ReferenceExpression.Create($"Key={apiKey.Resource};Model={model}"));
+		return new LlmResources(chatModel, options.LlmProvider, WaitForModel: false, options.AnthropicTaskModels);
 	}
 }

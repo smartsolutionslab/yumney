@@ -12,6 +12,7 @@ public class ChatClientHostBuilderExtensionsTests
 {
 	private const string OpenAiConnectionString = "Endpoint=https://api.openai.com/v1;Key=test-key;Model=gpt-test";
 	private const string OllamaConnectionString = "Endpoint=http://localhost:11434;Model=mistral";
+	private const string AnthropicConnectionString = "Key=test-key;Model=claude-opus-5-5";
 
 	[Fact]
 	public void AddYumneyChatClient_OpenAiConnectionString_RegistersChatClient()
@@ -141,6 +142,53 @@ public class ChatClientHostBuilderExtensionsTests
 		using var provider = builder.Services.BuildServiceProvider();
 
 		provider.GetRequiredKeyedService<IChatClient>(LlmTasks.Fast).Should().BeOfType<UnavailableChatClient>();
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_Anthropic_RegistersClaudeChatClient()
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = AnthropicConnectionString, ["Llm:Provider"] = "Anthropic" });
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		var metadata = provider.GetRequiredService<IChatClient>().GetService<ChatClientMetadata>();
+		(metadata!.ProviderName, metadata.DefaultModelId).Should().Be(("anthropic", "claude-opus-5-5"));
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_AnthropicTaskModel_TaskUsesThatModel()
+	{
+		var builder = Builder(new()
+		{
+			["ConnectionStrings:chat"] = AnthropicConnectionString,
+			["Llm:Provider"] = "Anthropic",
+			["Llm:Models:fast"] = "claude-haiku-5-5",
+		});
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		var metadata = provider.GetRequiredKeyedService<IChatClient>(LlmTasks.Fast).GetService<ChatClientMetadata>();
+		metadata!.DefaultModelId.Should().Be("claude-haiku-5-5");
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_AnthropicWithoutTaskModel_TaskResolvesToDefaultClient()
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = AnthropicConnectionString, ["Llm:Provider"] = "Anthropic" });
+		builder.AddYumneyChatClient();
+		using var provider = builder.Services.BuildServiceProvider();
+
+		provider.GetRequiredKeyedService<IChatClient>(LlmTasks.Vision).Should().BeSameAs(provider.GetRequiredService<IChatClient>());
+	}
+
+	[Fact]
+	public void AddYumneyChatClient_AnthropicConnectionWithoutKey_Throws()
+	{
+		var builder = Builder(new() { ["ConnectionStrings:chat"] = "Model=claude-opus-5-5", ["Llm:Provider"] = "Anthropic" });
+
+		var act = () => builder.AddYumneyChatClient();
+
+		act.Should().Throw<InvalidOperationException>().WithMessage("*Key*Model*");
 	}
 
 	private static HostApplicationBuilder Builder(Dictionary<string, string?> settings)

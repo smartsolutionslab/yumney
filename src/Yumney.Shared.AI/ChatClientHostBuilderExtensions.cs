@@ -42,9 +42,13 @@ public static class ChatClientHostBuilderExtensions
 			builder.Services.AddHostedService<MissingChatClientReporter>();
 			builder.Services.AddSingleton<IChatClient, UnavailableChatClient>();
 		}
-		else if (string.Equals(configuration.GetValue<string>(ProviderKey), LlmProviders.Ollama, StringComparison.OrdinalIgnoreCase))
+		else if (IsProvider(configuration, LlmProviders.Ollama))
 		{
 			builder.AddOllamaApiClient(ConnectionName).AddChatClient();
+		}
+		else if (IsProvider(configuration, LlmProviders.Anthropic))
+		{
+			dedicatedTasks = AnthropicChatClients.Add(builder);
 		}
 		else
 		{
@@ -54,6 +58,9 @@ public static class ChatClientHostBuilderExtensions
 		AliasRemainingTasksToDefault(builder.Services, dedicatedTasks);
 		return builder;
 	}
+
+	private static bool IsProvider(IConfiguration configuration, string provider) =>
+		string.Equals(configuration.GetValue<string>(ProviderKey), provider, StringComparison.OrdinalIgnoreCase);
 
 	private static List<string> AddOpenAIChatClients(IHostApplicationBuilder builder)
 	{

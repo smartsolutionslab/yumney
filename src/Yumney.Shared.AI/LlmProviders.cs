@@ -8,4 +8,7 @@ public static class LlmProviders
 
 	/// <summary>Local Ollama server.</summary>
 	public const string Ollama = "Ollama";
+
+	/// <summary>Anthropic Claude via the official Anthropic SDK.</summary>
+	public const string Anthropic = "Anthropic";
 }

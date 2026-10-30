@@ -11,7 +11,7 @@ Yumney is a Progressive Web App that extracts recipes from any URL using LLM, ge
 | Backend | ASP.NET Core 10, Minimal APIs, Clean Architecture |
 | Frontend | Angular 19+, Micro-Frontends (Native Federation), Nx Monorepo |
 | Database | PostgreSQL 16 (EF Core, Code-First) |
-| LLM | Microsoft.Extensions.AI `IChatClient` (OpenAI, Ollama) |
+| LLM | Microsoft.Extensions.AI `IChatClient` (OpenAI, Anthropic Claude, Ollama) |
 | Auth | Keycloak (OIDC, JWT Bearer) via .NET Aspire |
 | API Gateway | YARP Reverse Proxy |
 | Orchestration | .NET Aspire |
@@ -46,7 +46,7 @@ Aspire automatically handles:
 - PostgreSQL + PgAdmin
 - Redis
 - Keycloak (with realm import)
-- LLM model: OpenAI by default (Aspire prompts for the `OpenAiApiKey` parameter; or set `Parameters:OpenAiApiKey` via user secrets), or a local Ollama container with `LlmProvider=Ollama` (model via `Ollama:ModelId`, default `mistral`). Optional per-task OpenAI models: `OpenAi:Models:fast` (categorization, intent parsing) and `OpenAi:Models:vision` (photo import, ingredient recognition)
+- LLM model: OpenAI by default (Aspire prompts for the `OpenAiApiKey` parameter; or set `Parameters:OpenAiApiKey` via user secrets), or a local Ollama container with `LlmProvider=Ollama` (model via `Ollama:ModelId`, default `mistral`). Optional per-task OpenAI models: `OpenAi:Models:fast` (categorization, intent parsing) and `OpenAi:Models:vision` (photo import, ingredient recognition). Claude instead: `LlmProvider=Anthropic` with the `AnthropicApiKey` parameter (`Anthropic:ModelId`, default `claude-opus-5-5`; per-task models under `Anthropic:Models`)
 - Mailpit (email testing)
 - Database migrations
 - API + Gateway startup

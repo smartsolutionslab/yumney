@@ -8,10 +8,10 @@ internal sealed record AppHostOptions(
 	LlmProvider LlmProvider,
 	string OpenAiModelId,
 	string OllamaModelId,
-	IReadOnlyDictionary<string, string> OpenAiTaskModels)
+	IReadOnlyDictionary<string, string> OpenAiTaskModels,
+	string AnthropicModelId,
+	IReadOnlyDictionary<string, string> AnthropicTaskModels)
 {
-	public bool UseOllama => LlmProvider == LlmProvider.Ollama;
-
 	public static AppHostOptions FromConfiguration(IConfiguration config)
 	{
 		var providerString = config.GetValue<string>("LlmProvider") ?? "Ollama";
@@ -25,11 +25,13 @@ internal sealed record AppHostOptions(
 			LlmProvider: provider,
 			OpenAiModelId: config.GetValue<string>("OpenAi:ModelId") ?? "gpt-5.4-mini",
 			OllamaModelId: config.GetValue<string>("Ollama:ModelId") ?? "mistral",
-			OpenAiTaskModels: ReadTaskModels(config.GetSection("OpenAi:Models")));
+			OpenAiTaskModels: ReadTaskModels(config.GetSection("OpenAi:Models")),
+			AnthropicModelId: config.GetValue<string>("Anthropic:ModelId") ?? "claude-opus-5-5",
+			AnthropicTaskModels: ReadTaskModels(config.GetSection("Anthropic:Models")));
 	}
 
-	// Optional per-task model overrides (e.g. OpenAi:Models:fast, OpenAi:Models:vision);
-	// task roles without an entry use OpenAiModelId.
+	// Optional per-task model overrides (e.g. OpenAi:Models:fast, Anthropic:Models:vision);
+	// task roles without an entry use the provider's default model.
 	private static Dictionary<string, string> ReadTaskModels(IConfigurationSection section)
 	{
 		return section.GetChildren()

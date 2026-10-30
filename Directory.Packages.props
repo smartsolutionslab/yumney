@@ -51,6 +51,8 @@
          NuGet — same matched 13.6.4 preview revision as the Keycloak packages. -->
     <PackageVersion Include="Aspire.OpenAI" Version="13.6.4-preview.1.26523.11" />
     <PackageVersion Include="CommunityToolkit.Aspire.OllamaSharp" Version="13.6.1" />
+    <!-- Official Anthropic SDK; ships the Microsoft.Extensions.AI IChatClient adapter (AsIChatClient). -->
+    <PackageVersion Include="Anthropic" Version="13.3.0" />
     <PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="10.10.0" />
     <PackageVersion Include="AngleSharp" Version="1.8.6" />
     <!-- Model Context Protocol (used by Yumney.Mcp.Server to expose capabilities to external LLM clients per ADR 0002) -->

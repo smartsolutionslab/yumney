@@ -17,7 +17,7 @@ The "monolith" framing is intentional: modules share the same repo, the same rel
 - **Backend:** ASP.NET Core 10, Minimal APIs, Clean Architecture, .NET Aspire
 - **Frontend:** Angular 19+ Micro-Frontends (Native Federation), Nx Monorepo
 - **Database:** PostgreSQL 16 (EF Core, Code-First)
-- **LLM:** Microsoft.Extensions.AI `IChatClient` via Aspire client integrations (OpenAI, Ollama); JSON-schema structured output; in-app chat tools as `AIFunction`s
+- **LLM:** Microsoft.Extensions.AI `IChatClient` — OpenAI and Ollama via Aspire client integrations, Anthropic Claude via the official `Anthropic` SDK adapter; JSON-schema structured output; in-app chat tools as `AIFunction`s
 - **Auth:** Keycloak via .NET Aspire (OIDC, JWT Bearer)
 - **Hosting:** Azure (App Service, PostgreSQL Flex, Key Vault, Blob Storage, App Insights)
 

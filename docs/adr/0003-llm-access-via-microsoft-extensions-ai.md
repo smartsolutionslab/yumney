@@ -30,7 +30,7 @@ Microsoft Agent Framework (also built on `IChatClient`) was considered and defer
 
 **Positive**
 
-- Provider configuration lives in the AppHost and one helper; adding a provider (e.g. Anthropic, which ships an `IChatClient`) is one branch in `AddYumneyChatClient`.
+- Provider configuration lives in the AppHost and one helper; adding a provider is one branch in `AddYumneyChatClient`. Anthropic Claude was added this way (`LlmProvider=Anthropic`): the official `Anthropic` SDK's `AsIChatClient` adapter supplies the client, since Aspire has no Anthropic integration; Anthropic's OpenAI-compatible endpoint was rejected because it doesn't cover structured outputs and hides Claude-specific behaviour such as refusals.
 - Schema-constrained replies on OpenAI and Ollama; fewer parse failures and no hand-maintained JSON in prompts as the only contract.
 - The Aspire client integrations enable OpenTelemetry for chat calls (latency, token counts) by default; confirming the spans in the Aspire dashboard is part of the first real-model run.
 - Services and tests depend on a small interface; `ScriptedChatClient` / `ToolCallingChatClient` in `Yumney.TestBuilders` replace SK kernel fakes, and the chat tests exercise the real tool loop.
@@ -40,4 +40,5 @@ Microsoft Agent Framework (also built on `IChatClient`) was considered and defer
 
 - `Aspire.OpenAI` has no GA release; it is pinned to the same 13.6.4 preview revision as the Keycloak packages.
 - Prompts still describe the JSON shape in prose; field-level guidance (e.g. allowed `difficulty` values) is not yet expressed as schema descriptions.
-- Per-task models are opt-in configuration (`OpenAi:Models:fast` / `OpenAi:Models:vision` in the AppHost); until set, every task runs on the default model. Ollama always serves one model.
+- Per-task models are opt-in configuration (`OpenAi:Models:*` / `Anthropic:Models:*` in the AppHost); until set, every task runs on the default model. Ollama always serves one model.
+- Anthropic's server-side refusal fallback is not enabled: it needs raw request parameters the `IChatClient` adapter doesn't expose cleanly. A refusal surfaces as `ChatFinishReason.ContentFilter` and the services return their normal failure result.

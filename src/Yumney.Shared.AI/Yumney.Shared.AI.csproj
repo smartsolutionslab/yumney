@@ -5,6 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Anthropic" />
     <PackageReference Include="Aspire.OpenAI" />
     <PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" />
   </ItemGroup>

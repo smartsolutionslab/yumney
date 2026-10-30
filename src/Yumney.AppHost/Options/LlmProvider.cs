@@ -5,4 +5,5 @@ internal enum LlmProvider
 {
 	Ollama,
 	OpenAI,
+	Anthropic,
 }
