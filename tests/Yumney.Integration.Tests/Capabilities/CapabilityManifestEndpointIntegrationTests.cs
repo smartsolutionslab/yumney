@@ -103,4 +103,33 @@ public class CapabilityManifestEndpointIntegrationTests(AspireFixture fixture)
 		assign.RoutePattern.Should().Contain("{weekNumber:int}");
 		assign.RoutePattern.Should().EndWith("/slots");
 	}
+
+	[Fact]
+	public async Task EveryDescriptor_PublishesObjectInputSchema()
+	{
+		var manifest = await fixture.MealPlanApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath, AspireFixture.JsonOptions);
+
+		manifest!.Capabilities.Should().AllSatisfy(capability =>
+			capability.InputSchema!.Value.GetProperty("type").GetString().Should().Be("object"));
+	}
+
+	[Fact]
+	public async Task AssignMealDescriptor_InputSchemaRequiresRouteAndBodyArguments()
+	{
+		var manifest = await fixture.MealPlanApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath, AspireFixture.JsonOptions);
+
+		var assign = manifest!.Capabilities.Single(capability => capability.Name == "assign_meal");
+		var required = assign.InputSchema!.Value.GetProperty("required").EnumerateArray().Select(name => name.GetString());
+		required.Should().BeEquivalentTo(["year", "weekNumber", "day", "recipeIdentifier", "recipeTitle"]);
+	}
+
+	[Fact]
+	public async Task SearchRecipesDescriptor_InputSchemaListsQueryParameters()
+	{
+		var manifest = await fixture.RecipesApi.GetFromJsonAsync<CapabilityManifest>(WellKnownPath, AspireFixture.JsonOptions);
+
+		var search = manifest!.Capabilities.Single(capability => capability.Name == "search_recipes");
+		var properties = search.InputSchema!.Value.GetProperty("properties").EnumerateObject().Select(property => property.Name);
+		properties.Should().Contain(["search", "tags", "page", "pageSize"]);
+	}
 }

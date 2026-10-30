@@ -59,8 +59,11 @@ builder.Services.AddSingleton<AggregatedCapabilityRegistry>();
 builder.Services.AddHostedService<CapabilityDiscoveryService>();
 builder.Services.AddScoped<RestProxyService>();
 
+// Stateless Streamable HTTP (the SDK 2.x default, set explicitly so a future
+// default change can't flip it): tools are plain request/response proxies, so
+// replicas need no session affinity. Legacy SSE (/sse, /message) stays off.
 builder.Services.AddMcpServer()
-	.WithHttpTransport()
+	.WithHttpTransport(options => options.Stateless = true)
 	.WithListToolsHandler(CapabilityToolRegistration.ListToolsAsync)
 	.WithCallToolHandler(async (context, cancellationToken) =>
 	{
