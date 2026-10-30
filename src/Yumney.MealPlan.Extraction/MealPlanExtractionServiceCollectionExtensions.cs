@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Extraction.Services;
 using SmartSolutionsLab.Yumney.MealPlan.Extraction.TestStubs;
-using SmartSolutionsLab.Yumney.Shared.AI;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Extraction;
 
@@ -17,9 +16,7 @@ public static class MealPlanExtractionServiceCollectionExtensions
 			return services;
 		}
 
-		services.AddScoped<IWeekSuggestionService, SemanticKernelWeekSuggestionService>();
-
-		services.AddKernelOnChatClient();
+		services.AddScoped<IWeekSuggestionService, LlmWeekSuggestionService>();
 
 		return services;
 	}

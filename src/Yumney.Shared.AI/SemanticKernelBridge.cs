@@ -7,8 +7,8 @@ using Microsoft.SemanticKernel.ChatCompletion;
 namespace SmartSolutionsLab.Yumney.Shared.AI;
 
 /// <summary>
-/// Transitional: lets the existing Semantic Kernel services run on the shared
-/// <see cref="IChatClient"/> until they move to Microsoft.Extensions.AI
+/// Transitional: lets the Semantic Kernel chat service (tool calling) run on the
+/// shared <see cref="IChatClient"/> until it moves to Microsoft.Extensions.AI
 /// directly, after which this class and the Semantic Kernel dependency go away.
 /// </summary>
 public static class SemanticKernelBridge

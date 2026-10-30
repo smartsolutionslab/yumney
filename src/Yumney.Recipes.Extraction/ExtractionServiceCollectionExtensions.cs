@@ -30,12 +30,12 @@ public static class ExtractionServiceCollectionExtensions
 		services.AddHttpClient<IWebScraper, WebScraper>(BrowserHttpClientDefaults.ConfigureHttpClient)
 			.ConfigurePrimaryHttpMessageHandler(BrowserHttpClientDefaults.CreateHandler)
 			.AddStandardResilienceHandler();
-		services.AddScoped<IRecipeExtractionService, SemanticKernelRecipeExtractionService>();
-		services.AddScoped<IRecipeSuggestionService, SemanticKernelRecipeSuggestionService>();
-		services.AddScoped<IIngredientRecognitionService, SemanticKernelIngredientRecognitionService>();
+		services.AddScoped<IRecipeExtractionService, LlmRecipeExtractionService>();
+		services.AddScoped<IRecipeSuggestionService, LlmRecipeSuggestionService>();
+		services.AddScoped<IIngredientRecognitionService, LlmIngredientRecognitionService>();
 		services.AddScoped<IChatService, SemanticKernelChatService>();
-		services.AddScoped<IIntentParserService, SemanticKernelIntentParserService>();
-		services.AddScoped<IIngredientCategoryService, SemanticKernelIngredientCategoryService>();
+		services.AddScoped<IIntentParserService, LlmIntentParserService>();
+		services.AddScoped<IIngredientCategoryService, LlmIngredientCategoryService>();
 
 		services.AddScoped<ChatToolContext>();
 		services.AddScoped<SearchRecipesTool>();
@@ -52,6 +52,8 @@ public static class ExtractionServiceCollectionExtensions
 		services.AddScoped<SwapMealSlotsTool>();
 		services.AddScoped<ClearMealSlotTool>();
 
+		// The chat service still runs on Semantic Kernel (tool calling); the
+		// other services use the IChatClient directly.
 		services.AddKernelOnChatClient();
 
 		return services;

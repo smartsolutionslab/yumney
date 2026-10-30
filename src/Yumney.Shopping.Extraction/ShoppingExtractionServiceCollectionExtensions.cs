@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SmartSolutionsLab.Yumney.Shared.AI;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Extraction.Services;
 
@@ -16,9 +15,7 @@ public static class ShoppingExtractionServiceCollectionExtensions
 			return services;
 		}
 
-		services.AddScoped<IShoppingItemCategorizer, SemanticKernelShoppingItemCategorizer>();
-
-		services.AddKernelOnChatClient();
+		services.AddScoped<IShoppingItemCategorizer, LlmShoppingItemCategorizer>();
 
 		return services;
 	}

@@ -44,13 +44,24 @@ public class ChatClientHostBuilderExtensionsTests
 	}
 
 	[Fact]
-	public void AddYumneyChatClient_NoConnectionString_RegistersNoChatClient()
+	public void AddYumneyChatClient_NoConnectionString_RegistersUnavailableChatClient()
 	{
 		var builder = Builder([]);
 
 		builder.AddYumneyChatClient();
 
-		ChatClientOf(builder).Should().BeNull();
+		ChatClientOf(builder).Should().BeOfType<UnavailableChatClient>();
+	}
+
+	[Fact]
+	public async Task UnavailableChatClient_GetResponseAsync_Throws()
+	{
+		var builder = Builder([]);
+		builder.AddYumneyChatClient();
+
+		var act = () => ChatClientOf(builder)!.GetResponseAsync("hello");
+
+		await act.Should().ThrowAsync<InvalidOperationException>();
 	}
 
 	[Fact]

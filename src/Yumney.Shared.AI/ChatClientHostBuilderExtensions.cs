@@ -32,6 +32,7 @@ public static class ChatClientHostBuilderExtensions
 		if (string.IsNullOrWhiteSpace(configuration.GetConnectionString(ConnectionName)))
 		{
 			builder.Services.AddHostedService<MissingChatClientReporter>();
+			builder.Services.AddSingleton<IChatClient, UnavailableChatClient>();
 			return builder;
 		}
 
