@@ -1,10 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Extraction.Services;
 using SmartSolutionsLab.Yumney.MealPlan.Extraction.TestStubs;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.AI;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Extraction;
 
@@ -20,39 +19,8 @@ public static class MealPlanExtractionServiceCollectionExtensions
 
 		services.AddScoped<IWeekSuggestionService, SemanticKernelWeekSuggestionService>();
 
-		var skOptions = configuration
-			.GetSection(SemanticKernelOptions.SectionName)
-			.Get<SemanticKernelOptions>() ?? new SemanticKernelOptions();
-
-		var kernelBuilder = services.AddKernel();
-
-		var (provider, modelId, endpoint, apiKey) = skOptions;
-
-		switch (provider)
-		{
-			case SemanticKernelOptions.ProviderAzureOpenAI:
-				kernelBuilder.AddAzureOpenAIChatCompletion(modelId, endpoint, apiKey);
-				break;
-			case SemanticKernelOptions.ProviderOllama:
-				var ollamaEndpoint = GetOllamaEndpoint(configuration, skOptions);
-				if (ollamaEndpoint is not null)
-				{
-					kernelBuilder.AddOpenAIChatCompletion(modelId, new Uri(ollamaEndpoint), apiKey: null);
-				}
-
-				break;
-			default:
-				if (apiKey.HasValue())
-				{
-					kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
-				}
-
-				break;
-		}
+		services.AddKernelOnChatClient();
 
 		return services;
 	}
-
-	private static string? GetOllamaEndpoint(IConfiguration configuration, SemanticKernelOptions skOptions) =>
-		skOptions.Endpoint.HasValue() ? skOptions.Endpoint : configuration.GetConnectionString("ollama");
 }

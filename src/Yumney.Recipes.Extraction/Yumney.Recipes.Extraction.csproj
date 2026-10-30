@@ -6,10 +6,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Yumney.Recipes.Application\Yumney.Recipes.Application.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.AI\Yumney.Shared.AI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SemanticKernel" />
+    <PackageReference Include="Microsoft.SemanticKernel.Core" />
     <PackageReference Include="AngleSharp" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
   </ItemGroup>
