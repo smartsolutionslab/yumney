@@ -1,26 +1,18 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using SmartSolutionsLab.Yumney.Recipes.Application.Common;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
+using SmartSolutionsLab.Yumney.Shared.AI;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
-#pragma warning disable SA1601, SA1311
-public sealed partial class SemanticKernelRecipeSuggestionService(Kernel kernel, ILogger<SemanticKernelRecipeSuggestionService> logger)
+#pragma warning disable SA1601
+public sealed partial class LlmRecipeSuggestionService(IChatClient chatClient, ILogger<LlmRecipeSuggestionService> logger)
 	: IRecipeSuggestionService
 {
-	private static readonly JsonSerializerOptions jsonOptions = new()
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-	};
-
 	public async Task<Result<IReadOnlyList<ExtractedRecipeDto>>> SuggestAsync(
 		IReadOnlyCollection<string> availableIngredients,
 		string? dietaryType,
@@ -28,33 +20,34 @@ public sealed partial class SemanticKernelRecipeSuggestionService(Kernel kernel,
 		int count,
 		CancellationToken cancellationToken = default)
 	{
-		var chatHistory = new ChatHistory();
-		chatHistory.AddSystemMessage(SuggestionPrompts.SystemPrompt);
-		chatHistory.AddUserMessage(SuggestionPrompts.BuildUserMessage(availableIngredients, dietaryType, restrictions, count));
+		List<ChatMessage> messages =
+		[
+			new(ChatRole.System, SuggestionPrompts.SystemPrompt),
+			new(ChatRole.User, SuggestionPrompts.BuildUserMessage(availableIngredients, dietaryType, restrictions, count)),
+		];
 
-		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
-		var firstResponse = await InvokeAsync(chatCompletion, chatHistory, cancellationToken);
+		var firstResponse = await InvokeAsync(messages, cancellationToken);
 		if (firstResponse is null) return RecipeSuggestionErrors.SuggestionFailed;
 
 		var parsed = Parse(firstResponse, quiet: true);
 		if (parsed.IsSuccess) return parsed;
 
 		LogParseRetry();
-		chatHistory.AddAssistantMessage(firstResponse);
-		chatHistory.AddUserMessage(SuggestionPrompts.JsonRepair);
+		messages.Add(new ChatMessage(ChatRole.Assistant, firstResponse));
+		messages.Add(new ChatMessage(ChatRole.User, SuggestionPrompts.JsonRepair));
 
-		var secondResponse = await InvokeAsync(chatCompletion, chatHistory, cancellationToken);
+		var secondResponse = await InvokeAsync(messages, cancellationToken);
 		if (secondResponse is null) return RecipeSuggestionErrors.SuggestionFailed;
 
 		return Parse(secondResponse, quiet: false);
 	}
 
-	private async Task<string?> InvokeAsync(IChatCompletionService chat, ChatHistory history, CancellationToken cancellationToken)
+	private async Task<string?> InvokeAsync(List<ChatMessage> messages, CancellationToken cancellationToken)
 	{
 		try
 		{
-			var result = await chat.GetChatMessageContentAsync(history, cancellationToken: cancellationToken);
-			return result.Content ?? string.Empty;
+			var result = await chatClient.GetResponseAsync(messages, LlmJson.OptionsFor<SuggestionEnvelope>(), cancellationToken);
+			return result.Text;
 		}
 		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 		{
@@ -71,8 +64,7 @@ public sealed partial class SemanticKernelRecipeSuggestionService(Kernel kernel,
 	{
 		try
 		{
-			var json = LlmResponseParser.ExtractJson(response);
-			var envelope = JsonSerializer.Deserialize<SuggestionEnvelope>(json, jsonOptions);
+			var envelope = LlmJson.Deserialize<SuggestionEnvelope>(response);
 			if (envelope?.Recipes is null || envelope.Recipes.Count == 0)
 			{
 				if (!quiet) LogParsingFailed("Empty or missing recipes array");
@@ -103,7 +95,7 @@ public sealed partial class SemanticKernelRecipeSuggestionService(Kernel kernel,
 #pragma warning restore SA1204
 
 #pragma warning disable SA1402, SA1649
-	private sealed record SuggestionEnvelope(IReadOnlyList<ExtractedRecipeDto>? Recipes);
+	internal sealed record SuggestionEnvelope(IReadOnlyList<ExtractedRecipeDto>? Recipes);
 
 	[LoggerMessage(Level = LogLevel.Warning, Message = "LLM suggestion call failed: {Reason}")]
 	private partial void LogLlmCallFailed(string reason);

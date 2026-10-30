@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
@@ -11,7 +11,7 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 #pragma warning disable SA1303
 
 /// <summary>
-/// SK kernel function exposing the "What can I cook now?" surface to the chat
+/// Chat tool exposing the "What can I cook now?" surface to the chat
 /// LLM. Wraps <see cref="GetCookableRecipesQuery"/>, which already crosses
 /// into Shopping via <c>IIngredientBalanceProvider</c> for live freshness.
 /// Marks the chat context as cookable so the chat service can offer a Start
@@ -22,14 +22,17 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 public sealed class GetCookableRecipesTool(
 	IQueryHandler<GetCookableRecipesQuery, Result<PagedResult<CookableRecipeDto>>> handler,
 	ChatToolContext context)
+	: IChatTool
 {
 	private const int defaultPageSize = 5;
+
+	/// <inheritdoc/>
+	public AIFunction ToFunction() => AIFunctionFactory.Create(GetCookableAsync, "get_cookable_recipes");
 
 	/// <summary>Find recipes the user can cook with their current pantry.</summary>
 	/// <param name="fullMatchOnly">If true, only fully-cookable recipes are returned.</param>
 	/// <param name="cancellationToken">Cancellation propagated from the LLM call.</param>
 	/// <returns>Up to 5 cookable recipe hits.</returns>
-	[KernelFunction("get_cookable_recipes")]
 	[Description("Find recipes the user can cook right now (or with at most a couple of missing items) based on what's already in their pantry. Use for 'what can I cook?' / 'what can I make tonight?' / 'I have X and Y, what can I cook?' / 'was kann ich kochen?'.")]
 	public async Task<IReadOnlyList<CookableRecipeChatHit>> GetCookableAsync(
 		[Description("If true, only fully-cookable recipes are returned. Defaults to false (allows up to 2 missing ingredients).")] bool fullMatchOnly = false,

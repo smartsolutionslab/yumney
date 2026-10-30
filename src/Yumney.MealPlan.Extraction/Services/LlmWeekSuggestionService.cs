@@ -1,26 +1,19 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using SmartSolutionsLab.Yumney.MealPlan.Application.DTOs;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Interfaces;
 using SmartSolutionsLab.Yumney.MealPlan.Application.Queries;
 using SmartSolutionsLab.Yumney.MealPlan.Domain.WeeklyPlan;
+using SmartSolutionsLab.Yumney.Shared.AI;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 
 namespace SmartSolutionsLab.Yumney.MealPlan.Extraction.Services;
 
 #pragma warning disable SA1601, SA1311
-public sealed partial class SemanticKernelWeekSuggestionService(Kernel kernel, ILogger<SemanticKernelWeekSuggestionService> logger)
+public sealed partial class LlmWeekSuggestionService(IChatClient chatClient, ILogger<LlmWeekSuggestionService> logger)
 	: IWeekSuggestionService
 {
-	private static readonly JsonSerializerOptions jsonOptions = new()
-	{
-		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-		DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-	};
-
 	private static readonly string[] dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 	public async Task<Result<IReadOnlyList<WeekSuggestionEntryDto>>> SuggestAsync(
@@ -30,33 +23,34 @@ public sealed partial class SemanticKernelWeekSuggestionService(Kernel kernel, I
 		DietaryProfileSnapshot dietary,
 		CancellationToken cancellationToken = default)
 	{
-		var chatHistory = new ChatHistory();
-		chatHistory.AddSystemMessage(WeekSuggestionPrompts.SystemPrompt);
-		chatHistory.AddUserMessage(WeekSuggestionPrompts.BuildUserMessage(week, catalog, recentHistory, dietary));
+		List<ChatMessage> messages =
+		[
+			new(ChatRole.System, WeekSuggestionPrompts.SystemPrompt),
+			new(ChatRole.User, WeekSuggestionPrompts.BuildUserMessage(week, catalog, recentHistory, dietary)),
+		];
 
-		var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
-		var firstResponse = await InvokeAsync(chatCompletion, chatHistory, cancellationToken);
+		var firstResponse = await InvokeAsync(messages, cancellationToken);
 		if (firstResponse is null) return SuggestWeekPlanErrors.SuggestionFailed;
 
 		var parsed = Parse(firstResponse, catalog, quiet: true);
 		if (parsed.IsSuccess) return parsed;
 
 		LogParseRetry();
-		chatHistory.AddAssistantMessage(firstResponse);
-		chatHistory.AddUserMessage(WeekSuggestionPrompts.JsonRepair);
+		messages.Add(new ChatMessage(ChatRole.Assistant, firstResponse));
+		messages.Add(new ChatMessage(ChatRole.User, WeekSuggestionPrompts.JsonRepair));
 
-		var secondResponse = await InvokeAsync(chatCompletion, chatHistory, cancellationToken);
+		var secondResponse = await InvokeAsync(messages, cancellationToken);
 		if (secondResponse is null) return SuggestWeekPlanErrors.SuggestionFailed;
 
 		return Parse(secondResponse, catalog, quiet: false);
 	}
 
-	private async Task<string?> InvokeAsync(IChatCompletionService chat, ChatHistory history, CancellationToken cancellationToken)
+	private async Task<string?> InvokeAsync(List<ChatMessage> messages, CancellationToken cancellationToken)
 	{
 		try
 		{
-			var result = await chat.GetChatMessageContentAsync(history, cancellationToken: cancellationToken);
-			return result.Content ?? string.Empty;
+			var result = await chatClient.GetResponseAsync(messages, LlmJson.OptionsFor<SuggestionEnvelope>(), cancellationToken);
+			return result.Text;
 		}
 		catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
 		{
@@ -73,8 +67,7 @@ public sealed partial class SemanticKernelWeekSuggestionService(Kernel kernel, I
 	{
 		try
 		{
-			var json = ExtractJson(response);
-			var envelope = JsonSerializer.Deserialize<SuggestionEnvelope>(json, jsonOptions);
+			var envelope = LlmJson.Deserialize<SuggestionEnvelope>(response);
 			if (envelope?.Entries is null || envelope.Entries.Count == 0)
 			{
 				if (!quiet) LogParsingFailed("Empty or missing entries array");
@@ -109,32 +102,12 @@ public sealed partial class SemanticKernelWeekSuggestionService(Kernel kernel, I
 		var index = Array.IndexOf(dayOrder, day);
 		return index < 0 ? int.MaxValue : index;
 	}
-
-	private static string ExtractJson(string response)
-	{
-		var trimmed = response.Trim();
-		if (trimmed.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
-		{
-			trimmed = trimmed["```json".Length..];
-		}
-		else if (trimmed.StartsWith("```", StringComparison.Ordinal))
-		{
-			trimmed = trimmed["```".Length..];
-		}
-
-		if (trimmed.EndsWith("```", StringComparison.Ordinal))
-		{
-			trimmed = trimmed[..^"```".Length];
-		}
-
-		return trimmed.Trim();
-	}
 #pragma warning restore SA1204
 
 #pragma warning disable SA1402, SA1649
-	private sealed record SuggestionEnvelope(IReadOnlyList<SuggestionRow>? Entries);
+	internal sealed record SuggestionEnvelope(IReadOnlyList<SuggestionRow>? Entries);
 
-	private sealed record SuggestionRow(string? Day, Guid? RecipeIdentifier, string? FreshnessLabel, string? Reason)
+	internal sealed record SuggestionRow(string? Day, Guid? RecipeIdentifier, string? FreshnessLabel, string? Reason)
 	{
 		public WeekSuggestionEntryDto ToDto(Dictionary<Guid, string> titleLookup) => new(
 			this.Day ?? string.Empty,

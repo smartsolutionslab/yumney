@@ -1,8 +1,8 @@
 using FluentAssertions;
-using SmartSolutionsLab.Yumney.Recipes.Application.Common;
+using SmartSolutionsLab.Yumney.Shared.Common;
 using Xunit;
 
-namespace SmartSolutionsLab.Yumney.Recipes.Application.Tests.Common;
+namespace SmartSolutionsLab.Yumney.Shared.Tests.Common;
 
 public class LlmResponseParserTests
 {

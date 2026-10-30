@@ -1,13 +1,12 @@
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shared.Quantities;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 
 #pragma warning disable SA1601
-public sealed partial class SemanticKernelIngredientCategoryService(Kernel kernel, ILogger<SemanticKernelIngredientCategoryService> logger)
+public sealed partial class LlmIngredientCategoryService(IChatClient chatClient, ILogger<LlmIngredientCategoryService> logger)
 	: IIngredientCategoryService
 {
 #pragma warning disable SA1303
@@ -33,13 +32,9 @@ public sealed partial class SemanticKernelIngredientCategoryService(Kernel kerne
 
 		try
 		{
-			var chatHistory = new ChatHistory();
-			chatHistory.AddSystemMessage(systemPrompt);
-			chatHistory.AddUserMessage(itemName);
-
-			var chatCompletion = kernel.GetRequiredService<IChatCompletionService>();
-			var result = await chatCompletion.GetChatMessageContentAsync(chatHistory, cancellationToken: cancellationToken);
-			var response = result.Content?.Trim().ToLowerInvariant() ?? string.Empty;
+			List<ChatMessage> messages = [new(ChatRole.System, systemPrompt), new(ChatRole.User, itemName)];
+			var result = await chatClient.GetResponseAsync(messages, cancellationToken: cancellationToken);
+			var response = result.Text.Trim().ToLowerInvariant();
 
 			return ParseCategory(response, itemName);
 		}

@@ -1,17 +1,21 @@
 using System.ComponentModel;
 using System.Globalization;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 
 /// <summary>
-/// SK kernel function exposing meal-slot clearing to the chat LLM. Closes
+/// Chat tool exposing meal-slot clearing to the chat LLM. Closes
 /// the cancel-via-chat half of US-329.
 /// </summary>
 /// <param name="clearer">Consumer-defined clearer contract.</param>
 public sealed class ClearMealSlotTool(IMealSlotClearer clearer)
+	: IChatTool
 {
+	/// <inheritdoc/>
+	public AIFunction ToFunction() => AIFunctionFactory.Create(ClearAsync, "clear_meal_slot");
+
 	/// <summary>Clear (cancel) the meal planned for a given day + meal type.</summary>
 	/// <param name="day">Weekday name to clear.</param>
 	/// <param name="mealType">Meal type. Defaults to Dinner.</param>
@@ -19,7 +23,6 @@ public sealed class ClearMealSlotTool(IMealSlotClearer clearer)
 	/// <param name="weekNumber">ISO week number 1-53, or 0 for the current week.</param>
 	/// <param name="cancellationToken">Cancellation propagated from the LLM call.</param>
 	/// <returns>Confirmation message for the LLM.</returns>
-	[KernelFunction("clear_meal_slot")]
 	[Description("Cancel / clear a planned meal ('cancel Wednesday', 'remove Friday's dinner', 'clear lunch on Monday'). Pass year=0 / weekNumber=0 to mean 'this week'.")]
 	public async Task<string> ClearAsync(
 		[Description("Weekday name to clear: Monday..Sunday")] string day,
