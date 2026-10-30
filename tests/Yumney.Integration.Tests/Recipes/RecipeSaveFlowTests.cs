@@ -146,6 +146,25 @@ public class RecipeSaveFlowTests(AspireFixture fixture)
 		response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
 	}
 
+	// Regression: the Created location used to be built from result.Value before the
+	// failure check, so a duplicate save threw and surfaced as 500 instead of 409.
+	[Fact]
+	public async Task Save_DuplicateSourceUrl_ReturnsConflictWithErrorCode()
+	{
+		using var client = await fixture.CreateAuthenticatedClientAsync("recipes-api");
+
+		var sourceUrl = $"https://example.com/duplicate-{Guid.NewGuid():N}";
+		var request = BuildRecipeRequest("Duplicate Source", sourceUrl);
+		var firstResponse = await client.PostAsJsonAsync("/api/v1/recipes", request);
+		firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+		var duplicateResponse = await client.PostAsJsonAsync("/api/v1/recipes", request);
+		var problem = await duplicateResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+
+		duplicateResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+		problem.GetProperty("code").GetString().Should().Be("RECIPE_ALREADY_IMPORTED");
+	}
+
 	[Fact]
 	public async Task Save_WithoutAuth_Returns401()
 	{
@@ -156,10 +175,11 @@ public class RecipeSaveFlowTests(AspireFixture fixture)
 		response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 	}
 
-	private static object BuildRecipeRequest(string title) => new
+	private static object BuildRecipeRequest(string title, string? sourceUrl = null) => new
 	{
 		title,
 		ingredients = new object[] { new { name = "Test Ingredient", amount = 1m, unit = "pc" } },
 		steps = new object[] { new { number = 1, description = "Test step" } },
+		sourceUrl,
 	};
 }

@@ -67,7 +67,7 @@ public static class AuthEndpoints
 
 				if (result.IsFailure && result.Error == VerificationErrors.IdentityProviderUnavailable)
 				{
-					return Results.Problem(result.Error.Message, statusCode: result.Error.HttpStatusCode);
+					return Results.Problem(result.Error);
 				}
 			}
 			catch (Exception ex)

@@ -40,7 +40,7 @@ public static partial class ShoppingEndpoints
 			var command = new CreateShoppingListCommand(title, items, recipeReference);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
-			return result.ToCreated($"/api/v1/shopping-lists/{result.Value?.Identifier}");
+			return result.ToCreated(shoppingList => $"/api/v1/shopping-lists/{shoppingList.Identifier}");
 		}
 
 		group.MapPost("/from-recipes", CreateFromRecipes)
@@ -63,7 +63,7 @@ public static partial class ShoppingEndpoints
 			var command = new CreateShoppingListFromRecipesCommand(title, recipes);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
-			return result.ToCreated($"/api/v1/shopping-lists/{result.Value?.Identifier}");
+			return result.ToCreated(shoppingList => $"/api/v1/shopping-lists/{shoppingList.Identifier}");
 		}
 
 		group.MapGet("/", GetAll)
@@ -160,9 +160,7 @@ public static partial class ShoppingEndpoints
 			var command = new AddManualItemCommand(itemName, quantity, source);
 
 			var result = await handler.HandleAsync(command, cancellationToken);
-			return result.IsSuccess
-				? Results.Created($"/shopping-lists/items/{result.Value.LedgerIdentifier}", result.Value)
-				: result.ToOk();
+			return result.ToCreated(item => $"/shopping-lists/items/{item.LedgerIdentifier}");
 		}
 
 		group.MapDelete("/items", RemoveItem)
@@ -273,9 +271,7 @@ public static partial class ShoppingEndpoints
 			CancellationToken cancellationToken)
 		{
 			var result = await handler.HandleAsync(new ExportShoppingListQuery(), cancellationToken);
-
-			if (result.IsFailure) return result.ToOk();
-			return Results.Text(result.Value, MediaTypes.TextPlain);
+			return result.ToResult(export => Results.Text(export, MediaTypes.TextPlain));
 		}
 
 		return app;
