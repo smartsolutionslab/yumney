@@ -48,12 +48,15 @@
     <PackageVersion Include="Microsoft.SemanticKernel" Version="1.81.0" />
     <PackageVersion Include="AngleSharp" Version="1.8.6" />
     <!-- Model Context Protocol (used by Yumney.Mcp.Server to expose capabilities to external LLM clients per ADR 0002) -->
-    <!-- Pinned on 1.4.1 (latest 1.x): Aspire.Hosting.Testing 13.6.4 requires >= 1.4.1.
-         The 2.x line is a major breaking release (stateless HTTP transport by
-         default, legacy SSE disabled, Tasks moved to a separate package).
-         Tracked as a dedicated follow-up, not part of this routine bump. -->
+    <!-- Split versions on purpose. ModelContextProtocol (client + core) stays on
+         1.4.1 because every Aspire.Hosting.* 13.6.4 package depends on it for
+         Aspire's own MCP server; moving that ID to the breaking 2.x line would run
+         Aspire on an API it wasn't built against. ModelContextProtocol.AspNetCore
+         is only used by Yumney.Mcp.Server (its own process, no Aspire hosting),
+         so it takes 2.x and brings ModelContextProtocol 2.x along in that project
+         alone. Revisit when Aspire moves to MCP 2.x. -->
     <PackageVersion Include="ModelContextProtocol" Version="1.4.1" />
-    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="1.4.1" />
+    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="2.3.0" />
     <!-- Reverse Proxy -->
     <PackageVersion Include="RedisRateLimiting" Version="1.2.1" />
     <!-- Pinned on 5.39.3: WolverineFx 6.x is a major breaking release for the

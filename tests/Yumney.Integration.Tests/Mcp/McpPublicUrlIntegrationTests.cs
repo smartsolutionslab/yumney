@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
@@ -17,10 +18,13 @@ namespace SmartSolutionsLab.Yumney.Integration.Tests.Mcp;
 [Collection(AspireCollection.Name)]
 public class McpPublicUrlIntegrationTests(AspireFixture fixture)
 {
+	// Clients open with POST (initialize); that unauthenticated request is
+	// what must carry the discovery challenge.
 	[Fact]
-	public async Task GetMcp_ThroughGateway_AdvertisesDiscoveryUrlOnGatewayOrigin()
+	public async Task PostMcp_ThroughGateway_AdvertisesDiscoveryUrlOnGatewayOrigin()
 	{
-		var response = await fixture.Gateway.GetAsync("/mcp");
+		using var content = new StringContent("{}", Encoding.UTF8, "application/json");
+		var response = await fixture.Gateway.PostAsync("/mcp", content);
 
 		response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 		response.Headers.WwwAuthenticate.Should().NotBeEmpty();
@@ -37,6 +41,17 @@ public class McpPublicUrlIntegrationTests(AspireFixture fixture)
 		// Aspire allocated for the gateway resource — that's the public origin.
 		resourceMetadataUri.Authority.Should().Be(fixture.Gateway.BaseAddress!.Authority);
 		resourceMetadataUri.AbsolutePath.Should().Be("/.well-known/oauth-protected-resource");
+	}
+
+	// Stateless Streamable HTTP has no server-to-client event stream, so GET is
+	// not mapped; the MCP spec allows 405 here. Pinned so a transport-mode change
+	// is a deliberate decision.
+	[Fact]
+	public async Task GetMcp_StatelessTransport_ReturnsMethodNotAllowed()
+	{
+		var response = await fixture.Gateway.GetAsync("/mcp");
+
+		response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
 	}
 
 	[Fact]
