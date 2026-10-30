@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
@@ -12,21 +12,24 @@ namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 #pragma warning disable SA1303
 
 /// <summary>
-/// SK kernel function exposing recipe search to the chat LLM. Wraps the
+/// Chat tool exposing recipe search to the chat LLM. Wraps the
 /// existing <see cref="GetRecipesQuery"/> handler.
 /// </summary>
 /// <param name="handler">Query handler that runs the recipe search.</param>
 /// <param name="context">Per-request collector for downstream suggestion / action emission.</param>
 public sealed class SearchRecipesTool(IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>> handler,
 	ChatToolContext context)
+	: IChatTool
 {
 	private const int defaultPageSize = 10;
+
+	/// <inheritdoc/>
+	public AIFunction ToFunction() => AIFunctionFactory.Create(SearchAsync, "search_recipes");
 
 	/// <summary>Search the user's recipes by free text and append matches to the chat tool context.</summary>
 	/// <param name="query">Free text search query.</param>
 	/// <param name="cancellationToken">Cancellation propagated from the LLM call.</param>
 	/// <returns>Up to 10 recipe hits.</returns>
-	[KernelFunction("search_recipes")]
 	[Description("Search the user's recipe collection by free text query. Returns up to 10 recipes ordered by recency. Use when the user asks about a specific dish or ingredient theme (e.g. 'find chicken recipes', 'what pasta dishes do I have').")]
 	public async Task<IReadOnlyList<RecipeChatHit>> SearchAsync(
 		[Description("Free text search query — a dish name, ingredient, or theme")] string query,

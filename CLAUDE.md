@@ -17,7 +17,7 @@ The "monolith" framing is intentional: modules share the same repo, the same rel
 - **Backend:** ASP.NET Core 10, Minimal APIs, Clean Architecture, .NET Aspire
 - **Frontend:** Angular 19+ Micro-Frontends (Native Federation), Nx Monorepo
 - **Database:** PostgreSQL 16 (EF Core, Code-First)
-- **LLM:** Microsoft.Extensions.AI `IChatClient` via Aspire client integrations (OpenAI, Ollama); Semantic Kernel remains only for the in-app chat's tool calling, on top of the same client
+- **LLM:** Microsoft.Extensions.AI `IChatClient` via Aspire client integrations (OpenAI, Ollama); JSON-schema structured output; in-app chat tools as `AIFunction`s
 - **Auth:** Keycloak via .NET Aspire (OIDC, JWT Bearer)
 - **Hosting:** Azure (App Service, PostgreSQL Flex, Key Vault, Blob Storage, App Insights)
 
@@ -32,7 +32,7 @@ yumney/
 │   ├── Yumney.MigrationRunner/      # One-shot worker that runs EF migrations across all module DBs at startup
 │   ├── Yumney.Shared/               # Cross-cutting helpers (EnumExtensions, ICurrentUser-style abstractions)
 │   ├── Yumney.Shared.Abstractions/  # Domain primitives: AggregateRoot, Entity, IDomainEvent, IValueObject, …
-│   ├── Yumney.Shared.AI/            # IChatClient registration (AddYumneyChatClient), LlmJson structured output, transitional Semantic Kernel bridge for chat
+│   ├── Yumney.Shared.AI/            # IChatClient registration (AddYumneyChatClient), LlmJson structured-output helpers
 │   ├── Yumney.Shared.Outcomes/      # Result / Result<T> / ApiError
 │   ├── Yumney.Shared.Paging/        # Page, PageSize, PagedResult, SortingOptions
 │   ├── Yumney.Shared.Quantities/    # IngredientCategory, Freshness, ShelfLife, QuantityRounder
@@ -48,7 +48,7 @@ yumney/
 │   ├── Yumney.Recipes.Domain/       # Value objects, aggregates, events, rules
 │   ├── Yumney.Recipes.Application/  # Commands, Queries, DTOs, Interfaces, integration-event handlers
 │   ├── Yumney.Recipes.Infrastructure/ # EF Core, web scraping, Recipes-specific persistence
-│   ├── Yumney.Recipes.Extraction/   # LLM chat/extraction adapters (IChatClient; chat still via Semantic Kernel)
+│   ├── Yumney.Recipes.Extraction/   # LLM chat/extraction adapters on IChatClient (chat tools implement IChatTool)
 │   ├── Yumney.Recipes.Api/          # ASP.NET Core host — Recipes Minimal API
 │   │
 │   ├── Yumney.Shopping.Domain/      # Event-sourced (see ADR 0001)
@@ -1079,7 +1079,7 @@ Scopes: recipes, shopping, users, account, shared, api, shell, infra, ui
 | CQRS | Manual (ICommandHandler / IQueryHandler interfaces) |
 | Event Bus | In-process (IDomainEventDispatcher + IEventBus), swappable to RabbitMQ/MassTransit |
 | Validation | FluentValidation + Ensure.That() |
-| LLM | Microsoft.Extensions.AI (`IChatClient`), Semantic Kernel (transitional) |
+| LLM | Microsoft.Extensions.AI (`IChatClient`) |
 | HTML Parsing | AngleSharp |
 | Auth | Keycloak (OIDC via .NET Aspire) |
 | API Docs | Scalar |

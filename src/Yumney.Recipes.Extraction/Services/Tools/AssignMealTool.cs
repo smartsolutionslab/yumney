@@ -1,19 +1,23 @@
 using System.ComponentModel;
 using System.Globalization;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 
 /// <summary>
-/// SK kernel function exposing meal assignment to the chat LLM. Cross-module:
+/// Chat tool exposing meal assignment to the chat LLM. Cross-module:
 /// <see cref="IMealPlanScheduler"/> is the consumer-defined contract owned by
 /// Recipes; the HTTP adapter calls MealPlan via <c>IMealPlanClient</c>.
 /// </summary>
 /// <param name="scheduler">Consumer-defined scheduler.</param>
 /// <param name="context">Per-request collector for downstream suggestion / action emission.</param>
 public sealed class AssignMealTool(IMealPlanScheduler scheduler, ChatToolContext context)
+	: IChatTool
 {
+	/// <inheritdoc/>
+	public AIFunction ToFunction() => AIFunctionFactory.Create(AssignAsync, "assign_meal");
+
 	/// <summary>Plan a recipe into a meal slot for an ISO week.</summary>
 	/// <param name="day">English weekday name (Monday..Sunday).</param>
 	/// <param name="recipeIdentifier">Recipe GUID resolved from a prior search/get.</param>
@@ -24,7 +28,6 @@ public sealed class AssignMealTool(IMealPlanScheduler scheduler, ChatToolContext
 	/// <param name="servings">Optional override for slot servings; null = use recipe default.</param>
 	/// <param name="cancellationToken">Cancellation propagated from the LLM call.</param>
 	/// <returns>Human-readable confirmation string for the LLM to weave into its reply.</returns>
-	[KernelFunction("assign_meal")]
 	[Description("Plan a recipe into a meal slot ('plan carbonara for Wednesday', 'add risotto to Friday lunch'). Pass year=0 / weekNumber=0 to mean 'this week'. Requires a recipe identifier from a previous search_recipes / get_recipe call.")]
 	public async Task<string> AssignAsync(
 		[Description("English weekday name: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, or Sunday")] string day,

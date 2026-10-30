@@ -5,7 +5,6 @@ using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.TestStubs;
-using SmartSolutionsLab.Yumney.Shared.AI;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Extraction;
 
@@ -33,28 +32,24 @@ public static class ExtractionServiceCollectionExtensions
 		services.AddScoped<IRecipeExtractionService, LlmRecipeExtractionService>();
 		services.AddScoped<IRecipeSuggestionService, LlmRecipeSuggestionService>();
 		services.AddScoped<IIngredientRecognitionService, LlmIngredientRecognitionService>();
-		services.AddScoped<IChatService, SemanticKernelChatService>();
+		services.AddScoped<IChatService, LlmChatService>();
 		services.AddScoped<IIntentParserService, LlmIntentParserService>();
 		services.AddScoped<IIngredientCategoryService, LlmIngredientCategoryService>();
 
 		services.AddScoped<ChatToolContext>();
-		services.AddScoped<SearchRecipesTool>();
-		services.AddScoped<GetRecipeTool>();
-		services.AddScoped<GetCookableRecipesTool>();
-		services.AddScoped<RateRecipeTool>();
-		services.AddScoped<GetWeeklyPlanTool>();
-		services.AddScoped<AssignMealTool>();
-		services.AddScoped<ConfirmMealTool>();
-		services.AddScoped<GetMergedShoppingListTool>();
-		services.AddScoped<CreateShoppingListTool>();
-		services.AddScoped<AddShoppingItemTool>();
-		services.AddScoped<RemoveShoppingItemTool>();
-		services.AddScoped<SwapMealSlotsTool>();
-		services.AddScoped<ClearMealSlotTool>();
-
-		// The chat service still runs on Semantic Kernel (tool calling); the
-		// other services use the IChatClient directly.
-		services.AddKernelOnChatClient();
+		services.AddScoped<IChatTool, SearchRecipesTool>();
+		services.AddScoped<IChatTool, GetRecipeTool>();
+		services.AddScoped<IChatTool, GetCookableRecipesTool>();
+		services.AddScoped<IChatTool, RateRecipeTool>();
+		services.AddScoped<IChatTool, GetWeeklyPlanTool>();
+		services.AddScoped<IChatTool, AssignMealTool>();
+		services.AddScoped<IChatTool, ConfirmMealTool>();
+		services.AddScoped<IChatTool, GetMergedShoppingListTool>();
+		services.AddScoped<IChatTool, CreateShoppingListTool>();
+		services.AddScoped<IChatTool, AddShoppingItemTool>();
+		services.AddScoped<IChatTool, RemoveShoppingItemTool>();
+		services.AddScoped<IChatTool, SwapMealSlotsTool>();
+		services.AddScoped<IChatTool, ClearMealSlotTool>();
 
 		return services;
 	}

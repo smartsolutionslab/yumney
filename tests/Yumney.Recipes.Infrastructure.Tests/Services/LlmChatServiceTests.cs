@@ -1,11 +1,9 @@
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using NSubstitute;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
+using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Application.Queries;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;
 using SmartSolutionsLab.Yumney.Recipes.Extraction.Services;
@@ -13,25 +11,20 @@ using SmartSolutionsLab.Yumney.Recipes.Extraction.Services.Tools;
 using SmartSolutionsLab.Yumney.Shared.CQRS;
 using SmartSolutionsLab.Yumney.Shared.Outcomes;
 using SmartSolutionsLab.Yumney.Shared.Paging;
+using SmartSolutionsLab.Yumney.TestBuilders.Llm;
 using Xunit;
 using DomainChat = SmartSolutionsLab.Yumney.Recipes.Domain.Chat;
 
 namespace SmartSolutionsLab.Yumney.Recipes.Infrastructure.Tests.Services;
 
 /// <summary>
-/// Phase 2a (#643) coverage gap: the SK function-calling integration. Unit
-/// tests for individual tools verify they map handler results into chat
-/// shapes; this test wires real <see cref="Kernel"/> + real tool plugin
-/// registration + a fake <see cref="IChatCompletionService"/> that emits
-/// <see cref="FunctionCallContent"/>, then asserts SK's auto-invoke loop
-/// dispatches to the right tool and the chat service derives the expected
-/// suggestions / actions from <see cref="ChatToolContext"/>.
-///
-/// Handlers are NSubstitute'd — this test is about the SK plumbing, not the
-/// handler logic (which the Application.Tests cover).
+/// Drives the real chat service with real tools under MEAI's function-invoking
+/// loop; only the model is scripted (<see cref="ToolCallingChatClient"/>) and
+/// the handlers behind the tools are substituted. Covers tool wiring, the
+/// <see cref="ChatToolContext"/> aggregation and the derived suggestions/actions.
 /// </summary>
 #pragma warning disable SA1601
-public sealed partial class SemanticKernelChatServiceFunctionCallingTests
+public sealed partial class LlmChatServiceTests
 #pragma warning restore SA1601
 {
 	private readonly IQueryHandler<GetRecipesQuery, Result<PagedResult<RecipeListItemDto>>> searchHandler =
@@ -51,9 +44,9 @@ public sealed partial class SemanticKernelChatServiceFunctionCallingTests
 		searchHandler.HandleAsync(Arg.Any<GetRecipesQuery>(), Arg.Any<CancellationToken>())
 			.Returns(SuccessRecipes(firstId, "Carbonara", secondId, "Risotto"));
 
-		var fake = new FakeChatCompletionService(
-			[BuildFunctionCall("search_recipes", "recipes_search", new() { ["query"] = "pasta" })],
-			"I found 2 recipes matching your search.");
+		var fake = new ToolCallingChatClient(
+			ToolCallingChatClient.Turn.Call("search_recipes", new() { ["query"] = "pasta" }),
+			ToolCallingChatClient.Turn.Reply("I found 2 recipes matching your search."));
 
 		var (chatService, context) = BuildChatService(fake);
 
@@ -79,9 +72,9 @@ public sealed partial class SemanticKernelChatServiceFunctionCallingTests
 		cookableHandler.HandleAsync(Arg.Any<GetCookableRecipesQuery>(), Arg.Any<CancellationToken>())
 			.Returns(SuccessCookable(id, "Stew", CookableRecipeMatchTier.Full));
 
-		var fake = new FakeChatCompletionService(
-			[BuildFunctionCall("get_cookable_recipes", "recipes_cookable", new() { ["fullMatchOnly"] = false })],
-			"You can cook Stew right now.");
+		var fake = new ToolCallingChatClient(
+			ToolCallingChatClient.Turn.Call("get_cookable_recipes", new() { ["fullMatchOnly"] = false }),
+			ToolCallingChatClient.Turn.Reply("You can cook Stew right now."));
 
 		var (chatService, context) = BuildChatService(fake);
 
@@ -102,7 +95,7 @@ public sealed partial class SemanticKernelChatServiceFunctionCallingTests
 	[Fact]
 	public async Task ChatAsync_LlmReturnsTextOnly_NoTools_NoActionsOrSuggestions()
 	{
-		var fake = new FakeChatCompletionService([], "Bring water to a simmer, then crack the egg in.");
+		var fake = new ToolCallingChatClient(ToolCallingChatClient.Turn.Reply("Bring water to a simmer, then crack the egg in."));
 
 		var (chatService, context) = BuildChatService(fake);
 
@@ -126,9 +119,9 @@ public sealed partial class SemanticKernelChatServiceFunctionCallingTests
 		getHandler.HandleAsync(Arg.Any<GetRecipeByIdQuery>(), Arg.Any<CancellationToken>())
 			.Returns(SuccessRecipeDetail(id, "Detailed Carbonara"));
 
-		var fake = new FakeChatCompletionService(
-			[BuildFunctionCall("get_recipe", "recipes_detail", new() { ["recipeIdentifier"] = id.ToString() })],
-			"Here's the recipe.");
+		var fake = new ToolCallingChatClient(
+			ToolCallingChatClient.Turn.Call("get_recipe", new() { ["recipeIdentifier"] = id.ToString() }),
+			ToolCallingChatClient.Turn.Reply("Here's the recipe."));
 
 		var (chatService, context) = BuildChatService(fake);
 
@@ -155,12 +148,11 @@ public sealed partial class SemanticKernelChatServiceFunctionCallingTests
 		getHandler.HandleAsync(Arg.Any<GetRecipeByIdQuery>(), Arg.Any<CancellationToken>())
 			.Returns(SuccessRecipeDetail(secondId, "Risotto"));
 
-		var fake = new FakeChatCompletionService(
-			[
-				BuildFunctionCall("search_recipes", "recipes_search", new() { ["query"] = "pasta" }),
-				BuildFunctionCall("get_recipe", "recipes_detail", new() { ["recipeIdentifier"] = secondId.ToString() }),
-			],
-			"Here are some options.");
+		var fake = new ToolCallingChatClient(
+			ToolCallingChatClient.Turn.CallAll(
+				("search_recipes", new() { ["query"] = "pasta" }),
+				("get_recipe", new() { ["recipeIdentifier"] = secondId.ToString() })),
+			ToolCallingChatClient.Turn.Reply("Here are some options."));
 
 		var (chatService, context) = BuildChatService(fake);
 
@@ -176,62 +168,27 @@ public sealed partial class SemanticKernelChatServiceFunctionCallingTests
 
 	private static OwnerIdentifier Owner() => OwnerIdentifier.From("test-user");
 
-	private static FunctionCallContent BuildFunctionCall(string functionName, string pluginName, KernelArguments arguments)
-	{
-		var callId = Guid.NewGuid().ToString();
-		return new FunctionCallContent(functionName, pluginName, callId, arguments);
-	}
-
-	private (SemanticKernelChatService Service, ChatToolContext Context) BuildChatService(IChatCompletionService chatCompletion)
+	private (LlmChatService Service, ChatToolContext Context) BuildChatService(ToolCallingChatClient fake)
 	{
 		var context = new ChatToolContext();
-		var searchTool = new SearchRecipesTool(searchHandler, context);
-		var getTool = new GetRecipeTool(getHandler, context);
-		var cookableTool = new GetCookableRecipesTool(cookableHandler, context);
-		var rateTool = new RateRecipeTool(Substitute.For<ICommandHandler<RateRecipeCommand, Result>>());
-		var weeklyPlanTool = new GetWeeklyPlanTool(
-			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IWeeklyPlanLookup>(),
-			context);
-		var assignMealTool = new AssignMealTool(
-			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IMealPlanScheduler>(),
-			context);
-		var confirmMealTool = new ConfirmMealTool(
-			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IMealConfirmation>());
-		var mergedShoppingListTool = new GetMergedShoppingListTool(
-			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListLookup>());
-		var createShoppingListTool = new CreateShoppingListTool(
-			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListCreator>());
-		var addShoppingItemTool = new AddShoppingItemTool(
-			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListItemAdder>());
-		var removeShoppingItemTool = new RemoveShoppingItemTool(
-			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IShoppingListItemRemover>());
-		var swapMealSlotsTool = new SwapMealSlotsTool(
-			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IMealSlotSwapper>());
-		var clearMealSlotTool = new ClearMealSlotTool(
-			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IMealSlotClearer>());
-
-		var kernelBuilder = Kernel.CreateBuilder();
-		kernelBuilder.Services.AddSingleton(chatCompletion);
-		var kernel = kernelBuilder.Build();
-
-		var service = new SemanticKernelChatService(
-			kernel,
-			searchTool,
-			getTool,
-			cookableTool,
-			rateTool,
-			weeklyPlanTool,
-			assignMealTool,
-			confirmMealTool,
-			mergedShoppingListTool,
-			createShoppingListTool,
-			addShoppingItemTool,
-			removeShoppingItemTool,
-			swapMealSlotsTool,
-			clearMealSlotTool,
-			context,
-			NullLogger<SemanticKernelChatService>.Instance);
-
+		var service = new LlmChatService(fake, BuildTools(context), context, NullLogger<LlmChatService>.Instance);
 		return (service, context);
 	}
+
+	private List<IChatTool> BuildTools(ChatToolContext context) =>
+	[
+		new SearchRecipesTool(searchHandler, context),
+		new GetRecipeTool(getHandler, context),
+		new GetCookableRecipesTool(cookableHandler, context),
+		new RateRecipeTool(Substitute.For<ICommandHandler<RateRecipeCommand, Result>>()),
+		new GetWeeklyPlanTool(Substitute.For<IWeeklyPlanLookup>(), context),
+		new AssignMealTool(Substitute.For<IMealPlanScheduler>(), context),
+		new ConfirmMealTool(Substitute.For<IMealConfirmation>()),
+		new GetMergedShoppingListTool(Substitute.For<IShoppingListLookup>()),
+		new CreateShoppingListTool(Substitute.For<IShoppingListCreator>()),
+		new AddShoppingItemTool(Substitute.For<IShoppingListItemAdder>()),
+		new RemoveShoppingItemTool(Substitute.For<IShoppingListItemRemover>()),
+		new SwapMealSlotsTool(Substitute.For<IMealSlotSwapper>()),
+		new ClearMealSlotTool(Substitute.For<IMealSlotClearer>()),
+	];
 }

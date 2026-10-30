@@ -26,8 +26,8 @@ public class ExternalDependencyIsolationTests
 
 		result.IsSuccessful.Should().BeTrue(
 			$"{assemblyName} must route LLM calls through abstractions in Application; " +
-			"Semantic Kernel and Microsoft.Extensions.AI live in the per-module *.Extraction " +
-			"projects and Yumney.Shared.AI only.");
+			"Microsoft.Extensions.AI lives in the per-module *.Extraction projects and " +
+			"Yumney.Shared.AI only (Semantic Kernel was removed and must not come back here).");
 	}
 
 	[Theory]
