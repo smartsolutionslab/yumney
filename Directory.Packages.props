@@ -12,6 +12,7 @@
     <PackageVersion Include="Aspire.Hosting.Browsers" Version="13.6.4-preview.1.26523.11" />
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.6.4-preview.1.26523.11" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.6.1" />
+    <PackageVersion Include="Aspire.Hosting.OpenAI" Version="13.6.4" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.6.4" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.6.4" />
     <PackageVersion Include="Aspire.Hosting.Azure.Redis" Version="13.6.4" />
@@ -45,7 +46,14 @@
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.14" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <!-- LLM & Scraping -->
-    <PackageVersion Include="Microsoft.SemanticKernel" Version="1.81.0" />
+    <!-- Chat clients are Microsoft.Extensions.AI IChatClients wired through the
+         Aspire client integrations (Yumney.Shared.AI). Aspire.OpenAI has no GA on
+         NuGet — same matched 13.6.4 preview revision as the Keycloak packages.
+         Semantic Kernel (Core only, no provider connectors) still hosts the
+         existing services on top of IChatClient until they move to MEAI. -->
+    <PackageVersion Include="Aspire.OpenAI" Version="13.6.4-preview.1.26523.11" />
+    <PackageVersion Include="CommunityToolkit.Aspire.OllamaSharp" Version="13.6.1" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Core" Version="1.81.0" />
     <PackageVersion Include="AngleSharp" Version="1.8.6" />
     <!-- Model Context Protocol (used by Yumney.Mcp.Server to expose capabilities to external LLM clients per ADR 0002) -->
     <!-- Pinned on 1.4.1 (latest 1.x): Aspire.Hosting.Testing 13.6.4 requires >= 1.4.1.

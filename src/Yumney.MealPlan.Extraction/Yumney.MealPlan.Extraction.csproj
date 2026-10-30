@@ -6,10 +6,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Yumney.MealPlan.Application\Yumney.MealPlan.Application.csproj" />
+    <ProjectReference Include="..\Yumney.Shared.AI\Yumney.Shared.AI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SemanticKernel" />
+    <PackageReference Include="Microsoft.SemanticKernel.Core" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
   </ItemGroup>
 

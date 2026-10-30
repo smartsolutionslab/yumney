@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel;
-using SmartSolutionsLab.Yumney.Shared.Common;
+using SmartSolutionsLab.Yumney.Shared.AI;
 using SmartSolutionsLab.Yumney.Shopping.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Shopping.Extraction.Services;
 
@@ -19,32 +18,7 @@ public static class ShoppingExtractionServiceCollectionExtensions
 
 		services.AddScoped<IShoppingItemCategorizer, SemanticKernelShoppingItemCategorizer>();
 
-		var skOptions = configuration.GetSection(SemanticKernelOptions.SectionName).Get<SemanticKernelOptions>()
-			?? new SemanticKernelOptions();
-		var (provider, modelId, endpoint, apiKey) = skOptions;
-
-		var kernelBuilder = services.AddKernel();
-		switch (provider)
-		{
-			case SemanticKernelOptions.ProviderAzureOpenAI:
-				kernelBuilder.AddAzureOpenAIChatCompletion(modelId, endpoint, apiKey);
-				break;
-			case SemanticKernelOptions.ProviderOllama:
-				var ollama = endpoint.HasValue() ? endpoint : configuration.GetConnectionString("ollama");
-				if (ollama is not null)
-				{
-					kernelBuilder.AddOpenAIChatCompletion(modelId, new Uri(ollama), apiKey: null);
-				}
-
-				break;
-			default:
-				if (apiKey.HasValue())
-				{
-					kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
-				}
-
-				break;
-		}
+		services.AddKernelOnChatClient();
 
 		return services;
 	}
