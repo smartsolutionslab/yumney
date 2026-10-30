@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
 using SmartSolutionsLab.Yumney.Integration.Tests.Fixtures;
 using SmartSolutionsLab.Yumney.MealPlan.Client;
@@ -103,13 +104,12 @@ public class CrossModuleClientContractTests(AspireFixture fixture)
 			Recipes: [new CreateListRecipeBody(Guid.NewGuid(), Servings: null)]);
 
 		var response = await client.PostAsJsonAsync("/api/v1/shopping-lists/from-recipes", body);
+		var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
 
-		// Same logic as MealPlan write tests — UnprocessableEntity / BadRequest
-		// is fine (recipe doesn't exist), but route-not-found / wrong-shape
-		// failures would prove the contract is broken.
-		response.StatusCode.Should().NotBe(HttpStatusCode.NotFound);
-		response.StatusCode.Should().NotBe(HttpStatusCode.MethodNotAllowed);
-		response.StatusCode.Should().NotBe(HttpStatusCode.UnsupportedMediaType);
+		// The recipe doesn't exist, so the handler answers with its own 404 problem.
+		// Its error code proves the route matched, the body bound, and the handler
+		// ran — a missing route or rejected body has no such code.
+		problem.GetProperty("code").GetString().Should().Be("SHOPPING_LIST_FROM_RECIPES_NO_INGREDIENTS");
 	}
 
 	[Fact]
