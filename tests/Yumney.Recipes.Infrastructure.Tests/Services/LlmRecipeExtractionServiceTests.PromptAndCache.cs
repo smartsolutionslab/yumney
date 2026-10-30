@@ -110,7 +110,7 @@ public partial class LlmRecipeExtractionServiceTests
 	public async Task ExtractAsync_SameContentTwice_UsesCacheAndCallsLlmOnce()
 	{
 		var fake = new ScriptedChatClient(validRecipeJson);
-		var cache = new InMemoryExtractionResultCache();
+		var cache = DistributedExtractionResultCacheTests.CreateCache();
 		var service = new LlmRecipeExtractionService(fake, cache, logger);
 		var content = new ScrapedContent("same cleaned text", RecipeUrl.From("https://example.com/r"));
 

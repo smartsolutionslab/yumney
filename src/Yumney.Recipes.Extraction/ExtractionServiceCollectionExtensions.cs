@@ -12,7 +12,7 @@ public static class ExtractionServiceCollectionExtensions
 {
 	public static IServiceCollection AddRecipeExtraction(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.TryAddSingleton<IExtractionResultCache, InMemoryExtractionResultCache>();
+		services.TryAddSingleton<IExtractionResultCache, DistributedExtractionResultCache>();
 
 		if (configuration.GetValue<bool>("E2ETests"))
 		{

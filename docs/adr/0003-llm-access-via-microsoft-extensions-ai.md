@@ -40,4 +40,4 @@ Microsoft Agent Framework (also built on `IChatClient`) was considered and defer
 
 - `Aspire.OpenAI` has no GA release; it is pinned to the same 13.6.4 preview revision as the Keycloak packages.
 - Prompts still describe the JSON shape in prose; field-level guidance (e.g. allowed `difficulty` values) is not yet expressed as schema descriptions.
-- Per-task model selection (cheap model for categorization, vision model for photos) and distributed caching of extraction results are not in place yet.
+- Per-task model selection (cheap model for categorization, vision model for photos) is not in place yet.

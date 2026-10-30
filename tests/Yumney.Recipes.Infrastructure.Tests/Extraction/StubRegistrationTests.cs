@@ -47,11 +47,13 @@ public class StubRegistrationTests
 
 	// Goes through the module like the host does: it registers the chat client
 	// (or the no-LLM stand-in) before the extraction services that need it.
+	// The host's shared defaults provide IDistributedCache (Redis); memory here.
 	private static IServiceCollection BuildServiceCollection(bool e2eTests)
 	{
 		var builder = Host.CreateEmptyApplicationBuilder(new HostApplicationBuilderSettings());
 		builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["E2ETests"] = e2eTests ? "true" : "false" });
 		builder.Services.AddLogging();
+		builder.Services.AddDistributedMemoryCache();
 
 		new RecipesExtractionModule().RegisterServices(builder);
 		return builder.Services;
