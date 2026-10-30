@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Yumney.Shared\Yumney.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.OpenAI" />
+    <PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" />
+    <PackageReference Include="Microsoft.SemanticKernel.Core" />
+  </ItemGroup>
+
+</Project>

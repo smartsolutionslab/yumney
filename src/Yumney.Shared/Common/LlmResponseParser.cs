@@ -1,11 +1,9 @@
-namespace SmartSolutionsLab.Yumney.Recipes.Application.Common;
+namespace SmartSolutionsLab.Yumney.Shared.Common;
 
 /// <summary>
-/// Strips markdown code fences from LLM responses. Lives in the
-/// Application layer because it is pure text manipulation: the logic
-/// is independent of which LLM SDK produced the string, so both the
-/// API (for streaming SSE) and Infrastructure extraction services
-/// share this single implementation.
+/// Strips markdown code fences from LLM responses. Pure text manipulation,
+/// independent of the LLM SDK, so the streaming SSE endpoint and every
+/// module's extraction services share this single implementation.
 /// </summary>
 public static class LlmResponseParser
 {

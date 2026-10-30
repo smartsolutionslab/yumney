@@ -2,7 +2,6 @@ using System.Text;
 using System.Text.Json;
 using FluentValidation;
 using SmartSolutionsLab.Yumney.Recipes.Application.Commands;
-using SmartSolutionsLab.Yumney.Recipes.Application.Common;
 using SmartSolutionsLab.Yumney.Recipes.Application.DTOs;
 using SmartSolutionsLab.Yumney.Recipes.Application.Interfaces;
 using SmartSolutionsLab.Yumney.Recipes.Domain.Recipe;

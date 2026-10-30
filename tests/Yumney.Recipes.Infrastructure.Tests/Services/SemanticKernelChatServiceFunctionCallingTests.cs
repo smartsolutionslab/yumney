@@ -182,7 +182,7 @@ public sealed partial class SemanticKernelChatServiceFunctionCallingTests
 		return new FunctionCallContent(functionName, pluginName, callId, arguments);
 	}
 
-	private (SemanticKernelChatService Service, ChatToolContext Context) BuildChatService(FakeChatCompletionService fake)
+	private (SemanticKernelChatService Service, ChatToolContext Context) BuildChatService(IChatCompletionService chatCompletion)
 	{
 		var context = new ChatToolContext();
 		var searchTool = new SearchRecipesTool(searchHandler, context);
@@ -211,7 +211,7 @@ public sealed partial class SemanticKernelChatServiceFunctionCallingTests
 			Substitute.For<SmartSolutionsLab.Yumney.Recipes.Application.Interfaces.IMealSlotClearer>());
 
 		var kernelBuilder = Kernel.CreateBuilder();
-		kernelBuilder.Services.AddSingleton<IChatCompletionService>(fake);
+		kernelBuilder.Services.AddSingleton(chatCompletion);
 		var kernel = kernelBuilder.Build();
 
 		var service = new SemanticKernelChatService(
