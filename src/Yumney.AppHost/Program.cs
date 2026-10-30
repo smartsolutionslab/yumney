@@ -89,7 +89,8 @@ var messaging = builder
 	.WithManagementPlugin();
 
 // Aspire.Hosting.Keycloak 13.6 moved its default image to 26.6, which exits
-// during startup with our realm import. Stay on 26.5 until that is resolved.
+// during startup (cause not yet diagnosed). Stay on 26.5 until that is
+// resolved — see issue #829.
 var keycloak = builder
 	.AddKeycloak("keycloak", port: 8080, adminPassword: keycloakPassword)
 	.WithImageTag("26.5");
